@@ -98,7 +98,9 @@ amber_relaxer = relax.AmberRelaxation(
 )
 
 # Relax the prediction.
+t = time.time()
 relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
+print(f"Relaxation time: {time.time() - t}")
 
 # Save the relaxed PDB.
 output_dir = '.'
