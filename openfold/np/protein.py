@@ -17,7 +17,7 @@
 import dataclasses
 import io
 from typing import Any, Mapping, Optional
-from alphafold.np import residue_constants
+from openfold.np import residue_constants
 from Bio.PDB import PDBParser
 import numpy as np
 

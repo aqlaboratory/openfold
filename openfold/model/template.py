@@ -18,22 +18,22 @@ import math
 import torch
 import torch.nn as nn
 
-from alphafold.model.primitives import Linear, Attention
-from alphafold.utils.deepspeed import checkpoint_blocks
-from alphafold.model.dropout import  (
+from openfold.model.primitives import Linear, Attention
+from openfold.utils.deepspeed import checkpoint_blocks
+from openfold.model.dropout import  (
     DropoutRowwise,
     DropoutColumnwise,
 )
-from alphafold.model.pair_transition import PairTransition
-from alphafold.model.triangular_attention import (
+from openfold.model.pair_transition import PairTransition
+from openfold.model.triangular_attention import (
     TriangleAttentionStartingNode,
     TriangleAttentionEndingNode,
 )
-from alphafold.model.triangular_multiplicative_update import (
+from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
 )
-from alphafold.utils.tensor_utils import (
+from openfold.utils.tensor_utils import (
     chunk_layer,
     permute_final_dims, 
     flatten_final_dims,

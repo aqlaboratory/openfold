@@ -199,12 +199,12 @@ config = mlc.ConfigDict({
                 "clamp_distance": 10.,
                 "loss_unit_distance": 10.,
                 "weight": 0.5,
-            }
+            },
             "sidechain": {
                 "clamp_distance": 10.,
                 "length_scale": 10.,
                 "weight": 0.5,
-            }
+            },
             "weight": 1.0,
         },
         "lddt": {

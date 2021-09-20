@@ -17,8 +17,8 @@ from functools import partial
 import torch
 import torch.nn as nn
 
-from alphafold.model.primitives import Linear
-from alphafold.utils.tensor_utils import chunk_layer
+from openfold.model.primitives import Linear
+from openfold.utils.tensor_utils import chunk_layer
 
 
 class OuterProductMean(nn.Module):

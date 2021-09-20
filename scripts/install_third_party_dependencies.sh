@@ -23,11 +23,11 @@ pushd lib/conda/lib/python3.9/site-packages/ \
     && popd
 
 # Download folding resources
-wget -q -P alphafold/resources \
+wget -q -P openfold/resources \
     https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 
-# Download pretrained Alphafold weights
-scripts/download_alphafold_params.sh alphafold/resources
+# Download pretrained openfold weights
+scripts/download_alphafold_params.sh openfold/resources
 
 # Decompress test data
 gunzip tests/test_data/sample_feats.pickle.gz

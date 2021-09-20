@@ -18,8 +18,8 @@ import math
 import torch
 import torch.nn as nn
 
-from alphafold.model.primitives import Linear, Attention
-from alphafold.utils.tensor_utils import (
+from openfold.model.primitives import Linear, Attention
+from openfold.utils.tensor_utils import (
     chunk_layer, 
     permute_final_dims, 
     flatten_final_dims,

@@ -16,7 +16,7 @@
 import torch
 import torch.nn as nn
 
-from alphafold.utils.feats import (
+from openfold.utils.feats import (
     pseudo_beta_fn,
     atom37_to_torsion_angles,
     build_extra_msa_feat,
@@ -24,26 +24,26 @@ from alphafold.utils.feats import (
     build_template_pair_feat,
     atom14_to_atom37,
 )
-from alphafold.model.embedders import (
+from openfold.model.embedders import (
     InputEmbedder, 
     RecyclingEmbedder,
     TemplateAngleEmbedder,
     TemplatePairEmbedder,
     ExtraMSAEmbedder,
 )
-from alphafold.model.evoformer import EvoformerStack, ExtraMSAStack
-from alphafold.model.heads import AuxiliaryHeads
-import alphafold.np.residue_constants as residue_constants
-from alphafold.model.structure_module import StructureModule
-from alphafold.model.template import (
+from openfold.model.evoformer import EvoformerStack, ExtraMSAStack
+from openfold.model.heads import AuxiliaryHeads
+import openfold.np.residue_constants as residue_constants
+from openfold.model.structure_module import StructureModule
+from openfold.model.template import (
     TemplatePairStack, 
     TemplatePointwiseAttention,
 )
-from alphafold.utils.loss import (
+from openfold.utils.loss import (
     compute_plddt,
 )
 
-from alphafold.utils.tensor_utils import (
+from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
         

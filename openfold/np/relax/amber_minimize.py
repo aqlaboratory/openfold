@@ -20,11 +20,11 @@ import time
 from typing import Collection, Optional, Sequence
 
 from absl import logging
-from alphafold.np import (
+from openfold.np import (
     protein,
     residue_constants,
 )
-from alphafold.utils.loss import (
+from openfold.utils.loss import (
     find_structural_violations_np, 
     compute_violation_metrics_np,
 )
@@ -32,7 +32,7 @@ from alphafold.utils.loss import (
 find_structural_violations = find_structural_violations_np
 compute_violation_metrics = compute_violation_metrics_np
 
-from alphafold.np.relax import cleanup, utils
+from openfold.np.relax import cleanup, utils
 import ml_collections
 import numpy as np
 from simtk import openmm

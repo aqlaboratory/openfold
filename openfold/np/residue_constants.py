@@ -405,7 +405,7 @@ def load_stereo_chemical_props() -> Tuple[Mapping[str, List[Bond]],
   """
   # TODO: this file should be downloaded in a setup script
   stereo_chemical_props_path = (
-      'alphafold/resources/stereo_chemical_props.txt')
+      'openfold/resources/stereo_chemical_props.txt')
   with open(stereo_chemical_props_path, 'rt') as f:
     stereo_chemical_props = f.read()
   lines_iter = iter(stereo_chemical_props.splitlines())

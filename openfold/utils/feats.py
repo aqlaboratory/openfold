@@ -18,9 +18,9 @@ import torch
 import torch.nn as nn
 from typing import Dict
 
-import alphafold.np.residue_constants as residue_constants
-from alphafold.utils.affine_utils import T
-from alphafold.utils.tensor_utils import (
+import openfold.np.residue_constants as residue_constants
+from openfold.utils.affine_utils import T
+from openfold.utils.tensor_utils import (
     batched_gather, 
     one_hot,
 )

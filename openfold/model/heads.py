@@ -16,8 +16,8 @@
 import torch
 import torch.nn as nn
 
-from alphafold.model.primitives import Linear
-from alphafold.utils.loss import compute_plddt
+from openfold.model.primitives import Linear
+from openfold.utils.loss import compute_plddt
 
 
 class AuxiliaryHeads(nn.Module):

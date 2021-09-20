@@ -17,8 +17,8 @@ import torch
 import torch.nn as nn
 from typing import Tuple
 
-from alphafold.model.primitives import Linear
-from alphafold.utils.tensor_utils import one_hot
+from openfold.model.primitives import Linear
+from openfold.utils.tensor_utils import one_hot
 
 
 class InputEmbedder(nn.Module):

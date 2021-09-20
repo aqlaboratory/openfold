@@ -20,10 +20,10 @@ import torch
 import torch.nn as nn
 from typing import Dict, Optional
 
-from alphafold.np import residue_constants
-from alphafold.model.primitives import Linear
-from alphafold.utils.affine_utils import T
-from alphafold.utils.tensor_utils import (
+from openfold.np import residue_constants
+from openfold.model.primitives import Linear
+from openfold.utils.affine_utils import T
+from openfold.utils.tensor_utils import (
     tree_map, 
     tensor_tree_map, 
     masked_mean,
@@ -992,7 +992,7 @@ def find_structural_violations_np(
     batch = tree_map(to_tensor, batch, np.ndarray)
     atom14_pred_positions = to_tensor(atom14_pred_positions)
 
-    out = find_structural_violations(batch, atom14_pred_positions, config)
+    out = find_structural_violations(batch, atom14_pred_positions, **config)
 
     to_np = lambda x: np.array(x)
     np_out = tensor_tree_map(to_np, out)
@@ -1246,7 +1246,7 @@ def experimentally_resolved_loss(
 def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8):
     errors = softmax_cross_entropy(
         logits,
-        torch.nn.functional.one_hot(true_msa, num_classes=23,
+        torch.nn.functional.one_hot(true_msa, num_classes=23)
     )
     loss = (
         torch.sum(errors * bert_mask, dim=(-1, -2)) /
@@ -1280,14 +1280,14 @@ class AlphaFoldLoss(nn.Module):
         loss_fns = {
             "distogram": 
                 lambda: distogram_loss(
-                    logits=out["distogram_logits"],
-                    {**batch,
+                    out["distogram_logits"],
+                    **{**batch,
                      **self.config.distogram},
                 ),
             "experimentally_resolved": 
                 lambda: experimentally_resolved_loss(
-                    logits=out["experimentally_resolved"],
-                    {**batch,
+                    out["experimentally_resolved"],
+                    **{**batch,
                      **self.config.experimentally_resolved},
                 ),
             "fape":
@@ -1298,22 +1298,22 @@ class AlphaFoldLoss(nn.Module):
                 ),
             "lddt": 
                 lambda: lddt_loss(
-                    logits=out["lddt_logits"],
+                    out["lddt_logits"],
                     all_atom_pred_pos=out["final_atom_positions"]
-                    {**batch,
+                    **{**batch,
                      **self.config.lddt},
                 ),
             "masked_msa": 
                 lambda: masked_msa_loss(
-                    logits=out["masked_msa_logits"],
-                    {**batch,
+                    out["masked_msa_logits"],
+                    **{**batch,
                      **self.config.masked_msa},
                 ),
             "supervised_chi":
                 lambda: supervised_chi_loss(
                     out["sm"]["angles"],
                     out["sm"]["unnormalized_angles"],
-                    {**batch,
+                    **{**batch,
                      **self.config.supervised_chi},
                 ),
             "violation":

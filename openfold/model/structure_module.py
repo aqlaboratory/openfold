@@ -18,15 +18,15 @@ import torch
 import torch.nn as nn
 from typing import Optional
 
-from alphafold.model.primitives import Linear, ipa_point_weights_init_
-from alphafold.np.residue_constants import (
+from openfold.model.primitives import Linear, ipa_point_weights_init_
+from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
-from alphafold.utils.affine_utils import T, quat_to_rot 
-from alphafold.utils.tensor_utils import (
+from openfold.utils.affine_utils import T, quat_to_rot 
+from openfold.utils.tensor_utils import (
     stack_tensor_dicts, 
     permute_final_dims, 
     flatten_final_dims,
@@ -739,7 +739,7 @@ class StructureModule(nn.Module):
             preds = {
                 "frames": 
                     t.scale_translation(self.trans_scale_factor).to_4x4(),
-                "sidechain_frames": all_frames_to_global,
+                "sidechain_frames": all_frames_to_global.to_4x4(),
                 "unnormalized_angles": unnormalized_a,
                 "angles": a,
                 "positions": pred_xyz,

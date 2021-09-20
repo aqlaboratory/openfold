@@ -25,14 +25,14 @@ import torch.nn as nn
 import numpy as np
 
 from config import model_config
-from alphafold.model.model import AlphaFold
-import alphafold.np.protein as protein
-import alphafold.np.relax.relax as relax
-from alphafold.np import residue_constants
-from alphafold.utils.import_weights import (
+from openfold.model.model import AlphaFold
+import openfold.np.protein as protein
+import openfold.np.relax.relax as relax
+from openfold.np import residue_constants
+from openfold.utils.import_weights import (
     import_jax_weights_,
 )
-from alphafold.utils.tensor_utils import (
+from openfold.utils.tensor_utils import (
     tree_map,
     tensor_tree_map,
 )
@@ -40,7 +40,7 @@ from alphafold.utils.tensor_utils import (
 
 MODEL_NAME = "model_1"
 MODEL_DEVICE = "cuda:1"
-PARAM_PATH = "alphafold/resources/params/params_model_1.npz"
+PARAM_PATH = "openfold/resources/params/params_model_1.npz"
 FEAT_PATH = "tests/test_data/sample_feats.pickle"
 
 

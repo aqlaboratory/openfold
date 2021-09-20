@@ -5,7 +5,7 @@ A faithful PyTorch reproduction of DeepMind's
 
 ## Installation
 
-1. Install Python 3.9 and install dependencies.
+1. Having installed Python 3.9, install dependencies.
 
 ```bash
 pip3 install -r requirements.txt

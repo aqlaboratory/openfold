@@ -21,7 +21,7 @@ import torch
 import torch.nn as nn
 from scipy.stats import truncnorm
 
-from alphafold.utils.tensor_utils import (
+from openfold.utils.tensor_utils import (
     permute_final_dims, 
     flatten_final_dims,
 )
