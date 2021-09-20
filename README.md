@@ -1,1 +1,1 @@
-# openfoldx
+# openfold
