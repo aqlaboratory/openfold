@@ -205,7 +205,7 @@ class TestAngleResnet(unittest.TestCase):
         a = torch.rand((batch_size, n, c_s))
         a_initial = torch.rand((batch_size, n, c_s))
 
-        a = ar(a, a_initial)
+        _, a = ar(a, a_initial)
 
         self.assertTrue(a.shape == (batch_size, n, no_angles, 2))
 

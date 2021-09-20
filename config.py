@@ -180,4 +180,54 @@ config = mlc.ConfigDict({
         "max_outer_iterations": 20,
         "exclude_residues": [],
     },
+    "loss": {
+        "distogram": {
+            "min_bin": 2.3125, 
+            "max_bin": 21.6875, 
+            "no_bins": 64, 
+            "eps": 1e-6,
+            "weight": 0.3, 
+        },
+        "experimentally_resolved": {
+            "eps": 1e-8,
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "weight": 0.,
+        },
+        "fape": {
+            "backbone": { 
+                "clamp_distance": 10.,
+                "loss_unit_distance": 10.,
+                "weight": 0.5,
+            }
+            "sidechain": {
+                "clamp_distance": 10.,
+                "length_scale": 10.,
+                "weight": 0.5,
+            }
+            "weight": 1.0,
+        },
+        "lddt": {
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "cutoff": 15.,
+            "num_bins": 50,
+            "eps": 1e-10,
+            "weight": 0.01,
+        },
+        "masked_msa": {
+            "eps": 1e-8,
+            "weight": 2.0,
+        },
+        "supervised_chi": {
+            "chi_weight": 0.5,
+            "angle_norm_weight": 0.01,
+            "eps": 1e-6,
+            "weight": 1.0,
+        },
+        "violation": {
+            "eps": 1e-6,
+            "weight": 0.,
+        },
+    },
 })

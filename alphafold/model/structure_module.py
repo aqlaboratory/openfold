@@ -129,6 +129,8 @@ class AngleResnet(nn.Module):
         # [*, no_angles * 2]
         s = self.linear_out(s)
 
+        unnormalized_s = s
+
         # [*, no_angles, 2]
         s = s.view(*s.shape[:-1], -1, 2)
         norm_denom = torch.sqrt(
@@ -139,7 +141,7 @@ class AngleResnet(nn.Module):
         )
         s = s / norm_denom
 
-        return s
+        return unnormalized_s, s
 
 
 class InvariantPointAttention(nn.Module):
@@ -723,7 +725,7 @@ class StructureModule(nn.Module):
             t = t.compose(self.bb_update(s))
 
             # [*, N, 7, 2]
-            a = self.angle_resnet(s, s_initial)
+            unnormalized_a, a = self.angle_resnet(s, s_initial)
 
             all_frames_to_global = self.torsion_angles_to_frames(
                 t.scale_translation(self.trans_scale_factor), a, f,
@@ -735,8 +737,10 @@ class StructureModule(nn.Module):
             )
 
             preds = {
-                "transformations": 
+                "frames": 
                     t.scale_translation(self.trans_scale_factor).to_4x4(),
+                "sidechain_frames": all_frames_to_global,
+                "unnormalized_angles": unnormalized_a,
                 "angles": a,
                 "positions": pred_xyz,
             }
