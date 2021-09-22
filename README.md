@@ -5,21 +5,18 @@ A faithful PyTorch reproduction of DeepMind's
 
 ## Installation
 
-1. Having installed Python 3.9, install dependencies.
+Python dependencies available through `pip` are provided in `requirements.txt`. 
+OpenFold also depends on `openmm==7.5.1` and `pdbfixer`, which are only
+available via `conda`. 
 
-```bash
-pip3 install -r requirements.txt
-```
-
-2. Install third-party dependencies with:
+For convenience, we provide a script that installs Miniconda locally, creates a 
+`conda` virtual environment, and installs all Python dependencies. Run:
 
 ```bash
 scripts/install_third_party_dependencies.sh
 ```
 
-This script installs Miniconda locally and creates a conda virtual environment
-with all of the packages required to run Openfold. To activate the environment,
-run:
+To activate the environment, run:
 
 ```bash
 scripts/activate_conda_venv.sh
@@ -33,9 +30,11 @@ scripts/deactivate_conda_venv.sh
 
 ## Features
 
-OpenFold fully reproduces AlphaFold's inference and data processing pipelines, 
-but is written entirely in PyTorch rather than JAX/TensorFlow. It is capable of 
-importing AlphaFold's original pretrained weights.
+OpenFold reproduces AlphaFold's inference and data processing pipelines. With 
+the exception of model ensembling, which fared poorly in DeepMind's ablation 
+testing and is therefore omitted here, OpenFold supports all features of the 
+original required for inference. It is even capable of importing AlphaFold's 
+original pretrained weights. 
 
 Future versions will support multi-GPU training with 
 [DeepSpeed](https://github.com/microsoft/DeepSpeed).
