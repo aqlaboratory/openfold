@@ -32,7 +32,7 @@ from openfold.utils.tensor_utils import (
 
 def softmax_cross_entropy(logits, labels):
     loss = -1 * torch.sum(
-        labels * torch.nn.functional.log_softmax(logits),
+        labels * torch.nn.functional.log_softmax(logits, dim=-1),
         dim=-1,
     )
     return loss
@@ -219,18 +219,19 @@ def supervised_chi_loss(
     chi_weight: float,
     angle_norm_weight: float,
     eps=1e-6,
+    **kwargs,
 ) -> torch.Tensor:
     pred_angles = angles_sin_cos[..., 3:, :]
     residue_type_one_hot = torch.nn.functional.one_hot(
         aatype, residue_constants.restype_num + 1,
-    ).unsqueeze(-3)
+    )
     chi_pi_periodic = torch.einsum(
         "...ij,jk->ik", 
-        residue_type_one_hot, 
-        aatype.new_tensor(residue_constants.chi_pi_periodic)
+        residue_type_one_hot.type(angles_sin_cos.dtype),
+        angles_sin_cos.new_tensor(residue_constants.chi_pi_periodic),
     )
 
-    true_chi = chi_angles.unsqueeze(-3)
+    true_chi = chi_angles
     sin_true_chi = torch.sin(true_chi)
     cos_true_chi = torch.cos(true_chi)
     sin_cos_true_chi = torch.stack([sin_true_chi, cos_true_chi], dim=-1)
@@ -247,9 +248,9 @@ def supervised_chi_loss(
     sq_chi_error = torch.minimum(sq_chi_error, sq_chi_error_shifted)
 
     sq_chi_loss = masked_mean(
-        sq_chi_error, chi_mask.unsqueeze(-3), dim=(-1, -2, -3)
+        chi_mask, sq_chi_error, dim=(-1, -2)
     )
-    
+
     loss = 0
     loss += chi_weight * sq_chi_loss
 
@@ -258,7 +259,7 @@ def supervised_chi_loss(
     )
     norm_error = torch.abs(angle_norm - 1.)
     angle_norm_loss = masked_mean(
-        norm_error, sequence_mask[..., None, :, None], dim=(-1, -2, -3)
+        seq_mask[..., None], norm_error, dim=(-1, -2)
     )
 
     loss += angle_norm_weight * angle_norm_loss
@@ -390,11 +391,11 @@ def distogram_loss(
         keepdims=True
     )
 
-    true_bins = torch.sum(dists > sq_breaks, dim=-1)
+    true_bins = torch.sum(dists > boundaries, dim=-1)
 
     errors = softmax_cross_entropy(
         logits,
-        torch.nn.functional.one_hot(true_bins, num_bins),
+        torch.nn.functional.one_hot(true_bins, no_bins),
     )
 
     square_mask = pseudo_beta_mask[..., None] * pseudo_beta_mask[..., None, :]
@@ -1240,6 +1241,7 @@ def experimentally_resolved_loss(
         (resolution >= min_resolution) &
         (resolution <= max_resolution)
     )
+
     return loss
 
 

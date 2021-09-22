@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import partial
 import torch
 import torch.nn as nn
 
@@ -44,6 +45,7 @@ from openfold.utils.loss import (
 )
 
 from openfold.utils.tensor_utils import (
+    dict_multimap,
     tensor_tree_map,
 )
         
@@ -103,48 +105,70 @@ class AlphaFold(nn.Module):
 
         self.config = config
 
-    def embed_templates(self, batch, z, pair_mask):
-        # Build template angle feats
-        angle_feats = atom37_to_torsion_angles(
-            batch["template_aatype"], 
-            batch["template_all_atom_positions"], 
-            batch["template_all_atom_masks"], 
-            eps=1e-8
-        )
+    def embed_templates(self, batch, z, pair_mask, templ_dim):
+        # Embed the templates one at a time (with a poor man's vmap)
+        template_embeds = []
+        n_templ = batch["template_aatype"].shape[-2]
+        for i in range(n_templ):
+            idx = batch["template_aatype"].new_tensor(i)
+            single_template_feats = tensor_tree_map(
+                lambda t: torch.index_select(t, templ_dim, idx),
+                batch,
+            )
 
-        # Stow this away for later
-        batch["torsion_angles_mask"] = angle_feats["torsion_angles_mask"]
+            # Build template angle feats
+            angle_feats = atom37_to_torsion_angles(
+                single_template_feats["template_aatype"], 
+                single_template_feats["template_all_atom_positions"], 
+                single_template_feats["template_all_atom_masks"], 
+                eps=1e-8
+            )
 
-        template_angle_feat = build_template_angle_feat(
-            angle_feats,
-            batch["template_aatype"],
+            template_angle_feat = build_template_angle_feat(
+                angle_feats,
+                single_template_feats["template_aatype"],
+            )
+ 
+            # [*, S_t, N, C_m]
+            a = self.template_angle_embedder(template_angle_feat)
+
+            # [*, S_t, N, N, C_t]
+            t = build_template_pair_feat(
+                single_template_feats,
+                eps=self.config.template.eps,
+                **self.config.template.distogram
+            )
+            t = self.template_pair_embedder(t)
+            t = self.template_pair_stack(
+                t, 
+                pair_mask.unsqueeze(-3),
+                _mask_trans=self.config._mask_trans
+            )
+
+            template_embeds.append({
+                "angle": a, 
+                "pair": t, 
+                "torsion_mask": angle_feats["torsion_angles_mask"]
+            })
+
+        template_embeds = dict_multimap(
+            partial(torch.cat, dim=templ_dim),
+            template_embeds,
         )
  
-        # [*, S_t, N, C_m]
-        a = self.template_angle_embedder(template_angle_feat)
-
-        # [*, S_t, N, N, C_t]
-        t = build_template_pair_feat(
-            batch,
-            eps=self.config.template.eps,
-            **self.config.template.distogram
-        )
-        t = self.template_pair_embedder(t)
-        t = self.template_pair_stack(
-            t, 
-            pair_mask.unsqueeze(-3),
-            _mask_trans=self.config._mask_trans
-        )
-
         # [*, N, N, C_z]
         t = self.template_pointwise_att(
-            t, 
+            template_embeds["pair"], 
             z, 
             template_mask=batch["template_mask"]
         )
         t *= torch.sum(batch["template_mask"]) > 0
-    
-        return a, t
+   
+        return {
+            "template_angle_embedding": a,
+            "template_pair_embedding": t,
+            "torsion_angles_mask": angle_feats["torsion_angles_mask"],
+        }
 
     def forward(self, batch):
         """
@@ -210,6 +234,7 @@ class AlphaFold(nn.Module):
 
             # Grab some data about the input
             batch_dims = feats["target_feat"].shape[:-2]
+            no_batch_dims = len(batch_dims)
             n = feats["target_feat"].shape[-2]
             n_seq = feats["msa_feat"].shape[-3]
             device = feats["target_feat"].device
@@ -257,7 +282,7 @@ class AlphaFold(nn.Module):
                 x_prev = pseudo_beta_fn(
                     feats["aatype"],
                     x_prev,
-                    None  # TODO: figure this part out
+                    None
                 )
 
                 # m_1_prev_emb: [*, N, C_m]
@@ -276,17 +301,28 @@ class AlphaFold(nn.Module):
 
             # Embed the templates + merge with MSA/pair embeddings
             if(self.config.template.enabled):
-                a, t = self.embed_templates(feats, z, pair_mask)
+                template_feats = {
+                    k:v for k,v in feats.items() if "template_" in k
+                }
+                template_embeds = self.embed_templates(
+                    template_feats,
+                    z,
+                    pair_mask,
+                    no_batch_dims,
+                )
 
                 # [*, N, N, C_z]
-                z += t
+                z += template_embeds["template_pair_embedding"]
  
                 if(self.config.template.embed_angles):
                     # [*, S = S_c + S_t, N, C_m]
-                    m = torch.cat([m, a], dim=-3)
+                    m = torch.cat(
+                        [m, template_embeds["template_angle_embedding"]], 
+                        dim=-3
+                    )
 
                     # [*, S, N]
-                    torsion_angles_mask = feats["torsion_angles_mask"]
+                    torsion_angles_mask = template_embeds["torsion_angles_mask"]
                     msa_mask = torch.cat(
                         [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
                     )

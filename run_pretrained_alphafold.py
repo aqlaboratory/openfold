@@ -14,8 +14,8 @@
 # limitations under the License.
 
 import os
-import sys
-sys.path.append("lib/conda/lib/python3.9/site-packages")
+#import sys
+#sys.path.append("lib/conda/lib/python3.9/site-packages")
 
 import math
 import pickle
@@ -26,9 +26,13 @@ import numpy as np
 
 from config import model_config
 from openfold.model.model import AlphaFold
-import openfold.np.protein as protein
+from openfold.np import residue_constants, protein
+
+#os.environ["OPENMM_DEFAULT_PLATFORM"] = "CPU"
+os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
+#os.environ["OPENMM_CPU_THREADS"] = "16"
+
 import openfold.np.relax.relax as relax
-from openfold.np import residue_constants
 from openfold.utils.import_weights import (
     import_jax_weights_,
 )
@@ -41,37 +45,35 @@ from openfold.utils.tensor_utils import (
 MODEL_NAME = "model_1"
 MODEL_DEVICE = "cuda:1"
 PARAM_PATH = "openfold/resources/params/params_model_1.npz"
-FEAT_PATH = "tests/test_data/sample_feats.pickle"
-
+#FEAT_PATH = "tests/test_data/sample_feats.pickle"
+FEAT_PATH = "prediction/1OJN_feats.pickle"
 
 config = model_config(MODEL_NAME)
 model = AlphaFold(config.model)
 model = model.eval()
 import_jax_weights_(model, PARAM_PATH)
-model_device = 'cuda:1'
-model = model.to(model_device)
+model = model.to(MODEL_DEVICE)
 
 with open(FEAT_PATH, "rb") as f:
     batch = pickle.load(f)
 
-batch = {k:torch.as_tensor(v, device=model_device) for k,v in batch.items()}
-
-longs = [
-    "aatype", 
-    "template_aatype", 
-    "extra_msa", 
-    "residx_atom37_to_atom14",
-    "residx_atom14_to_atom37",
-]
-for l in longs:
-    batch[l] = batch[l].long()
-
-
-# Move the recycling dimension to the end
-move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0).contiguous()
-batch = tensor_tree_map(move_dim, batch)
-
 with torch.no_grad():
+    batch = {k:torch.as_tensor(v, device=MODEL_DEVICE) for k,v in batch.items()}
+    
+    longs = [
+        "aatype", 
+        "template_aatype", 
+        "extra_msa", 
+        "residx_atom37_to_atom14",
+        "residx_atom14_to_atom37",
+    ]
+    for l in longs:
+        batch[l] = batch[l].long()
+    
+    # Move the recycling dimension to the end
+    move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0).contiguous()
+    batch = tensor_tree_map(move_dim, batch)
+
     t = time.time()
     out = model(batch)
     print(f"Inference time: {time.time() - t}")

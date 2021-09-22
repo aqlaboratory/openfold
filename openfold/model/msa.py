@@ -106,6 +106,7 @@ class MSAAttention(nn.Module):
             (*((-1,) * len(bias.shape[:-4])), -1, self.no_heads, n_res, -1)
         )
 
+        biases = [bias]
         if(self.pair_bias):
             # [*, N_res, N_res, C_z]
             z = self.layer_norm_z(z)
@@ -116,14 +117,13 @@ class MSAAttention(nn.Module):
             # [*, 1, no_heads, N_res, N_res]
             z = permute_final_dims(z, 2, 0, 1).unsqueeze(-4)
 
-            # [*, N_seq, no_heads, N_res, N_res]
-            bias = bias + z
+            biases.append(z)
 
         mha_inputs = {
             "q_x": m, 
             "k_x": m, 
             "v_x": m, 
-            "biases": [bias]
+            "biases": biases
         }
         if(not self.training and self.chunk_size is not None):
             m = chunk_layer(

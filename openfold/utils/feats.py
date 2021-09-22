@@ -486,7 +486,7 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-6, inf=1e8
     to_concat = [dgram, template_mask_2d[..., None]]
 
     aatype_one_hot = nn.functional.one_hot(
-        batch["template_aatype"], batch["target_feat"].shape[-1]
+        batch["template_aatype"], residue_constants.restype_num + 2, 
     )
 
     n_res = batch["template_aatype"].shape[-1]
@@ -502,34 +502,17 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-6, inf=1e8
     )
 
     n, ca, c = [residue_constants.atom_order[a] for a in ['N', 'CA', 'C']]
-    #t_aa_pos = batch["template_all_atom_positions"]
-    #affines = T.make_transform_from_reference(
-    #    n_xyz=t_aa_pos[..., n],
-    #    ca_xyz=t_aa_pos[..., ca],
-    #    c_xyz=t_aa_pos[..., c],
-    #)
-    #rots = affines.rots
-    #trans = affines.trans
-    #affine_vec = rot_mul_vec(
-    #    rots.transpose(-1, -2), 
-    #    trans[..., None, :, :] - trans[..., None, :],
-    #)
-    #inverted_dists = torch.rsqrt(eps + torch.sum(inverted_dists**2, dim=-1))
-
+    
     t_aa_masks = batch["template_all_atom_masks"]
     template_mask = (
         t_aa_masks[..., n] * t_aa_masks[..., ca] * t_aa_masks[..., c]
     )
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
-    #inverted_dists *= template_mask_2d
-
-    #unit_vector = affine_vec * inverted_dists.unsqueeze(-1)
-    #unit_vector = unit_vector.unsqueeze(-2)
     unit_vector = template_mask_2d.new_zeros(*template_mask_2d.shape, 3)
     to_concat.append(unit_vector)
     to_concat.append(template_mask_2d[..., None])
-    
+   
     act = torch.cat(to_concat, dim=-1)
 
     act *= template_mask_2d[..., None]

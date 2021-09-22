@@ -43,6 +43,19 @@ def pts_to_distogram(pts, min_bin=2.3125, max_bin=21.6875, no_bins=64):
     return torch.bucketize(dists, boundaries)
 
 
+def dict_multimap(fn, dicts):
+    first = dicts[0]
+    new_dict = {}
+    for k, v in first.items():
+        all_v = [d[k] for d in dicts]
+        if(type(v) is dict):
+            new_dict[k] = dict_multimap(all_v)
+        else:
+            new_dict[k] = fn(all_v)
+    
+    return new_dict
+
+
 def stack_tensor_dicts(dicts):
     first = dicts[0]
     new_dict = {}
@@ -154,12 +167,11 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
     orig_batch_dims = [max(s) for s in zip(*initial_dims)]
 
     def prep_inputs(t):
-        t = t.expand(*orig_batch_dims, *t.shape[no_batch_dims:])
+        # TODO: make this more memory efficient. This sucks
+        if(not sum(t.shape[:no_batch_dims]) == no_batch_dims):
+            t = t.expand(*orig_batch_dims, *t.shape[no_batch_dims:])
         t = t.reshape(-1, *t.shape[no_batch_dims:])
         return t
-
-    #shape = lambda t: t.shape
-    #print(tensor_tree_map(shape, inputs))
 
     flattened_inputs = tensor_tree_map(prep_inputs, inputs)
 
@@ -175,7 +187,7 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
     out = None
     for _ in range(no_chunks):
         # Chunk the input
-        select_chunk = lambda t: t[i:i+chunk_size]
+        select_chunk = lambda t: t[i:i+chunk_size] if t.shape[0] != 1 else t
         chunks = tensor_tree_map(select_chunk, flattened_inputs)
 
         # Run the layer on the chunk

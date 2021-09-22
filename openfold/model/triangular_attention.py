@@ -96,17 +96,6 @@ class TriangleAttention(nn.Module):
         # [*, 1, H, I, J]
         triangle_bias = triangle_bias.unsqueeze(-4)
 
-        # Broadcasting and chunking doesn't really work yet (TODO)
-        # [*, I, H, I, J]
-        i = x.shape[-3]
-        triangle_bias = triangle_bias.expand(
-            (*((-1,) * len(triangle_bias.shape[:-4])), i, -1, -1, -1)
-        )
-
-        #print(x.shape)
-        #print(mask_bias.shape)
-        #print(triangle_bias.shape)
-
         mha_inputs = {
             "q_x": x,
             "k_x": x,
