@@ -11,10 +11,24 @@ A faithful PyTorch reproduction of DeepMind's
 pip3 install -r requirements.txt
 ```
 
-2. Install third-party dependencies.
+2. Install third-party dependencies with:
 
 ```bash
-scripts/install_third_party_dependencies.py
+scripts/install_third_party_dependencies.sh
+```
+
+This script installs Miniconda locally and creates a conda virtual environment
+with all of the packages required to run Openfold. To activate the environment,
+run:
+
+```bash
+scripts/activate_conda_venv.sh
+```
+
+To deactivate it, run
+
+```bash
+scripts/deactivate_conda_venv.sh
 ```
 
 ## Features
