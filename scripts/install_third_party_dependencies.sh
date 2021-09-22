@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source scripts/vars.sh
+
 # Install Miniconda locally
 rm -rf lib/conda
 rm -f /tmp/Miniconda3-latest-Linux-x86_64.sh
@@ -11,14 +13,17 @@ wget -q -P /tmp \
 # Grab conda-only packages
 PATH=lib/conda/bin:$PATH
 conda update -qy conda \
+    && conda create --name $ENV_NAME -y python==3.9.5 \
+    && source lib/conda/etc/profile.d/conda.sh \
+    && conda activate $ENV_NAME \
+    && pip install -r requirements.txt \
     && conda install -qy -c conda-forge \
-      python=3.9 \
       openmm=7.5.1 \
       pdbfixer
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
-pushd lib/conda/lib/python3.9/site-packages/ \
+pushd lib/conda/envs/$ENV_NAME/lib/python3.9/site-packages/ \
     && patch -p0 < $OPENFOLD_DIR/lib/openmm.patch \
     && popd
 
