@@ -49,7 +49,7 @@ def dict_multimap(fn, dicts):
     for k, v in first.items():
         all_v = [d[k] for d in dicts]
         if(type(v) is dict):
-            new_dict[k] = dict_multimap(all_v)
+            new_dict[k] = dict_multimap(fn, all_v)
         else:
             new_dict[k] = fn(all_v)
     
@@ -122,9 +122,9 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
     """
         Implements the "chunking" procedure described in section 1.11.8.
 
-        Layer outputs and inputs are interpreted as simplified "pytrees," 
-        consisting only of (nested) lists, tuples, and dicts with tensor
-        leaves.
+        Layer outputs and inputs are assumed to be simple "pytrees," 
+        consisting only of (arbitrarily nested) lists, tuples, and dicts with 
+        torch.Tensor leaves.
 
         Args:
             layer:

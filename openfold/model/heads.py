@@ -49,7 +49,7 @@ class AuxiliaryHeads(nn.Module):
 
     def forward(self, outputs):
         aux_out = {}
-        lddt_logits = self.plddt(outputs["single"])
+        lddt_logits = self.plddt(outputs["sm"]["single"])
         aux_out["lddt_logits"] = lddt_logits
 
         # Required for relaxation later on

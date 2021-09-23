@@ -751,7 +751,7 @@ class StructureModule(nn.Module):
                 t = t.stop_rot_gradient()
 
         outputs = stack_tensor_dicts(outputs)
-        outputs["single_act"] = s
+        outputs["single"] = s
 
         return outputs
 

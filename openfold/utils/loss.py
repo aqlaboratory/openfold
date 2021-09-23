@@ -27,6 +27,7 @@ from openfold.utils.tensor_utils import (
     tree_map, 
     tensor_tree_map, 
     masked_mean,
+    permute_final_dims,
 )
 
 
@@ -289,28 +290,25 @@ def lddt_loss(
     all_atom_mask: torch.Tensor,
     resolution: torch.Tensor,
     cutoff: float = 15.,
-    num_bins: int = 50,
+    no_bins: int = 50,
     min_resolution: float = 0.1,
     max_resolution: float = 3.0,
     eps: float = 1e-10,
     **kwargs,
 ) -> torch.Tensor:
-    all_atom_positions = batch["all_atom_positions"]
-    all_atom_mask = batch["all_atom_mask"]
-
-    n = all_atom_mask.shape[-1]
+    n = all_atom_mask.shape[-2]
    
     ca_pos = residue_constants.atom_order["CA"]
-    all_atom_pred_pos = all_atom_pred_pos[..., :, ca_pos, :]
-    all_atom_positions = all_atom_positions[..., :, ca_pos, :]
-    all_atom_mask = all_atom_mask[..., :, ca_pos:(ca_pos + 1)] # keep dim
+    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
+    all_atom_positions = all_atom_positions[..., ca_pos, :]
+    all_atom_mask = all_atom_mask[..., ca_pos:(ca_pos + 1)] # keep dim
 
     dmat_true = torch.sqrt(
         eps +
         torch.sum(
             (
-                all_atom_positions[..., None] - 
-                all_atom_positions[..., None, :]
+                all_atom_positions[..., None, :] - 
+                all_atom_positions[..., None, :, :]
             )**2,
             dim=-1,
         )
@@ -320,14 +318,13 @@ def lddt_loss(
         eps +
         torch.sum(
             (
-                all_atom_pred_pos[..., None] - 
-                all_atom_pred_pos[..., None, :]
+                all_atom_pred_pos[..., None, :] - 
+                all_atom_pred_pos[..., None, :, :]
 
             )**2,
             dim=-1,
         )
     )
-
     dists_to_score = (
         (dmat_true < cutoff) * all_atom_mask *
         permute_final_dims(all_atom_mask, 1, 0) *
@@ -337,29 +334,31 @@ def lddt_loss(
     dist_l1 = torch.abs(dmat_true - dmat_pred)
 
     score = (
-        (dist_l1 < 0.5) + 
-        (dist_l1 < 1.0) +
-        (dist_l1 < 2.0) +
-        (dist_l1 < 4.0)
+        (dist_l1 < 0.5).type(dist_l1.dtype) + 
+        (dist_l1 < 1.0).type(dist_l1.dtype) +
+        (dist_l1 < 2.0).type(dist_l1.dtype) +
+        (dist_l1 < 4.0).type(dist_l1.dtype)
     )
     score *= 0.25
 
     norm = 1. / (eps + torch.sum(dists_to_score, dim=-1))
     score = norm * (eps + torch.sum(dists_to_score * score, dim=-1))
 
-    # TODO: this feels a bit weird, but it's in the source
     score = score.detach() 
-
-    bin_index = torch.floor(lddt_ca * num_bins)
-
+  
+    bin_index = torch.floor(score * no_bins).long()
+    bin_index = torch.clamp(bin_index, max=(no_bins - 1))
     lddt_ca_one_hot = torch.nn.functional.one_hot(
-        bin_index, num_classes=num_bins
+        bin_index, num_classes=no_bins
     )
 
     errors = softmax_cross_entropy(logits, lddt_ca_one_hot)
 
-    loss = torch.sum(errors * all_atom_mask) / (torch.sum(mask_ca) + eps)
-
+    all_atom_mask = all_atom_mask.squeeze(-1)
+    loss = (
+        torch.sum(errors * all_atom_mask) / (torch.sum(all_atom_mask) + 1e-8)
+    )
+   
     loss *= (
         (resolution >= min_resolution) &
         (resolution <= max_resolution)
@@ -917,17 +916,16 @@ def find_structural_violations(
         overlap_tolerance=clash_overlap_tolerance,
         bond_length_tolerance_factor=violation_tolerance_factor
     )
-    atom14_dists_lower_bound = restype_atom14_bounds["lower_bound"][
-        batch["aatype"]
-    ]
-    atom14_dists_upper_bound = restype_atom14_bounds["upper_bound"][
-        batch["aatype"]
-    ]
-    atom14_dists_lower_bound = atom14_pred_positions.new_tensor(
-        atom14_dists_lower_bound
+    atom14_atom_exists = batch["atom14_atom_exists"]
+    atom14_dists_lower_bound = (
+        atom14_pred_positions.new_tensor(restype_atom14_bounds["lower_bound"])[
+            batch["aatype"]
+        ]
     )
-    atom14_dists_upper_bound = atom14_pred_positions.new_tensor(
-        atom14_dists_upper_bound
+    atom14_dists_upper_bound = (
+        atom14_pred_positions.new_tensor(restype_atom14_bounds["upper_bound"])[
+            batch["aatype"]
+        ]
     )
     residue_violations = within_residue_violations(
         atom14_pred_positions=atom14_pred_positions,
@@ -1102,6 +1100,7 @@ def violation_loss(
     violations: Dict[str, torch.Tensor],
     atom14_atom_exists: torch.Tensor,
     eps=1e-6,
+    **kwargs,
 ) -> torch.Tensor:
     num_atoms = torch.sum(atom14_atom_exists)
     l_clash = torch.sum(

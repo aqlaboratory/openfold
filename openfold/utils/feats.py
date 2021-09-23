@@ -74,6 +74,7 @@ def get_chi_atom_indices():
 
 
 def compute_residx(batch):
+    float_type = batch["seq_mask"].dtype
     aatype = batch["aatype"]
 
     restype_atom14_to_atom37 = []  # mapping (restype, atom37) --> atom14
@@ -104,34 +105,28 @@ def compute_residx(batch):
     restype_atom37_to_atom14.append([0] * 37)
     restype_atom14_mask.append([0.] * 14)
 
-    restype_atom14_to_atom37 = np.array(restype_atom14_to_atom37, dtype=np.int32)
-    restype_atom37_to_atom14 = np.array(restype_atom37_to_atom14, dtype=np.int32)
-    restype_atom14_mask = np.array(restype_atom14_mask, dtype=np.float32)
+    restype_atom14_to_atom37 = aatype.new_tensor(
+        restype_atom14_to_atom37
+    )
+    restype_atom37_to_atom14 = aatype.new_tensor(
+        restype_atom37_to_atom14
+    )
+    restype_atom14_mask = aatype.new_tensor(
+        restype_atom14_mask, dtype=float_type
+    )
  
-    residx_atom14_to_atom37 = np.take_along_axis(
-        restype_atom14_to_atom37,
-        aatype[..., None],
-        axis=0
-    )
-    residx_atom14_mask = np.take_along_axis(
-        restype_atom14_mask,
-        aatype[..., None],
-        axis=0,
-    )
+    residx_atom14_to_atom37 = restype_atom14_to_atom37[aatype]
+    residx_atom14_mask = restype_atom14_mask[aatype]
 
     batch['atom14_atom_exists'] = residx_atom14_mask
-    batch['residx_atom14_to_atom37'] = residx_atom14_to_atom37.long()
+    batch['residx_atom14_to_atom37'] = residx_atom14_to_atom37
 
     # create the gather indices for mapping back
-    residx_atom37_to_atom14 = np.take_along_axis(
-        restype_atom37_to_atom14,
-        aatype[..., None],
-        axis=0,
-    )
-    batch['residx_atom37_to_atom14'] = residx_atom37_to_atom14.long()
+    residx_atom37_to_atom14 = restype_atom37_to_atom14[aatype]
+    batch['residx_atom37_to_atom14'] = residx_atom37_to_atom14
 
     # create the corresponding mask
-    restype_atom37_mask = np.zeros([21, 37], dtype=np.float32)
+    restype_atom37_mask = torch.zeros([21, 37], dtype=float_type)
     for restype, restype_letter in enumerate(residue_constants.restypes):
       restype_name = residue_constants.restype_1to3[restype_letter]
       atom_names = residue_constants.residue_atoms[restype_name]
@@ -139,11 +134,7 @@ def compute_residx(batch):
         atom_type = residue_constants.atom_order[atom_name]
         restype_atom37_mask[restype, atom_type] = 1
 
-    residx_atom37_mask = np.take_along_axis(
-        restype_atom37_mask,
-        aatype[..., None],
-        axis=0,
-    )
+    residx_atom37_mask = restype_atom37_mask[aatype]
     batch['atom37_atom_exists'] = residx_atom37_mask
 
 

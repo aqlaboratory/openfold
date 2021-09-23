@@ -211,7 +211,7 @@ config = mlc.ConfigDict({
             "min_resolution": 0.1,
             "max_resolution": 3.0,
             "cutoff": 15.,
-            "num_bins": 50,
+            "no_bins": 50,
             "eps": 1e-10,
             "weight": 0.01,
         },
