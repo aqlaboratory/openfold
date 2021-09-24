@@ -59,11 +59,11 @@ def random_affine_vectors(dim):
     for d in dim:
         prod_dim *= d
 
-    affines = np.zeros((prod_dim, 7))
+    affines = np.zeros((prod_dim, 7)).astype(np.float32)
 
     for i in range(prod_dim):
         affines[i, :4] = Rotation.random(random_state=42).as_quat()
-        affines[i, 4:] = np.random.rand(3,)
+        affines[i, 4:] = np.random.rand(3,).astype(np.float32)
 
     return affines.reshape(*dim, 7)
 
@@ -73,11 +73,11 @@ def random_affine_4x4s(dim):
     for d in dim:
         prod_dim *= d
 
-    affines = np.zeros((prod_dim, 4, 4))
+    affines = np.zeros((prod_dim, 4, 4)).astype(np.float32)
 
     for i in range(prod_dim):
         affines[i, :3, :3] = Rotation.random(random_state=42).as_matrix()
-        affines[i, :3, 3] = np.random.rand(3,)
+        affines[i, :3, 3] = np.random.rand(3,).astype(np.float32)
 
     affines[:, 3, 3] = 1
 

@@ -167,19 +167,42 @@ def sidechain_loss(
     **kwargs,
 ) -> torch.Tensor:
     renamed_gt_frames = (
-        (1. - alt_naming_is_better[..., None, None, None, None]) *
+        (1. - alt_naming_is_better[..., None, None, None]) *
         rigidgroups_gt_frames +
-        alt_naming_is_better[..., None, None, None, None] *
+        alt_naming_is_better[..., None, None, None] *
         rigidgroups_alt_gt_frames
     )
 
+    batch_dims = sidechain_frames.shape[:-5]
+    
+    # Steamroll the inputs
+    sidechain_frames = sidechain_frames[-1]
+    sidechain_frames = sidechain_frames.view(
+        *batch_dims, -1, 4, 4
+    )
     sidechain_frames = T.from_4x4(sidechain_frames)
+    renamed_gt_frames = renamed_gt_frames.view(
+        *batch_dims, -1, 4, 4
+    )
     renamed_gt_frames = T.from_4x4(renamed_gt_frames) 
+    rigidgroups_gt_exists = rigidgroups_gt_exists.reshape(
+        *batch_dims, -1
+    )
+    sidechain_atom_pos = sidechain_atom_pos[-1]
+    sidechain_atom_pos = sidechain_atom_pos.view(
+        *batch_dims, -1, 3
+    )
+    renamed_atom14_gt_positions = renamed_atom14_gt_positions.view(
+        *batch_dims, -1, 3
+    )
+    renamed_atom14_gt_exists = renamed_atom14_gt_exists.view(
+        *batch_dims, -1
+    )
 
     fape = compute_fape(
         sidechain_frames,
         renamed_gt_frames,
-        gt_exists,
+        rigidgroups_gt_exists,
         sidechain_atom_pos,
         renamed_atom14_gt_positions,
         renamed_atom14_gt_exists,
