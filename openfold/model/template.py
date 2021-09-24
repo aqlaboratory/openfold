@@ -265,7 +265,7 @@ class TemplatePairStack(nn.Module):
                 ) for b in self.blocks
             ], 
             args=(t),
-            blocks_per_ckpt=self.blocks_per_ckpt,
+            blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )
 
         t = self.layer_norm(t)

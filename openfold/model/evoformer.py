@@ -350,7 +350,7 @@ class EvoformerStack(nn.Module):
                 ) for b in self.blocks
             ], 
             args=(m, z),
-            blocks_per_ckpt=self.blocks_per_ckpt,
+            blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )
 
         s = None
