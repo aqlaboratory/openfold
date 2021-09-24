@@ -89,15 +89,15 @@ def compute_fape(
         target_positions[..., None, :, :],
     )
     error_dist = torch.sqrt(
-        (pred_positions - target_positions)**2 + eps
+        torch.sum((local_pred_pos - local_target_pos)**2, dim=-1) + eps
     )
 
     if(l1_clamp_distance is not None):
         error_dist = torch.clamp(error_dist, min=0, max=l1_clamp_distance)
 
     normed_error = error_dist / length_scale
-    normed_error *= frames_mask.unsqueeze(-1)
-    normed_error *= positions_mask.unsqueeze(-2)
+    normed_error *= frames_mask[..., None]
+    normed_error *= positions_mask[..., None, :]
 
     norm_factor = (
         torch.sum(frames_mask, dim=-1) *
@@ -109,67 +109,71 @@ def compute_fape(
     return normed_error
 
 
+# DISCREPANCY: figure out if loss clamping happens in 90% of each bach or in 90% of batches
 def backbone_loss(
-    batch: Dict[str, torch.Tensor],
-    pred_aff_tensor: torch.Tensor,
+    backbone_affine_tensor: torch.Tensor,
+    backbone_affine_mask: torch.Tensor,
+    traj: torch.Tensor,
+    use_clamped_fape: Optional[torch.Tensor] = None,
     clamp_distance: float = 10.,
     loss_unit_distance: float = 10.,
+    **kwargs,
 ) -> torch.Tensor:
-    pred_aff = T.from_tensor(pred_aff_tensor)
-    gt_aff = T.from_tensor(batch["backbone_affine_tensor"])
-    backbone_mask = batch["backbone_affine_mask"]
+    pred_aff = T.from_tensor(traj)
+    gt_aff = T.from_tensor(backbone_affine_tensor)
     
     fape_loss = compute_fape(
         pred_aff,
-        gt_aff,
-        backbone_mask,
+        gt_aff[..., None, :],
+        backbone_affine_mask[..., None, :],
         pred_aff.get_trans(),
-        gt_aff.get_trans(),
-        backbone_mask,
+        gt_aff[..., None, :].get_trans(),
+        backbone_affine_mask[..., None, :],
         l1_clamp_distance=clamp_distance,
         length_scale=loss_unit_distance,
     )
 
-    if('use_clamped_fape' in batch):
-        use_clamped_fape = batch["use_clamped_fape"]
+    if(use_clamped_fape is not None):
         unclamped_fape_loss = compute_fape(
             pred_aff,
-            gt_aff,
-            backbone_mask,
+            gt_aff[..., None, :],
+            backbone_affine_mask[..., None, :],
             pred_aff.get_trans(),
-            gt_aff.get_trans(),
-            backbone_mask,
+            gt_aff[..., None, :].get_trans(),
+            backbone_affine_mask[..., None, :],
             l1_clamp_distance=None,
             length_scale=loss_unit_distance,
         )
 
         fape_loss = (
             fape_loss * use_clamped_fape +
-            fape_loss_unclamped * (1 - use_clamped_fape)
+            unclamped_fape_loss * (1 - use_clamped_fape)
         )
 
     return torch.mean(fape_loss, dim=-1)
 
 
 def sidechain_loss(
-    sidechain_frames,
-    sidechain_atom_pos,
-    rigidgroups_gt_frames,
-    rigidgroups_alt_gt_frames,
-    rigidgroups_gt_exists,
-    renamed_atom14_gt_positions,
-    renamed_atom14_gt_exists,
-    alt_naming_is_better,
-    clamp_distance=10.,
-    length_scale=10.,
-):
+    sidechain_frames: torch.Tensor,
+    sidechain_atom_pos: torch.Tensor,
+    rigidgroups_gt_frames: torch.Tensor,
+    rigidgroups_alt_gt_frames: torch.Tensor,
+    rigidgroups_gt_exists: torch.Tensor,
+    renamed_atom14_gt_positions: torch.Tensor,
+    renamed_atom14_gt_exists: torch.Tensor,
+    alt_naming_is_better: torch.Tensor,
+    clamp_distance: float = 10.,
+    length_scale: float = 10.,
+    **kwargs,
+) -> torch.Tensor:
     renamed_gt_frames = (
         (1. - alt_naming_is_better[..., None, None, None, None]) *
-        gt_frames +
+        rigidgroups_gt_frames +
         alt_naming_is_better[..., None, None, None, None] *
-        alt_gt_frames
+        rigidgroups_alt_gt_frames
     )
 
+    sidechain_frames = T.from_4x4(sidechain_frames)
     renamed_gt_frames = T.from_4x4(renamed_gt_frames) 
 
     fape = compute_fape(
@@ -192,16 +196,13 @@ def fape_loss(
     config: ml_collections.ConfigDict,
 ) -> torch.Tensor:
     bb_loss = backbone_loss(
-        batch, out["sm"]["frames"][-1], **config.backbone
+        traj=out["sm"]["frames"], **{**batch, **config.backbone},
     )
 
     sc_loss = sidechain_loss(
         out["sm"]["sidechain_frames"],
         out["sm"]["positions"],
-        {
-            **batch,
-            **config.sidechain,
-        },
+        **{**batch, **config.sidechain}
     )
 
     return (

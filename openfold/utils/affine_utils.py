@@ -335,3 +335,15 @@ def quat_to_rot(
     # [*, 3, 3]
     return torch.sum(quat, dim=(-3, -4))
 
+def affine_vector_to_4x4(vector):
+    quats = vector[..., :4]
+    trans = vector[..., 4:]
+
+    four_by_four = torch.zeros(
+        (*vector.shape[:-1], 4, 4), device=vector.device
+    )
+    four_by_four[..., :3, :3] = quat_to_rot(quats)
+    four_by_four[..., :3, 3] = trans
+    four_by_four[..., 3, 3] = 1
+
+    return four_by_four

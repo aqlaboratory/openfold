@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 
 def random_template_feats(n_templ, n, batch_size=None):
@@ -35,6 +36,7 @@ def random_template_feats(n_templ, n, batch_size=None):
     batch["template_aatype"] = batch["template_aatype"].astype(np.int64)
     return batch
 
+
 def random_extra_msa_feats(n_extra, n, batch_size=None):
     b = []
     if(batch_size is not None):
@@ -50,3 +52,34 @@ def random_extra_msa_feats(n_extra, n, batch_size=None):
             np.random.randint(0, 2, (*b, n_extra, n)).astype(np.float32),
     }
     return batch
+
+
+def random_affine_vectors(dim):
+    prod_dim = 1
+    for d in dim:
+        prod_dim *= d
+
+    affines = np.zeros((prod_dim, 7))
+
+    for i in range(prod_dim):
+        affines[i, :4] = Rotation.random(random_state=42).as_quat()
+        affines[i, 4:] = np.random.rand(3,)
+
+    return affines.reshape(*dim, 7)
+
+
+def random_affine_4x4s(dim):
+    prod_dim = 1
+    for d in dim:
+        prod_dim *= d
+
+    affines = np.zeros((prod_dim, 4, 4))
+
+    for i in range(prod_dim):
+        affines[i, :3, :3] = Rotation.random(random_state=42).as_matrix()
+        affines[i, :3, 3] = np.random.rand(3,)
+
+    affines[:, 3, 3] = 1
+
+    return affines.reshape(*dim, 4, 4)
+

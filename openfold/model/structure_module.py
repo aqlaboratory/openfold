@@ -486,12 +486,12 @@ def _frames_and_literature_positions_to_atom14_pos(
 ):
 
     # [*, N, 14, 4, 4] 
-    default_4x4 = default_frames[f,...]
+    default_4x4 = default_frames[f, ...]
 
     # [*, N, 14]
-    group_mask = group_idx[f,...]
+    group_mask = group_idx[f, ...]
 
-    # [N, 14, 8]
+    # [*, N, 14, 8]
     group_mask = nn.functional.one_hot(
         group_mask, num_classes=default_frames.shape[-3],
     )
@@ -504,11 +504,11 @@ def _frames_and_literature_positions_to_atom14_pos(
         lambda x: torch.sum(x, dim=-1)
     )
 
-    # [N, 14, 1]
+    # [*, N, 14, 1]
     atom_mask = atom_mask[f,...].unsqueeze(-1)
 
-    # [N, 14, 3]
-    lit_positions = lit_positions[f,...]
+    # [*, N, 14, 3]
+    lit_positions = lit_positions[f, ...]
     pred_positions = t_atoms_to_global.apply(lit_positions)
     pred_positions *= atom_mask
 
@@ -758,19 +758,27 @@ class StructureModule(nn.Module):
     def _init_residue_constants(self, device):
         if(self.default_frames is None):
             self.default_frames = torch.tensor(
-                restype_rigid_group_default_frame, device=device,
+                restype_rigid_group_default_frame, 
+                device=device,
+                requires_grad=False,
             )
         if(self.group_idx is None):
             self.group_idx = torch.tensor(
-                restype_atom14_to_rigid_group, device=device,
+                restype_atom14_to_rigid_group, 
+                device=device,
+                requires_grad=False,
             )
         if(self.atom_mask is None):
             self.atom_mask = torch.tensor(
-                restype_atom14_mask, device=device,
+                restype_atom14_mask, 
+                device=device,
+                requires_grad=False,
             )
         if(self.lit_positions is None):
             self.lit_positions = torch.tensor(
-                restype_atom14_rigid_group_positions, device=device,
+                restype_atom14_rigid_group_positions, 
+                device=device, 
+                requires_grad=False,
             )
 
     def torsion_angles_to_frames(self, t, alpha, f):

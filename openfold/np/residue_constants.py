@@ -366,6 +366,7 @@ residue_atoms = {
 # (The LDDT paper lists 7 amino acids as ambiguous, but the naming ambiguities
 # in LEU, VAL and ARG can be resolved by using the 3d constellations of
 # the 'ambiguous' atoms and their neighbours)
+# TODO: ^ interpret this
 residue_atom_renaming_swaps = {
     'ASP': {'OD1': 'OD2'},
     'GLU': {'OE1': 'OE2'},
@@ -895,3 +896,25 @@ def make_atom14_dists_bounds(overlap_tolerance=1.5,
           'upper_bound': restype_atom14_bond_upper_bound,  # shape (21,14,14)
           'stddev': restype_atom14_bond_stddev,  # shape (21,14,14)
          }
+
+restype_atom14_ambiguous_atoms = np.zeros((21, 14), dtype=np.float32)
+restype_atom14_ambiguous_atoms_swap_idx = (
+    np.tile(np.arange(14, dtype=np.int), (21, 1))
+)
+
+def _make_atom14_ambiguity_feats():
+    for res, pairs in residue_atom_renaming_swaps.items():
+        res_idx = restype_order[restype_3to1[res]]
+        for atom1, atom2 in pairs.items():
+            atom1_idx = restype_name_to_atom14_names[res].index(atom1) 
+            atom2_idx = restype_name_to_atom14_names[res].index(atom2)
+            restype_atom14_ambiguous_atoms[res_idx, atom1_idx] = 1
+            restype_atom14_ambiguous_atoms[res_idx, atom2_idx] = 1
+            restype_atom14_ambiguous_atoms_swap_idx[res_idx, atom1_idx] = (
+                atom2_idx
+            )
+            restype_atom14_ambiguous_atoms_swap_idx[res_idx, atom2_idx] = (
+                atom1_idx
+            )
+
+_make_atom14_ambiguity_feats()
