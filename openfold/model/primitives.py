@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import math
-from typing import Optional, Callable
+from typing import Optional, Callable, List 
 import numpy as np
 
 import torch
@@ -212,7 +212,7 @@ class Attention(nn.Module):
             self.c_hidden * self.no_heads, self.c_q, init="final"
         )
 
-        if(self.gating):
+        if(self.gating is not None):
             self.linear_g = Linear(self.c_q, self.c_hidden * self.no_heads, init="gating")
 
         self.sigmoid = nn.Sigmoid()
@@ -222,7 +222,7 @@ class Attention(nn.Module):
         q_x: torch.Tensor, 
         k_x: torch.Tensor, 
         v_x: torch.Tensor, 
-        biases: bool = None,
+        biases: Optional[List[torch.Tensor]] = None,
     ) -> torch.Tensor:
         """
             Args:
@@ -235,20 +235,26 @@ class Attention(nn.Module):
             Returns
                 [*, Q, C_q] attention update
         """
+        # Flatten batch dims
+        batch_dims = q_x.shape[:-2]
+        q_x = q_x.view((-1,) + q_x.shape[-2:])
+        k_x = k_x.view((-1,) + k_x.shape[-2:])
+        v_x = v_x.view((-1,) + v_x.shape[-2:])
+
         # [*, Q/K/V, H * C_hidden]
         q = self.linear_q(q_x)
         k = self.linear_k(k_x)
         v = self.linear_v(v_x)
 
         # [*, Q/K, H, C_hidden]
-        q = q.view(*q.shape[:-1], self.no_heads, -1)
-        k = k.view(*k.shape[:-1], self.no_heads, -1)
-        v = v.view(*v.shape[:-1], self.no_heads, -1)
+        q = q.view(q.shape[:-1] + (self.no_heads, -1))
+        k = k.view(k.shape[:-1] + (self.no_heads, -1))
+        v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
         # [*, H, Q, K]
         a = torch.matmul(
-            permute_final_dims(q, 1, 0, 2),  # [*, H, Q, C_hidden]
-            permute_final_dims(k, 1, 2, 0),  # [*, H, C_hidden, K] 
+            q.permute(0, 2, 1, 3),  # [*, H, Q, C_hidden]
+            k.permute(0, 2, 3, 1),  # [*, H, C_hidden, K] 
         )
         norm = 1 / math.sqrt(self.c_hidden) # [1]
         a = a * norm
@@ -260,7 +266,7 @@ class Attention(nn.Module):
         # [*, H, Q, C_hidden]
         o = torch.matmul(
             a,
-            permute_final_dims(v, 1, 0, 2),  # [*, H, V, C_hidden]
+            v.permute(0, 2, 1, 3),  # [*, H, V, C_hidden]
         )
 
         # [*, Q, H, C_hidden]
@@ -268,7 +274,7 @@ class Attention(nn.Module):
         if(self.gating):
             g = self.sigmoid(self.linear_g(q_x))
             # [*, Q, H, C_hidden]
-            g = g.view(*g.shape[:-1], self.no_heads, -1)
+            g = g.view(g.shape[:-1] + (self.no_heads, -1))
             o = o * g
         
         # [*, Q, H * C_hidden]
@@ -276,5 +282,11 @@ class Attention(nn.Module):
 
         # [*, Q, C_q]
         o = self.linear_o(o)
+        # Restore the batch dims
+        o = o.reshape(batch_dims + o.shape[1:])
 
         return o
+
+
+def scripted_attention(*args, **kwargs):
+    return torch.jit.script(Attention(*args, **kwargs))

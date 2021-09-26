@@ -18,7 +18,7 @@ import math
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, Attention
+from openfold.model.primitives import Linear, scripted_attention
 from openfold.utils.tensor_utils import (
     chunk_layer, 
     permute_final_dims, 
@@ -57,7 +57,7 @@ class TriangleAttention(nn.Module):
         
         self.linear = Linear(c_in, self.no_heads, bias=False, init="normal")
 
-        self.mha = Attention(
+        self.mha = scripted_attention(
             self.c_in, self.c_in, self.c_in,
             self.c_hidden, 
             self.no_heads

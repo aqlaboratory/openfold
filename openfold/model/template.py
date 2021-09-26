@@ -18,7 +18,7 @@ import math
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, Attention
+from openfold.model.primitives import Linear, scripted_attention
 from openfold.utils.deepspeed import checkpoint_blocks
 from openfold.model.dropout import  (
     DropoutRowwise,
@@ -69,7 +69,7 @@ class TemplatePointwiseAttention(nn.Module):
         self.no_heads = no_heads
         self.chunk_size = chunk_size
 
-        self.mha = Attention(
+        self.mha = scripted_attention(
             self.c_z, self.c_t, self.c_t, 
             self.c_hidden, self.no_heads,
             gating=False,
