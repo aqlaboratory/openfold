@@ -108,7 +108,7 @@ class TemplatePointwiseAttention(nn.Module):
             "v_x": t,
             "biases": [bias],
         }
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             z = chunk_layer(
                 self.mha,
                 mha_inputs,

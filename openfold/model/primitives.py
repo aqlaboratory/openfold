@@ -251,10 +251,10 @@ class Attention(nn.Module):
             permute_final_dims(k, 1, 2, 0),  # [*, H, C_hidden, K] 
         )
         norm = 1 / math.sqrt(self.c_hidden) # [1]
-        a *= norm
+        a = a * norm
         if(biases is not None):
             for b in biases:
-                a += b
+                a = a + b
         a = self.softmax(a)
 
         # [*, H, Q, C_hidden]

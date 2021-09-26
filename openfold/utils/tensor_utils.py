@@ -142,8 +142,7 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
                 be considered batch dimensions.
         Returns:
             The reassembled output of the layer on the inputs.
-    """
-        
+    """ 
     if(not (len(inputs) > 0)):
         raise ValueError("Must provide at least one input")
 

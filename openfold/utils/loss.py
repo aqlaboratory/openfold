@@ -22,6 +22,7 @@ from typing import Dict, Optional
 
 from openfold.np import residue_constants
 from openfold.model.primitives import Linear
+from openfold.utils import feats
 from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
     tree_map, 
@@ -150,7 +151,9 @@ def backbone_loss(
             unclamped_fape_loss * (1 - use_clamped_fape)
         )
 
-    return torch.mean(fape_loss, dim=-1)
+    # Take the mean over the layer dimension
+    fape_loss = torch.mean(fape_loss, dim=0)
+    return fape_loss
 
 
 def sidechain_loss(
@@ -172,11 +175,10 @@ def sidechain_loss(
         alt_naming_is_better[..., None, None, None] *
         rigidgroups_alt_gt_frames
     )
-
-    batch_dims = sidechain_frames.shape[:-5]
     
     # Steamroll the inputs
     sidechain_frames = sidechain_frames[-1]
+    batch_dims = sidechain_frames.shape[:-4]
     sidechain_frames = sidechain_frames.view(
         *batch_dims, -1, 4, 4
     )
@@ -198,7 +200,7 @@ def sidechain_loss(
     renamed_atom14_gt_exists = renamed_atom14_gt_exists.view(
         *batch_dims, -1
     )
-
+ 
     fape = compute_fape(
         sidechain_frames,
         renamed_gt_frames,
@@ -240,7 +242,7 @@ def supervised_chi_loss(
     aatype: torch.Tensor,
     seq_mask: torch.Tensor,
     chi_mask: torch.Tensor,
-    chi_angles: torch.Tensor,
+    chi_angles_sin_cos: torch.Tensor,
     chi_weight: float,
     angle_norm_weight: float,
     eps=1e-6,
@@ -256,24 +258,24 @@ def supervised_chi_loss(
         angles_sin_cos.new_tensor(residue_constants.chi_pi_periodic),
     )
 
-    true_chi = chi_angles
-    sin_true_chi = torch.sin(true_chi)
-    cos_true_chi = torch.cos(true_chi)
-    sin_cos_true_chi = torch.stack([sin_true_chi, cos_true_chi], dim=-1)
+    true_chi = chi_angles_sin_cos.unsqueeze(-4)
 
     shifted_mask = (1 - 2 * chi_pi_periodic).unsqueeze(-1)
-    sin_cos_true_chi_shifted = shifted_mask * sin_cos_true_chi
+    true_chi_shifted = shifted_mask * true_chi
 
     sq_chi_error = torch.sum(
-        (sin_cos_true_chi - pred_angles)**2, dim=-1
+        (true_chi - pred_angles)**2, dim=-1
     )
     sq_chi_error_shifted = torch.sum(
-        (sin_cos_true_chi_shifted - pred_angles)**2, dim=-1
+        (true_chi_shifted - pred_angles)**2, dim=-1
     )
     sq_chi_error = torch.minimum(sq_chi_error, sq_chi_error_shifted)
-
+    # The ol' switcheroo
+    sq_chi_error = sq_chi_error.permute(
+        *range(len(sq_chi_error.shape))[1:-2], 0, -2, -1
+    )
     sq_chi_loss = masked_mean(
-        chi_mask, sq_chi_error, dim=(-1, -2)
+        chi_mask[..., None, :, :], sq_chi_error, dim=(-1, -2, -3)
     )
 
     loss = 0
@@ -283,8 +285,11 @@ def supervised_chi_loss(
         torch.sum(unnormalized_angles_sin_cos**2, dim=-1) + eps
     )
     norm_error = torch.abs(angle_norm - 1.)
+    norm_error = norm_error.permute(
+        *range(len(norm_error.shape))[1:-2], 0, -2, -1
+    )
     angle_norm_loss = masked_mean(
-        seq_mask[..., None], norm_error, dim=(-1, -2)
+            seq_mask[..., None, :, None], norm_error, dim=(-1, -2, -3)
     )
 
     loss += angle_norm_weight * angle_norm_loss
@@ -377,10 +382,10 @@ def lddt_loss(
     )
 
     errors = softmax_cross_entropy(logits, lddt_ca_one_hot)
-
     all_atom_mask = all_atom_mask.squeeze(-1)
     loss = (
-        torch.sum(errors * all_atom_mask) / (torch.sum(all_atom_mask) + 1e-8)
+        torch.sum(errors * all_atom_mask, dim=-1) / 
+        (eps + torch.sum(all_atom_mask, dim=-1))
     )
    
     loss *= (
@@ -483,10 +488,10 @@ def tm_score(
 
 
 def between_residue_bond_loss(
-    pred_atom_positions: torch.Tensor,  # (N, 37(14), 3)
-    pred_atom_mask: torch.Tensor,  # (N, 37(14))
-    residue_index: torch.Tensor,  # (N)
-    aatype: torch.Tensor,  # (N)
+    pred_atom_positions: torch.Tensor,  # (*, N, 37/14, 3)
+    pred_atom_mask: torch.Tensor,  # (*, N, 37/14)
+    residue_index: torch.Tensor,  # (*, N)
+    aatype: torch.Tensor,  # (*, N)
     tolerance_factor_soft=12.0,
     tolerance_factor_hard=12.0,
     eps=1e-6,
@@ -561,7 +566,10 @@ def between_residue_bond_loss(
         c_n_bond_length_error - tolerance_factor_soft * gt_stddev
     )
     mask = this_c_mask * next_n_mask * has_no_gap_mask
-    c_n_loss = torch.sum(mask * c_n_loss_per_residue) / (torch.sum(mask) + eps)
+    c_n_loss = (
+        torch.sum(mask * c_n_loss_per_residue, dim=-1) / 
+        (torch.sum(mask, dim=-1) + eps)
+    )
     c_n_violation_mask = mask * (
         c_n_bond_length_error > (tolerance_factor_hard * gt_stddev)
     )
@@ -589,7 +597,8 @@ def between_residue_bond_loss(
     )
     mask = this_ca_mask * this_c_mask * next_n_mask * has_no_gap_mask
     ca_c_n_loss = (
-        torch.sum(mask * ca_c_n_loss_per_residue) / (torch.sum(mask) + eps)
+        torch.sum(mask * ca_c_n_loss_per_residue, dim=-1) / 
+        (torch.sum(mask, dim=-1) + eps)
     )
     ca_c_n_violation_mask = mask * (ca_c_n_cos_angle_error >
                                     (tolerance_factor_hard * gt_stddev))
@@ -604,7 +613,8 @@ def between_residue_bond_loss(
     )
     mask = this_c_mask * next_n_mask * next_ca_mask * has_no_gap_mask
     c_n_ca_loss = (
-        torch.sum(mask * c_n_ca_loss_per_residue) / (torch.sum(mask) + eps)
+        torch.sum(mask * c_n_ca_loss_per_residue, dim=-1) / 
+        (torch.sum(mask, dim=-1) + eps)
     )
     c_n_ca_violation_mask = mask * (
         c_n_ca_cos_angle_error > (tolerance_factor_hard * gt_stddev)
@@ -619,7 +629,7 @@ def between_residue_bond_loss(
         torch.nn.functional.pad(per_residue_loss_sum, (0, 1)) +
         torch.nn.functional.pad(per_residue_loss_sum, (1, 0))
     )
- 
+
     # Compute hard violations.
     violation_mask = torch.max(
         torch.stack(
@@ -627,7 +637,8 @@ def between_residue_bond_loss(
                 c_n_violation_mask,
                 ca_c_n_violation_mask,
                 c_n_ca_violation_mask
-            ]
+            ],
+            dim=-2,
         ), 
         dim=-2
     )[0]
@@ -635,7 +646,7 @@ def between_residue_bond_loss(
         torch.nn.functional.pad(violation_mask, (0, 1)),
         torch.nn.functional.pad(violation_mask, (1, 0))
     )
-  
+
     return {
         'c_n_loss_mean': c_n_loss,
         'ca_c_n_loss_mean': ca_c_n_loss,
@@ -708,7 +719,7 @@ def between_residue_clash_loss(
   
     # Backbone C--N bond between subsequent residues is no clash.
     c_one_hot = torch.nn.functional.one_hot(
-        residue_index.new_tensor(2), num_classes=14
+        residue_index.new_tensor(2.), num_classes=14
     )
     c_one_hot = c_one_hot.reshape(
         *((1,) * len(residue_index.shape[:-1])), *c_one_hot.shape
@@ -958,7 +969,7 @@ def find_structural_violations(
         atom14_dists_upper_bound=atom14_dists_upper_bound,
         tighten_bounds_for_loss=0.0
     )
-  
+
     # Combine them to a single per-residue violation mask (used later for LDDT).
     per_residue_violations_mask = torch.max(
         torch.stack(
@@ -1255,6 +1266,7 @@ def experimentally_resolved_loss(
     min_resolution: float,
     max_resolution: float,
     eps: float = 1e-8,
+    **kwargs,
 ) -> torch.Tensor:
     errors = sigmoid_cross_entropy(logits, all_atom_mask)
     loss_num = torch.sum(errors * atom37_atom_exists, dim=(-1, -2))
@@ -1268,7 +1280,7 @@ def experimentally_resolved_loss(
     return loss
 
 
-def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8):
+def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
     errors = softmax_cross_entropy(
         logits,
         torch.nn.functional.one_hot(true_msa, num_classes=23)
@@ -1296,24 +1308,48 @@ class AlphaFoldLoss(nn.Module):
                 **self.config.violation,
             )
 
+        if("atom14_atom_is_ambiguous" not in batch.keys()):
+            batch.update(feats.build_ambiguity_feats(batch))
+
         if("renamed_atom14_gt_positions" not in out.keys()):
             batch.update(compute_renamed_ground_truth(
                 batch,
                 out["sm"]["positions"][-1],
             ))
 
+        if("backbone_affine_tensor" not in batch.keys()):
+            batch.update(feats.atom37_to_frames(**batch)) 
+            
+            # TODO: Verify that this is correct
+            batch["backbone_affine_tensor"] = (
+                batch["rigidgroups_gt_frames"][..., 0, :, :]
+            )
+            batch["backbone_affine_mask"] = (
+                batch["rigidgroups_gt_exists"][..., 0]
+            )
+
+        if("chi_angles_sin_cos" not in batch.keys()):
+            batch.update(feats.atom37_to_torsion_angles(
+               **batch,
+            ))
+
+            # TODO: Verify that this is correct
+            batch["chi_angles_sin_cos"] = (
+                batch["torsion_angles_sin_cos"][..., 3:, :]
+            )
+            batch["chi_mask"] = batch["torsion_angles_mask"][..., 3:]
+
         loss_fns = {
             "distogram": 
                 lambda: distogram_loss(
-                    out["distogram_logits"],
+                    logits=out["distogram_logits"],
                     **{**batch,
                      **self.config.distogram},
                 ),
             "experimentally_resolved": 
                 lambda: experimentally_resolved_loss(
-                    out["experimentally_resolved"],
-                    **{**batch,
-                     **self.config.experimentally_resolved},
+                    logits=out["experimentally_resolved_logits"],
+                    **{**batch, **self.config.experimentally_resolved},
                 ),
             "fape":
                 lambda: fape_loss(
@@ -1323,14 +1359,13 @@ class AlphaFoldLoss(nn.Module):
                 ),
             "lddt": 
                 lambda: lddt_loss(
-                    out["lddt_logits"],
-                    all_atom_pred_pos=out["final_atom_positions"]
-                    **{**batch,
-                     **self.config.lddt},
+                    logits=out["lddt_logits"],
+                    all_atom_pred_pos=out["final_atom_positions"],
+                    **{**batch, **self.config.lddt},
                 ),
             "masked_msa": 
                 lambda: masked_msa_loss(
-                    out["masked_msa_logits"],
+                    logits=out["masked_msa_logits"],
                     **{**batch,
                      **self.config.masked_msa},
                 ),
@@ -1338,8 +1373,7 @@ class AlphaFoldLoss(nn.Module):
                 lambda: supervised_chi_loss(
                     out["sm"]["angles"],
                     out["sm"]["unnormalized_angles"],
-                    **{**batch,
-                     **self.config.supervised_chi},
+                    **{**batch, **self.config.supervised_chi},
                 ),
             "violation":
                 lambda: violation_loss(
@@ -1351,6 +1385,9 @@ class AlphaFoldLoss(nn.Module):
         for k,loss_fn in loss_fns.items():
             weight = self.config[k].weight
             if(weight):
-                cum_loss += weight * loss_fn()
+                print(k)
+                loss = loss_fn()
+                print(loss)
+                cum_loss += weight * loss
 
         return cum_loss

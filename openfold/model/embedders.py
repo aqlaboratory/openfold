@@ -113,6 +113,7 @@ class InputEmbedder(nn.Module):
         # [*, N_res, N_res, c_z]
         pair_emb = tf_emb_i[..., None, :] + tf_emb_j[..., None, :, :]
         pair_emb += self.relpos(ri)
+        #pair_emb = pair_emb + self.relpos(ri)
 
         # [*, N_clust, N_res, c_m]
         n_clust = msa.shape[-3]

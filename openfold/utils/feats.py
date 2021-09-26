@@ -158,15 +158,16 @@ def atom14_to_atom37(atom14, batch):
 
 def atom37_to_torsion_angles(
     aatype: torch.Tensor, 
-    all_atom_pos: torch.Tensor, 
+    all_atom_positions: torch.Tensor, 
     all_atom_mask: torch.Tensor, 
     eps: float = 1e-8,
+    **kwargs,
 ) -> Dict[str, torch.Tensor]:
     """
         Args:
             aatype:
                 [*, N_res] residue indices
-            all_atom_pos:
+            all_atom_positions:
                 [*, N_res, 37, 3] atom positions (in atom37 
                 format)
             all_atom_mask:
@@ -183,28 +184,32 @@ def atom37_to_torsion_angles(
     """
     aatype = torch.clamp(aatype, max=20)
     
-    pad = all_atom_pos.new_zeros([*all_atom_pos.shape[:-3], 1, 37, 3])
-    prev_all_atom_pos = torch.cat([pad, all_atom_pos[..., :-1, :, :]], dim=-3)
+    pad = all_atom_positions.new_zeros(
+        [*all_atom_positions.shape[:-3], 1, 37, 3]
+    )
+    prev_all_atom_positions = torch.cat(
+        [pad, all_atom_positions[..., :-1, :, :]], dim=-3
+    )
 
     pad = all_atom_mask.new_zeros([*all_atom_mask.shape[:-2], 1, 37])
     prev_all_atom_mask = torch.cat([pad, all_atom_mask[..., :-1, :]], dim=-2)
 
     pre_omega_atom_pos = torch.cat(
         [
-            prev_all_atom_pos[..., 1:3, :],
-            all_atom_pos[..., :2, :]
+            prev_all_atom_positions[..., 1:3, :],
+            all_atom_positions[..., :2, :]
         ], dim=-2
     )
     phi_atom_pos = torch.cat(
         [
-            prev_all_atom_pos[..., 2:3, :],
-            all_atom_pos[..., :3, :]
+            prev_all_atom_positions[..., 2:3, :],
+            all_atom_positions[..., :3, :]
         ], dim=-2
     )
     psi_atom_pos = torch.cat(
         [
-            all_atom_pos[..., :3, :],
-            all_atom_pos[..., 4:5, :]
+            all_atom_positions[..., :3, :],
+            all_atom_positions[..., 4:5, :]
         ], dim=-2
     )
 
@@ -227,7 +232,7 @@ def atom37_to_torsion_angles(
 
     atom_indices = chi_atom_indices[..., aatype, :, :]
     chis_atom_pos = batched_gather(
-        all_atom_pos, atom_indices, -2, len(atom_indices.shape[:-2])
+        all_atom_positions, atom_indices, -2, len(atom_indices.shape[:-2])
     )
 
     chi_angles_mask = list(rc.chi_angles_mask)
@@ -335,9 +340,9 @@ def atom37_to_frames(
         device=aatype.device, 
         requires_grad=False
     )
-    restype_rigidgroup_mask[:, 0] = 1
-    restype_rigidgroup_mask[:, 3] = 1
-    restype_rigidgroup_mask[:20, 4:] = (
+    restype_rigidgroup_mask[..., 0] = 1
+    restype_rigidgroup_mask[..., 3] = 1
+    restype_rigidgroup_mask[..., :20, 4:] = (
         all_atom_mask.new_tensor(rc.chi_angles_mask)
     )
 

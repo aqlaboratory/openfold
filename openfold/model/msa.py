@@ -125,7 +125,7 @@ class MSAAttention(nn.Module):
             "v_x": m, 
             "biases": biases
         }
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             m = chunk_layer(
                 self.mha,
                 mha_inputs,
@@ -142,7 +142,7 @@ class MSARowAttentionWithPairBias(MSAAttention):
     """
         Implements Algorithm 7.
     """
-    def __init__(self, c_m, c_z, c_hidden, no_heads, inf=1e9):
+    def __init__(self, c_m, c_z, c_hidden, no_heads, chunk_size, inf=1e9):
         """
             Args:
                 c_m:
@@ -161,7 +161,8 @@ class MSARowAttentionWithPairBias(MSAAttention):
             c_hidden, 
             no_heads, 
             pair_bias=True, 
-            c_z=c_z, 
+            c_z=c_z,
+            chunk_size=chunk_size,
             inf=inf,
         )
 
@@ -259,7 +260,7 @@ class MSAColumnGlobalAttention(nn.Module):
 
         # [*, N_res, H * C_hidden]
         q = self.linear_q(q)
-        q *= self.c_hidden ** (-0.5)
+        q = q * self.c_hidden ** (-0.5)
 
         # [*, N_res, H, C_hidden]
         q = q.view(*q.shape[:-1], self.no_heads, -1)
@@ -274,7 +275,7 @@ class MSAColumnGlobalAttention(nn.Module):
             k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq] 
         )
         bias = (self.inf * (mask - 1))[..., :, None, :]
-        a += bias
+        a = a + bias
         a = self.softmax(a)
 
         # [*, N_res, H, C_hidden]
@@ -318,7 +319,7 @@ class MSAColumnGlobalAttention(nn.Module):
             "m": m,
             "mask": mask,
         }
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             m = chunk_layer(
                 self.global_attention,
                 mha_input,

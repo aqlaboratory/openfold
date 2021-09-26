@@ -108,7 +108,7 @@ class AlphaFold(nn.Module):
     def embed_templates(self, batch, z, pair_mask, templ_dim):
         # Embed the templates one at a time (with a poor man's vmap)
         template_embeds = []
-        n_templ = batch["template_aatype"].shape[-2]
+        n_templ = batch["template_aatype"].shape[templ_dim]
         for i in range(n_templ):
             idx = batch["template_aatype"].new_tensor(i)
             single_template_feats = tensor_tree_map(
@@ -155,14 +155,14 @@ class AlphaFold(nn.Module):
             partial(torch.cat, dim=templ_dim),
             template_embeds,
         )
- 
+
         # [*, N, N, C_z]
         t = self.template_pointwise_att(
             template_embeds["pair"], 
             z, 
             template_mask=batch["template_mask"]
         )
-        t *= torch.sum(batch["template_mask"]) > 0
+        t = t * torch.sum(batch["template_mask"]) > 0
    
         return {
             "template_angle_embedding": a,
@@ -297,7 +297,7 @@ class AlphaFold(nn.Module):
                 m[..., 0, :, :] += m_1_prev_emb
 
                 # [*, N, N, C_z]
-                z += z_prev_emb
+                z = z + z_prev_emb
 
             # Embed the templates + merge with MSA/pair embeddings
             if(self.config.template.enabled):
@@ -312,7 +312,7 @@ class AlphaFold(nn.Module):
                 )
 
                 # [*, N, N, C_z]
-                z += template_embeds["template_pair_embedding"]
+                z = z + template_embeds["template_pair_embedding"]
  
                 if(self.config.template.embed_angles):
                     # [*, S = S_c + S_t, N, C_m]

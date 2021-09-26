@@ -73,7 +73,7 @@ class PairTransition(nn.Module):
         z = self.layer_norm(z)
 
         inp = {"z": z, "mask": mask}
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             z = chunk_layer(
                 self._transition,
                 inp,

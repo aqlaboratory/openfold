@@ -94,7 +94,7 @@ class MSATransition(nn.Module):
         m = self.layer_norm(m)
 
         inp = {"m": m, "mask": mask}
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             m = chunk_layer(
                 self._transition,
                 inp,
@@ -132,6 +132,7 @@ class EvoformerBlock(nn.Module):
             c_z=c_z,
             c_hidden=c_hidden_msa_att,
             no_heads=no_heads_msa,
+            chunk_size=chunk_size,
             inf=inf,
         )
 

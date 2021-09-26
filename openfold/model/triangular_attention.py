@@ -102,7 +102,7 @@ class TriangleAttention(nn.Module):
             "v_x": x,
             "biases": [mask_bias, triangle_bias],
         }
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             x = chunk_layer(
                 self.mha,
                 mha_inputs, 

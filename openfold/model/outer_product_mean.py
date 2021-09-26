@@ -83,7 +83,7 @@ class OuterProductMean(nn.Module):
         a = a.transpose(-2, -3)
         b = b.transpose(-2, -3)
 
-        if(not self.training and self.chunk_size is not None):
+        if(self.chunk_size is not None):
             # Since the "batch dim" in this case is not a true batch dimension
             # (in that the shape of the output depends on it), we need to
             # iterate over it ourselves
@@ -107,7 +107,7 @@ class OuterProductMean(nn.Module):
         norm = torch.einsum("...abc,...adc->...bdc", mask, mask)
 
         # [*, N_res, N_res, C_z]
-        outer /= self.eps + norm
+        outer = outer / self.eps + norm
 
         return outer
 

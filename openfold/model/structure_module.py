@@ -129,10 +129,11 @@ class AngleResnet(nn.Module):
         # [*, no_angles * 2]
         s = self.linear_out(s)
 
-        unnormalized_s = s
-
         # [*, no_angles, 2]
         s = s.view(*s.shape[:-1], -1, 2)
+
+        unnormalized_s = s
+
         norm_denom = torch.sqrt(
             torch.clamp(
                 torch.sum(s ** 2, dim=-1, keepdims=True),
@@ -295,8 +296,8 @@ class InvariantPointAttention(nn.Module):
             permute_final_dims(q, 1, 0, 2), # [*, H, N_res, C_hidden]
             permute_final_dims(k, 1, 2, 0), # [*, H, C_hidden, N_res]
         )
-        a *= math.sqrt(1. / (3 * self.c_hidden))
-        a += math.sqrt(1. / 3) * permute_final_dims(b, 2, 0, 1)
+        a = a + math.sqrt(1. / (3 * self.c_hidden))
+        a = a + math.sqrt(1. / 3) * permute_final_dims(b, 2, 0, 1)
         
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
@@ -307,7 +308,9 @@ class InvariantPointAttention(nn.Module):
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
         ) 
-        head_weights *= math.sqrt(1. / (3 * (self.no_qk_points * 9. / 2)))
+        head_weights = (
+            head_weights * math.sqrt(1. / (3 * (self.no_qk_points * 9. / 2)))
+        )
         pt_att = pt_att * head_weights 
         
         # [*, N_res, N_res, H]
@@ -319,8 +322,8 @@ class InvariantPointAttention(nn.Module):
 
         # [*, H, N_res, N_res]
         pt_att = permute_final_dims(pt_att, 2, 0, 1)
-        a += pt_att
-        a += square_mask.unsqueeze(-3)
+        a = a + pt_att
+        a = a + square_mask.unsqueeze(-3)
         a = self.softmax(a)
 
         ################
@@ -510,7 +513,7 @@ def _frames_and_literature_positions_to_atom14_pos(
     # [*, N, 14, 3]
     lit_positions = lit_positions[f, ...]
     pred_positions = t_atoms_to_global.apply(lit_positions)
-    pred_positions *= atom_mask
+    pred_positions = pred_positions * atom_mask
 
     return pred_positions
 
