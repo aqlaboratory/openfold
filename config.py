@@ -19,7 +19,8 @@ c_m = mlc.FieldReference(256)
 c_t = mlc.FieldReference(64)
 c_e = mlc.FieldReference(64)
 c_s = mlc.FieldReference(384)
-chunk_size = mlc.FieldReference(4)
+blocks_per_ckpt = mlc.FieldReference(1)
+chunk_size = mlc.FieldReference(4)#1280)
 aux_distogram_bins = mlc.FieldReference(64)
 
 config = mlc.ConfigDict({
@@ -71,7 +72,7 @@ config = mlc.ConfigDict({
                 "no_heads": 4, 
                 "pair_transition_n": 2, 
                 "dropout_rate": 0.25,
-                "blocks_per_ckpt": None,
+                "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
             },
             "template_pointwise_attention": {
@@ -105,7 +106,7 @@ config = mlc.ConfigDict({
                 "transition_n": 4,
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
-                "blocks_per_ckpt": None,
+                "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
                 "inf": 1e9,
                 "eps": 1e-10,
@@ -126,7 +127,7 @@ config = mlc.ConfigDict({
             "transition_n": 4,
             "msa_dropout": 0.15,
             "pair_dropout": 0.25,
-            "blocks_per_ckpt": None,
+            "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
             "inf": 1e9,
             "eps": 1e-10,
@@ -226,6 +227,8 @@ config = mlc.ConfigDict({
             "weight": 1.0,
         },
         "violation": {
+            "violation_tolerance_factor": 12.0,
+            "clash_overlap_tolerance": 1.5,
             "eps": 1e-6,
             "weight": 0.,
         },
