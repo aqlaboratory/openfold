@@ -50,7 +50,7 @@ class OuterProductMean(nn.Module):
     def _opm(self, a, b):
         # [*, N_res, N_res, C, C]
         outer = torch.einsum("...bac,...dae->...bdce", a, b)
-        
+ 
         # [*, N_res, N_res, C * C]
         outer = outer.reshape(*outer.shape[:-2], -1)
 
@@ -107,7 +107,7 @@ class OuterProductMean(nn.Module):
         norm = torch.einsum("...abc,...adc->...bdc", mask, mask)
 
         # [*, N_res, N_res, C_z]
-        outer = outer / self.eps + norm
+        outer = outer / (self.eps + norm)
 
         return outer
 
