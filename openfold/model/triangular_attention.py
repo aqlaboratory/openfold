@@ -130,27 +130,3 @@ class TriangleAttentionEndingNode(TriangleAttention):
         Implements Algorithm 14.
     """
     __init__ = partialmethod(TriangleAttention.__init__, starting=False)
-
-
-if __name__ == "__main__":
-    c_in = 256
-    c = 32
-    no_heads = 4
-    starting = True
-
-    tan = TriangleAttention(
-        c_in,
-        c,
-        no_heads,
-        starting
-    )
-
-    batch_size = 16
-    n_res = 256
-
-    x = torch.rand((batch_size, n_res, n_res, c_in))
-    shape_before = x.shape
-    x = tan(x)
-    shape_after = x.shape
-
-    assert(shape_before == shape_after)

@@ -285,22 +285,3 @@ class MSAColumnGlobalAttention(nn.Module):
         m = m.transpose(-2, -3)
 
         return m
-
-
-if __name__ == "__main__":
-    batch_size = 2
-    s_t = 3
-    n = 100
-    c_in = 128
-    c = 32
-    no_heads = 4
-
-    msaca = MSAColumnAttention(c_in, c, no_heads)
-
-    x = torch.rand((batch_size, s_t, n, c_in))
-
-    shape_before = x.shape
-    x = msaca(x)
-    shape_after = x.shape
-
-    assert(shape_before == shape_after)

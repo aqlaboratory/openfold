@@ -110,19 +110,3 @@ class OuterProductMean(nn.Module):
         outer = outer / (self.eps + norm)
 
         return outer
-
-
-if __name__ == "__main__":
-    batch_size = 2
-    s = 5
-    n_res = 100
-    c_m = 256
-    c = 32
-    c_z = 128
-
-    opm = OuterProductMean(c_m, c_z, c)
-
-    m = torch.rand((batch_size, s, n_res, c_m))
-    m = opm(m)
-
-    assert(m.shape == (batch_size, n_res, n_res, c_z))

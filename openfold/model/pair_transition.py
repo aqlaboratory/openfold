@@ -84,20 +84,3 @@ class PairTransition(nn.Module):
             z = self._transition(**inp)
 
         return z
-
-
-if __name__ == "__main__":
-    n = 4
-    c_in = 128
-
-    pt = PairTransition(n, c_in)
-
-    batch_size = 4
-    n_res = 256
-
-    z = torch.rand((batch_size, n_res, n_res, c_in))
-    shape_before = z.shape
-    z = pt(z)
-    shape_after = z.shape
-
-    assert(shape_before == shape_after)

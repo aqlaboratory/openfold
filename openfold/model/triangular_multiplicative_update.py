@@ -125,24 +125,3 @@ class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
     __init__ = partialmethod(
         TriangleMultiplicativeUpdate.__init__, _outgoing=False,
     )
-
-
-if __name__ == "__main__":
-    c_in = 256 # doubled to make shape changes more apparent
-    c = 128
-    outgoing = True
-
-    tm = TriangleMultiplication(
-        c_in,
-        c,
-        outgoing,
-    )
-
-    n_res = 300
-    batch_size = 16
-    x = torch.rand((batch_size, n_res, n_res, c_in))
-    shape_before = x.shape
-    x = tm(x)
-    shape_after = x.shape
-
-    assert(shape_before == shape_after)

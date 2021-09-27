@@ -349,32 +349,3 @@ class ExtraMSAEmbedder(nn.Module):
         x = self.linear(x)
 
         return x
-
-
-if __name__ == "__main__":
-
-    tf_dim = 21
-    msa_dim = 49 
-    c_z = 128
-    c_m = 256
-    relpos_k = 32
-
-    b = 16
-    n_res = 200
-    n_clust = 10
-
-    tf = torch.rand((b, n_res, tf_dim))
-    ri = torch.rand((b, n_res))
-    msa = torch.rand((b, n_clust, n_res, msa_dim))
-
-    batch = {}
-    batch["target_feat"] = tf
-    batch["residue_index"] = ri
-    batch["msa_feat"] = msa
-
-    ie = InputEmbedder(tf_dim, msa_dim, c_z, c_m, relpos_k)
-
-    msa_emb, pair_emb = ie(batch)
-
-    assert(msa_emb.shape == (b, n_clust, n_res, c_m))
-    assert(pair_emb.shape == (b, n_res, n_res, c_z))

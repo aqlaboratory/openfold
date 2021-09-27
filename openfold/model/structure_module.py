@@ -810,29 +810,3 @@ class StructureModule(nn.Module):
             self.atom_mask,
             self.lit_positions, 
         )
-
-
-if __name__ == "__main__":
-    c_m = 11
-    c_z = 13
-    c_hidden = 17
-    no_heads = 3
-    no_qp = 5
-    no_vp = 7
-
-    batch_size = 2
-
-    s = torch.rand((batch_size, n_res, c_m))
-    z = torch.rand((batch_size, n_res, n_res, c_z))
-
-    rots = torch.rand((batch_size, n_res, 3, 3))
-    trans = torch.rand((batch_size, n_res, 3))
-
-    t = (rots, trans)
-
-    ipa = InvariantPointAttention(c_m, c_z, c_hidden, no_heads, no_qp, no_vp)
-
-    shape_before = s.shape
-    s = ipa(s, z, t)
-
-    assert(s.shape == shape_before)
