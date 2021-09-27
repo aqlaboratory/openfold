@@ -313,7 +313,7 @@ class GlobalAttention(nn.Module):
 
         # [*, N_res, H * C_hidden]
         q = self.linear_q(q)
-        q = q * self.c_hidden ** (-0.5)
+        q = q * (self.c_hidden ** (-0.5))
 
         # [*, N_res, H, C_hidden]
         q = q.view(q.shape[:-1] + (self.no_heads, -1))

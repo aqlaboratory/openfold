@@ -1385,9 +1385,9 @@ class AlphaFoldLoss(nn.Module):
         for k,loss_fn in loss_fns.items():
             weight = self.config[k].weight
             if(weight):
-                print(k)
                 loss = loss_fn()
-                print(loss)
+                #print(k)
+                #print(loss)
                 cum_loss += weight * loss
 
         return cum_loss

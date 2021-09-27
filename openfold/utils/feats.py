@@ -279,7 +279,8 @@ def atom37_to_torsion_angles(
     )
 
     torsion_angles_sin_cos = torch.stack(
-        [fourth_atom_rel_pos[..., 2], fourth_atom_rel_pos[..., 1]], dim=-1)
+        [fourth_atom_rel_pos[..., 2], fourth_atom_rel_pos[..., 1]], dim=-1
+    )
     denom = torch.sqrt(
         torch.sum(
             torch.square(torsion_angles_sin_cos), dim=-1, keepdims=True
@@ -336,7 +337,7 @@ def atom37_to_frames(
 
     restype_rigidgroup_mask = torch.zeros(
         (*aatype.shape[:-1], 21, 8), 
-        dtype=torch.float, 
+        dtype=all_atom_mask.dtype, 
         device=aatype.device, 
         requires_grad=False
     )
@@ -390,14 +391,16 @@ def atom37_to_frames(
     )
 
     gt_atoms_exist = batched_gather(
-        all_atom_mask.float(),
+        all_atom_mask,
         residx_rigidgroup_base_atom37_idx,
         dim=-1,
         no_batch_dims=len(all_atom_mask.shape[:-1])
     )
     gt_exists = torch.min(gt_atoms_exist, dim=-1)[0] * group_exists
 
-    rots = torch.eye(3, device=aatype.device, requires_grad=False)
+    rots = torch.eye(
+        3, dtype=all_atom_mask.dtype, device=aatype.device, requires_grad=False
+    )
     rots = torch.tile(rots, (*((1,) * batch_dims), 8, 1, 1))
     rots[..., 0, 0, 0] = -1
     rots[..., 0, 2, 2] = -1
@@ -408,7 +411,7 @@ def atom37_to_frames(
         *((1,) * batch_dims), 21, 8
     )
     restype_rigidgroup_rots = torch.eye(
-        3, device=aatype.device, requires_grad=False
+        3, dtype=all_atom_mask.dtype, device=aatype.device, requires_grad=False
     )
     restype_rigidgroup_rots = torch.tile(
         restype_rigidgroup_rots,

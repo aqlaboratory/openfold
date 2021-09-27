@@ -430,7 +430,7 @@ class ExtraMSAStack(nn.Module):
                     Optional [*, N_res, N_res] pair mask
             Returns:
                 [*, N_res, N_res, C_z] pair update
-        """ 
+        """
         _, z, _ = self.stack(
             m, 
             z,

@@ -43,7 +43,6 @@ from openfold.model.template import (
 from openfold.utils.loss import (
     compute_plddt,
 )
-
 from openfold.utils.tensor_utils import (
     dict_multimap,
     tensor_tree_map,
@@ -162,7 +161,7 @@ class AlphaFold(nn.Module):
             z, 
             template_mask=batch["template_mask"]
         )
-        t = t * torch.sum(batch["template_mask"]) > 0
+        t = t * (torch.sum(batch["template_mask"]) > 0)
    
         return {
             "template_angle_embedding": a,
@@ -318,6 +317,22 @@ class AlphaFold(nn.Module):
 
         return outputs, m_1_prev, z_prev, x_prev
 
+    def _disable_activation_checkpointing(self):
+        self.template_pair_stack.blocks_per_ckpt = None
+        self.evoformer.blocks_per_ckpt = None
+        self.extra_msa_stack.stack.blocks_per_ckpt = None
+
+    def _enable_activation_checkpointing(self):
+        self.template_pair_stack.blocks_per_ckpt = (
+            self.config.template.template_pair_stack.blocks_per_ckpt
+        )
+        self.evoformer.blocks_per_ckpt = (
+            self.config.evoformer_stack.blocks_per_ckpt
+        )
+        self.extra_msa_stack.stack.blocks_per_ckpt = (
+            self.config.extra_msa.extra_msa_stack.blocks_per_ckpt
+        )
+
     def forward(self, batch):
         """
             Args:
@@ -368,8 +383,11 @@ class AlphaFold(nn.Module):
                         "template_pseudo_beta_mask" ([*, N_templ, N_res])
                             Pseudo-beta mask 
         """        
-        # Recycling embeddings
+        # Initialize recycling embeddings
         m_1_prev, z_prev, x_prev = None, None, None
+
+        # Disable activation checkpointing until the final recycling layer
+        self._disable_activation_checkpointing()
 
         # Main recycling loop
         for cycle_no in range(self.config.no_cycles):
@@ -379,9 +397,11 @@ class AlphaFold(nn.Module):
            
             # Enable grad iff we're training and it's the final recycling layer
             is_final_iter = (cycle_no == self.config.no_cycles - 1)
+            if(self.training and is_final_iter):
+                self._enable_activation_checkpointing()
             with torch.set_grad_enabled(self.training and is_final_iter):
                 outputs, m_1_prev, z_prev, x_prev = self.iteration(
-                    feats, m_1_prev, z_prev, x_prev,
+                    feats, m_1_prev, z_prev, x_prev, 
                 )
              
         outputs.update(self.aux_heads(outputs))
