@@ -18,7 +18,7 @@ import math
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, scripted_attention
+from openfold.model.primitives import Linear, Attention 
 from openfold.utils.deepspeed import checkpoint_blocks
 from openfold.model.dropout import  (
     DropoutRowwise,
@@ -69,7 +69,7 @@ class TemplatePointwiseAttention(nn.Module):
         self.no_heads = no_heads
         self.chunk_size = chunk_size
 
-        self.mha = scripted_attention(
+        self.mha = Attention(
             self.c_z, self.c_t, self.c_t, 
             self.c_hidden, self.no_heads,
             gating=False,
@@ -91,7 +91,7 @@ class TemplatePointwiseAttention(nn.Module):
             # NOTE: This is not the "template_mask" from the supplement, but a
             # [*, N_templ] mask from the code. I'm pretty sure it's always just 1,
             # but not sure enough to remove it. It's nice to have, I guess.
-            template_mask = torch.ones(t.shape[:-3], device=t.device)
+            template_mask = t.new_ones(t.shape[:-3])
         
         bias = (1e9 * (template_mask[..., None, None, None, None, :] - 1))
 
@@ -99,7 +99,7 @@ class TemplatePointwiseAttention(nn.Module):
         z = z.unsqueeze(-2)
 
         # [*, N_res, N_res, N_temp, C_t]
-        t = permute_final_dims(t, 1, 2, 0, 3)
+        t = permute_final_dims(t, (1, 2, 0, 3))
 
         # [*, N_res, N_res, 1, C_z]
         mha_inputs = {

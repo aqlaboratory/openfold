@@ -14,6 +14,7 @@
 
 import deepspeed
 import torch
+from torch.utils.checkpoint import checkpoint
 from typing import Any, Tuple, List, Callable
 
 BLOCK_ARG = Any
@@ -55,7 +56,7 @@ def checkpoint_blocks(
         return a
 
     def chunker(s, e):
-        def exec_sliced(a):
+        def exec_sliced(*a):
             return exec(blocks[s:e], a)
         return exec_sliced
 
@@ -69,7 +70,7 @@ def checkpoint_blocks(
 
     for s in range(0, len(blocks), blocks_per_ckpt):
         e = s + blocks_per_ckpt
-        args = deepspeed.checkpointing.checkpoint(chunker(s, e), args)
+        args = deepspeed.checkpointing.checkpoint(chunker(s, e), *args)
         args = wrap(args)
 
     return args

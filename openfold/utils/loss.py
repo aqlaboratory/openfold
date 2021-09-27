@@ -356,7 +356,7 @@ def lddt_loss(
     )
     dists_to_score = (
         (dmat_true < cutoff) * all_atom_mask *
-        permute_final_dims(all_atom_mask, 1, 0) *
+        permute_final_dims(all_atom_mask, (1, 0)) *
         (1. - torch.eye(n, device=all_atom_mask.device))
     )
 

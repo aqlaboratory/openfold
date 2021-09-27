@@ -18,7 +18,7 @@ import math
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, scripted_attention
+from openfold.model.primitives import Linear, Attention
 from openfold.utils.tensor_utils import (
     chunk_layer, 
     permute_final_dims, 
@@ -57,7 +57,7 @@ class TriangleAttention(nn.Module):
         
         self.linear = Linear(c_in, self.no_heads, bias=False, init="normal")
 
-        self.mha = scripted_attention(
+        self.mha = Attention(
             self.c_in, self.c_in, self.c_in,
             self.c_hidden, 
             self.no_heads
@@ -91,7 +91,7 @@ class TriangleAttention(nn.Module):
         mask_bias = (self.inf * (mask - 1))[..., :, None, None, :]
         
         # [*, H, I, J]
-        triangle_bias = permute_final_dims(self.linear(x), 2, 0, 1)
+        triangle_bias = permute_final_dims(self.linear(x), (2, 0, 1))
 
         # [*, 1, H, I, J]
         triangle_bias = triangle_bias.unsqueeze(-4)

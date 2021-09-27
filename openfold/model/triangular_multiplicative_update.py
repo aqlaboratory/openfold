@@ -59,12 +59,12 @@ class TriangleMultiplicativeUpdate(nn.Module):
     ):
         # [*, C, N_i, N_j]
         p = torch.matmul(
-            permute_final_dims(a, 2, 0, 1),
-            permute_final_dims(b, 2, 1, 0),
+            permute_final_dims(a, (2, 0, 1)),
+            permute_final_dims(b, (2, 1, 0)),
         )
         
         # [*, N_i, N_j, C]
-        return permute_final_dims(p, 1, 2, 0)
+        return permute_final_dims(p, (1, 2, 0))
 
     def _incoming_matmul(self, 
         a: torch.Tensor,    # [*, N_k, N_i, C] 
@@ -73,12 +73,12 @@ class TriangleMultiplicativeUpdate(nn.Module):
 
         # [*, C, N_i, N_j]
         p = torch.matmul(
-            permute_final_dims(a, 2, 1, 0),
-            permute_final_dims(b, 2, 0, 1),
+            permute_final_dims(a, (2, 1, 0)),
+            permute_final_dims(b, (2, 0, 1)),
         )
        
         # [*, N_i, N_j, C]
-        return permute_final_dims(p, 1, 2, 0)
+        return permute_final_dims(p, (1, 2, 0))
     
     def forward(self, z, mask=None):
         """

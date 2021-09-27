@@ -231,7 +231,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
 
     MSAGlobalAttParams = lambda matt: {
         "query_norm": LayerNormParams(matt.layer_norm_m),
-        "attention": GlobalAttentionParams(matt)
+        "attention": GlobalAttentionParams(matt.global_attention)
     }
 
     MSAAttPairBiasParams = lambda matt: dict(

@@ -13,30 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import numpy as np
 import torch
 
 
-# According to DeepMind, this prevents rotation compositions from being
-# computed on low-precision tensor cores. I'm personally skeptical that it
-# makes a difference, but to get as close as possible to their outputs, I'm
-# adding it.
 def rot_matmul(a, b):
-    e = ...
     row_1 = torch.stack([
-        a[e,0,0]*b[e,0,0] + a[e,0,1]*b[e,1,0] + a[e,0,2]*b[e,2,0],
-        a[e,0,0]*b[e,0,1] + a[e,0,1]*b[e,1,1] + a[e,0,2]*b[e,2,1],
-        a[e,0,0]*b[e,0,2] + a[e,0,1]*b[e,1,2] + a[e,0,2]*b[e,2,2],
+        a[...,0,0]*b[...,0,0] + a[...,0,1]*b[...,1,0] + a[...,0,2]*b[...,2,0],
+        a[...,0,0]*b[...,0,1] + a[...,0,1]*b[...,1,1] + a[...,0,2]*b[...,2,1],
+        a[...,0,0]*b[...,0,2] + a[...,0,1]*b[...,1,2] + a[...,0,2]*b[...,2,2],
     ], dim=-1)
     row_2 = torch.stack([
-        a[e,1,0]*b[e,0,0] + a[e,1,1]*b[e,1,0] + a[e,1,2]*b[e,2,0],
-        a[e,1,0]*b[e,0,1] + a[e,1,1]*b[e,1,1] + a[e,1,2]*b[e,2,1],
-        a[e,1,0]*b[e,0,2] + a[e,1,1]*b[e,1,2] + a[e,1,2]*b[e,2,2],
+        a[...,1,0]*b[...,0,0] + a[...,1,1]*b[...,1,0] + a[...,1,2]*b[...,2,0],
+        a[...,1,0]*b[...,0,1] + a[...,1,1]*b[...,1,1] + a[...,1,2]*b[...,2,1],
+        a[...,1,0]*b[...,0,2] + a[...,1,1]*b[...,1,2] + a[...,1,2]*b[...,2,2],
     ], dim=-1)
     row_3 = torch.stack([
-        a[e,2,0]*b[e,0,0] + a[e,2,1]*b[e,1,0] + a[e,2,2]*b[e,2,0],
-        a[e,2,0]*b[e,0,1] + a[e,2,1]*b[e,1,1] + a[e,2,2]*b[e,2,1],
-        a[e,2,0]*b[e,0,2] + a[e,2,1]*b[e,1,2] + a[e,2,2]*b[e,2,2],
+        a[...,2,0]*b[...,0,0] + a[...,2,1]*b[...,1,0] + a[...,2,2]*b[...,2,0],
+        a[...,2,0]*b[...,0,1] + a[...,2,1]*b[...,1,1] + a[...,2,2]*b[...,2,1],
+        a[...,2,0]*b[...,0,2] + a[...,2,1]*b[...,1,2] + a[...,2,2]*b[...,2,2],
     ], dim=-1)
 
     return torch.stack([row_1, row_2, row_3], dim=-2)
@@ -175,7 +170,7 @@ class T:
         return T(rots, trans)
 
     def to_4x4(self):
-        tensor = torch.zeros((*self.shape, 4, 4), device=self.rots.device)
+        tensor = self.rots.new_zeros((*self.shape, 4, 4))
         tensor[..., :3, :3] = self.rots
         tensor[..., :3, 3] = self.trans
         tensor[..., 3, 3] = 1
@@ -311,7 +306,7 @@ def _to_mat(pairs):
 
     return mat
 
-_qtr_mat = torch.zeros((4, 4, 3, 3))
+_qtr_mat = np.zeros((4, 4, 3, 3))
 _qtr_mat[..., 0, 0] = _to_mat([('aa', 1), ('bb', 1), ('cc', -1), ('dd', -1)])
 _qtr_mat[..., 0, 1] = _to_mat([('bc', 2), ('ad', -2)])
 _qtr_mat[..., 0, 2] = _to_mat([('bd', 2), ('ac', 2)])
@@ -328,9 +323,11 @@ def quat_to_rot(
     # [*, 4, 4]
     quat = quat[..., None] * quat[..., None, :]
 
+    mat = quat.new_tensor(_qtr_mat)
+
     # [*, 4, 4, 3, 3]
-    shaped_qtr_mat = _qtr_mat.view((1,) * len(quat.shape[:-2]) + (4, 4, 3, 3))
-    quat = quat[..., None, None] * shaped_qtr_mat.to(quat.device)
+    shaped_qtr_mat = mat.view((1,) * len(quat.shape[:-2]) + (4, 4, 3, 3))
+    quat = quat[..., None, None] * shaped_qtr_mat
 
     # [*, 3, 3]
     return torch.sum(quat, dim=(-3, -4))
@@ -339,9 +336,7 @@ def affine_vector_to_4x4(vector):
     quats = vector[..., :4]
     trans = vector[..., 4:]
 
-    four_by_four = torch.zeros(
-        (*vector.shape[:-1], 4, 4), device=vector.device
-    )
+    four_by_four = vector.new_zeros((*vector.shape[:-1], 4, 4))
     four_by_four[..., :3, :3] = quat_to_rot(quats)
     four_by_four[..., :3, 3] = trans
     four_by_four[..., 3, 3] = 1

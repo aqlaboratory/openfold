@@ -16,12 +16,13 @@
 from functools import partial
 import torch
 import torch.nn as nn
+from typing import Tuple, List, Callable, Any, Dict
 
 
-def permute_final_dims(tensor, *inds):
+def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
     zero_index = -1 * len(inds)
-    first_inds = range(len(tensor.shape[:zero_index]))
-    return tensor.permute(*first_inds, *[zero_index + i for i in inds])
+    first_inds = list(range(len(tensor.shape[:zero_index])))
+    return tensor.permute(first_inds + [zero_index + i for i in inds])
 
 
 def flatten_final_dims(tensor: torch.Tensor, no_dims: int):
@@ -70,7 +71,7 @@ def stack_tensor_dicts(dicts):
 
 
 def one_hot(x, v_bins):
-    reshaped_bins = v_bins.view(*((1,) * len(x.shape) + (len(v_bins),)))
+    reshaped_bins = v_bins.view(((1,) * len(x.shape)) + (len(v_bins),))
     diffs = x[..., None] - reshaped_bins
     am = torch.argmin(torch.abs(diffs), dim=-1)
     return nn.functional.one_hot(am, num_classes=len(v_bins)).float()
@@ -118,7 +119,12 @@ def tree_map(fn, tree, leaf_type):
 
 tensor_tree_map = partial(tree_map, leaf_type=torch.Tensor)
 
-def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
+def chunk_layer(
+    layer: Callable, 
+    inputs: Dict[str, Any], 
+    chunk_size: int, 
+    no_batch_dims: int,
+) -> Any:
     """
         Implements the "chunking" procedure described in section 1.11.8.
 
@@ -130,8 +136,8 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
             layer:
                 The layer to be applied chunk-wise
             inputs:
-                A (nested) dictionary of keyworded inputs. All leaves must be 
-                tensors and must share the same batch dimensions.
+                A (non-nested) dictionary of keyworded inputs. All leaves must 
+                be tensors and must share the same batch dimensions.
             chunk_size:
                 The number of sub-batches per chunk. If multiple batch
                 dimensions are specified, a "sub-batch" is defined as a single
@@ -163,7 +169,7 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
         return shapes
  
     initial_dims = [shape[:no_batch_dims] for shape in fetch_dims(inputs)]
-    orig_batch_dims = [max(s) for s in zip(*initial_dims)]
+    orig_batch_dims = tuple([max(s) for s in zip(*initial_dims)])
 
     def prep_inputs(t):
         # TODO: make this more memory efficient. This sucks
@@ -194,7 +200,7 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
 
         # Allocate space for the output
         if(out is None):
-            allocate = lambda t: t.new_zeros(flat_batch_dim, *t.shape[1:])
+            allocate = lambda t: t.new_zeros((flat_batch_dim,) + t.shape[1:])
             out = tensor_tree_map(allocate, output_chunk)
 
         # Put the chunk in its pre-allocated space
@@ -217,7 +223,7 @@ def chunk_layer(layer, inputs, chunk_size, no_batch_dims):
 
         i += chunk_size
 
-    reshape = lambda t: t.reshape(*orig_batch_dims, *t.shape[1:])
+    reshape = lambda t: t.reshape(orig_batch_dims + t.shape[1:])
     out = tensor_tree_map(reshape, out)
 
     return out    

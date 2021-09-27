@@ -16,7 +16,7 @@
 import math
 import torch
 import torch.nn as nn
-from typing import Optional
+from typing import Optional, Tuple
 
 from openfold.model.primitives import Linear, ipa_point_weights_init_
 from openfold.np.residue_constants import (
@@ -49,7 +49,7 @@ class AngleResnetBlock(nn.Module):
 
         self.relu = nn.ReLU()
 
-    def forward(self, a):
+    def forward(self, a: torch.Tensor) -> torch.Tensor:
 
         s_initial = a
 
@@ -85,7 +85,7 @@ class AngleResnet(nn.Module):
         self.c_hidden = c_hidden
         self.no_blocks = no_blocks
         self.no_angles = no_angles
-        self.epsilon = epsilon
+        self.eps = epsilon
 
         self.linear_in = Linear(self.c_in, self.c_hidden)
         self.linear_initial = Linear(self.c_in, self.c_hidden)
@@ -99,7 +99,10 @@ class AngleResnet(nn.Module):
 
         self.relu = nn.ReLU()
 
-    def forward(self, s, s_initial):
+    def forward(self, 
+        s: torch.Tensor, 
+        s_initial: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
             Args:
                 s:
@@ -130,14 +133,13 @@ class AngleResnet(nn.Module):
         s = self.linear_out(s)
 
         # [*, no_angles, 2]
-        s = s.view(*s.shape[:-1], -1, 2)
+        s = s.view(s.shape[:-1] + (-1, 2))
 
         unnormalized_s = s
-
         norm_denom = torch.sqrt(
             torch.clamp(
-                torch.sum(s ** 2, dim=-1, keepdims=True),
-                min=self.epsilon,
+                torch.sum(s ** 2, dim=-1, keepdim=True),
+                min=self.eps,
             )
         )
         s = s / norm_denom
@@ -219,7 +221,7 @@ class InvariantPointAttention(nn.Module):
         z: torch.Tensor, 
         t: T,
         mask: torch.Tensor,
-    ):
+    ) -> torch.Tensor:
         """
             Args:
                 s:
@@ -236,16 +238,15 @@ class InvariantPointAttention(nn.Module):
         #######################################
         # Generate scalar and point activations
         #######################################
-
         # [*, N_res, H * C_hidden]
         q = self.linear_q(s)
         kv = self.linear_kv(s)
 
         # [*, N_res, H, C_hidden]
-        q = q.view(*q.shape[:-1], self.no_heads, -1)
+        q = q.view(q.shape[:-1] + (self.no_heads, -1))
 
         # [*, N_res, H, 2 * C_hidden]
-        kv = kv.view(*kv.shape[:-1], self.no_heads, -1)
+        kv = kv.view(kv.shape[:-1] + (self.no_heads, -1))
 
         # [*, N_res, H, C_hidden]
         k, v = torch.split(kv, self.c_hidden, dim=-1)
@@ -261,7 +262,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, H, P_q, 3]
         q_pts = q_pts.view(
-             *q_pts.shape[:-2], self.no_heads, self.no_qk_points, 3
+             q_pts.shape[:-2] + (self.no_heads, self.no_qk_points, 3)
         )
 
         # [*, N_res, H * (P_q + P_v) * 3]
@@ -274,7 +275,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, H, (P_q + P_v), 3]
         kv_pts = kv_pts.view(
-            *kv_pts.shape[:-2], self.no_heads, -1, 3
+            kv_pts.shape[:-2] + (self.no_heads, -1, 3)
         )
 
         # [*, N_res, H, P_q/P_v, 3]
@@ -293,11 +294,11 @@ class InvariantPointAttention(nn.Module):
 
         # [*, H, N_res, N_res]
         a = torch.matmul(
-            permute_final_dims(q, 1, 0, 2), # [*, H, N_res, C_hidden]
-            permute_final_dims(k, 1, 2, 0), # [*, H, C_hidden, N_res]
+            permute_final_dims(q, (1, 0, 2)), # [*, H, N_res, C_hidden]
+            permute_final_dims(k, (1, 2, 0)), # [*, H, C_hidden, N_res]
         )
         a = a + math.sqrt(1. / (3 * self.c_hidden))
-        a = a + math.sqrt(1. / 3) * permute_final_dims(b, 2, 0, 1)
+        a = a + math.sqrt(1. / 3) * permute_final_dims(b, (2, 0, 1))
         
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
@@ -321,7 +322,7 @@ class InvariantPointAttention(nn.Module):
         square_mask = self.inf * (square_mask - 1)
 
         # [*, H, N_res, N_res]
-        pt_att = permute_final_dims(pt_att, 2, 0, 1)
+        pt_att = permute_final_dims(pt_att, (2, 0, 1))
         a = a + pt_att
         a = a + square_mask.unsqueeze(-3)
         a = self.softmax(a)
@@ -339,11 +340,11 @@ class InvariantPointAttention(nn.Module):
         # [*, H, 3, N_res, P_v]
         o_pt = torch.matmul(
             a.unsqueeze(-3),                       # [*, H, 1, N_res, N_res]
-            permute_final_dims(v_pts, 1, 3, 0, 2), # [*, H, 3, N_res, P_v]
+            permute_final_dims(v_pts, (1, 3, 0, 2)), # [*, H, 3, N_res, P_v]
         )
 
         # [*, N_res, H, P_v, 3]
-        o_pt = permute_final_dims(o_pt, 2, 0, 3, 1)
+        o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
         o_pt = t[..., None, None].invert_apply(o_pt)
 
         # [*, N_res, H * P_v]
@@ -758,35 +759,39 @@ class StructureModule(nn.Module):
 
         return outputs
 
-    def _init_residue_constants(self, device):
+    def _init_residue_constants(self, dtype, device):
         if(self.default_frames is None):
             self.default_frames = torch.tensor(
-                restype_rigid_group_default_frame, 
+                restype_rigid_group_default_frame,
+                dtype=dtype,
                 device=device,
                 requires_grad=False,
             )
         if(self.group_idx is None):
             self.group_idx = torch.tensor(
-                restype_atom14_to_rigid_group, 
+                restype_atom14_to_rigid_group,
+                dtype=dtype,
                 device=device,
                 requires_grad=False,
             )
         if(self.atom_mask is None):
             self.atom_mask = torch.tensor(
-                restype_atom14_mask, 
+                restype_atom14_mask,
+                dtype=dtype,
                 device=device,
                 requires_grad=False,
             )
         if(self.lit_positions is None):
             self.lit_positions = torch.tensor(
-                restype_atom14_rigid_group_positions, 
+                restype_atom14_rigid_group_positions,
+                dtype=dtype,
                 device=device, 
                 requires_grad=False,
             )
 
     def torsion_angles_to_frames(self, t, alpha, f):
         # Lazily initialize the residue constants on the correct device
-        self._init_residue_constants(f.device)
+        self._init_residue_constants(f.dtype, f.device)
         # Separated purely to make testing less annoying
         return _torsion_angles_to_frames(t, alpha, f, self.default_frames)
 
@@ -797,7 +802,7 @@ class StructureModule(nn.Module):
         # Lazily initialize the residue constants on the correct device
         # TODO: Maybe this stuff should be done on CPU instead (so these
         # arrays 
-        self._init_residue_constants(f.device)
+        self._init_residue_constants(f.dtype, f.device)
         
         return _frames_and_literature_positions_to_atom14_pos(
             t, 

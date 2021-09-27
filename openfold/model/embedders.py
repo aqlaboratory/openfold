@@ -83,7 +83,7 @@ class InputEmbedder(nn.Module):
         boundaries = torch.arange(
             start=-self.relpos_k, end=self.relpos_k + 1, device=d.device
         ) 
-        oh = one_hot(d, boundaries)
+        oh = one_hot(d, boundaries).type(ri.dtype)
         return self.linear_relpos(oh)
 
     def forward(self, 
@@ -112,14 +112,15 @@ class InputEmbedder(nn.Module):
 
         # [*, N_res, N_res, c_z]
         pair_emb = tf_emb_i[..., None, :] + tf_emb_j[..., None, :, :]
-        pair_emb += self.relpos(ri)
-        #pair_emb = pair_emb + self.relpos(ri)
+        pair_emb = pair_emb + self.relpos(ri.type(pair_emb.dtype))
 
         # [*, N_clust, N_res, c_m]
         n_clust = msa.shape[-3]
-        tf_m = (self.linear_tf_m(tf)
-                .unsqueeze(-3)
-                .expand((*(-1,) * len(tf.shape[:-2]), n_clust, -1, -1)))
+        tf_m = (
+            self.linear_tf_m(tf)
+            .unsqueeze(-3)
+            .expand(((-1,) * len(tf.shape[:-2]) + (n_clust, -1, -1)))
+        )
         msa_emb = self.linear_msa_m(msa) + tf_m
 
         return msa_emb, pair_emb
@@ -192,6 +193,7 @@ class RecyclingEmbedder(nn.Module):
                 self.min_bin, 
                 self.max_bin, 
                 self.no_bins,
+                dtype=x.dtype,
                 requires_grad=False,
                 device=x.device
             )

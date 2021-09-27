@@ -235,12 +235,6 @@ class Attention(nn.Module):
             Returns
                 [*, Q, C_q] attention update
         """
-        # Flatten batch dims
-        batch_dims = q_x.shape[:-2]
-        q_x = q_x.view((-1,) + q_x.shape[-2:])
-        k_x = k_x.view((-1,) + k_x.shape[-2:])
-        v_x = v_x.view((-1,) + v_x.shape[-2:])
-
         # [*, Q/K/V, H * C_hidden]
         q = self.linear_q(q_x)
         k = self.linear_k(k_x)
@@ -253,20 +247,20 @@ class Attention(nn.Module):
 
         # [*, H, Q, K]
         a = torch.matmul(
-            q.permute(0, 2, 1, 3),  # [*, H, Q, C_hidden]
-            k.permute(0, 2, 3, 1),  # [*, H, C_hidden, K] 
+            permute_final_dims(q, (0, 2, 1, 3)),  # [*, H, Q, C_hidden]
+            permute_final_dims(k, (0, 2, 3, 1)),  # [*, H, C_hidden, K] 
         )
         norm = 1 / math.sqrt(self.c_hidden) # [1]
-        a = a * norm
+        a *= norm
         if(biases is not None):
             for b in biases:
-                a = a + b
+                a += b
         a = self.softmax(a)
 
         # [*, H, Q, C_hidden]
         o = torch.matmul(
             a,
-            v.permute(0, 2, 1, 3),  # [*, H, V, C_hidden]
+            permute_final_dims(v, (0, 2, 1, 3)),  # [*, H, V, C_hidden]
         )
 
         # [*, Q, H, C_hidden]
@@ -282,11 +276,80 @@ class Attention(nn.Module):
 
         # [*, Q, C_q]
         o = self.linear_o(o)
-        # Restore the batch dims
-        o = o.reshape(batch_dims + o.shape[1:])
-
+        
         return o
 
 
-def scripted_attention(*args, **kwargs):
-    return torch.jit.script(Attention(*args, **kwargs))
+class GlobalAttention(nn.Module):
+    def __init__(self, c_in, c_hidden, no_heads, inf, eps):
+        super(GlobalAttention, self).__init__()
+
+        self.c_in = c_in
+        self.c_hidden = c_hidden
+        self.no_heads = no_heads
+        self.inf = inf
+        self.eps = eps
+
+        self.linear_q = Linear(
+            c_in, c_hidden * no_heads, bias=False, init="glorot"
+        )
+
+        self.linear_k = Linear(
+            c_in, c_hidden, bias=False, init="glorot",
+        )
+        self.linear_v = Linear(
+            c_in, c_hidden, bias=False, init="glorot",
+        )
+        self.linear_g = Linear(c_in, c_hidden * no_heads, init="gating")
+        self.linear_o = Linear(c_hidden * no_heads, c_in, init="final")
+
+        self.sigmoid = nn.Sigmoid()
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, m: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        # [*, N_res, C_in]
+        q = (torch.sum(m * mask.unsqueeze(-1), dim=-2) / 
+               (torch.sum(mask, dim=-1)[..., None] + self.eps))
+
+        # [*, N_res, H * C_hidden]
+        q = self.linear_q(q)
+        q = q * self.c_hidden ** (-0.5)
+
+        # [*, N_res, H, C_hidden]
+        q = q.view(q.shape[:-1] + (self.no_heads, -1))
+
+        # [*, N_res, N_seq, C_hidden]
+        k = self.linear_k(m)
+        v = self.linear_v(m)
+
+        # [*, N_res, H, N_seq]
+        a = torch.matmul(
+            q,
+            k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq] 
+        )
+        bias = (self.inf * (mask - 1))[..., :, None, :]
+        a +=  bias
+        a = self.softmax(a)
+
+        # [*, N_res, H, C_hidden]
+        o = torch.matmul(
+            a,
+            v,
+        )
+
+        # [*, N_res, N_seq, C_hidden]
+        g = self.sigmoid(self.linear_g(m))
+
+        # [*, N_res, N_seq, H, C_hidden]
+        g = g.view(g.shape[:-1] + (self.no_heads, -1))
+
+        # [*, N_res, N_seq, H, C_hidden]
+        o = o.unsqueeze(-3) * g
+        
+        # [*, N_res, N_seq, H * C_hidden]
+        o = o.reshape(o.shape[:-2] + (-1,))
+
+        # [*, N_res, N_seq, C_in]
+        m = self.linear_o(o)
+
+        return m

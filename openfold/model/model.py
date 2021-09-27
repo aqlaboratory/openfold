@@ -109,7 +109,7 @@ class AlphaFold(nn.Module):
         # Embed the templates one at a time (with a poor man's vmap)
         template_embeds = []
         n_templ = batch["template_aatype"].shape[templ_dim]
-        for i in range(n_templ):
+        for i in range(n_templ): 
             idx = batch["template_aatype"].new_tensor(i)
             single_template_feats = tensor_tree_map(
                 lambda t: torch.index_select(t, templ_dim, idx),
@@ -170,6 +170,154 @@ class AlphaFold(nn.Module):
             "torsion_angles_mask": angle_feats["torsion_angles_mask"],
         }
 
+    def iteration(self, feats, m_1_prev, z_prev, x_prev):
+        # Primary output dictionary
+        outputs = {}
+
+        # Grab some data about the input
+        batch_dims = feats["target_feat"].shape[:-2]
+        no_batch_dims = len(batch_dims)
+        n = feats["target_feat"].shape[-2]
+        n_seq = feats["msa_feat"].shape[-3]
+        device = feats["target_feat"].device
+
+        # Prep some features
+        seq_mask = feats["seq_mask"]
+        pair_mask = seq_mask[..., None] * seq_mask[..., None, :]
+        msa_mask = feats["msa_mask"]
+
+        # Initialize the MSA and pair representations
+
+        # m: [*, S_c, N, C_m]
+        # z: [*, N, N, C_z]
+        m, z = self.input_embedder(
+            feats["target_feat"], 
+            feats["residue_index"], 
+            feats["msa_feat"],
+        )
+
+        # Inject information from previous recycling iterations
+        if(self.config.no_cycles > 1):
+            # Initialize the recycling embeddings, if needs be
+            if(None in [m_1_prev, z_prev, x_prev]):
+                # [*, N, C_m]
+                m_1_prev = m.new_zeros(
+                    (*batch_dims, n, self.config.c_m), 
+                    requires_grad=False, 
+                )
+
+                # [*, N, N, C_z]
+                z_prev = z.new_zeros(
+                    (*batch_dims, n, n, self.config.c_z),
+                    requires_grad=False,
+                )
+
+                # [*, N, 3]
+                x_prev = z.new_zeros(
+                    (*batch_dims, n, residue_constants.atom_type_num, 3),
+                    requires_grad=False,
+                )
+
+            x_prev = pseudo_beta_fn(
+                feats["aatype"],
+                x_prev,
+                None
+            )
+
+            # m_1_prev_emb: [*, N, C_m]
+            # z_prev_emb: [*, N, N, C_z]
+            m_1_prev_emb, z_prev_emb = self.recycling_embedder(
+                m_1_prev, 
+                z_prev, 
+                x_prev,
+            )
+
+            # [*, S_c, N, C_m]
+            m[..., 0, :, :] += m_1_prev_emb
+
+            # [*, N, N, C_z]
+            z = z + z_prev_emb
+
+        # Embed the templates + merge with MSA/pair embeddings
+        if(self.config.template.enabled):
+            template_feats = {
+                k:v for k,v in feats.items() if "template_" in k
+            }
+            template_embeds = self.embed_templates(
+                template_feats,
+                z,
+                pair_mask,
+                no_batch_dims,
+            )
+
+            # [*, N, N, C_z]
+            z = z + template_embeds["template_pair_embedding"]
+ 
+            if(self.config.template.embed_angles):
+                # [*, S = S_c + S_t, N, C_m]
+                m = torch.cat(
+                    [m, template_embeds["template_angle_embedding"]], 
+                    dim=-3
+                )
+
+                # [*, S, N]
+                torsion_angles_mask = template_embeds["torsion_angles_mask"]
+                msa_mask = torch.cat(
+                    [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
+                )
+
+        # Embed extra MSA features + merge with pairwise embeddings 
+        if(self.config.extra_msa.enabled):
+            # [*, S_e, N, C_e]
+            a = self.extra_msa_embedder(build_extra_msa_feat(feats))
+        
+            # [*, N, N, C_z]
+            z = self.extra_msa_stack(
+                a, 
+                z, 
+                msa_mask=feats["extra_msa_mask"],
+                pair_mask=pair_mask,
+                _mask_trans=self.config._mask_trans,
+            )
+
+        # Run MSA + pair embeddings through the trunk of the network
+        # m: [*, S, N, C_m]
+        # z: [*, N, N, C_z]
+        # s: [*, N, C_s]
+        m, z, s = self.evoformer(
+            m, 
+            z, 
+            msa_mask=msa_mask, 
+            pair_mask=pair_mask,
+            _mask_trans=self.config._mask_trans
+        )
+
+        outputs["msa"] = m[..., :n_seq, :, :]
+        outputs["pair"] = z
+        outputs["single"] = s
+
+        # Predict 3D structure
+        outputs["sm"] = self.structure_module(
+            s, z, feats["aatype"], mask=feats["seq_mask"],
+        )        
+        outputs["final_atom_positions"] = atom14_to_atom37(
+            outputs["sm"]["positions"][-1], feats
+        )
+        outputs["final_atom_mask"] = feats["atom37_atom_exists"]
+
+        # Save embeddings for use during the next recycling iteration 
+
+        # [*, N, C_m]
+        m_1_prev = m[..., 0, :, :]
+
+        # [* N, N, C_z]
+        z_prev = z
+
+        # [*, N, 3]
+        x_prev = outputs["final_atom_positions"]
+
+        return outputs, m_1_prev, z_prev, x_prev
+
     def forward(self, batch):
         """
             Args:
@@ -223,160 +371,19 @@ class AlphaFold(nn.Module):
         # Recycling embeddings
         m_1_prev, z_prev, x_prev = None, None, None
 
-        # Primary output dictionary
-        outputs = {}
-
         # Main recycling loop
         for cycle_no in range(self.config.no_cycles):
             # Select the features for the current recycling cycle
             fetch_cur_batch = lambda t: t[..., cycle_no] 
             feats = tensor_tree_map(fetch_cur_batch, batch)
-
-            # Grab some data about the input
-            batch_dims = feats["target_feat"].shape[:-2]
-            no_batch_dims = len(batch_dims)
-            n = feats["target_feat"].shape[-2]
-            n_seq = feats["msa_feat"].shape[-3]
-            device = feats["target_feat"].device
-
-            # Prep some features
-            seq_mask = feats["seq_mask"]
-            pair_mask = seq_mask[..., None] * seq_mask[..., None, :]
-            msa_mask = feats["msa_mask"]
-
-            # Initialize the MSA and pair representations
-
-            # m: [*, S_c, N, C_m]
-            # z: [*, N, N, C_z]
-            m, z = self.input_embedder(
-                feats["target_feat"], 
-                feats["residue_index"], 
-                feats["msa_feat"],
-            )
-
-            # Inject information from previous recycling iterations
-            if(self.config.no_cycles > 1):
-                # Initialize the recycling embeddings, if needs be
-                if(None in [m_1_prev, z_prev, x_prev]):
-                    # [*, N, C_m]
-                    m_1_prev = torch.zeros(
-                        (*batch_dims, n, self.config.c_m), 
-                        requires_grad=False, 
-                        device=device,
-                    )
-
-                    # [*, N, N, C_z]
-                    z_prev = torch.zeros(
-                        (*batch_dims, n, n, self.config.c_z),
-                        requires_grad=False,
-                        device=device,
-                    )
-
-                    # [*, N, 3]
-                    x_prev = torch.zeros(
-                        (*batch_dims, n, residue_constants.atom_type_num, 3),
-                        requires_grad=False,
-                        device=device,
-                    )
-
-                x_prev = pseudo_beta_fn(
-                    feats["aatype"],
-                    x_prev,
-                    None
-                )
-
-                # m_1_prev_emb: [*, N, C_m]
-                # z_prev_emb: [*, N, N, C_z]
-                m_1_prev_emb, z_prev_emb = self.recycling_embedder(
-                    m_1_prev, 
-                    z_prev, 
-                    x_prev,
-                )
-
-                # [*, S_c, N, C_m]
-                m[..., 0, :, :] += m_1_prev_emb
-
-                # [*, N, N, C_z]
-                z = z + z_prev_emb
-
-            # Embed the templates + merge with MSA/pair embeddings
-            if(self.config.template.enabled):
-                template_feats = {
-                    k:v for k,v in feats.items() if "template_" in k
-                }
-                template_embeds = self.embed_templates(
-                    template_feats,
-                    z,
-                    pair_mask,
-                    no_batch_dims,
-                )
-
-                # [*, N, N, C_z]
-                z = z + template_embeds["template_pair_embedding"]
- 
-                if(self.config.template.embed_angles):
-                    # [*, S = S_c + S_t, N, C_m]
-                    m = torch.cat(
-                        [m, template_embeds["template_angle_embedding"]], 
-                        dim=-3
-                    )
-
-                    # [*, S, N]
-                    torsion_angles_mask = template_embeds["torsion_angles_mask"]
-                    msa_mask = torch.cat(
-                        [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
-                    )
-
-            # Embed extra MSA features + merge with pairwise embeddings 
-            if(self.config.extra_msa.enabled):
-                # [*, S_e, N, C_e]
-                a = self.extra_msa_embedder(build_extra_msa_feat(feats))
            
-                # [*, N, N, C_z]
-                z = self.extra_msa_stack(
-                    a, 
-                    z, 
-                    msa_mask=feats["extra_msa_mask"],
-                    pair_mask=pair_mask,
-                    _mask_trans=self.config._mask_trans,
+            # Enable grad iff we're training and it's the final recycling layer
+            is_final_iter = (cycle_no == self.config.no_cycles - 1)
+            with torch.set_grad_enabled(self.training and is_final_iter):
+                outputs, m_1_prev, z_prev, x_prev = self.iteration(
+                    feats, m_1_prev, z_prev, x_prev,
                 )
-
-            # Run MSA + pair embeddings through the trunk of the network
-            # m: [*, S, N, C_m]
-            # z: [*, N, N, C_z]
-            # s: [*, N, C_s]
-            m, z, s = self.evoformer(
-                m, 
-                z, 
-                msa_mask=msa_mask, 
-                pair_mask=pair_mask,
-                _mask_trans=self.config._mask_trans
-            )
-
-            outputs["msa"] = m[..., :n_seq, :, :]
-            outputs["pair"] = z
-            outputs["single"] = s
-
-            # Predict 3D structure
-            outputs["sm"] = self.structure_module(
-                s, z, feats["aatype"], mask=feats["seq_mask"],
-            )        
-            outputs["final_atom_positions"] = atom14_to_atom37(
-                outputs["sm"]["positions"][-1], feats
-            )
-            outputs["final_atom_mask"] = feats["atom37_atom_exists"]
-
-            # Save embeddings for use during the next recycling iteration 
-
-            # [*, N, C_m]
-            m_1_prev = m[..., 0, :, :]
-
-            # [* N, N, C_z]
-            z_prev = z
-
-            # [*, N, 3]
-            x_prev = outputs["final_atom_positions"]
-
+             
         outputs.update(self.aux_heads(outputs))
 
         return outputs

@@ -16,8 +16,9 @@
 import math
 import torch
 import torch.nn as nn
+from typing import Optional
 
-from openfold.model.primitives import Linear, scripted_attention
+from openfold.model.primitives import Linear, Attention, GlobalAttention 
 from openfold.utils.tensor_utils import (
     chunk_layer,
     permute_final_dims, 
@@ -69,7 +70,8 @@ class MSAAttention(nn.Module):
                 self.c_z, self.no_heads, bias=False, init="normal"
             )
 
-        self.mha = scripted_attention(
+
+        self.mha = Attention(
             self.c_in, self.c_in, self.c_in, 
             self.c_hidden, 
             self.no_heads
@@ -93,7 +95,7 @@ class MSAAttention(nn.Module):
         if(mask is None):
             # [*, N_seq, N_res]
             mask = torch.ones(
-                (*m.shape[:-3], n_seq, n_res), 
+                m.shape[:-3] + (n_seq, n_res), 
                 device=m.device, 
                 requires_grad=False
             )
@@ -103,7 +105,7 @@ class MSAAttention(nn.Module):
         
         # [*, N_seq, no_heads, N_res, N_res]
         bias = bias.expand(
-            (*((-1,) * len(bias.shape[:-4])), -1, self.no_heads, n_res, -1)
+            ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
         )
 
         biases = [bias]
@@ -115,7 +117,7 @@ class MSAAttention(nn.Module):
             z = self.linear_z(z)
 
             # [*, 1, no_heads, N_res, N_res]
-            z = permute_final_dims(z, 2, 0, 1).unsqueeze(-4)
+            z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
 
             biases.append(z)
 
@@ -234,79 +236,29 @@ class MSAColumnGlobalAttention(nn.Module):
         self.inf = inf
         self.eps = eps
 
-        self.layer_norm_m = nn.LayerNorm(self.c_in)
+        self.layer_norm_m = nn.LayerNorm(c_in)
 
-        self.linear_q = Linear(
-            self.c_in, self.c_hidden * self.no_heads, bias=False, init="glorot"
+        self.global_attention = GlobalAttention(
+            c_in=c_in,
+            c_hidden=c_hidden,
+            no_heads=no_heads,
+            inf=inf,
+            eps=eps,
         )
 
-        C_hidden = self.c_hidden
-        self.linear_k = Linear(
-            self.c_in, C_hidden, bias=False, init="glorot",
-        )
-        self.linear_v = Linear(
-            self.c_in, C_hidden, bias=False, init="glorot",
-        )
-        self.linear_g = Linear(self.c_in, self.c_hidden * self.no_heads, init="gating")
-        self.linear_o = Linear(self.c_hidden * self.no_heads, self.c_in, init="final")
-
-        self.sigmoid = nn.Sigmoid()
-        self.softmax = nn.Softmax(dim=-1)
-
-    def global_attention(self, m, mask):
-        # [*, N_res, C_in]
-        q = (torch.sum(m * mask.unsqueeze(-1), dim=-2) / 
-               (torch.sum(mask, dim=-1)[..., None] + self.eps))
-
-        # [*, N_res, H * C_hidden]
-        q = self.linear_q(q)
-        q = q * self.c_hidden ** (-0.5)
-
-        # [*, N_res, H, C_hidden]
-        q = q.view(*q.shape[:-1], self.no_heads, -1)
-
-        # [*, N_res, N_seq, C_hidden]
-        k = self.linear_k(m)
-        v = self.linear_v(m)
-
-        # [*, N_res, H, N_seq]
-        a = torch.matmul(
-            q,
-            k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq] 
-        )
-        bias = (self.inf * (mask - 1))[..., :, None, :]
-        a = a + bias
-        a = self.softmax(a)
-
-        # [*, N_res, H, C_hidden]
-        o = torch.matmul(
-            a,
-            v,
-        )
-
-        # [*, N_res, N_seq, C_hidden]
-        g = self.sigmoid(self.linear_g(m))
-
-        # [*, N_res, N_seq, H, C_hidden]
-        g = g.view(*g.shape[:-1], self.no_heads, -1)
-
-        # [*, N_res, N_seq, H, C_hidden]
-        o = o.unsqueeze(-3) * g
-        
-        # [*, N_res, N_seq, H * C_hidden]
-        o = o.reshape(*o.shape[:-2], -1)
-
-        # [*, N_res, N_seq, C_in]
-        m = self.linear_o(o)
-
-        return m
-
-    def forward(self, m, mask=None):
+    def forward(self, 
+        m: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
         n_seq, n_res, c_in = m.shape[-3:]
 
         if(mask is None):
             # [*, N_seq, N_res]
-            mask = m.new_ones(m.shape[:-1], requires_grad=False)
+            mask = torch.ones(
+                m.shape[:-1],
+                dtype=m.dtype,
+                device=m.device,
+            ).detach()
 
         # [*, N_res, N_seq, C_in]
         m = m.transpose(-2, -3)
@@ -327,7 +279,7 @@ class MSAColumnGlobalAttention(nn.Module):
                 no_batch_dims=len(m.shape[:-2])
             )
         else:
-            m = self.global_attention(**mha_input)
+            m = self.global_attention(m=mha_input["m"], mask=mha_input["mask"])
  
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)
