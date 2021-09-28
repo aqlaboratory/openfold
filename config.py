@@ -12,16 +12,19 @@ def model_config(name):
         c.model.template.enabled = False
     
     return c
-        
+
 
 c_z = mlc.FieldReference(128)
 c_m = mlc.FieldReference(256)
 c_t = mlc.FieldReference(64)
 c_e = mlc.FieldReference(64)
 c_s = mlc.FieldReference(384)
-blocks_per_ckpt = mlc.FieldReference(1)
-chunk_size = mlc.FieldReference(4)#1280)
+blocks_per_ckpt = mlc.FieldReference(1, field_type=int)
+chunk_size = mlc.FieldReference(None, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64)
+
+eps = 1e-4
+inf = 1e4
 
 config = mlc.ConfigDict({
     "model": {
@@ -45,7 +48,7 @@ config = mlc.ConfigDict({
             "min_bin": 3.25,
             "max_bin": 20.75,
             "no_bins": 15,
-            "inf": 1e8,
+            "inf": inf,#1e8,
         },
         "template": {
             "distogram": {
@@ -74,6 +77,7 @@ config = mlc.ConfigDict({
                 "dropout_rate": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
+                "inf": inf,
             },
             "template_pointwise_attention": {
                 "c_t": c_t, 
@@ -83,8 +87,10 @@ config = mlc.ConfigDict({
                 "c_hidden": 16, 
                 "no_heads": 4,
                 "chunk_size": chunk_size,
+                "inf": inf,#1e-9,
             },
-            "eps": 1e-6,
+            "inf": inf,
+            "eps": eps,#1e-6,
             "enabled": True,
             "embed_angles": True,
         },
@@ -108,10 +114,10 @@ config = mlc.ConfigDict({
                 "pair_dropout": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
-                "inf": 1e9,
-                "eps": 1e-10,
+                "inf": inf,#1e9,
+                "eps": eps,#1e-10,
             },
-            "enabled": True,
+            "enabled": False,#True,
         },
         "evoformer_stack": {
             "c_m": c_m,
@@ -129,8 +135,8 @@ config = mlc.ConfigDict({
             "pair_dropout": 0.25,
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
-            "inf": 1e9,
-            "eps": 1e-10,
+            "inf": inf,#1e9,
+            "eps": eps,#1e-10,
         },
         "structure_module": {
             "c_s": c_s, 
@@ -146,8 +152,8 @@ config = mlc.ConfigDict({
             "no_resnet_blocks": 2,
             "no_angles": 7,
             "trans_scale_factor": 10,
-            "epsilon": 1e-12,
-            "inf": 1e5,
+            "epsilon": eps,#1e-12,
+            "inf": inf,#1e5,
         },
         "heads": {
             "lddt": {
@@ -186,11 +192,11 @@ config = mlc.ConfigDict({
             "min_bin": 2.3125, 
             "max_bin": 21.6875, 
             "no_bins": 64, 
-            "eps": 1e-6,
-            "weight": 0.3, 
+            "eps": eps,#1e-6,
+            "weight": 0.,#0.3, 
         },
         "experimentally_resolved": {
-            "eps": 1e-8,
+            "eps": eps,#1e-8,
             "min_resolution": 0.1,
             "max_resolution": 3.0,
             "weight": 0.,
@@ -206,6 +212,7 @@ config = mlc.ConfigDict({
                 "length_scale": 10.,
                 "weight": 0.5,
             },
+            "eps": 1e-4,
             "weight": 1.0,
         },
         "lddt": {
@@ -213,24 +220,25 @@ config = mlc.ConfigDict({
             "max_resolution": 3.0,
             "cutoff": 15.,
             "no_bins": 50,
-            "eps": 1e-10,
-            "weight": 0.01,
+            "eps": eps,#1e-10,
+            "weight": 0.,#0.01,
         },
         "masked_msa": {
-            "eps": 1e-8,
-            "weight": 2.0,
+            "eps": eps,#1e-8,
+            "weight": 0.,#2.0,
         },
         "supervised_chi": {
             "chi_weight": 0.5,
             "angle_norm_weight": 0.01,
-            "eps": 1e-6,
-            "weight": 1.0,
+            "eps": eps,#1e-6,
+            "weight": 0.,#1.0,
         },
         "violation": {
             "violation_tolerance_factor": 12.0,
             "clash_overlap_tolerance": 1.5,
-            "eps": 1e-6,
+            "eps": eps,#1e-6,
             "weight": 0.,
         },
+        "eps": eps,
     },
 })

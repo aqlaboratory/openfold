@@ -50,6 +50,7 @@ class TemplatePointwiseAttention(nn.Module):
         c_hidden, 
         no_heads, 
         chunk_size,
+        inf,
         **kwargs
     ):
         """
@@ -68,6 +69,7 @@ class TemplatePointwiseAttention(nn.Module):
         self.c_hidden = c_hidden
         self.no_heads = no_heads
         self.chunk_size = chunk_size
+        self.inf = inf
 
         self.mha = Attention(
             self.c_z, self.c_t, self.c_t, 
@@ -89,11 +91,11 @@ class TemplatePointwiseAttention(nn.Module):
         """
         if(template_mask is None):
             # NOTE: This is not the "template_mask" from the supplement, but a
-            # [*, N_templ] mask from the code. I'm pretty sure it's always just 1,
-            # but not sure enough to remove it. It's nice to have, I guess.
+            # [*, N_templ] mask from the code. I'm pretty sure it's always just 
+            # 1, but not sure enough to remove it. It's nice to have, I guess.
             template_mask = t.new_ones(t.shape[:-3])
         
-        bias = (1e9 * (template_mask[..., None, None, None, None, :] - 1))
+        bias = (self.inf * (template_mask[..., None, None, None, None, :] - 1))
 
         # [*, N_res, N_res, 1, C_z]
         z = z.unsqueeze(-2)
@@ -133,6 +135,8 @@ class TemplatePairStackBlock(nn.Module):
         pair_transition_n, 
         dropout_rate,
         chunk_size,
+        inf,
+        **kwargs,
     ):
         super(TemplatePairStackBlock, self).__init__()
         
@@ -143,6 +147,7 @@ class TemplatePairStackBlock(nn.Module):
         self.pair_transition_n = pair_transition_n
         self.dropout_rate = dropout_rate
         self.chunk_size = chunk_size
+        self.inf = inf
 
         self.dropout_row = DropoutRowwise(self.dropout_rate)
         self.dropout_col = DropoutColumnwise(self.dropout_rate)
@@ -152,12 +157,14 @@ class TemplatePairStackBlock(nn.Module):
             self.c_hidden_tri_att, 
             self.no_heads, 
             chunk_size=chunk_size,
+            inf=inf,
         )
         self.tri_att_end = TriangleAttentionEndingNode(
             self.c_t,
             self.c_hidden_tri_att,
             self.no_heads,
             chunk_size=chunk_size,
+            inf=inf,
         )
 
         self.tri_mul_out = TriangleMultiplicationOutgoing(
@@ -200,6 +207,7 @@ class TemplatePairStack(nn.Module):
         dropout_rate,
         blocks_per_ckpt,
         chunk_size,
+        inf=1e9,
         **kwargs,
     ):
         """
@@ -237,6 +245,7 @@ class TemplatePairStack(nn.Module):
                 pair_transition_n=pair_transition_n,
                 dropout_rate=dropout_rate,
                 chunk_size=chunk_size,
+                inf=inf,
             )
             self.blocks.append(block)
 

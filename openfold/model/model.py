@@ -115,13 +115,21 @@ class AlphaFold(nn.Module):
                 batch,
             )
 
+            #tensor_dtype = (
+            #    single_template_feats["template_all_atom_masks"].dtype
+            #)
+
             # Build template angle feats
             angle_feats = atom37_to_torsion_angles(
                 single_template_feats["template_aatype"], 
-                single_template_feats["template_all_atom_positions"], 
-                single_template_feats["template_all_atom_masks"], 
-                eps=1e-8
+                single_template_feats["template_all_atom_positions"],#.float(), 
+                single_template_feats["template_all_atom_masks"],#.float(), 
+                eps=self.config.template.eps,
             )
+
+            #angle_feats = tensor_tree_map(
+            #    lambda t: t.type(tensor_dtype), angle_feats
+            #)
 
             template_angle_feat = build_template_angle_feat(
                 angle_feats,
@@ -134,6 +142,7 @@ class AlphaFold(nn.Module):
             # [*, S_t, N, N, C_t]
             t = build_template_pair_feat(
                 single_template_feats,
+                inf=self.config.template.inf,
                 eps=self.config.template.eps,
                 **self.config.template.distogram
             )
@@ -162,11 +171,11 @@ class AlphaFold(nn.Module):
             template_mask=batch["template_mask"]
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
-   
+ 
         return {
-            "template_angle_embedding": a,
+            "template_angle_embedding": template_embeds["angle"],
             "template_pair_embedding": t,
-            "torsion_angles_mask": angle_feats["torsion_angles_mask"],
+            "torsion_angles_mask": template_embeds["torsion_mask"],
         }
 
     def iteration(self, feats, m_1_prev, z_prev, x_prev):
@@ -251,7 +260,7 @@ class AlphaFold(nn.Module):
 
             # [*, N, N, C_z]
             z = z + template_embeds["template_pair_embedding"]
- 
+
             if(self.config.template.embed_angles):
                 # [*, S = S_c + S_t, N, C_m]
                 m = torch.cat(

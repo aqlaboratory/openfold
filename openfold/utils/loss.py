@@ -80,7 +80,7 @@ def compute_fape(
     positions_mask: torch.Tensor,
     length_scale: float,
     l1_clamp_distance: Optional[float] = None,
-    eps=1e-4
+    eps=1e-8
 ) -> torch.Tensor:
     # [*, N_frames, N_pts, 3]
     local_pred_pos = pred_frames.invert()[..., None].apply(
@@ -100,12 +100,19 @@ def compute_fape(
     normed_error *= frames_mask[..., None]
     normed_error *= positions_mask[..., None, :]
 
-    norm_factor = (
-        torch.sum(frames_mask, dim=-1) *
-        torch.sum(positions_mask, dim=-1)
-    )
-
-    normed_error = torch.sum(normed_error, dim=(-1, -2)) / (eps + norm_factor)
+    # FP16-friendly averaging. Roughly equivalent to:
+    #
+    # norm_factor = (
+    #     torch.sum(frames_mask, dim=-1) *
+    #     torch.sum(positions_mask, dim=-1)
+    # )
+    # normed_error = torch.sum(normed_error, dim=(-1, -2)) / (eps + norm_factor)
+    #
+    # ("roughly" because eps is necessarily duplicated in the latter
+    normed_error = torch.sum(normed_error, dim=-1)
+    normed_error = normed_error / (eps + torch.sum(frames_mask, dim=-1))[..., None]
+    normed_error = torch.sum(normed_error, dim=-1)
+    normed_error = normed_error / (eps + torch.sum(positions_mask, dim=-1))
 
     return normed_error
 
@@ -118,6 +125,7 @@ def backbone_loss(
     use_clamped_fape: Optional[torch.Tensor] = None,
     clamp_distance: float = 10.,
     loss_unit_distance: float = 10.,
+    eps: float = 1e-4,
     **kwargs,
 ) -> torch.Tensor:
     pred_aff = T.from_tensor(traj)
@@ -132,6 +140,7 @@ def backbone_loss(
         backbone_affine_mask[..., None, :],
         l1_clamp_distance=clamp_distance,
         length_scale=loss_unit_distance,
+        eps=eps,
     )
 
     if(use_clamped_fape is not None):
@@ -144,6 +153,7 @@ def backbone_loss(
             backbone_affine_mask[..., None, :],
             l1_clamp_distance=None,
             length_scale=loss_unit_distance,
+            eps=eps,
         )
 
         fape_loss = (
@@ -167,6 +177,7 @@ def sidechain_loss(
     alt_naming_is_better: torch.Tensor,
     clamp_distance: float = 10.,
     length_scale: float = 10.,
+    eps: float = 1e-4,
     **kwargs,
 ) -> torch.Tensor:
     renamed_gt_frames = (
@@ -200,7 +211,7 @@ def sidechain_loss(
     renamed_atom14_gt_exists = renamed_atom14_gt_exists.view(
         *batch_dims, -1
     )
- 
+
     fape = compute_fape(
         sidechain_frames,
         renamed_gt_frames,
@@ -210,6 +221,7 @@ def sidechain_loss(
         renamed_atom14_gt_exists,
         l1_clamp_distance=clamp_distance,
         length_scale=length_scale,
+        eps=eps,
     )
 
     return fape
@@ -428,12 +440,16 @@ def distogram_loss(
 
     square_mask = pseudo_beta_mask[..., None] * pseudo_beta_mask[..., None, :]
 
-    mean = (
-        torch.sum(errors * square_mask, dim=(-1, -2)) /
-        (eps + torch.sum(square_mask, dim=(-1, -2)))
-    )
+    # FP16-friendly sum. Equivalent to:
+    # mean = (torch.sum(errors * square_mask, dim=(-1, -2)) / 
+    #         (eps + torch.sum(square_mask, dim=(-1, -2))))
+    denom = eps + torch.sum(square_mask, dim=(-1, -2))
+    mean = errors * square_mask
+    mean = torch.sum(mean, dim=-1)
+    mean = mean / denom[..., None]
+    mean = torch.sum(mean, dim=-1)
 
-    return mean
+    return mean 
 
 
 def tm_score(
@@ -1285,10 +1301,18 @@ def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
         logits,
         torch.nn.functional.one_hot(true_msa, num_classes=23)
     )
-    loss = (
-        torch.sum(errors * bert_mask, dim=(-1, -2)) /
-        (eps + torch.sum(bert_mask, dim=(-1, -2)))
-    )
+    
+    # FP16-friendly averaging. Equivalent to:
+    # loss = (
+    #     torch.sum(errors * bert_mask, dim=(-1, -2)) /
+    #     (eps + torch.sum(bert_mask, dim=(-1, -2)))
+    # )
+    denom = eps + torch.sum(bert_mask, dim=(-1, -2))
+    loss = errors * bert_mask
+    loss = torch.sum(loss, dim=-1)
+    loss = loss / denom[..., None]
+    loss = torch.sum(loss, dim=-1)
+
     return loss
 
 
@@ -1298,9 +1322,7 @@ class AlphaFoldLoss(nn.Module):
         super(AlphaFoldLoss, self).__init__()
         self.config = config
 
-    def forward(self, out, batch):
-        cum_loss = 0
-       
+    def forward(self, out, batch): 
         if("violation" not in out.keys() and self.config.violation.weight):
             out["violation"] = find_structural_violations(
                 batch,
@@ -1331,6 +1353,7 @@ class AlphaFoldLoss(nn.Module):
         if("chi_angles_sin_cos" not in batch.keys()):
             batch.update(feats.atom37_to_torsion_angles(
                **batch,
+               eps=self.config.eps,
             ))
 
             # TODO: Verify that this is correct
@@ -1382,12 +1405,14 @@ class AlphaFoldLoss(nn.Module):
                 ),
         }
        
+        cum_loss = 0
         for k,loss_fn in loss_fns.items():
             weight = self.config[k].weight
             if(weight):
+                print(k)
                 loss = loss_fn()
-                #print(k)
-                #print(loss)
-                cum_loss += weight * loss
-
+                print(weight * loss)
+                cum_loss = cum_loss + weight * loss
+       
+        print(cum_loss)
         return cum_loss

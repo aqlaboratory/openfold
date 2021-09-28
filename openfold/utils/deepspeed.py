@@ -70,6 +70,9 @@ def checkpoint_blocks(
 
     for s in range(0, len(blocks), blocks_per_ckpt):
         e = s + blocks_per_ckpt
+        #print(len(args))
+        #for a in args:
+        #    print(a.requires_grad)
         args = checkpoint(chunker(s, e), *args)
         #args = deepspeed.checkpointing.checkpoint(chunker(s, e), *args)
         args = wrap(args)

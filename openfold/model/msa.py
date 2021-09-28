@@ -107,7 +107,6 @@ class MSAAttention(nn.Module):
         bias = bias.expand(
             ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
         )
-
         biases = [bias]
         if(self.pair_bias):
             # [*, N_res, N_res, C_z]

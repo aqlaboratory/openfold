@@ -57,11 +57,17 @@ class T:
             raise ValueError("Only one of rots and trans can be None")
         elif(self.rots is None):
             self.rots = T.identity_rot(
-                self.trans.shape[:-1], self.trans.dtype, self.trans.device
+                self.trans.shape[:-1], 
+                self.trans.dtype, 
+                self.trans.device, 
+                self.trans.requires_grad,
             )
         elif(self.trans is None):
             self.trans = T.identity_trans(
-                self.rots.shape[:-2], self.rots.dtype, self.rots.device
+                self.rots.shape[:-2], 
+                self.rots.dtype, 
+                self.rots.device, 
+                self.rots.requires_grad
             )
 
         if(self.rots.shape[-2:] != (3, 3) or
@@ -137,7 +143,7 @@ class T:
         return T(rots, trans)
 
     @staticmethod
-    def identity_rot(shape, dtype, device, requires_grad=False):
+    def identity_rot(shape, dtype, device, requires_grad):
         rots = torch.eye(
             3, dtype=dtype, device=device, requires_grad=requires_grad
         )
@@ -147,7 +153,7 @@ class T:
         return rots
 
     @staticmethod
-    def identity_trans(shape, dtype, device, requires_grad=False):
+    def identity_trans(shape, dtype, device, requires_grad):
         trans = torch.zeros(
             (*shape, 3), 
             dtype=dtype, 
@@ -182,20 +188,22 @@ class T:
 
     @staticmethod
     def from_3_points(p_neg_x_axis, origin, p_xy_plane, eps=1e-8):
-        v1 = origin - p_neg_x_axis
-        v2 = p_xy_plane - origin
-        e1 = v1 / torch.sqrt(torch.sum(v1 ** 2, dim=-1) + eps)[..., None]
-        u2 = v2 - e1 * (torch.einsum('...i,...i->...', v2, e1)[..., None])
-        e2 = u2 / torch.sqrt(torch.sum(u2 ** 2, dim=-1) + eps)[..., None]
-        e3 = torch.cross(e1, e2, dim=-1)
-    
-        rots = torch.cat(
-            (
-                e1.unsqueeze(-1),
-                e2.unsqueeze(-1),
-                e3.unsqueeze(-1),
-            ), dim=-1,
-        )
+        e0 = origin - p_neg_x_axis
+        e1 = p_xy_plane - origin
+
+        # Angle norming is very sensitive to floating point imprecisions 
+        #float_type = e0.dtype
+        #e0 = e0.float()
+        #e1 = e1.float()
+
+        e0 = e0 / torch.sqrt(torch.sum(e0 ** 2, dim=-1, keepdims=True) + eps)
+        e1 = e1 - e0 * torch.sum(e0 * e1, dim=-1, keepdims=True) 
+        e1 = e1 / torch.sqrt(torch.sum(e1 ** 2, dim=-1, keepdims=True) + eps)
+        e2 = torch.cross(e0, e1)
+
+        rots = torch.stack([e0, e1, e2], dim=-1)
+
+        #rots = rots.type(float_type)
 
         return T(rots, origin)
 

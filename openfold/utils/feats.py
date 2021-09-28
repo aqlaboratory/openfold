@@ -286,7 +286,7 @@ def atom37_to_torsion_angles(
             torch.square(torsion_angles_sin_cos), dim=-1, keepdims=True
         ) + eps
     )
-    torsion_angles_sin_cos /= denom
+    torsion_angles_sin_cos = torsion_angles_sin_cos / denom
 
     torsion_angles_sin_cos *= torch.tensor(
         [1., 1., -1., 1., 1., 1., 1.], device=aatype.device,
@@ -298,7 +298,7 @@ def atom37_to_torsion_angles(
 
     mirror_torsion_angles = torch.cat(
         [
-            aatype.new_ones(*aatype.shape, 3),
+            all_atom_mask.new_ones(*aatype.shape, 3),
             1. - 2. * chi_is_ambiguous
         ], dim=-1
     )

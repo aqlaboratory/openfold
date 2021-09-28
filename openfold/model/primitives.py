@@ -257,6 +257,8 @@ class Attention(nn.Module):
                 a += b
         a = self.softmax(a)
 
+        #print(torch.any(torch.isnan(a)))
+    
         # [*, H, Q, C_hidden]
         o = torch.matmul(
             a,
@@ -328,7 +330,7 @@ class GlobalAttention(nn.Module):
             k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq] 
         )
         bias = (self.inf * (mask - 1))[..., :, None, :]
-        a +=  bias
+        a += bias
         a = self.softmax(a)
 
         # [*, N_res, H, C_hidden]
