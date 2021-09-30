@@ -251,10 +251,10 @@ class Attention(nn.Module):
             permute_final_dims(k, (0, 2, 3, 1)),  # [*, H, C_hidden, K] 
         )
         norm = 1 / math.sqrt(self.c_hidden) # [1]
-        a *= norm
+        a = a * norm
         if(biases is not None):
             for b in biases:
-                a += b
+                a = a + b
         a = self.softmax(a)
 
         #print(torch.any(torch.isnan(a)))
@@ -330,7 +330,7 @@ class GlobalAttention(nn.Module):
             k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq] 
         )
         bias = (self.inf * (mask - 1))[..., :, None, :]
-        a += bias
+        a = a + bias
         a = self.softmax(a)
 
         # [*, N_res, H, C_hidden]

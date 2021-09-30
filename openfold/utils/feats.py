@@ -151,7 +151,7 @@ def atom14_to_atom37(atom14, batch):
         no_batch_dims=len(atom14.shape[:-2]),
     )
 
-    atom37_data *= batch["atom37_atom_exists"][..., None]
+    atom37_data = atom37_data * batch["atom37_atom_exists"][..., None]
 
     return atom37_data
 
@@ -288,7 +288,7 @@ def atom37_to_torsion_angles(
     )
     torsion_angles_sin_cos = torsion_angles_sin_cos / denom
 
-    torsion_angles_sin_cos *= torch.tensor(
+    torsion_angles_sin_cos = torsion_angles_sin_cos * torch.tensor(
         [1., 1., -1., 1., 1., 1., 1.], device=aatype.device,
     )[((None,) * len(torsion_angles_sin_cos.shape[:-2])) + (slice(None), None)]
 
@@ -335,11 +335,8 @@ def atom37_to_frames(
                     restype, chi_idx + 4, :
                 ] = names[1:]
 
-    restype_rigidgroup_mask = torch.zeros(
+    restype_rigidgroup_mask = all_atom_mask.new_zeros(
         (*aatype.shape[:-1], 21, 8), 
-        dtype=all_atom_mask.dtype, 
-        device=aatype.device, 
-        requires_grad=False
     )
     restype_rigidgroup_mask[..., 0] = 1
     restype_rigidgroup_mask[..., 3] = 1
@@ -399,7 +396,7 @@ def atom37_to_frames(
     gt_exists = torch.min(gt_atoms_exist, dim=-1)[0] * group_exists
 
     rots = torch.eye(
-        3, dtype=all_atom_mask.dtype, device=aatype.device, requires_grad=False
+        3, dtype=all_atom_mask.dtype, device=aatype.device
     )
     rots = torch.tile(rots, (*((1,) * batch_dims), 8, 1, 1))
     rots[..., 0, 0, 0] = -1
@@ -411,7 +408,7 @@ def atom37_to_frames(
         *((1,) * batch_dims), 21, 8
     )
     restype_rigidgroup_rots = torch.eye(
-        3, dtype=all_atom_mask.dtype, device=aatype.device, requires_grad=False
+        3, dtype=all_atom_mask.dtype, device=aatype.device
     )
     restype_rigidgroup_rots = torch.tile(
         restype_rigidgroup_rots,
@@ -476,7 +473,7 @@ def build_template_angle_feat(angle_feats, template_aatype):
     return template_angle_feat
 
 
-def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-6, inf=1e8):
+def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e8):
     template_mask = batch["template_pseudo_beta_mask"]
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
@@ -507,20 +504,30 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-6, inf=1e8
     )
 
     n, ca, c = [rc.atom_order[a] for a in ['N', 'CA', 'C']]
-    
+    affines = T.make_transform_from_reference(
+        n_xyz=batch["template_all_atom_positions"][..., n, :],
+        ca_xyz=batch["template_all_atom_positions"][..., ca, :],
+        c_xyz=batch["template_all_atom_positions"][..., c, :],
+    )
+    points = affines.get_trans()[..., None, :, :]
+    affine_vec = affines[..., None].invert_apply(points)
+    inv_distance_scalar = torch.rsqrt(
+        eps + torch.sum(affine_vec ** 2, dim=-1)
+    )
+
     t_aa_masks = batch["template_all_atom_masks"]
     template_mask = (
         t_aa_masks[..., n] * t_aa_masks[..., ca] * t_aa_masks[..., c]
     )
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
-    unit_vector = template_mask_2d.new_zeros(*template_mask_2d.shape, 3)
-    to_concat.append(unit_vector)
+    inv_distance_scalar = inv_distance_scalar * template_mask_2d
+    unit_vector = (affine_vec * inv_distance_scalar[..., None])
+    to_concat.extend(torch.unbind(unit_vector[..., None, :], dim=-1))
     to_concat.append(template_mask_2d[..., None])
    
     act = torch.cat(to_concat, dim=-1)
-
-    act *= template_mask_2d[..., None]
+    act = act * template_mask_2d[..., None]
 
     return act
 
@@ -594,7 +601,7 @@ def build_ambiguity_feats(batch: Dict[str, torch.Tensor]) -> None:
     """
     ambiguous_atoms = (
         batch["atom14_gt_positions"].new_tensor(
-            rc.restype_atom14_ambiguous_atoms, requires_grad=False,
+            rc.restype_atom14_ambiguous_atoms
         )
     )
     
@@ -603,9 +610,7 @@ def build_ambiguity_feats(batch: Dict[str, torch.Tensor]) -> None:
     # Swap pairs of ambiguous positions
     swap_idx = rc.restype_atom14_ambiguous_atoms_swap_idx
     swap_mat = np.eye(swap_idx.shape[-1])[swap_idx] # one-hot swap_idx
-    swap_mat = batch["atom14_gt_positions"].new_tensor(
-        swap_mat, requires_grad=False
-    )
+    swap_mat = batch["atom14_gt_positions"].new_tensor(swap_mat)
     swap_mat = swap_mat[batch["aatype"], ...]
     atom14_alt_gt_positions = (
         torch.sum(

@@ -53,7 +53,7 @@ class Dropout(nn.Module):
         if(self.batch_dim is not None):
             for bd in self.batch_dim:
                 shape[bd] = 1
-        mask = x.new_ones(shape, requires_grad=False)
+        mask = x.new_ones(shape)
         mask = self.dropout(mask)
         x = x * mask
         return x

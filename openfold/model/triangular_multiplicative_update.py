@@ -91,7 +91,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
                 [*, N_res, N_res, C_z] output tensor
         """
         if(mask is None):
-            mask = z.new_ones(z.shape[:-1], requires_grad=False)
+            mask = z.new_ones(z.shape[:-1])
 
         mask = mask.unsqueeze(-1)
 

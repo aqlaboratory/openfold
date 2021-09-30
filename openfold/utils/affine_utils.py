@@ -163,7 +163,7 @@ class T:
         return trans
 
     @staticmethod
-    def identity(shape, dtype, device, requires_grad=False):
+    def identity(shape, dtype, device, requires_grad=True):
         return T(
             T.identity_rot(shape, dtype, device, requires_grad), 
             T.identity_trans(shape, dtype, device, requires_grad),
@@ -191,19 +191,12 @@ class T:
         e0 = origin - p_neg_x_axis
         e1 = p_xy_plane - origin
 
-        # Angle norming is very sensitive to floating point imprecisions 
-        #float_type = e0.dtype
-        #e0 = e0.float()
-        #e1 = e1.float()
-
         e0 = e0 / torch.sqrt(torch.sum(e0 ** 2, dim=-1, keepdims=True) + eps)
         e1 = e1 - e0 * torch.sum(e0 * e1, dim=-1, keepdims=True) 
         e1 = e1 / torch.sqrt(torch.sum(e1 ** 2, dim=-1, keepdims=True) + eps)
         e2 = torch.cross(e0, e1)
 
         rots = torch.stack([e0, e1, e2], dim=-1)
-
-        #rots = rots.type(float_type)
 
         return T(rots, origin)
 
@@ -221,7 +214,8 @@ class T:
         return T(rots, trans)
 
     def map_tensor_fn(self, fn):
-        """ Apply a function that takes a tensor as its only argument to the
+        """ 
+            Apply a function that takes a tensor as its only argument to the
             rotations and translations, treating the final two/one
             dimension(s), respectively, as batch dimensions.
 
@@ -253,7 +247,7 @@ class T:
         n_xyz = n_xyz + translation
         c_xyz = c_xyz + translation
 
-        c_x, c_y, c_z = [c_xyz[...,i] for i in range(3)]
+        c_x, c_y, c_z = [c_xyz[..., i] for i in range(3)]
         norm = torch.sqrt(eps + c_x**2 + c_y**2)
         sin_c1 = -c_y / norm
         cos_c1 = c_x / norm
@@ -278,7 +272,7 @@ class T:
         c1_rots[..., 2, 0] = -1 * sin_c2
         c1_rots[..., 2, 2] = cos_c2
 
-        c_rots = rot_matmul(c2_rot_matrix, c1_rot_matrix)
+        c_rots = rot_matmul(c2_rots, c1_rots)
         n_xyz = rot_vec_mul(c_rots, n_xyz)
 
         _, n_y, n_z = [n_xyz[..., i] for i in range(3)]

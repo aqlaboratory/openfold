@@ -115,10 +115,6 @@ class AlphaFold(nn.Module):
                 batch,
             )
 
-            #tensor_dtype = (
-            #    single_template_feats["template_all_atom_masks"].dtype
-            #)
-
             # Build template angle feats
             angle_feats = atom37_to_torsion_angles(
                 single_template_feats["template_aatype"], 
@@ -126,10 +122,6 @@ class AlphaFold(nn.Module):
                 single_template_feats["template_all_atom_masks"],#.float(), 
                 eps=self.config.template.eps,
             )
-
-            #angle_feats = tensor_tree_map(
-            #    lambda t: t.type(tensor_dtype), angle_feats
-            #)
 
             template_angle_feat = build_template_angle_feat(
                 angle_feats,
@@ -211,19 +203,16 @@ class AlphaFold(nn.Module):
                 # [*, N, C_m]
                 m_1_prev = m.new_zeros(
                     (*batch_dims, n, self.config.c_m), 
-                    requires_grad=False, 
                 )
 
                 # [*, N, N, C_z]
                 z_prev = z.new_zeros(
                     (*batch_dims, n, n, self.config.c_z),
-                    requires_grad=False,
                 )
 
                 # [*, N, 3]
                 x_prev = z.new_zeros(
                     (*batch_dims, n, residue_constants.atom_type_num, 3),
-                    requires_grad=False,
                 )
 
             x_prev = pseudo_beta_fn(
@@ -241,7 +230,7 @@ class AlphaFold(nn.Module):
             )
 
             # [*, S_c, N, C_m]
-            m[..., 0, :, :] += m_1_prev_emb
+            m[..., 0, :, :] = m[..., 0, :, :] + m_1_prev_emb
 
             # [*, N, N, C_z]
             z = z + z_prev_emb
@@ -312,6 +301,7 @@ class AlphaFold(nn.Module):
             outputs["sm"]["positions"][-1], feats
         )
         outputs["final_atom_mask"] = feats["atom37_atom_exists"]
+        outputs["final_affine_tensor"] = outputs["sm"]["frames"][-1]
 
         # Save embeddings for use during the next recycling iteration 
 
@@ -341,6 +331,16 @@ class AlphaFold(nn.Module):
         self.extra_msa_stack.stack.blocks_per_ckpt = (
             self.config.extra_msa.extra_msa_stack.blocks_per_ckpt
         )
+
+    def _disable_grad(self):
+        vals = [p.requires_grad for p in self.parameters()]
+        for p in self.parameters():
+            p.requires_grad_(False)
+        return vals
+
+    def _enable_grad(self, vals):
+        for p, v in zip(self.parameters(), vals):
+            p.requires_grad_(v)
 
     def forward(self, batch):
         """
@@ -391,12 +391,13 @@ class AlphaFold(nn.Module):
                             for which C_alpha is used instead)
                         "template_pseudo_beta_mask" ([*, N_templ, N_res])
                             Pseudo-beta mask 
-        """        
+        """
         # Initialize recycling embeddings
         m_1_prev, z_prev, x_prev = None, None, None
 
         # Disable activation checkpointing until the final recycling layer
         self._disable_activation_checkpointing()
+        grad_vals = self._disable_grad()
 
         # Main recycling loop
         for cycle_no in range(self.config.no_cycles):
@@ -405,14 +406,17 @@ class AlphaFold(nn.Module):
             feats = tensor_tree_map(fetch_cur_batch, batch)
            
             # Enable grad iff we're training and it's the final recycling layer
-            is_final_iter = (cycle_no == self.config.no_cycles - 1)
-            if(self.training and is_final_iter):
+            is_final_iter = (cycle_no == (self.config.no_cycles - 1))
+            if(is_final_iter):
                 self._enable_activation_checkpointing()
-            with torch.set_grad_enabled(self.training and is_final_iter):
-                outputs, m_1_prev, z_prev, x_prev = self.iteration(
-                    feats, m_1_prev, z_prev, x_prev, 
-                )
-             
+                self._enable_grad(grad_vals)
+
+            # Run the next iteration of the model
+            outputs, m_1_prev, z_prev, x_prev = self.iteration(
+                feats, m_1_prev, z_prev, x_prev,
+            )
+
+        # Run auxiliary heads 
         outputs.update(self.aux_heads(outputs))
 
         return outputs

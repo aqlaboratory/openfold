@@ -73,10 +73,8 @@ class TriangleAttention(nn.Module):
         """
         if(mask is None):
             # [*, I, J]
-            mask = torch.ones(
+            mask = x.new_ones(
                 x.shape[:-1], 
-                device=x.device,
-                requires_grad=False,
             )
 
         # Shape annotations assume self.starting. Else, I and J are flipped

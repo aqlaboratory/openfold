@@ -40,9 +40,9 @@ class AuxiliaryHeads(nn.Module):
             **config["experimentally_resolved"],
         )
 
-        if(config.tm_score.enabled):
-            self.tm_score = TMScoreHead(
-                **config["tm_score"],
+        if(config.tm.enabled):
+            self.tm = TMScoreHead(
+                **config.tm,
             )
 
         self.config = config
@@ -68,9 +68,9 @@ class AuxiliaryHeads(nn.Module):
             experimentally_resolved_logits
         )
 
-        if(self.config.tm_score.enabled):
-            tm_score_logits = self.tm_score(outputs["pair"])
-            aux_out["tm_score_logits"] = tm_score_logits 
+        if(self.config.tm.enabled):
+            tm_logits = self.tm(outputs["pair"])
+            aux_out["tm_logits"] = tm_logits 
         
         return aux_out
 

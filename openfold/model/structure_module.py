@@ -27,7 +27,7 @@ from openfold.np.residue_constants import (
 )
 from openfold.utils.affine_utils import T, quat_to_rot 
 from openfold.utils.tensor_utils import (
-    stack_tensor_dicts, 
+    dict_multimap, 
     permute_final_dims, 
     flatten_final_dims,
 )
@@ -337,10 +337,15 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H * C_hidden]
         o = flatten_final_dims(o, 2)
 
+        # As DeepMind explains, this manual matmul ensures that the operation
+        # happens in float32.
         # [*, H, 3, N_res, P_v]
-        o_pt = torch.matmul(
-            a.unsqueeze(-3),                       # [*, H, 1, N_res, N_res]
-            permute_final_dims(v_pts, (1, 3, 0, 2)), # [*, H, 3, N_res, P_v]
+        o_pt = torch.sum(
+            (
+                a[..., None, :, :, None] *
+                permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
+            ),
+            dim=-2
         )
 
         # [*, N_res, H, P_v, 3]
@@ -702,7 +707,7 @@ class StructureModule(nn.Module):
         """
         if(mask is None):
             # [*, N]
-            mask = s.new_ones(s.shape[:-1], requires_grad=False)
+            mask = s.new_ones(s.shape[:-1])
 
         # [*, N, C_s]
         s = self.layer_norm_s(s)
@@ -718,7 +723,7 @@ class StructureModule(nn.Module):
         t = T.identity(s.shape[:-1], s.dtype, s.device, self.training)
  
         outputs = []
-        for l in range(self.no_blocks):
+        for i in range(self.no_blocks):
             # [*, N, C_s]
             s = s + self.ipa(s, z, t, mask)
             s = self.ipa_dropout(s)
@@ -751,10 +756,10 @@ class StructureModule(nn.Module):
 
             outputs.append(preds)
 
-            if(l < self.no_blocks - 1):
+            if(i < (self.no_blocks - 1)):
                 t = t.stop_rot_gradient()
 
-        outputs = stack_tensor_dicts(outputs)
+        outputs = dict_multimap(torch.stack, outputs)
         outputs["single"] = s
 
         return outputs
@@ -765,27 +770,23 @@ class StructureModule(nn.Module):
                 restype_rigid_group_default_frame,
                 dtype=float_dtype,
                 device=device,
-                requires_grad=False,
             )
         if(self.group_idx is None):
             self.group_idx = torch.tensor(
                 restype_atom14_to_rigid_group,
                 device=device,
-                requires_grad=False,
             )
         if(self.atom_mask is None):
             self.atom_mask = torch.tensor(
                 restype_atom14_mask,
                 dtype=float_dtype,
                 device=device,
-                requires_grad=False,
             )
         if(self.lit_positions is None):
             self.lit_positions = torch.tensor(
                 restype_atom14_rigid_group_positions,
                 dtype=float_dtype,
                 device=device, 
-                requires_grad=False,
             )
 
     def torsion_angles_to_frames(self, t, alpha, f):
@@ -799,8 +800,6 @@ class StructureModule(nn.Module):
         f     # [*, N]
     ):
         # Lazily initialize the residue constants on the correct device
-        # TODO: Maybe this stuff should be done on CPU instead (so these
-        # arrays 
         self._init_residue_constants(t.rots.dtype, t.rots.device)
         return _frames_and_literature_positions_to_atom14_pos(
             t, 

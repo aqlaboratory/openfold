@@ -23,8 +23,8 @@ blocks_per_ckpt = mlc.FieldReference(1, field_type=int)
 chunk_size = mlc.FieldReference(None, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64)
 
-eps = 1e-4
-inf = 1e4
+eps = 1e-8
+inf = 1e8
 
 config = mlc.ConfigDict({
     "model": {
@@ -33,7 +33,7 @@ config = mlc.ConfigDict({
         "c_t": c_t,
         "c_e": c_e,
         "c_s": c_s,
-        "no_cycles": 4,
+        "no_cycles": 2,#4,
         "_mask_trans": False,
         "input_embedder": {
             "tf_dim": 22,
@@ -117,7 +117,7 @@ config = mlc.ConfigDict({
                 "inf": inf,#1e9,
                 "eps": eps,#1e-10,
             },
-            "enabled": False,#True,
+            "enabled": True,
         },
         "evoformer_stack": {
             "c_m": c_m,
@@ -147,7 +147,7 @@ config = mlc.ConfigDict({
             "no_qk_points": 4,
             "no_v_points": 8,
             "dropout_rate": 0.1,
-            "no_blocks": 8,
+            "no_blocks": 2,#8,
             "no_transition_layers": 1,
             "no_resnet_blocks": 2,
             "no_angles": 7,
@@ -165,10 +165,10 @@ config = mlc.ConfigDict({
                 "c_z": c_z,
                 "no_bins": aux_distogram_bins,
             },
-            "tm_score": {
+            "tm": {
                 "c_z": c_z,
                 "no_bins": aux_distogram_bins,
-                "enabled": False,
+                "enabled": True,
             },
             "masked_msa": {
                 "c_m": c_m,
@@ -238,6 +238,14 @@ config = mlc.ConfigDict({
             "clash_overlap_tolerance": 1.5,
             "eps": eps,#1e-6,
             "weight": 0.,
+        },
+        "tm": {
+            "max_bin": 31,
+            "no_bins": 64,
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "eps": eps,#1e-8,
+            "weight": 1.0,
         },
         "eps": eps,
     },

@@ -97,8 +97,8 @@ def compute_fape(
         error_dist = torch.clamp(error_dist, min=0, max=l1_clamp_distance)
 
     normed_error = error_dist / length_scale
-    normed_error *= frames_mask[..., None]
-    normed_error *= positions_mask[..., None, :]
+    normed_error = normed_error * frames_mask[..., None]
+    normed_error = normed_error * positions_mask[..., None, :]
 
     # FP16-friendly averaging. Roughly equivalent to:
     #
@@ -291,7 +291,7 @@ def supervised_chi_loss(
     )
 
     loss = 0
-    loss += chi_weight * sq_chi_loss
+    loss = loss + chi_weight * sq_chi_loss
 
     angle_norm = torch.sqrt(
         torch.sum(unnormalized_angles_sin_cos**2, dim=-1) + eps
@@ -304,7 +304,7 @@ def supervised_chi_loss(
             seq_mask[..., None, :, None], norm_error, dim=(-1, -2, -3)
     )
 
-    loss += angle_norm_weight * angle_norm_loss
+    loss = loss + angle_norm_weight * angle_norm_loss
 
     return loss
 
@@ -380,7 +380,7 @@ def lddt_loss(
         (dist_l1 < 2.0).type(dist_l1.dtype) +
         (dist_l1 < 4.0).type(dist_l1.dtype)
     )
-    score *= 0.25
+    score = score * 0.25
 
     norm = 1. / (eps + torch.sum(dists_to_score, dim=-1))
     score = norm * (eps + torch.sum(dists_to_score * score, dim=-1))
@@ -400,7 +400,7 @@ def lddt_loss(
         (eps + torch.sum(all_atom_mask, dim=-1))
     )
    
-    loss *= (
+    loss = loss * (
         (resolution >= min_resolution) &
         (resolution <= max_resolution)
     )
@@ -452,50 +452,60 @@ def distogram_loss(
     return mean 
 
 
-def tm_score(
+def tm_loss(
     logits,
-    t_pred, 
-    t_gt, 
-    mask, 
+    final_affine_tensor, 
+    backbone_affine_tensor, 
+    backbone_affine_mask, 
     resolution,
     max_bin=31, 
     no_bins=64, 
     min_resolution: float = 0.1,
     max_resolution: float = 3.0,
-    eps=1e-8
+    eps=1e-8,
+    **kwargs,
 ):
+    pred_affine = T.from_4x4(final_affine_tensor)
+    backbone_affine = T.from_4x4(backbone_affine_tensor)
+
+    def _points(affine):
+        pts = affine.get_trans()[..., None, :, :]
+        return affine.invert()[..., None].apply(pts)
+
+    sq_diff = torch.sum(
+        (_points(pred_affine) - _points(backbone_affine)) ** 2, 
+        dim=-1
+    )
+    sq_diff = sq_diff.detach()
+
     boundaries = torch.linspace(
-        min=0, 
-        max=max_bin, 
+        0, 
+        max_bin, 
         steps=(no_bins - 1), 
         device=logits.device
     )
     boundaries = boundaries ** 2
-
-    def _points(affine):
-        pts = affine.trans.unsqueeze(-3)
-        return affine.invert().apply(pts, addl_dims=1)
-
-    sq_diff = torch.sum((_points(t_pred) - _points(t_gt)) ** 2, dim=-1)
-    sq_diff = sq_diff.detach()
-
     true_bins = torch.sum(
-        sq_diff[..., None] > boundaries
-    ).float()
+        sq_diff[..., None] > boundaries, dim=-1
+    )
 
     errors = softmax_cross_entropy(
         logits,
         torch.nn.functional.one_hot(true_bins, no_bins)
     )
 
-    square_mask = mask[..., None] * mask[..., None, :]
-
-    loss = (
-        torch.sum(loss, dim=(-1, -2)) /
-        (eps + torch.sum(square_mask, dim=(-1, -2)))
+    square_mask = (
+        backbone_affine_mask[..., None] * backbone_affine_mask[..., None, :]
     )
 
-    loss *= (
+    loss = torch.sum(errors * square_mask, dim=-1)
+    scale = 0.1 # hack to help FP16 training along
+    denom = eps + torch.sum(scale * square_mask, dim=(-1, -2))
+    loss = loss / denom[..., None]
+    loss = torch.sum(loss, dim=-1)
+    loss = loss / scale
+
+    loss = loss * (
         (resolution >= min_resolution) &
         (resolution <= max_resolution)
     )
@@ -729,7 +739,7 @@ def between_residue_clash_loss(
     # Mask out all the duplicate entries in the lower triangular matrix.
     # Also mask out the diagonal (atom-pairs from the same residue) -- these atoms
     # are handled separately.
-    dists_mask *= (
+    dists_mask = dists_mask * (
         residue_index[..., :, None, None, None] < residue_index[..., None, :, None, None]
     )
   
@@ -758,7 +768,7 @@ def between_residue_clash_loss(
         c_one_hot[..., None, None, :, None] * 
         n_one_hot[..., None, None, None, :]
     )
-    dists_mask *= (1. - c_n_bonds)
+    dists_mask = dists_mask * (1. - c_n_bonds)
   
     # Disulfide bridge between two cysteines is no clash.
     cys = residue_constants.restype_name_to_atom14_names["CYS"]
@@ -773,7 +783,7 @@ def between_residue_clash_loss(
     disulfide_bonds = (
         cys_sg_one_hot[..., None, None, :, None] *
         cys_sg_one_hot[..., None, None, None, :])
-    dists_mask *= (1. - disulfide_bonds)
+    dists_mask = dists_mask * (1. - disulfide_bonds)
   
     # Compute the lower bound for the allowed distances.
     # shape (N, N, 14, 14)
@@ -1038,7 +1048,7 @@ def find_structural_violations_np(
     atom14_pred_positions: np.ndarray,
     config: ml_collections.ConfigDict
 ) -> Dict[str, np.ndarray]:
-    to_tensor = lambda x: torch.tensor(x, requires_grad=False)
+    to_tensor = lambda x: torch.tensor(x)
     batch = tree_map(to_tensor, batch, np.ndarray)
     atom14_pred_positions = to_tensor(atom14_pred_positions)
 
@@ -1135,7 +1145,7 @@ def compute_violation_metrics_np(
     atom14_pred_positions: np.ndarray,
     violations: Dict[str, np.ndarray],
 ) -> Dict[str, np.ndarray]:
-    to_tensor = lambda x: torch.tensor(x, requires_grad=False)
+    to_tensor = lambda x: torch.tensor(x)
     batch = tree_map(to_tensor, batch, np.ndarray)
     atom14_pred_positions = to_tensor(atom14_pred_positions)
     violations = tree_map(to_tensor, violations, np.ndarray)
@@ -1285,10 +1295,11 @@ def experimentally_resolved_loss(
     **kwargs,
 ) -> torch.Tensor:
     errors = sigmoid_cross_entropy(logits, all_atom_mask)
-    loss_num = torch.sum(errors * atom37_atom_exists, dim=(-1, -2))
-    loss = loss_num / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)))
+    loss = torch.sum(errors * atom37_atom_exists, dim=-1)
+    loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)))
+    loss = torch.sum(loss, dim=-1)
     
-    loss *= (
+    loss = loss * (
         (resolution >= min_resolution) &
         (resolution <= max_resolution)
     )
@@ -1307,11 +1318,13 @@ def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
     #     torch.sum(errors * bert_mask, dim=(-1, -2)) /
     #     (eps + torch.sum(bert_mask, dim=(-1, -2)))
     # )
-    denom = eps + torch.sum(bert_mask, dim=(-1, -2))
     loss = errors * bert_mask
     loss = torch.sum(loss, dim=-1)
+    scale = 0.1
+    denom = eps + torch.sum(scale * bert_mask, dim=(-1, -2))
     loss = loss / denom[..., None]
     loss = torch.sum(loss, dim=-1)
+    loss = loss / scale
 
     return loss
 
@@ -1403,6 +1416,11 @@ class AlphaFoldLoss(nn.Module):
                     out["violation"],
                     **batch,
                 ),
+            "tm":
+                lambda: tm_loss(
+                    logits=out["tm_logits"],
+                    **{**batch, **out, **self.config.tm},
+                ),  
         }
        
         cum_loss = 0

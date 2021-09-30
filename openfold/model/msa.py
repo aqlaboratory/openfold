@@ -94,10 +94,8 @@ class MSAAttention(nn.Module):
         n_seq, n_res = m.shape[-3:-1]
         if(mask is None):
             # [*, N_seq, N_res]
-            mask = torch.ones(
+            mask = m.new_ones(
                 m.shape[:-3] + (n_seq, n_res), 
-                device=m.device, 
-                requires_grad=False
             )
 
         # [*, N_seq, 1, 1, N_res]

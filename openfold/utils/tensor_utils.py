@@ -57,19 +57,6 @@ def dict_multimap(fn, dicts):
     return new_dict
 
 
-def stack_tensor_dicts(dicts):
-    first = dicts[0]
-    new_dict = {}
-    for k, v in first.items():
-        all_v = [d[k] for d in dicts]
-        if(type(v) is dict):
-            new_dict[k] = stack_tensor_dicts(all_v)
-        else:
-            new_dict[k] = torch.stack(all_v)
-
-    return new_dict
-
-
 def one_hot(x, v_bins):
     reshaped_bins = v_bins.view(((1,) * len(x.shape)) + (len(v_bins),))
     diffs = x[..., None] - reshaped_bins
@@ -118,6 +105,7 @@ def tree_map(fn, tree, leaf_type):
         raise ValueError("Not supported")
 
 tensor_tree_map = partial(tree_map, leaf_type=torch.Tensor)
+
 
 def chunk_layer(
     layer: Callable, 

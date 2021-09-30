@@ -70,7 +70,7 @@ class OuterProductMean(nn.Module):
                 [*, N_res, N_res, C_z] pair embedding update
         """
         if(mask is None):
-            mask = m.new_ones(m.shape[:-1], requires_grad=False)
+            mask = m.new_ones(m.shape[:-1])
 
         # [*, N_seq, N_res, C_m]
         m = self.layer_norm(m)
