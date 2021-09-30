@@ -202,12 +202,12 @@ class AlphaFold(nn.Module):
             if(None in [m_1_prev, z_prev, x_prev]):
                 # [*, N, C_m]
                 m_1_prev = m.new_zeros(
-                    (*batch_dims, n, self.config.c_m), 
+                    (*batch_dims, n, self.config.input_embedder.c_m), 
                 )
 
                 # [*, N, N, C_z]
                 z_prev = z.new_zeros(
-                    (*batch_dims, n, n, self.config.c_z),
+                    (*batch_dims, n, n, self.config.input_embedder.c_z),
                 )
 
                 # [*, N, 3]

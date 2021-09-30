@@ -2,38 +2,72 @@ import copy
 import ml_collections as mlc
 
 
-def model_config(name):
+def model_config(name, train=False):
     c = copy.deepcopy(config)
-    if(name == "model_3"):
+    if(name == "model_1"):
+        pass
+    elif(name == "model_2"):
+        pass
+    elif(name == "model_3"):
         c.model.template.enabled = False
     elif(name == "model_4"):
         c.model.template.enabled = False
     elif(name == "model_5"):
         c.model.template.enabled = False
+    elif(name == "model_1_ptm"):
+        c.model.heads.tm.enabled = True
+        c.model.loss.tm.weight = 0.1
+    elif(name == "model_2_ptm"):
+        c.model.heads.tm.enabled = True
+        c.model.loss.tm.weight = 0.1
+    elif(name == "model_3_ptm"):
+        c.model.template.enabled = False
+        c.model.heads.tm.enabled = True
+        c.model.loss.tm.weight = 0.1
+    elif(name == "model_4_ptm"):
+        c.model.template.enabled = False
+        c.model.heads.tm.enabled = True
+        c.model.loss.tm.weight = 0.1
+    elif(name == "model_5_ptm"):
+        c.model.template.enabled = False
+        c.model.heads.tm.enabled = True
+        c.model.loss.tm.weight = 0.1
+    else:
+        raise ValueError("Invalid model name")
+
+    if(train):
+        c.globals.model.blocks_per_ckpt = 1
+        c.globals.chunk_size = None
     
     return c
 
 
-c_z = mlc.FieldReference(128)
-c_m = mlc.FieldReference(256)
-c_t = mlc.FieldReference(64)
-c_e = mlc.FieldReference(64)
-c_s = mlc.FieldReference(384)
-blocks_per_ckpt = mlc.FieldReference(1, field_type=int)
-chunk_size = mlc.FieldReference(None, field_type=int)
-aux_distogram_bins = mlc.FieldReference(64)
-
-eps = 1e-8
-inf = 1e8
+c_z = mlc.FieldReference(128, field_type=int)
+c_m = mlc.FieldReference(256, field_type=int)
+c_t = mlc.FieldReference(64, field_type=int)
+c_e = mlc.FieldReference(64, field_type=int)
+c_s = mlc.FieldReference(384, field_type=int)
+blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
+chunk_size = mlc.FieldReference(4, field_type=int)
+aux_distogram_bins = mlc.FieldReference(64, field_type=int)
+eps = mlc.FieldReference(1e-8, field_type=float)
+inf = mlc.FieldReference(1e8, field_type=float)
 
 config = mlc.ConfigDict({
-    "model": {
+    # Recurring FieldReferences that can be changed globally here
+    "globals": {
+        "blocks_per_ckpt": blocks_per_ckpt,
+        "chunk_size": chunk_size,
         "c_z": c_z,
         "c_m": c_m,
         "c_t": c_t,
         "c_e": c_e,
         "c_s": c_s,
-        "no_cycles": 2,#4,
+        "eps": eps,
+        "inf": inf,
+    },
+    "model": {
+        "no_cycles": 4,
         "_mask_trans": False,
         "input_embedder": {
             "tf_dim": 22,
@@ -147,7 +181,7 @@ config = mlc.ConfigDict({
             "no_qk_points": 4,
             "no_v_points": 8,
             "dropout_rate": 0.1,
-            "no_blocks": 2,#8,
+            "no_blocks": 8,
             "no_transition_layers": 1,
             "no_resnet_blocks": 2,
             "no_angles": 7,
@@ -168,7 +202,7 @@ config = mlc.ConfigDict({
             "tm": {
                 "c_z": c_z,
                 "no_bins": aux_distogram_bins,
-                "enabled": True,
+                "enabled": False,
             },
             "masked_msa": {
                 "c_m": c_m,
@@ -245,7 +279,7 @@ config = mlc.ConfigDict({
             "min_resolution": 0.1,
             "max_resolution": 3.0,
             "eps": eps,#1e-8,
-            "weight": 1.0,
+            "weight": 0.,
         },
         "eps": eps,
     },
