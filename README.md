@@ -20,13 +20,13 @@ scripts/install_third_party_dependencies.sh
 To activate the environment, run:
 
 ```bash
-scripts/activate_conda_venv.sh
+source scripts/activate_conda_venv.sh
 ```
 
 To deactivate it, run:
 
 ```bash
-scripts/deactivate_conda_venv.sh
+source scripts/deactivate_conda_venv.sh
 ```
 
 ## Features
