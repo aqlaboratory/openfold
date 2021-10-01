@@ -21,7 +21,6 @@ import torch.nn as nn
 from typing import Dict, Optional
 
 from openfold.np import residue_constants
-from openfold.model.primitives import Linear
 from openfold.utils import feats
 from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
