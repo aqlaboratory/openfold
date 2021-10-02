@@ -2,7 +2,15 @@ import copy
 import ml_collections as mlc
 
 
-def model_config(name, train=False):
+def set_inf(c, inf):
+    for k, v in c.items():
+        if(isinstance(v, mlc.ConfigDict)):
+            set_inf(v, inf)
+        elif(k == "inf"):
+            c[k] = inf
+
+
+def model_config(name, train=False, low_prec=False):
     c = copy.deepcopy(config)
     if(name == "model_1"):
         pass
@@ -16,28 +24,34 @@ def model_config(name, train=False):
         c.model.template.enabled = False
     elif(name == "model_1_ptm"):
         c.model.heads.tm.enabled = True
-        c.model.loss.tm.weight = 0.1
+        c.loss.tm.weight = 0.1
     elif(name == "model_2_ptm"):
         c.model.heads.tm.enabled = True
-        c.model.loss.tm.weight = 0.1
+        c.loss.tm.weight = 0.1
     elif(name == "model_3_ptm"):
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
-        c.model.loss.tm.weight = 0.1
+        c.loss.tm.weight = 0.1
     elif(name == "model_4_ptm"):
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
-        c.model.loss.tm.weight = 0.1
+        c.loss.tm.weight = 0.1
     elif(name == "model_5_ptm"):
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
-        c.model.loss.tm.weight = 0.1
+        c.loss.tm.weight = 0.1
     else:
         raise ValueError("Invalid model name")
 
     if(train):
         c.globals.model.blocks_per_ckpt = 1
         c.globals.chunk_size = None
+
+    if(low_prec):
+        c.globals.eps = 1e-4
+        # If we want exact numerical parity with the original, inf can't be
+        # a global constant
+        set_inf(c, 1e4)
     
     return c
 
@@ -51,7 +65,6 @@ blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
 eps = mlc.FieldReference(1e-8, field_type=float)
-inf = mlc.FieldReference(1e8, field_type=float)
 
 config = mlc.ConfigDict({
     # Recurring FieldReferences that can be changed globally here
@@ -64,7 +77,6 @@ config = mlc.ConfigDict({
         "c_e": c_e,
         "c_s": c_s,
         "eps": eps,
-        "inf": inf,
     },
     "model": {
         "no_cycles": 4,
@@ -82,7 +94,7 @@ config = mlc.ConfigDict({
             "min_bin": 3.25,
             "max_bin": 20.75,
             "no_bins": 15,
-            "inf": inf,#1e8,
+            "inf": 1e8,
         },
         "template": {
             "distogram": {
@@ -111,7 +123,7 @@ config = mlc.ConfigDict({
                 "dropout_rate": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
-                "inf": inf,
+                "inf": 1e9,
             },
             "template_pointwise_attention": {
                 "c_t": c_t, 
@@ -121,9 +133,9 @@ config = mlc.ConfigDict({
                 "c_hidden": 16, 
                 "no_heads": 4,
                 "chunk_size": chunk_size,
-                "inf": inf,#1e-9,
+                "inf": 1e9,
             },
-            "inf": inf,
+            "inf": 1e9,
             "eps": eps,#1e-6,
             "enabled": True,
             "embed_angles": True,
@@ -148,7 +160,7 @@ config = mlc.ConfigDict({
                 "pair_dropout": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "chunk_size": chunk_size,
-                "inf": inf,#1e9,
+                "inf": 1e9,
                 "eps": eps,#1e-10,
             },
             "enabled": True,
@@ -169,7 +181,7 @@ config = mlc.ConfigDict({
             "pair_dropout": 0.25,
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
-            "inf": inf,#1e9,
+            "inf": 1e9,
             "eps": eps,#1e-10,
         },
         "structure_module": {
@@ -187,7 +199,7 @@ config = mlc.ConfigDict({
             "no_angles": 7,
             "trans_scale_factor": 10,
             "epsilon": eps,#1e-12,
-            "inf": inf,#1e5,
+            "inf": 1e5,
         },
         "heads": {
             "lddt": {

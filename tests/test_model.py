@@ -12,25 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pickle
 import torch
+import torch.nn as nn
 import numpy as np
 import unittest
 from config import *
-from alphafold.model.model import *
-from alphafold.utils.utils import my_tree_map
-from tests.alphafold.utils.utils import (
+from openfold.model.model import AlphaFold
+import openfold.utils.feats as feats
+from openfold.utils.tensor_utils import tree_map, tensor_tree_map
+import tests.compare_utils as compare_utils
+from tests.config import consts
+from tests.data_utils import (
     random_template_feats,
     random_extra_msa_feats,
 )
 
+if(compare_utils.alphafold_is_installed()):
+    alphafold = compare_utils.import_alphafold()
+    import jax
+    import haiku as hk
+
 
 class TestModel(unittest.TestCase):
     def test_dry_run(self):
-        batch_size = 2
-        n_seq = 5
-        n_templ = 7
-        n_res = 11
-        n_extra_seq = 13
+        batch_size = consts.batch_size
+        n_seq = consts.n_seq
+        n_templ = consts.n_templ
+        n_res = consts.n_res
+        n_extra_seq = consts.n_extra
 
         c = model_config("model_1").model
         c.no_cycles = 2  
@@ -59,20 +69,65 @@ class TestModel(unittest.TestCase):
         batch.update({k:torch.tensor(v) for k, v in extra_feats.items()}) 
         batch["msa_mask"] = torch.randint(
             low=0, high=2, size=(batch_size, n_seq, n_res)
-        )
+        ).float()
         batch["seq_mask"] = torch.randint(
             low=0, high=2, size=(batch_size, n_res)
-        )
+        ).float()
+        batch.update(feats.compute_residx(batch))
 
         add_recycling_dims = lambda t: (
             t.unsqueeze(-1).expand(*t.shape, c.no_cycles)
         )
-        batch = my_tree_map(add_recycling_dims, batch, torch.Tensor)
+        batch = tensor_tree_map(add_recycling_dims, batch)
 
         with torch.no_grad(): 
             out = model(batch)
 
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_compare(self):
+        def run_alphafold(batch):
+            config = compare_utils.get_alphafold_config()
+            model = alphafold.model.modules.AlphaFold(config.model)
+            return model(
+                batch=batch, is_training=False, return_representations=True,
+            )
 
-if __name__ == "__main__":
-    unittest.main()
+        f = hk.transform(run_alphafold)
+
+        params = compare_utils.fetch_alphafold_module_weights('') 
+
+        with open("tests/test_data/sample_feats.pickle", "rb") as fp:
+            batch = pickle.load(fp)
+
+        out_gt = jax.jit(f.apply)(params, jax.random.PRNGKey(42), batch)
+
+        out_gt = out_gt["structure_module"]["final_atom_positions"]
+        # atom37_to_atom14 doesn't like batches
+        batch["residx_atom14_to_atom37"] = batch["residx_atom14_to_atom37"][0]
+        batch["atom14_atom_exists"] = batch["atom14_atom_exists"][0]
+        out_gt = alphafold.model.all_atom.atom37_to_atom14(out_gt, batch)
+        out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
+ 
+        batch = {
+            k:torch.as_tensor(v).cuda() for k,v in batch.items()
+        }
+        batch["aatype"] = batch["aatype"].long()
+        batch["template_aatype"] = batch["template_aatype"].long()
+        batch["extra_msa"] = batch["extra_msa"].long()
+        batch["residx_atom37_to_atom14"] = batch["residx_atom37_to_atom14"].long()
+
+        # Move the recycling dimension to the end
+        move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
+        batch = tensor_tree_map(move_dim, batch)
+
+        with torch.no_grad():
+            model = compare_utils.get_global_pretrained_openfold()
+            out_repro = model(batch)
+
+        out_repro = tensor_tree_map(lambda t: t.cpu(), out_repro)
+
+        out_repro = out_repro["sm"]["positions"][-1]
+        out_repro = out_repro.squeeze(0)
+
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < 1e-3))
 

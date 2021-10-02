@@ -23,6 +23,8 @@ from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
     batched_gather, 
     one_hot,
+    tree_map,
+    tensor_tree_map,
 )
 
 
@@ -140,6 +142,13 @@ def compute_residx(batch):
     residx_atom37_mask = restype_atom37_mask[aatype]
     out["atom37_atom_exists"] = residx_atom37_mask
 
+    return out
+
+
+def compute_residx_np(batch):
+    batch = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
+    out = compute_residx(batch)
+    out = tensor_tree_map(lambda t: np.array(t), out)
     return out
 
 

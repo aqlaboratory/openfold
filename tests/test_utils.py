@@ -16,7 +16,8 @@ import math
 import torch
 import unittest
 
-from alphafold.utils.utils import *
+from openfold.utils.affine_utils import *
+from openfold.utils.tensor_utils import *
 
 
 X_90_ROT = torch.tensor([

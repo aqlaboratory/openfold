@@ -19,7 +19,7 @@ setup(
     name='openfold',
     version='1.0.0',
     description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
-    author='Gustaf Ahdritz',
+    author='Gustaf Ahdritz & DeepMind',
     author_email='gahdritz@gmail.com',
     license='Apache License, Version 2.0',
     url='https://github.com/aqlaboratory/openfold',

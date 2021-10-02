@@ -54,7 +54,7 @@ def random_extra_msa_feats(n_extra, n, batch_size=None):
     return batch
 
 
-def random_affine_vectors(dim):
+def random_affines_vector(dim):
     prod_dim = 1
     for d in dim:
         prod_dim *= d
@@ -68,7 +68,7 @@ def random_affine_vectors(dim):
     return affines.reshape(*dim, 7)
 
 
-def random_affine_4x4s(dim):
+def random_affines_4x4(dim):
     prod_dim = 1
     for d in dim:
         prod_dim *= d

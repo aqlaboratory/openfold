@@ -16,18 +16,28 @@ import torch
 import numpy as np
 import unittest
 
-from alphafold.np.residue_constants import (
+from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )    
-from alphafold.model.structure_module import *
-from alphafold.model.structure_module import (
+from openfold.model.structure_module import *
+from openfold.model.structure_module import (
     _torsion_angles_to_frames,
     _frames_and_literature_positions_to_atom14_pos,
 )
-from alphafold.utils.utils import T
+from openfold.utils.affine_utils import T
+import tests.compare_utils as compare_utils
+from tests.config import consts
+from tests.data_utils import (
+    random_affines_4x4,
+)
+
+if(compare_utils.alphafold_is_installed()):
+    alphafold = compare_utils.import_alphafold()
+    import jax
+    import haiku as hk
 
 
 class TestStructureModule(unittest.TestCase):
@@ -75,7 +85,7 @@ class TestStructureModule(unittest.TestCase):
         out = sm(s, z, f)
 
         self.assertTrue(
-            out["transformations"].shape == (no_layers, batch_size, n, 4, 4)
+            out["frames"].shape == (no_layers, batch_size, n, 4, 4)
         )
         self.assertTrue(
             out["angles"].shape == (no_layers, batch_size, n, no_angles, 2)
@@ -189,6 +199,62 @@ class TestInvariantPointAttention(unittest.TestCase):
         s = ipa(s, z, t, mask)
 
         self.assertTrue(s.shape == shape_before)
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_ipa_compare(self):
+        def run_ipa(act, static_feat_2d, mask, affine):
+            config = compare_utils.get_alphafold_config() 
+            ipa = alphafold.model.folding.InvariantPointAttention(
+                config.model.heads.structure_module, 
+                config.model.global_config, 
+            )
+            attn = ipa(
+                inputs_1d=act, 
+                inputs_2d=static_feat_2d, 
+                mask=mask, 
+                affine=affine
+            )
+            return attn
+        
+        f = hk.transform(run_ipa)
+        
+        n_res = consts.n_res
+        c_s = consts.c_s
+        c_z = consts.c_z
+        
+        sample_act = np.random.rand(n_res, c_s)
+        sample_2d = np.random.rand(n_res, n_res, c_z)
+        sample_mask = np.ones((n_res, 1))
+
+        affines = random_affines_4x4((n_res,))
+        rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
+        quats = alphafold.model.r3.rigids_to_quataffine(rigids)
+        transformations = T.from_4x4(
+            torch.as_tensor(affines).float().cuda()
+        )
+        
+        sample_affine = quats
+        
+        ipa_params = compare_utils.fetch_alphafold_module_weights(
+            "alphafold/alphafold_iteration/structure_module/" +
+            "fold_iteration/invariant_point_attention"
+        )
+
+        out_gt = f.apply(
+            ipa_params, None, sample_act, sample_2d, sample_mask, sample_affine
+        ).block_until_ready()
+        out_gt = torch.as_tensor(np.array(out_gt))
+
+        with torch.no_grad():
+            model = compare_utils.get_global_pretrained_openfold()
+            out_repro = model.structure_module.ipa(
+                torch.as_tensor(sample_act).float().cuda(), 
+                torch.as_tensor(sample_2d).float().cuda(), 
+                transformations, 
+                torch.as_tensor(sample_mask.squeeze(-1)).float().cuda(),
+            ).cpu()
+   
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
 
 class TestAngleResnet(unittest.TestCase):

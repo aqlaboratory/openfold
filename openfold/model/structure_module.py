@@ -316,7 +316,6 @@ class InvariantPointAttention(nn.Module):
         
         # [*, N_res, N_res, H]
         pt_att = torch.sum(pt_att, dim=-1) * (-0.5)
-
         # [*, N_res, N_res]
         square_mask = mask.unsqueeze(-1) * mask.unsqueeze(-2)
         square_mask = self.inf * (square_mask - 1)
@@ -721,7 +720,6 @@ class StructureModule(nn.Module):
 
         # [*, N]
         t = T.identity(s.shape[:-1], s.dtype, s.device, self.training)
- 
         outputs = []
         for i in range(self.no_blocks):
             # [*, N, C_s]
