@@ -25,11 +25,11 @@ def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
     return tensor.permute(first_inds + [zero_index + i for i in inds])
 
 
-def flatten_final_dims(tensor: torch.Tensor, no_dims: int):
-    return tensor.reshape(tensor.shape[:-no_dims] + (-1,))
+def flatten_final_dims(t: torch.Tensor, no_dims: int):
+    return t.reshape(t.shape[:-no_dims] + (-1,))
 
 
-def masked_mean(mask, value, dim, eps=1e-10):
+def masked_mean(mask, value, dim, eps=1e-4):
     mask = mask.expand(*value.shape)
     return torch.sum(mask * value, dim=dim) / (eps + torch.sum(mask, dim=dim))
 

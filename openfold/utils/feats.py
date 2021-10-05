@@ -173,6 +173,11 @@ def atom37_to_torsion_angles(
     **kwargs,
 ) -> Dict[str, torch.Tensor]:
     """
+        Convert coordinates to torsion angles.
+
+        This function is extremely sensitive to floating point imprecisions
+        and should be run with double precision whenever possible.
+
         Args:
             aatype:
                 [*, N_res] residue indices
@@ -228,10 +233,10 @@ def atom37_to_torsion_angles(
     )
     phi_mask = (
         prev_all_atom_mask[..., 2] *
-        torch.prod(all_atom_mask[..., :3], dim=-1)
+        torch.prod(all_atom_mask[..., :3], dim=-1, dtype=all_atom_mask.dtype)
     )
     psi_mask = (
-        torch.prod(all_atom_mask[..., :3], dim=-1) *
+        torch.prod(all_atom_mask[..., :3], dim=-1, dtype=all_atom_mask.dtype) *
         all_atom_mask[..., 4]
     )
 
@@ -256,7 +261,9 @@ def atom37_to_torsion_angles(
         dim=-1, 
         no_batch_dims=len(atom_indices.shape[:-2])
     )
-    chi_angle_atoms_mask = torch.prod(chi_angle_atoms_mask, dim=-1)
+    chi_angle_atoms_mask = torch.prod(
+        chi_angle_atoms_mask, dim=-1, dtype=chi_angle_atoms_mask.dtype
+    )
     chis_mask = chis_mask * chi_angle_atoms_mask
 
     torsions_atom_pos = torch.cat(
@@ -281,6 +288,7 @@ def atom37_to_torsion_angles(
         torsions_atom_pos[..., 1, :],
         torsions_atom_pos[..., 2, :],
         torsions_atom_pos[..., 0, :],
+        eps=eps,
     )
 
     fourth_atom_rel_pos = torsion_frames.invert().apply(
@@ -290,15 +298,19 @@ def atom37_to_torsion_angles(
     torsion_angles_sin_cos = torch.stack(
         [fourth_atom_rel_pos[..., 2], fourth_atom_rel_pos[..., 1]], dim=-1
     )
+
     denom = torch.sqrt(
         torch.sum(
-            torch.square(torsion_angles_sin_cos), dim=-1, keepdims=True
+            torch.square(torsion_angles_sin_cos), 
+            dim=-1, 
+            dtype=torsion_angles_sin_cos.dtype, 
+            keepdims=True
         ) + eps
     )
     torsion_angles_sin_cos = torsion_angles_sin_cos / denom
 
-    torsion_angles_sin_cos = torsion_angles_sin_cos * torch.tensor(
-        [1., 1., -1., 1., 1., 1., 1.], device=aatype.device,
+    torsion_angles_sin_cos = torsion_angles_sin_cos * all_atom_mask.new_tensor(
+        [1., 1., -1., 1., 1., 1., 1.], 
     )[((None,) * len(torsion_angles_sin_cos.shape[:-2])) + (slice(None), None)]
 
     chi_is_ambiguous = torsion_angles_sin_cos.new_tensor(
@@ -327,6 +339,7 @@ def atom37_to_frames(
     aatype: torch.Tensor,
     all_atom_positions: torch.Tensor,
     all_atom_mask: torch.Tensor,
+    eps: float,
     **kwargs,
 ) -> Dict[str, torch.Tensor]:
     batch_dims = len(aatype.shape[:-1])
@@ -387,6 +400,7 @@ def atom37_to_frames(
         p_neg_x_axis=base_atom_pos[..., 0, :],
         origin=base_atom_pos[..., 1, :],
         p_xy_plane=base_atom_pos[..., 2, :],
+        eps=eps,
     )
 
     group_exists = batched_gather(
@@ -638,3 +652,106 @@ def build_ambiguity_feats(batch: Dict[str, torch.Tensor]) -> None:
         "atom14_alt_gt_positions": atom14_alt_gt_positions,
         "atom14_alt_gt_exists": atom14_alt_gt_exists,
     }
+
+
+def torsion_angles_to_frames(
+    t: T, 
+    alpha: torch.Tensor, 
+    aatype: torch.Tensor, 
+    rrgdf: torch.Tensor,
+):
+    # [*, N, 8, 4, 4]
+    default_4x4 = rrgdf[aatype, ...]
+    
+    # [*, N, 8] transformations, i.e.
+    #   One [*, N, 8, 3, 3] rotation matrix and
+    #   One [*, N, 8, 3]    translation matrix
+    default_t = T.from_4x4(default_4x4)
+
+    bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
+    bb_rot[..., 1] = 1
+    
+    # [*, N, 8, 2]
+    alpha = torch.cat(
+        [bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], 
+        dim=-2
+    )
+
+    # [*, N, 8, 3, 3]
+    # Produces rotation matrices of the form:
+    # [
+    #   [1, 0  , 0  ],
+    #   [0, a_2,-a_1],
+    #   [0, a_1, a_2]
+    # ]
+    # This follows the original code rather than the supplement, which uses
+    # different indices.
+        
+    all_rots = alpha.new_zeros(default_t.rots.shape)
+    all_rots[..., 0, 0] = 1
+    all_rots[..., 1, 1] = alpha[..., 1]
+    all_rots[..., 1, 2] = -alpha[..., 0]
+    all_rots[..., 2, 1:] = alpha
+
+    all_rots = T(all_rots, None)
+
+    all_frames = default_t.compose(all_rots)
+
+    chi2_frame_to_frame = all_frames[..., 5]
+    chi3_frame_to_frame = all_frames[..., 6]
+    chi4_frame_to_frame = all_frames[..., 7]
+
+    chi1_frame_to_bb = all_frames[..., 4]
+    chi2_frame_to_bb = chi1_frame_to_bb.compose(chi2_frame_to_frame)
+    chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
+    chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
+
+    all_frames_to_bb = T.concat([
+            all_frames[..., :5],
+            chi2_frame_to_bb.unsqueeze(-1),
+            chi3_frame_to_bb.unsqueeze(-1),
+            chi4_frame_to_bb.unsqueeze(-1),
+        ], dim=-1,
+    )
+
+    all_frames_to_global = t[..., None].compose(all_frames_to_bb)
+
+    return all_frames_to_global
+
+
+def frames_and_literature_positions_to_atom14_pos(
+    t: T,
+    aatype: torch.Tensor,
+    default_frames,
+    group_idx,
+    atom_mask,
+    lit_positions,
+):
+    # [*, N, 14, 4, 4] 
+    default_4x4 = default_frames[aatype, ...]
+    
+    # [*, N, 14]
+    group_mask = group_idx[aatype, ...]
+    
+    # [*, N, 14, 8]
+    group_mask = nn.functional.one_hot(
+        group_mask, num_classes=default_frames.shape[-3],
+    )
+
+    # [*, N, 14, 8]
+    t_atoms_to_global = t[..., None, :] * group_mask
+    
+    # [*, N, 14]
+    t_atoms_to_global = t_atoms_to_global.map_tensor_fn(
+        lambda x: torch.sum(x, dim=-1)
+    )
+
+    # [*, N, 14, 1]
+    atom_mask = atom_mask[aatype, ...].unsqueeze(-1)
+
+    # [*, N, 14, 3]
+    lit_positions = lit_positions[aatype, ...]
+    pred_positions = t_atoms_to_global.apply(lit_positions)
+    pred_positions = pred_positions * atom_mask
+
+    return pred_positions

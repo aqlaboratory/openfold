@@ -44,7 +44,7 @@ def model_config(name, train=False, low_prec=False):
         raise ValueError("Invalid model name")
 
     if(train):
-        c.globals.model.blocks_per_ckpt = 1
+        c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
 
     if(low_prec):
@@ -137,7 +137,7 @@ config = mlc.ConfigDict({
             },
             "inf": 1e9,
             "eps": eps,#1e-6,
-            "enabled": True,
+            "enabled": False,#True,
             "embed_angles": True,
         },
         "extra_msa": {
@@ -239,7 +239,7 @@ config = mlc.ConfigDict({
             "max_bin": 21.6875, 
             "no_bins": 64, 
             "eps": eps,#1e-6,
-            "weight": 0.,#0.3, 
+            "weight": 0.3, 
         },
         "experimentally_resolved": {
             "eps": eps,#1e-8,
@@ -267,17 +267,17 @@ config = mlc.ConfigDict({
             "cutoff": 15.,
             "no_bins": 50,
             "eps": eps,#1e-10,
-            "weight": 0.,#0.01,
+            "weight": 0.01,
         },
         "masked_msa": {
             "eps": eps,#1e-8,
-            "weight": 0.,#2.0,
+            "weight": 2.0,
         },
         "supervised_chi": {
             "chi_weight": 0.5,
             "angle_norm_weight": 0.01,
             "eps": eps,#1e-6,
-            "weight": 0.,#1.0,
+            "weight": 1.0,
         },
         "violation": {
             "violation_tolerance_factor": 12.0,

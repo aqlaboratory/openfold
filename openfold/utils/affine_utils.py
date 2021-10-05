@@ -188,17 +188,29 @@ class T:
 
     @staticmethod
     def from_3_points(p_neg_x_axis, origin, p_xy_plane, eps=1e-8):
-        e0 = origin - p_neg_x_axis
-        e1 = p_xy_plane - origin
+        p_neg_x_axis = torch.unbind(p_neg_x_axis, dim=-1)
+        origin = torch.unbind(origin, dim=-1)
+        p_xy_plane = torch.unbind(p_xy_plane, dim=-1)
+        
+        e0 = [c1 - c2 for c1, c2 in zip(origin, p_neg_x_axis)]
+        e1 = [c1 - c2 for c1, c2 in zip(p_xy_plane, origin)]
 
-        e0 = e0 / torch.sqrt(torch.sum(e0 ** 2, dim=-1, keepdims=True) + eps)
-        e1 = e1 - e0 * torch.sum(e0 * e1, dim=-1, keepdims=True) 
-        e1 = e1 / torch.sqrt(torch.sum(e1 ** 2, dim=-1, keepdims=True) + eps)
-        e2 = torch.cross(e0, e1)
+        denom = torch.sqrt(sum((c * c for c in e0)) + eps)
+        e0 = [c / denom for c in e0]
+        dot = sum((c1 * c2 for c1, c2 in zip(e0, e1)))
+        e1 = [c1 - c2 * dot for c1, c2 in zip(e1, e0)]
+        denom = torch.sqrt(sum((c * c for c in e1)) + eps)
+        e1 = [c / denom for c in e1]
+        e2 = [
+            e0[1] * e1[2] - e0[2] * e1[1],
+            e0[2] * e1[0] - e0[0] * e1[2],
+            e0[0] * e1[1] - e0[1] * e1[0],
+        ]
 
-        rots = torch.stack([e0, e1, e2], dim=-1)
-
-        return T(rots, origin)
+        rots = torch.stack([c for tup in zip(e0, e1, e2) for c in tup], dim=-1)
+        rots = rots.reshape(rots.shape[:-1] + (3, 3))
+       
+        return T(rots, torch.stack(origin, dim=-1))
 
     @staticmethod
     def concat(ts, dim):
@@ -294,6 +306,9 @@ class T:
 
         return T(rots, translation)
 
+    def cuda(self):
+        return T(self.rots.cuda(), self.trans.cuda())
+
  
 _quat_elements = ['a', 'b', 'c', 'd']
 _qtr_keys = [l1 + l2 for l1 in _quat_elements for l2 in _quat_elements]
@@ -325,10 +340,11 @@ def quat_to_rot(
     # [*, 4, 4]
     quat = quat[..., None] * quat[..., None, :]
 
+    # [4, 4, 3, 3]
     mat = quat.new_tensor(_qtr_mat)
 
     # [*, 4, 4, 3, 3]
-    shaped_qtr_mat = mat.view((1,) * len(quat.shape[:-2]) + (4, 4, 3, 3))
+    shaped_qtr_mat = mat.view((1,) * len(quat.shape[:-2]) + mat.shape)
     quat = quat[..., None, None] * shaped_qtr_mat
 
     # [*, 3, 3]

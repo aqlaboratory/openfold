@@ -389,6 +389,7 @@ class AlphaFold(nn.Module):
         m_1_prev, z_prev, x_prev = None, None, None
         
         is_grad_enabled = torch.is_grad_enabled()
+        self._disable_activation_checkpointing()
 
         # Main recycling loop
         for cycle_no in range(self.config.no_cycles):
@@ -400,8 +401,10 @@ class AlphaFold(nn.Module):
             is_final_iter = (cycle_no == (self.config.no_cycles - 1))
             with torch.set_grad_enabled(is_grad_enabled and is_final_iter):
                 # Sidestep AMP bug discussed in pytorch issue #65766
-                if(is_final_iter and torch.is_autocast_enabled()):
-                    torch.clear_autocast_cache()
+                if(is_final_iter):
+                    self._enable_activation_checkpointing()
+                    if(torch.is_autocast_enabled()):
+                        torch.clear_autocast_cache()
                 # Run the next iteration of the model
                 outputs, m_1_prev, z_prev, x_prev = self.iteration(
                     feats, m_1_prev, z_prev, x_prev,

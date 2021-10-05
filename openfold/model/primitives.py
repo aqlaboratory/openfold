@@ -257,8 +257,6 @@ class Attention(nn.Module):
                 a = a + b
         a = self.softmax(a)
 
-        #print(torch.any(torch.isnan(a)))
-    
         # [*, H, Q, C_hidden]
         o = torch.matmul(
             a,

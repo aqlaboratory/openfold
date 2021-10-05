@@ -26,6 +26,10 @@ from openfold.np.residue_constants import (
     restype_atom14_rigid_group_positions,
 )
 from openfold.utils.affine_utils import T, quat_to_rot 
+from openfold.utils.feats import (
+    frames_and_literature_positions_to_atom14_pos,
+    torsion_angles_to_frames,
+)
 from openfold.utils.tensor_utils import (
     dict_multimap, 
     permute_final_dims, 
@@ -305,7 +309,7 @@ class InvariantPointAttention(nn.Module):
         pt_att = pt_att ** 2
 
         # [*, N_res, N_res, H, P_q]
-        pt_att = torch.sum(pt_att, dim=-1)
+        pt_att = sum(torch.unbind(pt_att, dim=-1))
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
         ) 
@@ -358,7 +362,7 @@ class InvariantPointAttention(nn.Module):
         )
 
         # [*, N_res, H * P_v, 3]
-        o_pt = o_pt.view(*o_pt.shape[:-3], -1, 3)
+        o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
 
         # [*, N_res, H, C_z]
         o_pair = torch.matmul(a.transpose(-2, -3), z)
@@ -409,118 +413,22 @@ class BackboneUpdate(nn.Module):
         quats, trans = params[...,:3], params[...,3:]
 
         # [*]
+        #norm_denom = torch.sqrt(sum(torch.unbind(quats ** 2, dim=-1)) + 1)
         norm_denom = torch.sqrt(torch.sum(quats ** 2, dim=-1) + 1)
 
-        # As many ones as there are dimensions in quats
-        ones = s.new_ones((1,) * len(quats.shape))
+        # [*, 3] 
+        ones = (
+            s.new_ones((1,) * len(quats.shape)).expand(quats.shape[:-1] + (1,))
+        )
 
         # [*, 4]
-        quats = torch.cat((ones.expand(*quats.shape[:-1], 1), quats), dim=-1)
-        quats = quats / norm_denom.unsqueeze(-1)
+        quats = torch.cat([ones, quats], dim=-1)
+        quats = quats / norm_denom[..., None]
 
         # [*, 3, 3]
         rots = quat_to_rot(quats)
 
         return T(rots, trans)
-
-
-def _torsion_angles_to_frames(t, alpha, f, rrgdf):
-    # [*, N, 8, 4, 4]
-    default_4x4 = rrgdf[f,...]
-    
-    # [*, N, 8] transformations, i.e.
-    #   One [*, N, 8, 3, 3] rotation matrix and
-    #   One [*, N, 8, 3]    translation matrix
-    default_t = T.from_4x4(default_4x4)
-
-    bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
-    bb_rot[..., 1] = 1
-    
-    # [*, N, 8, 2]
-    alpha = torch.cat(
-        [bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], 
-        dim=-2
-    )
-
-    # [*, N, 8, 3, 3]
-    # Produces rotation matrices of the form:
-    # [
-    #   [1, 0  , 0  ],
-    #   [0, a_2,-a_1],
-    #   [0, a_1, a_2]
-    # ]
-    # This follows the original code rather than the supplement, which uses
-    # different indices.
-        
-    all_rots = alpha.new_zeros(default_t.rots.shape)
-    all_rots[..., 0, 0] = 1
-    all_rots[..., 1, 1] = alpha[..., 1]
-    all_rots[..., 1, 2] = -alpha[..., 0]
-    all_rots[..., 2, 1:] = alpha
-
-    all_rots = T(all_rots, None)
-
-    all_frames = default_t.compose(all_rots)
-
-    chi2_frame_to_frame = all_frames[..., 5]
-    chi3_frame_to_frame = all_frames[..., 6]
-    chi4_frame_to_frame = all_frames[..., 7]
-
-    chi1_frame_to_bb = all_frames[..., 4]
-    chi2_frame_to_bb = chi1_frame_to_bb.compose(chi2_frame_to_frame)
-    chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
-    chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
-
-    all_frames_to_bb = T.concat([
-            all_frames[..., :5],
-            chi2_frame_to_bb.unsqueeze(-1),
-            chi3_frame_to_bb.unsqueeze(-1),
-            chi4_frame_to_bb.unsqueeze(-1),
-        ], dim=-1,
-    )
-
-    all_frames_to_global = t[..., None].compose(all_frames_to_bb)
-
-    return all_frames_to_global
-
-
-def _frames_and_literature_positions_to_atom14_pos(
-    t,
-    f,
-    default_frames,
-    group_idx,
-    atom_mask,
-    lit_positions,
-):
-
-    # [*, N, 14, 4, 4] 
-    default_4x4 = default_frames[f, ...]
-
-    # [*, N, 14]
-    group_mask = group_idx[f, ...]
-
-    # [*, N, 14, 8]
-    group_mask = nn.functional.one_hot(
-        group_mask, num_classes=default_frames.shape[-3],
-    )
- 
-    # [*, N, 14, 8]
-    t_atoms_to_global = t[..., None, :] * group_mask
-
-    # [*, N, 14]
-    t_atoms_to_global = t_atoms_to_global.map_tensor_fn(
-        lambda x: torch.sum(x, dim=-1)
-    )
-
-    # [*, N, 14, 1]
-    atom_mask = atom_mask[f,...].unsqueeze(-1)
-
-    # [*, N, 14, 3]
-    lit_positions = lit_positions[f, ...]
-    pred_positions = t_atoms_to_global.apply(lit_positions)
-    pred_positions = pred_positions * atom_mask
-
-    return pred_positions
 
 
 class StructureModuleTransitionLayer(nn.Module):
@@ -664,6 +572,7 @@ class StructureModule(nn.Module):
             self.no_qk_points,
             self.no_v_points,
             inf=self.inf,
+            eps=self.epsilon,
         )
 
         self.ipa_dropout = nn.Dropout(self.dropout_rate)
@@ -791,7 +700,7 @@ class StructureModule(nn.Module):
         # Lazily initialize the residue constants on the correct device
         self._init_residue_constants(alpha.dtype, alpha.device)
         # Separated purely to make testing less annoying
-        return _torsion_angles_to_frames(t, alpha, f, self.default_frames)
+        return torsion_angles_to_frames(t, alpha, f, self.default_frames)
 
     def frames_and_literature_positions_to_atom14_pos(self, 
         t,    # [*, N, 8]
@@ -799,7 +708,7 @@ class StructureModule(nn.Module):
     ):
         # Lazily initialize the residue constants on the correct device
         self._init_residue_constants(t.rots.dtype, t.rots.device)
-        return _frames_and_literature_positions_to_atom14_pos(
+        return frames_and_literature_positions_to_atom14_pos(
             t, 
             f, 
             self.default_frames, 

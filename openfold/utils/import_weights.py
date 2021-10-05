@@ -417,7 +417,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
     if("_ptm" in version):
         translations["predicted_aligned_error_head"] = {
             "logits":
-                LinearParams(model.aux_heads.tm_score.linear)
+                LinearParams(model.aux_heads.tm.linear)
         }
 
     # Flatten keys and insert missing key prefixes

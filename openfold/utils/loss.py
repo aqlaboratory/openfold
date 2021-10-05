@@ -273,7 +273,6 @@ def supervised_chi_loss(
 
     shifted_mask = (1 - 2 * chi_pi_periodic).unsqueeze(-1)
     true_chi_shifted = shifted_mask * true_chi
-
     sq_chi_error = torch.sum(
         (true_chi - pred_angles)**2, dim=-1
     )
@@ -498,11 +497,11 @@ def tm_loss(
     )
 
     loss = torch.sum(errors * square_mask, dim=-1)
-    scale = 0.1 # hack to help FP16 training along
+    scale = 0.5 # hack to help FP16 training along
     denom = eps + torch.sum(scale * square_mask, dim=(-1, -2))
     loss = loss / denom[..., None]
     loss = torch.sum(loss, dim=-1)
-    loss = loss / scale
+    loss = loss * scale
 
     loss = loss * (
         (resolution >= min_resolution) &
@@ -744,7 +743,7 @@ def between_residue_clash_loss(
   
     # Backbone C--N bond between subsequent residues is no clash.
     c_one_hot = torch.nn.functional.one_hot(
-        residue_index.new_tensor(2.), num_classes=14
+        residue_index.new_tensor(2), num_classes=14
     )
     c_one_hot = c_one_hot.reshape(
         *((1,) * len(residue_index.shape[:-1])), *c_one_hot.shape
@@ -1319,11 +1318,11 @@ def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
     # )
     loss = errors * bert_mask
     loss = torch.sum(loss, dim=-1)
-    scale = 0.1
+    scale = 0.5
     denom = eps + torch.sum(scale * bert_mask, dim=(-1, -2))
     loss = loss / denom[..., None]
     loss = torch.sum(loss, dim=-1)
-    loss = loss / scale
+    loss = loss * scale
 
     return loss
 
@@ -1352,7 +1351,7 @@ class AlphaFoldLoss(nn.Module):
             ))
 
         if("backbone_affine_tensor" not in batch.keys()):
-            batch.update(feats.atom37_to_frames(**batch)) 
+            batch.update(feats.atom37_to_frames(eps=self.config.eps, **batch)) 
             
             # TODO: Verify that this is correct
             batch["backbone_affine_tensor"] = (
@@ -1363,16 +1362,19 @@ class AlphaFoldLoss(nn.Module):
             )
 
         if("chi_angles_sin_cos" not in batch.keys()):
-            batch.update(feats.atom37_to_torsion_angles(
-               **batch,
-               eps=self.config.eps,
-            ))
+            with torch.no_grad():
+                batch.update(feats.atom37_to_torsion_angles(
+                    aatype=batch["aatype"],
+                    all_atom_positions=batch["all_atom_positions"].double(),
+                    all_atom_mask=batch["all_atom_mask"].double(),
+                    eps=self.config.eps,
+                ))
 
-            # TODO: Verify that this is correct
-            batch["chi_angles_sin_cos"] = (
-                batch["torsion_angles_sin_cos"][..., 3:, :]
-            )
-            batch["chi_mask"] = batch["torsion_angles_mask"][..., 3:]
+                # TODO: Verify that this is correct
+                batch["chi_angles_sin_cos"] = (
+                    batch["torsion_angles_sin_cos"][..., 3:, :]
+                ).to(batch["all_atom_mask"].dtype)
+                batch["chi_mask"] = batch["torsion_angles_mask"][..., 3:].to(batch["all_atom_mask"].dtype)
 
         loss_fns = {
             "distogram": 
