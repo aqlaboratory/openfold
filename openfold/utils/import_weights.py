@@ -407,7 +407,15 @@ def import_jax_weights_(model, npz_path, version="model_1"):
         },
     }
 
-    if(version not in ["model_1", "model_2"]):
+    no_templ = [
+        "model_3", 
+        "model_4", 
+        "model_5", 
+        "model_3_ptm", 
+        "model_4_ptm", 
+        "model_5_ptm",
+    ]
+    if(version in no_templ):
         evo_dict = translations["evoformer"]
         keys = list(evo_dict.keys())
         for k in keys:

@@ -21,13 +21,17 @@ from openfold.np.residue_constants import (
     restype_atom14_to_rigid_group,
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
+    restype_atom37_mask,
 )    
-from openfold.model.structure_module import *
 from openfold.model.structure_module import (
-    _torsion_angles_to_frames,
-    _frames_and_literature_positions_to_atom14_pos,
+    StructureModule,
+    StructureModuleTransition,
+    BackboneUpdate,
+    AngleResnet,
+    InvariantPointAttention,
 )
 from openfold.utils.affine_utils import T
+import openfold.utils.feats as feats
 import tests.compare_utils as compare_utils
 from tests.config import consts
 from tests.data_utils import (
@@ -42,10 +46,10 @@ if(compare_utils.alphafold_is_installed()):
 
 class TestStructureModule(unittest.TestCase):
     def test_structure_module_shape(self):
-        batch_size = 2
-        n = 5
-        c_s = 7
-        c_z = 11
+        batch_size = consts.batch_size
+        n = consts.n_res
+        c_s = consts.c_s
+        c_z = consts.c_z
         c_ipa = 13
         c_resnet = 17
         no_heads_ipa = 6
@@ -94,47 +98,6 @@ class TestStructureModule(unittest.TestCase):
             out["positions"].shape == (no_layers, batch_size, n, 14, 3)
         )
 
-    def test_torsion_angles_to_frames_shape(self):
-        batch_size = 2
-        n = 5
-        rots = torch.rand((batch_size, n, 3, 3))
-        trans = torch.rand((batch_size, n, 3))
-        ts = T(rots, trans)
-
-        angles = torch.rand((batch_size, n, 7, 2))
-
-        aas = torch.tensor([i % 2 for i in range(n)])
-        aas = torch.stack([aas for _ in range(batch_size)])
-
-        frames = _torsion_angles_to_frames(
-            ts, 
-            angles, 
-            aas, 
-            torch.tensor(restype_rigid_group_default_frame),
-        )
-
-        self.assertTrue(frames.shape == (batch_size, n, 8))
-
-    def test_frames_and_literature_positions_to_atom14_pos_shape(self):
-        batch_size = 2
-        n = 5
-        rots = torch.rand((batch_size, n, 8, 3, 3))
-        trans = torch.rand((batch_size, n, 8, 3))
-        ts = T(rots, trans)
-
-        f = torch.randint(low=0, high=21, size=(batch_size, n)).long()
-
-        xyz = _frames_and_literature_positions_to_atom14_pos(
-            ts,
-            f,
-            torch.tensor(restype_rigid_group_default_frame),
-            torch.tensor(restype_atom14_to_rigid_group),
-            torch.tensor(restype_atom14_mask),
-            torch.tensor(restype_atom14_rigid_group_positions),
-        )
-        
-        self.assertTrue(xyz.shape == (batch_size, n, 14, 3))
-
     def test_structure_module_transition_shape(self):
         batch_size = 2
         n = 5
@@ -151,6 +114,76 @@ class TestStructureModule(unittest.TestCase):
         shape_after = s.shape
 
         self.assertTrue(shape_before == shape_after)
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_structure_module_compare(self):
+        config = compare_utils.get_alphafold_config()
+        c_sm = config.model.heads.structure_module
+        c_global = config.model.global_config
+        def run_sm(representations, batch):
+            sm = alphafold.model.folding.StructureModule(c_sm, c_global)
+            representations = {
+                k:jax.lax.stop_gradient(v) for k,v in representations.items()
+            }
+            batch = {
+                k:jax.lax.stop_gradient(v) for k,v in batch.items()
+            }
+            return sm(representations, batch, is_training=False)
+    
+        f = hk.transform(run_sm)
+    
+        n_res = 200
+    
+        representations = {
+            'single': np.random.rand(n_res, consts.c_s).astype(np.float32),
+            'pair': 
+                np.random.rand(n_res, n_res, consts.c_z).astype(np.float32),
+        }
+    
+        batch = {
+            'seq_mask': np.random.randint(0, 2, (n_res,)),
+            'aatype': np.random.randint(0, 21, (n_res,)),
+        }
+    
+        batch['atom14_atom_exists'] = np.take(
+            restype_atom14_mask, 
+            batch['aatype'],
+            axis=0
+        )
+    
+        batch['atom37_atom_exists'] = np.take(
+            restype_atom37_mask, 
+            batch['aatype'],
+            axis=0
+        )
+    
+        batch.update(feats.compute_residx_np(batch))
+    
+        params = compare_utils.fetch_alphafold_module_weights(
+            "alphafold/alphafold_iteration/structure_module"
+        )
+        
+        key = jax.random.PRNGKey(42)
+        out_gt = f.apply(
+            params, key, representations, batch
+        )
+        out_gt = torch.as_tensor(
+            np.array(out_gt["final_atom14_positions"].block_until_ready())
+        ) 
+   
+        model = compare_utils.get_global_pretrained_openfold()
+        out_repro = model.structure_module(
+            torch.as_tensor(representations["single"]).cuda(), 
+            torch.as_tensor(representations["pair"]).cuda(), 
+            torch.as_tensor(batch["aatype"]).cuda(), 
+            mask=torch.as_tensor(batch["seq_mask"]).cuda(),
+        )
+        out_repro = out_repro["positions"][-1].cpu()
+      
+        # The structure module, thanks to angle normalization, is very volatile
+        # We only assess the mean here. Heuristically speaking, it seems to 
+        # have lower error in general on real rather than synthetic data.
+        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.01)
 
 
 class TestBackboneUpdate(unittest.TestCase):

@@ -16,8 +16,8 @@ import math
 import torch
 import unittest
 
-from openfold.utils.affine_utils import *
-from openfold.utils.tensor_utils import *
+from openfold.utils.affine_utils import T, quat_to_rot
+from openfold.utils.tensor_utils import chunk_layer
 
 
 X_90_ROT = torch.tensor([

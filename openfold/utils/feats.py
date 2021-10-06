@@ -115,8 +115,8 @@ def compute_residx(batch):
     restype_atom37_to_atom14 = aatype.new_tensor(
         restype_atom37_to_atom14
     )
-    restype_atom14_mask = aatype.new_tensor(
-        restype_atom14_mask, dtype=float_type
+    restype_atom14_mask = batch["seq_mask"].new_tensor(
+        restype_atom14_mask
     )
  
     residx_atom14_to_atom37 = restype_atom14_to_atom37[aatype]
@@ -527,13 +527,17 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e
     )
 
     n, ca, c = [rc.atom_order[a] for a in ['N', 'CA', 'C']]
+    # TODO: Consider running this in double precision
     affines = T.make_transform_from_reference(
         n_xyz=batch["template_all_atom_positions"][..., n, :],
         ca_xyz=batch["template_all_atom_positions"][..., ca, :],
         c_xyz=batch["template_all_atom_positions"][..., c, :],
+        eps=eps,
     )
+
     points = affines.get_trans()[..., None, :, :]
     affine_vec = affines[..., None].invert_apply(points)
+     
     inv_distance_scalar = torch.rsqrt(
         eps + torch.sum(affine_vec ** 2, dim=-1)
     )

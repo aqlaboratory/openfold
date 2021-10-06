@@ -192,7 +192,6 @@ class TemplatePairStackBlock(nn.Module):
         return z
 
 
-
 class TemplatePairStack(nn.Module):
     """
         Implements Algorithm 16.
@@ -273,7 +272,7 @@ class TemplatePairStack(nn.Module):
                     _mask_trans=_mask_trans,
                 ) for b in self.blocks
             ], 
-            args=(t),
+            args=(t,),
             blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )
 

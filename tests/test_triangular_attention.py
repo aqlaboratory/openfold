@@ -100,9 +100,11 @@ class TestTriangularAttention(unittest.TestCase):
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
 
+    @compare_utils.skip_unless_alphafold_installed()
     def test_tri_att_end_compare(self):
         self._tri_att_compare()
 
+    @compare_utils.skip_unless_alphafold_installed()
     def test_tri_att_start_compare(self):
         self._tri_att_compare(starting=True)
 

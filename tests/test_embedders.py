@@ -15,7 +15,12 @@
 import torch
 import numpy as np
 import unittest
-from alphafold.model.embedders import *
+from openfold.model.embedders import (
+    InputEmbedder,
+    RecyclingEmbedder,
+    TemplateAngleEmbedder,
+    TemplatePairEmbedder,
+)
 
 
 class TestInputEmbedder(unittest.TestCase):

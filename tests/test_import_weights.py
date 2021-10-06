@@ -17,19 +17,17 @@ import numpy as np
 import unittest
 
 from config import model_config
-from alphafold.model.model import AlphaFold
-from alphafold.model.import_weights import *
+from openfold.model.model import AlphaFold
+from openfold.utils.import_weights import import_jax_weights_
 
 
 class TestImportWeights(unittest.TestCase):
     def test_import_jax_weights_(self):
-        npz_path = "tests/model/alphafold_2/params_model_1.npz"
+        npz_path = "openfold/resources/params/params_model_1_ptm.npz"
         
-        c = model_config("model_1").model
-        c.evoformer_stack.blocks_per_ckpt = None # don't want to set up 
-                                                 # deepspeed for this test
-
-        model = AlphaFold(c)
+        c = model_config("model_1_ptm")
+        c.globals.blocks_per_ckpt = None
+        model = AlphaFold(c.model)
 
         import_jax_weights_(
             model, npz_path,

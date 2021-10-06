@@ -137,7 +137,8 @@ class TestTemplatePairStack(unittest.TestCase):
             _mask_trans=False,
         ).cpu()
     
-        self.assertTrue(torch.all(torch.abs(out_gt - out_repro) < consts.eps))
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+
 
 class Template(unittest.TestCase):
     @compare_utils.skip_unless_alphafold_installed()

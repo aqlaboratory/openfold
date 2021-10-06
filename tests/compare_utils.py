@@ -64,7 +64,7 @@ def get_global_pretrained_openfold():
                 """Cannot load pretrained parameters. Make sure to run the 
                 installation script before running tests."""
         )
-        import_jax_weights_(_model, _param_path)
+        import_jax_weights_(_model, _param_path, version="model_1_ptm")
         _model = _model.cuda()
 
     return _model
