@@ -3,6 +3,20 @@
 A faithful PyTorch reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
+## Features
+
+OpenFold carefully reproduces (almost) all of the features of the original open
+source inference code. The sole exception is model ensembling, which fared
+poorly in DeepMind's own ablation testing and is being phased out in future
+DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
+cases where the Nature paper differs from the source, we always defer to the 
+latter.
+
+Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
+with or without [DeepSpeed](https://github.com/microsoft/deepspeed) and with 
+mixed precision. bfloat16 training is not currently supported, but will be 
+soon. 
+
 ## Installation
 
 Python dependencies available through `pip` are provided in `requirements.txt`. 
@@ -29,15 +43,14 @@ To deactivate it, run:
 source scripts/deactivate_conda_venv.sh
 ```
 
-## Features
+## Usage
 
-OpenFold supports all features of the original AlphaFold required for inference
-with the sole exception of model ensembling, which fared poorly in DeepMind's 
-ablation testing. It is even capable of importing AlphaFold's original 
-pretrained model parameters. 
+To run inference on a sequence using a set of DeepMind's pretrained parameters, 
+run e.g.
 
-Future versions will support multi-GPU training with 
-[DeepSpeed](https://github.com/microsoft/DeepSpeed).
+```bash
+python3 run_pretrained_alphafold.py --device cuda:1 --model model_1_ptm
+```
 
 ## Copyright notice
 
