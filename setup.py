@@ -32,6 +32,7 @@ setup(
         'ml-collections',
         'numpy',
         'scipy',
+        'pytorch_lightning',
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',

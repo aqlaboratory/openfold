@@ -1,5 +1,4 @@
 absl-py==0.13.0
-bio==0.8.9
 biopython==1.79
 biothings-client==0.2.6
 certifi==2021.5.30
@@ -27,3 +26,4 @@ tqdm==4.62.2
 triton==1.0.0
 typing-extensions==3.10.0.2
 urllib3==1.26.6
+pytorch_lightning==1.4.8
