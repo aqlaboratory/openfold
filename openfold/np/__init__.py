@@ -11,9 +11,4 @@ for _m in _modules:
 # Avoid needlessly cluttering the global namespace
 del _files, _m, _modules
 
-from . import relax
-
-__all__.extend(["relax"])
-
-
 

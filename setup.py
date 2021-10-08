@@ -33,6 +33,7 @@ setup(
         'numpy',
         'scipy',
         'pytorch_lightning',
+        'dm-tree',
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
