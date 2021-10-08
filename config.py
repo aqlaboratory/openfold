@@ -66,7 +66,99 @@ chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
 eps = mlc.FieldReference(1e-8, field_type=float)
 
+NUM_RES = 'num residues placeholder'
+NUM_MSA_SEQ = 'msa placeholder'
+NUM_EXTRA_SEQ = 'extra msa placeholder'
+NUM_TEMPLATES = 'num templates placeholder'
+
 config = mlc.ConfigDict({
+    'data': {
+        'common': {
+            'masked_msa': {
+                'profile_prob': 0.1,
+                'same_prob': 0.1,
+                'uniform_prob': 0.1
+            },
+            'max_extra_msa': 1024,
+            'msa_cluster_features': True,
+            'num_recycle': 3,
+            'reduce_msa_clusters_by_max_templates': False,
+            'resample_msa_in_recycling': True,
+            'template_features': [
+                'template_all_atom_positions', 'template_sum_probs',
+                'template_aatype', 'template_all_atom_masks',
+                # 'template_domain_names'
+            ],
+            'unsupervised_features': [
+                'aatype', 'residue_index', 'msa',  # 'sequence', #'domain_name',
+                'num_alignments', 'seq_length', 'between_segment_residues',
+                'deletion_matrix'
+            ],
+            'use_templates': True,
+        },
+        'eval': {
+            'feat': {
+                'aatype': [NUM_RES],
+                'all_atom_mask': [NUM_RES, None],
+                'all_atom_positions': [NUM_RES, None, None],
+                'alt_chi_angles': [NUM_RES, None],
+                'atom14_alt_gt_exists': [NUM_RES, None],
+                'atom14_alt_gt_positions': [NUM_RES, None, None],
+                'atom14_atom_exists': [NUM_RES, None],
+                'atom14_atom_is_ambiguous': [NUM_RES, None],
+                'atom14_gt_exists': [NUM_RES, None],
+                'atom14_gt_positions': [NUM_RES, None, None],
+                'atom37_atom_exists': [NUM_RES, None],
+                'backbone_affine_mask': [NUM_RES],
+                'backbone_affine_tensor': [NUM_RES, None],
+                'bert_mask': [NUM_MSA_SEQ, NUM_RES],
+                'chi_angles': [NUM_RES, None],
+                'chi_mask': [NUM_RES, None],
+                'extra_deletion_value': [NUM_EXTRA_SEQ, NUM_RES],
+                'extra_has_deletion': [NUM_EXTRA_SEQ, NUM_RES],
+                'extra_msa': [NUM_EXTRA_SEQ, NUM_RES],
+                'extra_msa_mask': [NUM_EXTRA_SEQ, NUM_RES],
+                'extra_msa_row_mask': [NUM_EXTRA_SEQ],
+                'is_distillation': [],
+                'msa_feat': [NUM_MSA_SEQ, NUM_RES, None],
+                'msa_mask': [NUM_MSA_SEQ, NUM_RES],
+                'msa_row_mask': [NUM_MSA_SEQ],
+                'pseudo_beta': [NUM_RES, None],
+                'pseudo_beta_mask': [NUM_RES],
+                'random_crop_to_size_seed': [None],
+                'residue_index': [NUM_RES],
+                'residx_atom14_to_atom37': [NUM_RES, None],
+                'residx_atom37_to_atom14': [NUM_RES, None],
+                'resolution': [],
+                'rigidgroups_alt_gt_frames': [NUM_RES, None, None],
+                'rigidgroups_group_exists': [NUM_RES, None],
+                'rigidgroups_group_is_ambiguous': [NUM_RES, None],
+                'rigidgroups_gt_exists': [NUM_RES, None],
+                'rigidgroups_gt_frames': [NUM_RES, None, None],
+                'seq_length': [],
+                'seq_mask': [NUM_RES],
+                'target_feat': [NUM_RES, None],
+                'template_aatype': [NUM_TEMPLATES, NUM_RES],
+                'template_all_atom_masks': [NUM_TEMPLATES, NUM_RES, None],
+                'template_all_atom_positions': [
+                    NUM_TEMPLATES, NUM_RES, None, None],
+                'template_backbone_affine_mask': [NUM_TEMPLATES, NUM_RES],
+                'template_backbone_affine_tensor': [
+                    NUM_TEMPLATES, NUM_RES, None],
+                'template_mask': [NUM_TEMPLATES],
+                'template_pseudo_beta': [NUM_TEMPLATES, NUM_RES, None],
+                'template_pseudo_beta_mask': [NUM_TEMPLATES, NUM_RES],
+                'template_sum_probs': [NUM_TEMPLATES, None],
+                'true_msa': [NUM_MSA_SEQ, NUM_RES]
+            },
+            'fixed_size': True,
+            'subsample_templates': False,  # We want top templates.
+            'masked_msa_replace_fraction': 0.15,
+            'max_msa_clusters': 512,
+            'max_templates': 4,
+            'num_ensemble': 1,
+        }
+    },
     # Recurring FieldReferences that can be changed globally here
     "globals": {
         "blocks_per_ckpt": blocks_per_ckpt,
