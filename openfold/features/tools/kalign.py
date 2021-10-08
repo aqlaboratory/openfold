@@ -6,8 +6,7 @@ from typing import Sequence
 
 from absl import logging
 
-
-from features import utils
+from features.tools import utils
 
 
 def _to_a3m(sequences: Sequence[str]) -> str:
