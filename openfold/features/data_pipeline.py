@@ -3,9 +3,9 @@ import os
 import numpy as np
 from typing import Mapping, Optional, Sequence
 
-from features import templates, parsers
-from features.tools import jackhmmer, hhblits, hhsearch
-from np import residue_constants
+from openfold.features import templates, parsers
+from openfold.features.tools import jackhmmer, hhblits, hhsearch
+from openfold.np import residue_constants
 
 FeatureDict = Mapping[str, np.ndarray]
 

@@ -6,7 +6,7 @@ import torch
 from operator import add
 
 from config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
-from np import residue_constants
+from openfold.np import residue_constants
 
 MSA_FEATURE_NAMES = [
     'msa', 'deletion_matrix', 'msa_mask', 'msa_row_mask', 'bert_mask', 'true_msa'

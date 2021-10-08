@@ -5,7 +5,7 @@ import torch
 from typing import Mapping, Tuple, List, Optional, Dict, Sequence
 import numpy as np
 
-from features import input_pipeline
+from openfold.features import input_pipeline
 
 FeatureDict = Mapping[str, np.ndarray]
 TensorDict = Dict[str, torch.Tensor]

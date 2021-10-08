@@ -6,7 +6,7 @@ from typing import Sequence
 
 from absl import logging
 
-from features.tools import utils
+from openfold.features.tools import utils
 
 
 def _to_a3m(sequences: Sequence[str]) -> str:

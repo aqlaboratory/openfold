@@ -10,9 +10,9 @@ from absl import logging
 
 import numpy as np
 
-from features import parsers, mmcif_parsing
-from features.tools import kalign
-from np import residue_constants
+from openfold.features import parsers, mmcif_parsing
+from openfold.features.tools import kalign
+from openfold.np import residue_constants
 
 
 class Error(Exception):

@@ -12,7 +12,7 @@ from absl import logging
 
 
 # Internal import (7716).
-from features.tools import utils
+from openfold.features.tools import utils
 
 
 class Jackhmmer:

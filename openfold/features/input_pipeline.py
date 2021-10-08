@@ -1,6 +1,6 @@
 import torch
 
-from features import data_transforms
+from openfold.features import data_transforms
 
 
 def nonensembled_transform_fns(data_config):
