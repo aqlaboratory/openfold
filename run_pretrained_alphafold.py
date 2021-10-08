@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import argparse
-import math
 import pickle
 import os
 
@@ -22,7 +21,8 @@ import os
 import random
 import sys
 
-from openfold.features import data_pipeline, templates, feature_pipeline
+from openfold.features import templates, feature_pipeline
+from openfold.features.np import data_pipeline
 
 os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
 
@@ -30,7 +30,6 @@ import time
 
 import numpy as np
 import torch
-import torch.nn as nn
 
 from config import model_config
 from openfold.model.model import AlphaFold
@@ -40,7 +39,6 @@ from openfold.utils.import_weights import (
     import_jax_weights_,
 )
 from openfold.utils.tensor_utils import (
-    tree_map,
     tensor_tree_map,
 )
 
