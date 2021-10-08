@@ -23,8 +23,7 @@ setup(
     author_email='gahdritz@gmail.com',
     license='Apache License, Version 2.0',
     url='https://github.com/aqlaboratory/openfold',
-    packages=find_packages(where="openfold"),
-    package_dir={"":"openfold"},
+    packages=find_packages(),
     install_requires=[
         'torch',
         'deepspeed',
