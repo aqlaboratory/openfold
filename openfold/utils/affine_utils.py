@@ -198,7 +198,7 @@ class T:
         denom = torch.sqrt(sum((c * c for c in e0)) + eps)
         e0 = [c / denom for c in e0]
         dot = sum((c1 * c2 for c1, c2 in zip(e0, e1)))
-        e1 = [c1 - c2 * dot for c1, c2 in zip(e1, e0)]
+        e1 = [c2 - c1 * dot for c1, c2 in zip(e0, e1)]
         denom = torch.sqrt(sum((c * c for c in e1)) + eps)
         e1 = [c / denom for c in e1]
         e2 = [

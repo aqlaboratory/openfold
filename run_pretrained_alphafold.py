@@ -63,10 +63,11 @@ def main(args):
         max_hits=MAX_TEMPLATE_HITS,
         kalign_binary_path=args.kalign_binary_path,
         release_dates_path=None,
-        obsolete_pdbs_path=args.obsolete_pdbs_path)
+        obsolete_pdbs_path=args.obsolete_pdbs_path
+    )
 
     data_processor = data_pipeline.DataPipeline(
-        jackhammer_binary_path=args.jackhmmer_binary_path,
+        jackhmmer_binary_path=args.jackhmmer_binary_path,
         hhblits_binary_path=args.hhblits_binary_path,
         hhsearch_binary_path=args.hhsearch_binary_path,
         uniref90_database_path=args.uniref90_database_path,
@@ -94,16 +95,11 @@ def main(args):
     print("Collecting data...")
     feature_dict = data_processor.process(
         input_fasta_path=args.fasta_path, msa_output_dir=msa_output_dir)
-    # Output the features
-    features_output_path = os.path.join(output_dir_base, 'features.pkl')
-    with open(features_output_path, 'wb') as f:
-        pickle.dump(feature_dict, f, protocol=4)
 
     print("Generating features...")
-    processed_feature_dict = feature_processor.process_features(feature_dict, random_seed)
-
-    with open(os.path.join(output_dir_base, 'processed_feats.pkl'), 'wb') as f:
-        pickle.dump(processed_feature_dict, f, protocol=4)
+    processed_feature_dict = feature_processor.process_features(
+        feature_dict, random_seed
+    )
 
     print("Executing model...")
     batch = processed_feature_dict
@@ -209,7 +205,8 @@ if __name__ == "__main__":
     parser.add_argument(
         '--kalign_binary_path', type=str, default='/usr/bin/kalign'
     )
-    parser.add_argument('--uniref90_database_path', type=str, default=None, required=True
+    parser.add_argument(
+        '--uniref90_database_path', type=str, default=None, required=True
     )
     parser.add_argument(
         '--mgnify_database_path', type=str, default=None, required=True

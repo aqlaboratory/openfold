@@ -62,29 +62,29 @@ class DataPipeline:
     """Runs the alignment tools and assembles the input features."""
 
     def __init__(self,
-                 jackhammer_binary_path: str,
-                 hhblits_binary_path: str,
-                 hhsearch_binary_path: str,
-                 uniref90_database_path: str,
-                 mgnify_database_path: str,
-                 bfd_database_path: Optional[str],
-                 uniclust30_database_path: Optional[str],
-                 small_bfd_database_path: Optional[str],
-                 pdb70_database_path: str,
-                 template_featurizer: templates.TemplateHitFeaturizer,
-                 use_small_bfd: bool,
-                 mgnify_max_hits: int = 501,
-                 uniref_max_hits: int = 10000
-                 ):
+         jackhmmer_binary_path: str,
+         hhblits_binary_path: str,
+         hhsearch_binary_path: str,
+         uniref90_database_path: str,
+         mgnify_database_path: str,
+         bfd_database_path: Optional[str],
+         uniclust30_database_path: Optional[str],
+         small_bfd_database_path: Optional[str],
+         pdb70_database_path: str,
+         template_featurizer: templates.TemplateHitFeaturizer,
+         use_small_bfd: bool,
+         mgnify_max_hits: int = 501,
+         uniref_max_hits: int = 10000
+    ):
         """Constructs a feature dict for a given FASTA file."""
         self._use_small_bfd = use_small_bfd
         self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
-            binary_path=jackhammer_binary_path,
+            binary_path=jackhmmer_binary_path,
             database_path=uniref90_database_path
         )
         if use_small_bfd:
             self.jackhmmer_small_bfd_runner = jackhmmer.Jackhmmer(
-                binary_path=jackhammer_binary_path,
+                binary_path=jackhmmer_binary_path,
                 database_path=small_bfd_database_path
             )
         else:
@@ -93,7 +93,7 @@ class DataPipeline:
                 databases=[bfd_database_path, uniclust30_database_path]
             )
         self.jackhmmer_mgnify_runner = jackhmmer.Jackhmmer(
-            binary_path=jackhammer_binary_path,
+            binary_path=jackhmmer_binary_path,
             database_path=mgnify_database_path
         )
         self.hhsearch_pdb70_runner = hhsearch.HHSearch(
