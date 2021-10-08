@@ -141,7 +141,7 @@ class TestStructureModule(unittest.TestCase):
         }
     
         batch = {
-            'seq_mask': np.random.randint(0, 2, (n_res,)),
+            'seq_mask': np.random.randint(0, 2, (n_res,)).astype(np.float32),
             'aatype': np.random.randint(0, 21, (n_res,)),
         }
     
