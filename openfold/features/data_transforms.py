@@ -1,9 +1,11 @@
+import itertools
 from functools import reduce
 
 import numpy as np
 import torch
 from operator import add
 
+from config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
 from np import residue_constants
 
 MSA_FEATURE_NAMES = [
@@ -334,4 +336,45 @@ def make_masked_msa(protein, config, replace_fraction):
     protein['true_msa'] = protein['msa']
     protein['msa'] = bert_msa
 
+    return protein
+
+@curry1
+def make_fixed_size(protein, shape_schema, msa_cluster_size, extra_msa_size, num_res=0, num_templates=0):
+    """Guess at the MSA and sequence dimension to make fixed size."""
+
+    pad_size_map = {
+        NUM_RES: num_res,
+        NUM_MSA_SEQ: msa_cluster_size,
+        NUM_EXTRA_SEQ: extra_msa_size,
+        NUM_TEMPLATES: num_templates,
+    }
+
+    for k, v in protein.items():
+        # Don't transfer this to the accelerator.
+        if k == 'extra_cluster_assignment':
+            continue
+        shape = list(v.shape)
+        schema = shape_schema[k]
+        assert len(shape) == len(schema), (
+            f'Rank mismatch between shape and shape schema for {k}: {shape} vs {schema}')
+        pad_size = [pad_size_map.get(s2, None) or s1 for (s1, s2) in zip(shape, schema)]
+
+        padding = [(0, p - v.shape[i]) for i, p in enumerate(pad_size)]
+        padding.reverse()
+        padding = list(itertools.chain(*padding))
+        if padding:
+            protein[k] = torch.nn.functional.pad(v, padding)
+            protein[k] = torch.reshape(protein[k], pad_size)
+
+    return protein
+
+@curry1
+def select_feat(protein, feature_list):
+    return {k: v for k, v in protein.items() if k in feature_list}
+
+@curry1
+def crop_templates(protein, max_templates):
+    for k, v in protein.items():
+        if k.startswith('template_'):
+            protein[k] = v[:max_templates]
     return protein
