@@ -11,8 +11,7 @@ from urllib import request
 from absl import logging
 
 
-# Internal import (7716).
-from openfold.features.tools import utils
+from openfold.features.np import utils
 
 
 class Jackhmmer:

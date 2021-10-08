@@ -7,8 +7,8 @@ from typing import Any, Mapping, Optional, Sequence
 
 from absl import logging
 
-# Internal import (7716).
-from openfold.features.tools import utils
+
+from openfold.features.np import utils
 
 _HHBLITS_DEFAULT_P = 20
 _HHBLITS_DEFAULT_Z = 500
