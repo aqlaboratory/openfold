@@ -31,7 +31,7 @@ def _prod(nums):
     out = 1
     for n in nums:
         out = out * n
-    return nums
+    return out
 
 def _calculate_fan(shape, fan="fan_in"):
     i = shape[0]
