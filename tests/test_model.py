@@ -17,7 +17,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import unittest
-from config import *
+from openfold.config import model_config
 from openfold.model.model import AlphaFold
 import openfold.utils.feats as feats
 from openfold.utils.tensor_utils import tree_map, tensor_tree_map

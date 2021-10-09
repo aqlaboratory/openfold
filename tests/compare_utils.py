@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from config import model_config
+from openfold.config import model_config
 from openfold.model.model import AlphaFold
 from openfold.utils.import_weights import import_jax_weights_
 from tests.config import consts

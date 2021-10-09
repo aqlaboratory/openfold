@@ -31,7 +31,7 @@ import time
 import numpy as np
 import torch
 
-from config import model_config
+from openfold.config import model_config
 from openfold.model.model import AlphaFold
 from openfold.np import residue_constants, protein
 import openfold.np.relax.relax as relax

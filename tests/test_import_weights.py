@@ -16,7 +16,7 @@ import torch
 import numpy as np
 import unittest
 
-from config import model_config
+from openfold.config import model_config
 from openfold.model.model import AlphaFold
 from openfold.utils.import_weights import import_jax_weights_
 
