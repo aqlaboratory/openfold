@@ -393,7 +393,7 @@ def make_fixed_size(
             continue
         shape = list(v.shape)
         schema = shape_schema[k]
-        msd = "Rank mismatch between shape and shape schema for"
+        msg = "Rank mismatch between shape and shape schema for"
         assert len(shape) == len(schema), (
             f'{msg} {k}: {shape} vs {schema}'
         )
