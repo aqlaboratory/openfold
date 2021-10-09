@@ -13,7 +13,7 @@ wget -q -P /tmp \
 # Grab conda-only packages
 PATH=lib/conda/bin:$PATH
 conda update -qy conda \
-    && conda create --name $ENV_NAME -y python==3.9.5 \
+    && conda create --name $ENV_NAME -y python==3.7 \
     && source lib/conda/etc/profile.d/conda.sh \
     && conda activate $ENV_NAME \
     && pip install -r requirements.txt \
@@ -23,7 +23,7 @@ conda update -qy conda \
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
-pushd lib/conda/envs/$ENV_NAME/lib/python3.9/site-packages/ \
+pushd lib/conda/envs/$ENV_NAME/lib/python3.7/site-packages/ \
     && patch -p0 < $OPENFOLD_DIR/lib/openmm.patch \
     && popd
 

@@ -18,10 +18,10 @@ from torch.utils.checkpoint import checkpoint
 from typing import Any, Tuple, List, Callable
 
 BLOCK_ARG = Any
-BLOCK_ARGS = Tuple[BLOCK_ARG, ...]
+BLOCK_ARGS = List[BLOCK_ARG]
 
 def checkpoint_blocks(
-    blocks: List[Callable[BLOCK_ARGS, BLOCK_ARGS]], 
+    blocks: List[Callable], 
     args: BLOCK_ARGS, 
     blocks_per_ckpt: int,
 ) -> BLOCK_ARGS:

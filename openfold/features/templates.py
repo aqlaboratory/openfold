@@ -11,7 +11,7 @@ from absl import logging
 import numpy as np
 
 from openfold.features import parsers, mmcif_parsing
-from openfold.features.tools import kalign
+from openfold.features.np import kalign
 from openfold.np import residue_constants
 
 

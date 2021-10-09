@@ -170,7 +170,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--fasta_path", type=str, default=None, required=True
+        "--fasta_path", type=str,
     )
     parser.add_argument(
         "--output_dir", type=str, default=os.getcwd(),
@@ -206,13 +206,13 @@ if __name__ == "__main__":
         '--kalign_binary_path', type=str, default='/usr/bin/kalign'
     )
     parser.add_argument(
-        '--uniref90_database_path', type=str, default=None, required=True
+        '--uniref90_database_path', type=str, 
     )
     parser.add_argument(
-        '--mgnify_database_path', type=str, default=None, required=True
+        '--mgnify_database_path', type=str, 
     )
     parser.add_argument(
-        '--bfd_database_path', type=str, default=None, required=True
+        '--bfd_database_path', type=str,
     )
     parser.add_argument(
         '--small_bfd_database_path', type=str, default=None
@@ -221,19 +221,19 @@ if __name__ == "__main__":
         '--uniclust30_database_path', type=str, default=None
     )
     parser.add_argument(
-        '--pdb70_database_path', type=str, default=None, required=True
+        '--pdb70_database_path', type=str,
     )
     parser.add_argument(
-        '--template_mmcif_dir', type=str, default=None, required=True
+        '--template_mmcif_dir', type=str,
     )
     parser.add_argument(
-        '--max_template_date', type=str, default=None, required=True
+        '--max_template_date', type=str,
     )
     parser.add_argument(
         '--obsolete_pdbs_path', type=str, default=None
     )
     parser.add_argument(
-        '--preset', type=str, default='full_dbs', required=True,
+        '--preset', type=str, default='full_dbs',
         choices=('reduced_dbs', 'full_dbs')
     )
     parser.add_argument(
