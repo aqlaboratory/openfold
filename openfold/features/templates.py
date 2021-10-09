@@ -73,7 +73,7 @@ class LengthError(PrefilterError):
 
 
 TEMPLATE_FEATURES = {
-    'template_aatype': np.float32,
+    'template_aatype': np.int64,
     'template_all_atom_masks': np.float32,
     'template_all_atom_positions': np.float32,
     'template_domain_names': np.object,
