@@ -18,6 +18,7 @@ import torch.nn as nn
 import numpy as np
 import unittest
 from openfold.config import model_config
+from openfold.features.data_transforms import make_atom14_masks
 from openfold.model.model import AlphaFold
 import openfold.utils.feats as feats
 from openfold.utils.tensor_utils import tree_map, tensor_tree_map
@@ -73,7 +74,7 @@ class TestModel(unittest.TestCase):
         batch["seq_mask"] = torch.randint(
             low=0, high=2, size=(batch_size, n_res)
         ).float()
-        batch.update(feats.compute_residx(batch))
+        batch.update(make_atom14_masks(batch))
 
         add_recycling_dims = lambda t: (
             t.unsqueeze(-1).expand(*t.shape, c.no_cycles)

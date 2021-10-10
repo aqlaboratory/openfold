@@ -17,7 +17,11 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear
-from openfold.utils.loss import compute_plddt
+from openfold.utils.loss import (
+    compute_plddt, 
+    compute_tm, 
+    compute_predicted_aligned_error,
+)
 
 
 class AuxiliaryHeads(nn.Module):
@@ -70,7 +74,13 @@ class AuxiliaryHeads(nn.Module):
 
         if(self.config.tm.enabled):
             tm_logits = self.tm(outputs["pair"])
-            aux_out["tm_logits"] = tm_logits 
+            aux_out["tm_logits"] = tm_logits
+            aux_out["predicted_tm_score"] = compute_tm(
+                tm_logits, **self.config.tm
+            )
+            aux_out.update(compute_predicted_aligned_error(
+                tm_logits, **self.config.tm,
+            ))
         
         return aux_out
 

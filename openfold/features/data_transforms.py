@@ -7,6 +7,7 @@ from operator import add
 
 from openfold.config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
 from openfold.np import residue_constants
+from openfold.utils.tensor_utils import tree_map, tensor_tree_map
 
 MSA_FEATURE_NAMES = [
     'msa', 'deletion_matrix', 'msa_mask', 'msa_row_mask', 'bert_mask', 'true_msa'
@@ -535,3 +536,10 @@ def make_atom14_masks(protein):
     protein['atom37_atom_exists'] = residx_atom37_mask
 
     return protein
+
+
+def make_atom14_masks_np(batch):
+    batch = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
+    out = make_atom14_masks(batch)
+    out = tensor_tree_map(lambda t: np.array(t), out)
+    return out

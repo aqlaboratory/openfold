@@ -18,7 +18,7 @@ import ml_collections
 import numpy as np
 import torch
 import torch.nn as nn
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from openfold.np import residue_constants
 from openfold.utils import feats
@@ -28,6 +28,7 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map, 
     masked_mean,
     permute_final_dims,
+    batched_gather,
 )
 
 
@@ -448,6 +449,100 @@ def distogram_loss(
     mean = torch.sum(mean, dim=-1)
 
     return mean 
+
+
+def _calculate_bin_centers(boundaries: torch.Tensor):
+    step = boundaries[1] - boundaries[0]
+    bin_centers = breaks + step / 2
+    bin_centers = torch.cat([bin_centers, [bin_centers[-1] + step]], dim=0)
+    return bin_centers
+
+
+def _calculate_expected_aligned_error(
+    alignment_confidence_breaks: torch.Tensor,
+    aligned_distance_error_probs: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    bin_centers = _calculate_bin_centers(alignment_confidence_breaks)
+
+    return (
+        torch.sum(aligned_distance_error_probs * bin_centers, dim=-1),
+        bin_centers[-1]
+    )
+
+
+def compute_predicted_aligned_error(
+    logits: torch.Tensor,
+    max_bin: int = 31,
+    no_bins: int = 64,
+) -> Dict[str, torch.Tensor]:
+    """Computes aligned confidence metrics from logits.
+  
+    Args:
+      logits: [*, num_res, num_res, num_bins] the logits output from
+        PredictedAlignedErrorHead.
+      max_bin: Maximum bin value
+      no_bins: Number of bins
+    Returns:
+      aligned_confidence_probs: [*, num_res, num_res, num_bins] the predicted
+        aligned error probabilities over bins for each residue pair.
+      predicted_aligned_error: [*, num_res, num_res] the expected aligned distance
+        error for each pair of residues.
+      max_predicted_aligned_error: [*] the maximum predicted error possible.
+    """
+    boundaries = torch.linspace(
+        0, 
+        max_bin, 
+        steps=(no_bins - 1), 
+        device=logits.device
+    )
+
+    aligned_confidence_probs = torch.nn.functional.softmax(logits, dim=-1)
+    predicted_aligned_error, max_predicted_aligned_error = (
+        _calculate_expected_aligned_error(
+            alignment_confidence_breaks=boundaries,
+            aligned_distance_error_probs=aligned_confidence_probs
+        )
+    )
+
+    return {
+        "aligned_confidence_probs": aligned_confidence_probs,
+        "predicted_aligned_error": predicted_aligned_error,
+        "max_predicted_aligned_error": max_predicted_aligned_error,
+    }
+
+
+def compute_tm(
+    logits: torch.Tensor,
+    residue_weights: Optional[torch.Tensor] = None,
+    max_bin: int = 31,
+    no_bins: int = 64,
+) -> torch.Tensor:
+    if(residue_weights is None):
+        residue_weights = np.ones(logits.shape[-2])
+
+    boundaries = torch.linspace(
+        0, 
+        max_bin, 
+        steps=(no_bins - 1), 
+        device=logits.device
+    )
+
+    bin_centers = _calculate_bin_centers(boundaries)
+    torch.sum(residue_weights)
+    clipped_n = max(n, 19)
+
+    d0 = 1.24 * (clipped_n - 15) ** (1./3) - 1.8
+
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+
+    tm_per_bin = 1. / (1 + (bin_centers ** 2) / (d0 ** 2))
+    predicted_tm_term = torch.sum(probs * tm_per_bin, dim=-1)
+
+    normed_residue_mask = residue_weights / (eps + residue_weights.sum())
+    per_alignment = torch.sum(predicted_tm_term * normed_residue_mask, dim=-1)
+    weighted = per_alignment * residue_weights
+    argmax = (weighted == torch.max(weighted)).nonzero()[0]
+    return per_alignment[tuple(argmax)]
 
 
 def tm_loss(

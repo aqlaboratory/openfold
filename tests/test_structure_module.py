@@ -16,6 +16,7 @@ import torch
 import numpy as np
 import unittest
 
+from openfold.features.data_transforms import make_atom14_masks_np
 from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
@@ -157,7 +158,7 @@ class TestStructureModule(unittest.TestCase):
             axis=0
         )
     
-        batch.update(feats.compute_residx_np(batch))
+        batch.update(make_atom14_masks_np(batch))
     
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/structure_module"

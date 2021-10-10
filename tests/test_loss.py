@@ -19,6 +19,7 @@ import numpy as np
 import unittest
 import ml_collections as mlc
 
+from openfold.features.data_transforms import make_atom14_masks
 from openfold.utils.affine_utils import T, affine_vector_to_4x4
 import openfold.utils.feats as feats
 from openfold.utils.loss import (
@@ -310,7 +311,7 @@ class TestLoss(unittest.TestCase):
         def _build_extra_feats_np():
             b = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
             b.update(feats.build_ambiguity_feats(b))
-            b.update(feats.compute_residx(b))
+            b.update(make_atom14_masks(b))
             return tensor_tree_map(lambda t: np.array(t), b)
     
         batch = _build_extra_feats_np()
