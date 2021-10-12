@@ -196,13 +196,13 @@ if __name__ == "__main__":
         'template_mmcif_dir', type=str,
     )
     parser.add_argument(
+        '--uniclust30_database_path', type=str,
+    )
+    parser.add_argument(
         '--bfd_database_path', type=str, default=None,
     )
     parser.add_argument(
         '--small_bfd_database_path', type=str, default=None
-    )
-    parser.add_argument(
-        '--uniclust30_database_path', type=str, default=None
     )
     parser.add_argument(
         '--jackhmmer_binary_path', type=str, default='/usr/bin/jackhmmer'

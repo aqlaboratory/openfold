@@ -50,15 +50,15 @@ run e.g.
 
 ```bash
 python3 run_pretrained_openfold.py \
-        test.fasta \
-        data/uniref90/uniref90.fasta \
-        data/mgnify/mgy_clusters_2018_12.fa \
-        data/pdb70/pdb70 \
-        data/pdb_mmcif/mmcif_files/ \
-        --output_dir ./ \
-        --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-        --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
-        --device cuda:1
+    test.fasta \
+    data/uniref90/uniref90.fasta \
+    data/mgnify/mgy_clusters_2018_12.fa \
+    data/pdb70/pdb70 \
+    data/pdb_mmcif/mmcif_files/ \
+    data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --output_dir ./ \
+    --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+    --device cuda:1
 ```
 
 where `data` is a directory populated by `scripts/download_all_data.sh`. Run
