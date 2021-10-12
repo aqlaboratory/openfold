@@ -43,8 +43,6 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 
-FEAT_PATH = "tests/test_data/sample_feats.pickle"
-
 MAX_TEMPLATE_HITS = 20
 
 def main(args):
@@ -86,7 +84,7 @@ def main(args):
     )
 
     output_dir_base = args.output_dir
-    random_seed = args.random_seed
+    random_seed = args.data_random_seed
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
     config.data.eval.num_ensemble = num_ensemble
@@ -248,7 +246,7 @@ if __name__ == "__main__":
         choices=('reduced_dbs', 'full_dbs')
     )
     parser.add_argument(
-        '--random_seed', type=str, default=None
+        '--data_random_seed', type=str, default=None
     )
 
     args = parser.parse_args()
