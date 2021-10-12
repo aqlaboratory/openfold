@@ -14,17 +14,18 @@
 # limitations under the License.
 
 import argparse
+from datetime import date
 import pickle
 import os
 
 # A hack to get OpenMM and PyTorch to peacefully coexist
+os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
+
 import random
 import sys
 
 from openfold.features import templates, feature_pipeline
 from openfold.features.np import data_pipeline
-
-os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
 
 import time
 
@@ -66,7 +67,7 @@ def main(args):
         obsolete_pdbs_path=args.obsolete_pdbs_path
     )
 
-    data_processor = data_pipeline.DataPipeline(
+    alignment_runner = data_pipeline.AlignmentRunner(
         jackhmmer_binary_path=args.jackhmmer_binary_path,
         hhblits_binary_path=args.hhblits_binary_path,
         hhsearch_binary_path=args.hhsearch_binary_path,
@@ -76,6 +77,10 @@ def main(args):
         uniclust30_database_path=args.uniclust30_database_path,
         small_bfd_database_path=args.small_bfd_database_path,
         pdb70_database_path=args.pdb70_database_path,
+        use_small_bfd=use_small_bfd,
+    )
+
+    data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
         use_small_bfd=use_small_bfd
     )
@@ -88,13 +93,18 @@ def main(args):
     feature_processor = feature_pipeline.FeaturePipeline(config)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
-    msa_output_dir = os.path.join(output_dir_base, "msas")
-    if not os.path.exists(msa_output_dir):
-        os.makedirs(msa_output_dir)
+    alignment_dir = os.path.join(output_dir_base, "alignments")
+    if not os.path.exists(alignment_dir):
+        os.makedirs(alignment_dir)
 
     print("Collecting data...")
-    feature_dict = data_processor.process(
-        input_fasta_path=args.fasta_path, msa_output_dir=msa_output_dir)
+    alignment_runner.run_from_fasta(
+        args.fasta_path, alignment_dir
+    )     
+
+    feature_dict = data_processor.process_fasta(
+        input_fasta_path=args.fasta_path, alignment_dir=alignment_dir
+    )
 
     print("Generating features...")
     processed_feature_dict = feature_processor.process_features(
@@ -170,7 +180,47 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--fasta_path", type=str,
+        "fasta_path", type=str,
+    )
+    parser.add_argument(
+        'uniref90_database_path', type=str, 
+    )
+    parser.add_argument(
+        'mgnify_database_path', type=str, 
+    )
+    parser.add_argument(
+        'pdb70_database_path', type=str,
+    )
+    parser.add_argument(
+        'template_mmcif_dir', type=str,
+    )
+    parser.add_argument(
+        '--bfd_database_path', type=str, default=None,
+    )
+    parser.add_argument(
+        '--small_bfd_database_path', type=str, default=None
+    )
+    parser.add_argument(
+        '--uniclust30_database_path', type=str, default=None
+    )
+    parser.add_argument(
+        '--jackhmmer_binary_path', type=str, default='/usr/bin/jackhmmer'
+    )
+    parser.add_argument(
+        '--hhblits_binary_path', type=str, default='/usr/bin/hhblits'
+    )
+    parser.add_argument(
+        '--hhsearch_binary_path', type=str, default='/usr/bin/hhsearch'
+    )
+    parser.add_argument(
+        '--kalign_binary_path', type=str, default='/usr/bin/kalign'
+    )
+    parser.add_argument(
+        '--max_template_date', type=str, 
+        default=date.today().strftime("%Y-%m-%d"),
+    )
+    parser.add_argument(
+        '--obsolete_pdbs_path', type=str, default=None
     )
     parser.add_argument(
         "--output_dir", type=str, default=os.getcwd(),
@@ -194,45 +244,6 @@ if __name__ == "__main__":
              openfold/resources/params"""
     )
     parser.add_argument(
-        '--jackhmmer_binary_path', type=str, default='/usr/bin/jackhmmer'
-    )
-    parser.add_argument(
-        '--hhblits_binary_path', type=str, default='/usr/bin/hhblits'
-    )
-    parser.add_argument(
-        '--hhsearch_binary_path', type=str, default='/usr/bin/hhsearch'
-    )
-    parser.add_argument(
-        '--kalign_binary_path', type=str, default='/usr/bin/kalign'
-    )
-    parser.add_argument(
-        '--uniref90_database_path', type=str, 
-    )
-    parser.add_argument(
-        '--mgnify_database_path', type=str, 
-    )
-    parser.add_argument(
-        '--bfd_database_path', type=str,
-    )
-    parser.add_argument(
-        '--small_bfd_database_path', type=str, default=None
-    )
-    parser.add_argument(
-        '--uniclust30_database_path', type=str, default=None
-    )
-    parser.add_argument(
-        '--pdb70_database_path', type=str,
-    )
-    parser.add_argument(
-        '--template_mmcif_dir', type=str,
-    )
-    parser.add_argument(
-        '--max_template_date', type=str,
-    )
-    parser.add_argument(
-        '--obsolete_pdbs_path', type=str, default=None
-    )
-    parser.add_argument(
         '--preset', type=str, default='full_dbs',
         choices=('reduced_dbs', 'full_dbs')
     )
@@ -246,6 +257,13 @@ if __name__ == "__main__":
         args.param_path = os.path.join(
             "openfold", "resources", "params", 
             "params_" + args.model_name + ".npz"
+        )
+
+    if(args.bfd_database_path is None and 
+       args.small_bfd_database_path is None):
+        raise ValueError(
+            "At least one of --bfd_database_path or --small_bfd_database_path"
+            "must be specified"
         )
 
     main(args)
