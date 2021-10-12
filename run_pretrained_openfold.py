@@ -95,19 +95,22 @@ def main(args):
     if not os.path.exists(alignment_dir):
         os.makedirs(alignment_dir)
 
-    print("Collecting data...")
-    alignment_runner.run_from_fasta(
+    print("Generating features...")
+    alignment_runner.run(
         args.fasta_path, alignment_dir
     )     
 
     feature_dict = data_processor.process_fasta(
-        input_fasta_path=args.fasta_path, alignment_dir=alignment_dir
+        fasta_path=args.fasta_path, alignment_dir=alignment_dir
     )
 
-    print("Generating features...")
     processed_feature_dict = feature_processor.process_features(
         feature_dict, random_seed
     )
+
+    for k, v in processed_feature_dict.items():
+        print(k)
+        print(v.shape)
 
     print("Executing model...")
     batch = processed_feature_dict
