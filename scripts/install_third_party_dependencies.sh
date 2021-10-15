@@ -33,7 +33,7 @@ wget -q -P openfold/resources \
 
 # Certain tests need access to this file
 mkdir -p tests/test_data/alphafold/common
-ln -s openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/common
+ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/common
 
 # Download pretrained openfold weights
 scripts/download_alphafold_params.sh openfold/resources
