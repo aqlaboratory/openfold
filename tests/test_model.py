@@ -37,7 +37,6 @@ if(compare_utils.alphafold_is_installed()):
 
 class TestModel(unittest.TestCase):
     def test_dry_run(self):
-        batch_size = consts.batch_size
         n_seq = consts.n_seq
         n_templ = consts.n_templ
         n_res = consts.n_res
@@ -53,26 +52,26 @@ class TestModel(unittest.TestCase):
 
         batch = {}
         tf = torch.randint(
-            c.input_embedder.tf_dim - 1, size=(batch_size, n_res)
+            c.input_embedder.tf_dim - 1, size=(n_res,)
         )
         batch["target_feat"] = nn.functional.one_hot(
             tf, c.input_embedder.tf_dim).float()
         batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
         batch["residue_index"] = torch.arange(n_res)
         batch["msa_feat"] = torch.rand(
-            (batch_size, n_seq, n_res, c.input_embedder.msa_dim)
+            (n_seq, n_res, c.input_embedder.msa_dim)
         )
-        t_feats = random_template_feats(n_templ, n_res, batch_size=batch_size)
+        t_feats = random_template_feats(n_templ, n_res)
         batch.update({k:torch.tensor(v) for k, v in t_feats.items()})
         extra_feats = random_extra_msa_feats(
-            n_extra_seq, n_res, batch_size=batch_size
+            n_extra_seq, n_res
         )
         batch.update({k:torch.tensor(v) for k, v in extra_feats.items()}) 
         batch["msa_mask"] = torch.randint(
-            low=0, high=2, size=(batch_size, n_seq, n_res)
+            low=0, high=2, size=(n_seq, n_res)
         ).float()
         batch["seq_mask"] = torch.randint(
-            low=0, high=2, size=(batch_size, n_res)
+            low=0, high=2, size=(n_res,)
         ).float()
         batch.update(make_atom14_masks(batch))
 

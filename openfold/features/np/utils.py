@@ -1,5 +1,6 @@
 """Common utilities for data pipeline tools."""
 import contextlib
+import datetime
 import shutil
 import tempfile
 import time
@@ -25,3 +26,9 @@ def timing(msg: str):
   yield
   toc = time.time()
   logging.info('Finished %s in %.3f seconds', msg, toc - tic)
+
+
+def to_date(s: str):
+    return datetime.datetime(
+        year=int(s[:4]), month=int(s[5:7]), day=int(s[8:10])
+    )

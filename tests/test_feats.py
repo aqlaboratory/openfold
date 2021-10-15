@@ -16,6 +16,7 @@ import torch
 import numpy as np
 import unittest
 
+import openfold.features.data_transforms as data_transforms
 from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
@@ -168,7 +169,7 @@ class TestFeats(unittest.TestCase):
         to_tensor = lambda t: torch.tensor(np.array(t)).cuda()
         batch = tree_map(to_tensor, batch, np.ndarray)
     
-        out_repro = feats.atom37_to_frames(eps=1e-8, **batch)
+        out_repro = data_transforms.atom37_to_frames(batch)
         out_repro = tensor_tree_map(lambda t: t.cpu(), out_repro)
     
         for k,v in out_gt.items():

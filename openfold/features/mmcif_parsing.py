@@ -1,13 +1,18 @@
-
 """Parses the mmCIF file format."""
 import collections
 import dataclasses
 import io
+import json
+import logging
+import os
 from typing import Any, Mapping, Optional, Sequence, Tuple
 
-from absl import logging
 from Bio import PDB
 from Bio.Data import SCOPData
+import numpy as np
+
+import openfold.np.residue_constants as residue_constants
+
 
 # Type aliases:
 ChainId = str
@@ -369,3 +374,73 @@ def _get_protein_chains(
 def _is_set(data: str) -> bool:
   """Returns False if data is a special mmCIF character indicating 'unset'."""
   return data not in ('.', '?')
+
+
+def get_atom_coords(
+    mmcif_object: MmcifObject, 
+    chain_id: str
+) -> Tuple[np.ndarray, np.ndarray]:
+    # Locate the right chain
+    chains = list(mmcif_object.structure.get_chains())
+    relevant_chains = [c for c in chains if c.id == chain_id]
+    if len(relevant_chains) != 1:
+        raise MultipleChainsError(
+            f'Expected exactly one chain in structure with id {chain_id}.'
+        )
+    chain = relevant_chains[0]
+
+    # Extract the coordinates
+    num_res = len(mmcif_object.chain_to_seqres[chain_id])
+    all_atom_positions = np.zeros(
+        [num_res, residue_constants.atom_type_num, 3], dtype=np.float32
+    )
+    all_atom_mask = np.zeros(
+        [num_res, residue_constants.atom_type_num], dtype=np.float32
+    )
+    for res_index in range(num_res):
+        pos = np.zeros([residue_constants.atom_type_num, 3], dtype=np.float32)
+        mask = np.zeros([residue_constants.atom_type_num], dtype=np.float32)
+        res_at_position = mmcif_object.seqres_to_structure[chain_id][res_index]
+        if not res_at_position.is_missing:
+            res = chain[(res_at_position.hetflag,
+                         res_at_position.position.residue_number,
+                         res_at_position.position.insertion_code)]
+            for atom in res.get_atoms():
+                atom_name = atom.get_name()
+                x, y, z = atom.get_coord()
+                if atom_name in residue_constants.atom_order.keys():
+                    pos[residue_constants.atom_order[atom_name]] = [x, y, z]
+                    mask[residue_constants.atom_order[atom_name]] = 1.0
+                elif atom_name.upper() == 'SE' and res.get_resname() == 'MSE':
+                    # Put the coords of the selenium atom in the sulphur column
+                    pos[residue_constants.atom_order['SD']] = [x, y, z]
+                    mask[residue_constants.atom_order['SD']] = 1.0
+
+        all_atom_positions[res_index] = pos
+        all_atom_mask[res_index] = mask
+
+    return all_atom_positions, all_atom_mask
+
+
+def generate_mmcif_cache(mmcif_dir: str, out_path: str):
+    data = {}
+    for f in os.listdir(mmcif_dir):
+        if(f.endswith('.cif')):
+            with open(os.path.join(mmcif_dir, f), 'r') as fp:
+                mmcif_string = fp.read()
+            file_id = os.path.splitext(f)[0]
+            mmcif = parse(file_id=file_id, mmcif_string=mmcif_string)
+            if(mmcif.mmcif_object is None):
+                logging.warning(f'Could not parse {f}. Skipping...')
+                continue
+            else:
+                mmcif = mmcif.mmcif_object
+
+            local_data = {}
+            local_data['release_date'] = mmcif.header["release_date"]
+            local_data['no_chains'] = len(list(mmcif.structure.get_chains()))
+            
+            data[file_id] = local_data
+
+    with open(out_path, 'w') as fp:
+        fp.write(json.dumps(data))

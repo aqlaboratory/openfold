@@ -29,14 +29,15 @@ class ExponentialMovingAverage:
         self.decay = decay
 
     def _update_state_dict_(self, update, state_dict):
-        for k, v in update.items():
-            stored = state_dict[k]
-            if(not isinstance(v, torch.Tensor)):
-                self._update_state_dict_(v, stored)
-            else:
-                diff = stored - v
-                diff *= (1 - self.decay)
-                stored -= diff
+        with torch.no_grad():
+            for k, v in update.items():
+                stored = state_dict[k]
+                if(not isinstance(v, torch.Tensor)):
+                    self._update_state_dict_(v, stored)
+                else:
+                    diff = stored - v
+                    diff *= (1 - self.decay)
+                    stored -= diff
 
     def update(self, model: torch.nn.Module) -> None:
         """

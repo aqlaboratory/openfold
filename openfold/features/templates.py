@@ -2,16 +2,17 @@
 import dataclasses
 import datetime
 import glob
+import json
+import logging
 import os
 import re
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
-
-from absl import logging
 
 import numpy as np
 
 from openfold.features import parsers, mmcif_parsing
 from openfold.features.np import kalign
+from openfold.features.np.utils import to_date
 from openfold.np import residue_constants
 
 
@@ -74,7 +75,7 @@ class LengthError(PrefilterError):
 
 TEMPLATE_FEATURES = {
     'template_aatype': np.int64,
-    'template_all_atom_masks': np.float32,
+    'template_all_atom_mask': np.float32,
     'template_all_atom_positions': np.float32,
     'template_domain_names': np.object,
     'template_sequence': np.object,
@@ -133,23 +134,40 @@ def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
         return result
 
 
+def generate_release_dates_cache(mmcif_dir: str, out_path: str):
+    dates = {}
+    for f in os.listdir(mmcif_dir):
+        if(f.endswith('.cif')):
+            path = os.path.join(mmcif_dir, f)
+            with open(path, 'r') as fp:
+                mmcif_string = fp.read()
+            
+            file_id = os.path.splitext(f)[0]
+            mmcif = mmcif_parsing.parse(
+                file_id=file_id, mmcif_string=mmcif_string
+            )
+            if(mmcif.mmcif_object is None):
+                logging.warning(f'Failed to parse {f}. Skipping...')
+                continue
+
+            mmcif = mmcif.mmcif_object
+            release_date = mmcif.header['release_date']
+
+            dates[file_id] = release_date
+
+    with open(out_path, 'r') as fp:
+        fp.write(json.dumps(dates))
+
+
 def _parse_release_dates(path: str) -> Mapping[str, datetime.datetime]:
     """Parses release dates file, returns a mapping from PDBs to release dates."""
-    if path.endswith('txt'):
-        release_dates = {}
-        with open(path, 'r') as f:
-            for line in f:
-                pdb_id, date = line.split(':')
-                date = date.strip()
-                # Python 3.6 doesn't have datetime.date.fromisoformat() which is about
-                # 90x faster than strptime. However, splitting the string manually is
-                # about 10x faster than strptime.
-                release_dates[pdb_id.strip()] = datetime.datetime(
-                    year=int(date[:4]), month=int(date[5:7]), day=int(date[8:10]))
-        return release_dates
-    else:
-        raise ValueError('Invalid format of the release date file %s.' % path)
+    with open(path, 'r') as fp:
+        data = json.load(fp)
 
+    return {
+        pdb:to_date(v) for pdb,d in data.items() for k,v in d.items() 
+        if k == "release_date"
+    }
 
 def _assess_hhsearch_hit(
         hit: parsers.TemplateHit,
@@ -419,42 +437,14 @@ def _get_atom_positions(
         auth_chain_id: str,
         max_ca_ca_distance: float) -> Tuple[np.ndarray, np.ndarray]:
     """Gets atom positions and mask from a list of Biopython Residues."""
-    num_res = len(mmcif_object.chain_to_seqres[auth_chain_id])
-
-    relevant_chains = [c for c in mmcif_object.structure.get_chains()
-                       if c.id == auth_chain_id]
-    if len(relevant_chains) != 1:
-        raise MultipleChainsError(
-            f'Expected exactly one chain in structure with id {auth_chain_id}.')
-    chain = relevant_chains[0]
-
-    all_positions = np.zeros([num_res, residue_constants.atom_type_num, 3])
-    all_positions_mask = np.zeros([num_res, residue_constants.atom_type_num],
-                                  dtype=np.int64)
-    for res_index in range(num_res):
-        pos = np.zeros([residue_constants.atom_type_num, 3], dtype=np.float32)
-        mask = np.zeros([residue_constants.atom_type_num], dtype=np.float32)
-        res_at_position = mmcif_object.seqres_to_structure[auth_chain_id][res_index]
-        if not res_at_position.is_missing:
-            res = chain[(res_at_position.hetflag,
-                         res_at_position.position.residue_number,
-                         res_at_position.position.insertion_code)]
-            for atom in res.get_atoms():
-                atom_name = atom.get_name()
-                x, y, z = atom.get_coord()
-                if atom_name in residue_constants.atom_order.keys():
-                    pos[residue_constants.atom_order[atom_name]] = [x, y, z]
-                    mask[residue_constants.atom_order[atom_name]] = 1.0
-                elif atom_name.upper() == 'SE' and res.get_resname() == 'MSE':
-                    # Put the coordinates of the selenium atom in the sulphur column.
-                    pos[residue_constants.atom_order['SD']] = [x, y, z]
-                    mask[residue_constants.atom_order['SD']] = 1.0
-
-        all_positions[res_index] = pos
-        all_positions_mask[res_index] = mask
+    coords_with_mask = mmcif_parsing.get_atom_coords(
+        mmcif_object=mmcif_object, chain_id=auth_chain_id
+    )
+    all_atom_positions, all_atom_mask = coords_with_mask
     _check_residue_distances(
-        all_positions, all_positions_mask, max_ca_ca_distance)
-    return all_positions, all_positions_mask
+        all_atom_positions, all_atom_mask, max_ca_ca_distance
+    )
+    return all_atom_positions, all_atom_mask
 
 
 def _extract_template_features(
@@ -579,7 +569,7 @@ def _extract_template_features(
     return (
         {
             'template_all_atom_positions': np.array(templates_all_atom_positions),
-            'template_all_atom_masks': np.array(templates_all_atom_masks),
+            'template_all_atom_mask': np.array(templates_all_atom_masks),
             'template_sequence': output_templates_sequence.encode(),
             'template_aatype': np.array(templates_aatype),
             'template_domain_names': f'{pdb_id.lower()}_{chain_id}'.encode(),

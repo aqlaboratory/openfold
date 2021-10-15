@@ -19,7 +19,7 @@ import numpy as np
 import unittest
 import ml_collections as mlc
 
-from openfold.features.data_transforms import make_atom14_masks
+from openfold.features import data_transforms
 from openfold.utils.affine_utils import T, affine_vector_to_4x4
 import openfold.utils.feats as feats
 from openfold.utils.loss import (
@@ -216,7 +216,7 @@ class TestLoss(unittest.TestCase):
         batch = {
             "atom14_atom_exists": torch.randint(0, 2, (n, 14)),
             "residue_index": torch.arange(n),
-            "aatype": torch.randint(0, 21, (n,)),
+            "aatype": torch.randint(0, 20, (n,)),
             "residx_atom14_to_atom37": torch.randint(0, 37, (n, 14)).long(),
         }
 
@@ -250,7 +250,7 @@ class TestLoss(unittest.TestCase):
         batch = {
             "atom14_atom_exists": np.random.randint(0, 2, (n_res, 14)),
             "residue_index": np.arange(n_res),
-            "aatype": np.random.randint(0, 21, (n_res,)),
+            "aatype": np.random.randint(0, 20, (n_res,)),
             "residx_atom14_to_atom37": 
                 np.random.randint(0, 37, (n_res, 14)).astype(np.int64),
         }
@@ -302,16 +302,20 @@ class TestLoss(unittest.TestCase):
     
         batch = {
             "seq_mask": np.random.randint(0, 2, (n_res,)).astype(np.float32),
-            "aatype": np.random.randint(0, 21, (n_res,)),
+            "aatype": np.random.randint(0, 20, (n_res,)),
             "atom14_gt_positions": np.random.rand(n_res, 14, 3),
             "atom14_gt_exists": 
                 np.random.randint(0, 2, (n_res, 14)).astype(np.float32),
+            "all_atom_mask":
+                np.random.randint(0, 2, (n_res, 37)).astype(np.float32),
+            "all_atom_positions": 
+                np.random.rand(n_res, 37, 3).astype(np.float32),
         }
     
         def _build_extra_feats_np():
             b = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
-            b.update(feats.build_ambiguity_feats(b))
-            b.update(make_atom14_masks(b))
+            b = data_transforms.make_atom14_masks(b)
+            b = data_transforms.make_atom14_positions(b)
             return tensor_tree_map(lambda t: np.array(t), b)
     
         batch = _build_extra_feats_np()
@@ -585,8 +589,8 @@ class TestLoss(unittest.TestCase):
         )
         atom14_pred_pos = torch.tensor(atom14_pred_pos).cuda()
     
-        batch.update(feats.compute_residx(batch))
-    
+        batch = data_transforms.make_atom14_masks(batch)
+   
         out_repro = violation_loss(
             find_structural_violations(batch, atom14_pred_pos, **c_viol),
             **batch,
@@ -725,7 +729,7 @@ class TestLoss(unittest.TestCase):
     
         batch = {
             "seq_mask": np.random.randint(0, 2, (n_res,)).astype(np.float32),
-            "aatype": np.random.randint(0, 21, (n_res,)),
+            "aatype": np.random.randint(0, 20, (n_res,)),
             "atom14_gt_positions": 
                 np.random.rand(n_res, 14, 3).astype(np.float32),
             "atom14_gt_exists": 
@@ -738,8 +742,8 @@ class TestLoss(unittest.TestCase):
     
         def _build_extra_feats_np():
             b = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
-            b.update(feats.build_ambiguity_feats(b))
-            b.update(feats.compute_residx(b))
+            b = data_transforms.make_atom14_masks(b)
+            b = data_transforms.make_atom14_positions(b)
             return tensor_tree_map(lambda t: np.array(t), b)
     
         batch = _build_extra_feats_np() 
@@ -764,7 +768,7 @@ class TestLoss(unittest.TestCase):
         value = tree_map(to_tensor, value, np.ndarray)
         atom14_pred_pos = to_tensor(atom14_pred_pos)
     
-        batch.update(feats.atom37_to_frames(eps=1e-8, **batch))
+        batch = data_transforms.atom37_to_frames(batch)
         batch.update(compute_renamed_ground_truth(batch, atom14_pred_pos))
     
         out_repro = sidechain_loss(

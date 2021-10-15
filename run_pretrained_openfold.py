@@ -15,17 +15,17 @@
 
 import argparse
 from datetime import date
-import pickle
+import logging
 import os
 
 # A hack to get OpenMM and PyTorch to peacefully coexist
 os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
 
+import pickle
 import random
 import sys
 
-from openfold.features import templates, feature_pipeline
-from openfold.features.np import data_pipeline
+from openfold.features import templates, feature_pipeline, data_pipeline
 
 import time
 
@@ -43,27 +43,28 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 
-MAX_TEMPLATE_HITS = 20
+from scripts.utils import add_data_args
 
 def main(args):
     config = model_config(args.model_name)
     model = AlphaFold(config.model)
     model = model.eval()
     import_jax_weights_(model, args.param_path)
-    model = model.to(args.device)
+    model = model.to(args.model_device)
     
     # FEATURE COLLECTION AND PROCESSING
-    use_small_bfd = args.preset == "reduced_dbs"
     num_ensemble = 1
 
     template_featurizer = templates.TemplateHitFeaturizer(
         mmcif_dir=args.template_mmcif_dir,
         max_template_date=args.max_template_date,
-        max_hits=MAX_TEMPLATE_HITS,
+        max_hits=args.max_template_hits,
         kalign_binary_path=args.kalign_binary_path,
         release_dates_path=None,
         obsolete_pdbs_path=args.obsolete_pdbs_path
     )
+
+    use_small_bfd=(args.bfd_database_path is None)
 
     alignment_runner = data_pipeline.AlignmentRunner(
         jackhmmer_binary_path=args.jackhmmer_binary_path,
@@ -76,6 +77,7 @@ def main(args):
         small_bfd_database_path=args.small_bfd_database_path,
         pdb70_database_path=args.pdb70_database_path,
         use_small_bfd=use_small_bfd,
+        no_cpus=args.cpus,
     )
 
     data_processor = data_pipeline.DataPipeline(
@@ -87,7 +89,7 @@ def main(args):
     random_seed = args.data_random_seed
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
-    config.data.eval.num_ensemble = num_ensemble
+    config.data.predict.num_ensemble = num_ensemble
     feature_processor = feature_pipeline.FeaturePipeline(config)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
@@ -95,7 +97,7 @@ def main(args):
     if not os.path.exists(alignment_dir):
         os.makedirs(alignment_dir)
 
-    print("Generating features...")
+    logging.info("Generating features...")
     alignment_runner.run(
         args.fasta_path, alignment_dir
     )     
@@ -105,42 +107,20 @@ def main(args):
     )
 
     processed_feature_dict = feature_processor.process_features(
-        feature_dict, random_seed
+        feature_dict, mode='predict',
     )
 
-    for k, v in processed_feature_dict.items():
-        print(k)
-        print(v.shape)
-
-    print("Executing model...")
+    logging.info("Executing model...")
     batch = processed_feature_dict
     with torch.no_grad():
         batch = {
-            k:torch.as_tensor(v, device=args.device) 
+            k:torch.as_tensor(v, device=args.model_device) 
             for k,v in batch.items()
         }
-        
-        longs = [
-            "aatype", 
-            "template_aatype", 
-            "extra_msa", 
-            "residx_atom37_to_atom14",
-            "residx_atom14_to_atom37",
-            "true_msa",
-            "residue_index",
-        ]
-        for l in longs:
-            batch[l] = batch[l].long()
-        
-        # Move the recycling dimension to the end
-        move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
-        batch = tensor_tree_map(move_dim, batch)
-        make_contig = lambda t: t.contiguous()
-        batch = tensor_tree_map(make_contig, batch)
     
         t = time.time()
         out = model(batch)
-        print(f"Inference time: {time.time() - t}")
+        logging.info(f"Inference time: {time.time() - t}")
     
     # Toss out the recycling dimensions --- we don't need them anymore
     batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
@@ -158,9 +138,7 @@ def main(args):
         result=out,
         b_factors=plddt_b_factors
     )
-    
-    os.environ["CUDA_VISIBLE_DEVICES"] = "7"
-    
+     
     amber_relaxer = relax.AmberRelaxation(
         **config.relax
     )
@@ -168,7 +146,7 @@ def main(args):
     # Relax the prediction.
     t = time.time()
     relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
-    print(f"Relaxation time: {time.time() - t}")
+    logging.info(f"Relaxation time: {time.time() - t}")
     
     # Save the relaxed PDB.
     relaxed_output_path = os.path.join(
@@ -183,53 +161,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "fasta_path", type=str,
     )
-    parser.add_argument(
-        'uniref90_database_path', type=str, 
-    )
-    parser.add_argument(
-        'mgnify_database_path', type=str, 
-    )
-    parser.add_argument(
-        'pdb70_database_path', type=str,
-    )
-    parser.add_argument(
-        'template_mmcif_dir', type=str,
-    )
-    parser.add_argument(
-        '--uniclust30_database_path', type=str,
-    )
-    parser.add_argument(
-        '--bfd_database_path', type=str, default=None,
-    )
-    parser.add_argument(
-        '--small_bfd_database_path', type=str, default=None
-    )
-    parser.add_argument(
-        '--jackhmmer_binary_path', type=str, default='/usr/bin/jackhmmer'
-    )
-    parser.add_argument(
-        '--hhblits_binary_path', type=str, default='/usr/bin/hhblits'
-    )
-    parser.add_argument(
-        '--hhsearch_binary_path', type=str, default='/usr/bin/hhsearch'
-    )
-    parser.add_argument(
-        '--kalign_binary_path', type=str, default='/usr/bin/kalign'
-    )
-    parser.add_argument(
-        '--max_template_date', type=str, 
-        default=date.today().strftime("%Y-%m-%d"),
-    )
-    parser.add_argument(
-        '--obsolete_pdbs_path', type=str, default=None
-    )
+    add_data_args(parser)
     parser.add_argument(
         "--output_dir", type=str, default=os.getcwd(),
         help="""Name of the directory in which to output the prediction""",
         required=True
     )
     parser.add_argument(
-        "--device", type=str, default="cpu",
+        "--model_device", type=str, default="cpu",
         help="""Name of the device on which to run the model. Any valid torch
              device name is accepted (e.g. "cpu", "cuda:0")"""
     )
@@ -243,6 +182,10 @@ if __name__ == "__main__":
         help="""Path to model parameters. If None, parameters are selected
              automatically according to the model name from 
              openfold/resources/params"""
+    )
+    parser.add_argument(
+        "--cpus", type=int, default=4,
+        help="""Number of CPUs to use to run alignment tools"""
     )
     parser.add_argument(
         '--preset', type=str, default='full_dbs',

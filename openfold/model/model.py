@@ -19,7 +19,6 @@ import torch.nn as nn
 
 from openfold.utils.feats import (
     pseudo_beta_fn,
-    atom37_to_torsion_angles,
     build_extra_msa_feat,
     build_template_angle_feat,
     build_template_pair_feat,
@@ -115,21 +114,16 @@ class AlphaFold(nn.Module):
                 batch,
             )
 
-            # Build template angle feats
-            angle_feats = atom37_to_torsion_angles(
-                single_template_feats["template_aatype"], 
-                single_template_feats["template_all_atom_positions"],#.float(), 
-                single_template_feats["template_all_atom_masks"],#.float(), 
-                eps=self.config.template.eps,
-            )
-
-            template_angle_feat = build_template_angle_feat(
-                angle_feats,
-                single_template_feats["template_aatype"],
-            )
+            single_template_embeds = {}
+            if(self.config.template.embed_angles):
+                template_angle_feat = build_template_angle_feat(
+                    single_template_feats,
+                )
  
-            # [*, S_t, N, C_m]
-            a = self.template_angle_embedder(template_angle_feat)
+                # [*, S_t, N, C_m]
+                a = self.template_angle_embedder(template_angle_feat)
+
+                single_template_embeds["angle"] = a
 
             # [*, S_t, N, N, C_t]
             t = build_template_pair_feat(
@@ -145,11 +139,11 @@ class AlphaFold(nn.Module):
                 _mask_trans=self.config._mask_trans
             )
 
-            template_embeds.append({
-                "angle": a, 
-                "pair": t, 
-                "torsion_mask": angle_feats["torsion_angles_mask"]
+            single_template_embeds.update({
+                "pair": t,
             })
+            
+            template_embeds.append(single_template_embeds)
 
         template_embeds = dict_multimap(
             partial(torch.cat, dim=templ_dim),
@@ -164,11 +158,15 @@ class AlphaFold(nn.Module):
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
  
-        return {
-            "template_angle_embedding": template_embeds["angle"],
+        ret = {}
+        if(self.config.template.embed_angles):
+            ret["template_angle_embedding"] = template_embeds["angle"]
+        
+        ret.update({
             "template_pair_embedding": t,
-            "torsion_angles_mask": template_embeds["torsion_mask"],
-        }
+        })
+
+        return ret
 
     def iteration(self, feats, m_1_prev, z_prev, x_prev):
         # Primary output dictionary
@@ -197,7 +195,7 @@ class AlphaFold(nn.Module):
         )
 
         # Inject information from previous recycling iterations
-        if(self.config.no_cycles > 1):
+        if(self.config.num_recycle > 0):
             # Initialize the recycling embeddings, if needs be
             if(None in [m_1_prev, z_prev, x_prev]):
                 # [*, N, C_m]
@@ -241,7 +239,7 @@ class AlphaFold(nn.Module):
         # Embed the templates + merge with MSA/pair embeddings
         if(self.config.template.enabled):
             template_feats = {
-                k:v for k,v in feats.items() if "template_" in k
+                k:v for k,v in feats.items() if k.startswith("template_")
             }
             template_embeds = self.embed_templates(
                 template_feats,
@@ -261,7 +259,7 @@ class AlphaFold(nn.Module):
                 )
 
                 # [*, S, N]
-                torsion_angles_mask = template_embeds["torsion_angles_mask"]
+                torsion_angles_mask = feats["template_torsion_angles_mask"] 
                 msa_mask = torch.cat(
                     [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
                 )
@@ -374,7 +372,8 @@ class AlphaFold(nn.Module):
                         "template_aatype" ([*, N_templ, N_res])
                             Tensor of template residue indices (indices greater
                             than 19 are clamped to 20 (Unknown))
-                        "template_all_atom_pos" ([*, N_templ, N_res, 37, 3])
+                        "template_all_atom_positions" 
+                            ([*, N_templ, N_res, 37, 3])
                             Template atom coordinates in atom37 format
                         "template_all_atom_mask" ([*, N_templ, N_res, 37])
                             Template atom coordinate mask
@@ -392,13 +391,13 @@ class AlphaFold(nn.Module):
         self._disable_activation_checkpointing()
 
         # Main recycling loop
-        for cycle_no in range(self.config.no_cycles):
+        for cycle_no in range(self.config.num_recycle + 1):
             # Select the features for the current recycling cycle
             fetch_cur_batch = lambda t: t[..., cycle_no] 
             feats = tensor_tree_map(fetch_cur_batch, batch)
 
             # Enable grad iff we're training and it's the final recycling layer
-            is_final_iter = (cycle_no == (self.config.no_cycles - 1))
+            is_final_iter = (cycle_no == self.config.num_recycle)
             with torch.set_grad_enabled(is_grad_enabled and is_final_iter):
                 # Sidestep AMP bug discussed in pytorch issue #65766
                 if(is_final_iter):

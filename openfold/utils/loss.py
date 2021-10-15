@@ -18,6 +18,7 @@ import ml_collections
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.distributions.bernoulli import Bernoulli
 from typing import Dict, Optional, Tuple
 
 from openfold.np import residue_constants
@@ -117,7 +118,9 @@ def compute_fape(
     return normed_error
 
 
-# DISCREPANCY: figure out if loss clamping happens in 90% of each bach or in 90% of batches
+# DISCREPANCY: From the way this function is written, it's possible that
+# DeepMind clamped 90% of individual residue losses, not 90% of all batches.
+# We defer to the text, which seems to imply the latter.
 def backbone_loss(
     backbone_affine_tensor: torch.Tensor,
     backbone_affine_mask: torch.Tensor,
@@ -130,7 +133,7 @@ def backbone_loss(
 ) -> torch.Tensor:
     pred_aff = T.from_tensor(traj)
     gt_aff = T.from_tensor(backbone_affine_tensor)
-    
+   
     fape_loss = compute_fape(
         pred_aff,
         gt_aff[..., None, :],
@@ -142,7 +145,6 @@ def backbone_loss(
         length_scale=loss_unit_distance,
         eps=eps,
     )
-
     if(use_clamped_fape is not None):
         unclamped_fape_loss = compute_fape(
             pred_aff,
@@ -157,12 +159,12 @@ def backbone_loss(
         )
 
         fape_loss = (
-            fape_loss * use_clamped_fape +
+            fape_loss * use_clamped_fape + 
             unclamped_fape_loss * (1 - use_clamped_fape)
         )
 
     # Take the mean over the layer dimension
-    fape_loss = torch.mean(fape_loss, dim=0)
+    fape_loss = torch.mean(fape_loss, dim=-1)
     return fape_loss
 
 
@@ -1453,7 +1455,7 @@ class AlphaFoldLoss(nn.Module):
         super(AlphaFoldLoss, self).__init__()
         self.config = config
 
-    def forward(self, out, batch): 
+    def forward(self, out, batch):         
         if("violation" not in out.keys() and self.config.violation.weight):
             out["violation"] = find_structural_violations(
                 batch,
@@ -1461,40 +1463,11 @@ class AlphaFoldLoss(nn.Module):
                 **self.config.violation,
             )
 
-        if("atom14_atom_is_ambiguous" not in batch.keys()):
-            batch.update(feats.build_ambiguity_feats(batch))
-
         if("renamed_atom14_gt_positions" not in out.keys()):
             batch.update(compute_renamed_ground_truth(
                 batch,
                 out["sm"]["positions"][-1],
             ))
-
-        if("backbone_affine_tensor" not in batch.keys()):
-            batch.update(feats.atom37_to_frames(eps=self.config.eps, **batch)) 
-            
-            # TODO: Verify that this is correct
-            batch["backbone_affine_tensor"] = (
-                batch["rigidgroups_gt_frames"][..., 0, :, :]
-            )
-            batch["backbone_affine_mask"] = (
-                batch["rigidgroups_gt_exists"][..., 0]
-            )
-
-        if("chi_angles_sin_cos" not in batch.keys()):
-            with torch.no_grad():
-                batch.update(feats.atom37_to_torsion_angles(
-                    aatype=batch["aatype"],
-                    all_atom_positions=batch["all_atom_positions"].double(),
-                    all_atom_mask=batch["all_atom_mask"].double(),
-                    eps=self.config.eps,
-                ))
-
-                # TODO: Verify that this is correct
-                batch["chi_angles_sin_cos"] = (
-                    batch["torsion_angles_sin_cos"][..., 3:, :]
-                ).to(batch["all_atom_mask"].dtype)
-                batch["chi_mask"] = batch["torsion_angles_mask"][..., 3:].to(batch["all_atom_mask"].dtype)
 
         loss_fns = {
             "distogram": 

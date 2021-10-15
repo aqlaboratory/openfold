@@ -3,13 +3,11 @@
 
 from concurrent import futures
 import glob
+import logging
 import os
 import subprocess
 from typing import Any, Callable, Mapping, Optional, Sequence
 from urllib import request
-
-from absl import logging
-
 
 from openfold.features.np import utils
 
