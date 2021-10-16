@@ -20,14 +20,14 @@ from openfold.utils.tensor_utils import tree_map
 import tests.compare_utils as compare_utils
 from tests.config import consts
 
-if(compare_utils.alphafold_is_installed()):
+if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
     import jax
     import haiku as hk
 
 
 class TestPairTransition(unittest.TestCase):
-    def test_shape(self): 
+    def test_shape(self):
         c_z = consts.c_z
         n = 4
 
@@ -50,42 +50,42 @@ class TestPairTransition(unittest.TestCase):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             pt = alphafold.model.modules.Transition(
-                c_e.pair_transition, 
+                c_e.pair_transition,
                 config.model.global_config,
-                name="pair_transition"
+                name="pair_transition",
             )
             act = pt(act=pair_act, mask=pair_mask)
             return act
-        
+
         f = hk.transform(run_pair_transition)
-    
+
         n_res = consts.n_res
-    
+
         pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
-        pair_mask = np.ones((n_res, n_res)).astype(np.float32) # no mask 
-    
+        pair_mask = np.ones((n_res, n_res)).astype(np.float32)  # no mask
+
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/" +
-            "pair_transition"
+            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
+            + "pair_transition"
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
-    
-        out_gt = f.apply(
-            params, None, pair_act, pair_mask
-        ).block_until_ready()
-        out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
-   
-        model = compare_utils.get_global_pretrained_openfold()
-        out_repro = model.evoformer.blocks[0].pair_transition(
-            torch.as_tensor(pair_act, dtype=torch.float32).cuda(), 
-            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(), 
-        ).cpu()
-    
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
 
+        out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
+        out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
+
+        model = compare_utils.get_global_pretrained_openfold()
+        out_repro = (
+            model.evoformer.blocks[0]
+            .pair_transition(
+                torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+                mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            )
+            .cpu()
+        )
+
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
 
 
 if __name__ == "__main__":
     unittest.main()
-

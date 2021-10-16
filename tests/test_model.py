@@ -29,7 +29,7 @@ from tests.data_utils import (
     random_extra_msa_feats,
 )
 
-if(compare_utils.alphafold_is_installed()):
+if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
     import jax
     import haiku as hk
@@ -43,36 +43,29 @@ class TestModel(unittest.TestCase):
         n_extra_seq = consts.n_extra
 
         c = model_config("model_1").model
-        c.no_cycles = 2  
-        c.evoformer_stack.no_blocks = 4 # no need to go overboard here
-        c.evoformer_stack.blocks_per_ckpt = None # don't want to set up 
-                                                 # deepspeed for this test
+        c.no_cycles = 2
+        c.evoformer_stack.no_blocks = 4  # no need to go overboard here
+        c.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
+        # deepspeed for this test
 
         model = AlphaFold(c)
 
         batch = {}
-        tf = torch.randint(
-            c.input_embedder.tf_dim - 1, size=(n_res,)
-        )
+        tf = torch.randint(c.input_embedder.tf_dim - 1, size=(n_res,))
         batch["target_feat"] = nn.functional.one_hot(
-            tf, c.input_embedder.tf_dim).float()
+            tf, c.input_embedder.tf_dim
+        ).float()
         batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
         batch["residue_index"] = torch.arange(n_res)
-        batch["msa_feat"] = torch.rand(
-            (n_seq, n_res, c.input_embedder.msa_dim)
-        )
+        batch["msa_feat"] = torch.rand((n_seq, n_res, c.input_embedder.msa_dim))
         t_feats = random_template_feats(n_templ, n_res)
-        batch.update({k:torch.tensor(v) for k, v in t_feats.items()})
-        extra_feats = random_extra_msa_feats(
-            n_extra_seq, n_res
-        )
-        batch.update({k:torch.tensor(v) for k, v in extra_feats.items()}) 
+        batch.update({k: torch.tensor(v) for k, v in t_feats.items()})
+        extra_feats = random_extra_msa_feats(n_extra_seq, n_res)
+        batch.update({k: torch.tensor(v) for k, v in extra_feats.items()})
         batch["msa_mask"] = torch.randint(
             low=0, high=2, size=(n_seq, n_res)
         ).float()
-        batch["seq_mask"] = torch.randint(
-            low=0, high=2, size=(n_res,)
-        ).float()
+        batch["seq_mask"] = torch.randint(low=0, high=2, size=(n_res,)).float()
         batch.update(make_atom14_masks(batch))
 
         add_recycling_dims = lambda t: (
@@ -80,7 +73,7 @@ class TestModel(unittest.TestCase):
         )
         batch = tensor_tree_map(add_recycling_dims, batch)
 
-        with torch.no_grad(): 
+        with torch.no_grad():
             out = model(batch)
 
     @compare_utils.skip_unless_alphafold_installed()
@@ -89,12 +82,14 @@ class TestModel(unittest.TestCase):
             config = compare_utils.get_alphafold_config()
             model = alphafold.model.modules.AlphaFold(config.model)
             return model(
-                batch=batch, is_training=False, return_representations=True,
+                batch=batch,
+                is_training=False,
+                return_representations=True,
             )
 
         f = hk.transform(run_alphafold)
 
-        params = compare_utils.fetch_alphafold_module_weights('') 
+        params = compare_utils.fetch_alphafold_module_weights("")
 
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
@@ -107,14 +102,14 @@ class TestModel(unittest.TestCase):
         batch["atom14_atom_exists"] = batch["atom14_atom_exists"][0]
         out_gt = alphafold.model.all_atom.atom37_to_atom14(out_gt, batch)
         out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
- 
-        batch = {
-            k:torch.as_tensor(v).cuda() for k,v in batch.items()
-        }
+
+        batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
         batch["aatype"] = batch["aatype"].long()
         batch["template_aatype"] = batch["template_aatype"].long()
         batch["extra_msa"] = batch["extra_msa"].long()
-        batch["residx_atom37_to_atom14"] = batch["residx_atom37_to_atom14"].long()
+        batch["residx_atom37_to_atom14"] = batch[
+            "residx_atom37_to_atom14"
+        ].long()
 
         # Move the recycling dimension to the end
         move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
@@ -130,4 +125,3 @@ class TestModel(unittest.TestCase):
         out_repro = out_repro.squeeze(0)
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < 1e-3))
-

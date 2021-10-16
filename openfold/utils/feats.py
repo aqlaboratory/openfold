@@ -18,10 +18,10 @@ import torch
 import torch.nn as nn
 from typing import Dict
 
-import openfold.np.residue_constants as rc 
+import openfold.np.residue_constants as rc
 from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
-    batched_gather, 
+    batched_gather,
     one_hot,
     tree_map,
     tensor_tree_map,
@@ -29,16 +29,16 @@ from openfold.utils.tensor_utils import (
 
 
 def pseudo_beta_fn(aatype, all_atom_positions, all_atom_masks):
-    is_gly = (aatype == rc.restype_order['G'])
-    ca_idx = rc.atom_order['CA']
-    cb_idx = rc.atom_order['CB']
+    is_gly = aatype == rc.restype_order["G"]
+    ca_idx = rc.atom_order["CA"]
+    cb_idx = rc.atom_order["CB"]
     pseudo_beta = torch.where(
         is_gly[..., None].expand(*((-1,) * len(is_gly.shape)), 3),
         all_atom_positions[..., ca_idx, :],
-        all_atom_positions[..., cb_idx, :]
+        all_atom_positions[..., cb_idx, :],
     )
 
-    if(all_atom_masks is not None):
+    if all_atom_masks is not None:
         pseudo_beta_mask = torch.where(
             is_gly,
             all_atom_masks[..., ca_idx],
@@ -65,9 +65,9 @@ def atom14_to_atom37(atom14, batch):
 def build_template_angle_feat(template_feats):
     template_aatype = template_feats["template_aatype"]
     torsion_angles_sin_cos = template_feats["template_torsion_angles_sin_cos"]
-    alt_torsion_angles_sin_cos = (
-        template_feats["template_alt_torsion_angles_sin_cos"]
-    )
+    alt_torsion_angles_sin_cos = template_feats[
+        "template_alt_torsion_angles_sin_cos"
+    ]
     torsion_angles_mask = template_feats["template_torsion_angles_mask"]
     template_angle_feat = torch.cat(
         [
@@ -79,21 +79,24 @@ def build_template_angle_feat(template_feats):
                 *alt_torsion_angles_sin_cos.shape[:-2], 14
             ),
             torsion_angles_mask,
-        ], 
+        ],
         dim=-1,
     )
-    
+
     return template_angle_feat
 
 
-def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e8):
+def build_template_pair_feat(
+    batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e8
+):
     template_mask = batch["template_pseudo_beta_mask"]
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
     # Compute distogram (this seems to differ slightly from Alg. 5)
     tpb = batch["template_pseudo_beta"]
     dgram = torch.sum(
-        (tpb[..., None, :] - tpb[..., None, :, :]) ** 2, dim=-1, keepdim=True)
+        (tpb[..., None, :] - tpb[..., None, :, :]) ** 2, dim=-1, keepdim=True
+    )
     lower = torch.linspace(min_bin, max_bin, no_bins, device=tpb.device) ** 2
     upper = torch.cat([lower[:-1], lower.new_tensor([inf])], dim=-1)
     dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
@@ -101,7 +104,8 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e
     to_concat = [dgram, template_mask_2d[..., None]]
 
     aatype_one_hot = nn.functional.one_hot(
-        batch["template_aatype"], rc.restype_num + 2, 
+        batch["template_aatype"],
+        rc.restype_num + 2,
     )
 
     n_res = batch["template_aatype"].shape[-1]
@@ -116,7 +120,7 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e
         )
     )
 
-    n, ca, c = [rc.atom_order[a] for a in ['N', 'CA', 'C']]
+    n, ca, c = [rc.atom_order[a] for a in ["N", "CA", "C"]]
     # TODO: Consider running this in double precision
     affines = T.make_transform_from_reference(
         n_xyz=batch["template_all_atom_positions"][..., n, :],
@@ -127,10 +131,8 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e
 
     points = affines.get_trans()[..., None, :, :]
     affine_vec = affines[..., None].invert_apply(points)
-     
-    inv_distance_scalar = torch.rsqrt(
-        eps + torch.sum(affine_vec ** 2, dim=-1)
-    )
+
+    inv_distance_scalar = torch.rsqrt(eps + torch.sum(affine_vec ** 2, dim=-1))
 
     t_aa_masks = batch["template_all_atom_mask"]
     template_mask = (
@@ -139,10 +141,10 @@ def build_template_pair_feat(batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
     inv_distance_scalar = inv_distance_scalar * template_mask_2d
-    unit_vector = (affine_vec * inv_distance_scalar[..., None])
+    unit_vector = affine_vec * inv_distance_scalar[..., None]
     to_concat.extend(torch.unbind(unit_vector[..., None, :], dim=-1))
     to_concat.append(template_mask_2d[..., None])
-   
+
     act = torch.cat(to_concat, dim=-1)
     act = act * template_mask_2d[..., None]
 
@@ -161,55 +163,62 @@ def build_extra_msa_feat(batch):
 
 # adapted from model/tf/data_transforms.py
 def build_msa_feat(batch):
-  """Create and concatenate MSA features."""
-  # Whether there is a domain break. Always zero for chains, but keeping
-  # for compatibility with domain datasets.
-  has_break = batch["between_segment_residues"] 
-  aatype_1hot = nn.functional.one_hot(batch['aatype'], num_classes=21)
+    """Create and concatenate MSA features."""
+    # Whether there is a domain break. Always zero for chains, but keeping
+    # for compatibility with domain datasets.
+    has_break = batch["between_segment_residues"]
+    aatype_1hot = nn.functional.one_hot(batch["aatype"], num_classes=21)
 
-  target_feat = [
-      has_break.unsqueeze(-1),
-      aatype_1hot,  # Everyone gets the original sequence.
-  ]
+    target_feat = [
+        has_break.unsqueeze(-1),
+        aatype_1hot,  # Everyone gets the original sequence.
+    ]
 
-  msa_1hot = nn.functional.one_hot(batch['msa'], num_classes=23)
-  has_deletion = batch["deletion_matrix"]
-  deletion_value = torch.atan(batch['deletion_matrix'] / 3.) * (2. / math.pi)
+    msa_1hot = nn.functional.one_hot(batch["msa"], num_classes=23)
+    has_deletion = batch["deletion_matrix"]
+    deletion_value = torch.atan(batch["deletion_matrix"] / 3.0) * (
+        2.0 / math.pi
+    )
 
-  msa_feat = [
-      msa_1hot,
-      has_deletion.unsqueeze(-1),
-      deletion_value.unsqueeze(-1),
-  ]
+    msa_feat = [
+        msa_1hot,
+        has_deletion.unsqueeze(-1),
+        deletion_value.unsqueeze(-1),
+    ]
 
-  if 'cluster_profile' in batch:
-    deletion_mean_value = (
-        tf.atan(batch['cluster_deletion_mean'] / 3.) * (2. / np.pi))
-    msa_feat.extend([
-        batch['cluster_profile'],
-        tf.expand_dims(deletion_mean_value, axis=-1),
-    ])
+    if "cluster_profile" in batch:
+        deletion_mean_value = tf.atan(batch["cluster_deletion_mean"] / 3.0) * (
+            2.0 / np.pi
+        )
+        msa_feat.extend(
+            [
+                batch["cluster_profile"],
+                tf.expand_dims(deletion_mean_value, axis=-1),
+            ]
+        )
 
-  if 'extra_deletion_matrix' in protein:
-    batch['extra_has_deletion'] = tf.clip_by_value(
-        batch['extra_deletion_matrix'], 0., 1.)
-    batch['extra_deletion_value'] = tf.atan(
-        batch['extra_deletion_matrix'] / 3.) * (2. / np.pi)
+    if "extra_deletion_matrix" in protein:
+        batch["extra_has_deletion"] = tf.clip_by_value(
+            batch["extra_deletion_matrix"], 0.0, 1.0
+        )
+        batch["extra_deletion_value"] = tf.atan(
+            batch["extra_deletion_matrix"] / 3.0
+        ) * (2.0 / np.pi)
 
-  batch['msa_feat'] = torch.cat(msa_feat, dim=-1)
-  batch['target_feat'] = torch.cat(target_feat, dim=-1)
-  return batch
+    batch["msa_feat"] = torch.cat(msa_feat, dim=-1)
+    batch["target_feat"] = torch.cat(target_feat, dim=-1)
+    return batch
 
 
 def torsion_angles_to_frames(
-    t: T, 
-    alpha: torch.Tensor, 
-    aatype: torch.Tensor, 
+    t: T,
+    alpha: torch.Tensor,
+    aatype: torch.Tensor,
     rrgdf: torch.Tensor,
 ):
     # [*, N, 8, 4, 4]
     default_4x4 = rrgdf[aatype, ...]
-    
+
     # [*, N, 8] transformations, i.e.
     #   One [*, N, 8, 3, 3] rotation matrix and
     #   One [*, N, 8, 3]    translation matrix
@@ -217,12 +226,9 @@ def torsion_angles_to_frames(
 
     bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
     bb_rot[..., 1] = 1
-    
+
     # [*, N, 8, 2]
-    alpha = torch.cat(
-        [bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], 
-        dim=-2
-    )
+    alpha = torch.cat([bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], dim=-2)
 
     # [*, N, 8, 3, 3]
     # Produces rotation matrices of the form:
@@ -233,7 +239,7 @@ def torsion_angles_to_frames(
     # ]
     # This follows the original code rather than the supplement, which uses
     # different indices.
-        
+
     all_rots = alpha.new_zeros(default_t.rots.shape)
     all_rots[..., 0, 0] = 1
     all_rots[..., 1, 1] = alpha[..., 1]
@@ -253,12 +259,14 @@ def torsion_angles_to_frames(
     chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
     chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
 
-    all_frames_to_bb = T.concat([
+    all_frames_to_bb = T.concat(
+        [
             all_frames[..., :5],
             chi2_frame_to_bb.unsqueeze(-1),
             chi3_frame_to_bb.unsqueeze(-1),
             chi4_frame_to_bb.unsqueeze(-1),
-        ], dim=-1,
+        ],
+        dim=-1,
     )
 
     all_frames_to_global = t[..., None].compose(all_frames_to_bb)
@@ -274,20 +282,21 @@ def frames_and_literature_positions_to_atom14_pos(
     atom_mask,
     lit_positions,
 ):
-    # [*, N, 14, 4, 4] 
+    # [*, N, 14, 4, 4]
     default_4x4 = default_frames[aatype, ...]
-    
+
     # [*, N, 14]
     group_mask = group_idx[aatype, ...]
-    
+
     # [*, N, 14, 8]
     group_mask = nn.functional.one_hot(
-        group_mask, num_classes=default_frames.shape[-3],
+        group_mask,
+        num_classes=default_frames.shape[-3],
     )
 
     # [*, N, 14, 8]
     t_atoms_to_global = t[..., None, :] * group_mask
-    
+
     # [*, N, 14]
     t_atoms_to_global = t_atoms_to_global.map_tensor_fn(
         lambda x: torch.sum(x, dim=-1)

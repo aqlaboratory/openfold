@@ -24,14 +24,14 @@ from openfold.utils.tensor_utils import tree_map
 import tests.compare_utils as compare_utils
 from tests.config import consts
 
-if(compare_utils.alphafold_is_installed()):
+if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
     import jax
     import haiku as hk
 
 
 class TestMSARowAttentionWithPairBias(unittest.TestCase):
-    def test_shape(self): 
+    def test_shape(self):
         batch_size = consts.batch_size
         n_seq = consts.n_seq
         n_res = consts.n_res
@@ -39,7 +39,7 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
         c_z = consts.c_z
         c = 52
         no_heads = 4
-        chunk_size=None
+        chunk_size = None
 
         mrapb = MSARowAttentionWithPairBias(c_m, c_z, c, no_heads, chunk_size)
 
@@ -58,29 +58,26 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             msa_row = alphafold.model.modules.MSARowAttentionWithPairBias(
-                c_e.msa_row_attention_with_pair_bias, 
-                config.model.global_config
+                c_e.msa_row_attention_with_pair_bias, config.model.global_config
             )
-            act = msa_row(
-                msa_act=msa_act, msa_mask=msa_mask, pair_act=pair_act
-            )
+            act = msa_row(msa_act=msa_act, msa_mask=msa_mask, pair_act=pair_act)
             return act
-        
+
         f = hk.transform(run_msa_row_att)
 
         n_res = consts.n_res
         n_seq = consts.n_seq
 
         msa_act = np.random.rand(n_seq, n_res, consts.c_m).astype(np.float32)
-        msa_mask = np.random.randint(
-            low=0, high=2, size=(n_seq, n_res)
-        ).astype(np.float32)
+        msa_mask = np.random.randint(low=0, high=2, size=(n_seq, n_res)).astype(
+            np.float32
+        )
         pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
 
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/" +
-            "msa_row_attention"
+            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
+            + "msa_row_attention"
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
 
@@ -90,17 +87,21 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
         out_gt = torch.as_tensor(np.array(out_gt))
 
         model = compare_utils.get_global_pretrained_openfold()
-        out_repro = model.evoformer.blocks[0].msa_att_row(
-            torch.as_tensor(msa_act).cuda(), 
-            torch.as_tensor(pair_act).cuda(), 
-            torch.as_tensor(msa_mask).cuda(),
-        ).cpu()
+        out_repro = (
+            model.evoformer.blocks[0]
+            .msa_att_row(
+                torch.as_tensor(msa_act).cuda(),
+                torch.as_tensor(pair_act).cuda(),
+                torch.as_tensor(msa_mask).cuda(),
+            )
+            .cpu()
+        )
 
         self.assertTrue(torch.all(torch.abs(out_gt - out_repro) < consts.eps))
 
 
 class TestMSAColumnAttention(unittest.TestCase):
-    def test_shape(self): 
+    def test_shape(self):
         batch_size = consts.batch_size
         n_seq = consts.n_seq
         n_res = consts.n_res
@@ -124,47 +125,46 @@ class TestMSAColumnAttention(unittest.TestCase):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             msa_col = alphafold.model.modules.MSAColumnAttention(
-                c_e.msa_column_attention, 
-                config.model.global_config
+                c_e.msa_column_attention, config.model.global_config
             )
-            act = msa_col(
-                msa_act=msa_act, msa_mask=msa_mask
-            )
+            act = msa_col(msa_act=msa_act, msa_mask=msa_mask)
             return act
-        
+
         f = hk.transform(run_msa_col_att)
 
         n_res = consts.n_res
         n_seq = consts.n_seq
 
         msa_act = np.random.rand(n_seq, n_res, consts.c_m).astype(np.float32)
-        msa_mask = np.random.randint(
-            low=0, high=2, size=(n_seq, n_res)
-        ).astype(np.float32)
+        msa_mask = np.random.randint(low=0, high=2, size=(n_seq, n_res)).astype(
+            np.float32
+        )
 
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/" +
-            "msa_column_attention"
+            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
+            + "msa_column_attention"
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
 
-        out_gt = f.apply(
-            params, None, msa_act, msa_mask
-        ).block_until_ready()
+        out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
 
         model = compare_utils.get_global_pretrained_openfold()
-        out_repro = model.evoformer.blocks[0].msa_att_col(
-            torch.as_tensor(msa_act).cuda(), 
-            torch.as_tensor(msa_mask).cuda(),
-        ).cpu()
+        out_repro = (
+            model.evoformer.blocks[0]
+            .msa_att_col(
+                torch.as_tensor(msa_act).cuda(),
+                torch.as_tensor(msa_mask).cuda(),
+            )
+            .cpu()
+        )
 
         self.assertTrue(torch.all(torch.abs(out_gt - out_repro) < consts.eps))
 
 
 class TestMSAColumnGlobalAttention(unittest.TestCase):
-    def test_shape(self): 
+    def test_shape(self):
         batch_size = consts.batch_size
         n_seq = consts.n_seq
         n_res = consts.n_res
@@ -188,40 +188,42 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             msa_col = alphafold.model.modules.MSAColumnGlobalAttention(
-                c_e.msa_column_attention, 
-                config.model.global_config,  
-                name="msa_column_global_attention"
+                c_e.msa_column_attention,
+                config.model.global_config,
+                name="msa_column_global_attention",
             )
             act = msa_col(msa_act=msa_act, msa_mask=msa_mask)
             return act
-        
+
         f = hk.transform(run_msa_col_global_att)
-    
+
         n_res = consts.n_res
         n_seq = consts.n_seq
         c_e = consts.c_e
-    
+
         msa_act = np.random.rand(n_seq, n_res, c_e)
         msa_mask = np.random.randint(low=0, high=2, size=(n_seq, n_res))
-    
+
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/extra_msa_stack/" +
-            "msa_column_global_attention"
+            "alphafold/alphafold_iteration/evoformer/extra_msa_stack/"
+            + "msa_column_global_attention"
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
-        
-        out_gt = f.apply(
-            params, None, msa_act, msa_mask
-        ).block_until_ready()
+
+        out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
-    
+
         model = compare_utils.get_global_pretrained_openfold()
-        out_repro = model.extra_msa_stack.stack.blocks[0].msa_att_col(
-            torch.as_tensor(msa_act, dtype=torch.float32).cuda(), 
-            mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(), 
-        ).cpu()
-    
+        out_repro = (
+            model.extra_msa_stack.stack.blocks[0]
+            .msa_att_col(
+                torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
+                mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
+            )
+            .cpu()
+        )
+
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
 
 

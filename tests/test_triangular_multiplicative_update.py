@@ -20,14 +20,14 @@ from openfold.utils.tensor_utils import tree_map
 import tests.compare_utils as compare_utils
 from tests.config import consts
 
-if(compare_utils.alphafold_is_installed()):
+if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
     import jax
     import haiku as hk
 
 
 class TestTriangularMultiplicativeUpdate(unittest.TestCase):
-    def test_shape(self): 
+    def test_shape(self):
         c_z = consts.c_z
         c = 11
         outgoing = True
@@ -50,22 +50,23 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         self.assertTrue(shape_before == shape_after)
 
     def _tri_mul_compare(self, incoming=False):
-        name = (
-            "triangle_multiplication_" + 
-            ("incoming" if incoming else "outgoing")
+        name = "triangle_multiplication_" + (
+            "incoming" if incoming else "outgoing"
         )
+
         def run_tri_mul(pair_act, pair_mask):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             tri_mul = alphafold.model.modules.TriangleMultiplication(
-                c_e.triangle_multiplication_incoming if incoming else
-                c_e.triangle_multiplication_outgoing, 
+                c_e.triangle_multiplication_incoming
+                if incoming
+                else c_e.triangle_multiplication_outgoing,
                 config.model.global_config,
                 name=name,
             )
             act = tri_mul(act=pair_act, mask=pair_mask)
             return act
-        
+
         f = hk.transform(run_tri_mul)
 
         n_res = consts.n_res
@@ -76,24 +77,23 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
 
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/" +
-            name 
+            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
+            + name
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
 
-        out_gt = f.apply(
-            params, None, pair_act, pair_mask
-        ).block_until_ready()
+        out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
 
         model = compare_utils.get_global_pretrained_openfold()
         module = (
-            model.evoformer.blocks[0].tri_mul_in if incoming else
-            model.evoformer.blocks[0].tri_mul_out
+            model.evoformer.blocks[0].tri_mul_in
+            if incoming
+            else model.evoformer.blocks[0].tri_mul_out
         )
         out_repro = module(
-            torch.as_tensor(pair_act, dtype=torch.float32).cuda(), 
-            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(), 
+            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
         ).cpu()
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
@@ -109,4 +109,3 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

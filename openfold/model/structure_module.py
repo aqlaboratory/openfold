@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,14 +25,14 @@ from openfold.np.residue_constants import (
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
-from openfold.utils.affine_utils import T, quat_to_rot 
+from openfold.utils.affine_utils import T, quat_to_rot
 from openfold.utils.feats import (
     frames_and_literature_positions_to_atom14_pos,
     torsion_angles_to_frames,
 )
 from openfold.utils.tensor_utils import (
-    dict_multimap, 
-    permute_final_dims, 
+    dict_multimap,
+    permute_final_dims,
     flatten_final_dims,
 )
 
@@ -40,9 +40,9 @@ from openfold.utils.tensor_utils import (
 class AngleResnetBlock(nn.Module):
     def __init__(self, c_hidden):
         """
-            Args:
-                c_hidden:
-                    Hidden channel dimension
+        Args:
+            c_hidden:
+                Hidden channel dimension
         """
         super(AngleResnetBlock, self).__init__()
 
@@ -67,21 +67,22 @@ class AngleResnetBlock(nn.Module):
 
 class AngleResnet(nn.Module):
     """
-        Implements Algorithm 20, lines 11-14
+    Implements Algorithm 20, lines 11-14
     """
+
     def __init__(self, c_in, c_hidden, no_blocks, no_angles, epsilon):
         """
-            Args:
-                c_in:
-                    Input channel dimension
-                c_hidden:
-                    Hidden channel dimension
-                no_blocks:
-                    Number of resnet blocks
-                no_angles:
-                    Number of torsion angles to generate
-                epsilon:
-                    Small constant for normalization
+        Args:
+            c_in:
+                Input channel dimension
+            c_hidden:
+                Hidden channel dimension
+            no_blocks:
+                Number of resnet blocks
+            no_angles:
+                Number of torsion angles to generate
+            epsilon:
+                Small constant for normalization
         """
         super(AngleResnet, self).__init__()
 
@@ -103,22 +104,21 @@ class AngleResnet(nn.Module):
 
         self.relu = nn.ReLU()
 
-    def forward(self, 
-        s: torch.Tensor, 
-        s_initial: torch.Tensor
+    def forward(
+        self, s: torch.Tensor, s_initial: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-            Args:
-                s:
-                    [*, C_hidden] single embedding
-                s_initial:
-                    [*, C_hidden] single embedding as of the start of the 
-                    StructureModule
-            Returns:
-                [*, no_angles, 2] predicted angles
-        """       
-        # NOTE: The ReLU's applied to the inputs are absent from the supplement 
-        # pseudocode but present in the source. For maximal compatibility with 
+        Args:
+            s:
+                [*, C_hidden] single embedding
+            s_initial:
+                [*, C_hidden] single embedding as of the start of the
+                StructureModule
+        Returns:
+            [*, no_angles, 2] predicted angles
+        """
+        # NOTE: The ReLU's applied to the inputs are absent from the supplement
+        # pseudocode but present in the source. For maximal compatibility with
         # the pretrained weights, I'm going with the source.
 
         # [*, C_hidden]
@@ -153,9 +153,11 @@ class AngleResnet(nn.Module):
 
 class InvariantPointAttention(nn.Module):
     """
-        Implements Algorithm 22.
+    Implements Algorithm 22.
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         c_s,
         c_z,
         c_hidden,
@@ -166,19 +168,19 @@ class InvariantPointAttention(nn.Module):
         eps=1e-8,
     ):
         """
-            Args:
-                c_s:
-                    Single representation channel dimension
-                c_z:
-                    Pair representation channel dimension
-                c_hidden:
-                    Hidden channel dimension
-                no_heads:
-                    Number of attention heads
-                no_qk_points:
-                    Number of query/key points to generate
-                no_v_points:
-                    Number of value points to generate
+        Args:
+            c_s:
+                Single representation channel dimension
+            c_z:
+                Pair representation channel dimension
+            c_hidden:
+                Hidden channel dimension
+            no_heads:
+                Number of attention heads
+            no_qk_points:
+                Number of query/key points to generate
+            no_v_points:
+                Number of value points to generate
         """
         super(InvariantPointAttention, self).__init__()
 
@@ -212,32 +214,33 @@ class InvariantPointAttention(nn.Module):
         self.head_weights = nn.Parameter(torch.zeros((no_heads)))
         ipa_point_weights_init_(self.head_weights)
 
-        concat_out_dim = self.no_heads * (self.c_z
-                                          + self.c_hidden
-                                          + self.no_v_points * 4)
+        concat_out_dim = self.no_heads * (
+            self.c_z + self.c_hidden + self.no_v_points * 4
+        )
         self.linear_out = Linear(concat_out_dim, self.c_s, init="final")
 
         self.softmax = nn.Softmax(dim=-1)
         self.softplus = nn.Softplus()
 
-    def forward(self, 
-        s: torch.Tensor, 
-        z: torch.Tensor, 
+    def forward(
+        self,
+        s: torch.Tensor,
+        z: torch.Tensor,
         t: T,
         mask: torch.Tensor,
     ) -> torch.Tensor:
         """
-            Args:
-                s:
-                    [*, N_res, C_s] single representation
-                z:
-                    [*, N_res, N_res, C_z] pair representation
-                t:
-                    [*, N_res] affine transformation object
-                mask:
-                    [*, N_res] mask
-            Returns:
-                [*, N_res, C_s] single representation update
+        Args:
+            s:
+                [*, N_res, C_s] single representation
+            z:
+                [*, N_res, N_res, C_z] pair representation
+            t:
+                [*, N_res] affine transformation object
+            mask:
+                [*, N_res] mask
+        Returns:
+            [*, N_res, C_s] single representation update
         """
         #######################################
         # Generate scalar and point activations
@@ -261,12 +264,12 @@ class InvariantPointAttention(nn.Module):
         # This is kind of clunky, but it's how the original does it
         # [*, N_res, H * P_q, 3]
         q_pts = torch.split(q_pts, q_pts.shape[-1] // 3, dim=-1)
-        q_pts = torch.stack(q_pts, dim=-1) 
+        q_pts = torch.stack(q_pts, dim=-1)
         q_pts = t[..., None].apply(q_pts)
 
         # [*, N_res, H, P_q, 3]
         q_pts = q_pts.view(
-             q_pts.shape[:-2] + (self.no_heads, self.no_qk_points, 3)
+            q_pts.shape[:-2] + (self.no_heads, self.no_qk_points, 3)
         )
 
         # [*, N_res, H * (P_q + P_v) * 3]
@@ -278,15 +281,11 @@ class InvariantPointAttention(nn.Module):
         kv_pts = t[..., None].apply(kv_pts)
 
         # [*, N_res, H, (P_q + P_v), 3]
-        kv_pts = kv_pts.view(
-            kv_pts.shape[:-2] + (self.no_heads, -1, 3)
-        )
+        kv_pts = kv_pts.view(kv_pts.shape[:-2] + (self.no_heads, -1, 3))
 
         # [*, N_res, H, P_q/P_v, 3]
         k_pts, v_pts = torch.split(
-            kv_pts, 
-            [self.no_qk_points, self.no_v_points], 
-            dim=-2
+            kv_pts, [self.no_qk_points, self.no_v_points], dim=-2
         )
 
         ##########################
@@ -298,12 +297,12 @@ class InvariantPointAttention(nn.Module):
 
         # [*, H, N_res, N_res]
         a = torch.matmul(
-            permute_final_dims(q, (1, 0, 2)), # [*, H, N_res, C_hidden]
-            permute_final_dims(k, (1, 2, 0)), # [*, H, C_hidden, N_res]
+            permute_final_dims(q, (1, 0, 2)),  # [*, H, N_res, C_hidden]
+            permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, N_res]
         )
-        a = a * math.sqrt(1. / (3 * self.c_hidden))
-        a = a + (math.sqrt(1. / 3) * permute_final_dims(b, (2, 0, 1)))
-        
+        a = a * math.sqrt(1.0 / (3 * self.c_hidden))
+        a = a + (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
+
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
         pt_att = pt_att ** 2
@@ -312,12 +311,12 @@ class InvariantPointAttention(nn.Module):
         pt_att = sum(torch.unbind(pt_att, dim=-1))
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
-        ) 
-        head_weights = (
-            head_weights * math.sqrt(1. / (3 * (self.no_qk_points * 9. / 2)))
         )
-        pt_att = pt_att * head_weights 
-        
+        head_weights = head_weights * math.sqrt(
+            1.0 / (3 * (self.no_qk_points * 9.0 / 2))
+        )
+        pt_att = pt_att * head_weights
+
         # [*, N_res, N_res, H]
         pt_att = torch.sum(pt_att, dim=-1) * (-0.5)
         # [*, N_res, N_res]
@@ -345,10 +344,10 @@ class InvariantPointAttention(nn.Module):
         # [*, H, 3, N_res, P_v]
         o_pt = torch.sum(
             (
-                a[..., None, :, :, None] *
-                permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
+                a[..., None, :, :, None]
+                * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
             ),
-            dim=-2
+            dim=-2,
         )
 
         # [*, N_res, H, P_v, 3]
@@ -357,8 +356,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, H * P_v]
         o_pt_norm = flatten_final_dims(
-            torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 
-            2
+            torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 2
         )
 
         # [*, N_res, H * P_v, 3]
@@ -372,26 +370,24 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, C_s]
         s = self.linear_out(
-                torch.cat((
-                    o, 
-                    *torch.unbind(o_pt, dim=-1), 
-                    o_pt_norm, 
-                    o_pair
-                ), dim=-1)
+            torch.cat(
+                (o, *torch.unbind(o_pt, dim=-1), o_pt_norm, o_pair), dim=-1
             )
+        )
 
         return s
 
 
 class BackboneUpdate(nn.Module):
     """
-        Implements Algorithm 23.
+    Implements Algorithm 23.
     """
+
     def __init__(self, c_s):
         """
-            Args:
-                c_s:
-                    Single representation channel dimension
+        Args:
+            c_s:
+                Single representation channel dimension
         """
         super(BackboneUpdate, self).__init__()
 
@@ -401,24 +397,24 @@ class BackboneUpdate(nn.Module):
 
     def forward(self, s):
         """
-            Args:
-                [*, N_res, C_s] single representation
-            Returns:
-                [*, N_res] affine transformation object
+        Args:
+            [*, N_res, C_s] single representation
+        Returns:
+            [*, N_res] affine transformation object
         """
         # [*, 6]
         params = self.linear(s)
 
         # [*, 3]
-        quats, trans = params[...,:3], params[...,3:]
+        quats, trans = params[..., :3], params[..., 3:]
 
         # [*]
-        #norm_denom = torch.sqrt(sum(torch.unbind(quats ** 2, dim=-1)) + 1)
+        # norm_denom = torch.sqrt(sum(torch.unbind(quats ** 2, dim=-1)) + 1)
         norm_denom = torch.sqrt(torch.sum(quats ** 2, dim=-1) + 1)
 
-        # [*, 3] 
-        ones = (
-            s.new_ones((1,) * len(quats.shape)).expand(quats.shape[:-1] + (1,))
+        # [*, 3]
+        ones = s.new_ones((1,) * len(quats.shape)).expand(
+            quats.shape[:-1] + (1,)
         )
 
         # [*, 4]
@@ -436,7 +432,7 @@ class StructureModuleTransitionLayer(nn.Module):
         super(StructureModuleTransitionLayer, self).__init__()
 
         self.c = c
-        
+
         self.linear_1 = Linear(self.c, self.c, init="relu")
         self.linear_2 = Linear(self.c, self.c, init="relu")
         self.linear_3 = Linear(self.c, self.c, init="final")
@@ -483,8 +479,9 @@ class StructureModuleTransition(nn.Module):
 
 
 class StructureModule(nn.Module):
-    def __init__(self, 
-        c_s, 
+    def __init__(
+        self,
+        c_s,
         c_z,
         c_ipa,
         c_resnet,
@@ -502,39 +499,39 @@ class StructureModule(nn.Module):
         **kwargs,
     ):
         """
-            Args:
-                c_s:
-                    Single representation channel dimension
-                c_z:
-                    Pair representation channel dimension
-                c_ipa:
-                    IPA hidden channel dimension
-                c_resnet:
-                    Angle resnet (Alg. 23 lines 11-14) hidden channel dimension
-                no_heads_ipa:
-                    Number of IPA heads
-                no_qk_points:
-                    Number of query/key points to generate during IPA
-                no_v_points:
-                    Number of value points to generate during IPA
-                dropout_rate:
-                    Dropout rate used throughout the layer
-                no_blocks:
-                    Number of structure module blocks
-                no_transition_layers:
-                    Number of layers in the single representation transition
-                    (Alg. 23 lines 8-9)
-                no_resnet_blocks:
-                    Number of blocks in the angle resnet
-                no_angles:
-                    Number of angles to generate in the angle resnet
-                trans_scale_factor:
-                    Scale of single representation transition hidden dimension
-                epsilon:
-                    Small number used in angle resnet normalization
-                inf:
-                    Large number used for attention masking
-        """             
+        Args:
+            c_s:
+                Single representation channel dimension
+            c_z:
+                Pair representation channel dimension
+            c_ipa:
+                IPA hidden channel dimension
+            c_resnet:
+                Angle resnet (Alg. 23 lines 11-14) hidden channel dimension
+            no_heads_ipa:
+                Number of IPA heads
+            no_qk_points:
+                Number of query/key points to generate during IPA
+            no_v_points:
+                Number of value points to generate during IPA
+            dropout_rate:
+                Dropout rate used throughout the layer
+            no_blocks:
+                Number of structure module blocks
+            no_transition_layers:
+                Number of layers in the single representation transition
+                (Alg. 23 lines 8-9)
+            no_resnet_blocks:
+                Number of blocks in the angle resnet
+            no_angles:
+                Number of angles to generate in the angle resnet
+            trans_scale_factor:
+                Scale of single representation transition hidden dimension
+            epsilon:
+                Small number used in angle resnet normalization
+            inf:
+                Large number used for attention masking
+        """
         super(StructureModule, self).__init__()
 
         self.c_s = c_s
@@ -587,33 +584,34 @@ class StructureModule(nn.Module):
         self.bb_update = BackboneUpdate(self.c_s)
 
         self.angle_resnet = AngleResnet(
-            self.c_s, 
-            self.c_resnet, 
+            self.c_s,
+            self.c_resnet,
             self.no_resnet_blocks,
             self.no_angles,
             self.epsilon,
         )
 
-    def forward(self, 
+    def forward(
+        self,
         s,
         z,
         f,
         mask=None,
     ):
         """
-            Args:
-                s:
-                    [*, N_res, C_s] single representation
-                z:
-                    [*, N_res, N_res, C_z] pair representation
-                f:
-                    [*, N_res] amino acid indices
-                mask:
-                    Optional [*, N_res] sequence mask
-            Returns:
-                A dictionary of outputs
+        Args:
+            s:
+                [*, N_res, C_s] single representation
+            z:
+                [*, N_res, N_res, C_z] pair representation
+            f:
+                [*, N_res] amino acid indices
+            mask:
+                Optional [*, N_res] sequence mask
+        Returns:
+            A dictionary of outputs
         """
-        if(mask is None):
+        if mask is None:
             # [*, N]
             mask = s.new_ones(s.shape[:-1])
 
@@ -644,7 +642,9 @@ class StructureModule(nn.Module):
             unnormalized_a, a = self.angle_resnet(s, s_initial)
 
             all_frames_to_global = self.torsion_angles_to_frames(
-                t.scale_translation(self.trans_scale_factor), a, f,
+                t.scale_translation(self.trans_scale_factor),
+                a,
+                f,
             )
 
             pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
@@ -653,8 +653,7 @@ class StructureModule(nn.Module):
             )
 
             preds = {
-                "frames": 
-                    t.scale_translation(self.trans_scale_factor).to_4x4(),
+                "frames": t.scale_translation(self.trans_scale_factor).to_4x4(),
                 "sidechain_frames": all_frames_to_global.to_4x4(),
                 "unnormalized_angles": unnormalized_a,
                 "angles": a,
@@ -663,7 +662,7 @@ class StructureModule(nn.Module):
 
             outputs.append(preds)
 
-            if(i < (self.no_blocks - 1)):
+            if i < (self.no_blocks - 1):
                 t = t.stop_rot_gradient()
 
         outputs = dict_multimap(torch.stack, outputs)
@@ -672,28 +671,28 @@ class StructureModule(nn.Module):
         return outputs
 
     def _init_residue_constants(self, float_dtype, device):
-        if(self.default_frames is None):
+        if self.default_frames is None:
             self.default_frames = torch.tensor(
                 restype_rigid_group_default_frame,
                 dtype=float_dtype,
                 device=device,
             )
-        if(self.group_idx is None):
+        if self.group_idx is None:
             self.group_idx = torch.tensor(
                 restype_atom14_to_rigid_group,
                 device=device,
             )
-        if(self.atom_mask is None):
+        if self.atom_mask is None:
             self.atom_mask = torch.tensor(
                 restype_atom14_mask,
                 dtype=float_dtype,
                 device=device,
             )
-        if(self.lit_positions is None):
+        if self.lit_positions is None:
             self.lit_positions = torch.tensor(
                 restype_atom14_rigid_group_positions,
                 dtype=float_dtype,
-                device=device, 
+                device=device,
             )
 
     def torsion_angles_to_frames(self, t, alpha, f):
@@ -702,17 +701,16 @@ class StructureModule(nn.Module):
         # Separated purely to make testing less annoying
         return torsion_angles_to_frames(t, alpha, f, self.default_frames)
 
-    def frames_and_literature_positions_to_atom14_pos(self, 
-        t,    # [*, N, 8]
-        f     # [*, N]
+    def frames_and_literature_positions_to_atom14_pos(
+        self, t, f  # [*, N, 8]  # [*, N]
     ):
         # Lazily initialize the residue constants on the correct device
         self._init_residue_constants(t.rots.dtype, t.rots.device)
         return frames_and_literature_positions_to_atom14_pos(
-            t, 
-            f, 
-            self.default_frames, 
+            t,
+            f,
+            self.default_frames,
             self.group_idx,
             self.atom_mask,
-            self.lit_positions, 
+            self.lit_positions,
         )

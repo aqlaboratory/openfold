@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,17 +23,18 @@ from openfold.utils.tensor_utils import chunk_layer
 
 class OuterProductMean(nn.Module):
     """
-        Implements Algorithm 10.
+    Implements Algorithm 10.
     """
+
     def __init__(self, c_m, c_z, c_hidden, chunk_size=4, eps=1e-3):
         """
-            Args:
-                c_m:
-                    MSA embedding channel dimension
-                c_z:
-                    Pair embedding channel dimension
-                c_hidden:
-                    Hidden channel dimension
+        Args:
+            c_m:
+                MSA embedding channel dimension
+            c_z:
+                Pair embedding channel dimension
+            c_hidden:
+                Hidden channel dimension
         """
         super(OuterProductMean, self).__init__()
 
@@ -45,12 +46,12 @@ class OuterProductMean(nn.Module):
         self.layer_norm = nn.LayerNorm(c_m)
         self.linear_1 = Linear(c_m, c_hidden)
         self.linear_2 = Linear(c_m, c_hidden)
-        self.linear_out = Linear(c_hidden**2, c_z, init="final")
+        self.linear_out = Linear(c_hidden ** 2, c_z, init="final")
 
     def _opm(self, a, b):
         # [*, N_res, N_res, C, C]
         outer = torch.einsum("...bac,...dae->...bdce", a, b)
- 
+
         # [*, N_res, N_res, C * C]
         outer = outer.reshape(*outer.shape[:-2], -1)
 
@@ -61,20 +62,20 @@ class OuterProductMean(nn.Module):
 
     def forward(self, m, mask=None):
         """
-            Args:
-                m:
-                    [*, N_seq, N_res, C_m] MSA embedding
-                mask:
-                    [*, N_seq, N_res] MSA mask
-            Returns:
-                [*, N_res, N_res, C_z] pair embedding update
+        Args:
+            m:
+                [*, N_seq, N_res, C_m] MSA embedding
+            mask:
+                [*, N_seq, N_res] MSA mask
+        Returns:
+            [*, N_res, N_res, C_z] pair embedding update
         """
-        if(mask is None):
+        if mask is None:
             mask = m.new_ones(m.shape[:-1])
 
         # [*, N_seq, N_res, C_m]
         m = self.layer_norm(m)
-        
+
         # [*, N_seq, N_res, C]
         mask = mask.unsqueeze(-1)
         a = self.linear_1(m) * mask
@@ -83,7 +84,7 @@ class OuterProductMean(nn.Module):
         a = a.transpose(-2, -3)
         b = b.transpose(-2, -3)
 
-        if(self.chunk_size is not None):
+        if self.chunk_size is not None:
             # Since the "batch dim" in this case is not a true batch dimension
             # (in that the shape of the output depends on it), we need to
             # iterate over it ourselves

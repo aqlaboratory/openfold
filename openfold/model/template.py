@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,9 +18,9 @@ import math
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, Attention 
+from openfold.model.primitives import Linear, Attention
 from openfold.utils.deepspeed import checkpoint_blocks
-from openfold.model.dropout import  (
+from openfold.model.dropout import (
     DropoutRowwise,
     DropoutColumnwise,
 )
@@ -35,35 +35,28 @@ from openfold.model.triangular_multiplicative_update import (
 )
 from openfold.utils.tensor_utils import (
     chunk_layer,
-    permute_final_dims, 
+    permute_final_dims,
     flatten_final_dims,
 )
 
 
 class TemplatePointwiseAttention(nn.Module):
     """
-        Implements Algorithm 17.
+    Implements Algorithm 17.
     """
-    def __init__(self, 
-        c_t, 
-        c_z, 
-        c_hidden, 
-        no_heads, 
-        chunk_size,
-        inf,
-        **kwargs
-    ):
+
+    def __init__(self, c_t, c_z, c_hidden, no_heads, chunk_size, inf, **kwargs):
         """
-            Args:
-                c_t:
-                    Template embedding channel dimension
-                c_z:
-                    Pair embedding channel dimension
-                c_hidden:
-                    Hidden channel dimension 
+        Args:
+            c_t:
+                Template embedding channel dimension
+            c_z:
+                Pair embedding channel dimension
+            c_hidden:
+                Hidden channel dimension
         """
         super(TemplatePointwiseAttention, self).__init__()
-        
+
         self.c_t = c_t
         self.c_z = c_z
         self.c_hidden = c_hidden
@@ -72,30 +65,33 @@ class TemplatePointwiseAttention(nn.Module):
         self.inf = inf
 
         self.mha = Attention(
-            self.c_z, self.c_t, self.c_t, 
-            self.c_hidden, self.no_heads,
+            self.c_z,
+            self.c_t,
+            self.c_t,
+            self.c_hidden,
+            self.no_heads,
             gating=False,
         )
 
     def forward(self, t, z, template_mask=None):
         """
-            Args:
-                t:
-                    [*, N_templ, N_res, N_res, C_t] template embedding
-                z:
-                    [*, N_res, N_res, C_t] pair embedding
-                template_mask:
-                    [*, N_templ] template mask
-            Returns:
-                [*, N_res, N_res, C_z] pair embedding update
+        Args:
+            t:
+                [*, N_templ, N_res, N_res, C_t] template embedding
+            z:
+                [*, N_res, N_res, C_t] pair embedding
+            template_mask:
+                [*, N_templ] template mask
+        Returns:
+            [*, N_res, N_res, C_z] pair embedding update
         """
-        if(template_mask is None):
+        if template_mask is None:
             # NOTE: This is not the "template_mask" from the supplement, but a
-            # [*, N_templ] mask from the code. I'm pretty sure it's always just 
+            # [*, N_templ] mask from the code. I'm pretty sure it's always just
             # 1, but not sure enough to remove it. It's nice to have, I guess.
             template_mask = t.new_ones(t.shape[:-3])
-        
-        bias = (self.inf * (template_mask[..., None, None, None, None, :] - 1))
+
+        bias = self.inf * (template_mask[..., None, None, None, None, :] - 1)
 
         # [*, N_res, N_res, 1, C_z]
         z = z.unsqueeze(-2)
@@ -110,36 +106,37 @@ class TemplatePointwiseAttention(nn.Module):
             "v_x": t,
             "biases": [bias],
         }
-        if(self.chunk_size is not None):
+        if self.chunk_size is not None:
             z = chunk_layer(
                 self.mha,
                 mha_inputs,
                 chunk_size=self.chunk_size,
-                no_batch_dims=len(z.shape[:-2])
+                no_batch_dims=len(z.shape[:-2]),
             )
         else:
             z = self.mha(**mha_inputs)
 
         # [*, N_res, N_res, C_z]
         z = z.squeeze(-2)
-         
+
         return z
 
 
 class TemplatePairStackBlock(nn.Module):
-    def __init__(self, 
-        c_t, 
+    def __init__(
+        self,
+        c_t,
         c_hidden_tri_att,
         c_hidden_tri_mul,
-        no_heads, 
-        pair_transition_n, 
+        no_heads,
+        pair_transition_n,
         dropout_rate,
         chunk_size,
         inf,
         **kwargs,
     ):
         super(TemplatePairStackBlock, self).__init__()
-        
+
         self.c_t = c_t
         self.c_hidden_tri_att = c_hidden_tri_att
         self.c_hidden_tri_mul = c_hidden_tri_mul
@@ -151,11 +148,11 @@ class TemplatePairStackBlock(nn.Module):
 
         self.dropout_row = DropoutRowwise(self.dropout_rate)
         self.dropout_col = DropoutColumnwise(self.dropout_rate)
-        
+
         self.tri_att_start = TriangleAttentionStartingNode(
-            self.c_t, 
-            self.c_hidden_tri_att, 
-            self.no_heads, 
+            self.c_t,
+            self.c_hidden_tri_att,
+            self.no_heads,
             chunk_size=chunk_size,
             inf=inf,
         )
@@ -188,21 +185,23 @@ class TemplatePairStackBlock(nn.Module):
         z = z + self.dropout_row(self.tri_mul_out(z, mask=mask))
         z = z + self.dropout_row(self.tri_mul_in(z, mask=mask))
         z = z + self.pair_transition(z, mask=mask if _mask_trans else None)
-        
+
         return z
 
 
 class TemplatePairStack(nn.Module):
     """
-        Implements Algorithm 16.
+    Implements Algorithm 16.
     """
-    def __init__(self, 
-        c_t, 
+
+    def __init__(
+        self,
+        c_t,
         c_hidden_tri_att,
         c_hidden_tri_mul,
-        no_blocks, 
-        no_heads, 
-        pair_transition_n, 
+        no_blocks,
+        no_heads,
+        pair_transition_n,
         dropout_rate,
         blocks_per_ckpt,
         chunk_size,
@@ -210,26 +209,26 @@ class TemplatePairStack(nn.Module):
         **kwargs,
     ):
         """
-            Args:
-                c_t:
-                    Template embedding channel dimension
-                c_hidden_tri_att:
-                    Per-head hidden dimension for triangular attention
-                c_hidden_tri_att:
-                    Hidden dimension for triangular multiplication
-                no_blocks:
-                    Number of blocks in the stack
-                pair_transition_n:
-                    Scale of pair transition (Alg. 15) hidden dimension
-                dropout_rate:
-                    Dropout rate used throughout the stack
-                blocks_per_ckpt:
-                    Number of blocks per activation checkpoint. None disables
-                    activation checkpointing
-                chunk_size:
-                    Size of subbatches. A higher value increases throughput at
-                    the cost of memory
-        """  
+        Args:
+            c_t:
+                Template embedding channel dimension
+            c_hidden_tri_att:
+                Per-head hidden dimension for triangular attention
+            c_hidden_tri_att:
+                Hidden dimension for triangular multiplication
+            no_blocks:
+                Number of blocks in the stack
+            pair_transition_n:
+                Scale of pair transition (Alg. 15) hidden dimension
+            dropout_rate:
+                Dropout rate used throughout the stack
+            blocks_per_ckpt:
+                Number of blocks per activation checkpoint. None disables
+                activation checkpointing
+            chunk_size:
+                Size of subbatches. A higher value increases throughput at
+                the cost of memory
+        """
         super(TemplatePairStack, self).__init__()
 
         self.blocks_per_ckpt = blocks_per_ckpt
@@ -250,28 +249,30 @@ class TemplatePairStack(nn.Module):
 
         self.layer_norm = nn.LayerNorm(c_t)
 
-    def forward(self, 
+    def forward(
+        self,
         t: torch.tensor,
         mask: torch.tensor,
         _mask_trans: bool = True,
     ):
         """
-            Args:
-                t:
-                    [*, N_res, N_res, C_t] template embedding
-                mask:
-                    [*, N_res, N_res] mask
-            Returns:
-                [*, N_res, N_res, C_t] template embedding update
+        Args:
+            t:
+                [*, N_res, N_res, C_t] template embedding
+            mask:
+                [*, N_res, N_res] mask
+        Returns:
+            [*, N_res, N_res, C_t] template embedding update
         """
-        t, = checkpoint_blocks(
+        (t,) = checkpoint_blocks(
             blocks=[
                 partial(
-                    b, 
-                    mask=mask, 
+                    b,
+                    mask=mask,
                     _mask_trans=_mask_trans,
-                ) for b in self.blocks
-            ], 
+                )
+                for b in self.blocks
+            ],
             args=(t,),
             blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )

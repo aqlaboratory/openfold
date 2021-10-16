@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,7 +25,7 @@ from openfold.utils.feats import (
     atom14_to_atom37,
 )
 from openfold.model.embedders import (
-    InputEmbedder, 
+    InputEmbedder,
     RecyclingEmbedder,
     TemplateAngleEmbedder,
     TemplatePairEmbedder,
@@ -36,7 +36,7 @@ from openfold.model.heads import AuxiliaryHeads
 import openfold.np.residue_constants as residue_constants
 from openfold.model.structure_module import StructureModule
 from openfold.model.template import (
-    TemplatePairStack, 
+    TemplatePairStack,
     TemplatePointwiseAttention,
 )
 from openfold.utils.loss import (
@@ -46,19 +46,20 @@ from openfold.utils.tensor_utils import (
     dict_multimap,
     tensor_tree_map,
 )
-        
+
 
 class AlphaFold(nn.Module):
-    """ 
-        Alphafold 2.
-
-        Implements Algorithm 2 (but with training).
     """
+    Alphafold 2.
+
+    Implements Algorithm 2 (but with training).
+    """
+
     def __init__(self, config):
         """
-            Args:
-                config:
-                    A dict-like config object (like the one in config.py)
+        Args:
+            config:
+                A dict-like config object (like the one in config.py)
         """
         super(AlphaFold, self).__init__()
 
@@ -107,7 +108,7 @@ class AlphaFold(nn.Module):
         # Embed the templates one at a time (with a poor man's vmap)
         template_embeds = []
         n_templ = batch["template_aatype"].shape[templ_dim]
-        for i in range(n_templ): 
+        for i in range(n_templ):
             idx = batch["template_aatype"].new_tensor(i)
             single_template_feats = tensor_tree_map(
                 lambda t: torch.index_select(t, templ_dim, idx),
@@ -115,11 +116,11 @@ class AlphaFold(nn.Module):
             )
 
             single_template_embeds = {}
-            if(self.config.template.embed_angles):
+            if self.config.template.embed_angles:
                 template_angle_feat = build_template_angle_feat(
                     single_template_feats,
                 )
- 
+
                 # [*, S_t, N, C_m]
                 a = self.template_angle_embedder(template_angle_feat)
 
@@ -130,19 +131,19 @@ class AlphaFold(nn.Module):
                 single_template_feats,
                 inf=self.config.template.inf,
                 eps=self.config.template.eps,
-                **self.config.template.distogram
+                **self.config.template.distogram,
             )
             t = self.template_pair_embedder(t)
             t = self.template_pair_stack(
-                t, 
-                pair_mask.unsqueeze(-3),
-                _mask_trans=self.config._mask_trans
+                t, pair_mask.unsqueeze(-3), _mask_trans=self.config._mask_trans
             )
 
-            single_template_embeds.update({
-                "pair": t,
-            })
-            
+            single_template_embeds.update(
+                {
+                    "pair": t,
+                }
+            )
+
             template_embeds.append(single_template_embeds)
 
         template_embeds = dict_multimap(
@@ -152,19 +153,19 @@ class AlphaFold(nn.Module):
 
         # [*, N, N, C_z]
         t = self.template_pointwise_att(
-            template_embeds["pair"], 
-            z, 
-            template_mask=batch["template_mask"]
+            template_embeds["pair"], z, template_mask=batch["template_mask"]
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
- 
+
         ret = {}
-        if(self.config.template.embed_angles):
+        if self.config.template.embed_angles:
             ret["template_angle_embedding"] = template_embeds["angle"]
-        
-        ret.update({
-            "template_pair_embedding": t,
-        })
+
+        ret.update(
+            {
+                "template_pair_embedding": t,
+            }
+        )
 
         return ret
 
@@ -189,18 +190,18 @@ class AlphaFold(nn.Module):
         # m: [*, S_c, N, C_m]
         # z: [*, N, N, C_z]
         m, z = self.input_embedder(
-            feats["target_feat"], 
-            feats["residue_index"], 
+            feats["target_feat"],
+            feats["residue_index"],
             feats["msa_feat"],
         )
 
         # Inject information from previous recycling iterations
-        if(self.config.num_recycle > 0):
+        if self.config.num_recycle > 0:
             # Initialize the recycling embeddings, if needs be
-            if(None in [m_1_prev, z_prev, x_prev]):
+            if None in [m_1_prev, z_prev, x_prev]:
                 # [*, N, C_m]
                 m_1_prev = m.new_zeros(
-                    (*batch_dims, n, self.config.input_embedder.c_m), 
+                    (*batch_dims, n, self.config.input_embedder.c_m),
                 )
 
                 # [*, N, N, C_z]
@@ -213,17 +214,13 @@ class AlphaFold(nn.Module):
                     (*batch_dims, n, residue_constants.atom_type_num, 3),
                 )
 
-            x_prev = pseudo_beta_fn(
-                feats["aatype"],
-                x_prev,
-                None
-            )
+            x_prev = pseudo_beta_fn(feats["aatype"], x_prev, None)
 
             # m_1_prev_emb: [*, N, C_m]
             # z_prev_emb: [*, N, N, C_z]
             m_1_prev_emb, z_prev_emb = self.recycling_embedder(
-                m_1_prev, 
-                z_prev, 
+                m_1_prev,
+                z_prev,
                 x_prev,
             )
 
@@ -237,9 +234,9 @@ class AlphaFold(nn.Module):
             del m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
-        if(self.config.template.enabled):
+        if self.config.template.enabled:
             template_feats = {
-                k:v for k,v in feats.items() if k.startswith("template_")
+                k: v for k, v in feats.items() if k.startswith("template_")
             }
             template_embeds = self.embed_templates(
                 template_feats,
@@ -251,28 +248,27 @@ class AlphaFold(nn.Module):
             # [*, N, N, C_z]
             z = z + template_embeds["template_pair_embedding"]
 
-            if(self.config.template.embed_angles):
+            if self.config.template.embed_angles:
                 # [*, S = S_c + S_t, N, C_m]
                 m = torch.cat(
-                    [m, template_embeds["template_angle_embedding"]], 
-                    dim=-3
+                    [m, template_embeds["template_angle_embedding"]], dim=-3
                 )
 
                 # [*, S, N]
-                torsion_angles_mask = feats["template_torsion_angles_mask"] 
+                torsion_angles_mask = feats["template_torsion_angles_mask"]
                 msa_mask = torch.cat(
                     [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
                 )
 
-        # Embed extra MSA features + merge with pairwise embeddings 
-        if(self.config.extra_msa.enabled):
+        # Embed extra MSA features + merge with pairwise embeddings
+        if self.config.extra_msa.enabled:
             # [*, S_e, N, C_e]
             a = self.extra_msa_embedder(build_extra_msa_feat(feats))
-        
+
             # [*, N, N, C_z]
             z = self.extra_msa_stack(
-                a, 
-                z, 
+                a,
+                z,
                 msa_mask=feats["extra_msa_mask"],
                 pair_mask=pair_mask,
                 _mask_trans=self.config._mask_trans,
@@ -283,11 +279,11 @@ class AlphaFold(nn.Module):
         # z: [*, N, N, C_z]
         # s: [*, N, C_s]
         m, z, s = self.evoformer(
-            m, 
-            z, 
-            msa_mask=msa_mask, 
+            m,
+            z,
+            msa_mask=msa_mask,
             pair_mask=pair_mask,
-            _mask_trans=self.config._mask_trans
+            _mask_trans=self.config._mask_trans,
         )
 
         outputs["msa"] = m[..., :n_seq, :, :]
@@ -296,15 +292,18 @@ class AlphaFold(nn.Module):
 
         # Predict 3D structure
         outputs["sm"] = self.structure_module(
-            s, z, feats["aatype"], mask=feats["seq_mask"],
-        )        
+            s,
+            z,
+            feats["aatype"],
+            mask=feats["seq_mask"],
+        )
         outputs["final_atom_positions"] = atom14_to_atom37(
             outputs["sm"]["positions"][-1], feats
         )
         outputs["final_atom_mask"] = feats["atom37_atom_exists"]
         outputs["final_affine_tensor"] = outputs["sm"]["frames"][-1]
 
-        # Save embeddings for use during the next recycling iteration 
+        # Save embeddings for use during the next recycling iteration
 
         # [*, N, C_m]
         m_1_prev = m[..., 0, :, :]
@@ -335,81 +334,84 @@ class AlphaFold(nn.Module):
 
     def forward(self, batch):
         """
-            Args:
-                batch:
-                    Dictionary of arguments outlined in Algorithm 2. Keys must
-                    include the official names of the features in the
-                    supplement subsection 1.2.9.
+        Args:
+            batch:
+                Dictionary of arguments outlined in Algorithm 2. Keys must
+                include the official names of the features in the
+                supplement subsection 1.2.9.
 
-                    The final dimension of each input must have length equal to
-                    the number of recycling iterations.
+                The final dimension of each input must have length equal to
+                the number of recycling iterations.
 
-                    Features (without the recycling dimension):
+                Features (without the recycling dimension):
 
-                        "aatype" ([*, N_res]): 
-                            Contrary to the supplement, this tensor of residue
-                            indices is not one-hot.
-                        "target_feat" ([*, N_res, C_tf])
-                            One-hot encoding of the target sequence. C_tf is
-                            config.model.input_embedder.tf_dim.
-                        "residue_index" ([*, N_res])
-                            Tensor whose final dimension consists of
-                            consecutive indices from 0 to N_res.
-                        "msa_feat" ([*, N_seq, N_res, C_msa])
-                            MSA features, constructed as in the supplement.
-                            C_msa is config.model.input_embedder.msa_dim.
-                        "seq_mask" ([*, N_res])
-                            1-D sequence mask
-                        "msa_mask" ([*, N_seq, N_res])
-                            MSA mask
-                        "pair_mask" ([*, N_res, N_res])
-                            2-D pair mask
-                        "extra_msa_mask" ([*, N_extra, N_res])
-                            Extra MSA mask
-                        "template_mask" ([*, N_templ])
-                            Template mask (on the level of templates, not 
-                            residues)
-                        "template_aatype" ([*, N_templ, N_res])
-                            Tensor of template residue indices (indices greater
-                            than 19 are clamped to 20 (Unknown))
-                        "template_all_atom_positions" 
-                            ([*, N_templ, N_res, 37, 3])
-                            Template atom coordinates in atom37 format
-                        "template_all_atom_mask" ([*, N_templ, N_res, 37])
-                            Template atom coordinate mask
-                        "template_pseudo_beta" ([*, N_templ, N_res, 3])
-                            Positions of template carbon "pseudo-beta" atoms
-                            (i.e. C_beta for all residues but glycine, for
-                            for which C_alpha is used instead)
-                        "template_pseudo_beta_mask" ([*, N_templ, N_res])
-                            Pseudo-beta mask 
+                    "aatype" ([*, N_res]):
+                        Contrary to the supplement, this tensor of residue
+                        indices is not one-hot.
+                    "target_feat" ([*, N_res, C_tf])
+                        One-hot encoding of the target sequence. C_tf is
+                        config.model.input_embedder.tf_dim.
+                    "residue_index" ([*, N_res])
+                        Tensor whose final dimension consists of
+                        consecutive indices from 0 to N_res.
+                    "msa_feat" ([*, N_seq, N_res, C_msa])
+                        MSA features, constructed as in the supplement.
+                        C_msa is config.model.input_embedder.msa_dim.
+                    "seq_mask" ([*, N_res])
+                        1-D sequence mask
+                    "msa_mask" ([*, N_seq, N_res])
+                        MSA mask
+                    "pair_mask" ([*, N_res, N_res])
+                        2-D pair mask
+                    "extra_msa_mask" ([*, N_extra, N_res])
+                        Extra MSA mask
+                    "template_mask" ([*, N_templ])
+                        Template mask (on the level of templates, not
+                        residues)
+                    "template_aatype" ([*, N_templ, N_res])
+                        Tensor of template residue indices (indices greater
+                        than 19 are clamped to 20 (Unknown))
+                    "template_all_atom_positions"
+                        ([*, N_templ, N_res, 37, 3])
+                        Template atom coordinates in atom37 format
+                    "template_all_atom_mask" ([*, N_templ, N_res, 37])
+                        Template atom coordinate mask
+                    "template_pseudo_beta" ([*, N_templ, N_res, 3])
+                        Positions of template carbon "pseudo-beta" atoms
+                        (i.e. C_beta for all residues but glycine, for
+                        for which C_alpha is used instead)
+                    "template_pseudo_beta_mask" ([*, N_templ, N_res])
+                        Pseudo-beta mask
         """
         # Initialize recycling embeddings
         m_1_prev, z_prev, x_prev = None, None, None
-        
+
         is_grad_enabled = torch.is_grad_enabled()
         self._disable_activation_checkpointing()
 
         # Main recycling loop
         for cycle_no in range(self.config.num_recycle + 1):
             # Select the features for the current recycling cycle
-            fetch_cur_batch = lambda t: t[..., cycle_no] 
+            fetch_cur_batch = lambda t: t[..., cycle_no]
             feats = tensor_tree_map(fetch_cur_batch, batch)
 
             # Enable grad iff we're training and it's the final recycling layer
-            is_final_iter = (cycle_no == self.config.num_recycle)
+            is_final_iter = cycle_no == self.config.num_recycle
             with torch.set_grad_enabled(is_grad_enabled and is_final_iter):
                 # Sidestep AMP bug discussed in pytorch issue #65766
-                if(is_final_iter):
+                if is_final_iter:
                     self._enable_activation_checkpointing()
-                    if(torch.is_autocast_enabled()):
+                    if torch.is_autocast_enabled():
                         torch.clear_autocast_cache()
                 # Run the next iteration of the model
                 outputs, m_1_prev, z_prev, x_prev = self.iteration(
-                    feats, m_1_prev, z_prev, x_prev,
+                    feats,
+                    m_1_prev,
+                    z_prev,
+                    x_prev,
                 )
 
-        # Run auxiliary heads 
+        # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))
 
         return outputs

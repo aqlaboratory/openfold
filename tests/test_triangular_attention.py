@@ -21,7 +21,7 @@ from openfold.utils.tensor_utils import tree_map
 import tests.compare_utils as compare_utils
 from tests.config import consts
 
-if(compare_utils.alphafold_is_installed()):
+if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
     import jax
     import haiku as hk
@@ -34,12 +34,7 @@ class TestTriangularAttention(unittest.TestCase):
         no_heads = 4
         starting = True
 
-        tan = TriangleAttention(
-            c_z,
-            c,
-            no_heads,
-            starting
-        )
+        tan = TriangleAttention(c_z, c, no_heads, starting)
 
         batch_size = consts.batch_size
         n_res = consts.n_res
@@ -53,22 +48,24 @@ class TestTriangularAttention(unittest.TestCase):
 
     def _tri_att_compare(self, starting=False):
         name = (
-            "triangle_attention_" + 
-            ("starting" if starting else "ending") +
-            "_node"
+            "triangle_attention_"
+            + ("starting" if starting else "ending")
+            + "_node"
         )
+
         def run_tri_att(pair_act, pair_mask):
             config = compare_utils.get_alphafold_config()
             c_e = config.model.embeddings_and_evoformer.evoformer
             tri_att = alphafold.model.modules.TriangleAttention(
-                c_e.triangle_attention_starting_node if starting else
-                c_e.triangle_attention_ending_node, 
+                c_e.triangle_attention_starting_node
+                if starting
+                else c_e.triangle_attention_ending_node,
                 config.model.global_config,
                 name=name,
             )
             act = tri_att(pair_act=pair_act, pair_mask=pair_mask)
             return act
-        
+
         f = hk.transform(run_tri_att)
 
         n_res = consts.n_res
@@ -78,24 +75,23 @@ class TestTriangularAttention(unittest.TestCase):
 
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
-            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/" +
-            name 
+            "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
+            + name
         )
         params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
 
-        out_gt = f.apply(
-            params, None, pair_act, pair_mask
-        ).block_until_ready()
+        out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
 
         model = compare_utils.get_global_pretrained_openfold()
         module = (
-            model.evoformer.blocks[0].tri_att_start if starting else
-            model.evoformer.blocks[0].tri_att_end
+            model.evoformer.blocks[0].tri_att_start
+            if starting
+            else model.evoformer.blocks[0].tri_att_end
         )
         out_repro = module(
-            torch.as_tensor(pair_act, dtype=torch.float32).cuda(), 
-            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(), 
+            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
         ).cpu()
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
@@ -110,4 +106,4 @@ class TestTriangularAttention(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()    
+    unittest.main()

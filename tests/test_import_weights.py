@@ -24,13 +24,14 @@ from openfold.utils.import_weights import import_jax_weights_
 class TestImportWeights(unittest.TestCase):
     def test_import_jax_weights_(self):
         npz_path = "openfold/resources/params/params_model_1_ptm.npz"
-        
+
         c = model_config("model_1_ptm")
         c.globals.blocks_per_ckpt = None
         model = AlphaFold(c.model)
 
         import_jax_weights_(
-            model, npz_path,
+            model,
+            npz_path,
         )
 
         data = np.load(npz_path)
@@ -38,23 +39,34 @@ class TestImportWeights(unittest.TestCase):
 
         test_pairs = [
             # Normal linear weight
-            (torch.as_tensor(
-                 data[prefix + "structure_module/initial_projection//weights"]
-             ).transpose(-1, -2),
-             model.structure_module.linear_in.weight),
+            (
+                torch.as_tensor(
+                    data[
+                        prefix + "structure_module/initial_projection//weights"
+                    ]
+                ).transpose(-1, -2),
+                model.structure_module.linear_in.weight,
+            ),
             # Normal layer norm param
-            (torch.as_tensor(
-                data[prefix + "evoformer/prev_pair_norm//offset"],
-             ),
-             model.recycling_embedder.layer_norm_z.bias),
+            (
+                torch.as_tensor(
+                    data[prefix + "evoformer/prev_pair_norm//offset"],
+                ),
+                model.recycling_embedder.layer_norm_z.bias,
+            ),
             # From a stack
-            (torch.as_tensor(data[
-                prefix + (
-                    "evoformer/evoformer_iteration/outer_product_mean/"
-                    "left_projection//weights"
-                )
-             ][1].transpose(-1, -2)),
-             model.evoformer.blocks[1].outer_product_mean.linear_1.weight,),
+            (
+                torch.as_tensor(
+                    data[
+                        prefix
+                        + (
+                            "evoformer/evoformer_iteration/outer_product_mean/"
+                            "left_projection//weights"
+                        )
+                    ][1].transpose(-1, -2)
+                ),
+                model.evoformer.blocks[1].outer_product_mean.linear_1.weight,
+            ),
         ]
 
         for w_alpha, w_repro in test_pairs:

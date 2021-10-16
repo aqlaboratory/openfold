@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,21 +25,21 @@ from typing import Optional
 
 @contextlib.contextmanager
 def tmpdir_manager(base_dir: Optional[str] = None):
-  """Context manager that deletes a temporary directory on exit."""
-  tmpdir = tempfile.mkdtemp(dir=base_dir)
-  try:
-    yield tmpdir
-  finally:
-    shutil.rmtree(tmpdir, ignore_errors=True)
+    """Context manager that deletes a temporary directory on exit."""
+    tmpdir = tempfile.mkdtemp(dir=base_dir)
+    try:
+        yield tmpdir
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 @contextlib.contextmanager
 def timing(msg: str):
-  logging.info('Started %s', msg)
-  tic = time.time()
-  yield
-  toc = time.time()
-  logging.info('Finished %s in %.3f seconds', msg, toc - tic)
+    logging.info("Started %s", msg)
+    tic = time.time()
+    yield
+    toc = time.time()
+    logging.info("Finished %s in %.3f seconds", msg, toc - tic)
 
 
 def to_date(s: str):

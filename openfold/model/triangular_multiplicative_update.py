@@ -1,6 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,16 +23,17 @@ from openfold.utils.tensor_utils import permute_final_dims
 
 class TriangleMultiplicativeUpdate(nn.Module):
     """
-        Implements Algorithms 11 and 12.
+    Implements Algorithms 11 and 12.
     """
+
     def __init__(self, c_z, c_hidden, _outgoing=True):
         """
-            Args:
-                c_z:
-                    Input channel dimension
-                c:
-                    Hidden channel dimension
-        """ 
+        Args:
+            c_z:
+                Input channel dimension
+            c:
+                Hidden channel dimension
+        """
         super(TriangleMultiplicativeUpdate, self).__init__()
         self.c_z = c_z
         self.c_hidden = c_hidden
@@ -53,22 +54,24 @@ class TriangleMultiplicativeUpdate(nn.Module):
         cp = self._outgoing_matmul if self._outgoing else self._incoming_matmul
         self.combine_projections = cp
 
-    def _outgoing_matmul(self, 
-        a: torch.Tensor,    # [*, N_i, N_k, C] 
-        b: torch.Tensor,    # [*, N_j, N_k, C]
+    def _outgoing_matmul(
+        self,
+        a: torch.Tensor,  # [*, N_i, N_k, C]
+        b: torch.Tensor,  # [*, N_j, N_k, C]
     ):
         # [*, C, N_i, N_j]
         p = torch.matmul(
             permute_final_dims(a, (2, 0, 1)),
             permute_final_dims(b, (2, 1, 0)),
         )
-        
+
         # [*, N_i, N_j, C]
         return permute_final_dims(p, (1, 2, 0))
 
-    def _incoming_matmul(self, 
-        a: torch.Tensor,    # [*, N_k, N_i, C] 
-        b: torch.Tensor,    # [*, N_k, N_j, C]
+    def _incoming_matmul(
+        self,
+        a: torch.Tensor,  # [*, N_k, N_i, C]
+        b: torch.Tensor,  # [*, N_k, N_j, C]
     ):
 
         # [*, C, N_i, N_j]
@@ -76,21 +79,21 @@ class TriangleMultiplicativeUpdate(nn.Module):
             permute_final_dims(a, (2, 1, 0)),
             permute_final_dims(b, (2, 0, 1)),
         )
-       
+
         # [*, N_i, N_j, C]
         return permute_final_dims(p, (1, 2, 0))
-    
+
     def forward(self, z, mask=None):
         """
-            Args:
-                x:
-                    [*, N_res, N_res, C_z] input tensor
-                mask:
-                    [*, N_res, N_res] input mask
-            Returns:
-                [*, N_res, N_res, C_z] output tensor
+        Args:
+            x:
+                [*, N_res, N_res, C_z] input tensor
+            mask:
+                [*, N_res, N_res] input mask
+        Returns:
+            [*, N_res, N_res, C_z] output tensor
         """
-        if(mask is None):
+        if mask is None:
             mask = z.new_ones(z.shape[:-1])
 
         mask = mask.unsqueeze(-1)
@@ -111,17 +114,21 @@ class TriangleMultiplicativeUpdate(nn.Module):
 
 class TriangleMultiplicationOutgoing(TriangleMultiplicativeUpdate):
     """
-        Implements Algorithm 11.
+    Implements Algorithm 11.
     """
+
     __init__ = partialmethod(
-        TriangleMultiplicativeUpdate.__init__, _outgoing=True,
+        TriangleMultiplicativeUpdate.__init__,
+        _outgoing=True,
     )
-   
+
 
 class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
     """
-        Implements Algorithm 12.
+    Implements Algorithm 12.
     """
+
     __init__ = partialmethod(
-        TriangleMultiplicativeUpdate.__init__, _outgoing=False,
+        TriangleMultiplicativeUpdate.__init__,
+        _outgoing=False,
     )

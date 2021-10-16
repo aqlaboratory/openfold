@@ -1,5 +1,5 @@
 # Copyright 2021 AlQuraishi Laboratory
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -21,36 +21,37 @@ from typing import Union, List
 
 class Dropout(nn.Module):
     """
-        Implementation of dropout with the ability to share the dropout mask
-        along a particular dimension.
+    Implementation of dropout with the ability to share the dropout mask
+    along a particular dimension.
 
-        If not in training mode, this module computes the identity function.
+    If not in training mode, this module computes the identity function.
     """
+
     def __init__(self, r: float, batch_dim: Union[int, List[int]]):
         """
-            Args:
-                r:
-                    Dropout rate
-                batch_dim:
-                    Dimension(s) along which the dropout mask is shared
-        """ 
+        Args:
+            r:
+                Dropout rate
+            batch_dim:
+                Dimension(s) along which the dropout mask is shared
+        """
         super(Dropout, self).__init__()
-        
+
         self.r = r
-        if(type(batch_dim) == int):
+        if type(batch_dim) == int:
             batch_dim = [batch_dim]
         self.batch_dim = batch_dim
         self.dropout = nn.Dropout(self.r)
-        
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-            Args:
-                x:
-                    Tensor to which dropout is applied. Can have any shape
-                    compatible with self.batch_dim
+        Args:
+            x:
+                Tensor to which dropout is applied. Can have any shape
+                compatible with self.batch_dim
         """
         shape = list(x.shape)
-        if(self.batch_dim is not None):
+        if self.batch_dim is not None:
             for bd in self.batch_dim:
                 shape[bd] = 1
         mask = x.new_ones(shape)
@@ -60,16 +61,18 @@ class Dropout(nn.Module):
 
 
 class DropoutRowwise(Dropout):
-    """ 
-        Convenience class for rowwise dropout as described in subsection 
-        1.11.6.
     """
+    Convenience class for rowwise dropout as described in subsection
+    1.11.6.
+    """
+
     __init__ = partialmethod(Dropout.__init__, batch_dim=-3)
 
 
 class DropoutColumnwise(Dropout):
-    """ 
-        Convenience class for columnwise dropout as described in subsection 
-        1.11.6.  
     """
+    Convenience class for columnwise dropout as described in subsection
+    1.11.6.
+    """
+
     __init__ = partialmethod(Dropout.__init__, batch_dim=-2)

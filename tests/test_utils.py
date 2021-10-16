@@ -20,17 +20,21 @@ from openfold.utils.affine_utils import T, quat_to_rot
 from openfold.utils.tensor_utils import chunk_layer
 
 
-X_90_ROT = torch.tensor([
-    [1, 0, 0],
-    [0, 0,-1],
-    [0, 1, 0],
-])
+X_90_ROT = torch.tensor(
+    [
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, 1, 0],
+    ]
+)
 
-X_NEG_90_ROT = torch.tensor([
-    [1, 0, 0],
-    [0, 0, 1],
-    [0,-1, 0],
-])
+X_NEG_90_ROT = torch.tensor(
+    [
+        [1, 0, 0],
+        [0, 0, 1],
+        [0, -1, 0],
+    ]
+)
 
 
 class TestAffineT(unittest.TestCase):
@@ -53,7 +57,7 @@ class TestAffineT(unittest.TestCase):
         batch_size = 2
         transf = [
             [1, 0, 0, 1],
-            [0, 0,-1, 2],
+            [0, 0, -1, 2],
             [0, 1, 0, 3],
             [0, 0, 0, 1],
         ]
@@ -62,10 +66,7 @@ class TestAffineT(unittest.TestCase):
         true_rot = transf[:3, :3]
         true_trans = transf[:3, 3]
 
-        transf = torch.stack(
-            [transf for _ in range(batch_size)],
-            dim=0
-        )
+        transf = torch.stack([transf for _ in range(batch_size)], dim=0)
 
         t = T.from_4x4(transf)
 
@@ -78,8 +79,7 @@ class TestAffineT(unittest.TestCase):
         batch_size = 2
         n = 5
         transf = T(
-            torch.rand((batch_size, n, 3, 3)),
-            torch.rand((batch_size, n, 3))
+            torch.rand((batch_size, n, 3, 3)), torch.rand((batch_size, n, 3))
         )
 
         self.assertTrue(transf.shape == (batch_size, n))
@@ -88,12 +88,11 @@ class TestAffineT(unittest.TestCase):
         batch_size = 2
         n = 5
         transf = T(
-            torch.rand((batch_size, n, 3, 3)),
-            torch.rand((batch_size, n, 3))
+            torch.rand((batch_size, n, 3, 3)), torch.rand((batch_size, n, 3))
         )
 
         transf_concat = T.concat([transf, transf], dim=0)
-        
+
         self.assertTrue(transf_concat.rots.shape == (batch_size * 2, n, 3, 3))
 
         transf_concat = T.concat([transf, transf], dim=1)
@@ -124,7 +123,7 @@ class TestAffineT(unittest.TestCase):
 
         x = torch.arange(30)
         x = torch.stack([x, x], dim=0)
-        x = x.view(2, -1, 3) # [2, 10, 3]
+        x = x.view(2, -1, 3)  # [2, 10, 3]
 
         pts = t[..., None].apply(x)
 
@@ -165,4 +164,4 @@ class TestAffineT(unittest.TestCase):
         self.assertTrue(torch.all(chunked["out"] == unchunked["out"]))
         self.assertTrue(
             torch.all(chunked["inner"]["out"] == unchunked["inner"]["out"])
-        ) 
+        )
