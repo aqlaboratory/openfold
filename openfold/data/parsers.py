@@ -1,3 +1,18 @@
+# Copyright 2021 AlQuraishi Laboratory
+# Copyright 2021 DeepMind Technologies Limited
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Functions for parsing various file formats."""
 import collections
 import dataclasses
@@ -5,8 +20,8 @@ import re
 import string
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
-DeletionMatrix = Sequence[Sequence[int]]
 
+DeletionMatrix = Sequence[Sequence[int]]
 
 @dataclasses.dataclass(frozen=True)
 class TemplateHit:

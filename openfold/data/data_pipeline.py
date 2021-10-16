@@ -1,12 +1,27 @@
+# Copyright 2021 AlQuraishi Laboratory
+# Copyright 2021 DeepMind Technologies Limited
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import datetime
-
-import numpy as np
 from typing import Mapping, Optional, Sequence, Any
 
-from openfold.features import templates, parsers, mmcif_parsing
-from openfold.features.np import jackhmmer, hhblits, hhsearch
-from openfold.features.np.utils import to_date
+import numpy as np
+
+from openfold.data import templates, parsers, mmcif_parsing
+from openfold.data.tools import jackhmmer, hhblits, hhsearch
+from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants
 
 
@@ -286,7 +301,7 @@ class DataPipeline:
                 alignments['mgnify_deletion_matrix']
             )
         )
-        return {**sequence_features, **msa_features, **templates_result.features}
+        return {**sequence_features, **msa_features, **templates_result.data}
 
     def process_mmcif(self,
         mmcif: mmcif_parsing.MmcifObject, # parsing is expensive, so no path
@@ -333,4 +348,4 @@ class DataPipeline:
             )
         )
 
-        return {**mmcif_feats, **templates_result.features, **msa_features}
+        return {**mmcif_feats, **templates_result.data, **msa_features}

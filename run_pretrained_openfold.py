@@ -16,6 +16,7 @@
 import argparse
 from datetime import date
 import logging
+import numpy as np
 import os
 
 # A hack to get OpenMM and PyTorch to peacefully coexist
@@ -24,15 +25,11 @@ os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
 import pickle
 import random
 import sys
-
-from openfold.features import templates, feature_pipeline, data_pipeline
-
 import time
-
-import numpy as np
 import torch
 
 from openfold.config import model_config
+from openfold.data import templates, feature_pipeline, data_pipeline
 from openfold.model.model import AlphaFold
 from openfold.np import residue_constants, protein
 import openfold.np.relax.relax as relax
