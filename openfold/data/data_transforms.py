@@ -21,7 +21,7 @@ import numpy as np
 import torch
 
 from openfold.config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
-from openfold.tools import residue_constants as rc
+from openfold.np import residue_constants as rc
 from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
     tree_map,
@@ -1104,7 +1104,7 @@ def random_crop_to_size(
     else:
         num_templates = protein["aatype"].new_zeros((1,))
 
-    num_res_crop_size = min(seq_length, crop_size)
+    num_res_crop_size = min(seq_length.item(), crop_size)
 
     # We want each ensemble to be cropped the same way
     g = torch.Generator(device=protein["seq_length"].device)
@@ -1112,18 +1112,16 @@ def random_crop_to_size(
         g.manual_seed(seed)
 
     def _randint(lower, upper):
-        return int(
-            torch.randint(
+        return torch.randint(
                 lower,
-                upper,
+                upper + 1,
                 (1,),
                 device=protein["seq_length"].device,
                 generator=g,
-            )[0]
-        )
+        )[0].item()
 
     if subsample_templates:
-        templates_crop_start = _randint(0, num_templates + 1)
+        templates_crop_start = _randint(0, num_templates)
         templates_select_indices = torch.randperm(
             num_templates, device=protein["seq_length"].device, generator=g
         )

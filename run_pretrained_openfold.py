@@ -87,7 +87,7 @@ def main(args):
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
     config.data.predict.num_ensemble = num_ensemble
-    feature_processor = feature_pipeline.FeaturePipeline(config)
+    feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
     alignment_dir = os.path.join(output_dir_base, "alignments")

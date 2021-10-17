@@ -183,6 +183,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 512,
+                "max_template_hits": 4,
                 "max_templates": 4,
                 "num_ensemble": 1,
                 "crop": False,
@@ -194,6 +195,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 512,
+                "max_template_hits": 4,
                 "max_templates": 4,
                 "num_ensemble": 1,
                 "crop": False,
@@ -205,6 +207,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": True,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 512,
+                "max_template_hits": 20,
                 "max_templates": 4,
                 "num_ensemble": 1,
                 "crop": True,

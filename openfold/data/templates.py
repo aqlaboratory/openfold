@@ -130,7 +130,7 @@ def _is_after_cutoff(
     else:
         # Since this is just a quick prefilter to reduce the number of mmCIF files
         # we need to parse, we don't have to worry about returning True here.
-        logging.warning(
+        logging.info(
             "Template structure not in release dates dict: %s", pdb_id
         )
         return False

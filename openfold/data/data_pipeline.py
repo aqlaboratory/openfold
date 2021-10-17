@@ -22,7 +22,7 @@ import numpy as np
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
 from openfold.data.tools.utils import to_date
-from openfold.np import residue_constants
+from openfold.np import residue_constants, protein
 
 
 FeatureDict = Mapping[str, np.ndarray]
@@ -81,7 +81,41 @@ def make_mmcif_features(
         [mmcif_object.header["release_date"].encode("utf-8")], dtype=np.object_
     )
 
+    mmcif_feats["is_distillation"] = np.array(0., dtype=np.float32)
+
     return mmcif_feats
+
+
+def make_pdb_features(
+        protein_object: protein.Protein, 
+        description: str, 
+        confidence_threshold: float = 0.5,
+) -> FeatureDict:
+    pdb_feats = {}
+
+    pdb_feats.update(
+        make_sequence_features(
+            sequence=protein_object.aatype,
+            description=description,
+            num_res=len(protein_object.aatype),
+        )
+    )
+
+    all_atom_positions = protein_object.atom_positions
+    all_atom_mask = protein_object.atom_mask
+
+    high_confidence = protein.b_factors > confidence_threshold
+    high_confidence = np.any(high_confidence, axis=-1)
+    for i, confident in enumerate(high_confidence):
+        if(not confident):
+            all_atom_mask[i] = 0
+
+    pdb_feats["all_atom_positions"] = all_atom_positions
+    pdb_feats["all_atom_mask"] = all_atom_mask
+
+    pdb_feats["is_distillation"] = np.array(1.).astype(np.float32)
+
+    return pdb_feats
 
 
 def make_msa_features(
@@ -311,7 +345,11 @@ class DataPipeline:
                 alignments["mgnify_deletion_matrix"],
             ),
         )
-        return {**sequence_features, **msa_features, **templates_result.data}
+        return {
+            **sequence_features,
+            **msa_features, 
+            **templates_result.features
+        }
 
     def process_mmcif(
         self,
@@ -320,10 +358,10 @@ class DataPipeline:
         chain_id: Optional[str] = None,
     ) -> FeatureDict:
         """
-        Assembles features for a specific chain in an mmCIF object.
+            Assembles features for a specific chain in an mmCIF object.
 
-        If chain_id is None, it is assumed that there is only one chain
-        in the object. Otherwise, a ValueError is thrown.
+            If chain_id is None, it is assumed that there is only one chain
+            in the object. Otherwise, a ValueError is thrown.
         """
         if chain_id is None:
             chains = mmcif.structure.get_chains()
@@ -357,4 +395,47 @@ class DataPipeline:
             ),
         )
 
-        return {**mmcif_feats, **templates_result.data, **msa_features}
+        return {**mmcif_feats, **templates_result.features, **msa_features}
+
+    def process_pdb(
+        self,
+        pdb_path: str,
+        alignment_dir: str,
+    ) -> FeatureDict:
+        """
+            Assembles features for a protein in a PDB file.
+        """
+        with open(pdb_path, 'r') as f:
+            pdb_str = pdb_path
+
+        protein_object = protein.from_pdb_string(pdb_str)
+
+        pdb_feats = make_pdb_features(protein_object)
+
+
+        mmcif_feats = make_mmcif_features(mmcif, chain_id)
+
+        alignments = self._parse_alignment_output(alignment_dir)
+
+        input_sequence = mmcif.chain_to_seqres[chain_id]
+        templates_result = self.template_featurizer.get_templates(
+            query_sequence=input_sequence,
+            query_pdb_code=None,
+            query_release_date=to_date(mmcif.header["release_date"]),
+            hits=alignments["hhsearch_hits"],
+        )
+
+        msa_features = make_msa_features(
+            msas=(
+                alignments["uniref90_msa"],
+                alignments["bfd_msa"],
+                alignments["mgnify_msa"],
+            ),
+            deletion_matrices=(
+                alignments["uniref90_deletion_matrix"],
+                alignments["bfd_deletion_matrix"],
+                alignments["mgnify_deletion_matrix"],
+            ),
+        )
+
+        return {**mmcif_feats, **templates_result.features, **msa_features}
