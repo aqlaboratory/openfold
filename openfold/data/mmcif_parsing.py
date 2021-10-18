@@ -345,7 +345,7 @@ def _get_header(parsed_info: MmCIFDict) -> PdbHeader:
                 raw_resolution = parsed_info[res_key][0]
                 header["resolution"] = float(raw_resolution)
             except ValueError:
-                logging.warning(
+                logging.info(
                     "Invalid resolution format: %s", parsed_info[res_key]
                 )
 
@@ -475,27 +475,3 @@ def get_atom_coords(
         all_atom_mask[res_index] = mask
 
     return all_atom_positions, all_atom_mask
-
-
-def generate_mmcif_cache(mmcif_dir: str, out_path: str):
-    data = {}
-    for f in os.listdir(mmcif_dir):
-        if f.endswith(".cif"):
-            with open(os.path.join(mmcif_dir, f), "r") as fp:
-                mmcif_string = fp.read()
-            file_id = os.path.splitext(f)[0]
-            mmcif = parse(file_id=file_id, mmcif_string=mmcif_string)
-            if mmcif.mmcif_object is None:
-                logging.warning(f"Could not parse {f}. Skipping...")
-                continue
-            else:
-                mmcif = mmcif.mmcif_object
-
-            local_data = {}
-            local_data["release_date"] = mmcif.header["release_date"]
-            local_data["no_chains"] = len(list(mmcif.structure.get_chains()))
-
-            data[file_id] = local_data
-
-    with open(out_path, "w") as fp:
-        fp.write(json.dumps(data))

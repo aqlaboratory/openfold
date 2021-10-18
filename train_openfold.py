@@ -43,15 +43,24 @@ class OpenFoldWrapper(pl.LightningModule):
         # Compute loss
         loss = self.loss(outputs, batch)
 
-        return {"loss": loss, "pred": outputs["sm"]["positions"][-1].detach()}
+        return {"loss": loss}
 
-    def training_epoch_end(self, outs):
-        out = outs[-1]["pred"].cpu()
-        with open("prediction/preds_" + str(time.strftime("%H:%M:%S")) + ".pickle", "wb") as f:
-            pickle.dump(out, f, protocol=pickle.HIGHEST_PROTOCOL)
+    def validation_step(self, batch, batch_idx):
+        # At the start of validation, load the EMA weights
+        if(self.cached_weights is None):
+            self.cached_weights = model.state_dict()
+            self.model.load_state_dict(self.ema.state_dict()["params"])
+        
+        # Calculate validation loss
+        outputs = self(batch)
+        batch = tensor_tree_map(lambda t: t[..., -1], batch)
+        loss = self.loss(outputs, batch)
+        return {"val_loss": loss}
 
-    #def validation_step(self, batch, batch_idx):
-    #    outputs = self(batch)
+    def validation_epoch_end(self, _):
+        # Restore the model weights to normal
+        self.model.load_state_dict(self.cached_weights)
+        self.cached_weights = None
 
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
@@ -140,7 +149,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--template_release_dates_cache_path", type=str, default=None,
-        help="Output of templates.generate_mmcif_cache"
+        help="""Output of scripts/generate_mmcif_cache.py run on template mmCIF
+                files."""
     )
     parser.add_argument(
         "--use_small_bfd", type=bool, default=False,

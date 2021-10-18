@@ -80,7 +80,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if(template_release_dates_cache_path is None):
             logging.warning(
                 "Template release dates cache does not exist. Remember to run "
-                "scripts/generate_mmcif_caches.py before running OpenFold"
+                "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
         template_featurizer = templates.TemplateHitFeaturizer(
@@ -358,6 +358,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     max_template_hits=self.config.eval.max_template_hits,
                     mode="eval",
                 )
+            else:
+                self.val_dataset = None
         else:           
             self.predict_dataset = dataset_gen(
                 data_dir=self.predict_data_dir,
@@ -387,12 +389,15 @@ class OpenFoldDataModule(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.val_dataset,
-            batch_size=self.config.data_module.data_loaders.batch_size,
-            num_workers=self.config.data_module.data_loaders.num_workers,
-            collate_fn=self._gen_batch_collator("eval")
-        )
+        if(self.val_dataset is not None):
+            return torch.utils.data.DataLoader(
+                self.val_dataset,
+                batch_size=self.config.data_module.data_loaders.batch_size,
+                num_workers=self.config.data_module.data_loaders.num_workers,
+                collate_fn=self._gen_batch_collator("eval")
+            )
+
+        return None
 
     def predict_dataloader(self):
         return torch.utils.data.DataLoader(
