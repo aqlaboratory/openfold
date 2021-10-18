@@ -165,7 +165,7 @@ def generate_release_dates_cache(mmcif_dir: str, out_path: str):
                 file_id=file_id, mmcif_string=mmcif_string
             )
             if mmcif.mmcif_object is None:
-                logging.warning(f"Failed to parse {f}. Skipping...")
+                logging.info(f"Failed to parse {f}. Skipping...")
                 continue
 
             mmcif = mmcif.mmcif_object
@@ -822,7 +822,7 @@ def _process_single_hit(
             if strict_error_check:
                 return SingleHitResult(features=None, error=error, warning=None)
             else:
-                logging.warning(error)
+                logging.info(error)
                 return SingleHitResult(features=None, error=None, warning=None)
 
     try:

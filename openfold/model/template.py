@@ -45,7 +45,7 @@ class TemplatePointwiseAttention(nn.Module):
     Implements Algorithm 17.
     """
 
-    def __init__(self, c_t, c_z, c_hidden, no_heads, chunk_size, inf, **kwargs):
+    def __init__(self, c_t, c_z, c_hidden, no_heads, inf, **kwargs):
         """
         Args:
             c_t:
@@ -61,7 +61,6 @@ class TemplatePointwiseAttention(nn.Module):
         self.c_z = c_z
         self.c_hidden = c_hidden
         self.no_heads = no_heads
-        self.chunk_size = chunk_size
         self.inf = inf
 
         self.mha = Attention(
@@ -73,7 +72,7 @@ class TemplatePointwiseAttention(nn.Module):
             gating=False,
         )
 
-    def forward(self, t, z, template_mask=None):
+    def forward(self, t, z, chunk_size, template_mask=None):
         """
         Args:
             t:
@@ -106,11 +105,11 @@ class TemplatePointwiseAttention(nn.Module):
             "v_x": t,
             "biases": [bias],
         }
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             z = chunk_layer(
                 self.mha,
                 mha_inputs,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(z.shape[:-2]),
             )
         else:
@@ -131,7 +130,6 @@ class TemplatePairStackBlock(nn.Module):
         no_heads,
         pair_transition_n,
         dropout_rate,
-        chunk_size,
         inf,
         **kwargs,
     ):
@@ -143,7 +141,6 @@ class TemplatePairStackBlock(nn.Module):
         self.no_heads = no_heads
         self.pair_transition_n = pair_transition_n
         self.dropout_rate = dropout_rate
-        self.chunk_size = chunk_size
         self.inf = inf
 
         self.dropout_row = DropoutRowwise(self.dropout_rate)
@@ -153,14 +150,12 @@ class TemplatePairStackBlock(nn.Module):
             self.c_t,
             self.c_hidden_tri_att,
             self.no_heads,
-            chunk_size=chunk_size,
             inf=inf,
         )
         self.tri_att_end = TriangleAttentionEndingNode(
             self.c_t,
             self.c_hidden_tri_att,
             self.no_heads,
-            chunk_size=chunk_size,
             inf=inf,
         )
 
@@ -176,15 +171,20 @@ class TemplatePairStackBlock(nn.Module):
         self.pair_transition = PairTransition(
             self.c_t,
             self.pair_transition_n,
-            chunk_size=chunk_size,
         )
 
-    def forward(self, z, mask, _mask_trans=True):
-        z = z + self.dropout_row(self.tri_att_start(z, mask=mask))
-        z = z + self.dropout_col(self.tri_att_end(z, mask=mask))
+    def forward(self, z, mask, chunk_size, _mask_trans=True):
+        z = z + self.dropout_row(
+            self.tri_att_start(z, chunk_size=chunk_size, mask=mask)
+        )
+        z = z + self.dropout_col(
+            self.tri_att_end(z, chunk_size=chunk_size, mask=mask)
+        )
         z = z + self.dropout_row(self.tri_mul_out(z, mask=mask))
         z = z + self.dropout_row(self.tri_mul_in(z, mask=mask))
-        z = z + self.pair_transition(z, mask=mask if _mask_trans else None)
+        z = z + self.pair_transition(
+            z, chunk_size=chunk_size, mask=mask if _mask_trans else None
+        )
 
         return z
 
@@ -204,7 +204,6 @@ class TemplatePairStack(nn.Module):
         pair_transition_n,
         dropout_rate,
         blocks_per_ckpt,
-        chunk_size,
         inf=1e9,
         **kwargs,
     ):
@@ -225,9 +224,6 @@ class TemplatePairStack(nn.Module):
             blocks_per_ckpt:
                 Number of blocks per activation checkpoint. None disables
                 activation checkpointing
-            chunk_size:
-                Size of subbatches. A higher value increases throughput at
-                the cost of memory
         """
         super(TemplatePairStack, self).__init__()
 
@@ -242,7 +238,6 @@ class TemplatePairStack(nn.Module):
                 no_heads=no_heads,
                 pair_transition_n=pair_transition_n,
                 dropout_rate=dropout_rate,
-                chunk_size=chunk_size,
                 inf=inf,
             )
             self.blocks.append(block)
@@ -253,6 +248,7 @@ class TemplatePairStack(nn.Module):
         self,
         t: torch.tensor,
         mask: torch.tensor,
+        chunk_size: int,
         _mask_trans: bool = True,
     ):
         """
@@ -269,6 +265,7 @@ class TemplatePairStack(nn.Module):
                 partial(
                     b,
                     mask=mask,
+                    chunk_size=chunk_size,
                     _mask_trans=_mask_trans,
                 )
                 for b in self.blocks

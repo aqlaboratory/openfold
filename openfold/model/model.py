@@ -63,6 +63,8 @@ class AlphaFold(nn.Module):
         """
         super(AlphaFold, self).__init__()
 
+        self.globals = config.globals
+        config = config.model
         template_config = config.template
         extra_msa_config = config.extra_msa
 
@@ -104,7 +106,7 @@ class AlphaFold(nn.Module):
 
         self.config = config
 
-    def embed_templates(self, batch, z, pair_mask, templ_dim):
+    def embed_templates(self, batch, z, pair_mask, templ_dim, chunk_size):
         # Embed the templates one at a time (with a poor man's vmap)
         template_embeds = []
         n_templ = batch["template_aatype"].shape[templ_dim]
@@ -135,14 +137,13 @@ class AlphaFold(nn.Module):
             )
             t = self.template_pair_embedder(t)
             t = self.template_pair_stack(
-                t, pair_mask.unsqueeze(-3), _mask_trans=self.config._mask_trans
+                t, 
+                pair_mask.unsqueeze(-3), 
+                chunk_size=chunk_size,
+                _mask_trans=self.config._mask_trans,
             )
 
-            single_template_embeds.update(
-                {
-                    "pair": t,
-                }
-            )
+            single_template_embeds.update({"pair": t})
 
             template_embeds.append(single_template_embeds)
 
@@ -153,7 +154,10 @@ class AlphaFold(nn.Module):
 
         # [*, N, N, C_z]
         t = self.template_pointwise_att(
-            template_embeds["pair"], z, template_mask=batch["template_mask"]
+            template_embeds["pair"], 
+            z, 
+            template_mask=batch["template_mask"],
+            chunk_size=chunk_size,
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
 
@@ -161,15 +165,17 @@ class AlphaFold(nn.Module):
         if self.config.template.embed_angles:
             ret["template_angle_embedding"] = template_embeds["angle"]
 
-        ret.update(
-            {
-                "template_pair_embedding": t,
-            }
-        )
+        ret.update({"template_pair_embedding": t})
 
         return ret
 
     def iteration(self, feats, m_1_prev, z_prev, x_prev):
+        # Establish constants
+        chunk_size = (
+            self.globals.train_chunk_size 
+            if self.training else self.globals.eval_chunk_size
+        )
+
         # Primary output dictionary
         outputs = {}
 
@@ -243,6 +249,7 @@ class AlphaFold(nn.Module):
                 z,
                 pair_mask,
                 no_batch_dims,
+                chunk_size,
             )
 
             # [*, N, N, C_z]
@@ -270,6 +277,7 @@ class AlphaFold(nn.Module):
                 a,
                 z,
                 msa_mask=feats["extra_msa_mask"],
+                chunk_size=chunk_size,
                 pair_mask=pair_mask,
                 _mask_trans=self.config._mask_trans,
             )
@@ -283,6 +291,7 @@ class AlphaFold(nn.Module):
             z,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
+            chunk_size=chunk_size,
             _mask_trans=self.config._mask_trans,
         )
 

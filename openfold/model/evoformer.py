@@ -46,7 +46,7 @@ class MSATransition(nn.Module):
     Implements Algorithm 9
     """
 
-    def __init__(self, c_m, n, chunk_size):
+    def __init__(self, c_m, n):
         """
         Args:
             c_m:
@@ -59,7 +59,6 @@ class MSATransition(nn.Module):
 
         self.c_m = c_m
         self.n = n
-        self.chunk_size = chunk_size
 
         self.layer_norm = nn.LayerNorm(self.c_m)
         self.linear_1 = Linear(self.c_m, self.n * self.c_m, init="relu")
@@ -76,6 +75,7 @@ class MSATransition(nn.Module):
         self,
         m: torch.Tensor,
         mask: torch.Tensor = None,
+        chunk_size: int = None,
     ) -> torch.Tensor:
         """
         Args:
@@ -96,11 +96,11 @@ class MSATransition(nn.Module):
         m = self.layer_norm(m)
 
         inp = {"m": m, "mask": mask}
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             m = chunk_layer(
                 self._transition,
                 inp,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(m.shape[:-2]),
             )
         else:
@@ -123,7 +123,6 @@ class EvoformerBlock(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
-        chunk_size: int,
         inf: float,
         eps: float,
         _is_extra_msa_stack: bool = False,
@@ -135,7 +134,6 @@ class EvoformerBlock(nn.Module):
             c_z=c_z,
             c_hidden=c_hidden_msa_att,
             no_heads=no_heads_msa,
-            chunk_size=chunk_size,
             inf=inf,
         )
 
@@ -144,7 +142,6 @@ class EvoformerBlock(nn.Module):
                 c_in=c_m,
                 c_hidden=c_hidden_msa_att,
                 no_heads=no_heads_msa,
-                chunk_size=chunk_size,
                 inf=inf,
                 eps=eps,
             )
@@ -153,21 +150,18 @@ class EvoformerBlock(nn.Module):
                 c_m,
                 c_hidden_msa_att,
                 no_heads_msa,
-                chunk_size=chunk_size,
                 inf=inf,
             )
 
         self.msa_transition = MSATransition(
             c_m=c_m,
             n=transition_n,
-            chunk_size=chunk_size,
         )
 
         self.outer_product_mean = OuterProductMean(
             c_m,
             c_z,
             c_hidden_opm,
-            chunk_size=chunk_size,
         )
 
         self.tri_mul_out = TriangleMultiplicationOutgoing(
@@ -183,21 +177,18 @@ class EvoformerBlock(nn.Module):
             c_z,
             c_hidden_pair_att,
             no_heads_pair,
-            chunk_size=chunk_size,
             inf=inf,
         )
         self.tri_att_end = TriangleAttentionEndingNode(
             c_z,
             c_hidden_pair_att,
             no_heads_pair,
-            chunk_size=chunk_size,
             inf=inf,
         )
 
         self.pair_transition = PairTransition(
             c_z,
             transition_n,
-            chunk_size=chunk_size,
         )
 
         self.msa_dropout_layer = DropoutRowwise(msa_dropout)
@@ -210,6 +201,7 @@ class EvoformerBlock(nn.Module):
         z: torch.Tensor,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
+        chunk_size: int,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         # DeepMind doesn't mask these transitions in the source, so _mask_trans
@@ -218,15 +210,27 @@ class EvoformerBlock(nn.Module):
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
 
-        m = m + self.msa_dropout_layer(self.msa_att_row(m, z, mask=msa_mask))
-        m = m + self.msa_att_col(m, mask=msa_mask)
-        m = m + self.msa_transition(m, mask=msa_trans_mask)
-        z = z + self.outer_product_mean(m, mask=msa_mask)
+        m = m + self.msa_dropout_layer(
+            self.msa_att_row(m, z=z, mask=msa_mask, chunk_size=chunk_size)
+        )
+        m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
+        m = m + self.msa_transition(
+            m, mask=msa_trans_mask, chunk_size=chunk_size
+        )
+        z = z + self.outer_product_mean(
+            m, mask=msa_mask, chunk_size=chunk_size
+        )
         z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
         z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
-        z = z + self.ps_dropout_row_layer(self.tri_att_start(z, mask=pair_mask))
-        z = z + self.ps_dropout_col_layer(self.tri_att_end(z, mask=pair_mask))
-        z = z + self.pair_transition(z, mask=pair_trans_mask)
+        z = z + self.ps_dropout_row_layer(
+            self.tri_att_start(z, mask=pair_mask, chunk_size=chunk_size)
+        )
+        z = z + self.ps_dropout_col_layer(
+            self.tri_att_end(z, mask=pair_mask, chunk_size=chunk_size)
+        )
+        z = z + self.pair_transition(
+            z, mask=pair_trans_mask, chunk_size=chunk_size
+        )
 
         return m, z
 
@@ -254,7 +258,6 @@ class EvoformerStack(nn.Module):
         msa_dropout: float,
         pair_dropout: float,
         blocks_per_ckpt: int,
-        chunk_size: int,
         inf: float,
         eps: float,
         _is_extra_msa_stack: bool = False,
@@ -312,7 +315,6 @@ class EvoformerStack(nn.Module):
                 transition_n=transition_n,
                 msa_dropout=msa_dropout,
                 pair_dropout=pair_dropout,
-                chunk_size=chunk_size,
                 inf=inf,
                 eps=eps,
                 _is_extra_msa_stack=_is_extra_msa_stack,
@@ -328,6 +330,7 @@ class EvoformerStack(nn.Module):
         z: torch.Tensor,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
+        chunk_size: int,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
         """
@@ -354,6 +357,7 @@ class EvoformerStack(nn.Module):
                     b,
                     msa_mask=msa_mask,
                     pair_mask=pair_mask,
+                    chunk_size=chunk_size,
                     _mask_trans=_mask_trans,
                 )
                 for b in self.blocks
@@ -392,7 +396,6 @@ class ExtraMSAStack(nn.Module):
         msa_dropout: float,
         pair_dropout: float,
         blocks_per_ckpt: int,
-        chunk_size: int,
         inf: float,
         eps: float,
         **kwargs,
@@ -415,7 +418,6 @@ class ExtraMSAStack(nn.Module):
             msa_dropout=msa_dropout,
             pair_dropout=pair_dropout,
             blocks_per_ckpt=blocks_per_ckpt,
-            chunk_size=chunk_size,
             inf=inf,
             eps=eps,
             _is_extra_msa_stack=True,
@@ -425,6 +427,7 @@ class ExtraMSAStack(nn.Module):
         self,
         m: torch.Tensor,
         z: torch.Tensor,
+        chunk_size: int,
         msa_mask: Optional[torch.Tensor] = None,
         pair_mask: Optional[torch.Tensor] = None,
         _mask_trans: bool = True,
@@ -447,6 +450,7 @@ class ExtraMSAStack(nn.Module):
             z,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
+            chunk_size=chunk_size,
             _mask_trans=_mask_trans,
         )
         return z

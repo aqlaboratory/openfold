@@ -45,13 +45,12 @@ def model_config(name, train=False, low_prec=False):
 
     if train:
         c.globals.blocks_per_ckpt = 1
-        c.globals.chunk_size = None
 
     if low_prec:
         c.globals.eps = 1e-4
         # If we want exact numerical parity with the original, inf can't be
         # a global constant
-        set_inf(c, 1e4)
+        set_inf(c, 1e5)
 
     return c
 
@@ -225,7 +224,8 @@ config = mlc.ConfigDict(
         # Recurring FieldReferences that can be changed globally here
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
-            "chunk_size": chunk_size,
+            "train_chunk_size": None,
+            "eval_chunk_size": chunk_size,
             "c_z": c_z,
             "c_m": c_m,
             "c_t": c_t,
@@ -277,8 +277,7 @@ config = mlc.ConfigDict(
                     "pair_transition_n": 2,
                     "dropout_rate": 0.25,
                     "blocks_per_ckpt": blocks_per_ckpt,
-                    "chunk_size": chunk_size,
-                    "inf": 1e5,  # 1e9,
+                    "inf": 1e9,
                 },
                 "template_pointwise_attention": {
                     "c_t": c_t,
@@ -287,7 +286,6 @@ config = mlc.ConfigDict(
                     # It's actually 16.
                     "c_hidden": 16,
                     "no_heads": 4,
-                    "chunk_size": chunk_size,
                     "inf": 1e5,  # 1e9,
                 },
                 "inf": 1e5,  # 1e9,
@@ -314,8 +312,7 @@ config = mlc.ConfigDict(
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
                     "blocks_per_ckpt": blocks_per_ckpt,
-                    "chunk_size": chunk_size,
-                    "inf": 1e5,  # 1e9,
+                    "inf": 1e9,
                     "eps": eps,  # 1e-10,
                 },
                 "enabled": True,
@@ -335,8 +332,7 @@ config = mlc.ConfigDict(
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
-                "chunk_size": chunk_size,
-                "inf": 1e5,  # 1e9,
+                "inf": 1e9,
                 "eps": eps,  # 1e-10,
             },
             "structure_module": {

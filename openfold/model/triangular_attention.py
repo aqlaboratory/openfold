@@ -28,7 +28,7 @@ from openfold.utils.tensor_utils import (
 
 class TriangleAttention(nn.Module):
     def __init__(
-        self, c_in, c_hidden, no_heads, starting, chunk_size=4, inf=1e9
+        self, c_in, c_hidden, no_heads, starting, inf=1e9
     ):
         """
         Args:
@@ -45,7 +45,6 @@ class TriangleAttention(nn.Module):
         self.c_hidden = c_hidden
         self.no_heads = no_heads
         self.starting = starting
-        self.chunk_size = chunk_size
         self.inf = inf
 
         self.layer_norm = nn.LayerNorm(self.c_in)
@@ -56,7 +55,7 @@ class TriangleAttention(nn.Module):
             self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
         )
 
-    def forward(self, x, mask=None):
+    def forward(self, x, chunk_size, mask=None):
         """
         Args:
             x:
@@ -93,11 +92,11 @@ class TriangleAttention(nn.Module):
             "v_x": x,
             "biases": [mask_bias, triangle_bias],
         }
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             x = chunk_layer(
                 self.mha,
                 mha_inputs,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(x.shape[:-2]),
             )
         else:

@@ -25,7 +25,7 @@ class PairTransition(nn.Module):
     Implements Algorithm 15.
     """
 
-    def __init__(self, c_z, n, chunk_size=4):
+    def __init__(self, c_z, n):
         """
         Args:
             c_z:
@@ -38,7 +38,6 @@ class PairTransition(nn.Module):
 
         self.c_z = c_z
         self.n = n
-        self.chunk_size = chunk_size
 
         self.layer_norm = nn.LayerNorm(self.c_z)
         self.linear_1 = Linear(self.c_z, self.n * self.c_z, init="relu")
@@ -55,7 +54,7 @@ class PairTransition(nn.Module):
 
         return z
 
-    def forward(self, z, mask=None):
+    def forward(self, z, chunk_size, mask=None):
         """
         Args:
             z:
@@ -74,11 +73,11 @@ class PairTransition(nn.Module):
         z = self.layer_norm(z)
 
         inp = {"z": z, "mask": mask}
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             z = chunk_layer(
                 self._transition,
                 inp,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(z.shape[:-2]),
             )
         else:

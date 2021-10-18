@@ -26,7 +26,7 @@ class OuterProductMean(nn.Module):
     Implements Algorithm 10.
     """
 
-    def __init__(self, c_m, c_z, c_hidden, chunk_size=4, eps=1e-3):
+    def __init__(self, c_m, c_z, c_hidden, eps=1e-3):
         """
         Args:
             c_m:
@@ -40,7 +40,6 @@ class OuterProductMean(nn.Module):
 
         self.c_z = c_z
         self.c_hidden = c_hidden
-        self.chunk_size = chunk_size
         self.eps = eps
 
         self.layer_norm = nn.LayerNorm(c_m)
@@ -60,7 +59,7 @@ class OuterProductMean(nn.Module):
 
         return outer
 
-    def forward(self, m, mask=None):
+    def forward(self, m, chunk_size, mask=None):
         """
         Args:
             m:
@@ -84,7 +83,7 @@ class OuterProductMean(nn.Module):
         a = a.transpose(-2, -3)
         b = b.transpose(-2, -3)
 
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             # Since the "batch dim" in this case is not a true batch dimension
             # (in that the shape of the output depends on it), we need to
             # iterate over it ourselves
@@ -95,7 +94,7 @@ class OuterProductMean(nn.Module):
                 outer = chunk_layer(
                     partial(self._opm, b=b_prime),
                     {"a": a_prime},
-                    chunk_size=self.chunk_size,
+                    chunk_size=chunk_size,
                     no_batch_dims=1,
                 )
                 out.append(outer)

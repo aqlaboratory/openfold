@@ -34,7 +34,6 @@ class MSAAttention(nn.Module):
         no_heads,
         pair_bias=False,
         c_z=None,
-        chunk_size=4,
         inf=1e9,
     ):
         """
@@ -60,7 +59,6 @@ class MSAAttention(nn.Module):
         self.no_heads = no_heads
         self.pair_bias = pair_bias
         self.c_z = c_z
-        self.chunk_size = chunk_size
         self.inf = inf
 
         self.layer_norm_m = nn.LayerNorm(self.c_in)
@@ -75,7 +73,7 @@ class MSAAttention(nn.Module):
             self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
         )
 
-    def forward(self, m, z=None, mask=None):
+    def forward(self, m, chunk_size, z=None, mask=None):
         """
         Args:
             m:
@@ -117,11 +115,11 @@ class MSAAttention(nn.Module):
             biases.append(z)
 
         mha_inputs = {"q_x": m, "k_x": m, "v_x": m, "biases": biases}
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             m = chunk_layer(
                 self.mha,
                 mha_inputs,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(m.shape[:-2]),
             )
         else:
@@ -135,7 +133,7 @@ class MSARowAttentionWithPairBias(MSAAttention):
     Implements Algorithm 7.
     """
 
-    def __init__(self, c_m, c_z, c_hidden, no_heads, chunk_size, inf=1e9):
+    def __init__(self, c_m, c_z, c_hidden, no_heads, inf=1e9):
         """
         Args:
             c_m:
@@ -155,7 +153,6 @@ class MSARowAttentionWithPairBias(MSAAttention):
             no_heads,
             pair_bias=True,
             c_z=c_z,
-            chunk_size=chunk_size,
             inf=inf,
         )
 
@@ -165,7 +162,7 @@ class MSAColumnAttention(MSAAttention):
     Implements Algorithm 8.
     """
 
-    def __init__(self, c_m, c_hidden, no_heads, chunk_size=4, inf=1e9):
+    def __init__(self, c_m, c_hidden, no_heads, inf=1e9):
         """
         Args:
             c_m:
@@ -183,11 +180,10 @@ class MSAColumnAttention(MSAAttention):
             no_heads=no_heads,
             pair_bias=False,
             c_z=None,
-            chunk_size=chunk_size,
             inf=inf,
         )
 
-    def forward(self, m, mask=None):
+    def forward(self, m, chunk_size, mask=None):
         """
         Args:
             m:
@@ -200,7 +196,7 @@ class MSAColumnAttention(MSAAttention):
         if mask is not None:
             mask = mask.transpose(-1, -2)
 
-        m = super().forward(m, mask=mask)
+        m = super().forward(m, chunk_size=chunk_size, mask=mask)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)
@@ -211,14 +207,13 @@ class MSAColumnAttention(MSAAttention):
 
 class MSAColumnGlobalAttention(nn.Module):
     def __init__(
-        self, c_in, c_hidden, no_heads, chunk_size=4, inf=1e9, eps=1e-10
+        self, c_in, c_hidden, no_heads, inf=1e9, eps=1e-10
     ):
         super(MSAColumnGlobalAttention, self).__init__()
 
         self.c_in = c_in
         self.c_hidden = c_hidden
         self.no_heads = no_heads
-        self.chunk_size = chunk_size
         self.inf = inf
         self.eps = eps
 
@@ -233,7 +228,7 @@ class MSAColumnGlobalAttention(nn.Module):
         )
 
     def forward(
-        self, m: torch.Tensor, mask: Optional[torch.Tensor] = None
+        self, m: torch.Tensor, chunk_size, mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         n_seq, n_res, c_in = m.shape[-3:]
 
@@ -256,11 +251,11 @@ class MSAColumnGlobalAttention(nn.Module):
             "m": m,
             "mask": mask,
         }
-        if self.chunk_size is not None:
+        if chunk_size is not None:
             m = chunk_layer(
                 self.global_attention,
                 mha_input,
-                chunk_size=self.chunk_size,
+                chunk_size=chunk_size,
                 no_batch_dims=len(m.shape[:-2]),
             )
         else:

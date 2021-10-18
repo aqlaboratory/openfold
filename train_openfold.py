@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import random
 import time
@@ -26,7 +26,7 @@ class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
         super(OpenFoldWrapper, self).__init__()
         self.config = config
-        self.model = AlphaFold(config.model)
+        self.model = AlphaFold(config)
         self.loss = AlphaFoldLoss(config.loss)
         self.ema = ExponentialMovingAverage(self.model, decay=config.ema.decay)
 
@@ -50,6 +50,9 @@ class OpenFoldWrapper(pl.LightningModule):
         with open("prediction/preds_" + str(time.strftime("%H:%M:%S")) + ".pickle", "wb") as f:
             pickle.dump(out, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+    #def validation_step(self, batch, batch_idx):
+    #    outputs = self(batch)
+
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
         eps: float = 1e-8
@@ -63,6 +66,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def on_before_zero_grad(self, *args, **kwargs):
         self.ema.update(self.model)
+
 
 def main(args):
     config = model_config(

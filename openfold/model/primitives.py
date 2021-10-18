@@ -260,11 +260,14 @@ class Attention(nn.Module):
 
         # [*, H, Q, K]
         a = torch.matmul(
-            permute_final_dims(q, (0, 2, 1, 3)),  # [*, H, Q, C_hidden]
-            permute_final_dims(k, (0, 2, 3, 1)),  # [*, H, C_hidden, K]
+            permute_final_dims(q, (1, 0, 2)),  # [*, H, Q, C_hidden]
+            permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, K]
         )
+
+        del q, k
+
         norm = 1 / math.sqrt(self.c_hidden)  # [1]
-        a = a * norm
+        a *= norm
         if biases is not None:
             for b in biases:
                 a = a + b
@@ -273,7 +276,7 @@ class Attention(nn.Module):
         # [*, H, Q, C_hidden]
         o = torch.matmul(
             a,
-            permute_final_dims(v, (0, 2, 1, 3)),  # [*, H, V, C_hidden]
+            permute_final_dims(v, (1, 0, 2)),  # [*, H, V, C_hidden]
         )
 
         # [*, Q, H, C_hidden]
