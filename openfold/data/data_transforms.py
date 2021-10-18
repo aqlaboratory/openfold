@@ -1134,10 +1134,10 @@ def random_crop_to_size(
 
     n = seq_length - num_res_crop_size
     if batch_mode == "clamped":
-        right_anchor = n + 1
+        right_anchor = n
     elif batch_mode == "unclamped":
         x = _randint(0, n)
-        right_anchor = n - x + 1
+        right_anchor = n - x
     else:
         raise ValueError("Invalid batch mode")
 

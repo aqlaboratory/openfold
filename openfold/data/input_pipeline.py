@@ -68,7 +68,7 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
     return transforms
 
 
-def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode):
+def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode, ensemble_seed):
     """Input pipeline data transformers that can be ensembled and averaged."""
     transforms = []
 
@@ -117,7 +117,7 @@ def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode):
                 crop_feats,
                 mode_cfg.subsample_templates,
                 batch_mode=batch_mode,
-                seed=torch.Generator().seed(),
+                seed=ensemble_seed,
             )
         )
         transforms.append(
@@ -142,17 +142,23 @@ def process_tensors_from_config(
 ):
     """Based on the config, apply filters and transformations to the data."""
 
+    ensemble_seed = torch.Generator().seed()
+
     def wrap_ensemble_fn(data, i):
         """Function to be mapped over the ensemble dimension."""
         d = data.copy()
-        fns = ensembled_transform_fns(common_cfg, mode_cfg, batch_mode)
+        fns = ensembled_transform_fns(
+            common_cfg, 
+            mode_cfg, 
+            batch_mode,
+            ensemble_seed,
+        )
         fn = compose(fns)
         d["ensemble_index"] = i
         return fn(d)
 
     tensors = compose(nonensembled_transform_fns(common_cfg, mode_cfg))(tensors)
 
-    tensors_0 = wrap_ensemble_fn(tensors, 0)
     num_ensemble = mode_cfg.num_ensemble
     if common_cfg.resample_msa_in_recycling:
         # Separate batch per ensembling & recycling step.
@@ -163,6 +169,7 @@ def process_tensors_from_config(
             lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_ensemble)
         )
     else:
+        tensors_0 = wrap_ensemble_fn(tensors, 0)
         tensors = tree.map_structure(lambda x: x[None], tensors_0)
 
     return tensors
