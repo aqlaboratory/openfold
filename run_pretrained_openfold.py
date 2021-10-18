@@ -44,7 +44,7 @@ from scripts.utils import add_data_args
 
 def main(args):
     config = model_config(args.model_name)
-    model = AlphaFold(config.model)
+    model = AlphaFold(config)
     model = model.eval()
     import_jax_weights_(model, args.param_path)
     model = model.to(args.model_device)
