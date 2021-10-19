@@ -93,7 +93,7 @@ config = mlc.ConfigDict(
                     "backbone_affine_mask": [NUM_RES],
                     "backbone_affine_tensor": [NUM_RES, None, None],
                     "bert_mask": [NUM_MSA_SEQ, NUM_RES],
-                    "chi_angles": [NUM_RES, None],
+                    "chi_angles_sin_cos": [NUM_RES, None],
                     "chi_mask": [NUM_RES, None],
                     "extra_deletion_value": [NUM_EXTRA_SEQ, NUM_RES],
                     "extra_has_deletion": [NUM_EXTRA_SEQ, NUM_RES],
