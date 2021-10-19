@@ -40,7 +40,7 @@ def main(args):
                 pbar.update()
 
     with open(args.output_path, "w") as fp:
-        fp.write(json.dumps(data))
+        fp.write(json.dumps(data, indent=4))
 
 
 if __name__ == "__main__":
