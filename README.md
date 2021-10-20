@@ -50,7 +50,7 @@ run e.g.
 
 ```bash
 python3 run_pretrained_openfold.py \
-    test.fasta \
+    target.fasta \
     data/uniref90/uniref90.fasta \
     data/mgnify/mgy_clusters_2018_12.fa \
     data/pdb70/pdb70 \

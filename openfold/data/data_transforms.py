@@ -1103,7 +1103,7 @@ def random_crop_to_size(
     else:
         num_templates = protein["aatype"].new_zeros((1,))
 
-    num_res_crop_size = min(seq_length.item(), crop_size)
+    num_res_crop_size = min(int(seq_length), crop_size)
 
     # We want each ensemble to be cropped the same way
     g = torch.Generator(device=protein["seq_length"].device)
@@ -1111,13 +1111,13 @@ def random_crop_to_size(
         g.manual_seed(seed)
 
     def _randint(lower, upper):
-        return torch.randint(
+        return int(torch.randint(
                 lower,
                 upper + 1,
                 (1,),
                 device=protein["seq_length"].device,
                 generator=g,
-        )[0].item()
+        )[0])
 
     if subsample_templates:
         templates_crop_start = _randint(0, num_templates)

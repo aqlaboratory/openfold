@@ -156,7 +156,7 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     tensors = compose(nonensembled_transform_fns(common_cfg, mode_cfg))(tensors)
 
     num_ensemble = mode_cfg.num_ensemble
-    num_recycling = tensors["no_recycling_iters"].item()
+    num_recycling = int(tensors["no_recycling_iters"])
 
     if common_cfg.resample_msa_in_recycling:
         # Separate batch per ensembling & recycling step.
