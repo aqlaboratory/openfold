@@ -27,7 +27,7 @@ class TestImportWeights(unittest.TestCase):
 
         c = model_config("model_1_ptm")
         c.globals.blocks_per_ckpt = None
-        model = AlphaFold(c.model)
+        model = AlphaFold(c)
 
         import_jax_weights_(
             model,

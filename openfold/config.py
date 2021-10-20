@@ -64,7 +64,6 @@ blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
 eps = mlc.FieldReference(1e-8, field_type=float)
-num_recycle = mlc.FieldReference(3, field_type=int)
 templates_enabled = mlc.FieldReference(True, field_type=bool)
 embed_template_torsion_angles = mlc.FieldReference(True, field_type=bool)
 
@@ -77,7 +76,6 @@ config = mlc.ConfigDict(
     {
         "data": {
             "common": {
-                "batch_modes": [("clamped", 0.9), ("unclamped", 0.1)],
                 "feat": {
                     "aatype": [NUM_RES],
                     "all_atom_mask": [NUM_RES, None],
@@ -93,7 +91,7 @@ config = mlc.ConfigDict(
                     "backbone_affine_mask": [NUM_RES],
                     "backbone_affine_tensor": [NUM_RES, None, None],
                     "bert_mask": [NUM_MSA_SEQ, NUM_RES],
-                    "chi_angles_sin_cos": [NUM_RES, None],
+                    "chi_angles_sin_cos": [NUM_RES, None, None],
                     "chi_mask": [NUM_RES, None],
                     "extra_deletion_value": [NUM_EXTRA_SEQ, NUM_RES],
                     "extra_has_deletion": [NUM_EXTRA_SEQ, NUM_RES],
@@ -104,6 +102,7 @@ config = mlc.ConfigDict(
                     "msa_feat": [NUM_MSA_SEQ, NUM_RES, None],
                     "msa_mask": [NUM_MSA_SEQ, NUM_RES],
                     "msa_row_mask": [NUM_MSA_SEQ],
+                    "no_recycling_iters": [],
                     "pseudo_beta": [NUM_RES, None],
                     "pseudo_beta_mask": [NUM_RES],
                     "residue_index": [NUM_RES],
@@ -149,8 +148,8 @@ config = mlc.ConfigDict(
                     "uniform_prob": 0.1,
                 },
                 "max_extra_msa": 1024,
+                "max_recycling_iters": 3,
                 "msa_cluster_features": True,
-                "num_recycle": num_recycle,
                 "reduce_msa_clusters_by_max_templates": False,
                 "resample_msa_in_recycling": True,
                 "template_features": [
@@ -167,9 +166,14 @@ config = mlc.ConfigDict(
                     "seq_length",
                     "between_segment_residues",
                     "deletion_matrix",
+                    "no_recycling_iters",
                 ],
                 "use_templates": templates_enabled,
                 "use_template_torsion_angles": embed_template_torsion_angles,
+            },
+            "supervised": {
+                "clamp_prob": 0.9,
+                "uniform_recycling": True,
                 "supervised_features": [
                     "all_atom_mask",
                     "all_atom_positions",
@@ -212,6 +216,8 @@ config = mlc.ConfigDict(
                 "crop": True,
                 "crop_size": 256,
                 "supervised": True,
+                "clamp_prob": 0.9,
+                "subsample_recycling": True,
             },
             "data_module": {
                 "use_small_bfd": False,
@@ -234,7 +240,6 @@ config = mlc.ConfigDict(
             "eps": eps,
         },
         "model": {
-            "num_recycle": num_recycle,
             "_mask_trans": False,
             "input_embedder": {
                 "tf_dim": 22,

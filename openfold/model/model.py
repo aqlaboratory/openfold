@@ -202,7 +202,7 @@ class AlphaFold(nn.Module):
         )
 
         # Inject information from previous recycling iterations
-        if self.config.num_recycle > 0:
+        if feats["no_recycling_iters"] > 0:
             # Initialize the recycling embeddings, if needs be
             if None in [m_1_prev, z_prev, x_prev]:
                 # [*, N, C_m]
@@ -236,7 +236,7 @@ class AlphaFold(nn.Module):
             # [*, N, N, C_z]
             z = z + z_prev_emb
 
-            # This can matter during inference when N_res is very large
+            # Possibly prevents memory fragmentation 
             del m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
@@ -395,19 +395,21 @@ class AlphaFold(nn.Module):
         # Initialize recycling embeddings
         m_1_prev, z_prev, x_prev = None, None, None
 
+        # Disable activation checkpointing for the first few recycling iters
         is_grad_enabled = torch.is_grad_enabled()
         self._disable_activation_checkpointing()
 
         # Main recycling loop
-        for cycle_no in range(self.config.num_recycle + 1):
+        num_iters = batch["aatype"].shape[-1]
+        for cycle_no in range(num_iters):
             # Select the features for the current recycling cycle
             fetch_cur_batch = lambda t: t[..., cycle_no]
             feats = tensor_tree_map(fetch_cur_batch, batch)
 
             # Enable grad iff we're training and it's the final recycling layer
-            is_final_iter = cycle_no == self.config.num_recycle
+            is_final_iter = cycle_no == (num_iters - 1)
             with torch.set_grad_enabled(is_grad_enabled and is_final_iter):
-                # Sidestep AMP bug discussed in pytorch issue #65766
+                # Sidestep AMP bug (PyTorch issue #65766)
                 if is_final_iter:
                     self._enable_activation_checkpointing()
                     if torch.is_autocast_enabled():

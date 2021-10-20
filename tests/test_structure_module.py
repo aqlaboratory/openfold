@@ -16,7 +16,7 @@ import torch
 import numpy as np
 import unittest
 
-from openfold.features.data_transforms import make_atom14_masks_np
+from openfold.data.data_transforms import make_atom14_masks_np
 from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
@@ -174,7 +174,7 @@ class TestStructureModule(unittest.TestCase):
         # The structure module, thanks to angle normalization, is very volatile
         # We only assess the mean here. Heuristically speaking, it seems to
         # have lower error in general on real rather than synthetic data.
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.01)
+        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.05)
 
 
 class TestBackboneUpdate(unittest.TestCase):

@@ -25,11 +25,17 @@ def random_template_feats(n_templ, n, batch_size=None):
         "template_pseudo_beta_mask": np.random.randint(0, 2, (*b, n_templ, n)),
         "template_pseudo_beta": np.random.rand(*b, n_templ, n, 3),
         "template_aatype": np.random.randint(0, 22, (*b, n_templ, n)),
-        "template_all_atom_masks": np.random.randint(
+        "template_all_atom_mask": np.random.randint(
             0, 2, (*b, n_templ, n, 37)
         ),
-        "template_all_atom_positions": np.random.rand(*b, n_templ, n, 37, 3)
-        * 10,
+        "template_all_atom_positions": 
+            np.random.rand(*b, n_templ, n, 37, 3) * 10,
+        "template_torsion_angles_sin_cos": 
+            np.random.rand(*b, n_templ, n, 7, 2),
+        "template_alt_torsion_angles_sin_cos": 
+            np.random.rand(*b, n_templ, n, 7, 2),
+        "template_torsion_angles_mask": 
+            np.random.rand(*b, n_templ, n, 7),
     }
     batch = {k: v.astype(np.float32) for k, v in batch.items()}
     batch["template_aatype"] = batch["template_aatype"].astype(np.int64)

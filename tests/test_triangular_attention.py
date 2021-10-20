@@ -41,7 +41,7 @@ class TestTriangularAttention(unittest.TestCase):
 
         x = torch.rand((batch_size, n_res, n_res, c_z))
         shape_before = x.shape
-        x = tan(x)
+        x = tan(x, chunk_size=None)
         shape_after = x.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -92,6 +92,7 @@ class TestTriangularAttention(unittest.TestCase):
         out_repro = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            chunk_size=None,
         ).cpu()
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))

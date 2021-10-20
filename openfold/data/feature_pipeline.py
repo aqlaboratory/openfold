@@ -64,7 +64,7 @@ def make_data_config(
         feature_names += cfg.common.template_features
 
     if cfg[mode].supervised:
-        feature_names += cfg.common.supervised_features
+        feature_names += cfg.supervised.supervised_features
 
     return cfg, feature_names
 
@@ -73,7 +73,6 @@ def np_example_to_features(
     np_example: FeatureDict,
     config: ml_collections.ConfigDict,
     mode: str,
-    batch_mode: str,
 ):
     np_example = dict(np_example)
     num_res = int(np_example["seq_length"][0])
@@ -84,11 +83,6 @@ def np_example_to_features(
             "deletion_matrix_int"
         ).astype(np.float32)
 
-    if batch_mode == "clamped":
-        np_example["use_clamped_fape"] = np.array(1.0).astype(np.float32)
-    elif batch_mode == "unclamped":
-        np_example["use_clamped_fape"] = np.array(0.0).astype(np.float32)
-
     tensor_dict = np_to_tensor_dict(
         np_example=np_example, features=feature_names
     )
@@ -97,7 +91,6 @@ def np_example_to_features(
             tensor_dict,
             cfg.common,
             cfg[mode],
-            batch_mode=batch_mode,
         )
 
     return {k: v for k, v in features.items()}
@@ -115,12 +108,10 @@ class FeaturePipeline:
     def process_features(
         self,
         raw_features: FeatureDict,
-        mode: str = "train",
-        batch_mode: str = "clamped",
+        mode: str = "train", 
     ) -> FeatureDict:
         return np_example_to_features(
             np_example=raw_features,
             config=self.config,
             mode=mode,
-            batch_mode=batch_mode,
         )

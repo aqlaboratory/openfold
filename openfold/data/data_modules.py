@@ -5,6 +5,7 @@ import os
 from typing import Optional, Sequence
 
 import ml_collections as mlc
+import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import RandomSampler
@@ -216,31 +217,66 @@ class OpenFoldDataset(torch.utils.data.IterableDataset):
 class OpenFoldBatchCollator:
     def __init__(self, config, generator, stage="train"):
         self.config = config
-        batch_modes = config.common.batch_modes
-        batch_mode_names, batch_mode_probs = list(zip(*batch_modes))
-        self.batch_mode_names = batch_mode_names
-        self.batch_mode_probs = batch_mode_probs
         self.generator = generator
         self.stage = stage
+        self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
+        self._prep_batch_properties_probs()
         
-        self.batch_mode_probs_tensor = torch.tensor(self.batch_mode_probs)
+    def _prep_batch_properties_probs(self):
+        keyed_probs = []
+        stage_cfg = self.config[self.stage]
 
-        self.feature_pipeline = feature_pipeline.FeaturePipeline(self.config)  
+        max_iters = self.config.common.max_recycling_iters
+        if(stage_cfg.supervised):
+            clamp_prob = self.config.supervised.clamp_prob
+            keyed_probs.append(
+                ("use_clamped_fape", [1 - clamp_prob, clamp_prob])
+            ) 
+            if(self.config.supervised.uniform_recycling):
+                recycling_probs = [
+                    1. / (max_iters + 1) for _ in range(max_iters + 1)
+                ]
+                keyed_probs.append(
+                    ("no_recycling_iters", recycling_probs)
+                )
+        else:
+            recycling_probs = [
+                0. for _ in range(max_iters + 1)
+            ]
+            recycling_probs[-1] = 1.
+            keyed_probs.append(
+                ("no_recycling_iters", recycling_probs)
+            )
+
+        keys, probs = zip(*keyed_probs)
+        max_len = max([len(p) for p in probs])
+        padding = [[0.] * (max_len - len(p)) for p in probs] 
+        
+        self.prop_keys = keys
+        self.prop_probs_tensor = torch.tensor(
+            [p + pad for p, pad in zip(probs, padding)],
+            dtype=torch.float32,
+        )
+
+    def _add_batch_properties(self, raw_prots):
+        samples = torch.multinomial(
+            self.prop_probs_tensor,
+            num_samples=1, # 1 per row
+            replacement=True,
+            generator=self.generator
+        )
+
+        for i, key in enumerate(self.prop_keys):
+            sample = samples[i][0]
+            for prot in raw_prots:
+                prot[key] = np.array(sample, dtype=np.float32)
 
     def __call__(self, raw_prots):
-        # We use torch.multinomial here rather than Categorical because the
-        # latter doesn't accept a generator for some reason
-        batch_mode_idx = torch.multinomial(
-            self.batch_mode_probs_tensor, 
-            1, 
-            generator=self.generator
-        ).item() 
-        batch_mode_name = self.batch_mode_names[batch_mode_idx]
-
+        self._add_batch_properties(raw_prots)
         processed_prots = []
         for prot in raw_prots:
             features = self.feature_pipeline.process_features(
-                prot, self.stage, batch_mode_name
+                prot, self.stage
             )
             processed_prots.append(features)
 
@@ -264,7 +300,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
         kalign_binary_path: str = '/usr/bin/kalign',
         train_mapping_path: Optional[str] = None,
         distillation_mapping_path: Optional[str] = None,
-        template_release_dates_cache_path: Optional[str] = None, 
+        template_release_dates_cache_path: Optional[str] = None,
+        batch_seed: Optional[int] = None,
         **kwargs
     ):
         super(OpenFoldDataModule, self).__init__()
@@ -286,6 +323,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         self.template_release_dates_cache_path = (
             template_release_dates_cache_path
         )
+        self.batch_seed = batch_seed
 
         if(self.train_data_dir is None and self.predict_data_dir is None):
             raise ValueError(
@@ -309,7 +347,10 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 'be specified as well'
         )
 
-    def setup(self, stage):
+    def setup(self, stage: Optional[str] = None):
+        if(stage is None):
+            stage = "train"
+
         # Most of the arguments are the same for the three datasets 
         dataset_gen = partial(OpenFoldSingleDataset,
             template_mmcif_dir=self.template_mmcif_dir,
@@ -369,12 +410,11 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 mode="predict",
             )
 
-        self.batch_collation_seed = torch.Generator().seed()
-
     def _gen_batch_collator(self, stage):
         """ We want each process to use the same batch collation seed """
         generator = torch.Generator()
-        generator = generator.manual_seed(self.batch_collation_seed)
+        if(self.batch_seed is not None):
+            generator = generator.manual_seed(self.batch_seed)
         collate_fn = OpenFoldBatchCollator(
             self.config, generator, stage
         )
@@ -404,5 +444,5 @@ class OpenFoldDataModule(pl.LightningDataModule):
             self.predict_dataset,
             batch_size=self.config.data_module.data_loaders.batch_size,
             num_workers=self.config.data_module.data_loaders.num_workers,
-            collate_fn=self._gen_batch_collator("eval")
+            collate_fn=self._gen_batch_collator("predict")
         )

@@ -68,7 +68,7 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
     return transforms
 
 
-def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode, ensemble_seed):
+def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
     """Input pipeline data transformers that can be ensembled and averaged."""
     transforms = []
 
@@ -116,7 +116,6 @@ def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode, ensemble_seed):
                 mode_cfg.max_templates,
                 crop_feats,
                 mode_cfg.subsample_templates,
-                batch_mode=batch_mode,
                 seed=ensemble_seed,
             )
         )
@@ -137,9 +136,7 @@ def ensembled_transform_fns(common_cfg, mode_cfg, batch_mode, ensemble_seed):
     return transforms
 
 
-def process_tensors_from_config(
-    tensors, common_cfg, mode_cfg, batch_mode="clamped"
-):
+def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
     ensemble_seed = torch.Generator().seed()
@@ -150,7 +147,6 @@ def process_tensors_from_config(
         fns = ensembled_transform_fns(
             common_cfg, 
             mode_cfg, 
-            batch_mode,
             ensemble_seed,
         )
         fn = compose(fns)
@@ -160,9 +156,11 @@ def process_tensors_from_config(
     tensors = compose(nonensembled_transform_fns(common_cfg, mode_cfg))(tensors)
 
     num_ensemble = mode_cfg.num_ensemble
+    num_recycling = tensors["no_recycling_iters"].item()
+
     if common_cfg.resample_msa_in_recycling:
         # Separate batch per ensembling & recycling step.
-        num_ensemble *= common_cfg.num_recycle + 1
+        num_ensemble *= num_recycling + 1
 
     if isinstance(num_ensemble, torch.Tensor) or num_ensemble > 1:
         tensors = map_fn(

@@ -39,7 +39,7 @@ class TestPairTransition(unittest.TestCase):
         z = torch.rand((batch_size, n_res, n_res, c_z))
         mask = torch.randint(0, 2, size=(batch_size, n_res, n_res))
         shape_before = z.shape
-        z = pt(z, mask)
+        z = pt(z, mask=mask, chunk_size=None)
         shape_after = z.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -79,6 +79,7 @@ class TestPairTransition(unittest.TestCase):
             model.evoformer.blocks[0]
             .pair_transition(
                 torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+                chunk_size=4,
                 mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
             )
             .cpu()

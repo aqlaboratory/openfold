@@ -66,7 +66,6 @@ class TestEvoformerStack(unittest.TestCase):
             msa_dropout,
             pair_stack_dropout,
             blocks_per_ckpt=None,
-            chunk_size=4,
             inf=inf,
             eps=eps,
         ).eval()
@@ -79,7 +78,9 @@ class TestEvoformerStack(unittest.TestCase):
         shape_m_before = m.shape
         shape_z_before = z.shape
 
-        m, z, s = es(m, z, msa_mask, pair_mask)
+        m, z, s = es(
+            m, z, chunk_size=4, msa_mask=msa_mask, pair_mask=pair_mask
+        )
 
         self.assertTrue(m.shape == shape_m_before)
         self.assertTrue(z.shape == shape_z_before)
@@ -127,6 +128,7 @@ class TestEvoformerStack(unittest.TestCase):
             torch.as_tensor(activations["pair"]).cuda(),
             torch.as_tensor(masks["msa"]).cuda(),
             torch.as_tensor(masks["pair"]).cuda(),
+            chunk_size=4,
             _mask_trans=False,
         )
 
@@ -171,7 +173,6 @@ class TestExtraMSAStack(unittest.TestCase):
             msa_dropout,
             pair_stack_dropout,
             blocks_per_ckpt=None,
-            chunk_size=4,
             inf=inf,
             eps=eps,
         ).eval()
@@ -199,7 +200,7 @@ class TestExtraMSAStack(unittest.TestCase):
 
         shape_z_before = z.shape
 
-        z = es(m, z, msa_mask, pair_mask)
+        z = es(m, z, chunk_size=4, msa_mask=msa_mask, pair_mask=pair_mask)
 
         self.assertTrue(z.shape == shape_z_before)
 
@@ -212,12 +213,12 @@ class TestMSATransition(unittest.TestCase):
         c_m = 7
         n = 11
 
-        mt = MSATransition(c_m, n, chunk_size=4)
+        mt = MSATransition(c_m, n)
 
         m = torch.rand((batch_size, s_t, n_r, c_m))
 
         shape_before = m.shape
-        m = mt(m)
+        m = mt(m, chunk_size=4)
         shape_after = m.shape
 
         self.assertTrue(shape_before == shape_after)

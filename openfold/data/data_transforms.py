@@ -1095,7 +1095,6 @@ def random_crop_to_size(
     shape_schema,
     subsample_templates=False,
     seed=None,
-    batch_mode="clamped",
 ):
     """Crop randomly to `crop_size`, or keep as is if shorter than that."""
     seq_length = protein["seq_length"]
@@ -1133,13 +1132,11 @@ def random_crop_to_size(
         num_templates_crop_size = num_templates
 
     n = seq_length - num_res_crop_size
-    if batch_mode == "clamped":
+    if protein["use_clamped_fape"] == 1.:
         right_anchor = n
-    elif batch_mode == "unclamped":
+    else:
         x = _randint(0, n)
         right_anchor = n - x
-    else:
-        raise ValueError("Invalid batch mode")
 
     num_res_crop_start = _randint(0, right_anchor)
 

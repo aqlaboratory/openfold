@@ -60,7 +60,7 @@ _model = None
 def get_global_pretrained_openfold():
     global _model
     if _model is None:
-        _model = AlphaFold(model_config("model_1_ptm").model)
+        _model = AlphaFold(model_config("model_1_ptm"))
         _model = _model.eval()
         if not os.path.exists(_param_path):
             raise FileNotFoundError(

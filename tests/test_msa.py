@@ -41,13 +41,13 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
         no_heads = 4
         chunk_size = None
 
-        mrapb = MSARowAttentionWithPairBias(c_m, c_z, c, no_heads, chunk_size)
+        mrapb = MSARowAttentionWithPairBias(c_m, c_z, c, no_heads)
 
         m = torch.rand((batch_size, n_seq, n_res, c_m))
         z = torch.rand((batch_size, n_res, n_res, c_z))
 
         shape_before = m.shape
-        m = mrapb(m, z)
+        m = mrapb(m, z=z, chunk_size=chunk_size)
         shape_after = m.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -91,8 +91,9 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
             model.evoformer.blocks[0]
             .msa_att_row(
                 torch.as_tensor(msa_act).cuda(),
-                torch.as_tensor(pair_act).cuda(),
-                torch.as_tensor(msa_mask).cuda(),
+                z=torch.as_tensor(pair_act).cuda(),
+                chunk_size=4,
+                mask=torch.as_tensor(msa_mask).cuda(),
             )
             .cpu()
         )
@@ -114,7 +115,7 @@ class TestMSAColumnAttention(unittest.TestCase):
         x = torch.rand((batch_size, n_seq, n_res, c_m))
 
         shape_before = x.shape
-        x = msaca(x)
+        x = msaca(x, chunk_size=None)
         shape_after = x.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -155,7 +156,8 @@ class TestMSAColumnAttention(unittest.TestCase):
             model.evoformer.blocks[0]
             .msa_att_col(
                 torch.as_tensor(msa_act).cuda(),
-                torch.as_tensor(msa_mask).cuda(),
+                chunk_size=4,
+                mask=torch.as_tensor(msa_mask).cuda(),
             )
             .cpu()
         )
@@ -177,7 +179,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
         x = torch.rand((batch_size, n_seq, n_res, c_m))
 
         shape_before = x.shape
-        x = msagca(x)
+        x = msagca(x, chunk_size=None)
         shape_after = x.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -219,6 +221,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
             model.extra_msa_stack.stack.blocks[0]
             .msa_att_col(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
+                chunk_size=4,
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
             )
             .cpu()

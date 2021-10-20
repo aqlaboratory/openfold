@@ -258,11 +258,14 @@ class Attention(nn.Module):
         k = k.view(k.shape[:-1] + (self.no_heads, -1))
         v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
+        # [*, H, Q, C_hidden]
+        q = permute_final_dims(q, (1, 0, 2))
+
+        # [*, H, C_hidden, K]
+        k = permute_final_dims(k, (1, 2, 0))
+
         # [*, H, Q, K]
-        a = torch.matmul(
-            permute_final_dims(q, (1, 0, 2)),  # [*, H, Q, C_hidden]
-            permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, K]
-        )
+        a = torch.matmul(q, k)
 
         del q, k
 
@@ -273,11 +276,11 @@ class Attention(nn.Module):
                 a = a + b
         a = self.softmax(a)
 
+        # [*, H, V, C_hidden]
+        v = permute_final_dims(v, (1, 0, 2))
+
         # [*, H, Q, C_hidden]
-        o = torch.matmul(
-            a,
-            permute_final_dims(v, (1, 0, 2)),  # [*, H, V, C_hidden]
-        )
+        o = torch.matmul(a, v)
 
         # [*, Q, H, C_hidden]
         o = o.transpose(-2, -3)

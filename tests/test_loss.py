@@ -19,7 +19,7 @@ import numpy as np
 import unittest
 import ml_collections as mlc
 
-from openfold.features import data_transforms
+from openfold.data import data_transforms
 from openfold.utils.affine_utils import T, affine_vector_to_4x4
 import openfold.utils.feats as feats
 from openfold.utils.loss import (

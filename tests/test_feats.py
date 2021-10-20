@@ -16,7 +16,7 @@ import torch
 import numpy as np
 import unittest
 
-import openfold.features.data_transforms as data_transforms
+import openfold.data.data_transforms as data_transforms
 from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
@@ -102,10 +102,12 @@ class TestFeats(unittest.TestCase):
         out_gt = f.apply({}, None, aatype, all_atom_pos, all_atom_mask)
         out_gt = jax.tree_map(lambda x: torch.as_tensor(np.array(x)), out_gt)
 
-        out_repro = feats.atom37_to_torsion_angles(
-            torch.as_tensor(aatype).cuda(),
-            torch.as_tensor(all_atom_pos).cuda(),
-            torch.as_tensor(all_atom_mask).cuda(),
+        out_repro = data_transforms.atom37_to_torsion_angles()(
+            {
+                "aatype": torch.as_tensor(aatype).cuda(),
+                "all_atom_positions": torch.as_tensor(all_atom_pos).cuda(),
+                "all_atom_mask": torch.as_tensor(all_atom_mask).cuda(),
+            },
         )
         tasc = out_repro["torsion_angles_sin_cos"].cpu()
         atasc = out_repro["alt_torsion_angles_sin_cos"].cpu()

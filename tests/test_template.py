@@ -42,13 +42,13 @@ class TestTemplatePointwiseAttention(unittest.TestCase):
         inf = 1e7
 
         tpa = TemplatePointwiseAttention(
-            c_t, c_z, c, no_heads, chunk_size=4, inf=inf
+            c_t, c_z, c, no_heads, inf=inf
         )
 
         t = torch.rand((batch_size, n_seq, n_res, n_res, c_t))
         z = torch.rand((batch_size, n_res, n_res, c_z))
 
-        z_update = tpa(t, z)
+        z_update = tpa(t, z, chunk_size=None)
 
         self.assertTrue(z_update.shape == z.shape)
 
@@ -79,7 +79,6 @@ class TestTemplatePairStack(unittest.TestCase):
             pair_transition_n=pt_inner_dim,
             dropout_rate=dropout,
             blocks_per_ckpt=None,
-            chunk_size=chunk_size,
             inf=inf,
             eps=eps,
         )
@@ -87,7 +86,7 @@ class TestTemplatePairStack(unittest.TestCase):
         t = torch.rand((batch_size, n_templ, n_res, n_res, c_t))
         mask = torch.randint(0, 2, (batch_size, n_templ, n_res, n_res))
         shape_before = t.shape
-        t = tpe(t, mask)
+        t = tpe(t, mask, chunk_size=chunk_size)
         shape_after = t.shape
 
         self.assertTrue(shape_before == shape_after)
@@ -136,6 +135,7 @@ class TestTemplatePairStack(unittest.TestCase):
         out_repro = model.template_pair_stack(
             torch.as_tensor(pair_act).cuda(),
             torch.as_tensor(pair_mask).cuda(),
+            chunk_size=None,
             _mask_trans=False,
         ).cpu()
 
@@ -161,8 +161,8 @@ class Template(unittest.TestCase):
 
         pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         batch = random_template_feats(n_templ, n_res)
+        batch["template_all_atom_masks"] = batch["template_all_atom_mask"]
         pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
-
         # Fetch pretrained parameters (but only from one block)]
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/evoformer/template_embedding"
@@ -182,6 +182,7 @@ class Template(unittest.TestCase):
             torch.as_tensor(pair_act).cuda(),
             torch.as_tensor(pair_mask).cuda(),
             templ_dim=0,
+            chunk_size=None,
         )
         out_repro = out_repro["template_pair_embedding"]
         out_repro = out_repro.cpu()
