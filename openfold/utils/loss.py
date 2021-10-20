@@ -165,7 +165,7 @@ def backbone_loss(
         )
 
     # Take the mean over the layer dimension
-    fape_loss = torch.mean(fape_loss, dim=-1)
+    fape_loss = torch.mean(fape_loss)
     return fape_loss
 
 
