@@ -118,7 +118,7 @@ def main(args):
         t = time.time()
         out = model(batch)
         logging.info(f"Inference time: {time.time() - t}")
-    
+   
     # Toss out the recycling dimensions --- we don't need them anymore
     batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
     out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
@@ -129,7 +129,7 @@ def main(args):
     plddt_b_factors = np.repeat(
         plddt[..., None], residue_constants.atom_type_num, axis=-1
     )
-    
+
     unrelaxed_protein = protein.from_prediction(
         features=batch,
         result=out,
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--cpus", type=int, default=4,
-        help="""Number of CPUs to use to run alignment tools"""
+        help="""Number of CPUs with which to run alignment tools"""
     )
     parser.add_argument(
         '--preset', type=str, default='full_dbs',
@@ -198,6 +198,12 @@ if __name__ == "__main__":
         args.param_path = os.path.join(
             "openfold", "resources", "params", 
             "params_" + args.model_name + ".npz"
+        )
+
+    if(args.model_device == "cpu" and torch.cuda.is_available()):
+        logging.warning(
+            """The model is being run on CPU. Consider specifying 
+            --model_device for better performance"""
         )
 
     if(args.bfd_database_path is None and 
