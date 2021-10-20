@@ -69,6 +69,26 @@ python3 run_pretrained_openfold.py --help
 
 for a full list of options.
 
+## Testing
+
+To run unit tests, use
+
+```bash
+scripts/run_unit_tests.sh
+```
+
+The script is a thin wrapper around Python's `unittest` suite, and recognizes
+`unittest` commands. E.g., to run a specific test verbosely:
+
+```bash
+scripts/run_unit_tests.sh -v tests.test_model
+```
+
+Certain tests require that AlphaFold be installed in the same Python
+environment. These run components of AlphaFold and OpenFold side by side and
+ensure that output activations are adequately similar. For most modules, we
+target a maximum difference of 1e-4.
+
 ## Copyright notice
 
 While AlphaFold's and, by extension, OpenFold's source code is licensed under
