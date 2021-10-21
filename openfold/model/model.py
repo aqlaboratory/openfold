@@ -169,7 +169,7 @@ class AlphaFold(nn.Module):
 
         return ret
 
-    def iteration(self, feats, m_1_prev, z_prev, x_prev):
+    def iteration(self, feats, m_1_prev, z_prev, x_prev, _recycle=True):
         # Establish constants
         chunk_size = (
             self.globals.train_chunk_size 
@@ -202,7 +202,7 @@ class AlphaFold(nn.Module):
         )
 
         # Inject information from previous recycling iterations
-        if feats["no_recycling_iters"] > 0:
+        if _recycle is True:
             # Initialize the recycling embeddings, if needs be
             if None in [m_1_prev, z_prev, x_prev]:
                 # [*, N, C_m]
@@ -420,6 +420,7 @@ class AlphaFold(nn.Module):
                     m_1_prev,
                     z_prev,
                     x_prev,
+                    _recycle=(num_iters > 1)
                 )
 
         # Run auxiliary heads
