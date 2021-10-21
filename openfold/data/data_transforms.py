@@ -1132,7 +1132,7 @@ def random_crop_to_size(
         num_templates_crop_size = num_templates
 
     n = seq_length - num_res_crop_size
-    if protein["use_clamped_fape"] == 1.:
+    if "use_clamped_fape" in protein and protein["use_clamped_fape"] == 1.:
         right_anchor = n
     else:
         x = _randint(0, n)
