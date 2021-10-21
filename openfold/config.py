@@ -50,7 +50,7 @@ def model_config(name, train=False, low_prec=False):
         c.globals.eps = 1e-4
         # If we want exact numerical parity with the original, inf can't be
         # a global constant
-        set_inf(c, 1e5)
+        set_inf(c, 1e4)
 
     return c
 
@@ -185,7 +185,7 @@ config = mlc.ConfigDict(
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
-                "max_msa_clusters": 512,
+                "max_msa_clusters": 128,
                 "max_template_hits": 4,
                 "max_templates": 4,
                 "num_ensemble": 1,
@@ -197,7 +197,7 @@ config = mlc.ConfigDict(
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
-                "max_msa_clusters": 512,
+                "max_msa_clusters": 128,
                 "max_template_hits": 4,
                 "max_templates": 4,
                 "num_ensemble": 1,
@@ -209,7 +209,7 @@ config = mlc.ConfigDict(
                 "fixed_size": True,
                 "subsample_templates": True,
                 "masked_msa_replace_fraction": 0.15,
-                "max_msa_clusters": 512,
+                "max_msa_clusters": 128,
                 "max_template_hits": 20,
                 "max_templates": 4,
                 "num_ensemble": 1,

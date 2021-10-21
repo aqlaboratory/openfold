@@ -156,19 +156,19 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     tensors = compose(nonensembled_transform_fns(common_cfg, mode_cfg))(tensors)
 
     num_ensemble = mode_cfg.num_ensemble
-    num_recycling = int(tensors["no_recycling_iters"])
+
+    if("no_recycling_iters" in tensors):
+        num_recycling = int(tensors["no_recycling_iters"])
+    else:
+        num_recycling = common_cfg.max_recycling_iters
 
     if common_cfg.resample_msa_in_recycling:
         # Separate batch per ensembling & recycling step.
         num_ensemble *= num_recycling + 1
 
-    if isinstance(num_ensemble, torch.Tensor) or num_ensemble > 1:
-        tensors = map_fn(
-            lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_ensemble)
-        )
-    else:
-        tensors_0 = wrap_ensemble_fn(tensors, 0)
-        tensors = tree.map_structure(lambda x: x[None], tensors_0)
+    tensors = map_fn(
+        lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_ensemble)
+    )
 
     return tensors
 
