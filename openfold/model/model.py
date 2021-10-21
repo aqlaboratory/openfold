@@ -202,7 +202,7 @@ class AlphaFold(nn.Module):
         )
 
         # Inject information from previous recycling iterations
-        if _recycle is True:
+        if _recycle:
             # Initialize the recycling embeddings, if needs be
             if None in [m_1_prev, z_prev, x_prev]:
                 # [*, N, C_m]
