@@ -39,9 +39,9 @@ def checkpoint_blocks(
         args:
             Tuple of arguments for the first block.
         blocks_per_ckpt:
-            Size of each chunk. A higher value corresponds to higher memory
-            consumption but fewer checkpoints. If None, no checkpointing is
-            performed.
+            Size of each chunk. A higher value corresponds to fewer 
+            checkpoints, and trades memory for speed. If None, no checkpointing 
+            is performed.
     Returns:
         The output of the final block
     """
