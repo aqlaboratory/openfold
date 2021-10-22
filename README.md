@@ -56,7 +56,7 @@ scripts/download_all_data.sh data/
 
 This script depends on `aria2c`.
 
-# Inference
+### Inference
 
 To run inference on a sequence using a set of DeepMind's pretrained parameters, 
 run e.g.
@@ -76,7 +76,7 @@ python3 run_pretrained_openfold.py \
 
 where `data` is the same directory as in the previous step.
 
-# Training
+### Training
 
 To train the model, you will first need to precompute protein alignments. After
 installing OpenFold using `setup.py`, do so with:
