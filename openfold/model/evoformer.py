@@ -19,7 +19,6 @@ from typing import Tuple, Optional
 from functools import partial
 
 from openfold.model.primitives import Linear
-from openfold.utils.deepspeed import checkpoint_blocks
 from openfold.model.dropout import DropoutRowwise, DropoutColumnwise
 from openfold.model.msa import (
     MSARowAttentionWithPairBias,
@@ -36,6 +35,7 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
 )
+from openfold.utils.checkpointing import checkpoint_blocks
 from openfold.utils.tensor_utils import chunk_layer
 
 

@@ -19,7 +19,6 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear, Attention
-from openfold.utils.deepspeed import checkpoint_blocks
 from openfold.model.dropout import (
     DropoutRowwise,
     DropoutColumnwise,
@@ -33,6 +32,7 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
 )
+from openfold.utils.checkpointing import checkpoint_blocks
 from openfold.utils.tensor_utils import (
     chunk_layer,
     permute_final_dims,
