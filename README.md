@@ -49,6 +49,12 @@ To deactivate it, run:
 source scripts/deactivate_conda_venv.sh
 ```
 
+To install the HH-suite to `/usr/bin`, run
+
+```bash
+# scripts/install_hh_suite.sh
+```
+
 ## Usage
 
 To download the genetic databases used by AlphaFold/OpenFold, run:
