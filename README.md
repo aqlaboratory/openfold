@@ -27,7 +27,7 @@ Python dependencies available through `pip` are provided in `requirements.txt`.
 OpenFold depends on `openmm==7.5.1` and `pdbfixer`, which are only available 
 via `conda`. For producing sequence alignments, you'll also need `jackhmmer`, 
 `kalign`, and the [HH-suite](https://github.com/soedinglab/hh-suite) installed 
-on your system.
+on your system. Finally, some download scripts require `aria2c`.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
@@ -62,8 +62,6 @@ To download the genetic databases used by AlphaFold/OpenFold, run:
 ```bash
 scripts/download_all_data.sh data/
 ```
-
-This script depends on `aria2c`.
 
 ### Inference
 
