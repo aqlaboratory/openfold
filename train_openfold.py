@@ -2,24 +2,32 @@ import argparse
 import logging
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+#os.environ["MASTER_ADDR"]="10.119.81.14"
+#os.environ["MASTER_PORT"]="42069"
+#os.environ["NODE_RANK"]="0"
+
 
 import random
 import time
 
 import numpy as np
 import pytorch_lightning as pl
+from pytorch_lightning.plugins import DDPPlugin
 from pytorch_lightning.plugins.training_type import DeepSpeedPlugin
 import torch
 
 from openfold.config import model_config
 from openfold.data.data_modules import (
     OpenFoldDataModule,
+    DummyDataLoader,
 )
 from openfold.model.model import AlphaFold
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
 from openfold.utils.loss import AlphaFoldLoss
 from openfold.utils.tensor_utils import tensor_tree_map
+
+import copy
 
 
 class OpenFoldWrapper(pl.LightningModule):
@@ -28,12 +36,17 @@ class OpenFoldWrapper(pl.LightningModule):
         self.config = config
         self.model = AlphaFold(config)
         self.loss = AlphaFoldLoss(config.loss)
-        self.ema = ExponentialMovingAverage(self.model, decay=config.ema.decay)
+        self.ema = ExponentialMovingAverage(
+            model=self.model, decay=config.ema.decay
+        )
 
     def forward(self, batch):
         return self.model(batch)
 
     def training_step(self, batch, batch_idx):
+        if(self.ema.device != batch["aatype"].device):
+            self.ema.to(batch["aatype"].device)
+
         # Run the model
         outputs = self(batch)
         
@@ -82,20 +95,31 @@ def main(args):
         "model_1", 
         train=True, 
         low_prec=(args.precision == 16)
-    )
+    ) 
 
+    model_module = OpenFoldWrapper(config) 
+    #data_module = DummyDataLoader("batch.pickle")
+    data_module = OpenFoldDataModule(
+        config=config.data, 
+        batch_seed=args.seed,
+        **vars(args)
+    )
+    data_module.prepare_data()
+    data_module.setup()
+    
     plugins = []
-    #plugins.append(DeepSpeedPlugin(config="deepspeed_config.json"))
+    if(args.deepspeed_config_path is not None):
+        plugins.append(DeepSpeedPlugin(config=args.deepspeed_config_path))
+    
+    #os.environ["TORCH_DISTRIBUTED_DEBUG"] = "DETAIL"
+    #plugins.append(DDPPlugin(find_unused_parameters=True))
 
     trainer = pl.Trainer.from_argparse_args(
         args,
         plugins=plugins,
     )
 
-    model_module = OpenFoldWrapper(config) 
-    data_module = OpenFoldDataModule(config=config.data, **vars(args))
-    
-    trainer.fit(model_module, data_module)
+    trainer.fit(model_module, datamodule=data_module)
 
 
 if __name__ == "__main__":
@@ -160,6 +184,10 @@ if __name__ == "__main__":
         "--seed", type=int, default=None,
         help="Random seed"
     )
+    parser.add_argument(
+        "--deepspeed_config_path", type=str, default=None,
+        help="Path to DeepSpeed config. If not provided, DeepSpeed is disabled"
+    )
     parser = pl.Trainer.add_argparse_args(parser)
     
     parser.set_defaults(
@@ -172,5 +200,6 @@ if __name__ == "__main__":
         torch.manual_seed(args.seed)
         random.seed(args.seed + 1)
         np.random.seed(args.seed + 2)
+        args.seed += 1
 
     main(args)

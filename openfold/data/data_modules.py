@@ -2,6 +2,7 @@ from functools import partial
 import json
 import logging
 import os
+import pickle
 from typing import Optional, Sequence
 
 import ml_collections as mlc
@@ -446,3 +447,24 @@ class OpenFoldDataModule(pl.LightningDataModule):
             num_workers=self.config.data_module.data_loaders.num_workers,
             collate_fn=self._gen_batch_collator("predict")
         )
+
+
+class DummyDataset(torch.utils.data.Dataset):
+    def __init__(self, batch_path):
+        with open(batch_path, "rb") as f:
+            batch = pickle.load(f)
+
+    def __getitem__(self, idx):
+        return copy.deepcopy(self.batch)
+
+    def __len__(self):
+        return 1000
+
+
+class DummyDataLoader(pl.LightningDataModule):
+    def __init__(self):
+        super().__init__()
+        self.dataset = Dataset()
+
+    def train_dataloader(self):
+        return torch.utils.data.DataLoader(self.dataset)
