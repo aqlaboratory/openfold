@@ -20,6 +20,8 @@ parser = argparse.ArgumentParser(description='''Outputs a DeepSpeed
                                                 configuration file to 
                                                 stdout''')
 
+parser.add_argument("--gradient_clipping", type=float, default=None,
+                    help="Value of gradient clipping")
 p = parser.add_argument_group("Optimizer")
 p.add_argument("--optimizer", default=None,
                help='''Choice of optimizer. Choose between "Adam" or 
@@ -294,5 +296,8 @@ flops_profiler["module_depth"] = args.module_depth
 flops_profiler["top_modules"] = args.top_modules
 flops_profiler["detailed"] = args.detailed_flops_profile
 d ["flops_profiler"] = flops_profiler
+
+if(args.gradient_clipping):
+    d["gradient_clipping"] = args.gradient_clipping
 
 print(json.dumps(d, indent=2))
