@@ -25,7 +25,7 @@ in the future.
 Python dependencies available through `pip` are provided in `requirements.txt`. 
 OpenFold depends on `openmm==7.5.1` and `pdbfixer`, which are only available 
 via `conda`. For producing sequence alignments, you'll also need `jackhmmer`, 
-`kalign`, and the [HH-Suite](https://github.com/soedinglab/hh-suite) installed 
+`kalign`, and the [HH-suite](https://github.com/soedinglab/hh-suite) installed 
 on your system.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
