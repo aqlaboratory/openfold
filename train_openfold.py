@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
@@ -25,9 +25,8 @@ from openfold.data.data_modules import (
 from openfold.model.model import AlphaFold
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
 from openfold.utils.loss import AlphaFoldLoss
+from openfold.utils.seed import seed_everything
 from openfold.utils.tensor_utils import tensor_tree_map
-
-import copy
 
 
 class OpenFoldWrapper(pl.LightningModule):
@@ -91,6 +90,9 @@ class OpenFoldWrapper(pl.LightningModule):
 
 
 def main(args):
+    if(args.seed is not None):
+        seed_everything(args.seed) 
+
     config = model_config(
         "model_1", 
         train=True, 
@@ -111,9 +113,6 @@ def main(args):
     if(args.deepspeed_config_path is not None):
         plugins.append(DeepSpeedPlugin(config=args.deepspeed_config_path))
     
-    #os.environ["TORCH_DISTRIBUTED_DEBUG"] = "DETAIL"
-    #plugins.append(DDPPlugin(find_unused_parameters=True))
-
     trainer = pl.Trainer.from_argparse_args(
         args,
         plugins=plugins,
@@ -195,11 +194,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    if(args.seed is not None):
-        torch.manual_seed(args.seed)
-        random.seed(args.seed + 1)
-        np.random.seed(args.seed + 2)
-        args.seed += 1
 
     main(args)
