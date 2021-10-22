@@ -17,7 +17,7 @@ Try it out with our [Colab notebook](https://colab.research.google.com/github/aq
 
 Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
 with or without [DeepSpeed](https://github.com/microsoft/deepspeed) and with 
-mixed precision. bfloat16 training is not currently supported, but will be 
+mixed precision. `bfloat16` training is not currently supported, but will be 
 in the future.
 
 ## Installation (Linux)
@@ -96,10 +96,13 @@ python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
 
 Expect this step to take a very long time, even for small numbers of proteins.
 
-Next, generate a cache of certain datapoints in the mmCIF files as follows:
+Next, generate a cache of certain datapoints in the mmCIF files:
 
 ```bash
-python3 scripts/generate_mmcif_cache.py mmcif_dir/ mmcif_cache.json --no_workers 16
+python3 scripts/generate_mmcif_cache.py \
+    mmcif_dir/ \
+    mmcif_cache.json \
+    --no_workers 16
 ```
 
 This cache is used to minimize the number of mmCIF parses performed during 
