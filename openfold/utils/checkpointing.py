@@ -31,8 +31,6 @@ def checkpoint_blocks(
     checkpointing. We define a "block" as a callable whose only inputs are
     the outputs of the previous block.
 
-    This function assumes that deepspeed has already been initialized.
-
     Implements Subsection 1.11.8
 
     Args:
