@@ -9,7 +9,7 @@ OpenFold carefully reproduces (almost) all of the features of the original open
 source inference code. The sole exception is model ensembling, which fared
 poorly in DeepMind's own ablation testing and is being phased out in future
 DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
-cases where the Nature paper differs from the source, we always defer to the 
+cases where the *Nature* paper differs from the source, we always defer to the 
 latter. 
 
 OpenFold is built to support inference with AlphaFold's original JAX weights.
@@ -56,6 +56,8 @@ scripts/download_all_data.sh data/
 
 This script depends on `aria2c`.
 
+# Inference
+
 To run inference on a sequence using a set of DeepMind's pretrained parameters, 
 run e.g.
 
@@ -72,13 +74,9 @@ python3 run_pretrained_openfold.py \
     --device cuda:1
 ```
 
-where `data` is the same directory as in the previous step. Run
+where `data` is the same directory as in the previous step.
 
-```bash
-python3 run_pretrained_openfold.py --help
-```
-
-for a full list of options.
+# Training
 
 To train the model, you will first need to precompute protein alignments. After
 installing OpenFold using `setup.py`, do so with:
