@@ -207,7 +207,7 @@ class Attention(nn.Module):
         self.gating = gating
 
         # DISCREPANCY: c_hidden is not the per-head channel dimension, as
-        # stated in the supplement, but the overall channel dimension
+        # stated in the supplement, but the overall channel dimension.
 
         self.linear_q = Linear(
             self.c_q, self.c_hidden * self.no_heads, bias=False, init="glorot"
@@ -271,9 +271,11 @@ class Attention(nn.Module):
 
         norm = 1 / math.sqrt(self.c_hidden)  # [1]
         a *= norm
+
         if biases is not None:
             for b in biases:
                 a = a + b
+
         a = self.softmax(a)
 
         # [*, H, V, C_hidden]

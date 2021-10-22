@@ -97,11 +97,15 @@ class MSAAttention(nn.Module):
         # [*, N_seq, 1, 1, N_res]
         bias = (self.inf * (mask - 1))[..., :, None, None, :]
 
+        # This step simply returns a larger view of the bias, and does not
+        # consume additional memory.
         # [*, N_seq, no_heads, N_res, N_res]
         bias = bias.expand(
             ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
         )
+        
         biases = [bias]
+
         if self.pair_bias:
             # [*, N_res, N_res, C_z]
             z = self.layer_norm_z(z)
@@ -190,7 +194,7 @@ class MSAColumnAttention(MSAAttention):
                 [*, N_seq, N_res, C_m] MSA embedding
             mask:
                 [*, N_seq, N_res] MSA mask
-        """
+        """ 
         # [*, N_res, N_seq, C_in]
         m = m.transpose(-2, -3)
         if mask is not None:

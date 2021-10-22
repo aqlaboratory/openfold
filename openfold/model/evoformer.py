@@ -349,7 +349,7 @@ class EvoformerStack(nn.Module):
             z:
                 [*, N_res, N_res, C_z] pair embedding
             s:
-                [*, N_res, C_s] single embedding
+                [*, N_res, C_s] single embedding (or None if extra MSA stack)
         """
         m, z = checkpoint_blocks(
             blocks=[
