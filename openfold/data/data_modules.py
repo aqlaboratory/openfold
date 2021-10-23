@@ -1,3 +1,4 @@
+import copy
 from functools import partial
 import json
 import logging
@@ -462,9 +463,9 @@ class DummyDataset(torch.utils.data.Dataset):
 
 
 class DummyDataLoader(pl.LightningDataModule):
-    def __init__(self):
+    def __init__(self, batch_path):
         super().__init__()
-        self.dataset = Dataset()
+        self.dataset = DummyDataset(batch_path)
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.dataset)

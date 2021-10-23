@@ -179,6 +179,7 @@ config = mlc.ConfigDict(
                     "all_atom_positions",
                     "resolution",
                     "use_clamped_fape",
+                    "is_distillation",
                 ],
             },
             "predict": {
@@ -192,6 +193,7 @@ config = mlc.ConfigDict(
                 "crop": False,
                 "crop_size": None,
                 "supervised": False,
+                "subsample_recycling": False,
             },
             "eval": {
                 "fixed_size": True,
@@ -204,6 +206,7 @@ config = mlc.ConfigDict(
                 "crop": False,
                 "crop_size": None,
                 "supervised": True,
+                "subsample_recycling": False,
             },
             "train": {
                 "fixed_size": True,
@@ -218,6 +221,7 @@ config = mlc.ConfigDict(
                 "supervised": True,
                 "clamp_prob": 0.9,
                 "subsample_recycling": True,
+                "max_distillation_msa_clusters": 1000,
             },
             "data_module": {
                 "use_small_bfd": False,

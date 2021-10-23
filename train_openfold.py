@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
@@ -223,7 +223,7 @@ if __name__ == "__main__":
         help="Path to DeepSpeed config. If not provided, DeepSpeed is disabled"
     )
     parser.add_argument(
-        "--checkpoint_best_val", type=int, default=True,
+        "--checkpoint_best_val", type=bool, default=True,
         help="""Whether to save the model parameters that perform best during
                 validation"""
     )

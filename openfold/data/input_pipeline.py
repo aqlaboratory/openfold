@@ -25,7 +25,6 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
     transforms = [
         data_transforms.cast_to_64bit_ints,
         data_transforms.correct_msa_restypes,
-        data_transforms.add_distillation_flag(False),
         data_transforms.squeeze_features,
         data_transforms.randomly_replace_msa_with_unknown(0.0),
         data_transforms.make_seq_mask,
@@ -71,6 +70,13 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
 def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
     """Input pipeline data transformers that can be ensembled and averaged."""
     transforms = []
+
+    if "max_distillation_msa_clusters" in mode_cfg:
+        transforms.append(
+            data_transforms.sample_msa_distillation(
+                mode_cfg.max_distillation_msa_clusters
+            )
+        )
 
     if common_cfg.reduce_msa_clusters_by_max_templates:
         pad_msa_clusters = mode_cfg.max_msa_clusters - mode_cfg.max_templates

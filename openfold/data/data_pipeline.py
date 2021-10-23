@@ -113,6 +113,7 @@ def make_pdb_features(
     pdb_feats["all_atom_positions"] = all_atom_positions
     pdb_feats["all_atom_mask"] = all_atom_mask
 
+    pdb_feats["resolution"] = np.array([0.]).astype(np.float32)
     pdb_feats["is_distillation"] = np.array(1.).astype(np.float32)
 
     return pdb_feats
@@ -412,16 +413,12 @@ class DataPipeline:
 
         pdb_feats = make_pdb_features(protein_object)
 
-
-        mmcif_feats = make_mmcif_features(mmcif, chain_id)
-
         alignments = self._parse_alignment_output(alignment_dir)
 
-        input_sequence = mmcif.chain_to_seqres[chain_id]
         templates_result = self.template_featurizer.get_templates(
-            query_sequence=input_sequence,
+            query_sequence=protein_object.aatype,
             query_pdb_code=None,
-            query_release_date=to_date(mmcif.header["release_date"]),
+            query_release_date=None,
             hits=alignments["hhsearch_hits"],
         )
 
@@ -438,4 +435,4 @@ class DataPipeline:
             ),
         )
 
-        return {**mmcif_feats, **templates_result.features, **msa_features}
+        return {**pdb_feats, **templates_result.features, **msa_features}

@@ -77,14 +77,6 @@ def curry1(f):
     return fc
 
 
-@curry1
-def add_distillation_flag(protein, distillation):
-    protein["is_distillation"] = torch.tensor(
-        float(distillation), dtype=torch.float32
-    )
-    return protein
-
-
 def make_all_atom_aatype(protein):
     protein["all_atom_aatype"] = protein["aatype"]
     return protein
@@ -176,7 +168,6 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
     )
     return protein
 
-
 @curry1
 def sample_msa(protein, max_seq, keep_extra):
     """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`."""
@@ -195,6 +186,13 @@ def sample_msa(protein, max_seq, keep_extra):
                     protein[k], 0, not_sel_seq
                 )
             protein[k] = torch.index_select(protein[k], 0, sel_seq)
+    return protein
+
+
+@curry1
+def sample_msa_distillation(protein, max_seq):
+    if(protein["is_distillation"] == 1):
+        protein = sample_msa(protein, max_seq, keep_extra=False)
     return protein
 
 
