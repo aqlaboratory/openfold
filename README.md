@@ -40,13 +40,13 @@ scripts/install_third_party_dependencies.sh
 To activate the environment, run:
 
 ```bash
-source scripts/activate_conda_venv.sh
+source scripts/activate_conda_env.sh
 ```
 
 To deactivate it, run:
 
 ```bash
-source scripts/deactivate_conda_venv.sh
+source scripts/deactivate_conda_env.sh
 ```
 
 To install the HH-suite to `/usr/bin`, run
@@ -65,8 +65,7 @@ scripts/download_all_data.sh data/
 
 ### Inference
 
-To run inference on a sequence using a set of DeepMind's pretrained parameters, 
-run e.g.
+To run inference on a sequence `target.fasta` (e.g., `wget https://www.rcsb.org/fasta/entry/4DSN`) using a set of DeepMind's pretrained parameters, run e.g.
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -78,15 +77,22 @@ python3 run_pretrained_openfold.py \
     data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --output_dir ./ \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --device cuda:1
+    --device cuda:1 \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
+    --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
 ```
 
-where `data` is the same directory as in the previous step.
+where `data` is the same directory as in the previous step. If `jackhmmer`, `hhblits`, `hhsearch` and `kalign` are available at the default path of `/usr/bin`, their `binary_path` command-line arguments can be dropped. 
 
 ### Training
 
-To train the model, you will first need to precompute protein alignments. After
-installing OpenFold using `setup.py`, do so with:
+After activating the OpenFold environment with `source scripts/activate_conda_env.sh`, install OpenFold by running
+```bash
+python setup.py install
+```
+To train the model, you will first need to precompute protein alignments. Create `mmcif_dir/` and download `.cif` files from the PDB (e.g., `wget https://files.rcsb.org/download/4DSN.cif`). Then run:
 
 ```bash
 python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
@@ -96,9 +102,13 @@ python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
     data/pdb_mmcif/mmcif_files/ \
     data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --cpus 16
+    --cpus 16 \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
+    --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
 ```
-
+As noted before, you can skip the `binary_path` arguments if these binaries are at `/usr/bin`.
 Expect this step to take a very long time, even for small numbers of proteins.
 
 Next, generate a cache of certain datapoints in the mmCIF files:
