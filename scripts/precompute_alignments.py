@@ -3,9 +3,14 @@ import logging
 import os
 import tempfile
 
-import openfold.features.mmcif_parsing as mmcif_parsing
-from openfold.features.data_pipeline import AlignmentRunner
-from scripts.utils import add_data_args
+import openfold.data.mmcif_parsing as mmcif_parsing
+from openfold.data.data_pipeline import AlignmentRunner
+
+from utils import add_data_args
+
+#python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/     data/uniref90/uniref90.fasta     data/mgnify/mgy_clusters_2018_12.fa     data/pdb70/pdb70     data/pdb_mmcif/mmcif_files/     data/uniclust30/uniclust30_2018_08/uniclust30_2018_08     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt     --cpus 16  --jackhmmer_binary_path /home/u00u98too4mkqFBu8M357/openfold/lib/conda/envs/openfold_venv/bin/jackhmmer  --hhblits_binary_path /home/u00u98too4mkqFBu8M357/openfold/lib/conda/envs/openfold_venv/bin/hhblits  --hhsearch_binary_path /home/u00u98too4mkqFBu8M357/openfold/lib/conda/envs/openfold_venv/bin/hhsearch  --kalign_binary_path /home/u00u98too4mkqFBu8M357/openfold/lib/conda/envs/openfold_venv/bin/kalign
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main(args):

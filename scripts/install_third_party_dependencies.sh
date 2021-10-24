@@ -21,6 +21,10 @@ conda update -qy conda \
       openmm=7.5.1 \
       pdbfixer
 
+# Comment out if you have these already installed on your system, for example in /usr/bin/
+conda install -c bioconda aria2
+conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
+
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
 pushd lib/conda/envs/$ENV_NAME/lib/python3.7/site-packages/ \
