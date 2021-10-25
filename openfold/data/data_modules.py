@@ -453,7 +453,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
 class DummyDataset(torch.utils.data.Dataset):
     def __init__(self, batch_path):
         with open(batch_path, "rb") as f:
-            batch = pickle.load(f)
+            self.batch = pickle.load(f)
 
     def __getitem__(self, idx):
         return copy.deepcopy(self.batch)
