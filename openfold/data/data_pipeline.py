@@ -339,12 +339,16 @@ class DataPipeline:
 
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
-        templates_result = self.template_featurizer.get_templates(
-            query_sequence=input_sequence,
-            query_pdb_code=None,
-            query_release_date=None,
-            hits=hits_cat,
-        )
+        if(len(hits_cat) == 0):
+            template_features = {}
+        else:
+            templates_result = self.template_featurizer.get_templates(
+                query_sequence=input_sequence,
+                query_pdb_code=None,
+                query_release_date=None,
+                hits=hits_cat,
+            )
+            template_features = templates_result.features
 
         sequence_features = make_sequence_features(
             sequence=input_sequence,
@@ -357,7 +361,7 @@ class DataPipeline:
         return {
             **sequence_features,
             **msa_features, 
-            **templates_result.features
+            **template_features
         }
 
     def process_mmcif(
@@ -384,17 +388,20 @@ class DataPipeline:
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
-        print(len(hits_cat))
-        templates_result = self.template_featurizer.get_templates(
-            query_sequence=input_sequence,
-            query_pdb_code=None,
-            query_release_date=to_date(mmcif.header["release_date"]),
-            hits=hits_cat,
-        )
+        if(len(hits_cat) == 0):
+            template_features = {}
+        else:
+            templates_result = self.template_featurizer.get_templates(
+                query_sequence=input_sequence,
+                query_pdb_code=None,
+                query_release_date=to_date(mmcif.header["release_date"]),
+                hits=hits_cat,
+            )
+            template_features = templates_result.features
 
         msa_features = self._process_msa_feats(alignment_dir)
 
-        return {**mmcif_feats, **templates_result.features, **msa_features}
+        return {**mmcif_feats, **template_features, **msa_features}
 
     def process_pdb(
         self,
@@ -413,13 +420,17 @@ class DataPipeline:
 
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
-        templates_result = self.template_featurizer.get_templates(
-            query_sequence=input_sequence,
-            query_pdb_code=None,
-            query_release_date=None,
-            hits=hits_cat,
-        )
+        if(len(hits_cat) == 0):
+            template_features = {}
+        else:
+            templates_result = self.template_featurizer.get_templates(
+                query_sequence=input_sequence,
+                query_pdb_code=None,
+                query_release_date=None,
+                hits=hits_cat,
+            )
+            template_features = templates_result.features
 
         msa_features = self._process_msa_feats(alignment_dir)
 
-        return {**pdb_feats, **templates_result.features, **msa_features}
+        return {**pdb_feats, **template_features, **msa_features}
