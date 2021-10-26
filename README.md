@@ -63,6 +63,12 @@ To download the genetic databases used by AlphaFold/OpenFold, run:
 scripts/download_all_data.sh data/
 ```
 
+Alternatively, you can use raw MSAs from 
+[ProteinNet](https://github.com/aqlaboratory/proteinnet). After downloading
+the database, use `scripts/prepare_proteinnet_msas.py` to convert the data into
+a format recognized by the OpenFold parser. The resulting directory becomes the
+`alignment_dir` used in subsequent steps.
+
 ### Inference
 
 To run inference on a sequence `target.fasta` (e.g., `wget https://www.rcsb.org/fasta/entry/4DSN`) using a set of DeepMind's pretrained parameters, run e.g.
