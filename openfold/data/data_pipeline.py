@@ -260,47 +260,65 @@ class DataPipeline:
     def __init__(
         self,
         template_featurizer: templates.TemplateHitFeaturizer,
-        use_small_bfd: bool,
     ):
         self.template_featurizer = template_featurizer
-        self.use_small_bfd = use_small_bfd
 
-    def _parse_alignment_output(
+    def _parse_msa_data(
         self,
         alignment_dir: str,
     ) -> Mapping[str, Any]:
-        uniref90_out_path = os.path.join(alignment_dir, "uniref90_hits.a3m")
-        with open(uniref90_out_path, "r") as f:
-            uniref90_msa, uniref90_deletion_matrix = parsers.parse_a3m(f.read())
+        msa_data = {}
+        for f in os.listdir(alignment_dir):
+            path = os.path.join(alignment_dir, f)
+            ext = os.path.splitext(f)[-1]
 
-        mgnify_out_path = os.path.join(alignment_dir, "mgnify_hits.a3m")
-        with open(mgnify_out_path, "r") as f:
-            mgnify_msa, mgnify_deletion_matrix = parsers.parse_a3m(f.read())
+            if(ext == ".a3m"):
+                with open(path, "r") as fp:
+                    msa, deletion_matrix = parsers.parse_a3m(fp.read())
+                data = {"msa": msa, "deletion_matrix": deletion_matrix}
+            elif(ext == ".sto"):
+                with open(path, "r") as fp:
+                    msa, deletion_matrix, _ = parsers.parse_stockholm(
+                        fp.read()
+                    )
+                data = {"msa": msa, "deletion_matrix": deletion_matrix}
+            else:
+                continue
+            
+            msa_data[f] = data
 
-        pdb70_out_path = os.path.join(alignment_dir, "pdb70_hits.hhr")
-        with open(pdb70_out_path, "r") as f:
-            hhsearch_hits = parsers.parse_hhr(f.read())
+        return msa_data
 
-        if self.use_small_bfd:
-            bfd_out_path = os.path.join(alignment_dir, "small_bfd_hits.sto")
-            with open(bfd_out_path, "r") as f:
-                bfd_msa, bfd_deletion_matrix, _ = parsers.parse_stockholm(
-                    f.read()
-                )
-        else:
-            bfd_out_path = os.path.join(alignment_dir, "bfd_uniclust_hits.a3m")
-            with open(bfd_out_path, "r") as f:
-                bfd_msa, bfd_deletion_matrix = parsers.parse_a3m(f.read())
+    def _parse_template_hits(
+        self,
+        alignment_dir: str,
+    ) -> Mapping[str, Any]:
+        all_hits = {}
+        for f in os.listdir(alignment_dir):
+            path = os.path.join(alignment_dir, f)
+            ext = os.path.splitext(f)[-1]
 
-        return {
-            "uniref90_msa": uniref90_msa,
-            "uniref90_deletion_matrix": uniref90_deletion_matrix,
-            "mgnify_msa": mgnify_msa,
-            "mgnify_deletion_matrix": mgnify_deletion_matrix,
-            "hhsearch_hits": hhsearch_hits,
-            "bfd_msa": bfd_msa,
-            "bfd_deletion_matrix": bfd_deletion_matrix,
-        }
+            if(ext == ".hhr"):
+                with open(path, "r") as fp:
+                    hits = parsers.parse_hhr(fp.read())
+                all_hits[f] = hits
+
+        return all_hits
+
+    def _process_msa_feats(
+        self,
+        alignment_dir: str,
+    ) -> Mapping[str, Any]:
+        msa_data = self._parse_msa_data(alignment_dir)
+        msas, deletion_matrices = zip(*[
+            (v["msa"], v["deletion_matrix"]) for v in msa_data.values()
+        ])
+        msa_features = make_msa_features(
+            msas=msas,
+            deletion_matrices=deletion_matrices,
+        )
+
+        return msa_features
 
     def process_fasta(
         self,
@@ -319,13 +337,13 @@ class DataPipeline:
         input_description = input_descs[0]
         num_res = len(input_sequence)
 
-        alignments = self._parse_alignment_output(alignment_dir)
-
+        hits = self._parse_template_hits(alignment_dir)
+        hits_cat = sum(hits.values(), [])
         templates_result = self.template_featurizer.get_templates(
             query_sequence=input_sequence,
             query_pdb_code=None,
             query_release_date=None,
-            hits=alignments["hhsearch_hits"],
+            hits=hits_cat,
         )
 
         sequence_features = make_sequence_features(
@@ -334,18 +352,8 @@ class DataPipeline:
             num_res=num_res,
         )
 
-        msa_features = make_msa_features(
-            msas=(
-                alignments["uniref90_msa"],
-                alignments["bfd_msa"],
-                alignments["mgnify_msa"],
-            ),
-            deletion_matrices=(
-                alignments["uniref90_deletion_matrix"],
-                alignments["bfd_deletion_matrix"],
-                alignments["mgnify_deletion_matrix"],
-            ),
-        )
+        msa_features = self._process_msa_feats(alignment_dir)
+        
         return {
             **sequence_features,
             **msa_features, 
@@ -373,28 +381,18 @@ class DataPipeline:
 
         mmcif_feats = make_mmcif_features(mmcif, chain_id)
 
-        alignments = self._parse_alignment_output(alignment_dir)
-
         input_sequence = mmcif.chain_to_seqres[chain_id]
+        hits = self._parse_template_hits(alignment_dir)
+        hits_cat = sum(hits.values(), [])
+        print(len(hits_cat))
         templates_result = self.template_featurizer.get_templates(
             query_sequence=input_sequence,
             query_pdb_code=None,
             query_release_date=to_date(mmcif.header["release_date"]),
-            hits=alignments["hhsearch_hits"],
+            hits=hits_cat,
         )
 
-        msa_features = make_msa_features(
-            msas=(
-                alignments["uniref90_msa"],
-                alignments["bfd_msa"],
-                alignments["mgnify_msa"],
-            ),
-            deletion_matrices=(
-                alignments["uniref90_deletion_matrix"],
-                alignments["bfd_deletion_matrix"],
-                alignments["mgnify_deletion_matrix"],
-            ),
-        )
+        msa_features = self._process_msa_feats(alignment_dir)
 
         return {**mmcif_feats, **templates_result.features, **msa_features}
 
@@ -413,26 +411,15 @@ class DataPipeline:
 
         pdb_feats = make_pdb_features(protein_object)
 
-        alignments = self._parse_alignment_output(alignment_dir)
-
+        hits = self._parse_template_hits(alignment_dir)
+        hits_cat = sum(hits.values(), [])
         templates_result = self.template_featurizer.get_templates(
-            query_sequence=protein_object.aatype,
+            query_sequence=input_sequence,
             query_pdb_code=None,
             query_release_date=None,
-            hits=alignments["hhsearch_hits"],
+            hits=hits_cat,
         )
 
-        msa_features = make_msa_features(
-            msas=(
-                alignments["uniref90_msa"],
-                alignments["bfd_msa"],
-                alignments["mgnify_msa"],
-            ),
-            deletion_matrices=(
-                alignments["uniref90_deletion_matrix"],
-                alignments["bfd_deletion_matrix"],
-                alignments["mgnify_deletion_matrix"],
-            ),
-        )
+        msa_features = self._process_msa_feats(alignment_dir)
 
         return {**pdb_feats, **templates_result.features, **msa_features}

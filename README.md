@@ -17,9 +17,9 @@ Try it out with our [Colab notebook](https://colab.research.google.com/github/aq
 (not yet visible from Colab because the repo is still private).
 
 Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
-with or without [DeepSpeed](https://github.com/microsoft/deepspeed) and with 
-mixed precision. `bfloat16` training is not currently supported, but will be 
-in the future.
+with [DeepSpeed](https://github.com/microsoft/deepspeed) and with mixed 
+precision. `bfloat16` training is not currently supported, but will be in the 
+future.
 
 ## Installation (Linux)
 

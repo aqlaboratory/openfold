@@ -46,11 +46,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     output by an AlignmentRunner 
                     (defined in openfold.features.alignment_runner).
                     I.e. a directory of directories named {PDB_ID}_{CHAIN_ID}
-                    or simply {PDB_ID}, each containing:
-                        * bfd_uniclust_hits.a3m/small_bfd_hits.sto
-                        * mgnify_hits.a3m
-                        * pdb70_hits.hhr
-                        * uniref90_hits.a3m
+                    or simply {PDB_ID}, each containing .a3m, .sto, and .hhr
+                    files.
                 config:
                     A dataset config object. See openfold.config
                 mapping_path:
@@ -97,7 +94,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
 
         self.data_pipeline = data_pipeline.DataPipeline(
             template_featurizer=template_featurizer,
-            use_small_bfd=use_small_bfd,
         )
 
         if(not self.output_raw):
