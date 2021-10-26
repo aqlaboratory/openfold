@@ -2,11 +2,10 @@ import argparse
 import logging
 import os
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
-
 
 import random
 import time
@@ -27,9 +26,13 @@ from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
+from openfold.utils.argparse import remove_arguments
 from openfold.utils.loss import AlphaFoldLoss
 from openfold.utils.seed import seed_everything
 from openfold.utils.tensor_utils import tensor_tree_map
+from scripts.zero_to_fp32 import (
+    get_fp32_state_dict_from_zero_checkpoint
+)
 
 
 class OpenFoldWrapper(pl.LightningModule):
@@ -104,8 +107,12 @@ def main(args):
         train=True, 
         low_prec=(args.precision == 16)
     ) 
-
-    model_module = OpenFoldWrapper(config) 
+    model_module = OpenFoldWrapper(config)
+    if(args.resume_from_ckpt and args.resume_model_weights_only):
+        sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
+        sd = {k[len("module."):]:v for k,v in sd.items()}
+        model_module.load_state_dict(sd)
+        logging.info("Successfully loaded model weights...")
     #data_module = DummyDataLoader("batch.pickle")
     data_module = OpenFoldDataModule(
         config=config.data, 
@@ -114,7 +121,7 @@ def main(args):
     )
     data_module.prepare_data()
     data_module.setup()
-   
+
     callbacks = []
     if(args.checkpoint_best_val):
         checkpoint_dir = os.path.join(args.output_dir, "checkpoints")
@@ -137,17 +144,30 @@ def main(args):
         )
         callbacks.append(es)
 
-    plugins = []
     if(args.deepspeed_config_path is not None):
-        plugins.append(DeepSpeedPlugin(config=args.deepspeed_config_path))
+        strategy = DeepSpeedPlugin(config=args.deepspeed_config_path)
+    else:
+        strategy = "ddp"
     
     trainer = pl.Trainer.from_argparse_args(
         args,
-        plugins=plugins,
+        strategy=strategy,
     )
 
-    trainer.fit(model_module, datamodule=data_module)
-    trainer.save_checkpoint("final.ckpt")
+    if(args.resume_model_weights_only):
+        ckpt_path = None
+    else:
+        ckpt_path = args.resume_from_ckpt
+
+    trainer.fit(
+        model_module, 
+        datamodule=data_module,
+        ckpt_path=ckpt_path,
+    )
+
+    trainer.save_checkpoint(
+        os.path.join(trainer.logger.log_dir, "checkpoints", "final.ckpt")
+    )
 
 
 if __name__ == "__main__":
@@ -239,11 +259,23 @@ if __name__ == "__main__":
         "--patience", type=int, default=3,
         help="Early stopping patience"
     )
+    parser.add_argument(
+        "--resume_from_ckpt", type=str, default=None,
+        help="Path to a model checkpoint from which to restore training state"
+    )
+    parser.add_argument(
+        "--resume_model_weights_only", type=bool, default=False,
+        help="Whether to load just model weights as opposed to training state"
+    )
     parser = pl.Trainer.add_argparse_args(parser)
-    
+   
+    # Disable the initial validation pass
     parser.set_defaults(
         num_sanity_val_steps=0,
     )
+
+    # Remove some buggy/redundant arguments introduced by the Trainer
+    remove_arguments(parser, ["--accelerator", "--resume_from_checkpoint"]) 
 
     args = parser.parse_args()
 

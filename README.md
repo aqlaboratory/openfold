@@ -137,9 +137,9 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
     --template_release_dates_cache_path mmcif_cache.json \ 
     --precision 16 \
     --gpus 8 --replace_sampler_ddp=True \
-    --accelerator ddp \ 
     --seed 42 \ # in multi-gpu settings, the seed must be specified
-    --deepspeed_config_path deepspeed_config.json
+    --deepspeed_config_path deepspeed_config.json \
+    --resume_from_ckpt ckpt_dir/
 ```
 
 where `--template_release_dates_cache_path` is a path to the `.json` file
