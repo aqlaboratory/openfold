@@ -120,9 +120,6 @@ def compute_fape(
     return normed_error
 
 
-# DISCREPANCY: From the way this function is written, it's possible that
-# DeepMind clamped 90% of individual residue losses, not 90% of all batches.
-# We defer to the text, which seems to imply the latter.
 def backbone_loss(
     backbone_affine_tensor: torch.Tensor,
     backbone_affine_mask: torch.Tensor,
@@ -164,7 +161,6 @@ def backbone_loss(
             1 - use_clamped_fape
         )
 
-    # Take the mean over the layer dimension
     fape_loss = torch.mean(fape_loss)
     return fape_loss
 

@@ -89,9 +89,11 @@ where `data` is the same directory as in the previous step. If `jackhmmer`, `hhb
 ### Training
 
 After activating the OpenFold environment with `source scripts/activate_conda_env.sh`, install OpenFold by running
+
 ```bash
 python setup.py install
 ```
+
 To train the model, you will first need to precompute protein alignments. Create `mmcif_dir/` and download `.cif` files from the PDB (e.g., `wget https://files.rcsb.org/download/4DSN.cif`). Then run:
 
 ```bash
