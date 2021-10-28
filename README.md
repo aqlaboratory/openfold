@@ -29,6 +29,9 @@ via `conda`. For producing sequence alignments, you'll also need `jackhmmer`,
 `kalign`, and the [HH-suite](https://github.com/soedinglab/hh-suite) installed 
 on your system. Finally, some download scripts require `aria2c`.
 
+Note that the required version of PyTorch Lightning is 1.5.0, which has not
+yet been released. Install that package from the nightly build.
+
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
 useful resources (including DeepMind's pretrained parameters). Run:
