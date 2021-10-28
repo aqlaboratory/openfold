@@ -359,6 +359,11 @@ class DataPipeline:
             )
             template_features = templates_result.features
 
+            # The template featurizer doesn't format empty template features
+            # properly. This is a quick fix.
+            if(template_features["template_aatype"].shape[0] == 0):
+                template_features = empty_template_feats(len(input_sequence))
+
         sequence_features = make_sequence_features(
             sequence=input_sequence,
             description=input_description,
@@ -397,6 +402,7 @@ class DataPipeline:
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
+        print(len(hits_cat))
         if(len(hits_cat) == 0):
             template_features = empty_template_feats(len(input_sequence))
         else:
@@ -446,6 +452,11 @@ class DataPipeline:
                 hits=hits_cat,
             )
             template_features = templates_result.features
+
+            # The template featurizer doesn't format empty template features
+            # properly. This is a quick fix.
+            if(template_features["template_aatype"].shape[0] == 0):
+                template_features = empty_template_feats(len(input_sequence))
 
         msa_features = self._process_msa_feats(alignment_dir)
 

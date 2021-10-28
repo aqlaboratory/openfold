@@ -79,7 +79,6 @@ def main(args):
 
     data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
-        use_small_bfd=use_small_bfd
     )
 
     output_dir_base = args.output_dir
