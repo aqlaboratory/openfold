@@ -241,31 +241,35 @@ class AlphaFold(nn.Module):
 
         # Embed the templates + merge with MSA/pair embeddings
         if self.config.template.enabled:
-            template_feats = {
-                k: v for k, v in feats.items() if k.startswith("template_")
-            }
-            template_embeds = self.embed_templates(
-                template_feats,
-                z,
-                pair_mask,
-                no_batch_dims,
-                chunk_size,
-            )
-
-            # [*, N, N, C_z]
-            z = z + template_embeds["template_pair_embedding"]
-
-            if self.config.template.embed_angles:
-                # [*, S = S_c + S_t, N, C_m]
-                m = torch.cat(
-                    [m, template_embeds["template_angle_embedding"]], dim=-3
+            template_mask = feats["template_mask"]
+            if(torch.any(template_mask)):
+                template_feats = {
+                    k: v for k, v in feats.items() if k.startswith("template_")
+                }
+                template_embeds = self.embed_templates(
+                    template_feats,
+                    z,
+                    pair_mask,
+                    no_batch_dims,
+                    chunk_size,
                 )
 
-                # [*, S, N]
-                torsion_angles_mask = feats["template_torsion_angles_mask"]
-                msa_mask = torch.cat(
-                    [feats["msa_mask"], torsion_angles_mask[..., 2]], axis=-2
-                )
+                # [*, N, N, C_z]
+                z = z + template_embeds["template_pair_embedding"]
+
+                if self.config.template.embed_angles:
+                    # [*, S = S_c + S_t, N, C_m]
+                    m = torch.cat(
+                        [m, template_embeds["template_angle_embedding"]], 
+                        dim=-3
+                    )
+
+                    # [*, S, N]
+                    torsion_angles_mask = feats["template_torsion_angles_mask"]
+                    msa_mask = torch.cat(
+                        [feats["msa_mask"], torsion_angles_mask[..., 2]], 
+                        dim=-2
+                    )
 
         # Embed extra MSA features + merge with pairwise embeddings
         if self.config.extra_msa.enabled:

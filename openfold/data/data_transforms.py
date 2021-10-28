@@ -85,17 +85,18 @@ def make_all_atom_aatype(protein):
 def fix_templates_aatype(protein):
     # Map one-hot to indices
     num_templates = protein["template_aatype"].shape[0]
-    protein["template_aatype"] = torch.argmax(
-        protein["template_aatype"], dim=-1
-    )
-    # Map hhsearch-aatype to our aatype.
-    new_order_list = rc.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
-    new_order = torch.tensor(new_order_list, dtype=torch.int64).expand(
-        num_templates, -1
-    )
-    protein["template_aatype"] = torch.gather(
-        new_order, 1, index=protein["template_aatype"]
-    )
+    if(num_templates > 0):
+        protein["template_aatype"] = torch.argmax(
+            protein["template_aatype"], dim=-1
+        )
+        # Map hhsearch-aatype to our aatype.
+        new_order_list = rc.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
+        new_order = torch.tensor(new_order_list, dtype=torch.int64).expand(
+            num_templates, -1
+        )
+        protein["template_aatype"] = torch.gather(
+            new_order, 1, index=protein["template_aatype"]
+        )
     return protein
 
 
@@ -169,10 +170,13 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
     return protein
 
 @curry1
-def sample_msa(protein, max_seq, keep_extra):
+def sample_msa(protein, max_seq, keep_extra, seed=None):
     """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`."""
     num_seq = protein["msa"].shape[0]
-    shuffled = torch.randperm(num_seq - 1) + 1
+    g = torch.Generator(device=protein["msa"].device)
+    if seed is not None:
+        g.manual_seed(seed)
+    shuffled = torch.randperm(num_seq - 1, generator=g) + 1
     index_order = torch.cat((torch.tensor([0]), shuffled), dim=0)
     num_sel = min(max_seq, num_seq)
     sel_seq, not_sel_seq = torch.split(
@@ -1095,18 +1099,22 @@ def random_crop_to_size(
     seed=None,
 ):
     """Crop randomly to `crop_size`, or keep as is if shorter than that."""
-    seq_length = protein["seq_length"]
-    if "template_mask" in protein:
-        num_templates = protein["template_mask"].shape[-1]
-    else:
-        num_templates = protein["aatype"].new_zeros((1,))
-
-    num_res_crop_size = min(int(seq_length), crop_size)
-
     # We want each ensemble to be cropped the same way
     g = torch.Generator(device=protein["seq_length"].device)
     if seed is not None:
         g.manual_seed(seed)
+
+    seq_length = protein["seq_length"]
+
+    if "template_mask" in protein:
+        num_templates = protein["template_mask"].shape[-1]
+    else:
+        num_templates = 0
+
+    # No need to subsample templates if there aren't any
+    subsample_templates = subsample_templates and num_templates
+
+    num_res_crop_size = min(int(seq_length), crop_size)
 
     def _randint(lower, upper):
         return int(torch.randint(

@@ -21,11 +21,20 @@ import numpy as np
 
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
-from openfold.data.tools.utils import to_date
+from openfold.data.tools.utils import to_date 
 from openfold.np import residue_constants, protein
 
 
 FeatureDict = Mapping[str, np.ndarray]
+
+def empty_template_feats(n_res) -> FeatureDict:
+    return {
+        "template_aatype": np.zeros((0, n_res)).astype(np.int64),
+        "template_all_atom_positions": 
+            np.zeros((0, n_res, 37, 3)).astype(np.float32),
+        "template_sum_probs": np.zeros((0, 1)).astype(np.float32),
+        "template_all_atom_mask": np.zeros((0, n_res, 37)).astype(np.float32),
+    }
 
 
 def make_sequence_features(
@@ -340,7 +349,7 @@ class DataPipeline:
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
         if(len(hits_cat) == 0):
-            template_features = {}
+            template_features = empty_template_feats(len(input_sequence))
         else:
             templates_result = self.template_featurizer.get_templates(
                 query_sequence=input_sequence,
@@ -389,7 +398,7 @@ class DataPipeline:
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
         if(len(hits_cat) == 0):
-            template_features = {}
+            template_features = empty_template_feats(len(input_sequence))
         else:
             templates_result = self.template_featurizer.get_templates(
                 query_sequence=input_sequence,
@@ -398,6 +407,12 @@ class DataPipeline:
                 hits=hits_cat,
             )
             template_features = templates_result.features
+
+            # The template featurizer doesn't format empty template features
+            # properly. This is a quick fix.
+            if(template_features["template_aatype"].shape[0] == 0):
+                template_features = empty_template_feats(len(input_sequence))
+
 
         msa_features = self._process_msa_feats(alignment_dir)
 
@@ -415,13 +430,14 @@ class DataPipeline:
             pdb_str = pdb_path
 
         protein_object = protein.from_pdb_string(pdb_str)
+        input_sequence = protein_object.aatype 
 
         pdb_feats = make_pdb_features(protein_object)
 
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
         if(len(hits_cat) == 0):
-            template_features = {}
+            template_features = empty_template_feats(len(input_sequence))
         else:
             templates_result = self.template_featurizer.get_templates(
                 query_sequence=input_sequence,

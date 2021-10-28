@@ -86,8 +86,16 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
     max_msa_clusters = pad_msa_clusters
     max_extra_msa = common_cfg.max_extra_msa
 
+    msa_seed = None
+    if(not common_cfg.resample_msa_in_recycling):
+        msa_seed = ensemble_seed
+    
     transforms.append(
-        data_transforms.sample_msa(max_msa_clusters, keep_extra=True)
+        data_transforms.sample_msa(
+            max_msa_clusters, 
+            keep_extra=True,
+            seed=msa_seed,
+        )
     )
 
     if "masked_msa" in common_cfg:
@@ -122,7 +130,7 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
                 mode_cfg.max_templates,
                 crop_feats,
                 mode_cfg.subsample_templates,
-                seed=ensemble_seed,
+                seed=ensemble_seed + 1,
             )
         )
         transforms.append(
@@ -159,21 +167,23 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
         d["ensemble_index"] = i
         return fn(d)
 
-    tensors = compose(nonensembled_transform_fns(common_cfg, mode_cfg))(tensors)
+    no_templates = True
+    if("template_aatype" in tensors):
+        no_templates = tensors["template_aatype"].shape[0] == 0
 
-    num_ensemble = mode_cfg.num_ensemble
+    nonensembled = nonensembled_transform_fns(
+        common_cfg,
+        mode_cfg,
+    )
+    tensors = compose(nonensembled)(tensors)
 
     if("no_recycling_iters" in tensors):
         num_recycling = int(tensors["no_recycling_iters"])
     else:
         num_recycling = common_cfg.max_recycling_iters
 
-    if common_cfg.resample_msa_in_recycling:
-        # Separate batch per ensembling & recycling step.
-        num_ensemble *= num_recycling + 1
-
     tensors = map_fn(
-        lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_ensemble)
+        lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_recycling + 1)
     )
 
     return tensors
