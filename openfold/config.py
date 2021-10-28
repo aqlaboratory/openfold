@@ -231,8 +231,7 @@ config = mlc.ConfigDict(
         # Recurring FieldReferences that can be changed globally here
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
-            "train_chunk_size": None,
-            "eval_chunk_size": chunk_size,
+            "chunk_size": chunk_size,
             "c_z": c_z,
             "c_m": c_m,
             "c_t": c_t,

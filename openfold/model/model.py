@@ -106,7 +106,7 @@ class AlphaFold(nn.Module):
 
         self.config = config
 
-    def embed_templates(self, batch, z, pair_mask, templ_dim, chunk_size): 
+    def embed_templates(self, batch, z, pair_mask, templ_dim): 
         # Embed the templates one at a time (with a poor man's vmap)
         template_embeds = []
         n_templ = batch["template_aatype"].shape[templ_dim]
@@ -146,18 +146,20 @@ class AlphaFold(nn.Module):
             template_embeds,
         )
 
-        # [*, N, N, C_z]
+        # [*, S_t, N, N, C_z]
         t = self.template_pair_stack(
             template_embeds["pair"], 
             pair_mask.unsqueeze(-3), 
-            chunk_size=chunk_size,
+            chunk_size=self.globals.chunk_size,
             _mask_trans=self.config._mask_trans,
         )
+
+        # [*, N, N, C_z]
         t = self.template_pointwise_att(
             t, 
             z, 
             template_mask=batch["template_mask"],
-            chunk_size=chunk_size,
+            chunk_size=self.globals.chunk_size,
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
 
@@ -170,12 +172,6 @@ class AlphaFold(nn.Module):
         return ret
 
     def iteration(self, feats, m_1_prev, z_prev, x_prev, _recycle=True):
-        # Establish constants
-        chunk_size = (
-            self.globals.train_chunk_size 
-            if self.training else self.globals.eval_chunk_size
-        )
-
         # Primary output dictionary
         outputs = {}
 
@@ -251,7 +247,6 @@ class AlphaFold(nn.Module):
                     z,
                     pair_mask,
                     no_batch_dims,
-                    chunk_size,
                 )
 
                 # [*, N, N, C_z]
@@ -281,7 +276,7 @@ class AlphaFold(nn.Module):
                 a,
                 z,
                 msa_mask=feats["extra_msa_mask"],
-                chunk_size=chunk_size,
+                chunk_size=self.globals.chunk_size,
                 pair_mask=pair_mask,
                 _mask_trans=self.config._mask_trans,
             )
@@ -295,7 +290,7 @@ class AlphaFold(nn.Module):
             z,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
-            chunk_size=chunk_size,
+            chunk_size=self.globals.chunk_size,
             _mask_trans=self.config._mask_trans,
         )
 

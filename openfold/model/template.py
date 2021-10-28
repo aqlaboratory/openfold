@@ -174,17 +174,43 @@ class TemplatePairStackBlock(nn.Module):
         )
 
     def forward(self, z, mask, chunk_size, _mask_trans=True):
-        z = z + self.dropout_row(
-            self.tri_att_start(z, chunk_size=chunk_size, mask=mask)
-        )
-        z = z + self.dropout_col(
-            self.tri_att_end(z, chunk_size=chunk_size, mask=mask)
-        )
-        z = z + self.dropout_row(self.tri_mul_out(z, mask=mask))
-        z = z + self.dropout_row(self.tri_mul_in(z, mask=mask))
-        z = z + self.pair_transition(
-            z, chunk_size=chunk_size, mask=mask if _mask_trans else None
-        )
+        for templ_idx in range(z.shape[-4]):
+            # Select a single template at a time
+            single = z[..., templ_idx:templ_idx+1, :, :, :]
+            single_mask = mask[..., templ_idx:templ_idx+1, :, :]
+
+            single = single + self.dropout_row(
+                self.tri_att_start(
+                    single,
+                    chunk_size=chunk_size,
+                    mask=single_mask
+                )
+            )
+            single = single + self.dropout_col(
+                self.tri_att_end(
+                    single,
+                    chunk_size=chunk_size,
+                    mask=single_mask
+                )
+            )
+            single = single + self.dropout_row(
+                self.tri_mul_out(
+                    single,
+                    mask=single_mask
+                )
+            )
+            single = single + self.dropout_row(
+                self.tri_mul_in(
+                    single,
+                    mask=single_mask
+                )
+            )
+            single = single + self.pair_transition(
+                single,
+                chunk_size=chunk_size,
+                mask=single_mask if _mask_trans else None
+            )
+            z[..., templ_idx:templ_idx+1, :, :, :] = single
 
         return z
 
@@ -254,12 +280,17 @@ class TemplatePairStack(nn.Module):
         """
         Args:
             t:
-                [*, N_res, N_res, C_t] template embedding
+                [*, N_templ, N_res, N_res, C_t] template embedding
             mask:
-                [*, N_res, N_res] mask
+                [*, N_templ, N_res, N_res] mask
         Returns:
-            [*, N_res, N_res, C_t] template embedding update
+            [*, N_templ, N_res, N_res, C_t] template embedding update
         """
+        if(mask.shape[-3] == 1):
+            expand_idx = list(mask.shape)
+            expand_idx[-3] = t.shape[-4]
+            mask = mask.expand(*expand_idx)
+
         (t,) = checkpoint_blocks(
             blocks=[
                 partial(

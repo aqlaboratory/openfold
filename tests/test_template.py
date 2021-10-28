@@ -133,8 +133,8 @@ class TestTemplatePairStack(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = model.template_pair_stack(
-            torch.as_tensor(pair_act).cuda(),
-            torch.as_tensor(pair_mask).cuda(),
+            torch.as_tensor(pair_act).unsqueeze(-4).cuda(),
+            torch.as_tensor(pair_mask).unsqueeze(-3).cuda(),
             chunk_size=None,
             _mask_trans=False,
         ).cpu()
@@ -182,7 +182,6 @@ class Template(unittest.TestCase):
             torch.as_tensor(pair_act).cuda(),
             torch.as_tensor(pair_mask).cuda(),
             templ_dim=0,
-            chunk_size=None,
         )
         out_repro = out_repro["template_pair_embedding"]
         out_repro = out_repro.cpu()

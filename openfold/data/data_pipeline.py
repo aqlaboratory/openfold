@@ -210,7 +210,9 @@ class AlignmentRunner:
         )
 
         self.hhsearch_pdb70_runner = hhsearch.HHSearch(
-            binary_path=hhsearch_binary_path, databases=[pdb70_database_path]
+            binary_path=hhsearch_binary_path,
+            databases=[pdb70_database_path],
+            n_cpu=no_cpus,
         )
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
