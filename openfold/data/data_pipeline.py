@@ -404,7 +404,6 @@ class DataPipeline:
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(alignment_dir)
         hits_cat = sum(hits.values(), [])
-        print(len(hits_cat))
         if(len(hits_cat) == 0):
             template_features = empty_template_feats(len(input_sequence))
         else:
