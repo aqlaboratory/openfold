@@ -34,6 +34,8 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint
 )
 
+from openfold.utils.logger import PerformanceLoggingCallback
+
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -147,6 +149,13 @@ def main(args):
             strict=True,
         )
         callbacks.append(es)
+    if args.log_performance:
+        global_batch_size = args.num_nodes * args.gpus
+        perf = PerformanceLoggingCallback(
+            log_dir=args.output_dir,
+            global_batch_size=global_batch_size,
+        )
+        callbacks.append(perf)
 
     if(args.deepspeed_config_path is not None):
         strategy = DeepSpeedPlugin(config=args.deepspeed_config_path)
@@ -270,6 +279,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--resume_model_weights_only", type=bool, default=False,
         help="Whether to load just model weights as opposed to training state"
+    )
+    parser.add_argument(
+        "--log_performance", action='store_true',
+        help="Measure performance"
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
