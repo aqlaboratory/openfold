@@ -61,6 +61,10 @@ class OpenFoldWrapper(pl.LightningModule):
         # Compute loss
         loss = self.loss(outputs, batch)
 
+        if(torch.isnan(loss) or torch.isinf(loss)):
+            loss = None
+            logging.warning("loss is NaN. Skipping example...")
+
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
@@ -113,12 +117,12 @@ def main(args):
         sd = {k[len("module."):]:v for k,v in sd.items()}
         model_module.load_state_dict(sd)
         logging.info("Successfully loaded model weights...")
-    #data_module = DummyDataLoader("batch.pickle")
-    data_module = OpenFoldDataModule(
-        config=config.data, 
-        batch_seed=args.seed,
-        **vars(args)
-    )
+    data_module = DummyDataLoader("batch.pickle")
+    #data_module = OpenFoldDataModule(
+    #    config=config.data, 
+    #    batch_seed=args.seed,
+    #    **vars(args)
+    #)
     data_module.prepare_data()
     data_module.setup()
 

@@ -23,7 +23,7 @@
     "opt_level": "O2"
   },
   "zero_optimization": {
-    "stage": 1
+    "stage": 2
   },
   "activation_checkpointing": {
     "partition_activations": true,
