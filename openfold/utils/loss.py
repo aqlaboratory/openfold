@@ -90,6 +90,7 @@ def compute_fape(
     local_target_pos = target_frames.invert()[..., None].apply(
         target_positions[..., None, :, :],
     )
+
     error_dist = torch.sqrt(
         torch.sum((local_pred_pos - local_target_pos) ** 2, dim=-1) + eps
     )
@@ -161,7 +162,9 @@ def backbone_loss(
             1 - use_clamped_fape
         )
 
+    # Average over the batch dimension
     fape_loss = torch.mean(fape_loss)
+
     return fape_loss
 
 
@@ -231,7 +234,12 @@ def fape_loss(
         **{**batch, **config.sidechain},
     )
 
-    return config.backbone.weight * bb_loss + config.sidechain.weight * sc_loss
+    loss = config.backbone.weight * bb_loss + config.sidechain.weight * sc_loss
+    
+    # Average over the batch dimension
+    loss = torch.mean(loss)
+
+    return loss
 
 
 def supervised_chi_loss(
@@ -289,6 +297,9 @@ def supervised_chi_loss(
     )
 
     loss = loss + angle_norm_weight * angle_norm_loss
+
+    # Average over the batch dimension
+    loss = torch.mean(loss)
 
     return loss
 
@@ -388,6 +399,9 @@ def lddt_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
+    # Average over the batch dimension
+    loss = torch.mean(loss)
+
     return loss
 
 
@@ -432,6 +446,9 @@ def distogram_loss(
     mean = torch.sum(mean, dim=-1)
     mean = mean / denom[..., None]
     mean = torch.sum(mean, dim=-1)
+
+    # Average over the batch dimensions
+    mean = torch.mean(mean)
 
     return mean
 
@@ -579,6 +596,9 @@ def tm_loss(
     loss = loss * (
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
+
+    # Average over the loss dimension
+    loss = torch.mean(loss)
 
     return loss
 
@@ -1351,6 +1371,8 @@ def experimentally_resolved_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
+    loss = torch.mean(loss)
+
     return loss
 
 
@@ -1469,8 +1491,8 @@ class AlphaFoldLoss(nn.Module):
         }
 
         cum_loss = 0
-        for k, loss_fn in loss_fns.items():
-            weight = self.config[k].weight
+        for loss_name, loss_fn in loss_fns.items():
+            weight = self.config[loss_name].weight
             if weight:
                 loss = loss_fn()
                 cum_loss = cum_loss + weight * loss

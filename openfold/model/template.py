@@ -259,7 +259,7 @@ class TemplatePairStack(nn.Module):
         self.blocks_per_ckpt = blocks_per_ckpt
 
         self.blocks = nn.ModuleList()
-        for i in range(no_blocks):
+        for _ in range(no_blocks):
             block = TemplatePairStackBlock(
                 c_t=c_t,
                 c_hidden_tri_att=c_hidden_tri_att,

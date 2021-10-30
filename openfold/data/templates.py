@@ -123,14 +123,15 @@ def _is_after_cutoff(
     Returns:
         True if the template release date is after the cutoff, False otherwise.
     """
+    pdb_id_upper = pdb_id.upper()
     if release_date_cutoff is None:
         raise ValueError("The release_date_cutoff must not be None.")
-    if pdb_id in release_dates:
-        return release_dates[pdb_id] > release_date_cutoff
+    if pdb_id_upper in release_dates:
+        return release_dates[pdb_id_upper] > release_date_cutoff
     else:
         # Since this is just a quick prefilter to reduce the number of mmCIF files
         # we need to parse, we don't have to worry about returning True here.
-        logging.info(
+        logging.warning(
             "Template structure not in release dates dict: %s", pdb_id
         )
         return False
@@ -183,7 +184,7 @@ def _parse_release_dates(path: str) -> Mapping[str, datetime.datetime]:
         data = json.load(fp)
 
     return {
-        pdb: to_date(v)
+        pdb.upper(): to_date(v)
         for pdb, d in data.items()
         for k, v in d.items()
         if k == "release_date"
@@ -239,8 +240,9 @@ def _assess_hhsearch_hit(
     )
 
     if _is_after_cutoff(hit_pdb_code, release_dates, release_date_cutoff):
+        date = release_dates[hit_pdb_code.upper()]
         raise DateError(
-            f"Date ({release_dates[hit_pdb_code]}) > max template date "
+            f"Date ({date}) > max template date "
             f"({release_date_cutoff})."
         )
 
@@ -736,24 +738,27 @@ def _build_query_to_hit_index_mapping(
 
 
 @dataclasses.dataclass(frozen=True)
+class PrefilterResult:
+    valid: bool
+    error: Optional[str]
+    warning: Optional[str]
+
+@dataclasses.dataclass(frozen=True)
 class SingleHitResult:
     features: Optional[Mapping[str, Any]]
     error: Optional[str]
     warning: Optional[str]
 
 
-def _process_single_hit(
+def _prefilter_hit(
     query_sequence: str,
     query_pdb_code: Optional[str],
     hit: parsers.TemplateHit,
-    mmcif_dir: str,
     max_template_date: datetime.datetime,
     release_dates: Mapping[str, datetime.datetime],
     obsolete_pdbs: Mapping[str, str],
-    kalign_binary_path: str,
     strict_error_check: bool = False,
-) -> SingleHitResult:
-    """Tries to extract template features from a single HHSearch hit."""
+):
     # Fail hard if we can't get the PDB ID and chain name from the hit.
     hit_pdb_code, hit_chain_id = _get_pdb_id_and_chain(hit)
 
@@ -761,7 +766,8 @@ def _process_single_hit(
         if hit_pdb_code in obsolete_pdbs:
             hit_pdb_code = obsolete_pdbs[hit_pdb_code]
 
-    # Pass hit_pdb_code since it might have changed due to the pdb being obsolete.
+    # Pass hit_pdb_code since it might have changed due to the pdb being 
+    # obsolete.
     try:
         _assess_hhsearch_hit(
             hit=hit,
@@ -772,15 +778,32 @@ def _process_single_hit(
             release_date_cutoff=max_template_date,
         )
     except PrefilterError as e:
-        msg = f"hit {hit_pdb_code}_{hit_chain_id} did not pass prefilter: {str(e)}"
+        hit_name = f"{hit_pdb_code}_{hit_chain_id}"
+        msg = f"hit {hit_name} did not pass prefilter: {str(e)}"
         logging.info("%s: %s", query_pdb_code, msg)
         if strict_error_check and isinstance(
             e, (DateError, PdbIdError, DuplicateError)
         ):
             # In strict mode we treat some prefilter cases as errors.
-            return SingleHitResult(features=None, error=msg, warning=None)
+            return PrefilterResult(valid=False, error=msg, warning=None)
 
-        return SingleHitResult(features=None, error=None, warning=None)
+        return PrefilterResult(valid=False, error=None, warning=None)
+
+    return PrefilterResult(valid=True, error=None, warning=None)
+
+
+def _process_single_hit(
+    query_sequence: str,
+    query_pdb_code: Optional[str],
+    hit: parsers.TemplateHit,
+    mmcif_dir: str,
+    max_template_date: datetime.datetime,
+    kalign_binary_path: str,
+    strict_error_check: bool = False,
+) -> SingleHitResult:
+    """Tries to extract template features from a single HHSearch hit."""
+    # Fail hard if we can't get the PDB ID and chain name from the hit.
+    hit_pdb_code, hit_chain_id = _get_pdb_id_and_chain(hit)
 
     mapping = _build_query_to_hit_index_mapping(
         hit.query,
@@ -901,6 +924,7 @@ class TemplateHitFeaturizer:
         release_dates_path: Optional[str],
         obsolete_pdbs_path: Optional[str],
         strict_error_check: bool = False,
+        _shuffle_top_k_prefiltered: Optional[int] = None,
     ):
         """Initializes the Template Search.
 
@@ -938,7 +962,7 @@ class TemplateHitFeaturizer:
             raise ValueError(
                 "max_template_date must be set and have format YYYY-MM-DD."
             )
-        self._max_hits = max_hits
+        self.max_hits = max_hits
         self._kalign_binary_path = kalign_binary_path
         self._strict_error_check = strict_error_check
 
@@ -957,6 +981,8 @@ class TemplateHitFeaturizer:
             self._obsolete_pdbs = _parse_obsolete(obsolete_pdbs_path)
         else:
             self._obsolete_pdbs = {}
+
+        self._shuffle_top_k_prefiltered = _shuffle_top_k_prefiltered
 
     def get_templates(
         self,
@@ -986,10 +1012,41 @@ class TemplateHitFeaturizer:
         errors = []
         warnings = []
 
-        for hit in sorted(hits, key=lambda x: x.sum_probs, reverse=True):
+        filtered = []
+        for hit in hits:
+            prefilter_result = _prefilter_hit(
+                query_sequence=query_sequence,
+                query_pdb_code=query_pdb_code,
+                hit=hit,
+                max_template_date=template_cutoff_date,
+                release_dates=self._release_dates,
+                obsolete_pdbs=self._obsolete_pdbs,
+                strict_error_check=self._strict_error_check,
+            )
+
+            if prefilter_result.error:
+                errors.append(prefilter_result.error)
+
+            if prefilter_result.warning:
+                warnings.append(prefilter_result.warning)
+
+            if prefilter_result.valid:
+                filtered.append(hit)
+
+        filtered = list(
+            sorted(filtered, key=lambda x: x.sum_probs, reverse=True)
+        )
+        idx = list(range(len(filtered)))
+        if(self._shuffle_top_k_prefiltered):
+            stk = self._shuffle_top_k_prefiltered
+            idx[:stk] = np.random.permutation(idx[:stk])
+
+        for i in idx:
             # We got all the templates we wanted, stop processing hits.
-            if num_hits >= self._max_hits:
+            if num_hits >= self.max_hits:
                 break
+
+            hit = filtered[i]
 
             result = _process_single_hit(
                 query_sequence=query_sequence,
@@ -997,8 +1054,6 @@ class TemplateHitFeaturizer:
                 hit=hit,
                 mmcif_dir=self._mmcif_dir,
                 max_template_date=template_cutoff_date,
-                release_dates=self._release_dates,
-                obsolete_pdbs=self._obsolete_pdbs,
                 strict_error_check=self._strict_error_check,
                 kalign_binary_path=self._kalign_binary_path,
             )

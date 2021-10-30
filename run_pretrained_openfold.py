@@ -50,12 +50,10 @@ def main(args):
     model = model.to(args.model_device)
     
     # FEATURE COLLECTION AND PROCESSING
-    num_ensemble = 1
-
     template_featurizer = templates.TemplateHitFeaturizer(
         mmcif_dir=args.template_mmcif_dir,
         max_template_date=args.max_template_date,
-        max_hits=args.max_template_hits,
+        max_hits=config.data.predict.max_templates,
         kalign_binary_path=args.kalign_binary_path,
         release_dates_path=None,
         obsolete_pdbs_path=args.obsolete_pdbs_path
@@ -85,7 +83,6 @@ def main(args):
     random_seed = args.data_random_seed
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
-    config.data.predict.num_ensemble = num_ensemble
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)

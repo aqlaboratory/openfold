@@ -32,9 +32,9 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         mapping_path: Optional[str] = None,
         max_template_hits: int = 4,
         template_release_dates_cache_path: Optional[str] = None,
-        use_small_bfd: bool = True,
-        output_raw: bool = False,
+        shuffle_top_k_prefiltered: Optional[int] = None,
         mode: str = "train", 
+        _output_raw: bool = False,
     ):
         """
             Args:
@@ -48,21 +48,38 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     I.e. a directory of directories named {PDB_ID}_{CHAIN_ID}
                     or simply {PDB_ID}, each containing .a3m, .sto, and .hhr
                     files.
+                template_mmcif_dir:
+                    Path to a directory containing template mmCIF files.
                 config:
                     A dataset config object. See openfold.config
+                kalign_binary_path:
+                    Path to kalign binary.
                 mapping_path:
                     A json file containing a mapping from consecutive numerical
                     ids to sample names (matching the directories in data_dir).
                     Samples not in this mapping are ignored. Can be used to 
                     implement the various training-time filters described in
-                    the AlphaFold supplement
+                    the AlphaFold supplement.
+                max_template_hits:
+                    An upper bound on how many templates are considered. During
+                    training, the templates ultimately used are subsampled
+                    from this total quantity.
+                template_release_dates_cache_path:
+                    Path to the output of scripts/generate_mmcif_cache.
+                shuffle_top_k_prefiltered:
+                    Whether to uniformly shuffle the top k template hits before
+                    parsing max_template_hits of them. Can be used to
+                    approximate DeepMind's training-time template subsampling
+                    scheme much more performantly.
+                mode:
+                    "train", "val", or "predict"
         """
         super(OpenFoldSingleDataset, self).__init__()
         self.data_dir = data_dir
         self.alignment_dir = alignment_dir
         self.config = config
-        self.output_raw = output_raw
         self.mode = mode
+        self._output_raw = _output_raw
 
         valid_modes = ["train", "val", "predict"]
         if(mode not in valid_modes):
@@ -90,13 +107,14 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             kalign_binary_path=kalign_binary_path,
             release_dates_path=template_release_dates_cache_path,
             obsolete_pdbs_path=None,
+            _shuffle_top_k_prefiltered=shuffle_top_k_prefiltered,
         )
 
         self.data_pipeline = data_pipeline.DataPipeline(
             template_featurizer=template_featurizer,
         )
 
-        if(not self.output_raw):
+        if(not self._output_raw):
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
 
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir):
@@ -153,7 +171,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 alignment_dir=alignment_dir,
             )
 
-        if(self.output_raw):
+        if(self._output_raw):
             return data
 
         feats = self.feature_pipeline.process_features(
@@ -357,7 +375,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
             kalign_binary_path=self.kalign_binary_path,
             template_release_dates_cache_path=
                 self.template_release_dates_cache_path,
-            use_small_bfd=self.config.data_module.use_small_bfd,
         )
 
         if(self.training_mode):        
@@ -366,8 +383,10 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 alignment_dir=self.train_alignment_dir,
                 mapping_path=self.train_mapping_path,
                 max_template_hits=self.config.train.max_template_hits,
-                output_raw=True,
+                shuffle_top_k_prefiltered=
+                    self.config.train.shuffle_top_k_prefiltered,
                 mode="train",
+                _output_raw=True,
             )
 
             if(self.distillation_data_dir is not None):
@@ -376,8 +395,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     alignment_dir=self.distillation_alignment_dir,
                     mapping_path=self.distillation_mapping_path,
                     max_template_hits=self.train.max_template_hits,
-                    output_raw=True,
                     mode="train",
+                    _output_raw=True,
                 )
 
                 d_prob = self.config.train.distillation_prob

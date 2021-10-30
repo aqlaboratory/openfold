@@ -41,8 +41,5 @@ def add_data_args(parser: argparse.ArgumentParser):
         default=date.today().strftime("%Y-%m-%d"),
     )
     parser.add_argument(
-        '--max_template_hits', type=int, default=20,
-    )
-    parser.add_argument(
         '--obsolete_pdbs_path', type=str, default=None
     )
