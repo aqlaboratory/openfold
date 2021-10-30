@@ -420,7 +420,6 @@ class DataPipeline:
             if(template_features["template_aatype"].shape[0] == 0):
                 template_features = empty_template_feats(len(input_sequence))
 
-
         msa_features = self._process_msa_feats(alignment_dir)
 
         return {**mmcif_feats, **template_features, **msa_features}
