@@ -159,8 +159,10 @@ def main(args):
 
     if(args.deepspeed_config_path is not None):
         strategy = DeepSpeedPlugin(config=args.deepspeed_config_path)
-    else:
+    elif args.gpus > 1 or args.num_nodes > 1:
         strategy = "ddp"
+    else:
+        strategy = None
     
     trainer = pl.Trainer.from_argparse_args(
         args,
