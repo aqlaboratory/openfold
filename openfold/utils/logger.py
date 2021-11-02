@@ -27,8 +27,8 @@ def is_main_process():
 
 
 class PerformanceLoggingCallback(Callback):
-    def __init__(self, log_dir, global_batch_size, warmup_steps: int = 0, profile: bool = False):
-        logger.init(backends=[JSONStreamBackend(Verbosity.VERBOSE, log_dir), StdOutBackend(Verbosity.VERBOSE)])
+    def __init__(self, log_file, global_batch_size, warmup_steps: int = 0, profile: bool = False):
+        logger.init(backends=[JSONStreamBackend(Verbosity.VERBOSE, log_file), StdOutBackend(Verbosity.VERBOSE)])
         self.warmup_steps = warmup_steps
         self.global_batch_size = global_batch_size
         self.step = 0
