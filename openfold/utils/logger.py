@@ -43,12 +43,10 @@ class PerformanceLoggingCallback(Callback):
             self.timestamps.append(time.time())
 
     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx, dataloader_idx):
-        if trainer.current_epoch == 1:
-            self.do_step()
+        self.do_step()
 
     def on_test_batch_start(self, trainer, pl_module, batch, batch_idx, dataloader_idx):
-        if trainer.current_epoch == 1:
-            self.do_step()
+        self.do_step()
 
     def process_performance_stats(self, deltas):
         def _round3(val):
