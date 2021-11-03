@@ -25,6 +25,9 @@ conda update -qy conda \
 conda install -c bioconda aria2
 conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
 
+pip install nvidia-pyindex
+pip install nvidia-dllogger
+
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
 pushd lib/conda/envs/$ENV_NAME/lib/python3.7/site-packages/ \

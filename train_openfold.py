@@ -34,6 +34,8 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint
 )
 
+from openfold.utils.logger import PerformanceLoggingCallback
+
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -147,15 +149,25 @@ def main(args):
             strict=True,
         )
         callbacks.append(es)
+    if args.log_performance:
+        global_batch_size = args.num_nodes * args.gpus
+        perf = PerformanceLoggingCallback(
+            log_file=os.path.join(args.output_dir, "performance_log.json"),
+            global_batch_size=global_batch_size,
+        )
+        callbacks.append(perf)
 
     if(args.deepspeed_config_path is not None):
         strategy = DeepSpeedPlugin(config=args.deepspeed_config_path)
-    else:
+    elif args.gpus > 1 or args.num_nodes > 1:
         strategy = "ddp"
+    else:
+        strategy = None
     
     trainer = pl.Trainer.from_argparse_args(
         args,
         strategy=strategy,
+        callbacks=callbacks,
     )
 
     if(args.resume_model_weights_only):
@@ -172,6 +184,16 @@ def main(args):
     trainer.save_checkpoint(
         os.path.join(trainer.logger.log_dir, "checkpoints", "final.ckpt")
     )
+
+
+def bool_type(bool_str: str):
+    bool_str_lower = bool_str.lower()
+    if bool_str_lower in ('false', 'f', 'no', 'n', '0'):
+        return False
+    elif bool_str_lower in ('true', 't', 'yes', 'y', '1'):
+        return True
+    else:
+        raise ValueError(f'Cannot interpret {bool_str} as bool')
 
 
 if __name__ == "__main__":
@@ -234,7 +256,7 @@ if __name__ == "__main__":
                 files."""
     )
     parser.add_argument(
-        "--use_small_bfd", type=bool, default=False,
+        "--use_small_bfd", type=bool_type, default=False,
         help="Whether to use a reduced version of the BFD database"
     )
     parser.add_argument(
@@ -246,12 +268,12 @@ if __name__ == "__main__":
         help="Path to DeepSpeed config. If not provided, DeepSpeed is disabled"
     )
     parser.add_argument(
-        "--checkpoint_best_val", type=bool, default=True,
+        "--checkpoint_best_val", type=bool_type, default=True,
         help="""Whether to save the model parameters that perform best during
                 validation"""
     )
     parser.add_argument(
-        "--early_stopping", type=bool, default=False,
+        "--early_stopping", type=bool_type, default=False,
         help="Whether to stop training when validation loss fails to decrease"
     )
     parser.add_argument(
@@ -268,8 +290,12 @@ if __name__ == "__main__":
         help="Path to a model checkpoint from which to restore training state"
     )
     parser.add_argument(
-        "--resume_model_weights_only", type=bool, default=False,
+        "--resume_model_weights_only", type=bool_type, default=False,
         help="Whether to load just model weights as opposed to training state"
+    )
+    parser.add_argument(
+        "--log_performance", action='store_true',
+        help="Measure performance"
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
