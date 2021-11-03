@@ -1496,7 +1496,7 @@ class AlphaFoldLoss(nn.Module):
             if weight:
                 loss = loss_fn()
                 if(torch.isnan(loss) or torch.isinf(loss)):
-                    logging.warning(f"{k} loss is NaN. Skipping example...")
+                    logging.warning(f"{loss_name} loss is NaN. Skipping...")
                     loss = loss.new_tensor(0., requires_grad=True)
                 cum_loss = cum_loss + weight * loss
 
