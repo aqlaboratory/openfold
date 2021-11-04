@@ -175,6 +175,7 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
         common_cfg,
         mode_cfg,
     )
+
     tensors = compose(nonensembled)(tensors)
 
     if("no_recycling_iters" in tensors):
