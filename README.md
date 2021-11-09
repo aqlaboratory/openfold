@@ -60,11 +60,31 @@ To install the HH-suite to `/usr/bin`, run
 
 ## Usage
 
-To download the genetic databases used by AlphaFold/OpenFold, run:
+To download DeepMind's pretrained parameters and common ground truth data, run:
 
 ```bash
-scripts/download_all_data.sh data/
+scripts/download_data.sh data/
 ```
+
+You have two choices for downloading protein databases, depending on whether 
+you want to use DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or 
+[ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster
+[MMseqs2](https://github.com/soedinglab/mmseqs2) instead. For the former, run:
+
+```bash
+scripts/download_alphafold_databases.sh data/
+```
+
+For the latter, run:
+
+```bash
+scripts/download_mmseqs_databases.sh data/    # downloads .tar files
+scripts/prep_mmseqs_databases.sh data/        # unpacks and preps the databases
+```
+
+Make sure to run the latter command on the machine that will be used for MSA
+generation (the script estimates how the precomputed database index used by
+MMseqs2 should be split according to the memory available on the system).
 
 Alternatively, you can use raw MSAs from 
 [ProteinNet](https://github.com/aqlaboratory/proteinnet). After downloading
@@ -74,7 +94,8 @@ a format recognized by the OpenFold parser. The resulting directory becomes the
 
 ### Inference
 
-To run inference on a sequence `target.fasta` (e.g., `wget https://www.rcsb.org/fasta/entry/4DSN`) using a set of DeepMind's pretrained parameters, run e.g.
+To run inference on a sequence using a set of DeepMind's pretrained parameters, 
+run e.g.:
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -93,17 +114,25 @@ python3 run_pretrained_openfold.py \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
 ```
 
-where `data` is the same directory as in the previous step. If `jackhmmer`, `hhblits`, `hhsearch` and `kalign` are available at the default path of `/usr/bin`, their `binary_path` command-line arguments can be dropped. 
+where `data` is the same directory as in the previous step. If `jackhmmer`, 
+`hhblits`, `hhsearch` and `kalign` are available at the default path of 
+`/usr/bin`, their `binary_path` command-line arguments can be dropped.
+If you've already computed alignments for the query (see "Training"), you have 
+the option to circumvent the expensive alignment computation here.
 
 ### Training
 
-After activating the OpenFold environment with `source scripts/activate_conda_env.sh`, install OpenFold by running
+After activating the OpenFold environment with 
+`source scripts/activate_conda_env.sh`, install OpenFold by running
 
 ```bash
 python setup.py install
 ```
 
-To train the model, you will first need to precompute protein alignments. Create `mmcif_dir/` and download `.cif` files from the PDB (e.g., `wget https://files.rcsb.org/download/4DSN.cif`). Then run:
+To train the model, you will first need to precompute protein alignments. 
+
+You have two options. You can use the same procedure DeepMind used by running
+the following:
 
 ```bash
 python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
@@ -119,8 +148,27 @@ python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
 ```
+
 As noted before, you can skip the `binary_path` arguments if these binaries are at `/usr/bin`.
 Expect this step to take a very long time, even for small numbers of proteins.
+
+Alternatively, you can generate MSAs with the ColabFold pipeline (and templates
+with HHsearch) with:
+
+```bash
+python3 scripts/precompute_alignments_mmseqs.py input.fasta \
+    data/mmseqs_dbs \
+    uniref30_2103_db \
+    output_dir \
+    ~/MMseqs2/build/bin/mmseqs \
+    /usr/bin/hhsearch \
+    --env_db colabfold_envdb_202108_db
+    --pdb70 data/pdb70/pdb70
+```
+
+where `input.fasta` is a FASTA file containing one or more query sequences. To 
+generate an input FASTA from a directory of mmCIF files, we provide
+`scripts/mmcif_dir_to_fasta.py`.
 
 Next, generate a cache of certain datapoints in the mmCIF files:
 

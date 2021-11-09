@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
@@ -114,6 +114,7 @@ def main(args):
         train=True, 
         low_prec=(args.precision == 16)
     ) 
+    
     model_module = OpenFoldWrapper(config)
     if(args.resume_from_ckpt and args.resume_model_weights_only):
         sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
@@ -126,6 +127,7 @@ def main(args):
         batch_seed=args.seed,
         **vars(args)
     )
+    
     data_module.prepare_data()
     data_module.setup()
 
