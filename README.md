@@ -159,7 +159,7 @@ with HHsearch) with:
 python3 scripts/precompute_alignments_mmseqs.py input.fasta \
     data/mmseqs_dbs \
     uniref30_2103_db \
-    output_dir \
+    alignment_dir \
     ~/MMseqs2/build/bin/mmseqs \
     /usr/bin/hhsearch \
     --env_db colabfold_envdb_202108_db
