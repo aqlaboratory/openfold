@@ -34,9 +34,8 @@ def _prod(nums):
     return out
 
 
-def _calculate_fan(shape, fan="fan_in"):
-    fan_in = shape[-2]
-    fan_out = shape[-1]
+def _calculate_fan(linear_weight_shape, fan="fan_in"):
+    fan_out, fan_in = linear_weight_shape
 
     if fan == "fan_in":
         f = fan_in
