@@ -35,11 +35,8 @@ def _prod(nums):
 
 
 def _calculate_fan(shape, fan="fan_in"):
-    i = shape[0]
-    o = shape[1]
-    prod = _prod(shape[:2])
-    fan_in = prod * i
-    fan_out = prod * o
+    fan_in = shape[-2]
+    fan_out = shape[-1]
 
     if fan == "fan_in":
         f = fan_in
