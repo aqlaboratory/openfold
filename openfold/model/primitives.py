@@ -312,16 +312,10 @@ class GlobalAttention(nn.Module):
         )
 
         self.linear_k = Linear(
-            c_in,
-            c_hidden,
-            bias=False,
-            init="glorot",
+            c_in, c_hidden, bias=False, init="glorot",
         )
         self.linear_v = Linear(
-            c_in,
-            c_hidden,
-            bias=False,
-            init="glorot",
+            c_in, c_hidden, bias=False, init="glorot",
         )
         self.linear_g = Linear(c_in, c_hidden * no_heads, init="gating")
         self.linear_o = Linear(c_hidden * no_heads, c_in, init="final")
