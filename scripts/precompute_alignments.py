@@ -66,6 +66,7 @@ def main(args):
             with open(path, 'r') as fp:
                 core_str = fp.read()
             core_prot = protein.from_proteinnet_string(core_str)
+            aatype = core_prot.aatype
             seq = ''.join([
                 residue_constants.restypes_with_x[aatype[i]] 
                 for i in range(len(aatype))
