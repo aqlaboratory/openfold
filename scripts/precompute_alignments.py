@@ -98,7 +98,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "input_dir", type=str,
-        help="Path to directory containing mmCIF and/or FASTA files"
+        help="""Path to directory containing mmCIF, FASTA and/or ProteinNet
+                .core files"""
     )
     parser.add_argument(
         "output_dir", type=str,

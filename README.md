@@ -90,7 +90,8 @@ Alternatively, you can use raw MSAs from
 [ProteinNet](https://github.com/aqlaboratory/proteinnet). After downloading
 the database, use `scripts/prepare_proteinnet_msas.py` to convert the data into
 a format recognized by the OpenFold parser. The resulting directory becomes the
-`alignment_dir` used in subsequent steps.
+`alignment_dir` used in subsequent steps. Use `scripts/unpack_proteinnet.py` to
+extract `.core` files from ProteinNet text files.
 
 ### Inference
 
