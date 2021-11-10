@@ -5,6 +5,7 @@ import tempfile
 
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
+from openfold.np import protein, residue_constants
 
 from utils import add_data_args
 
@@ -31,11 +32,9 @@ def main(args):
 
     for f in os.listdir(args.input_dir):
         path = os.path.join(args.input_dir, f)
-        is_mmcif = f.endswith('.cif')
-        is_fasta = f.endswith('.fasta')
         file_id = os.path.splitext(f)[0]
         seqs = {}
-        if(is_mmcif):
+        if(f.endswith('.cif')):
             with open(path, 'r') as fp:
                 mmcif_str = fp.read()
             mmcif = mmcif_parsing.parse(
@@ -51,7 +50,7 @@ def main(args):
             for k,v in mmcif.chain_to_seqres.items():
                 chain_id = '_'.join([file_id, k])
                 seqs[chain_id] = v
-        elif(is_fasta):
+        elif(f.endswith('.fasta')):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
             input_seqs, _ = parsers.parse_fasta(fasta_str)
@@ -63,6 +62,15 @@ def main(args):
                     logging.warning(msg)
             input_sequence = input_seqs[0]
             seqs[file_id] = input_sequence
+        elif(f.endswith('.core')):
+            with open(path, 'r') as fp:
+                core_str = fp.read()
+            core_prot = protein.from_proteinnet_string(core_str)
+            seq = ''.join([
+                residue_constants.restypes_with_x[aatype[i]] 
+                for i in range(len(aatype))
+            ])
+            seqs[file_id] = seq
         else:
             continue
 
@@ -74,17 +82,15 @@ def main(args):
 
             os.makedirs(alignment_dir)
 
-            if(not is_fasta):
-                fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
-                with os.fdopen(fd, 'w') as fp:
-                    fp.write(f'>query\n{seq}')
+            fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
+            with os.fdopen(fd, 'w') as fp:
+                fp.write(f'>query\n{seq}')
 
             alignment_runner.run(
-                f if is_fasta else fasta_path, alignment_dir
+                fasta_path, alignment_dir
             )
 
-            if(not is_fasta):
-                os.remove(fasta_path)
+            os.remove(fasta_path)
 
 
 if __name__ == "__main__":

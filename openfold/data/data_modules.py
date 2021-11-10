@@ -152,16 +152,19 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 file_id, = spl
                 chain_id = None
 
-            path = os.path.join(self.data_dir, file_id + '.cif')
-            if(os.path.exists(path)):
+            path = os.path.join(self.data_dir, file_id)
+            if(os.path.exists(path + ".cif")):
                 data = self._parse_mmcif(
-                    path, file_id, chain_id, alignment_dir
+                    path + ".cif", file_id, chain_id, alignment_dir
+                )
+            elif(os.path.exists(path + ".core")):
+                data = self.data_pipeline.process_core(
+                    path + ".core", alignment_dir
                 )
             else:
                 # Try to search for a distillation PDB file instead
-                path = os.path.join(self.data_dir, file_id + '.pdb')
                 data = self.data_pipeline.process_pdb(
-                    pdb_path=path,
+                    pdb_path=path + ".pdb",
                     alignment_dir=alignment_dir
                 )
         else:

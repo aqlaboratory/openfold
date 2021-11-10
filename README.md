@@ -167,8 +167,8 @@ python3 scripts/precompute_alignments_mmseqs.py input.fasta \
 ```
 
 where `input.fasta` is a FASTA file containing one or more query sequences. To 
-generate an input FASTA from a directory of mmCIF files, we provide
-`scripts/mmcif_dir_to_fasta.py`.
+generate an input FASTA from a directory of mmCIF and/or ProteinNet .core 
+files, we provide `scripts/data_dir_to_fasta.py`.
 
 Next, generate a cache of certain datapoints in the mmCIF files:
 

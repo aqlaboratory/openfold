@@ -114,8 +114,6 @@ def main(args):
                 not os.path.splitext(fname)[-1] == ".a3m"):
                 continue
 
-            print(fpath)
-
             with open(fpath, "r") as fp:
                 a3m = fp.read()
 

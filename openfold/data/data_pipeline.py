@@ -123,8 +123,9 @@ def make_mmcif_features(
 
 
 def _aatype_to_str_sequence(aatype):
-    return str([
-        residue_constants.restypes[aatype[i]] for i in range(len(aatype))
+    return ''.join([
+        residue_constants.restypes_with_x[aatype[i]] 
+        for i in range(len(aatype))
     ])
 
 def make_protein_features(
