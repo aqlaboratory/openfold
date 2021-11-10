@@ -37,6 +37,33 @@ def empty_template_feats(n_res) -> FeatureDict:
     }
 
 
+def make_template_features(
+    input_sequence: str,
+    hits: Sequence[Any],
+    template_featurizer: Any,
+    query_pdb_code: Optional[str] = None,
+    query_release_date: Optional[str] = None,
+) -> FeatureDict:
+    hits_cat = sum(hits.values(), [])
+    if(len(hits_cat) == 0):
+        template_features = empty_template_feats(len(input_sequence))
+    else:
+        templates_result = template_featurizer.get_templates(
+            query_sequence=input_sequence,
+            query_pdb_code=query_pdb_code,
+            query_release_date=query_release_date,
+            hits=hits_cat,
+        )
+        template_features = templates_result.features
+
+        # The template featurizer doesn't format empty template features
+        # properly. This is a quick fix.
+        if(template_features["template_aatype"].shape[0] == 0):
+            template_features = empty_template_feats(len(input_sequence))
+
+    return template_features
+
+
 def make_sequence_features(
     sequence: str, description: str, num_res: int
 ) -> FeatureDict:
@@ -95,16 +122,21 @@ def make_mmcif_features(
     return mmcif_feats
 
 
-def make_pdb_features(
-        protein_object: protein.Protein, 
-        description: str, 
-        confidence_threshold: float = 0.5,
+def _aatype_to_str_sequence(aatype):
+    return str([
+        residue_constants.restypes[aatype[i]] for i in range(len(aatype))
+    ])
+
+def make_protein_features(
+    protein_object: protein.Protein, 
+    description: str, 
 ) -> FeatureDict:
     pdb_feats = {}
-
+    aatype = protein_object.aatype
+    sequence = _aatype_to_str_sequence(aatype)
     pdb_feats.update(
         make_sequence_features(
-            sequence=protein_object.aatype,
+            sequence=sequence,
             description=description,
             num_res=len(protein_object.aatype),
         )
@@ -113,17 +145,27 @@ def make_pdb_features(
     all_atom_positions = protein_object.atom_positions
     all_atom_mask = protein_object.atom_mask
 
-    high_confidence = protein.b_factors > confidence_threshold
-    high_confidence = np.any(high_confidence, axis=-1)
-    for i, confident in enumerate(high_confidence):
-        if(not confident):
-            all_atom_mask[i] = 0
-
     pdb_feats["all_atom_positions"] = all_atom_positions
     pdb_feats["all_atom_mask"] = all_atom_mask
 
     pdb_feats["resolution"] = np.array([0.]).astype(np.float32)
     pdb_feats["is_distillation"] = np.array(1.).astype(np.float32)
+
+    return pdb_feats
+
+
+def make_pdb_features(
+    protein_object: protein.Protein,
+    description: str,
+    confidence_threshold: float = 0.5,
+) -> FeatureDict:
+    pdb_feats = make_protein_features(protein_object, description)
+
+    high_confidence = protein_object.b_factors > confidence_threshold
+    high_confidence = np.any(high_confidence, axis=-1)
+    for i, confident in enumerate(high_confidence):
+        if(not confident):
+            pdb_feats["all_atom_mask"][i] = 0
 
     return pdb_feats
 
@@ -349,22 +391,11 @@ class DataPipeline:
         num_res = len(input_sequence)
 
         hits = self._parse_template_hits(alignment_dir)
-        hits_cat = sum(hits.values(), [])
-        if(len(hits_cat) == 0):
-            template_features = empty_template_feats(len(input_sequence))
-        else:
-            templates_result = self.template_featurizer.get_templates(
-                query_sequence=input_sequence,
-                query_pdb_code=None,
-                query_release_date=None,
-                hits=hits_cat,
-            )
-            template_features = templates_result.features
-
-            # The template featurizer doesn't format empty template features
-            # properly. This is a quick fix.
-            if(template_features["template_aatype"].shape[0] == 0):
-                template_features = empty_template_feats(len(input_sequence))
+        template_features = make_template_features(
+            input_sequence,
+            hits,
+            self.template_featurizer,
+        )
 
         sequence_features = make_sequence_features(
             sequence=input_sequence,
@@ -403,23 +434,13 @@ class DataPipeline:
 
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(alignment_dir)
-        hits_cat = sum(hits.values(), [])
-        if(len(hits_cat) == 0):
-            template_features = empty_template_feats(len(input_sequence))
-        else:
-            templates_result = self.template_featurizer.get_templates(
-                query_sequence=input_sequence,
-                query_pdb_code=None,
-                query_release_date=to_date(mmcif.header["release_date"]),
-                hits=hits_cat,
-            )
-            template_features = templates_result.features
-
-            # The template featurizer doesn't format empty template features
-            # properly. This is a quick fix.
-            if(template_features["template_aatype"].shape[0] == 0):
-                template_features = empty_template_feats(len(input_sequence))
-
+        template_features = make_template_features(
+            input_sequence,
+            hits,
+            self.template_featurizer,
+            query_release_date=to_date(mmcif.header["release_date"])
+        )
+        
         msa_features = self._process_msa_feats(alignment_dir)
 
         return {**mmcif_feats, **template_features, **msa_features}
@@ -433,31 +454,48 @@ class DataPipeline:
             Assembles features for a protein in a PDB file.
         """
         with open(pdb_path, 'r') as f:
-            pdb_str = pdb_path
+            pdb_str = f.read()
 
         protein_object = protein.from_pdb_string(pdb_str)
-        input_sequence = protein_object.aatype 
-
-        pdb_feats = make_pdb_features(protein_object)
+        input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
+        description = os.path.splitext(os.path.basename(pdb_path))[0].upper()
+        pdb_feats = make_pdb_features(protein_object, description)
 
         hits = self._parse_template_hits(alignment_dir)
-        hits_cat = sum(hits.values(), [])
-        if(len(hits_cat) == 0):
-            template_features = empty_template_feats(len(input_sequence))
-        else:
-            templates_result = self.template_featurizer.get_templates(
-                query_sequence=input_sequence,
-                query_pdb_code=None,
-                query_release_date=None,
-                hits=hits_cat,
-            )
-            template_features = templates_result.features
-
-            # The template featurizer doesn't format empty template features
-            # properly. This is a quick fix.
-            if(template_features["template_aatype"].shape[0] == 0):
-                template_features = empty_template_feats(len(input_sequence))
+        template_features = make_template_features(
+            input_sequence,
+            hits,
+            self.template_featurizer,
+        )
 
         msa_features = self._process_msa_feats(alignment_dir)
 
         return {**pdb_feats, **template_features, **msa_features}
+
+    def process_core(
+        self,
+        core_path: str,
+        alignment_dir: str,
+    ) -> FeatureDict:
+        """
+            Assembles features for a protein in a ProteinNet .core file.
+        """
+        with open(core_path, 'r') as f:
+            core_str = f.read()
+
+        protein_object = protein.from_proteinnet_string(core_str)
+        input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
+        description = os.path.splitext(os.path.basename(core_path))[0].upper()
+        core_feats = make_protein_features(protein_object, description)
+        
+        hits = self._parse_template_hits(alignment_dir)
+        template_features = make_template_features(
+            input_sequence,
+            hits,
+            self.template_featurizer,
+        )
+
+        msa_features = self._process_msa_feats(alignment_dir)
+
+        return {**core_feats, **template_features, **msa_features}
+
