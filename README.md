@@ -92,8 +92,8 @@ extract `.core` files from ProteinNet text files.
 
 ### Inference
 
-To run inference on a sequence using a set of DeepMind's pretrained parameters, 
-run e.g.:
+To run inference on a sequence or multiple sequences using a set of DeepMind's 
+pretrained parameters, run e.g.:
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -115,8 +115,8 @@ python3 run_pretrained_openfold.py \
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
 `hhblits`, `hhsearch` and `kalign` are available at the default path of 
 `/usr/bin`, their `binary_path` command-line arguments can be dropped.
-If you've already computed alignments for the query (see "Training"), you have 
-the option to circumvent the expensive alignment computation here.
+If you've already computed alignments for the query, you have the option to 
+circumvent the expensive alignment computation here.
 
 ### Training
 
