@@ -24,8 +24,9 @@ future.
 
 Python dependencies available through `pip` are provided in `requirements.txt`. 
 OpenFold depends on `openmm==7.5.1` and `pdbfixer`, which are only available 
-via `conda`. For producing sequence alignments, you'll also need `jackhmmer`, 
-`kalign`, and the [HH-suite](https://github.com/soedinglab/hh-suite) installed 
+via `conda`. For producing sequence alignments, you'll also need
+`kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), and one of 
+{`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2)} installed on
 on your system. Finally, some download scripts require `aria2c`.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
@@ -65,7 +66,7 @@ scripts/download_data.sh data/
 You have two choices for downloading protein databases, depending on whether 
 you want to use DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or 
 [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster
-[MMseqs2](https://github.com/soedinglab/mmseqs2) instead. For the former, run:
+MMseqs2 instead. For the former, run:
 
 ```bash
 scripts/download_alphafold_databases.sh data/
