@@ -29,9 +29,6 @@ via `conda`. For producing sequence alignments, you'll also need `jackhmmer`,
 `kalign`, and the [HH-suite](https://github.com/soedinglab/hh-suite) installed 
 on your system. Finally, some download scripts require `aria2c`.
 
-Note that the required version of PyTorch Lightning is 1.5.0, which has not
-yet been released. Install that package from the nightly build.
-
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
 useful resources (including DeepMind's pretrained parameters). Run:
@@ -150,8 +147,9 @@ python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
 ```
 
-As noted before, you can skip the `binary_path` arguments if these binaries are at `/usr/bin`.
-Expect this step to take a very long time, even for small numbers of proteins.
+As noted before, you can skip the `binary_path` arguments if these binaries are 
+at `/usr/bin`. Expect this step to take a very long time, even for small 
+numbers of proteins.
 
 Alternatively, you can generate MSAs with the ColabFold pipeline (and templates
 with HHsearch) with:
@@ -217,7 +215,7 @@ The script is a thin wrapper around Python's `unittest` suite, and recognizes
 scripts/run_unit_tests.sh -v tests.test_model
 ```
 
-Certain tests require that AlphaFold be installed in the same Python
+Certain tests require that AlphaFold (v. 2.0.1) be installed in the same Python
 environment. These run components of AlphaFold and OpenFold side by side and
 ensure that output activations are adequately similar. For most modules, we
 target a maximum difference of `1e-4`.
