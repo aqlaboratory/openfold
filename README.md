@@ -13,8 +13,7 @@ cases where the *Nature* paper differs from the source, we always defer to the
 latter. 
 
 OpenFold is built to support inference with AlphaFold's original JAX weights.
-Try it out with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb)
-(not yet visible from Colab because the repo is still private).
+Try it out with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
 with [DeepSpeed](https://github.com/microsoft/deepspeed) and with mixed 
