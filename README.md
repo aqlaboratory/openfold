@@ -231,3 +231,8 @@ thereby made unavailable for commercial use.
 ## Contributing
 
 If you encounter problems using OpenFold, feel free to create an issue!
+
+## Citing this work
+
+Stay tuned for an OpenFold DOI. Any work that cites OpenFold should also cite
+AlphaFold.
