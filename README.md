@@ -105,7 +105,7 @@ python3 run_pretrained_openfold.py \
     data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --output_dir ./ \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --device cuda:1 \
+    --model_device cuda:1 \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
     --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
