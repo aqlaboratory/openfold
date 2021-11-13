@@ -166,9 +166,8 @@ class Linear(nn.Linear):
 class Attention(nn.Module):
     """
     Standard multi-head attention using AlphaFold's default layer
-    initialization.
+    initialization. Allows multiple bias vectors.
     """
-
     def __init__(
         self,
         c_q: int,
