@@ -230,7 +230,8 @@ thereby made unavailable for commercial use.
 
 ## Contributing
 
-If you encounter problems using OpenFold, feel free to create an issue!
+If you encounter problems using OpenFold, feel free to create an issue! We also
+welcome pull requests from the community.
 
 ## Citing this work
 
