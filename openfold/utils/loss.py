@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from functools import partial
+import logging
 import ml_collections
 import numpy as np
 import torch
