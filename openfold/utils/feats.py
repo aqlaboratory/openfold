@@ -16,7 +16,6 @@
 import math
 
 import numpy as np
-import tensorflow as tf
 import torch
 import torch.nn as nn
 from typing import Dict
