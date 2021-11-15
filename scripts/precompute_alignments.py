@@ -5,6 +5,7 @@ import tempfile
 
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
+from openfold.data.parsers import parse_fasta
 from openfold.np import protein, residue_constants
 
 from utils import add_data_args
@@ -53,7 +54,7 @@ def main(args):
         elif(f.endswith('.fasta')):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
-            input_seqs, _ = parsers.parse_fasta(fasta_str)
+            input_seqs, _ = parse_fasta(fasta_str)
             if len(input_seqs) != 1: 
                 msg = f'More than one input_sequence found in {f}'
                 if(args.raise_errors):
