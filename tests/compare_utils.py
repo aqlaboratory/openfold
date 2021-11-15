@@ -100,5 +100,11 @@ def fetch_alphafold_module_weights(weight_path):
         module_name = spl[-1]
         prefix = "/".join(spl[:-1]) + "/"
         _remove_key_prefix(params, prefix)
-    params = alphafold.model.utils.flat_params_to_haiku(params)
+
+    try:
+        params = alphafold.model.utils.flat_params_to_haiku(params)
+    except:
+        raise ImportError(
+            "Make sure to call import_alphafold before running this function"
+        )
     return params
