@@ -170,7 +170,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         else:
             path = os.path.join(name, name + ".fasta")
             data = self.data_pipeline.process_fasta(
-                fasta_path=feats,
+                fasta_path=path,
                 alignment_dir=alignment_dir,
             )
 
