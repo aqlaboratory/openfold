@@ -235,5 +235,4 @@ welcome pull requests from the community.
 
 ## Citing this work
 
-Stay tuned for an OpenFold DOI. Any work that cites OpenFold should also cite
-AlphaFold.
+Stay tuned for an OpenFold DOI.
