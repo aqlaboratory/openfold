@@ -213,7 +213,6 @@ class OpenFoldDataset(torch.utils.data.IterableDataset):
         self.samplers = [
             looped_sequence(RandomSampler(d)) for d in datasets
         ]
-        self.batch_size = batch_size
         self.epoch_len = epoch_len
 
         self.distr = torch.distributions.categorical.Categorical(
