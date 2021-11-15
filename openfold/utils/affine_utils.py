@@ -279,7 +279,7 @@ class T:
 
     @staticmethod
     def make_transform_from_reference(n_xyz, ca_xyz, c_xyz, eps=1e-20):
-        translation = -1 * c_xyz
+        translation = -1 * ca_xyz
         n_xyz = n_xyz + translation
         c_xyz = c_xyz + translation
 
