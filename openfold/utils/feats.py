@@ -21,6 +21,7 @@ import torch
 import torch.nn as nn
 from typing import Dict
 
+from openfold.np import protein
 import openfold.np.residue_constants as rc
 from openfold.utils.affine_utils import T
 from openfold.utils.tensor_utils import (
