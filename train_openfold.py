@@ -73,7 +73,7 @@ class OpenFoldWrapper(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
         if(self.cached_weights is None):
-            self.cached_weights = model.state_dict()
+            self.cached_weights = self.model.state_dict()
             self.model.load_state_dict(self.ema.state_dict()["params"])
         
         # Calculate validation loss
