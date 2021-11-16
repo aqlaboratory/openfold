@@ -209,7 +209,7 @@ scripts/run_unit_tests.sh
 ```
 
 The script is a thin wrapper around Python's `unittest` suite, and recognizes
-`unittest` commands. E.g., to run a specific test verbosely:
+`unittest` arguments. E.g., to run a specific test verbosely:
 
 ```bash
 scripts/run_unit_tests.sh -v tests.test_model
