@@ -138,9 +138,9 @@ def main(args):
                 for k,v in batch.items()
             }
         
-            t = time.time()
+            t = time.perf_counter()
             out = model(batch)
-            logging.info(f"Inference time: {time.time() - t}")
+            logging.info(f"Inference time: {time.perf_counter() - t}")
        
         # Toss out the recycling dimensions --- we don't need them anymore
         batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
@@ -164,9 +164,9 @@ def main(args):
         )
         
         # Relax the prediction.
-        t = time.time()
+        t = time.perf_counter()
         relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
-        logging.info(f"Relaxation time: {time.time() - t}")
+        logging.info(f"Relaxation time: {time.perf_counter() - t}")
         
         # Save the relaxed PDB.
         relaxed_output_path = os.path.join(

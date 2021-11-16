@@ -435,7 +435,7 @@ def _run_one_iteration(
     tolerance = tolerance * ENERGY
     stiffness = stiffness * ENERGY / (LENGTH ** 2)
 
-    start = time.time()
+    start = time.perf_counter()
     minimized = False
     attempts = 0
     while not minimized and attempts < max_attempts:
@@ -457,7 +457,7 @@ def _run_one_iteration(
             logging.info(e)
     if not minimized:
         raise ValueError(f"Minimization failed after {max_attempts} attempts.")
-    ret["opt_time"] = time.time() - start
+    ret["opt_time"] = time.perf_counter() - start
     ret["min_attempts"] = attempts
     return ret
 

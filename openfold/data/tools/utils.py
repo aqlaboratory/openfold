@@ -36,9 +36,9 @@ def tmpdir_manager(base_dir: Optional[str] = None):
 @contextlib.contextmanager
 def timing(msg: str):
     logging.info("Started %s", msg)
-    tic = time.time()
+    tic = time.perf_counter()
     yield
-    toc = time.time()
+    toc = time.perf_counter()
     logging.info("Finished %s in %.3f seconds", msg, toc - tic)
 
 
