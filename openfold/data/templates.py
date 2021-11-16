@@ -26,13 +26,10 @@ from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 import numpy as np
 
 from openfold.data import parsers, mmcif_parsing
+from openfold.data.errors import Error
 from openfold.data.tools import kalign
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants
-
-
-class Error(Exception):
-    """Base class for exceptions."""
 
 
 class NoChainsError(Error):
@@ -57,10 +54,6 @@ class QueryToTemplateAlignError(Error):
 
 class CaDistanceError(Error):
     """An error indicating that a CA atom distance exceeds a threshold."""
-
-
-class MultipleChainsError(Error):
-    """An error indicating that multiple chains were found for a given ID."""
 
 
 # Prefilter exceptions.
