@@ -1,3 +1,5 @@
+![header ](imgs/OpenFold_viz_banner.jpg)
+
 # OpenFold
 
 A faithful PyTorch reproduction of DeepMind's 
