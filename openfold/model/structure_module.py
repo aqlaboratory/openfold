@@ -291,7 +291,6 @@ class InvariantPointAttention(nn.Module):
         ##########################
         # Compute attention scores
         ##########################
-
         # [*, N_res, N_res, H]
         b = self.linear_b(z)
 
@@ -332,7 +331,6 @@ class InvariantPointAttention(nn.Module):
         ################
         # Compute output
         ################
-
         # [*, N_res, H, C_hidden]
         o = torch.matmul(a, v.transpose(-2, -3)).transpose(-2, -3)
 
