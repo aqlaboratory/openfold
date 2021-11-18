@@ -9,7 +9,7 @@ RUN apt update && \
 COPY . /workspace/openfold
 WORKDIR /workspace/openfold
 
-RUN pip install -r requirements_minimal.txt
+RUN pip install -r requirements.txt
 RUN python setup.py install
 
 # TODO add all dependencies needed for inference
