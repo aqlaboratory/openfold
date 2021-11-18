@@ -233,7 +233,7 @@ class AlphaFold(nn.Module):
             z = z + z_prev_emb
 
             # Possibly prevents memory fragmentation 
-            del m_1_prev_emb, z_prev_emb
+            del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
         if self.config.template.enabled:
