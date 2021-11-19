@@ -8,8 +8,8 @@ A faithful PyTorch reproduction of DeepMind's
 ## Features
 
 OpenFold carefully reproduces (almost) all of the features of the original open
-source inference code. The sole exception is model ensembling, which fared
-poorly in DeepMind's own ablation testing and is being phased out in future
+source inference code (v.2.0.1). The sole exception is model ensembling, which 
+fared poorly in DeepMind's own ablation testing and is being phased out in future
 DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter. 
