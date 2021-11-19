@@ -631,7 +631,7 @@ _qtr_ind_dict = {key: ind for ind, key in enumerate(_qtr_keys)}
 
 
 def _to_mat(pairs):
-    mat = torch.zeros((4, 4))
+    mat = np.zeros((4, 4))
     for pair in pairs:
         key, value = pair
         ind = _qtr_ind_dict[key]

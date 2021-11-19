@@ -17,10 +17,11 @@ import torch
 import torch.utils.checkpoint
 from typing import Any, Tuple, List, Callable
 
+
 BLOCK_ARG = Any
 BLOCK_ARGS = List[BLOCK_ARG]
 
-
+@torch.jit.ignore
 def checkpoint_blocks(
     blocks: List[Callable],
     args: BLOCK_ARGS,

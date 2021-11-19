@@ -14,6 +14,8 @@
 # limitations under the License.
 
 from functools import partialmethod
+from typing import Optional
+
 import torch
 import torch.nn as nn
 
@@ -25,7 +27,6 @@ class TriangleMultiplicativeUpdate(nn.Module):
     """
     Implements Algorithms 11 and 12.
     """
-
     def __init__(self, c_z, c_hidden, _outgoing=True):
         """
         Args:
@@ -51,39 +52,16 @@ class TriangleMultiplicativeUpdate(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-        cp = self._outgoing_matmul if self._outgoing else self._incoming_matmul
-        self.combine_projections = cp
+    def _combine_projections(
+        a: torch.Tensor,
+        b: torch.Tensor,
+    ) -> torch.Tensor:
+        raise NotImplementedError("This method needs to be overridden")
 
-    def _outgoing_matmul(
-        self,
-        a: torch.Tensor,  # [*, N_i, N_k, C]
-        b: torch.Tensor,  # [*, N_j, N_k, C]
-    ):
-        # [*, C, N_i, N_j]
-        p = torch.matmul(
-            permute_final_dims(a, (2, 0, 1)),
-            permute_final_dims(b, (2, 1, 0)),
-        )
-
-        # [*, N_i, N_j, C]
-        return permute_final_dims(p, (1, 2, 0))
-
-    def _incoming_matmul(
-        self,
-        a: torch.Tensor,  # [*, N_k, N_i, C]
-        b: torch.Tensor,  # [*, N_k, N_j, C]
-    ):
-
-        # [*, C, N_i, N_j]
-        p = torch.matmul(
-            permute_final_dims(a, (2, 1, 0)),
-            permute_final_dims(b, (2, 0, 1)),
-        )
-
-        # [*, N_i, N_j, C]
-        return permute_final_dims(p, (1, 2, 0))
-
-    def forward(self, z, mask=None):
+    def forward(self, 
+        z: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
         """
         Args:
             x:
@@ -103,7 +81,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         a = a * mask
         b = self.linear_b_p(z) * self.sigmoid(self.linear_b_g(z))
         b = b * mask
-        x = self.combine_projections(a, b)
+        x = self._combine_projections(a, b)
         x = self.layer_norm_out(x)
         x = self.linear_z(x)
         g = self.sigmoid(self.linear_g(z))
@@ -116,19 +94,36 @@ class TriangleMultiplicationOutgoing(TriangleMultiplicativeUpdate):
     """
     Implements Algorithm 11.
     """
+    def _combine_projections(
+        self,
+        a: torch.Tensor,  # [*, N_i, N_k, C]
+        b: torch.Tensor,  # [*, N_j, N_k, C]
+    ):
+        # [*, C, N_i, N_j]
+        p = torch.matmul(
+            permute_final_dims(a, (2, 0, 1)),
+            permute_final_dims(b, (2, 1, 0)),
+        )
 
-    __init__ = partialmethod(
-        TriangleMultiplicativeUpdate.__init__,
-        _outgoing=True,
-    )
+        # [*, N_i, N_j, C]
+        return permute_final_dims(p, (1, 2, 0))
 
 
 class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
     """
     Implements Algorithm 12.
     """
+    def _combine_projections(
+        self,
+        a: torch.Tensor,  # [*, N_k, N_i, C]
+        b: torch.Tensor,  # [*, N_k, N_j, C]
+    ):
+        # [*, C, N_i, N_j]
+        p = torch.matmul(
+            permute_final_dims(a, (2, 1, 0)),
+            permute_final_dims(b, (2, 0, 1)),
+        )
 
-    __init__ = partialmethod(
-        TriangleMultiplicativeUpdate.__init__,
-        _outgoing=False,
-    )
+        # [*, N_i, N_j, C]
+        return permute_final_dims(p, (1, 2, 0))
+

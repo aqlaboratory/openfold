@@ -31,7 +31,7 @@ import torch
 from openfold.config import model_config
 from openfold.data import templates, feature_pipeline, data_pipeline
 from openfold.model.model import AlphaFold
-from openfold.model.torchscript import script_primitives_
+from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants, protein
 import openfold.np.relax.relax as relax
 from openfold.utils.import_weights import (
@@ -49,9 +49,9 @@ def main(args):
     model = AlphaFold(config)
     model = model.eval()
     import_jax_weights_(model, args.param_path)
-    script_primitives_(model)
+    script_preset_(model)
     model = model.to(args.model_device)
-    
+ 
     template_featurizer = templates.TemplateHitFeaturizer(
         mmcif_dir=args.template_mmcif_dir,
         max_template_date=args.max_template_date,

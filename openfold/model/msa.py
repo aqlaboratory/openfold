@@ -16,7 +16,7 @@
 import math
 import torch
 import torch.nn as nn
-from typing import Optional
+from typing import Optional, List
 
 from openfold.model.primitives import Linear, Attention, GlobalAttention
 from openfold.utils.tensor_utils import (
@@ -63,6 +63,8 @@ class MSAAttention(nn.Module):
 
         self.layer_norm_m = nn.LayerNorm(self.c_in)
 
+        self.layer_norm_z = None
+        self.linear_z = None
         if self.pair_bias:
             self.layer_norm_z = nn.LayerNorm(self.c_z)
             self.linear_z = Linear(
@@ -73,7 +75,25 @@ class MSAAttention(nn.Module):
             self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
         )
 
-    def forward(self, m, chunk_size, z=None, mask=None):
+    @torch.jit.ignore
+    def _chunk(self, 
+        m: torch.Tensor,
+        biases: List[torch.Tensor],
+        chunk_size: int,
+    ) -> torch.Tensor:
+        return chunk_layer(
+            self.mha,
+            {"q_x": m, "k_x": m, "v_x": m, "biases": biases},
+            chunk_size=chunk_size,
+            no_batch_dims=len(m.shape[:-2]),
+        )
+
+    def forward(self, 
+        m: torch.Tensor, 
+        z: Optional[torch.Tensor] = None, 
+        mask: Optional[torch.Tensor] = None, 
+        chunk_size: Optional[int] = None,
+    ) -> torch.Tensor:
         """
         Args:
             m:
@@ -83,6 +103,11 @@ class MSAAttention(nn.Module):
                 pair_bias is True
             mask:
                 [*, N_seq, N_res] MSA mask
+            chunk_size:
+                Size of chunks into which the inputs are split along their
+                batch dimensions. A low value decreases memory overhead at the 
+                cost of slower execution. Chunking is not performed by default.
+                
         """
         # [*, N_seq, N_res, C_m]
         m = self.layer_norm_m(m)
@@ -106,7 +131,11 @@ class MSAAttention(nn.Module):
         
         biases = [bias]
 
-        if self.pair_bias:
+        if (self.pair_bias and 
+            z is not None and                       # For the 
+            self.layer_norm_z is not None and       # benefit of
+            self.linear_z is not None               # TorchScript
+        ):
             # [*, N_res, N_res, C_z]
             z = self.layer_norm_z(z)
 
@@ -118,16 +147,10 @@ class MSAAttention(nn.Module):
 
             biases.append(z)
 
-        mha_inputs = {"q_x": m, "k_x": m, "v_x": m, "biases": biases}
         if chunk_size is not None:
-            m = chunk_layer(
-                self.mha,
-                mha_inputs,
-                chunk_size=chunk_size,
-                no_batch_dims=len(m.shape[:-2]),
-            )
+            m = self._chunk(m, biases, chunk_size)
         else:
-            m = self.mha(**mha_inputs)
+            m = self.mha(q_x=m, k_x=m, v_x=m, biases=biases)
 
         return m
 
@@ -161,9 +184,12 @@ class MSARowAttentionWithPairBias(MSAAttention):
         )
 
 
-class MSAColumnAttention(MSAAttention):
+class MSAColumnAttention(nn.Module):
     """
     Implements Algorithm 8.
+
+    By rights, this should also be a subclass of MSAAttention. Alas,
+    most inheritance isn't supported by TorchScript.
     """
 
     def __init__(self, c_m, c_hidden, no_heads, inf=1e9):
@@ -178,7 +204,14 @@ class MSAColumnAttention(MSAAttention):
             inf:
                 Large number used to construct attention masks
         """
-        super(MSAColumnAttention, self).__init__(
+        super(MSAColumnAttention, self).__init__()
+        
+        self.c_m = c_m
+        self.c_hidden = c_hidden
+        self.no_heads = no_heads
+        self.inf = inf
+
+        self._msa_att = MSAAttention(
             c_in=c_m,
             c_hidden=c_hidden,
             no_heads=no_heads,
@@ -187,31 +220,40 @@ class MSAColumnAttention(MSAAttention):
             inf=inf,
         )
 
-    def forward(self, m, chunk_size, mask=None):
+    def forward(self, 
+        m: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None, 
+        chunk_size: Optional[int] = None
+    ) -> torch.Tensor:
         """
         Args:
             m:
                 [*, N_seq, N_res, C_m] MSA embedding
             mask:
                 [*, N_seq, N_res] MSA mask
+            chunk_size:
+                Size of chunks into which the inputs are split along their
+                batch dimensions. A low value decreases memory overhead at the 
+                cost of slower execution. Chunking is not performed by default.
         """ 
         # [*, N_res, N_seq, C_in]
         m = m.transpose(-2, -3)
         if mask is not None:
             mask = mask.transpose(-1, -2)
 
-        m = super().forward(m, chunk_size=chunk_size, mask=mask)
+        m = self._msa_att(m, mask=mask, chunk_size=chunk_size)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)
         if mask is not None:
             mask = mask.transpose(-1, -2)
+
         return m
 
 
 class MSAColumnGlobalAttention(nn.Module):
     def __init__(
-        self, c_in, c_hidden, no_heads, inf=1e9, eps=1e-10
+        self, c_in, c_hidden, no_heads, inf=1e9, eps=1e-10,
     ):
         super(MSAColumnGlobalAttention, self).__init__()
 
@@ -231,8 +273,28 @@ class MSAColumnGlobalAttention(nn.Module):
             eps=eps,
         )
 
+    @torch.jit.ignore
+    def _chunk(self,
+        m: torch.Tensor,
+        mask: torch.Tensor,
+        chunk_size: int,
+    ) -> torch.Tensor:
+        mha_input = {
+            "m": m,
+            "mask": mask,
+        }
+        return chunk_layer(
+            self.global_attention,
+            mha_input,
+            chunk_size=chunk_size,
+            no_batch_dims=len(m.shape[:-2]),
+        )
+
     def forward(
-        self, m: torch.Tensor, chunk_size, mask: Optional[torch.Tensor] = None
+        self, 
+        m: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None, 
+        chunk_size: Optional[int] = None,
     ) -> torch.Tensor:
         n_seq, n_res, c_in = m.shape[-3:]
 
@@ -251,19 +313,10 @@ class MSAColumnGlobalAttention(nn.Module):
         # [*, N_res, N_seq, C_in]
         m = self.layer_norm_m(m)
 
-        mha_input = {
-            "m": m,
-            "mask": mask,
-        }
         if chunk_size is not None:
-            m = chunk_layer(
-                self.global_attention,
-                mha_input,
-                chunk_size=chunk_size,
-                no_batch_dims=len(m.shape[:-2]),
-            )
+            m = self._chunk(m, mask, chunk_size) 
         else:
-            m = self.global_attention(m=mha_input["m"], mask=mha_input["mask"])
+            m = self.global_attention(m=m, mask=mask)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)

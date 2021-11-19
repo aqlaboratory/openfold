@@ -71,11 +71,25 @@ class MSATransition(nn.Module):
         m = self.linear_2(m) * mask
         return m
 
+    @torch.jit.ignore
+    def _chunk(self,
+        m: torch.Tensor,
+        mask: torch.Tensor,
+        chunk_size: int,
+    ) -> torch.Tensor:
+         return chunk_layer(
+             self._transition,
+             {"m": m, "mask": mask},
+             chunk_size=chunk_size,
+             no_batch_dims=len(m.shape[:-2]),
+         )
+
+
     def forward(
         self,
         m: torch.Tensor,
-        mask: torch.Tensor = None,
-        chunk_size: int = None,
+        mask: Optional[torch.Tensor] = None,
+        chunk_size: Optional[int] = None,
     ) -> torch.Tensor:
         """
         Args:
@@ -95,16 +109,10 @@ class MSATransition(nn.Module):
 
         m = self.layer_norm(m)
 
-        inp = {"m": m, "mask": mask}
         if chunk_size is not None:
-            m = chunk_layer(
-                self._transition,
-                inp,
-                chunk_size=chunk_size,
-                no_batch_dims=len(m.shape[:-2]),
-            )
+            m = self._chunk(m, mask, chunk_size)
         else:
-            m = self._transition(**inp)
+            m = self._transition(m, mask)
 
         return m
 
@@ -201,9 +209,11 @@ class EvoformerBlock(nn.Module):
         z: torch.Tensor,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
-        chunk_size: int,
+        chunk_size: Optional[int] = None,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        #print(torch.cuda.memory_summary())
+        
         # DeepMind doesn't mask these transitions in the source, so _mask_trans
         # should be disabled to better approximate the exact activations of
         # the original.

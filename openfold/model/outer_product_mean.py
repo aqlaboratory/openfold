@@ -14,6 +14,8 @@
 # limitations under the License.
 
 from functools import partial
+from typing import Optional
+
 import torch
 import torch.nn as nn
 
@@ -38,6 +40,7 @@ class OuterProductMean(nn.Module):
         """
         super(OuterProductMean, self).__init__()
 
+        self.c_m = c_m
         self.c_z = c_z
         self.c_hidden = c_hidden
         self.eps = eps
@@ -52,14 +55,43 @@ class OuterProductMean(nn.Module):
         outer = torch.einsum("...bac,...dae->...bdce", a, b)
 
         # [*, N_res, N_res, C * C]
-        outer = outer.reshape(*outer.shape[:-2], -1)
+        outer = outer.reshape(outer.shape[:-2] + (-1,))
 
         # [*, N_res, N_res, C_z]
         outer = self.linear_out(outer)
 
         return outer
 
-    def forward(self, m, chunk_size, mask=None):
+    @torch.jit.ignore
+    def _chunk(self, 
+        a: torch.Tensor, 
+        b: torch.Tensor, 
+        chunk_size: int
+    ) -> torch.Tensor:
+        # Since the "batch dim" in this case is not a true batch dimension
+        # (in that the shape of the output depends on it), we need to
+        # iterate over it ourselves
+        a_reshape = a.reshape((-1,) + a.shape[-3:])
+        b_reshape = b.reshape((-1,) + b.shape[-3:])
+        out = []
+        for a_prime, b_prime in zip(a_reshape, b_reshape):
+            outer = chunk_layer(
+                partial(self._opm, b=b_prime),
+                {"a": a_prime},
+                chunk_size=chunk_size,
+                no_batch_dims=1,
+            )
+            out.append(outer)
+        outer = torch.stack(out, dim=0)
+        outer = outer.reshape(a.shape[:-3] + outer.shape[1:])
+
+        return outer
+
+    def forward(self, 
+        m: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None,
+        chunk_size: Optional[int] = None
+    ) -> torch.Tensor:
         """
         Args:
             m:
@@ -84,22 +116,7 @@ class OuterProductMean(nn.Module):
         b = b.transpose(-2, -3)
 
         if chunk_size is not None:
-            # Since the "batch dim" in this case is not a true batch dimension
-            # (in that the shape of the output depends on it), we need to
-            # iterate over it ourselves
-            a_reshape = a.reshape(-1, *a.shape[-3:])
-            b_reshape = b.reshape(-1, *b.shape[-3:])
-            out = []
-            for a_prime, b_prime in zip(a_reshape, b_reshape):
-                outer = chunk_layer(
-                    partial(self._opm, b=b_prime),
-                    {"a": a_prime},
-                    chunk_size=chunk_size,
-                    no_batch_dims=1,
-                )
-                out.append(outer)
-            outer = torch.stack(out, dim=0)
-            outer = outer.reshape(*a.shape[:-3], *outer.shape[1:])
+            outer = self._chunk(a, b, chunk_size)
         else:
             outer = self._opm(a, b)
 

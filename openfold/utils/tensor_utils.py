@@ -107,6 +107,22 @@ def tree_map(fn, tree, leaf_type):
 
 tensor_tree_map = partial(tree_map, leaf_type=torch.Tensor)
 
+def _fetch_dims(tree):
+    shapes = []
+    tree_type = type(tree)
+    if tree_type is dict:
+        for v in tree.values():
+            shapes.extend(_fetch_dims(v))
+    elif tree_type is list or tree_type is tuple:
+        for t in tree:
+            shapes.extend(_fetch_dims(t))
+    elif tree_type is torch.Tensor:
+        shapes.append(tree.shape)
+    else:
+        raise ValueError("Not supported")
+
+    return shapes
+
 
 def chunk_layer(
     layer: Callable,
@@ -141,33 +157,17 @@ def chunk_layer(
     if not (len(inputs) > 0):
         raise ValueError("Must provide at least one input")
 
-    def fetch_dims(tree):
-        shapes = []
-        tree_type = type(tree)
-        if tree_type is dict:
-            for v in tree.values():
-                shapes.extend(fetch_dims(v))
-        elif tree_type is list or tree_type is tuple:
-            for t in tree:
-                shapes.extend(fetch_dims(t))
-        elif tree_type is torch.Tensor:
-            shapes.append(tree.shape)
-        else:
-            raise ValueError("Not supported")
-
-        return shapes
-
-    initial_dims = [shape[:no_batch_dims] for shape in fetch_dims(inputs)]
+    initial_dims = [shape[:no_batch_dims] for shape in _fetch_dims(inputs)]
     orig_batch_dims = tuple([max(s) for s in zip(*initial_dims)])
 
-    def prep_inputs(t):
+    def _prep_inputs(t):
         # TODO: make this more memory efficient. This sucks
         if not sum(t.shape[:no_batch_dims]) == no_batch_dims:
             t = t.expand(*orig_batch_dims, *t.shape[no_batch_dims:])
         t = t.reshape(-1, *t.shape[no_batch_dims:])
         return t
 
-    flattened_inputs = tensor_tree_map(prep_inputs, inputs)
+    flattened_inputs = tensor_tree_map(_prep_inputs, inputs)
 
     flat_batch_dim = 1
     for d in orig_batch_dims:

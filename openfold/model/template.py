@@ -12,9 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from functools import partial
 import math
+from typing import Optional, List
+
 import torch
 import torch.nn as nn
 
@@ -71,7 +72,32 @@ class TemplatePointwiseAttention(nn.Module):
             gating=False,
         )
 
-    def forward(self, t, z, chunk_size, template_mask=None):
+    def _chunk(self,
+        z: torch.Tensor,
+        t: torch.Tensor,
+        biases: List[torch.Tensor],
+        chunk_size: int,
+    ) -> torch.Tensor:
+        mha_inputs = {
+            "q_x": z,
+            "k_x": t,
+            "v_x": t,
+            "biases": biases,
+        }
+        return chunk_layer(
+            self.mha,
+            mha_inputs,
+            chunk_size=chunk_size,
+            no_batch_dims=len(z.shape[:-2]),
+        )
+
+
+    def forward(self, 
+        t: torch.Tensor, 
+        z: torch.Tensor, 
+        template_mask: Optional[torch.Tensor] = None,
+        chunk_size: Optional[int] = None
+    ) -> torch.Tensor:
         """
         Args:
             t:
@@ -95,21 +121,11 @@ class TemplatePointwiseAttention(nn.Module):
         t = permute_final_dims(t, (1, 2, 0, 3))
 
         # [*, N_res, N_res, 1, C_z]
-        mha_inputs = {
-            "q_x": z,
-            "k_x": t,
-            "v_x": t,
-            "biases": [bias],
-        }
+        biases = [bias]
         if chunk_size is not None:
-            z = chunk_layer(
-                self.mha,
-                mha_inputs,
-                chunk_size=chunk_size,
-                no_batch_dims=len(z.shape[:-2]),
-            )
+            z = self._chunk(z, t, biases, chunk_size)
         else:
-            z = self.mha(**mha_inputs)
+            z = self.mha(q_x=z, k_x=t, v_x=t, biases=biases)
 
         # [*, N_res, N_res, C_z]
         z = z.squeeze(-2)
@@ -120,13 +136,13 @@ class TemplatePointwiseAttention(nn.Module):
 class TemplatePairStackBlock(nn.Module):
     def __init__(
         self,
-        c_t,
-        c_hidden_tri_att,
-        c_hidden_tri_mul,
-        no_heads,
-        pair_transition_n,
-        dropout_rate,
-        inf,
+        c_t: int,
+        c_hidden_tri_att: int,
+        c_hidden_tri_mul: int,
+        no_heads: int,
+        pair_transition_n: int,
+        dropout_rate: float,
+        inf: float,
         **kwargs,
     ):
         super(TemplatePairStackBlock, self).__init__()
@@ -169,7 +185,12 @@ class TemplatePairStackBlock(nn.Module):
             self.pair_transition_n,
         )
 
-    def forward(self, z, mask, chunk_size, _mask_trans=True):
+    def forward(self, 
+        z: torch.Tensor, 
+        mask: torch.Tensor, 
+        chunk_size: Optional[int] = None, 
+        _mask_trans: bool = True
+    ):
         single_templates = [
             t.unsqueeze(-4) for t in torch.unbind(z, dim=-4)
         ]
@@ -208,8 +229,8 @@ class TemplatePairStackBlock(nn.Module):
             )
             single = single + self.pair_transition(
                 single,
+                mask=single_mask if _mask_trans else None,
                 chunk_size=chunk_size,
-                mask=single_mask if _mask_trans else None
             )
 
             single_templates[i] = single

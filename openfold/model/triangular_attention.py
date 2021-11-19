@@ -15,6 +15,8 @@
 
 from functools import partialmethod
 import math
+from typing import Optional, List
+
 import torch
 import torch.nn as nn
 
@@ -55,7 +57,30 @@ class TriangleAttention(nn.Module):
             self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
         )
 
-    def forward(self, x, chunk_size, mask=None):
+    @torch.jit.ignore
+    def _chunk(self,
+        x: torch.Tensor,
+        biases: List[torch.Tensor],
+        chunk_size: int,
+    ) -> torch.Tensor:
+        mha_inputs = {
+            "q_x": x,
+            "k_x": x,
+            "v_x": x,
+            "biases": biases,
+        }
+        return chunk_layer(
+            self.mha,
+            mha_inputs,
+            chunk_size=chunk_size,
+            no_batch_dims=len(x.shape[:-2]),
+        )
+
+    def forward(self, 
+        x: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None,
+        chunk_size: Optional[int] = None
+    ) -> torch.Tensor:
         """
         Args:
             x:
@@ -86,21 +111,12 @@ class TriangleAttention(nn.Module):
         # [*, 1, H, I, J]
         triangle_bias = triangle_bias.unsqueeze(-4)
 
-        mha_inputs = {
-            "q_x": x,
-            "k_x": x,
-            "v_x": x,
-            "biases": [mask_bias, triangle_bias],
-        }
+        biases = [mask_bias, triangle_bias]
+
         if chunk_size is not None:
-            x = chunk_layer(
-                self.mha,
-                mha_inputs,
-                chunk_size=chunk_size,
-                no_batch_dims=len(x.shape[:-2]),
-            )
+            x = self._chunk(x, biases, chunk_size)
         else:
-            x = self.mha(**mha_inputs)
+            x = self.mha(q_x=x, k_x=x, v_x=x, biases=biases)
 
         if not self.starting:
             x = x.transpose(-2, -3)

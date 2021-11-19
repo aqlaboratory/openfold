@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
@@ -23,6 +23,7 @@ from openfold.data.data_modules import (
     DummyDataLoader,
 )
 from openfold.model.model import AlphaFold
+from openfold.model.torchscript import script_preset_
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
@@ -63,10 +64,6 @@ class OpenFoldWrapper(pl.LightningModule):
 
         # Compute loss
         loss = self.loss(outputs, batch)
-
-        #if(torch.isnan(loss) or torch.isinf(loss)):
-        #    logging.warning("loss is NaN. Skipping example...")
-        #    loss = loss.new_tensor(0., requires_grad=True)
 
         return {"loss": loss}
 
@@ -121,6 +118,10 @@ def main(args):
         sd = {k[len("module."):]:v for k,v in sd.items()}
         model_module.load_state_dict(sd)
         logging.info("Successfully loaded model weights...")
+
+    # TorchScript components of the model
+    script_preset_(model_module)
+
     #data_module = DummyDataLoader("batch.pickle")
     data_module = OpenFoldDataModule(
         config=config.data, 

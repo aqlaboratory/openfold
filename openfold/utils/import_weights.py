@@ -217,6 +217,11 @@ def import_jax_weights_(model, npz_path, version="model_1"):
         "attention": AttentionGatedParams(matt.mha),
     }
 
+    MSAColAttParams = lambda matt: {
+        "query_norm": LayerNormParams(matt._msa_att.layer_norm_m),
+        "attention": AttentionGatedParams(matt._msa_att.mha),
+    }
+
     MSAGlobalAttParams = lambda matt: {
         "query_norm": LayerNormParams(matt.layer_norm_m),
         "attention": GlobalAttentionParams(matt.global_attention),
@@ -270,7 +275,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
             msa_col_att_params = MSAGlobalAttParams(b.msa_att_col)
         else:
             col_att_name = "msa_column_attention"
-            msa_col_att_params = MSAAttParams(b.msa_att_col)
+            msa_col_att_params = MSAColAttParams(b.msa_att_col)
 
         d = {
             "msa_row_attention_with_pair_bias": MSAAttPairBiasParams(
