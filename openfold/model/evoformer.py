@@ -271,6 +271,7 @@ class EvoformerStack(nn.Module):
         inf: float,
         eps: float,
         _is_extra_msa_stack: bool = False,
+        _clear_cache_btwn_extra_blocks: bool = True,
         **kwargs,
     ):
         """
@@ -309,6 +310,7 @@ class EvoformerStack(nn.Module):
 
         self.blocks_per_ckpt = blocks_per_ckpt
         self._is_extra_msa_stack = _is_extra_msa_stack
+        self._clear_cache_btwn_extra_blocks = _clear_cache_btwn_extra_blocks
 
         self.blocks = nn.ModuleList()
 
@@ -361,17 +363,25 @@ class EvoformerStack(nn.Module):
             s:
                 [*, N_res, C_s] single embedding (or None if extra MSA stack)
         """
+        blocks = [
+            partial(
+                b,
+                msa_mask=msa_mask,
+                pair_mask=pair_mask,
+                chunk_size=chunk_size,
+                _mask_trans=_mask_trans,
+            )
+            for b in self.blocks
+        ]
+        if(self._is_extra_msa_stack and self._clear_cache_btwn_extra_blocks):
+            def block_with_cache_clear(block, *args):
+                torch.cuda.empty_cache()
+                return block(*args)
+
+            blocks = [partial(block_with_cache_clear, b) for b in blocks]
+
         m, z = checkpoint_blocks(
-            blocks=[
-                partial(
-                    b,
-                    msa_mask=msa_mask,
-                    pair_mask=pair_mask,
-                    chunk_size=chunk_size,
-                    _mask_trans=_mask_trans,
-                )
-                for b in self.blocks
-            ],
+            blocks,
             args=(m, z),
             blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )
