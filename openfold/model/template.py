@@ -315,7 +315,7 @@ class TemplatePairStack(nn.Module):
             expand_idx[-3] = t.shape[-4]
             mask = mask.expand(*expand_idx)
 
-        (t,) = checkpoint_blocks(
+        t, = checkpoint_blocks(
             blocks=[
                 partial(
                     b,

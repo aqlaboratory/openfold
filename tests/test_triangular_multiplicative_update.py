@@ -32,7 +32,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         c = 11
         outgoing = True
 
-        tm = TriangleMultiplicativeUpdate(
+        tm = TriangleMultiplicationOutgoing(
             c_z,
             c,
             outgoing,

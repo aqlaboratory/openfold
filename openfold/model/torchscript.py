@@ -138,7 +138,6 @@ def _trace_module(module, batch_dims=None):
                 )
             )
         }
-        module = OPM(module)
     else:
         raise TypeError(
             f"tracing is not supported for modules of type {type(module)}"

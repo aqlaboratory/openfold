@@ -52,7 +52,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-    def _combine_projections(
+    def _combine_projections(self,
         a: torch.Tensor,
         b: torch.Tensor,
     ) -> torch.Tensor:
@@ -94,8 +94,7 @@ class TriangleMultiplicationOutgoing(TriangleMultiplicativeUpdate):
     """
     Implements Algorithm 11.
     """
-    def _combine_projections(
-        self,
+    def _combine_projections(self,
         a: torch.Tensor,  # [*, N_i, N_k, C]
         b: torch.Tensor,  # [*, N_j, N_k, C]
     ):
@@ -113,8 +112,7 @@ class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
     """
     Implements Algorithm 12.
     """
-    def _combine_projections(
-        self,
+    def _combine_projections(self,
         a: torch.Tensor,  # [*, N_k, N_i, C]
         b: torch.Tensor,  # [*, N_k, N_j, C]
     ):
