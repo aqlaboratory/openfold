@@ -8,7 +8,7 @@ A faithful PyTorch reproduction of DeepMind's
 ## Features
 
 OpenFold carefully reproduces (almost) all of the features of the original open
-source inference code (v.2.0.1). The sole exception is model ensembling, which 
+source inference code (v2.0.1). The sole exception is model ensembling, which 
 fared poorly in DeepMind's own ablation testing and is being phased out in future
 DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
 cases where the *Nature* paper differs from the source, we always defer to the 
@@ -217,7 +217,7 @@ The script is a thin wrapper around Python's `unittest` suite, and recognizes
 scripts/run_unit_tests.sh -v tests.test_model
 ```
 
-Certain tests require that AlphaFold (v. 2.0.1) be installed in the same Python
+Certain tests require that AlphaFold (v2.0.1) be installed in the same Python
 environment. These run components of AlphaFold and OpenFold side by side and
 ensure that output activations are adequately similar. For most modules, we
 target a maximum difference of `1e-4`.
