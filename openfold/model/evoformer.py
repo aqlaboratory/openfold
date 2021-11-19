@@ -270,8 +270,9 @@ class EvoformerStack(nn.Module):
         blocks_per_ckpt: int,
         inf: float,
         eps: float,
+        clear_cache_between_blocks: bool = False, 
         _is_extra_msa_stack: bool = False,
-        _clear_cache_btwn_extra_blocks: bool = True,
+        _: bool = True,
         **kwargs,
     ):
         """
@@ -309,8 +310,8 @@ class EvoformerStack(nn.Module):
         super(EvoformerStack, self).__init__()
 
         self.blocks_per_ckpt = blocks_per_ckpt
+        self.clear_cache_between_blocks = clear_cache_between_blocks
         self._is_extra_msa_stack = _is_extra_msa_stack
-        self._clear_cache_btwn_extra_blocks = _clear_cache_btwn_extra_blocks
 
         self.blocks = nn.ModuleList()
 
@@ -373,8 +374,10 @@ class EvoformerStack(nn.Module):
             )
             for b in self.blocks
         ]
-        if(self._is_extra_msa_stack and self._clear_cache_btwn_extra_blocks):
+
+        if(self.clear_cache_between_blocks):
             def block_with_cache_clear(block, *args):
+                print("hello!")
                 torch.cuda.empty_cache()
                 return block(*args)
 
@@ -418,6 +421,7 @@ class ExtraMSAStack(nn.Module):
         blocks_per_ckpt: int,
         inf: float,
         eps: float,
+        clear_cache_between_blocks: bool = False,
         **kwargs,
     ):
         super(ExtraMSAStack, self).__init__()
@@ -440,6 +444,7 @@ class ExtraMSAStack(nn.Module):
             blocks_per_ckpt=blocks_per_ckpt,
             inf=inf,
             eps=eps,
+            clear_cache_between_blocks=clear_cache_between_blocks,
             _is_extra_msa_stack=True,
         )
 

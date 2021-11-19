@@ -23,9 +23,9 @@
     "opt_level": "O2"
   },
   "zero_optimization": {
-    "stage": 1,
-    "cpu_offload": false,
-    "contiguous_gradients": false
+    "stage": 2,
+    "cpu_offload": true,
+    "contiguous_gradients": true
   },
   "activation_checkpointing": {
     "partition_activations": true,
