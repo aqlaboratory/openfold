@@ -220,7 +220,7 @@ scripts/run_unit_tests.sh -v tests.test_model
 Certain tests require that AlphaFold (v2.0.1) be installed in the same Python
 environment. These run components of AlphaFold and OpenFold side by side and
 ensure that output activations are adequately similar. For most modules, we
-target a maximum difference of `1e-4`.
+target a maximum pointwise difference of `1e-4`.
 
 ## Copyright notice
 
