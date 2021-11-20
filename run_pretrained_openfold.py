@@ -49,7 +49,7 @@ def main(args):
     model = AlphaFold(config)
     model = model.eval()
     import_jax_weights_(model, args.param_path)
-    script_preset_(model)
+    #script_preset_(model)
     model = model.to(args.model_device)
  
     template_featurizer = templates.TemplateHitFeaturizer(
