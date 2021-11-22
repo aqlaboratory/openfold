@@ -51,7 +51,7 @@ def main(args):
             for k,v in mmcif.chain_to_seqres.items():
                 chain_id = '_'.join([file_id, k])
                 seqs[chain_id] = v
-        elif(f.endswith('.fasta')):
+        elif(f.endswith('.fasta') or f.endswith('.fa')):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
             input_seqs, _ = parse_fasta(fasta_str)
