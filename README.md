@@ -95,7 +95,8 @@ extract `.core` files from ProteinNet text files.
 For both inference and training, the model's hyperparameters can be tuned from
 `openfold/config.py`. Of course, if you plan to perform inference using 
 DeepMind's pretrained parameters, you will only be able to make changes that
-do not affect the shapes of model parameters.
+do not affect the shapes of model parameters. For an example of initializing
+the model, consult `run_pretrained_openfold.py`.
 
 ### Inference
 
