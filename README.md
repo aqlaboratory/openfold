@@ -92,6 +92,11 @@ a format recognized by the OpenFold parser. The resulting directory becomes the
 `alignment_dir` used in subsequent steps. Use `scripts/unpack_proteinnet.py` to
 extract `.core` files from ProteinNet text files.
 
+For both inference and training, the model's hyperparameters can be tuned from
+`openfold/config.py`. Of course, if you plan to perform inference using 
+DeepMind's pretrained parameters, you will only be able to make changes that
+do not affect the shapes of model parameters.
+
 ### Inference
 
 To run inference on a sequence or multiple sequences using a set of DeepMind's 
