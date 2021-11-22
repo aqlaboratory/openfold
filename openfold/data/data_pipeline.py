@@ -310,7 +310,6 @@ class AlignmentRunner:
 
 class DataPipeline:
     """Assembles input features."""
-
     def __init__(
         self,
         template_featurizer: templates.TemplateHitFeaturizer,
@@ -362,11 +361,27 @@ class DataPipeline:
     def _process_msa_feats(
         self,
         alignment_dir: str,
+        input_sequence: Optional[str] = None,
     ) -> Mapping[str, Any]:
         msa_data = self._parse_msa_data(alignment_dir)
+       
+        if(len(msa_data) == 0):
+            if(input_sequence is None):
+                raise ValueError(
+                    """
+                    If the alignment dir contains no MSAs, an input sequence 
+                    must be provided.
+                    """
+                )
+            msa_data["dummy"] = {
+                "msa": [input_sequence],
+                "deletion_matrix": [[0 for _ in input_sequence]],
+            }
+
         msas, deletion_matrices = zip(*[
             (v["msa"], v["deletion_matrix"]) for v in msa_data.values()
         ])
+
         msa_features = make_msa_features(
             msas=msas,
             deletion_matrices=deletion_matrices,
@@ -379,7 +394,7 @@ class DataPipeline:
         fasta_path: str,
         alignment_dir: str,
     ) -> FeatureDict:
-        """Assembles features for a single sequence in a FASTA file"""
+        """Assembles features for a single sequence in a FASTA file""" 
         with open(fasta_path) as f:
             fasta_str = f.read()
         input_seqs, input_descs = parsers.parse_fasta(fasta_str)
@@ -404,7 +419,7 @@ class DataPipeline:
             num_res=num_res,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
         
         return {
             **sequence_features,
@@ -442,7 +457,7 @@ class DataPipeline:
             query_release_date=to_date(mmcif.header["release_date"])
         )
         
-        msa_features = self._process_msa_feats(alignment_dir)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
 
         return {**mmcif_feats, **template_features, **msa_features}
 
@@ -469,7 +484,7 @@ class DataPipeline:
             self.template_featurizer,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
 
         return {**pdb_feats, **template_features, **msa_features}
 
@@ -496,7 +511,7 @@ class DataPipeline:
             self.template_featurizer,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
 
         return {**core_feats, **template_features, **msa_features}
 
