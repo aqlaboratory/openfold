@@ -1131,12 +1131,12 @@ def random_crop_to_size(
         templates_select_indices = torch.randperm(
             num_templates, device=protein["seq_length"].device, generator=g
         )
-        num_templates_crop_size = min(
-            num_templates - templates_crop_start, max_templates
-        )
     else:
         templates_crop_start = 0
-        num_templates_crop_size = num_templates
+
+    num_templates_crop_size = min(
+        num_templates - templates_crop_start, max_templates
+    )
 
     n = seq_length - num_res_crop_size
     if "use_clamped_fape" in protein and protein["use_clamped_fape"] == 1.:
