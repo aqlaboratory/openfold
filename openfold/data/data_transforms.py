@@ -176,7 +176,7 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
 
 @curry1
 def sample_msa(protein, max_seq, keep_extra, seed=None):
-    """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`."""
+    """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`.""" 
     num_seq = protein["msa"].shape[0]
     g = torch.Generator(device=protein["msa"].device)
     if seed is not None:
@@ -202,7 +202,7 @@ def sample_msa(protein, max_seq, keep_extra, seed=None):
 @curry1
 def sample_msa_distillation(protein, max_seq):
     if(protein["is_distillation"] == 1):
-        protein = sample_msa(protein, max_seq, keep_extra=False)
+        protein = sample_msa(max_seq, keep_extra=False)(protein)
     return protein
 
 
