@@ -247,7 +247,7 @@ welcome pull requests from the community.
 
 ## Citing this work
 
-For now, cite OpenFold using its DOI:
+For now, cite OpenFold as follows:
 
 ```bibtex
 @software{Ahdritz_OpenFold_2021,
