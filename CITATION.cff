@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "For now, cite OpenFold with its DOI."
+authors:
+- family-names: "Ahdritz"
+  given-names: "Gustaf"
+- family-names: "Bouatta"
+  given-names: "Nazim"
+- family-names: "Kadyan"
+  given-names: "Sachin"
+- family-names: "Xia"
+  given-names: "Qinghui"
+- family-names: "Gerecke"
+  given-names: "William"
+- family-names: "AlQuraishi"
+  given-names: "Mohammed"
+title: "OpenFold"
+version: 0.1.0
+doi: 10.5281/zenodo.5709539
+date-released: 2021-11-12
+url: "https://github.com/aqlaboratory/openfold"
