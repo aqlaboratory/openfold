@@ -17,7 +17,6 @@ authors:
   given-names: "Mohammed"
   orcid: https://orcid.org/0000-0001-6817-1322
 title: "OpenFold"
-version: 0.1.0
 doi: 10.5281/zenodo.5709539
 date-released: 2021-11-12
 url: "https://github.com/aqlaboratory/openfold"
