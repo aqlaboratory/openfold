@@ -247,4 +247,6 @@ welcome pull requests from the community.
 
 ## Citing this work
 
-Stay tuned for an OpenFold DOI.
+DOI: 10.5281/zenodo.5709540
+
+Any work that cites OpenFold should also cite AlphaFold.
