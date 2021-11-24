@@ -249,6 +249,15 @@ welcome pull requests from the community.
 
 For now, cite OpenFold using its DOI:
 
-Gustaf Ahdritz, Nazim Bouatta, Sachin Kadyan, Qinghui Xia, William Gerecke, & Mohammed AlQuraishi. (2021). aqlaboratory/openfold: Openfold v1.0.0 (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.5709539
+```bibtex
+@software{Ahdritz_OpenFold_2021,
+  author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and AlQuraishi, Mohammed},
+  doi = {10.5281/zenodo.5709539},
+  month = {11},
+  title = {{OpenFold}},
+  url = {https://github.com/aqlaboratory/openfold},
+  year = {2021}
+}
+```
 
 Any work that cites OpenFold should also cite AlphaFold.
