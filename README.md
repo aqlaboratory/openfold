@@ -247,4 +247,17 @@ welcome pull requests from the community.
 
 ## Citing this work
 
-Stay tuned for an OpenFold DOI.
+For now, cite OpenFold as follows:
+
+```bibtex
+@software{Ahdritz_OpenFold_2021,
+  author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and AlQuraishi, Mohammed},
+  doi = {10.5281/zenodo.5709539},
+  month = {11},
+  title = {{OpenFold}},
+  url = {https://github.com/aqlaboratory/openfold},
+  year = {2021}
+}
+```
+
+Any work that cites OpenFold should also cite AlphaFold.
