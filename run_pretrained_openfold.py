@@ -48,7 +48,7 @@ def main(args):
     config = model_config(args.model_name)
     model = AlphaFold(config)
     model = model.eval()
-    import_jax_weights_(model, args.param_path)
+    import_jax_weights_(model, args.param_path, version=args.model_name)
     #script_preset_(model)
     model = model.to(args.model_device)
  
