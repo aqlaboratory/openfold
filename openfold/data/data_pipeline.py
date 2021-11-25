@@ -45,7 +45,7 @@ def make_template_features(
     query_release_date: Optional[str] = None,
 ) -> FeatureDict:
     hits_cat = sum(hits.values(), [])
-    if(len(hits_cat) == 0):
+    if(len(hits_cat) == 0 or template_featurizer is None):
         template_features = empty_template_feats(len(input_sequence))
     else:
         templates_result = template_featurizer.get_templates(
@@ -130,7 +130,8 @@ def _aatype_to_str_sequence(aatype):
 
 def make_protein_features(
     protein_object: protein.Protein, 
-    description: str, 
+    description: str,
+    _is_distillation: bool = False,
 ) -> FeatureDict:
     pdb_feats = {}
     aatype = protein_object.aatype
@@ -150,7 +151,9 @@ def make_protein_features(
     pdb_feats["all_atom_mask"] = all_atom_mask
 
     pdb_feats["resolution"] = np.array([0.]).astype(np.float32)
-    pdb_feats["is_distillation"] = np.array(1.).astype(np.float32)
+    pdb_feats["is_distillation"] = np.array(
+        1. if _is_distillation else 0.
+    ).astype(np.float32)
 
     return pdb_feats
 
@@ -160,7 +163,10 @@ def make_pdb_features(
     description: str,
     confidence_threshold: float = 0.5,
 ) -> FeatureDict:
-    pdb_feats = make_protein_features(protein_object, description)
+    """ Use only for distillation set PDBs """
+    pdb_feats = make_protein_features(
+        protein_object, description, _is_distillation=True
+    )
 
     high_confidence = protein_object.b_factors > confidence_threshold
     high_confidence = np.any(high_confidence, axis=-1)
@@ -312,7 +318,7 @@ class DataPipeline:
     """Assembles input features."""
     def __init__(
         self,
-        template_featurizer: templates.TemplateHitFeaturizer,
+        template_featurizer: Optional[templates.TemplateHitFeaturizer],
     ):
         self.template_featurizer = template_featurizer
 
