@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 #os.environ["MASTER_ADDR"]="10.119.81.14"
 #os.environ["MASTER_PORT"]="42069"
 #os.environ["NODE_RANK"]="0"
@@ -170,7 +170,7 @@ def main(args):
             config=args.deepspeed_config_path,
             cluster_environment=cluster_environment,
         )
-    elif args.gpus > 1 or args.num_nodes > 1:
+    elif (args.gpus is not None and args.gpus) > 1 or args.num_nodes > 1:
         strategy = "ddp"
     else:
         strategy = None
