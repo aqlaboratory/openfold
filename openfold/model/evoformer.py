@@ -137,6 +137,8 @@ class EvoformerBlock(nn.Module):
     ):
         super(EvoformerBlock, self).__init__()
 
+        self._is_extra_msa_stack = _is_extra_msa_stack
+
         self.msa_att_row = MSARowAttentionWithPairBias(
             c_m=c_m,
             c_z=c_z,
@@ -212,8 +214,6 @@ class EvoformerBlock(nn.Module):
         chunk_size: Optional[int] = None,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        #print(torch.cuda.memory_summary())
-        
         # DeepMind doesn't mask these transitions in the source, so _mask_trans
         # should be disabled to better approximate the exact activations of
         # the original.
