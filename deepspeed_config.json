@@ -22,6 +22,9 @@
     "enabled": false,
     "opt_level": "O2"
   },
+  "bfloat16": {
+    "enabled": false
+  },
   "zero_optimization": {
     "stage": 2,
     "cpu_offload": true,
