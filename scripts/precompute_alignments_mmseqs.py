@@ -54,7 +54,7 @@ def main(args):
         chunk_fasta = [el for tup in zip(names[s:e], seqs[s:e]) for el in tup] 
         s = e
         
-        prot_dir = os.path.join(args.output_dir, chunk_fasta[0][:1].upper())
+        prot_dir = os.path.join(args.output_dir, chunk_fasta[0][1:].upper())
         if(os.path.exists(prot_dir)):
             # We've already computed this chunk
             continue
