@@ -162,17 +162,18 @@ def make_pdb_features(
     protein_object: protein.Protein,
     description: str,
     confidence_threshold: float = 0.5,
+    is_distillation: bool = True,
 ) -> FeatureDict:
-    """ Use only for distillation set PDBs """
     pdb_feats = make_protein_features(
         protein_object, description, _is_distillation=True
     )
 
-    high_confidence = protein_object.b_factors > confidence_threshold
-    high_confidence = np.any(high_confidence, axis=-1)
-    for i, confident in enumerate(high_confidence):
-        if(not confident):
-            pdb_feats["all_atom_mask"][i] = 0
+    if(is_distillation):
+        high_confidence = protein_object.b_factors > confidence_threshold
+        high_confidence = np.any(high_confidence, axis=-1)
+        for i, confident in enumerate(high_confidence):
+            if(not confident):
+                pdb_feats["all_atom_mask"][i] = 0
 
     return pdb_feats
 
@@ -471,6 +472,7 @@ class DataPipeline:
         self,
         pdb_path: str,
         alignment_dir: str,
+        is_distillation: bool = True
     ) -> FeatureDict:
         """
             Assembles features for a protein in a PDB file.
@@ -481,7 +483,11 @@ class DataPipeline:
         protein_object = protein.from_pdb_string(pdb_str)
         input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
         description = os.path.splitext(os.path.basename(pdb_path))[0].upper()
-        pdb_feats = make_pdb_features(protein_object, description)
+        pdb_feats = make_pdb_features(
+            protein_object, 
+            description, 
+            is_distillation
+        )
 
         hits = self._parse_template_hits(alignment_dir)
         template_features = make_template_features(
