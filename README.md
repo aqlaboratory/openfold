@@ -18,8 +18,8 @@ OpenFold is built to support inference with AlphaFold's original JAX weights.
 Try it out with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
-with [DeepSpeed](https://github.com/microsoft/deepspeed) and with both `fp16`
-and `bfloat16` half-precision.
+with [DeepSpeed](https://github.com/microsoft/deepspeed) and with either `fp16`
+or `bfloat16` half-precision.
 
 ## Installation (Linux)
 
