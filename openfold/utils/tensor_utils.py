@@ -156,10 +156,10 @@ def _get_minimal_slice_set(
     # corresponding tensor, modeled as a tree
     def reduce_edge_list(l):
         tally = 1
-         for i in range(len(l)):
-             reversed_idx = -1 * (i + 1)
-             l[reversed_idx] *= tally
-             tally = l[reversed_idx]
+        for i in range(len(l)):
+            reversed_idx = -1 * (i + 1)
+            l[reversed_idx] *= tally
+            tally = l[reversed_idx]
 
     if(start_edges is None):
         start_edges = [s == 0 for s in start]
