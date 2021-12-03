@@ -17,7 +17,7 @@ import torch
 import unittest
 
 from openfold.utils.affine_utils import T, quat_to_rot
-from openfold.utils.tensor_utils import chunk_layer
+from openfold.utils.tensor_utils import chunk_layer, _chunk_slice
 
 
 X_90_ROT = torch.tensor(
@@ -37,7 +37,7 @@ X_NEG_90_ROT = torch.tensor(
 )
 
 
-class TestAffineT(unittest.TestCase):
+class TestUtils(unittest.TestCase):
     def test_T_from_3_points_shape(self):
         batch_size = 2
         n_res = 5
@@ -165,3 +165,18 @@ class TestAffineT(unittest.TestCase):
         self.assertTrue(
             torch.all(chunked["inner"]["out"] == unchunked["inner"]["out"])
         )
+
+    def test_chunk_slice_dict(self):
+        x = torch.rand(3, 4, 3, 5)
+        x_flat = x.view(-1, 5)
+
+        prod = 1
+        for d in x.shape[:-1]:
+            prod = prod * d
+
+        for i in range(prod):
+            for j in range(i + 1, prod + 1):
+                chunked = _chunk_slice(x, i, j, len(x.shape[:-1]))
+                chunked_flattened = x_flat[i:j]
+
+                self.assertTrue(torch.all(chunked == chunked_flattened))
