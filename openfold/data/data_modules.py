@@ -150,7 +150,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         name = self.mapping[str(idx)]
         alignment_dir = os.path.join(self.alignment_dir, name)
 
-        if(self.mode == 'train' or self.mode == 'val'):
+        if(self.mode == 'train' or self.mode == 'eval'):
             spl = name.rsplit('_', 1)
             if(len(spl) == 2):
                 file_id, chain_id = spl
@@ -185,7 +185,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             return data
 
         feats = self.feature_pipeline.process_features(
-            data, self.mode, "unclamped" 
+            data, self.mode 
         )
 
         return feats
@@ -426,6 +426,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     mapping_path=None,
                     max_template_hits=self.config.eval.max_template_hits,
                     mode="eval",
+                    _output_raw=True,
                 )
             else:
                 self.val_dataset = None
