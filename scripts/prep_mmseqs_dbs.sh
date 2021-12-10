@@ -20,16 +20,18 @@
 set -e
 
 DOWNLOAD_DIR="$1"
+ROOT_DIR="${DOWNLOAD_DIR}/mmseqs_dbs"
+mkdir -p $ROOT_DIR
 
 for f in $(ls ${DOWNLOAD_DIR}/*.tar.gz)
 do
   tar --extract --verbose --file="${f}" \
-      --directory="${DOWNLOAD_DIR}/mmseqs_dbs"
+      --directory=$ROOT_DIR
   rm "${f}"
   BASENAME="$(basename {f%%.*})"
   DB_NAME="${BASENAME}_db"
   OLD_PWD=$(pwd)
-  cd "${DOWNLOAD_DIR}/mmseqs_dbs" 
+  cd $ROOT_DIR 
   mmseqs tsv2exprofiledb "${BASENAME}" "${DB_NAME}"
   mmseqs createindex "${DB_NAME}" "${DOWNLOAD_DIR}/tmp/"
   cd "${OLD_PWD}"
