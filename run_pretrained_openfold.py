@@ -57,7 +57,7 @@ def main(args):
         max_template_date=args.max_template_date,
         max_hits=config.data.predict.max_templates,
         kalign_binary_path=args.kalign_binary_path,
-        release_dates_path=None,
+        release_dates_path=args.release_dates_path,
         obsolete_pdbs_path=args.obsolete_pdbs_path
     )
 

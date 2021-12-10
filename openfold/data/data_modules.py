@@ -31,6 +31,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         kalign_binary_path: str = '/usr/bin/kalign',
         mapping_path: Optional[str] = None,
         max_template_hits: int = 4,
+        obsolete_pdbs_file_path: Optional[str] = None,
         template_release_dates_cache_path: Optional[str] = None,
         shuffle_top_k_prefiltered: Optional[int] = None,
         treat_pdb_as_distillation: bool = True,
@@ -67,6 +68,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     from this total quantity.
                 template_release_dates_cache_path:
                     Path to the output of scripts/generate_mmcif_cache.
+                obsolete_pdbs_file_path:
+                    Path to the file containing replacements for obsolete PDBs.
                 shuffle_top_k_prefiltered:
                     Whether to uniformly shuffle the top k template hits before
                     parsing max_template_hits of them. Can be used to
@@ -112,7 +115,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             max_hits=max_template_hits,
             kalign_binary_path=kalign_binary_path,
             release_dates_path=template_release_dates_cache_path,
-            obsolete_pdbs_path=None,
+            obsolete_pdbs_path=obsolete_pdbs_file_path,
             _shuffle_top_k_prefiltered=shuffle_top_k_prefiltered,
         )
 
@@ -325,6 +328,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         kalign_binary_path: str = '/usr/bin/kalign',
         train_mapping_path: Optional[str] = None,
         distillation_mapping_path: Optional[str] = None,
+        obsolete_pdbs_file_path: Optional[str] = None,
         template_release_dates_cache_path: Optional[str] = None,
         batch_seed: Optional[int] = None,
         **kwargs
@@ -348,6 +352,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         self.template_release_dates_cache_path = (
             template_release_dates_cache_path
         )
+        self.obsolete_pdbs_file_path = obsolete_pdbs_file_path
         self.batch_seed = batch_seed
 
         if(self.train_data_dir is None and self.predict_data_dir is None):
@@ -384,6 +389,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
             kalign_binary_path=self.kalign_binary_path,
             template_release_dates_cache_path=
                 self.template_release_dates_cache_path,
+            obsolete_pdbs_file_path=
+                self.obsolete_pdbs_file_path,
         )
 
         if(self.training_mode):        
