@@ -70,7 +70,7 @@ class TestTriangularAttention(unittest.TestCase):
 
         n_res = consts.n_res
 
-        pair_act = np.random.rand(n_res, n_res, consts.c_z) * 10
+        pair_act = np.random.rand(n_res, n_res, consts.c_z) * 100
         pair_mask = np.random.randint(low=0, high=2, size=(n_res, n_res))
 
         # Fetch pretrained parameters (but only from one block)]
