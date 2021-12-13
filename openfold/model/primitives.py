@@ -269,7 +269,7 @@ class Attention(nn.Module):
 
         if biases is not None:
             for b in biases:
-                a = a + b
+                a += b
 
         a = self.softmax(a)
 
