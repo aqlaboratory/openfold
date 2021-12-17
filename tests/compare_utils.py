@@ -1,7 +1,5 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,"
-
 import importlib
 import pkgutil
 import sys

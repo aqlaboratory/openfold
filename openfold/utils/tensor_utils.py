@@ -124,6 +124,7 @@ def _fetch_dims(tree):
     return shapes
 
 
+@torch.jit.ignore
 def _flat_idx_to_idx(
     flat_idx: int,
     dims: Tuple[int],
@@ -135,6 +136,8 @@ def _flat_idx_to_idx(
 
     return tuple(reversed(idx))
 
+
+@torch.jit.ignore
 def _get_minimal_slice_set(
     start: Sequence[int],
     end: Sequence[int],
@@ -252,18 +255,19 @@ def _get_minimal_slice_set(
     return [tuple(s) for s in slices]
 
 
+@torch.jit.ignore
 def _chunk_slice(
     t: torch.Tensor,
     flat_start: int,
     flat_end: int,
     no_batch_dims: int,
-):
+) -> torch.Tensor:
     """
         Equivalent to
         
             t.reshape((-1,) + t.shape[no_batch_dims:])[flat_start:flat_end]
 
-        but without the need for the reshape call, which can be 
+        but without the need for the initial reshape call, which can be 
         memory-intensive in certain situations. The only reshape operations
         in this function are performed on sub-tensors that scale with
         (flat_end - flat_start), the chunk size.
@@ -281,7 +285,6 @@ def _chunk_slice(
         batch_dims,
     )
 
-    #
     sliced_tensors = [t[s] for s in slices]
 
     return torch.cat(
@@ -352,7 +355,6 @@ def chunk_layer(
 
     i = 0
     out = None
-
     for _ in range(no_chunks):
         # Chunk the input
         if(not low_mem):
@@ -382,7 +384,6 @@ def chunk_layer(
         # Put the chunk in its pre-allocated space
         out_type = type(output_chunk)
         if out_type is dict:
-
             def assign(d1, d2):
                 for k, v in d1.items():
                     if type(v) is dict:
