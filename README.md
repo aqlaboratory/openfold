@@ -70,7 +70,7 @@ you want to use DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or
 MMseqs2 instead. For the former, run:
 
 ```bash
-scripts/download_alphafold_databases.sh data/
+scripts/download_alphafold_dbs.sh data/
 ```
 
 For the latter, run:
