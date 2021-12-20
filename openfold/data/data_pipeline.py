@@ -15,6 +15,7 @@
 
 import os
 import datetime
+from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
 
 import numpy as np
@@ -128,6 +129,7 @@ def _aatype_to_str_sequence(aatype):
         for i in range(len(aatype))
     ])
 
+
 def make_protein_features(
     protein_object: protein.Protein, 
     description: str,
@@ -216,7 +218,6 @@ def make_msa_features(
 
 class AlignmentRunner:
     """Runs alignment tools and saves the results"""
-
     def __init__(
         self,
         jackhmmer_binary_path: Optional[str] = None,
@@ -259,7 +260,8 @@ class AlignmentRunner:
                 Whether to search the BFD database alone with jackhmmer or 
                 in conjunction with uniclust30 with hhblits.
             no_cpus:
-                The number of CPUs available for alignment
+                The number of CPUs available for alignment. By default, all
+                CPUs are used.
             uniref_max_hits:
                 Max number of uniref hits
             mgnify_max_hits:
@@ -305,6 +307,9 @@ class AlignmentRunner:
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
         self.use_small_bfd = use_small_bfd
+
+        if(no_cpus is None):
+            no_cpus = cpu_count()
 
         self.jackhmmer_uniref90_runner = None
         if(jackhmmer_binary_path is not None and 
