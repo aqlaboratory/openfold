@@ -25,7 +25,6 @@ def main(args):
         mgnify_database_path=args.mgnify_database_path,
         bfd_database_path=args.bfd_database_path,
         uniclust30_database_path=args.uniclust30_database_path,
-        small_bfd_database_path=args.small_bfd_database_path,
         pdb70_database_path=args.pdb70_database_path,
         use_small_bfd=args.bfd_database_path is None,
         no_cpus=args.cpus,

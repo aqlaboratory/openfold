@@ -105,7 +105,6 @@ def main(args):
                 mgnify_database_path=args.mgnify_database_path,
                 bfd_database_path=args.bfd_database_path,
                 uniclust30_database_path=args.uniclust30_database_path,
-                small_bfd_database_path=args.small_bfd_database_path,
                 pdb70_database_path=args.pdb70_database_path,
                 use_small_bfd=use_small_bfd,
                 no_cpus=args.cpus,
@@ -227,13 +226,6 @@ if __name__ == "__main__":
         logging.warning(
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""
-        )
-
-    if(args.bfd_database_path is None and 
-       args.small_bfd_database_path is None):
-        raise ValueError(
-            "At least one of --bfd_database_path or --small_bfd_database_path"
-            "must be specified"
         )
 
     main(args)

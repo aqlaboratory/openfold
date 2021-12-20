@@ -219,53 +219,137 @@ class AlignmentRunner:
 
     def __init__(
         self,
-        jackhmmer_binary_path: str,
-        hhblits_binary_path: str,
-        hhsearch_binary_path: str,
-        uniref90_database_path: str,
-        mgnify_database_path: str,
-        bfd_database_path: Optional[str],
-        uniclust30_database_path: Optional[str],
-        small_bfd_database_path: Optional[str],
-        pdb70_database_path: str,
-        use_small_bfd: bool,
-        no_cpus: int,
+        jackhmmer_binary_path: Optional[str] = None,
+        hhblits_binary_path: Optional[str] = None,
+        hhsearch_binary_path: Optional[str] = None,
+        uniref90_database_path: Optional[str] = None,
+        mgnify_database_path: Optional[str] = None,
+        bfd_database_path: Optional[str] = None,
+        uniclust30_database_path: Optional[str] = None,
+        pdb70_database_path: Optional[str] = None,
+        use_small_bfd: Optional[bool] = None,
+        no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
     ):
-        self._use_small_bfd = use_small_bfd
-        self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
-            binary_path=jackhmmer_binary_path,
-            database_path=uniref90_database_path,
-            n_cpu=no_cpus,
-        )
+        """
+        Args:
+            jackhmmer_binary_path:
+                Path to jackhmmer binary
+            hhblits_binary_path:
+                Path to hhblits binary
+            hhsearch_binary_path:
+                Path to hhsearch binary
+            uniref90_database_path:
+                Path to uniref90 database. If provided, jackhmmer_binary_path
+                must also be provided
+            mgnify_database_path:
+                Path to mgnify database. If provided, jackhmmer_binary_path
+                must also be provided
+            bfd_database_path:
+                Path to BFD database. Depending on the value of use_small_bfd,
+                one of hhblits_binary_path or jackhmmer_binary_path must be 
+                provided.
+            uniclust30_database_path:
+                Path to uniclust30. Searched alongside BFD if use_small_bfd is 
+                false.
+            pdb70_database_path:
+                Path to pdb70 database.
+            use_small_bfd:
+                Whether to search the BFD database alone with jackhmmer or 
+                in conjunction with uniclust30 with hhblits.
+            no_cpus:
+                The number of CPUs available for alignment
+            uniref_max_hits:
+                Max number of uniref hits
+            mgnify_max_hits:
+                Max number of mgnify hits
+        """
+        db_map = {
+            "jackhmmer": {
+                "binary": jackhmmer_binary_path,
+                "dbs": [
+                    uniref90_database_path,
+                    mgnify_database_path,
+                    bfd_database_path if use_small_bfd else None,
+                ],
+            },
+            "hhblits": {
+                "binary": hhblits_binary_path,
+                "dbs": [
+                    bfd_database_path if not use_small_bfd else None,
+                ],
+            },
+            "hhsearch": {
+                "binary": hhsearch_binary_path,
+                "dbs": [
+                    pdb70_database_path,
+                ],
+            },
+        }
 
-        if use_small_bfd:
-            self.jackhmmer_small_bfd_runner = jackhmmer.Jackhmmer(
-                binary_path=jackhmmer_binary_path,
-                database_path=small_bfd_database_path,
-                n_cpu=no_cpus,
+        for name, dic in db_map.items():
+            binary, dbs = dic["binary"], dic["dbs"]
+            if(binary is None and not all([x is None for x in dbs])):
+                raise ValueError(
+                    f"{name} DBs provided but {name} binary is None"
+                )
+
+        if(not all([x is None for x in db_map["hhsearch"]["dbs"]])
+            and uniref90_database_path is None):
+            raise ValueError(
+                """uniref90_database_path must be specified in order to perform
+                   template search"""
             )
-        else:
-            self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
-                binary_path=hhblits_binary_path,
-                databases=[bfd_database_path, uniclust30_database_path],
-                n_cpu=no_cpus,
-            )
 
-        self.jackhmmer_mgnify_runner = jackhmmer.Jackhmmer(
-            binary_path=jackhmmer_binary_path,
-            database_path=mgnify_database_path,
-            n_cpu=no_cpus,
-        )
-
-        self.hhsearch_pdb70_runner = hhsearch.HHSearch(
-            binary_path=hhsearch_binary_path,
-            databases=[pdb70_database_path],
-            n_cpu=no_cpus,
-        )
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
+        self.use_small_bfd = use_small_bfd
+
+        self.jackhmmer_uniref90_runner = None
+        if(jackhmmer_binary_path is not None and 
+            uniref90_database_path is not None
+        ):
+            self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
+                binary_path=jackhmmer_binary_path,
+                database_path=uniref90_database_path,
+                n_cpu=no_cpus,
+            )
+   
+        self.jackhmmer_small_bfd_runner = None
+        self.hhblits_bfd_uniclust_runner = None
+        if(bfd_database_path is not None):
+            if use_small_bfd:
+                self.jackhmmer_small_bfd_runner = jackhmmer.Jackhmmer(
+                    binary_path=jackhmmer_binary_path,
+                    database_path=bfd_database_path,
+                    n_cpu=no_cpus,
+                )
+            else:
+                dbs = [bfd_database_path]
+                if(uniclust30_database_path is not None):
+                    dbs.append(uniclust30_database_path)
+                self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
+                    binary_path=hhblits_binary_path,
+                    databases=dbs,
+                    n_cpu=no_cpus,
+                )
+
+        self.jackhmmer_mgnify_runner = None
+        if(mgnify_database_path is not None):
+            self.jackhmmer_mgnify_runner = jackhmmer.Jackhmmer(
+                binary_path=jackhmmer_binary_path,
+                database_path=mgnify_database_path,
+                n_cpu=no_cpus,
+            )
+
+        self.hhsearch_pdb70_runner = None
+        if(pdb70_database_path is not None):
+            self.hhsearch_pdb70_runner = hhsearch.HHSearch(
+                binary_path=hhsearch_binary_path,
+                databases=[pdb70_database_path],
+                n_cpu=no_cpus,
+            )
 
     def run(
         self,
@@ -273,39 +357,46 @@ class AlignmentRunner:
         output_dir: str,
     ):
         """Runs alignment tools on a sequence"""
-        jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
-            fasta_path
-        )[0]
-        uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-            jackhmmer_uniref90_result["sto"], max_sequences=self.uniref_max_hits
-        )
-        uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
-        with open(uniref90_out_path, "w") as f:
-            f.write(uniref90_msa_as_a3m)
+        if(self.jackhmmer_uniref90_runner is not None):
+            jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
+                fasta_path
+            )[0]
+            uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                jackhmmer_uniref90_result["sto"], 
+                max_sequences=self.uniref_max_hits
+            )
+            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
+            with open(uniref90_out_path, "w") as f:
+                f.write(uniref90_msa_as_a3m)
 
-        jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
-            fasta_path
-        )[0]
-        mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-            jackhmmer_mgnify_result["sto"], max_sequences=self.mgnify_max_hits
-        )
-        mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
-        with open(mgnify_out_path, "w") as f:
-            f.write(mgnify_msa_as_a3m)
+            if(self.hhsearch_pdb70_runner is not None):
+                hhsearch_result = self.hhsearch_pdb70_runner.query(
+                    uniref90_msa_as_a3m
+                )
+                pdb70_out_path = os.path.join(output_dir, "pdb70_hits.hhr")
+                with open(pdb70_out_path, "w") as f:
+                    f.write(hhsearch_result)
 
-        hhsearch_result = self.hhsearch_pdb70_runner.query(uniref90_msa_as_a3m)
-        pdb70_out_path = os.path.join(output_dir, "pdb70_hits.hhr")
-        with open(pdb70_out_path, "w") as f:
-            f.write(hhsearch_result)
+        if(self.jackhmmer_mgnify_runner is not None):
+            jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
+                fasta_path
+            )[0]
+            mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                jackhmmer_mgnify_result["sto"], 
+                max_sequences=self.mgnify_max_hits
+            )
+            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
+            with open(mgnify_out_path, "w") as f:
+                f.write(mgnify_msa_as_a3m)
 
-        if self._use_small_bfd:
+        if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
             jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                 fasta_path
             )[0]
             bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
             with open(bfd_out_path, "w") as f:
                 f.write(jackhmmer_small_bfd_result["sto"])
-        else:
+        elif(self.hhblits_bfd_uniclust_runner is not None):
             hhblits_bfd_uniclust_result = (
                 self.hhblits_bfd_uniclust_runner.query(fasta_path)
             )

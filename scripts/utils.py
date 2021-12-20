@@ -22,9 +22,6 @@ def add_data_args(parser: argparse.ArgumentParser):
         '--bfd_database_path', type=str, default=None,
     )
     parser.add_argument(
-        '--small_bfd_database_path', type=str, default=None
-    )
-    parser.add_argument(
         '--jackhmmer_binary_path', type=str, default='/usr/bin/jackhmmer'
     )
     parser.add_argument(
