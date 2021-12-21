@@ -9,7 +9,8 @@ import numpy
 import torch
 import unittest
 
-from data.data_transforms import make_seq_mask, add_distillation_flag, make_all_atom_aatype, fix_templates_aatype
+from data.data_transforms import make_seq_mask, add_distillation_flag, make_all_atom_aatype, fix_templates_aatype, \
+    correct_msa_restypes
 from openfold.config import model_config
 
 
@@ -54,6 +55,15 @@ class TestDataTransforms(unittest.TestCase):
         print(protein)
         template_seq_ours = torch.tensor([[0, 4, 3, 6, 13, 7, 8, 9, 11, 10, 12, 2, 14, 5, 1, 15, 16, 19, 17, 18]*2])
         assert torch.all(torch.eq(protein['template_aatype'], template_seq_ours))
+
+    def test_correct_msa_restypes(self):
+        with open('../features.pkl', 'rb') as file:
+            features = pickle.load(file)
+
+        protein = {'msa': torch.tensor(features['msa'], dtype=torch.int64)}
+        protein = correct_msa_restypes(protein)
+        print(protein)
+        assert torch.all(torch.eq(torch.tensor(features['msa'].shape), torch.tensor(protein['msa'].shape)))
 
 
 if __name__ == '__main__':
