@@ -145,7 +145,10 @@ def squeeze_features(protein):
         if k in protein:
             final_dim = protein[k].shape[-1]
             if isinstance(final_dim, int) and final_dim == 1:
-                protein[k] = torch.squeeze(protein[k], dim=-1)
+                if torch.is_tensor(protein[k]):
+                    protein[k] = torch.squeeze(protein[k], dim=-1)
+                else:
+                    protein[k] = np.squeeze(protein[k], axis=-1)
 
     for k in ["seq_length", "num_alignments"]:
         if k in protein:
