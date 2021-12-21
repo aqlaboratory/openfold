@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import itertools
-from functools import reduce
+from functools import reduce, wraps
 from operator import add
 
 import numpy as np
@@ -71,7 +71,7 @@ def make_template_mask(protein):
 
 def curry1(f):
     """Supply all arguments but the first."""
-
+    @wraps(f)
     def fc(*args, **kwargs):
         return lambda x: f(x, *args, **kwargs)
 
@@ -198,6 +198,11 @@ def sample_msa(protein, max_seq, keep_extra, seed=None):
 
     return protein
 
+
+@curry1
+def add_distillation_flag(protein, distillation):
+    protein['is_distillation'] = distillation
+    return protein
 
 @curry1
 def sample_msa_distillation(protein, max_seq):
