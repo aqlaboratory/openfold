@@ -57,7 +57,7 @@ class TestDataTransforms(unittest.TestCase):
         assert torch.all(torch.eq(protein['template_aatype'], template_seq_ours))
 
     def test_correct_msa_restypes(self):
-        with open('../features.pkl', 'rb') as file:
+        with open("../test_data/features.pkl", 'rb') as file:
             features = pickle.load(file)
 
         protein = {'msa': torch.tensor(features['msa'], dtype=torch.int64)}
