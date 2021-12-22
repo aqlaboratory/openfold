@@ -10,7 +10,8 @@ import torch
 import unittest
 
 from data.data_transforms import make_seq_mask, add_distillation_flag, make_all_atom_aatype, fix_templates_aatype, \
-    correct_msa_restypes, squeeze_features, randomly_replace_msa_with_unknown, MSA_FEATURE_NAMES, sample_msa
+    correct_msa_restypes, squeeze_features, randomly_replace_msa_with_unknown, MSA_FEATURE_NAMES, sample_msa, \
+    crop_extra_msa
 from openfold.config import model_config
 
 
@@ -130,6 +131,20 @@ class TestDataTransforms(unittest.TestCase):
                 print('extra_'+str(k), protein_processed['extra_'+k].shape)
                 print('msa', protein[k].shape[0] - min(protein[k].shape[0], max_seq))
                 assert protein_processed['extra_'+k].shape[0] == protein[k].shape[0] - min(protein[k].shape[0], max_seq)
+
+    def test_crop_extra_msa(self):
+        with open('../test_data/features.pkl', 'rb') as file:
+            features = pickle.load(file)
+
+        max_extra_msa = 10
+        protein = {'extra_msa': torch.tensor(features['msa'])}
+        num_seq = protein["extra_msa"].shape[0]
+
+        protein = crop_extra_msa.__wrapped__(protein, max_extra_msa)
+        print(protein)
+        for k in MSA_FEATURE_NAMES:
+            if "extra_" + k in protein:
+                assert protein["extra_" + k].shape[0] == min(max_extra_msa, num_seq)
 
 
 if __name__ == '__main__':
