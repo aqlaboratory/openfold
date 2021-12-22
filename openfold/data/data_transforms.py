@@ -165,7 +165,9 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
     gap_idx = 21
     msa_mask = torch.logical_and(msa_mask, protein["msa"] != gap_idx)
     protein["msa"] = torch.where(
-        msa_mask, torch.ones_like(protein["msa"]) * x_idx, protein["msa"]
+        msa_mask,
+        torch.ones_like(protein["msa"]) * x_idx,
+        protein["msa"]
     )
     aatype_mask = torch.rand(protein["aatype"].shape) < replace_proportion
 
