@@ -12,7 +12,7 @@ import unittest
 from data.data_transforms import make_seq_mask, add_distillation_flag, make_all_atom_aatype, fix_templates_aatype, \
     correct_msa_restypes, squeeze_features, randomly_replace_msa_with_unknown, MSA_FEATURE_NAMES, sample_msa, \
     crop_extra_msa, delete_extra_msa, nearest_neighbor_clusters, make_msa_mask, make_hhblits_profile, make_masked_msa, \
-    make_msa_feat, crop_templates
+    make_msa_feat, crop_templates, make_atom14_masks
 from tests.config import config
 
 
@@ -230,6 +230,18 @@ class TestDataTransforms(unittest.TestCase):
         protein = crop_templates.__wrapped__(protein, max_templates)
         assert protein['template_aatype'].shape[0] == max_templates
         assert protein['template_all_atom_masks'].shape[0] == max_templates
+
+    def test_make_atom14_masks(self):
+        with gzip.open('../test_data/sample_feats.pickle.gz', 'rb') as file:
+            features = pickle.load(file)
+
+        protein = {'aatype': torch.tensor(features['aatype'][0])}
+        protein = make_atom14_masks(protein)
+        print(protein)
+        assert 'atom14_atom_exists' in protein
+        assert 'residx_atom14_to_atom37' in protein
+        assert 'residx_atom37_to_atom14' in protein
+        assert 'atom37_atom_exists' in protein
 
 
 if __name__ == '__main__':

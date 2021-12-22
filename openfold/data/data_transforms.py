@@ -612,17 +612,18 @@ def make_atom14_masks(protein):
         dtype=torch.float32,
         device=protein["aatype"].device,
     )
+    protein_aatype = protein['aatype'].to(torch.long)
 
     # create the mapping for (residx, atom14) --> atom37, i.e. an array
     # with shape (num_res, 14) containing the atom37 indices for this protein
-    residx_atom14_to_atom37 = restype_atom14_to_atom37[protein["aatype"]]
-    residx_atom14_mask = restype_atom14_mask[protein["aatype"]]
+    residx_atom14_to_atom37 = restype_atom14_to_atom37[protein_aatype]
+    residx_atom14_mask = restype_atom14_mask[protein_aatype]
 
     protein["atom14_atom_exists"] = residx_atom14_mask
     protein["residx_atom14_to_atom37"] = residx_atom14_to_atom37.long()
 
     # create the gather indices for mapping back
-    residx_atom37_to_atom14 = restype_atom37_to_atom14[protein["aatype"]]
+    residx_atom37_to_atom14 = restype_atom37_to_atom14[protein_aatype]
     protein["residx_atom37_to_atom14"] = residx_atom37_to_atom14.long()
 
     # create the corresponding mask
@@ -636,7 +637,7 @@ def make_atom14_masks(protein):
             atom_type = rc.atom_order[atom_name]
             restype_atom37_mask[restype, atom_type] = 1
 
-    residx_atom37_mask = restype_atom37_mask[protein["aatype"]]
+    residx_atom37_mask = restype_atom37_mask[protein_aatype]
     protein["atom37_atom_exists"] = residx_atom37_mask
 
     return protein
