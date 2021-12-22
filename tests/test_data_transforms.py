@@ -12,7 +12,7 @@ import unittest
 from data.data_transforms import make_seq_mask, add_distillation_flag, make_all_atom_aatype, fix_templates_aatype, \
     correct_msa_restypes, squeeze_features, randomly_replace_msa_with_unknown, MSA_FEATURE_NAMES, sample_msa, \
     crop_extra_msa, delete_extra_msa, nearest_neighbor_clusters, make_msa_mask, make_hhblits_profile, make_masked_msa, \
-    make_msa_feat
+    make_msa_feat, crop_templates
 from tests.config import config
 
 
@@ -219,6 +219,17 @@ class TestDataTransforms(unittest.TestCase):
         assert 'target_feat' in protein
         assert protein['target_feat'].shape == torch.Size((protein['msa'].shape[1], 22))
         assert protein['msa_feat'].shape == torch.Size((*protein['msa'].shape, 25))
+
+    def test_crop_templates(self):
+        with gzip.open('../test_data/sample_feats.pickle.gz', 'rb') as f:
+            features = pickle.load(f)
+
+        protein = {'template_aatype': torch.tensor(features['true_msa'][0]),
+                   'template_all_atom_masks': torch.tensor(features['msa_mask'][0])}
+        max_templates = 2
+        protein = crop_templates.__wrapped__(protein, max_templates)
+        assert protein['template_aatype'].shape[0] == max_templates
+        assert protein['template_all_atom_masks'].shape[0] == max_templates
 
 
 if __name__ == '__main__':
