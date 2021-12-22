@@ -359,7 +359,7 @@ def make_msa_mask(protein):
     """Mask features are all ones, but will later be zero-padded."""
     protein["msa_mask"] = torch.ones(protein["msa"].shape, dtype=torch.float32)
     protein["msa_row_mask"] = torch.ones(
-        protein["msa"].shape[0], dtype=torch.float32
+        (protein["msa"].shape[0]), dtype=torch.float32
     )
     return protein
 
