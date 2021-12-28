@@ -316,7 +316,7 @@ class AlphaFold(nn.Module):
         # [*, N, C_m]
         m_1_prev = m[..., 0, :, :]
 
-        # [* N, N, C_z]
+        # [*, N, N, C_z]
         z_prev = z
 
         # [*, N, 3]
