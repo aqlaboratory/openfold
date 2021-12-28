@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import itertools
-from functools import reduce
+from functools import reduce, wraps
 from operator import add
 
 import numpy as np
@@ -71,7 +71,7 @@ def make_template_mask(protein):
 
 def curry1(f):
     """Supply all arguments but the first."""
-
+    @wraps(f)
     def fc(*args, **kwargs):
         return lambda x: f(x, *args, **kwargs)
 
@@ -145,7 +145,10 @@ def squeeze_features(protein):
         if k in protein:
             final_dim = protein[k].shape[-1]
             if isinstance(final_dim, int) and final_dim == 1:
-                protein[k] = torch.squeeze(protein[k], dim=-1)
+                if torch.is_tensor(protein[k]):
+                    protein[k] = torch.squeeze(protein[k], dim=-1)
+                else:
+                    protein[k] = np.squeeze(protein[k], axis=-1)
 
     for k in ["seq_length", "num_alignments"]:
         if k in protein:
@@ -162,7 +165,9 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
     gap_idx = 21
     msa_mask = torch.logical_and(msa_mask, protein["msa"] != gap_idx)
     protein["msa"] = torch.where(
-        msa_mask, torch.ones_like(protein["msa"]) * x_idx, protein["msa"]
+        msa_mask,
+        torch.ones_like(protein["msa"]) * x_idx,
+        protein["msa"]
     )
     aatype_mask = torch.rand(protein["aatype"].shape) < replace_proportion
 
@@ -198,6 +203,11 @@ def sample_msa(protein, max_seq, keep_extra, seed=None):
 
     return protein
 
+
+@curry1
+def add_distillation_flag(protein, distillation):
+    protein['is_distillation'] = distillation
+    return protein
 
 @curry1
 def sample_msa_distillation(protein, max_seq):
@@ -349,7 +359,7 @@ def make_msa_mask(protein):
     """Mask features are all ones, but will later be zero-padded."""
     protein["msa_mask"] = torch.ones(protein["msa"].shape, dtype=torch.float32)
     protein["msa_row_mask"] = torch.ones(
-        protein["msa"].shape[0], dtype=torch.float32
+        (protein["msa"].shape[0]), dtype=torch.float32
     )
     return protein
 
@@ -602,17 +612,18 @@ def make_atom14_masks(protein):
         dtype=torch.float32,
         device=protein["aatype"].device,
     )
+    protein_aatype = protein['aatype'].to(torch.long)
 
     # create the mapping for (residx, atom14) --> atom37, i.e. an array
     # with shape (num_res, 14) containing the atom37 indices for this protein
-    residx_atom14_to_atom37 = restype_atom14_to_atom37[protein["aatype"]]
-    residx_atom14_mask = restype_atom14_mask[protein["aatype"]]
+    residx_atom14_to_atom37 = restype_atom14_to_atom37[protein_aatype]
+    residx_atom14_mask = restype_atom14_mask[protein_aatype]
 
     protein["atom14_atom_exists"] = residx_atom14_mask
     protein["residx_atom14_to_atom37"] = residx_atom14_to_atom37.long()
 
     # create the gather indices for mapping back
-    residx_atom37_to_atom14 = restype_atom37_to_atom14[protein["aatype"]]
+    residx_atom37_to_atom14 = restype_atom37_to_atom14[protein_aatype]
     protein["residx_atom37_to_atom14"] = residx_atom37_to_atom14.long()
 
     # create the corresponding mask
@@ -626,7 +637,7 @@ def make_atom14_masks(protein):
             atom_type = rc.atom_order[atom_name]
             restype_atom37_mask[restype, atom_type] = 1
 
-    residx_atom37_mask = restype_atom37_mask[protein["aatype"]]
+    residx_atom37_mask = restype_atom37_mask[protein_aatype]
     protein["atom37_atom_exists"] = residx_atom37_mask
 
     return protein
