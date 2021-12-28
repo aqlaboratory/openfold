@@ -153,7 +153,8 @@ def main(args):
             strict=True,
         )
         callbacks.append(es)
-    if args.log_performance:
+        
+    if(args.log_performance):
         global_batch_size = args.num_nodes * args.gpus
         perf = PerformanceLoggingCallback(
             log_file=os.path.join(args.output_dir, "performance_log.json"),
