@@ -218,6 +218,7 @@ class Attention(nn.Module):
             self.c_hidden * self.no_heads, self.c_q, init="final"
         )
 
+        self.linear_g = None
         if self.gating:
             self.linear_g = Linear(
                 self.c_q, self.c_hidden * self.no_heads, init="gating"
@@ -282,7 +283,7 @@ class Attention(nn.Module):
 
         # [*, Q, H, C_hidden]
         o = o.transpose(-2, -3)
-        if self.gating:
+        if(self.linear_g is not None):
             g = self.sigmoid(self.linear_g(q_x))
             # [*, Q, H, C_hidden]
             g = g.view(g.shape[:-1] + (self.no_heads, -1))
