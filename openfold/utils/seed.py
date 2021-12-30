@@ -12,7 +12,7 @@ def seed_globally(seed=None):
         if(seed is None):
             seed = random.randint(0, np.iinfo(np.uint32).max)
         os.environ["PL_GLOBAL_SEED"] = str(seed)
-        print(f'os.environ["PL_GLOBAL_SEED"] set to {seed}')
+        logging.info(f'os.environ["PL_GLOBAL_SEED"] set to {seed}')
 
     # seed_everything is a bit log-happy
     with SuppressLogging(logging.INFO):
