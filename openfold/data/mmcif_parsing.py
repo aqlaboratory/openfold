@@ -476,7 +476,7 @@ def get_atom_coords(
         all_atom_mask[res_index] = mask
 
     if zero_center:
-        binary_mask = all_atom_mask.astype(np.bool)
+        binary_mask = all_atom_mask.astype(bool)
         translation_vec = all_atom_positions[binary_mask].mean(axis=0)
         all_atom_positions[binary_mask] -= translation_vec
 
