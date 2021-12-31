@@ -920,8 +920,8 @@ class TemplateHitFeaturizer:
         max_template_date: str,
         max_hits: int,
         kalign_binary_path: str,
-        release_dates_path: Optional[str],
-        obsolete_pdbs_path: Optional[str],
+        release_dates_path: Optional[str] = None,
+        obsolete_pdbs_path: Optional[str] = None,
         strict_error_check: bool = False,
         _shuffle_top_k_prefiltered: Optional[int] = None,
     ):
