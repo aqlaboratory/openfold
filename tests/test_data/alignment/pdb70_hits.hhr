@@ -1,0 +1,158 @@
+Query         query 
+Match_columns 73
+No_of_seqs    55 out of 57
+Neff          2.88591
+Searched_HMMs 80799
+Date          Thu Dec 30 19:40:02 2021
+Command       /home/ga122/openfold/lib/conda/envs/openfold_venv/bin/hhsearch -i /tmp/tmpedq9nsbw/query.a3m -o /tmp/tmpedq9nsbw/output.hhr -maxseq 1000000 -d /data/ga122/alphafold/pdb70/pdb70 
+
+ No Hit                             Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
+  1 1HF9_B ATPASE INHIBITOR (MITOC   7.5 3.8E+02  0.0047   16.2   0.0   22    7-28     10-31  (41)
+  2 2CRB_A nuclear receptor bindin   6.4 4.7E+02  0.0058   18.0   0.0   20   11-30     32-51  (97)
+  3 4ZEY_A nuclear receptor bindin   6.3 4.7E+02  0.0059   17.3   0.0   20   11-30     26-45  (84)
+  4 3U8V_A Metal-binding protein s   4.1 8.1E+02    0.01   17.3   0.0   32   15-46     50-81  (93)
+  5 1PSM_A SPAM-H1 (RESIDUES 90 -    1.9 2.1E+03   0.026   13.4   0.0   18   11-28     14-31  (38)
+  6 5KC1_F Autophagy-related prote   1.5 2.7E+03   0.033   16.9   0.0   17   12-28     25-41  (226)
+  7 5KC1_J Autophagy-related prote   1.5 2.7E+03   0.033   16.9   0.0   17   12-28     25-41  (226)
+  8 3ZEE_A PARTITIONING DEFECTIVE    1.1 3.8E+03   0.046   12.5   0.0   15   58-72     30-44  (84)
+  9 4I6P_A Partitioning defective    1.0 4.3E+03   0.054   12.4   0.0   16   57-72     32-47  (88)
+ 10 2Q2K_A Hypothetical protein/DN   1.0 4.3E+03   0.054   13.4   0.0   17   56-72     54-70  (70)
+
+No 1
+>1HF9_B ATPASE INHIBITOR (MITOCHONDRIAL); ATPASE INHIBITOR, F1 ATPASE INHIBITOR; NMR {BOS TAURUS} SCOP: h.4.8.1
+Probab=7.51  E-value=3.8e+02  Score=16.19  Aligned_cols=22  Identities=23%  Similarity=0.398  Sum_probs=13.1  Template_Neff=4.500
+
+Q query             7 AEHHHKAAEHHEQAAKHHHAAA   28 (73)
+Q Consensus         7 aEhH~kAAeHHe~AA~HH~eAA   28 (73)
+                      .++|++-++.|+.|.+-|++-.
+T Consensus        10 I~~He~qIk~heeaI~RHk~~i   31 (41)
+T 1HF9_B           10 ISHHAKEIERLQKEIERHKQSI   31 (41)
+T ss_dssp             HHHHHHHHHHHHHHHHHHHHHH
+T ss_pred             HHHHHHHHHHHHHHHHHHHHHH
+Confidence            3456666666666666665543
+
+
+No 2
+>2CRB_A nuclear receptor binding factor 2; NRBF-2, MIT domain, helix bundle; NMR {Mus musculus} SCOP: a.7.16.1
+Probab=6.35  E-value=4.7e+02  Score=18.01  Aligned_cols=20  Identities=20%  Similarity=0.165  Sum_probs=11.0  Template_Neff=5.700
+
+Q query            11 HKAAEHHEQAAKHHHAAAEH   30 (73)
+Q Consensus        11 ~kAAeHHe~AA~HH~eAAkH   30 (73)
+                      ..|++-|.+|++...+|.+-
+T Consensus        32 ~~Aie~H~kAA~~f~~A~~~   51 (97)
+T 2CRB_A           32 EEAISCHRKATTYLSEAMKL   51 (97)
+T ss_dssp             HHHHHHHHHHHHHHHHHHTT
+T ss_pred             HHHHHHHHHHHHHHHHHHHc
+Confidence            34555556666555555543
+
+
+No 3
+>4ZEY_A nuclear receptor binding factor 2; Structural Genomics, Joint Center for; HET: SO4, MSE; 1.5A {Homo sapiens}
+Probab=6.31  E-value=4.7e+02  Score=17.29  Aligned_cols=20  Identities=25%  Similarity=0.200  Sum_probs=10.8  Template_Neff=6.200
+
+Q query            11 HKAAEHHEQAAKHHHAAAEH   30 (73)
+Q Consensus        11 ~kAAeHHe~AA~HH~eAAkH   30 (73)
+                      ..|++-|.+|+....+|.+-
+T Consensus        26 ~~A~e~H~~AA~~f~~A~~~   45 (84)
+T 4ZEY_A           26 EEAISCHKKAAAYLSEAMKL   45 (84)
+T ss_dssp             HHHHHHHHHHHHHHHHHHTT
+T ss_pred             HHHHHHHHHHHHHHHHHHHh
+Confidence            44555555555555555543
+
+
+No 4
+>3U8V_A Metal-binding protein smbP; four helical bundle, metal chaperone; 1.9A {Nitrosomonas europaea}
+Probab=4.11  E-value=8.1e+02  Score=17.29  Aligned_cols=32  Identities=34%  Similarity=0.433  Sum_probs=15.8  Template_Neff=4.400
+
+Q query            15 EHHEQAAKHHHAAAEHHEKGEHEQAAHHADTA   46 (73)
+Q Consensus        15 eHHe~AA~HH~eAAkHheaG~HekAahhAh~A   46 (73)
+                      +|-..+.++-.+|.++-..|+-+.|..++-.|
+T Consensus        50 ~H~~~aik~LeeAI~hgk~ghad~A~kha~~A   81 (93)
+T 3U8V_A           50 THVGHGIKHLEDAIKHGEEGHVGVATKHAQEA   81 (93)
+T ss_dssp             CHHHHHHHHHHHHHHHHHTTCHHHHHHHHHHH
+T ss_pred             hHHHHHHHHHHHHHHHHHcCcHHHHHHHHHHH
+Confidence            34444455555555555555555544444433
+
+
+No 5
+>1PSM_A SPAM-H1 (RESIDUES 90 - 127; POLYMORPHIC ANTIGEN; NMR {Plasmodium falciparum} SCOP: j.18.1.1
+Probab=1.89  E-value=2.1e+03  Score=13.41  Aligned_cols=18  Identities=39%  Similarity=0.433  Sum_probs=8.0  Template_Neff=1.300
+
+Q query            11 HKAAEHHEQAAKHHHAAA   28 (73)
+Q Consensus        11 ~kAAeHHe~AA~HH~eAA   28 (73)
+                      .+|++--|+|++.=.+|+
+T Consensus        14 e~aa~dae~a~k~ae~a~   31 (38)
+T 1PSM_A           14 EQAAKDAENASKEAEEAA   31 (38)
+T ss_dssp             HSTTTTTTHHHHHTTTTT
+T ss_pred             HHHHHHHHHHHHHHHHHH
+Confidence            444444444444444443
+
+
+No 6
+>5KC1_F Autophagy-related protein 38; Atg38, coiled-coil, dimerization, NRBF2, autophagy; HET: NO3, NH4, EDO, NA; 2.2A {Saccharomyces cerevisiae}
+Probab=1.52  E-value=2.7e+03  Score=16.87  Aligned_cols=17  Identities=12%  Similarity=0.040  Sum_probs=0.0  Template_Neff=5.100
+
+Q query            12 KAAEHHEQAAKHHHAAA   28 (73)
+Q Consensus        12 kAAeHHe~AA~HH~eAA   28 (73)
+                      .|++-|.+|++.-.+|.
+T Consensus        25 eAie~h~kAAe~l~~a~   41 (226)
+T 5KC1_F           25 NAKAKYQEAIEVLGPQN   41 (226)
+T ss_dssp             -----------------
+T ss_pred             HHHHHHHHHHHHHHHHH
+Confidence            34444444444444443
+
+
+No 7
+>5KC1_J Autophagy-related protein 38; Atg38, coiled-coil, dimerization, NRBF2, autophagy; HET: NA, NO3, EDO, NH4; 2.2A {Saccharomyces cerevisiae}
+Probab=1.52  E-value=2.7e+03  Score=16.87  Aligned_cols=17  Identities=12%  Similarity=0.040  Sum_probs=0.0  Template_Neff=5.100
+
+Q query            12 KAAEHHEQAAKHHHAAA   28 (73)
+Q Consensus        12 kAAeHHe~AA~HH~eAA   28 (73)
+                      .|++-|.+|++.-.+|.
+T Consensus        25 eAie~h~kAAe~l~~a~   41 (226)
+T 5KC1_J           25 NAKAKYQEAIEVLGPQN   41 (226)
+T ss_dssp             -----------------
+T ss_pred             HHHHHHHHHHHHHHHHH
+Confidence            34444444444444443
+
+
+No 8
+>3ZEE_A PARTITIONING DEFECTIVE 3 HOMOLOG; CELL CYCLE; 6.1A {RATTUS NORVEGICUS}
+Probab=1.14  E-value=3.8e+03  Score=12.49  Aligned_cols=15  Identities=27%  Similarity=0.237  Sum_probs=7.4  Template_Neff=7.600
+
+Q query            58 AQAAKHDAEHHAPKP   72 (73)
+Q Consensus        58 ~eAak~ha~~H~~kp   72 (73)
+                      .+|.+.|....+.+|
+T Consensus        30 ~~a~~Ry~~~~~~~~   44 (84)
+T 3ZEE_A           30 QQAVTRYRKAVAKDP   44 (84)
+T ss_dssp             HHHHHHHHHHHCSSS
+T ss_pred             HHHHHHHHHHcCCCc
+Confidence            455555555544433
+
+
+No 9
+>4I6P_A Partitioning defective 3 homolog; PB1 like motif, DUF3534, Cell; 2.9A {Rattus norvegicus}
+Probab=1.01  E-value=4.3e+03  Score=12.37  Aligned_cols=16  Identities=25%  Similarity=0.206  Sum_probs=0.0  Template_Neff=7.500
+
+Q query            57 AAQAAKHDAEHHAPKP   72 (73)
+Q Consensus        57 a~eAak~ha~~H~~kp   72 (73)
+                      +.+|.+.|....+.+|
+T Consensus        32 ~~~a~~Ry~~~~~~~~   47 (88)
+T 4I6P_A           32 IQQAVTRYRKAVAKDP   47 (88)
+T ss_dssp             HHHHHHHHHHHHCCCT
+T ss_pred             HHHHHHHHHHHcCCCc
+
+
+No 10
+>2Q2K_A Hypothetical protein/DNA Complex; protein-DNA, partition, segregation, parB, DNA; HET: EPE; 3.0A {Staphylococcus aureus}
+Probab=1.01  E-value=4.3e+03  Score=13.41  Aligned_cols=17  Identities=24%  Similarity=0.343  Sum_probs=0.0  Template_Neff=1.100
+
+Q query            56 HAAQAAKHDAEHHAPKP   72 (73)
+Q Consensus        56 Ha~eAak~ha~~H~~kp   72 (73)
+                      |-.||-+.|.++-|..|
+T Consensus        54 hireal~ryiee~g~~p   70 (70)
+T 2Q2K_A           54 HIREALRRYIEEIGENP   70 (70)
+T ss_dssp             HHHHHHHHHHHHCCHHC
+T ss_pred             HHHHHHHHHHHHHCCCC
+
+

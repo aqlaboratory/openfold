@@ -1,0 +1,177 @@
+# STOCKHOLM 1.0
+#=GF ID query-i1
+#=GF AU jackhmmer (HMMER 3.3.2)
+
+#=GS UniRef90_D7BIZ4/1-73          DE [subseq from] Uncharacterized protein n=1 Tax=Meiothermus silvanus (strain ATCC 700542 / DSM 9946 / VI-R2) TaxID=526227 RepID=D7BIZ4_MEISD
+#=GS UniRef90_A0A345WS72/1-69      DE [subseq from] Uncharacterized protein n=1 Tax=Sphingomonas sp. FARSPH TaxID=2219696 RepID=A0A345WS72_9SPHN
+#=GS UniRef90_A0A1F2V377/4-68      DE [subseq from] Uncharacterized protein n=1 Tax=Acidobacteria bacterium RIFCSPLOWO2_12_FULL_60_22 TaxID=1797188 RepID=A0A1F2V377_9BACT
+#=GS UniRef90_A0A3C0R222/4-69      DE [subseq from] Alpha-carbonic anhydrase domain-containing protein n=1 Tax=Spartobacteria bacterium TaxID=2052183 RepID=A0A3C0R222_9BACT
+#=GS UniRef90_A0A3G2VJ28/2-67      DE [subseq from] Uncharacterized protein n=1 Tax=Methylobacterium brachiatum TaxID=269660 RepID=A0A3G2VJ28_9RHIZ
+#=GS UniRef90_A0A317IC02/3-67      DE [subseq from] Uncharacterized protein n=1 Tax=Candidatus Melainabacteria bacterium TaxID=2052166 RepID=A0A317IC02_9BACT
+#=GS UniRef90_A0A4P6K0I8/4-69      DE [subseq from] Uncharacterized protein n=1 Tax=Ktedonosporobacter rubrisoli TaxID=2509675 RepID=A0A4P6K0I8_9CHLR
+#=GS UniRef90_A0A142HH28/3-70      DE [subseq from] Uncharacterized protein n=1 Tax=Hymenobacter sp. PAMC 26554 TaxID=1484116 RepID=A0A142HH28_9BACT
+#=GS UniRef90_A0A402A866/4-68      DE [subseq from] Uncharacterized protein n=1 Tax=Tengunoibacter tsumagoiensis TaxID=2014871 RepID=A0A402A866_9CHLR
+#=GS UniRef90_UPI00131BC0F4/3-69   DE [subseq from] hypothetical protein n=1 Tax=Acidisphaera sp. S103 TaxID=1747223 RepID=UPI00131BC0F4
+#=GS UniRef90_A0A5E6MFW5/5-71      DE [subseq from] Uncharacterized protein n=1 Tax=Methylacidimicrobium tartarophylax TaxID=1041768 RepID=A0A5E6MFW5_9BACT
+#=GS UniRef90_A0A6M1MC51/1-69      DE [subseq from] Uncharacterized protein n=1 Tax=Methylobacterium sp. DB0501 TaxID=2709665 RepID=A0A6M1MC51_9RHIZ
+#=GS UniRef90_A0A368HF25/2-66      DE [subseq from] Uncharacterized protein n=1 Tax=Acidiferrobacter thiooxydans TaxID=163359 RepID=A0A368HF25_9GAMM
+#=GS UniRef90_A0A2N3PRK8/17-83     DE [subseq from] Uncharacterized protein n=1 Tax=Telmatospirillum siberiense TaxID=382514 RepID=A0A2N3PRK8_9PROT
+#=GS UniRef90_A0A2N3PRK8/115-180   DE [subseq from] Uncharacterized protein n=1 Tax=Telmatospirillum siberiense TaxID=382514 RepID=A0A2N3PRK8_9PROT
+#=GS UniRef90_A0A7Y3P168/15-76     DE [subseq from] Uncharacterized protein n=1 Tax=Bacteroidia bacterium TaxID=2044936 RepID=A0A7Y3P168_9BACT
+#=GS UniRef90_A0A4R8DP52/4-70      DE [subseq from] Uncharacterized protein n=1 Tax=Dinghuibacter silviterrae TaxID=1539049 RepID=A0A4R8DP52_9BACT
+#=GS UniRef90_A0A1I4D138/7-73      DE [subseq from] Uncharacterized protein n=1 Tax=Methylocapsa palsarum TaxID=1612308 RepID=A0A1I4D138_9RHIZ
+#=GS UniRef90_UPI0011BDFA18/9-74   DE [subseq from] hypothetical protein n=1 Tax=Adhaeribacter aerolatus TaxID=670289 RepID=UPI0011BDFA18
+#=GS UniRef90_A0A1Q3KM49/4-69      DE [subseq from] Uncharacterized protein n=1 Tax=Alphaproteobacteria bacterium 65-37 TaxID=1895711 RepID=A0A1Q3KM49_9PROT
+#=GS UniRef90_A0A225DK00/3-70      DE [subseq from] Uncharacterized protein n=1 Tax=Fimbriiglobus ruber TaxID=1908690 RepID=A0A225DK00_9BACT
+#=GS UniRef90_A0A3E1NFY1/4-67      DE [subseq from] Uncharacterized protein n=1 Tax=Deminuibacter soli TaxID=2291815 RepID=A0A3E1NFY1_9BACT
+#=GS UniRef90_UPI0015707348/3-70   DE [subseq from] hypothetical protein n=1 Tax=Hymenobacter sp. 9A TaxID=2735894 RepID=UPI0015707348
+#=GS UniRef90_A0A7G4RF23/9-68      DE [subseq from] Uncharacterized protein n=1 Tax=Legionella sp. PC997 TaxID=2755562 RepID=A0A7G4RF23_9GAMM
+#=GS UniRef90_A0A177QKT9/4-69      DE [subseq from] Uncharacterized protein n=1 Tax=Nitrospira sp. SCGC AG-212-E16 TaxID=1799664 RepID=A0A177QKT9_9BACT
+#=GS UniRef90_UPI000A0039BF/3-69   DE [subseq from] hypothetical protein n=1 Tax=Bradyrhizobium sp. NAS80.1 TaxID=1680159 RepID=UPI000A0039BF
+#=GS UniRef90_A0A537SU55/5-72      DE [subseq from] Uncharacterized protein n=1 Tax=Alphaproteobacteria bacterium TaxID=1913988 RepID=A0A537SU55_9PROT
+#=GS UniRef90_UPI0009DA3672/5-71   DE [subseq from] hypothetical protein n=2 Tax=Verrucomicrobia TaxID=74201 RepID=UPI0009DA3672
+#=GS UniRef90_UPI000943D660/10-75  DE [subseq from] hypothetical protein n=1 Tax=Rufibacter TaxID=1379908 RepID=UPI000943D660
+#=GS UniRef90_A0A2K8YE90/1-69      DE [subseq from] Uncharacterized protein n=5 Tax=Bradyrhizobium TaxID=374 RepID=A0A2K8YE90_9BRAD
+#=GS UniRef90_A0A2W6AI54/4-69      DE [subseq from] Uncharacterized protein n=1 Tax=Candidatus Dormibacteraeota bacterium TaxID=2052315 RepID=A0A2W6AI54_9BACT
+#=GS UniRef90_UPI001AECAC8A/84-146 DE [subseq from] hypothetical protein n=2 Tax=Beijerinckia sp. 28-YEA-48 TaxID=1882748 RepID=UPI001AECAC8A
+#=GS UniRef90_A0A411HJN1/1-70      DE [subseq from] Uncharacterized protein n=1 Tax=Pseudolysobacter antarcticus TaxID=2511995 RepID=A0A411HJN1_9GAMM
+#=GS UniRef90_A0A7D4C1D1/3-70      DE [subseq from] Uncharacterized protein n=1 Tax=Hymenobacter sp. BRD128 TaxID=2675878 RepID=A0A7D4C1D1_9BACT
+#=GS UniRef90_A0A3S0S9L9/2-68      DE [subseq from] Uncharacterized protein n=1 Tax=Hyphomicrobium sp. TaxID=82 RepID=A0A3S0S9L9_HYPSQ
+#=GS UniRef90_UPI0015F67598/3-69   DE [subseq from] hypothetical protein n=2 Tax=Rhodospirillales incertae sedis TaxID=451274 RepID=UPI0015F67598
+#=GS UniRef90_A0A2W5ZIQ4/3-69      DE [subseq from] Uncharacterized protein n=1 Tax=Candidatus Dormibacteraeota bacterium TaxID=2052315 RepID=A0A2W5ZIQ4_9BACT
+#=GS UniRef90_A0A5C1ACH7/3-69      DE [subseq from] Uncharacterized protein n=2 Tax=Gemmataceae TaxID=1914233 RepID=A0A5C1ACH7_9BACT
+#=GS UniRef90_A0A7X8SVC5/4-59      DE [subseq from] Uncharacterized protein n=1 Tax=Rhizobium sp. P38BS-XIX TaxID=2726740 RepID=A0A7X8SVC5_9RHIZ
+#=GS UniRef90_UPI001647FE78/10-75  DE [subseq from] hypothetical protein n=1 Tax=Rufibacter TaxID=1379908 RepID=UPI001647FE78
+#=GS UniRef90_A0A534V5G6/4-70      DE [subseq from] Uncharacterized protein n=1 Tax=Deltaproteobacteria bacterium TaxID=2026735 RepID=A0A534V5G6_9DELT
+#=GS UniRef90_A0A7D3WQ23/3-70      DE [subseq from] Uncharacterized protein n=3 Tax=Hymenobacter TaxID=89966 RepID=A0A7D3WQ23_9BACT
+#=GS UniRef90_UPI00067F5429/4-57   DE [subseq from] hypothetical protein n=1 Tax=Bradyrhizobium viridifuturi TaxID=1654716 RepID=UPI00067F5429
+#=GS UniRef90_G3IVL7/18-76         DE [subseq from] Uncharacterized protein n=2 Tax=Methylobacter tundripaludum TaxID=173365 RepID=G3IVL7_METTV
+#=GS UniRef90_A0A431QXA7/3-69      DE [subseq from] Uncharacterized protein n=2 Tax=Bradyrhizobiaceae TaxID=41294 RepID=A0A431QXA7_9BRAD
+#=GS UniRef90_A0A2V7ZTA3/4-68      DE [subseq from] Uncharacterized protein n=2 Tax=unclassified Acidobacteria TaxID=305072 RepID=A0A2V7ZTA3_9BACT
+#=GS UniRef90_A0A516TLI4/49-117    DE [subseq from] Uncharacterized protein n=2 Tax=Methylacidiphilum kamchatkense TaxID=431057 RepID=A0A516TLI4_9BACT
+#=GS UniRef90_UPI00155D9B40/8-70   DE [subseq from] hypothetical protein n=1 Tax=Leptospirillum ferrooxidans TaxID=180 RepID=UPI00155D9B40
+#=GS UniRef90_A0A2H9SEK4/12-70     DE [subseq from] Uncharacterized protein n=1 Tax=Legionella sp. TaxID=459 RepID=A0A2H9SEK4_9GAMM
+#=GS UniRef90_A0A1H1JX39/3-70      DE [subseq from] Uncharacterized protein n=3 Tax=unclassified Rhizobiales TaxID=41292 RepID=A0A1H1JX39_9RHIZ
+#=GS UniRef90_UPI000975F98E/3-57   DE [subseq from] hypothetical protein n=2 Tax=Bradyrhizobium TaxID=374 RepID=UPI000975F98E
+#=GS UniRef90_A0A142H998/3-70      DE [subseq from] Uncharacterized protein n=3 Tax=unclassified Hymenobacter TaxID=2615202 RepID=A0A142H998_9BACT
+#=GS UniRef90_UPI00031CAACE/3-70   DE [subseq from] hypothetical protein n=2 Tax=Zavarzinella formosa TaxID=360055 RepID=UPI00031CAACE
+#=GS UniRef90_S9SB59/5-73          DE [subseq from] Uncharacterized protein n=2 Tax=Magnetospirillum fulvum TaxID=1082 RepID=S9SB59_MAGFU
+#=GS UniRef90_I0IMJ9/13-73         DE [subseq from] Uncharacterized protein n=1 Tax=Leptospirillum ferrooxidans (strain C2-3) TaxID=1162668 RepID=I0IMJ9_LEPFC
+#=GS UniRef90_A0A2Z3R562/2-66      DE [subseq from] Uncharacterized protein n=1 Tax=Acidiferrobacter sp. SPIII_3 TaxID=1281578 RepID=A0A2Z3R562_9GAMM
+
+query                                 MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKG-EHEQAAHHADTAYAHHKHAEEHAAQAAK-HDA-EHHAPKPH
+UniRef90_D7BIZ4/1-73                  MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKG-EHEQAAHHADTAYAHHKHAEEHAAQAAK-HDA-EHHAPKPH
+#=GR UniRef90_D7BIZ4/1-73          PP 89********************************.****************************.***.*******9
+UniRef90_A0A345WS72/1-69              MAEHKGAEHHRTAAEHHEHAAKHHRSAAEQHEAG-NHEKAGHHAAAAGGHASHAREHGEQASR-HHA-EHHG----
+#=GR UniRef90_A0A345WS72/1-69      PP 799*******************************.****************************.***.***6....
+UniRef90_A0A1F2V377/4-68              ----TGAEHHEAAAQHHEQAARHHHEAAKQDHSG-HHEKAGHYAHLAYAHFKHAEQHAAEAAK-THA-KNHT----
+#=GR UniRef90_A0A1F2V377/4-68      PP ....69****************************.****************************.999.9995....
+UniRef90_A0A3C0R222/4-69              ----KLKEHHTKAAEHHEHAAKHHRKAAEHHVSG-KHETAAHHAHLAHGHHMHARHHATEAAK-RHV-ELHGN---
+#=GR UniRef90_A0A3C0R222/4-69      PP ....6679**************************.****************************.*99.99975...
+UniRef90_A0A3G2VJ28/2-67              --AHQGAEHHHKAAEHHEKAAQHHREAAKHHESG-NHEKAAHHAHTAHGHATHASHHHTEASR-HHA-EQH-----
+#=GR UniRef90_A0A3G2VJ28/2-67      PP ..8*******************************.****************************.***.*99.....
+UniRef90_A0A317IC02/3-67              ---KKASEHHKKAAEHHRKAADHHEQASKHHDSG-SHEKAAHHAQTATGHHLHAEHHAHEATK-CHS-DEY-----
+#=GR UniRef90_A0A317IC02/3-67      PP ...6899***************************.**************************99.666.555.....
+UniRef90_A0A4P6K0I8/4-69              --NHPSVEHHKKAAEHHTKAAEHHTKAAEHHTKG-EHEAAAHHAHLAHGHHAQATEHANEAAK-KHA-SHT-----
+#=GR UniRef90_A0A4P6K0I8/4-69      PP ..58999***************************.****************************.999.996.....
+UniRef90_A0A142HH28/3-70              ---KKAADSHKKAAEHHTEAAKHHTEAAKHHEAG-SHEKAAHHAHTAAAHKDHATEHATTARK-AHA-EEHGKK--
+#=GR UniRef90_A0A142HH28/3-70      PP ...6899***************************.****************************.***.*99865..
+UniRef90_A0A402A866/4-68              --GHPSIEHHRKAAEHHRKAAEHHEKAAEHHAKG-EHETAASHAHMAHGHHIQATEHLEEAAKKHTA-Q-------
+#=GR UniRef90_A0A402A866/4-68      PP ..6999****************************.************************99862665.5.......
+UniRef90_UPI00131BC0F4/3-69           --NHQGATHHKKAAEHHEMAAKHHAQAAHHHESG-EHEAAGHHAHAAAGHAAHAKDHAEHAAK-HHA-ETHA----
+#=GR UniRef90_UPI00131BC0F4/3-69   PP ..6*******************************.****************************.***.***8....
+UniRef90_A0A5E6MFW5/5-71              -----IAEHHEKAAMHHEHAATHHKKAAEHHRKG-EHVESGHHAHIAHGHAEHAEVHAKEAAK-EEA-TVHDKEP-
+#=GR UniRef90_A0A5E6MFW5/5-71      PP .....59***************************.****************************.***.9997665.
+UniRef90_A0A6M1MC51/1-69              MATHQGAEHHKKAAEHHEHAARHHREAAKHYEAG-SHEKAAHHAHTAHGHASHATHHHTEASR-HHA-EQHG----
+#=GR UniRef90_A0A6M1MC51/1-69      PP 899*******************************.****************************.***.*996....
+UniRef90_A0A368HF25/2-66              ---HEGAEHHKNAAKHHTEAAKHHTEAAKHHDAG-QHEKAAHHAHLAYAHSVHAAHYREEAAK-HYA-AHN-----
+#=GR UniRef90_A0A368HF25/2-66      PP ...9******************************.****************************.***.996.....
+UniRef90_A0A2N3PRK8/17-83             --EHRAAEHHRSAVSHHEAAARYHREASKHYQIGHDHAHAAHQALIALGQAWQAVDHAKTANG-YYA-DHD-----
+#=GR UniRef90_A0A2N3PRK8/17-83     PP ..59****************************995699********************99999.999.885.....
+UniRef90_A0A2N3PRK8/115-180           ------AEHHAVAADNHEQAAKHHRRAAQHCDEK-NYMMAACEAHLAHGHAQHSIFHGIEAAK-HHV-DHQTQNP-
+#=GR UniRef90_A0A2N3PRK8/115-180   PP ......89**************************.****************************.***.**98776.
+UniRef90_A0A7Y3P168/15-76             ---NKGIENHKKAAKHHEEAAKHHHEAAKHHEAG-NHDKAFESTIKAYGHHCLANEAQ----R-EDL-KHHA----
+#=GR UniRef90_A0A7Y3P168/15-76     PP ...79*****************************.****************9988754....5.566.6665....
+UniRef90_A0A4R8DP52/4-70              ----EHAEHHKKAASHSEKAAEHHHEAAKHYEAG-DHEAGAHHAHAAHAHHLHAEDHAKHAAK-LHA-EHHGEK--
+#=GR UniRef90_A0A4R8DP52/4-70      PP ....569***************************.****************************.***.***865..
+UniRef90_A0A1I4D138/7-73              ----KIAEHHTQAAQHHEKAAEHYKEAAKHHETG-AVEKGAHHAQVSQGHAVHAEYHADEAAK-AHA-QHHANK--
+#=GR UniRef90_A0A1I4D138/7-73      PP ....779***************************.****************************.***.***976..
+UniRef90_UPI0011BDFA18/9-74           ---KKSAEHHQIAADHLEQAAKNHRAAAEHLAAG-DHQKAAHHGYTAYGLSSHAQYHAQQAAL-HHS-HEHK----
+#=GR UniRef90_UPI0011BDFA18/9-74   PP ...4789***************************.***************************9.877.5553....
+UniRef90_A0A1Q3KM49/4-69              ---DKIIEHHRSAADHHEKAAQHHREAAKHHESD-SHEKAAHHAHSAHGHSAHATHHAGEASK-HHA-EHHG----
+#=GR UniRef90_A0A1Q3KM49/4-69      PP ...5678***************************.****************************.***.***6....
+UniRef90_A0A225DK00/3-70              ---KKAAESHKKAAESHKKAGEHHEQAAKHHEAG-NHEKAAHHAHTAKGHQTHAERHTNDAAA-HHA-EEHGAK--
+#=GR UniRef90_A0A225DK00/3-70      PP ...689****************************.****************************.***.*99865..
+UniRef90_A0A3E1NFY1/4-67              -------KNHEDAAKHHEEAAKHHRSAAEEAGKG-NHEKAAHHAQAAHGHTEHAKEHAREASK-KYA-QQHEEK--
+#=GR UniRef90_A0A3E1NFY1/4-67      PP .......57999**********************.****************************.***.999876..
+UniRef90_UPI0015707348/3-70           ---KKAVDSHKKAAAHHTEAAAHHTEAAKHQEAG-SHEKAAHHAHTAAAHTDHAAEHATQARK-SHA-EDHGTK--
+#=GR UniRef90_UPI0015707348/3-70   PP ...578899*************************.****************************.***.*99865..
+UniRef90_A0A7G4RF23/9-68              ----KLKQHHTLAAEHHKKASEHHNEAAKYHQSG-DHEQGHHHAHLARGHHEHAQHHSSEAAK-HS----------
+#=GR UniRef90_A0A7G4RF23/9-68      PP ....56789*************************.****************************.*7..........
+UniRef90_A0A177QKT9/4-69              ----QAADHHRKAAEHHEHAARDHKEAAKYYEAG-EHEKAAHYAHRAHAHHLHVAHHSAEATK-SHL-EHHDK---
+#=GR UniRef90_A0A177QKT9/4-69      PP ....689***************************.****************************.***.***75...
+UniRef90_UPI000A0039BF/3-69           ---KKAAEHHKQAAEHHTQAARHHGEAAKHYEGG-QHEKAAHHAHTASGHGHHANYHTEEAGK-AHM-EEHGK---
+#=GR UniRef90_UPI000A0039BF/3-69   PP ...689****************************.****************************.999.99976...
+UniRef90_A0A537SU55/5-72              --THKGGSHHETAADHHETAAHHHREAAKHYESG-DHEKAGHHAHVAHAHGLHAAHHGQEAAK-HHA-EQHAE---
+#=GR UniRef90_A0A537SU55/5-72      PP ..7*******************************.****************************.***.***96...
+UniRef90_UPI0009DA3672/5-71           -----IAEHHEQAAMHHEHAAIHHKKAAEHHRKG-EHAESGHHAHIAHGHAQHAEHHAELAAK-EEA-TMHDKEP-
+#=GR UniRef90_UPI0009DA3672/5-71   PP .....59***************************.****************************.***.9997766.
+UniRef90_UPI000943D660/10-75          ---KKSAENHRKAAEYFEQAAANHRAAAEHLAKG-DHEKSAHHGYTAYGLSSHGRHHAEDAAL-HHS-HEHK----
+#=GR UniRef90_UPI000943D660/10-75  PP ...4789***************************.**************************99.877.5553....
+UniRef90_A0A2K8YE90/1-69              MSDHAGVEHHHKAAEHHEHAAHHHREAAKHHAAG-DHEKAAHHAHSAHGHASHAEHHHTEASR-HHA-EHHG----
+#=GR UniRef90_A0A2K8YE90/1-69      PP 678*******************************.****************************.***.***7....
+UniRef90_A0A2W6AI54/4-69              ----EAAQHHQQAAEHHEHAGRHHREAAKAHEAG-DHAKAAHHAHTARGHHEHASHHAAEAAK-SHV-EHHGH---
+#=GR UniRef90_A0A2W6AI54/4-69      PP ....689***************************.****************************.***.***86...
+UniRef90_UPI001AECAC8A/84-146         ------HEHHTKAAEHHELAAKHHREAAKHHESG-EHEKAAHHSKIAHGHSLHATEHHEHASK-KHA-EHHS----
+#=GR UniRef90_UPI001AECAC8A/84-146 PP ......59**************************.****************************.***.***5....
+UniRef90_A0A411HJN1/1-70              MSSHTVAEHHQKAAEHHTLAAEHHHEAAKHHSDG-AHEKAAHHAHLGHSHHLHATHHSQEATK-QFGHDHHA----
+#=GR UniRef90_A0A411HJN1/1-70      PP 789*******************************.**************************99.75526776....
+UniRef90_A0A7D4C1D1/3-70              ---KKAAEHHKHAATHHAEAAKHHTAAATHHEAG-HHEKAAHHAHTAAAHTEHATEHTSHARK-AHA-EEHGTK--
+#=GR UniRef90_A0A7D4C1D1/3-70      PP ...689****************************.****************************.***.*99865..
+UniRef90_A0A3S0S9L9/2-68              --AQKPHEHHQKAAEHHEQAAQHHKEAAKQHQAG-QHEKAAHHAHLAEAHHIHAKEHHEEAAK-AHL-AMHG----
+#=GR UniRef90_A0A3S0S9L9/2-68      PP ..67889***************************.***************************9.766.6665....
+UniRef90_UPI0015F67598/3-69           --KDKIVEHHNAAAEHHEHAAKHHREAATHHEAD-NHEKAGHHAHSAHGHSSHAAHHAGEASK-HHA-EHHG----
+#=GR UniRef90_UPI0015F67598/3-69   PP ..56889***************************.****************************.***.***7....
+UniRef90_A0A2W5ZIQ4/3-69              ---KKAAEHHGQAADHHEKAAQHHRQAKTHHEAG-DHQAAAHDAHTARGHHEHAAHHASEAAK-AHA-EEHGH---
+#=GR UniRef90_A0A2W5ZIQ4/3-69      PP ...699****************************.****************************.***.*9975...
+UniRef90_A0A5C1ACH7/3-69              ---KKAAASHKKAAEHHKKAGEHHENAAKHHEAG-NHEKAAHHAHTAKGHQSQAEKHGDEAAA-SHA-EEHGT---
+#=GR UniRef90_A0A5C1ACH7/3-69      PP ...588999*************************.*************************999.999.99976...
+UniRef90_A0A7X8SVC5/4-59              -------ESHTKAAEHHENAAKSHRSAAEHHGKG-DHEKGREHSKTAHAHSQSAHEHSDAAHK-K-----------
+#=GR UniRef90_A0A7X8SVC5/4-59      PP .......889************************.**********************987766.5...........
+UniRef90_UPI001647FE78/10-75          ---QKSAESHRKAAQYYQQAAEQHRAAAEHLNSG-DHEKAAHHGYTAYGLSEHARHHAKEAAL-HHS-HEHK----
+#=GR UniRef90_UPI001647FE78/10-75  PP ...589****************************.**************************99.877.5553....
+UniRef90_A0A534V5G6/4-70              ----QAAEHHTKAAEHHEHAARHHKEAAKHHEAG-NHEKAAHHAHVAHGHHLQAIHHHEEATK-FHL-EHHGKK--
+#=GR UniRef90_A0A534V5G6/4-70      PP ....689***************************.****************************.***.***865..
+UniRef90_A0A7D3WQ23/3-70              ---KKAAESHKHAAQHHTEAAKHHTEAAKSHEAG-NHEKAAHHAHTAAAHTEHATEHAGHARK-SHA-EEHGKK--
+#=GR UniRef90_A0A7D3WQ23/3-70      PP ...6899***************************.****************************.***.*99865..
+UniRef90_UPI00067F5429/4-57           -------EEHNKAAEHHENAAKAHRSAAEHHGKG-DHAKGMEHADTARQHSQTAHQHSEQAH--------------
+#=GR UniRef90_UPI00067F5429/4-57   PP .......899************************.***********************9985..............
+UniRef90_G3IVL7/18-76                 ------QQHHQKAAEHHEQAAKHHKEAAKHYESG-DDKTAAQHAHIAHGYSTQAMEQEMEASK-KYA---------
+#=GR UniRef90_G3IVL7/18-76         PP ......589*************************.**********************999999.766.........
+UniRef90_A0A431QXA7/3-69              ---KKAAEHHKQSAEHHTHAARHHGEAAKHHESG-AHEKAAHHAHTARGHALHARHHSDEAAK-LHM-EEHGK---
+#=GR UniRef90_A0A431QXA7/3-69      PP ...689****************************.****************************.999.98875...
+UniRef90_A0A2V7ZTA3/4-68              ----EAVDHHRKAAEHFEHAAQHHSAAASHYGAG-RYDQASREAYLAHGHYLHGSNHAAEAAR-LHT-RHFG----
+#=GR UniRef90_A0A2V7ZTA3/4-68      PP ....5689**************************.***************************9.888.8865....
+UniRef90_A0A516TLI4/49-117            ---DTVAEEHEKAAMHHEHAAVHYRKAAEHHRAG-EHADSGHHAHIAHGHAKHAQAHAEAAAK-EEA-NMHDKKP-
+#=GR UniRef90_A0A516TLI4/49-117    PP ...56699**************************.****************************.***.***9998.
+UniRef90_UPI00155D9B40/8-70           ------QEHHQKAAEHHEHAAEHHKEAAKHHASG-DHKTASHHAHIAHGHSVHAREHEEEASK-KYV-VLHG----
+#=GR UniRef90_UPI00155D9B40/8-70   PP ......69**************************.**************************99.876.6665....
+UniRef90_A0A2H9SEK4/12-70             ------HKHHLKAAEHHKKAAEHHSEAAKHHEAG-EHEKGQASAYLALAHGRHAKDESCEACS-HYA---------
+#=GR UniRef90_A0A2H9SEK4/12-70     PP ......57999***********************.***************************9.976.........
+UniRef90_A0A1H1JX39/3-70              ---KKAAEHHKKAAEHATHVARHHGEAAKHHEAG-HHEKAAHHAHTAMGHAFHARGHAEEAAK-AHA-EEHGKK--
+#=GR UniRef90_A0A1H1JX39/3-70      PP ...699****************************.****************************.***.*99865..
+UniRef90_UPI000975F98E/3-57           ------KEEHNKAAEHHENAAKAHRSAAEHHGKG-DHAKGMEHANTAMQHSQTAHQHSEQAH--------------
+#=GR UniRef90_UPI000975F98E/3-57   PP ......589*************************.***********************9985..............
+UniRef90_A0A142H998/3-70              ---KKAAESHKHAATHHAEAAKHHTEAAKHHEAG-SHEKAAHHAHTAAAHTAHATEHATHARK-AHA-EEHGTK--
+#=GR UniRef90_A0A142H998/3-70      PP ...6899***9***********************.****************************.***.*99865..
+UniRef90_UPI00031CAACE/3-70           ---KKAAESHKKAAESHKKAGEHHEQAAKHHEAG-HHEKAAHHAHTAKGHQTQAEKHGNDAAT-QHA-EDHGSK--
+#=GR UniRef90_UPI00031CAACE/3-70   PP ...689****************************.****************************.99*.999865..
+UniRef90_S9SB59/5-73                  MATLKANEHHAAAAAHSESAAQHHKEAAKQFDSG-HHEKAAHHAQVAAGHSAHATEHATEATK-KYA-EQHS----
+#=GR UniRef90_S9SB59/5-73          PP 6778999***************************.****************************.***.*997....
+UniRef90_I0IMJ9/13-73                 ----KPQEHHKEAAQHHEEAAKHHKEASKMYEAG-DHKTAAHHAHSATGHASSAEEHQNEASR-KHA---------
+#=GR UniRef90_I0IMJ9/13-73         PP ....6789**************************.***********************99987.655.........
+UniRef90_A0A2Z3R562/2-66              ---HEGAEHHKNAAKHHTEAAKHHTEAAKHHDAG-QHEKAAHHAHLAHAHGTHAAHHHEEAAK-YYA-AHH-----
+#=GR UniRef90_A0A2Z3R562/2-66      PP ...9******************************.****************************.***.**9.....
+#=GC PP_cons                          7877889***************************.***************************9.999.99876679
+#=GC RF                               xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxx.xxxxxxxx
+//
