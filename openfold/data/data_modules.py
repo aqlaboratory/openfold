@@ -90,7 +90,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self.mode = mode
         self._output_raw = _output_raw
 
-        valid_modes = ["train", "val", "predict"]
+        valid_modes = ["train", "eval", "predict"]
         if(mode not in valid_modes):
             raise ValueError(f'mode must be one of {valid_modes}')
 
