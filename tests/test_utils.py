@@ -13,11 +13,24 @@
 # limitations under the License.
 
 import math
+import numpy as np
 import torch
 import unittest
 
-from openfold.utils.affine_utils import T, quat_to_rot
+from openfold.utils.rigid_utils import (
+    Rotation,
+    Rigid, 
+    quat_to_rot,
+    rot_to_quat,
+)
 from openfold.utils.tensor_utils import chunk_layer, _chunk_slice
+import tests.compare_utils as compare_utils
+from tests.config import consts
+
+if compare_utils.alphafold_is_installed():
+    alphafold = compare_utils.import_alphafold()
+    import jax
+    import haiku as hk
 
 
 X_90_ROT = torch.tensor(
@@ -38,7 +51,7 @@ X_NEG_90_ROT = torch.tensor(
 
 
 class TestUtils(unittest.TestCase):
-    def test_T_from_3_points_shape(self):
+    def test_rigid_from_3_points_shape(self):
         batch_size = 2
         n_res = 5
 
@@ -46,14 +59,14 @@ class TestUtils(unittest.TestCase):
         x2 = torch.rand((batch_size, n_res, 3))
         x3 = torch.rand((batch_size, n_res, 3))
 
-        t = T.from_3_points(x1, x2, x3)
+        r = Rigid.from_3_points(x1, x2, x3)
 
-        rot, tra = t.rots, t.trans
+        rot, tra = r.get_rots().get_rot_mats(), r.get_trans()
 
         self.assertTrue(rot.shape == (batch_size, n_res, 3, 3))
         self.assertTrue(torch.all(tra == x2))
 
-    def test_T_from_4x4(self):
+    def test_rigid_from_4x4(self):
         batch_size = 2
         transf = [
             [1, 0, 0, 1],
@@ -68,58 +81,79 @@ class TestUtils(unittest.TestCase):
 
         transf = torch.stack([transf for _ in range(batch_size)], dim=0)
 
-        t = T.from_4x4(transf)
+        r = Rigid.from_tensor_4x4(transf)
 
-        rot, tra = t.rots, t.trans
+        rot, tra = r.get_rots().get_rot_mats(), r.get_trans()
 
         self.assertTrue(torch.all(rot == true_rot.unsqueeze(0)))
         self.assertTrue(torch.all(tra == true_trans.unsqueeze(0)))
 
-    def test_T_shape(self):
+    def test_rigid_shape(self):
         batch_size = 2
         n = 5
-        transf = T(
-            torch.rand((batch_size, n, 3, 3)), torch.rand((batch_size, n, 3))
+        transf = Rigid(
+            Rotation(rot_mats=torch.rand((batch_size, n, 3, 3))), 
+            torch.rand((batch_size, n, 3))
         )
 
         self.assertTrue(transf.shape == (batch_size, n))
 
-    def test_T_concat(self):
+    def test_rigid_cat(self):
         batch_size = 2
         n = 5
-        transf = T(
-            torch.rand((batch_size, n, 3, 3)), torch.rand((batch_size, n, 3))
+        transf = Rigid(
+            Rotation(rot_mats=torch.rand((batch_size, n, 3, 3))), 
+            torch.rand((batch_size, n, 3))
         )
 
-        transf_concat = T.concat([transf, transf], dim=0)
+        transf_cat = Rigid.cat([transf, transf], dim=0)
 
-        self.assertTrue(transf_concat.rots.shape == (batch_size * 2, n, 3, 3))
+        transf_rots = transf.get_rots().get_rot_mats()
+        transf_cat_rots = transf_cat.get_rots().get_rot_mats()
 
-        transf_concat = T.concat([transf, transf], dim=1)
+        self.assertTrue(transf_cat_rots.shape == (batch_size * 2, n, 3, 3))
 
-        self.assertTrue(transf_concat.rots.shape == (batch_size, n * 2, 3, 3))
+        transf_cat = Rigid.cat([transf, transf], dim=1)
+        transf_cat_rots = transf_cat.get_rots().get_rot_mats()
 
-        self.assertTrue(torch.all(transf_concat.rots[:, :n] == transf.rots))
-        self.assertTrue(torch.all(transf_concat.trans[:, :n] == transf.trans))
+        self.assertTrue(transf_cat_rots.shape == (batch_size, n * 2, 3, 3))
 
-    def test_T_compose(self):
+        self.assertTrue(torch.all(transf_cat_rots[:, :n] == transf_rots))
+        self.assertTrue(
+            torch.all(transf_cat.get_trans()[:, :n] == transf.get_trans())
+        )
+
+    def test_rigid_compose(self):
         trans_1 = [0, 1, 0]
         trans_2 = [0, 0, 1]
 
-        t1 = T(X_90_ROT, torch.tensor(trans_1))
-        t2 = T(X_NEG_90_ROT, torch.tensor(trans_2))
+        r = Rotation(rot_mats=X_90_ROT)
+        t = torch.tensor(trans_1)
+
+        t1 = Rigid(
+            Rotation(rot_mats=X_90_ROT), 
+            torch.tensor(trans_1)
+        )
+        t2 = Rigid(
+            Rotation(rot_mats=X_NEG_90_ROT), 
+            torch.tensor(trans_2)
+        )
 
         t3 = t1.compose(t2)
 
-        self.assertTrue(torch.all(t3.rots == torch.eye(3)))
-        self.assertTrue(torch.all(t3.trans == 0))
+        self.assertTrue(
+            torch.all(t3.get_rots().get_rot_mats() == torch.eye(3))
+        )
+        self.assertTrue(
+            torch.all(t3.get_trans() == 0)
+        )
 
-    def test_T_apply(self):
+    def test_rigid_apply(self):
         rots = torch.stack([X_90_ROT, X_NEG_90_ROT], dim=0)
         trans = torch.tensor([1, 1, 1])
         trans = torch.stack([trans, trans], dim=0)
 
-        t = T(rots, trans)
+        t = Rigid(Rotation(rot_mats=rots), trans)
 
         x = torch.arange(30)
         x = torch.stack([x, x], dim=0)
@@ -140,6 +174,12 @@ class TestUtils(unittest.TestCase):
         rot = quat_to_rot(quat)
         eps = 1e-07
         self.assertTrue(torch.all(torch.abs(rot - X_90_ROT) < eps))
+
+    def test_rot_to_quat(self):
+        quat = rot_to_quat(X_90_ROT)
+        eps = 1e-07
+        ans = torch.tensor([math.sqrt(0.5), math.sqrt(0.5), 0., 0.])
+        self.assertTrue(torch.all(torch.abs(quat - ans) < eps))
 
     def test_chunk_layer_tensor(self):
         x = torch.rand(2, 4, 5, 15)
@@ -180,3 +220,33 @@ class TestUtils(unittest.TestCase):
                 chunked_flattened = x_flat[i:j]
 
                 self.assertTrue(torch.all(chunked == chunked_flattened))
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_pre_compose_compare(self):
+        quat = np.random.rand(20, 4)
+        trans = [np.random.rand(20) for _ in range(3)]
+        quat_affine = alphafold.model.quat_affine.QuatAffine(
+            quat, translation=trans
+        )
+
+        update_vec = np.random.rand(20, 6)
+        new_gt = quat_affine.pre_compose(update_vec)
+
+        quat_t = torch.tensor(quat)
+        trans_t = torch.stack([torch.tensor(t) for t in trans], dim=-1)
+        rigid = Rigid(Rotation(quats=quat_t), trans_t)
+        new_repro = rigid.compose_q_update_vec(torch.tensor(update_vec))
+
+        new_gt_q = torch.tensor(np.array(new_gt.quaternion))
+        new_gt_t = torch.stack(
+            [torch.tensor(np.array(t)) for t in new_gt.translation], dim=-1
+        )
+        new_repro_q = new_repro.get_rots().get_quats()
+        new_repro_t = new_repro.get_trans()
+
+        self.assertTrue(
+            torch.max(torch.abs(new_gt_q - new_repro_q)) < consts.eps
+        )
+        self.assertTrue(
+            torch.max(torch.abs(new_gt_t - new_repro_t)) < consts.eps
+        )

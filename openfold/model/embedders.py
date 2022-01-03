@@ -198,6 +198,7 @@ class RecyclingEmbedder(nn.Module):
                 self.no_bins,
                 dtype=x.dtype,
                 device=x.device,
+                requires_grad=False,
             )
 
         # [*, N, C_m]

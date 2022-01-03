@@ -25,11 +25,11 @@ from openfold.np.residue_constants import (
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
-from openfold.utils.affine_utils import T, quat_to_rot
 from openfold.utils.feats import (
     frames_and_literature_positions_to_atom14_pos,
     torsion_angles_to_frames,
 )
+from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     dict_multimap,
     permute_final_dims,
@@ -225,7 +225,7 @@ class InvariantPointAttention(nn.Module):
         self,
         s: torch.Tensor,
         z: torch.Tensor,
-        t: T,
+        r: Rigid,
         mask: torch.Tensor,
     ) -> torch.Tensor:
         """
@@ -234,8 +234,8 @@ class InvariantPointAttention(nn.Module):
                 [*, N_res, C_s] single representation
             z:
                 [*, N_res, N_res, C_z] pair representation
-            t:
-                [*, N_res] affine transformation object
+            r:
+                [*, N_res] transformation object
             mask:
                 [*, N_res] mask
         Returns:
@@ -264,7 +264,7 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H * P_q, 3]
         q_pts = torch.split(q_pts, q_pts.shape[-1] // 3, dim=-1)
         q_pts = torch.stack(q_pts, dim=-1)
-        q_pts = t[..., None].apply(q_pts)
+        q_pts = r[..., None].apply(q_pts)
 
         # [*, N_res, H, P_q, 3]
         q_pts = q_pts.view(
@@ -277,7 +277,7 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H * (P_q + P_v), 3]
         kv_pts = torch.split(kv_pts, kv_pts.shape[-1] // 3, dim=-1)
         kv_pts = torch.stack(kv_pts, dim=-1)
-        kv_pts = t[..., None].apply(kv_pts)
+        kv_pts = r[..., None].apply(kv_pts)
 
         # [*, N_res, H, (P_q + P_v), 3]
         kv_pts = kv_pts.view(kv_pts.shape[:-2] + (self.no_heads, -1, 3))
@@ -349,7 +349,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, H, P_v, 3]
         o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
-        o_pt = t[..., None, None].invert_apply(o_pt)
+        o_pt = r[..., None, None].invert_apply(o_pt)
 
         # [*, N_res, H * P_v]
         o_pt_norm = flatten_final_dims(
@@ -377,7 +377,7 @@ class InvariantPointAttention(nn.Module):
 
 class BackboneUpdate(nn.Module):
     """
-    Implements Algorithm 23.
+    Implements part of Algorithm 23.
     """
 
     def __init__(self, c_s):
@@ -392,36 +392,17 @@ class BackboneUpdate(nn.Module):
 
         self.linear = Linear(self.c_s, 6, init="final")
 
-    def forward(self, s):
+    def forward(self, s: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
             [*, N_res, C_s] single representation
         Returns:
-            [*, N_res] affine transformation object
+            [*, N_res, 6] update vector 
         """
         # [*, 6]
-        params = self.linear(s)
+        update = self.linear(s)
 
-        # [*, 3]
-        quats, trans = params[..., :3], params[..., 3:]
-
-        # [*]
-        # norm_denom = torch.sqrt(sum(torch.unbind(quats ** 2, dim=-1)) + 1)
-        norm_denom = torch.sqrt(torch.sum(quats ** 2, dim=-1) + 1)
-
-        # [*, 3]
-        ones = s.new_ones((1,) * len(quats.shape)).expand(
-            quats.shape[:-1] + (1,)
-        )
-
-        # [*, 4]
-        quats = torch.cat([ones, quats], dim=-1)
-        quats = quats / norm_denom[..., None]
-
-        # [*, 3, 3]
-        rots = quat_to_rot(quats)
-
-        return T(rots, trans)
+        return update 
 
 
 class StructureModuleTransitionLayer(nn.Module):
@@ -592,7 +573,7 @@ class StructureModule(nn.Module):
         self,
         s,
         z,
-        f,
+        aatype,
         mask=None,
     ):
         """
@@ -601,7 +582,7 @@ class StructureModule(nn.Module):
                 [*, N_res, C_s] single representation
             z:
                 [*, N_res, N_res, C_z] pair representation
-            f:
+            aatype:
                 [*, N_res] amino acid indices
             mask:
                 Optional [*, N_res] sequence mask
@@ -623,44 +604,67 @@ class StructureModule(nn.Module):
         s = self.linear_in(s)
 
         # [*, N]
-        t = T.identity(s.shape[:-1], s.dtype, s.device, self.training)
+        rigids = Rigid.identity(
+            s.shape[:-1], 
+            s.dtype, 
+            s.device, 
+            self.training,
+            fmt="quat",
+        )
         outputs = []
         for i in range(self.no_blocks):
             # [*, N, C_s]
-            s = s + self.ipa(s, z, t, mask)
+            s = s + self.ipa(s, z, rigids, mask)
             s = self.ipa_dropout(s)
             s = self.layer_norm_ipa(s)
             s = self.transition(s)
 
             # [*, N]
-            t = t.compose(self.bb_update(s))
+            rigids = rigids.compose_q_update_vec(self.bb_update(s))
+
+            # To hew as closely as possible to AlphaFold, we convert our
+            # quaternion-based transformations to rotation-matrix ones
+            # here
+            backb_to_global = Rigid(
+                Rotation(
+                    rot_mats=rigids.get_rots().get_rot_mats(), 
+                    quats=None
+                ),
+                rigids.get_trans(),
+            )
+
+            backb_to_global = backb_to_global.scale_translation(
+                self.trans_scale_factor
+            )
 
             # [*, N, 7, 2]
-            unnormalized_a, a = self.angle_resnet(s, s_initial)
+            unnormalized_angles, angles = self.angle_resnet(s, s_initial)
 
             all_frames_to_global = self.torsion_angles_to_frames(
-                t.scale_translation(self.trans_scale_factor),
-                a,
-                f,
+                backb_to_global,
+                angles,
+                aatype,
             )
 
             pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
                 all_frames_to_global,
-                f,
+                aatype,
             )
 
+            scaled_rigids = rigids.scale_translation(self.trans_scale_factor)
+            
             preds = {
-                "frames": t.scale_translation(self.trans_scale_factor).to_4x4(),
-                "sidechain_frames": all_frames_to_global.to_4x4(),
-                "unnormalized_angles": unnormalized_a,
-                "angles": a,
+                "frames": scaled_rigids.to_tensor_7(),
+                "sidechain_frames": all_frames_to_global.to_tensor_4x4(),
+                "unnormalized_angles": unnormalized_angles,
+                "angles": angles,
                 "positions": pred_xyz,
             }
 
             outputs.append(preds)
 
             if i < (self.no_blocks - 1):
-                t = t.stop_rot_gradient()
+                rigids = rigids.stop_rot_gradient()
 
         outputs = dict_multimap(torch.stack, outputs)
         outputs["single"] = s
@@ -673,38 +677,42 @@ class StructureModule(nn.Module):
                 restype_rigid_group_default_frame,
                 dtype=float_dtype,
                 device=device,
+                requires_grad=False,
             )
         if self.group_idx is None:
             self.group_idx = torch.tensor(
                 restype_atom14_to_rigid_group,
                 device=device,
+                requires_grad=False,
             )
         if self.atom_mask is None:
             self.atom_mask = torch.tensor(
                 restype_atom14_mask,
                 dtype=float_dtype,
                 device=device,
+                requires_grad=False,
             )
         if self.lit_positions is None:
             self.lit_positions = torch.tensor(
                 restype_atom14_rigid_group_positions,
                 dtype=float_dtype,
                 device=device,
+                requires_grad=False,
             )
 
-    def torsion_angles_to_frames(self, t, alpha, f):
+    def torsion_angles_to_frames(self, r, alpha, f):
         # Lazily initialize the residue constants on the correct device
         self._init_residue_constants(alpha.dtype, alpha.device)
         # Separated purely to make testing less annoying
-        return torsion_angles_to_frames(t, alpha, f, self.default_frames)
+        return torsion_angles_to_frames(r, alpha, f, self.default_frames)
 
     def frames_and_literature_positions_to_atom14_pos(
-        self, t, f  # [*, N, 8]  # [*, N]
+        self, r, f  # [*, N, 8]  # [*, N]
     ):
         # Lazily initialize the residue constants on the correct device
-        self._init_residue_constants(t.rots.dtype, t.rots.device)
+        self._init_residue_constants(r.get_rots().dtype, r.get_rots().device)
         return frames_and_literature_positions_to_atom14_pos(
-            t,
+            r,
             f,
             self.default_frames,
             self.group_idx,

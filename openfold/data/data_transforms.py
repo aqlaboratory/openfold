@@ -22,7 +22,7 @@ import torch
 
 from openfold.config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
 from openfold.np import residue_constants as rc
-from openfold.utils.affine_utils import T
+from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     tree_map,
     tensor_tree_map,
@@ -752,7 +752,7 @@ def make_atom14_positions(protein):
     return protein
 
 
-def atom37_to_frames(protein):
+def atom37_to_frames(protein, eps=1e-8):
     aatype = protein["aatype"]
     all_atom_positions = protein["all_atom_positions"]
     all_atom_mask = protein["all_atom_mask"]
@@ -810,11 +810,11 @@ def atom37_to_frames(protein):
         no_batch_dims=len(all_atom_positions.shape[:-2]),
     )
 
-    gt_frames = T.from_3_points(
+    gt_frames = Rigid.from_3_points(
         p_neg_x_axis=base_atom_pos[..., 0, :],
         origin=base_atom_pos[..., 1, :],
         p_xy_plane=base_atom_pos[..., 2, :],
-        eps=1e-8,
+        eps=eps,
     )
 
     group_exists = batched_gather(
@@ -836,8 +836,9 @@ def atom37_to_frames(protein):
     rots = torch.tile(rots, (*((1,) * batch_dims), 8, 1, 1))
     rots[..., 0, 0, 0] = -1
     rots[..., 0, 2, 2] = -1
+    rots = Rotation(rot_mats=rots)
 
-    gt_frames = gt_frames.compose(T(rots, None))
+    gt_frames = gt_frames.compose(Rigid(rots, None))
 
     restype_rigidgroup_is_ambiguous = all_atom_mask.new_zeros(
         *((1,) * batch_dims), 21, 8
@@ -871,10 +872,15 @@ def atom37_to_frames(protein):
         no_batch_dims=batch_dims,
     )
 
-    alt_gt_frames = gt_frames.compose(T(residx_rigidgroup_ambiguity_rot, None))
+    residx_rigidgroup_ambiguity_rot = Rotation(
+        rot_mats=residx_rigidgroup_ambiguity_rot
+    )
+    alt_gt_frames = gt_frames.compose(
+        Rigid(residx_rigidgroup_ambiguity_rot, None)
+    )
 
-    gt_frames_tensor = gt_frames.to_4x4()
-    alt_gt_frames_tensor = alt_gt_frames.to_4x4()
+    gt_frames_tensor = gt_frames.to_tensor_4x4()
+    alt_gt_frames_tensor = alt_gt_frames.to_tensor_4x4()
 
     protein["rigidgroups_gt_frames"] = gt_frames_tensor
     protein["rigidgroups_gt_exists"] = gt_exists
@@ -1028,7 +1034,7 @@ def atom37_to_torsion_angles(
         dim=-1,
     )
 
-    torsion_frames = T.from_3_points(
+    torsion_frames = Rigid.from_3_points(
         torsions_atom_pos[..., 1, :],
         torsions_atom_pos[..., 2, :],
         torsions_atom_pos[..., 0, :],
@@ -1082,11 +1088,11 @@ def atom37_to_torsion_angles(
 
 
 def get_backbone_frames(protein):
-    # TODO: Verify that this is correct
-    protein["backbone_affine_tensor"] = protein["rigidgroups_gt_frames"][
+    # DISCREPANCY: AlphaFold uses tensor_7s here. I don't know why.
+    protein["backbone_rigid_tensor"] = protein["rigidgroups_gt_frames"][
         ..., 0, :, :
     ]
-    protein["backbone_affine_mask"] = protein["rigidgroups_gt_exists"][..., 0]
+    protein["backbone_rigid_mask"] = protein["rigidgroups_gt_exists"][..., 0]
 
     return protein
 

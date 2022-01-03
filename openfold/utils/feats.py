@@ -22,7 +22,7 @@ from typing import Dict
 
 from openfold.np import protein
 import openfold.np.residue_constants as rc
-from openfold.utils.affine_utils import T
+from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     batched_gather,
     one_hot,
@@ -124,18 +124,16 @@ def build_template_pair_feat(
     )
 
     n, ca, c = [rc.atom_order[a] for a in ["N", "CA", "C"]]
-    # TODO: Consider running this in double precision
-    affines = T.make_transform_from_reference(
+    rigids = Rigid.make_transform_from_reference(
         n_xyz=batch["template_all_atom_positions"][..., n, :],
         ca_xyz=batch["template_all_atom_positions"][..., ca, :],
         c_xyz=batch["template_all_atom_positions"][..., c, :],
         eps=eps,
     )
+    points = rigids.get_trans()[..., None, :, :]
+    rigid_vec = rigids[..., None].invert_apply(points)
 
-    points = affines.get_trans()[..., None, :, :]
-    affine_vec = affines[..., None].invert_apply(points)
-
-    inv_distance_scalar = torch.rsqrt(eps + torch.sum(affine_vec ** 2, dim=-1))
+    inv_distance_scalar = torch.rsqrt(eps + torch.sum(rigid_vec ** 2, dim=-1))
 
     t_aa_masks = batch["template_all_atom_mask"]
     template_mask = (
@@ -144,7 +142,7 @@ def build_template_pair_feat(
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
     inv_distance_scalar = inv_distance_scalar * template_mask_2d
-    unit_vector = affine_vec * inv_distance_scalar[..., None]
+    unit_vector = rigid_vec * inv_distance_scalar[..., None]
     to_concat.extend(torch.unbind(unit_vector[..., None, :], dim=-1))
     to_concat.append(template_mask_2d[..., None])
 
@@ -165,7 +163,7 @@ def build_extra_msa_feat(batch):
 
 
 def torsion_angles_to_frames(
-    t: T,
+    r: Rigid,
     alpha: torch.Tensor,
     aatype: torch.Tensor,
     rrgdf: torch.Tensor,
@@ -176,13 +174,15 @@ def torsion_angles_to_frames(
     # [*, N, 8] transformations, i.e.
     #   One [*, N, 8, 3, 3] rotation matrix and
     #   One [*, N, 8, 3]    translation matrix
-    default_t = T.from_4x4(default_4x4)
+    default_r = r.from_tensor_4x4(default_4x4)
 
     bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
     bb_rot[..., 1] = 1
 
     # [*, N, 8, 2]
-    alpha = torch.cat([bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], dim=-2)
+    alpha = torch.cat(
+        [bb_rot.expand(*alpha.shape[:-2], -1, -1), alpha], dim=-2
+    )
 
     # [*, N, 8, 3, 3]
     # Produces rotation matrices of the form:
@@ -194,15 +194,15 @@ def torsion_angles_to_frames(
     # This follows the original code rather than the supplement, which uses
     # different indices.
 
-    all_rots = alpha.new_zeros(default_t.rots.shape)
+    all_rots = alpha.new_zeros(default_r.get_rots().get_rot_mats().shape)
     all_rots[..., 0, 0] = 1
     all_rots[..., 1, 1] = alpha[..., 1]
     all_rots[..., 1, 2] = -alpha[..., 0]
     all_rots[..., 2, 1:] = alpha
 
-    all_rots = T(all_rots, None)
+    all_rots = Rigid(Rotation(rot_mats=all_rots), None)
 
-    all_frames = default_t.compose(all_rots)
+    all_frames = default_r.compose(all_rots)
 
     chi2_frame_to_frame = all_frames[..., 5]
     chi3_frame_to_frame = all_frames[..., 6]
@@ -213,7 +213,7 @@ def torsion_angles_to_frames(
     chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
     chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
 
-    all_frames_to_bb = T.concat(
+    all_frames_to_bb = Rigid.cat(
         [
             all_frames[..., :5],
             chi2_frame_to_bb.unsqueeze(-1),
@@ -223,13 +223,13 @@ def torsion_angles_to_frames(
         dim=-1,
     )
 
-    all_frames_to_global = t[..., None].compose(all_frames_to_bb)
+    all_frames_to_global = r[..., None].compose(all_frames_to_bb)
 
     return all_frames_to_global
 
 
 def frames_and_literature_positions_to_atom14_pos(
-    t: T,
+    r: Rigid,
     aatype: torch.Tensor,
     default_frames,
     group_idx,
@@ -249,7 +249,7 @@ def frames_and_literature_positions_to_atom14_pos(
     )
 
     # [*, N, 14, 8]
-    t_atoms_to_global = t[..., None, :] * group_mask
+    t_atoms_to_global = r[..., None, :] * group_mask
 
     # [*, N, 14]
     t_atoms_to_global = t_atoms_to_global.map_tensor_fn(

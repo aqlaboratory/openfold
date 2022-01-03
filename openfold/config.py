@@ -89,8 +89,8 @@ config = mlc.ConfigDict(
                     "atom14_gt_exists": [NUM_RES, None],
                     "atom14_gt_positions": [NUM_RES, None, None],
                     "atom37_atom_exists": [NUM_RES, None],
-                    "backbone_affine_mask": [NUM_RES],
-                    "backbone_affine_tensor": [NUM_RES, None, None],
+                    "backbone_rigid_mask": [NUM_RES],
+                    "backbone_rigid_tensor": [NUM_RES, None, None],
                     "bert_mask": [NUM_MSA_SEQ, NUM_RES],
                     "chi_angles_sin_cos": [NUM_RES, None, None],
                     "chi_mask": [NUM_RES, None],
@@ -126,8 +126,8 @@ config = mlc.ConfigDict(
                     "template_alt_torsion_angles_sin_cos": [
                         NUM_TEMPLATES, NUM_RES, None, None,
                     ],
-                    "template_backbone_affine_mask": [NUM_TEMPLATES, NUM_RES],
-                    "template_backbone_affine_tensor": [
+                    "template_backbone_rigid_mask": [NUM_TEMPLATES, NUM_RES],
+                    "template_backbone_rigid_tensor": [
                         NUM_TEMPLATES, NUM_RES, None, None,
                     ],
                     "template_mask": [NUM_TEMPLATES],

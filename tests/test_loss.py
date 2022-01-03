@@ -20,7 +20,10 @@ import unittest
 import ml_collections as mlc
 
 from openfold.data import data_transforms
-from openfold.utils.affine_utils import T, affine_vector_to_4x4
+from openfold.utils.rigid_utils import (
+    Rotation,
+    Rigid,
+)
 import openfold.utils.feats as feats
 from openfold.utils.loss import (
     torsion_angle_loss,
@@ -55,6 +58,11 @@ if compare_utils.alphafold_is_installed():
     import haiku as hk
 
 
+def affine_vector_to_4x4(affine):
+    r = Rigid.from_tensor_7(affine)
+    return r.to_tensor_4x4()
+
+
 class TestLoss(unittest.TestCase):
     def test_run_torsion_angle_loss(self):
         batch_size = consts.batch_size
@@ -77,8 +85,8 @@ class TestLoss(unittest.TestCase):
         rots_gt = torch.rand((batch_size, n_frames, 3, 3))
         trans = torch.rand((batch_size, n_frames, 3))
         trans_gt = torch.rand((batch_size, n_frames, 3))
-        t = T(rots, trans)
-        t_gt = T(rots_gt, trans_gt)
+        t = Rigid(Rotation(rot_mats=rots), trans)
+        t_gt = Rigid(Rotation(rot_mats=rots_gt), trans_gt)
         frames_mask = torch.randint(0, 2, (batch_size, n_frames)).float()
         positions_mask = torch.randint(0, 2, (batch_size, n_atoms)).float()
         length_scale = 10
@@ -686,11 +694,11 @@ class TestLoss(unittest.TestCase):
         batch = tree_map(to_tensor, batch, np.ndarray)
         value = tree_map(to_tensor, value, np.ndarray)
 
-        batch["backbone_affine_tensor"] = affine_vector_to_4x4(
+        batch["backbone_rigid_tensor"] = affine_vector_to_4x4(
             batch["backbone_affine_tensor"]
         )
-        value["traj"] = affine_vector_to_4x4(value["traj"])
-
+        batch["backbone_rigid_mask"] = batch["backbone_affine_mask"]
+        
         out_repro = backbone_loss(traj=value["traj"], **{**batch, **c_sm})
         out_repro = out_repro.cpu()
 
@@ -807,6 +815,8 @@ class TestLoss(unittest.TestCase):
 
         f = hk.transform(run_tm_loss)
 
+        np.random.seed(42)
+
         n_res = consts.n_res
 
         representations = {
@@ -839,12 +849,10 @@ class TestLoss(unittest.TestCase):
         batch = tree_map(to_tensor, batch, np.ndarray)
         value = tree_map(to_tensor, value, np.ndarray)
 
-        batch["backbone_affine_tensor"] = affine_vector_to_4x4(
+        batch["backbone_rigid_tensor"] = affine_vector_to_4x4(
             batch["backbone_affine_tensor"]
         )
-        value["structure_module"]["final_affines"] = affine_vector_to_4x4(
-            value["structure_module"]["final_affines"]
-        )
+        batch["backbone_rigid_mask"] = batch["backbone_affine_mask"]
 
         model = compare_utils.get_global_pretrained_openfold()
         logits = model.aux_heads.tm(representations["pair"])

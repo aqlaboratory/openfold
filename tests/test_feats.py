@@ -23,8 +23,8 @@ from openfold.np.residue_constants import (
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
-from openfold.utils.affine_utils import T
 import openfold.utils.feats as feats
+from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     tree_map,
     tensor_tree_map,
@@ -187,7 +187,7 @@ class TestFeats(unittest.TestCase):
         n = 5
         rots = torch.rand((batch_size, n, 3, 3))
         trans = torch.rand((batch_size, n, 3))
-        ts = T(rots, trans)
+        ts = Rigid(Rotation(rot_mats=rots), trans)
 
         angles = torch.rand((batch_size, n, 7, 2))
 
@@ -222,7 +222,9 @@ class TestFeats(unittest.TestCase):
 
         affines = random_affines_4x4((n_res,))
         rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
-        transformations = T.from_4x4(torch.as_tensor(affines).float())
+        transformations = Rigid.from_tensor_4x4(
+            torch.as_tensor(affines).float()
+        )
 
         torsion_angles_sin_cos = np.random.rand(n_res, 7, 2)
 
@@ -250,7 +252,7 @@ class TestFeats(unittest.TestCase):
         bottom_row[..., 3] = 1
         transforms_gt = torch.cat([transforms_gt, bottom_row], dim=-2)
 
-        transforms_repro = out.to_4x4().cpu()
+        transforms_repro = out.to_tensor_4x4().cpu()
 
         self.assertTrue(
             torch.max(torch.abs(transforms_gt - transforms_repro) < consts.eps)
@@ -262,7 +264,7 @@ class TestFeats(unittest.TestCase):
 
         rots = torch.rand((batch_size, n_res, 8, 3, 3))
         trans = torch.rand((batch_size, n_res, 8, 3))
-        ts = T(rots, trans)
+        ts = Rigid(Rotation(rot_mats=rots), trans)
 
         f = torch.randint(low=0, high=21, size=(batch_size, n_res)).long()
 
@@ -293,7 +295,9 @@ class TestFeats(unittest.TestCase):
 
         affines = random_affines_4x4((n_res, 8))
         rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
-        transformations = T.from_4x4(torch.as_tensor(affines).float())
+        transformations = Rigid.from_tensor_4x4(
+            torch.as_tensor(affines).float()
+        )
 
         out_gt = f.apply({}, None, aatype, rigids)
         jax.tree_map(lambda x: x.block_until_ready(), out_gt)

@@ -24,7 +24,7 @@ from typing import Dict, Optional, Tuple
 
 from openfold.np import residue_constants
 from openfold.utils import feats
-from openfold.utils.affine_utils import T
+from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     tree_map,
     tensor_tree_map,
@@ -74,8 +74,8 @@ def torsion_angle_loss(
 
 
 def compute_fape(
-    pred_frames: T,
-    target_frames: T,
+    pred_frames: Rigid,
+    target_frames: Rigid,
     frames_mask: torch.Tensor,
     pred_positions: torch.Tensor,
     target_positions: torch.Tensor,
@@ -111,7 +111,7 @@ def compute_fape(
     # )
     # normed_error = torch.sum(normed_error, dim=(-1, -2)) / (eps + norm_factor)
     #
-    # ("roughly" because eps is necessarily duplicated in the latter
+    # ("roughly" because eps is necessarily duplicated in the latter)
     normed_error = torch.sum(normed_error, dim=-1)
     normed_error = (
         normed_error / (eps + torch.sum(frames_mask, dim=-1))[..., None]
@@ -123,8 +123,8 @@ def compute_fape(
 
 
 def backbone_loss(
-    backbone_affine_tensor: torch.Tensor,
-    backbone_affine_mask: torch.Tensor,
+    backbone_rigid_tensor: torch.Tensor,
+    backbone_rigid_mask: torch.Tensor,
     traj: torch.Tensor,
     use_clamped_fape: Optional[torch.Tensor] = None,
     clamp_distance: float = 10.0,
@@ -132,16 +132,27 @@ def backbone_loss(
     eps: float = 1e-4,
     **kwargs,
 ) -> torch.Tensor:
-    pred_aff = T.from_tensor(traj)
-    gt_aff = T.from_tensor(backbone_affine_tensor)
+    pred_aff = Rigid.from_tensor_7(traj)
+    pred_aff = Rigid(
+        Rotation(rot_mats=pred_aff.get_rots().get_rot_mats(), quats=None),
+        pred_aff.get_trans(),
+    )
+
+    # DISCREPANCY: DeepMind somehow gets a hold of a tensor_7 version of
+    # backbone tensor, normalizes it, and then turns it back to a rotation
+    # matrix. To avoid a potentially numerically unstable rotation matrix
+    # to quaternion conversion, we just use the original rotation matrix
+    # outright. This one hasn't been composed a bunch of times, though, so
+    # it might be fine.
+    gt_aff = Rigid.from_tensor_4x4(backbone_rigid_tensor)
 
     fape_loss = compute_fape(
         pred_aff,
         gt_aff[None],
-        backbone_affine_mask[None],
+        backbone_rigid_mask[None],
         pred_aff.get_trans(),
         gt_aff[None].get_trans(),
-        backbone_affine_mask[None],
+        backbone_rigid_mask[None],
         l1_clamp_distance=clamp_distance,
         length_scale=loss_unit_distance,
         eps=eps,
@@ -150,10 +161,10 @@ def backbone_loss(
         unclamped_fape_loss = compute_fape(
             pred_aff,
             gt_aff[None],
-            backbone_affine_mask[None],
+            backbone_rigid_mask[None],
             pred_aff.get_trans(),
             gt_aff[None].get_trans(),
-            backbone_affine_mask[None],
+            backbone_rigid_mask[None],
             l1_clamp_distance=None,
             length_scale=loss_unit_distance,
             eps=eps,
@@ -193,9 +204,9 @@ def sidechain_loss(
     sidechain_frames = sidechain_frames[-1]
     batch_dims = sidechain_frames.shape[:-4]
     sidechain_frames = sidechain_frames.view(*batch_dims, -1, 4, 4)
-    sidechain_frames = T.from_4x4(sidechain_frames)
+    sidechain_frames = Rigid.from_tensor_4x4(sidechain_frames)
     renamed_gt_frames = renamed_gt_frames.view(*batch_dims, -1, 4, 4)
-    renamed_gt_frames = T.from_4x4(renamed_gt_frames)
+    renamed_gt_frames = Rigid.from_tensor_4x4(renamed_gt_frames)
     rigidgroups_gt_exists = rigidgroups_gt_exists.reshape(*batch_dims, -1)
     sidechain_atom_pos = sidechain_atom_pos[-1]
     sidechain_atom_pos = sidechain_atom_pos.view(*batch_dims, -1, 3)
@@ -422,7 +433,7 @@ def distogram_loss(
         device=logits.device,
     )
     boundaries = boundaries ** 2
-
+    
     dists = torch.sum(
         (pseudo_beta[..., None, :] - pseudo_beta[..., None, :, :]) ** 2,
         dim=-1,
@@ -550,8 +561,8 @@ def compute_tm(
 def tm_loss(
     logits,
     final_affine_tensor,
-    backbone_affine_tensor,
-    backbone_affine_mask,
+    backbone_rigid_tensor,
+    backbone_rigid_mask,
     resolution,
     max_bin=31,
     no_bins=64,
@@ -560,16 +571,17 @@ def tm_loss(
     eps=1e-8,
     **kwargs,
 ):
-    pred_affine = T.from_4x4(final_affine_tensor)
-    backbone_affine = T.from_4x4(backbone_affine_tensor)
+    pred_affine = Rigid.from_tensor_7(final_affine_tensor)
+    backbone_rigid = Rigid.from_tensor_4x4(backbone_rigid_tensor)
 
     def _points(affine):
         pts = affine.get_trans()[..., None, :, :]
         return affine.invert()[..., None].apply(pts)
 
     sq_diff = torch.sum(
-        (_points(pred_affine) - _points(backbone_affine)) ** 2, dim=-1
+        (_points(pred_affine) - _points(backbone_rigid)) ** 2, dim=-1
     )
+
     sq_diff = sq_diff.detach()
 
     boundaries = torch.linspace(
@@ -583,7 +595,7 @@ def tm_loss(
     )
 
     square_mask = (
-        backbone_affine_mask[..., None] * backbone_affine_mask[..., None, :]
+        backbone_rigid_mask[..., None] * backbone_rigid_mask[..., None, :]
     )
 
     loss = torch.sum(errors * square_mask, dim=-1)
@@ -1503,11 +1515,12 @@ class AlphaFoldLoss(nn.Module):
             ),
         }
 
-        cum_loss = 0
+        cum_loss = 0.
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
             if weight:
                 loss = loss_fn()
+                
                 if(torch.isnan(loss) or torch.isinf(loss)):
                     logging.warning(f"{loss_name} loss is NaN. Skipping...")
                     loss = loss.new_tensor(0., requires_grad=True)

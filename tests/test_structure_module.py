@@ -31,8 +31,8 @@ from openfold.model.structure_module import (
     AngleResnet,
     InvariantPointAttention,
 )
-from openfold.utils.affine_utils import T
 import openfold.utils.feats as feats
+from openfold.utils.rigid_utils import Rotation, Rigid
 import tests.compare_utils as compare_utils
 from tests.config import consts
 from tests.data_utils import (
@@ -89,7 +89,7 @@ class TestStructureModule(unittest.TestCase):
 
         out = sm(s, z, f)
 
-        self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 4, 4))
+        self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 7))
         self.assertTrue(
             out["angles"].shape == (no_layers, batch_size, n, no_angles, 2)
         )
@@ -177,23 +177,6 @@ class TestStructureModule(unittest.TestCase):
         self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.05)
 
 
-class TestBackboneUpdate(unittest.TestCase):
-    def test_shape(self):
-        batch_size = 2
-        n_res = 3
-        c_in = 5
-
-        bu = BackboneUpdate(c_in)
-
-        s = torch.rand((batch_size, n_res, c_in))
-
-        t = bu(s)
-        rot, tra = t.rots, t.trans
-
-        self.assertTrue(rot.shape == (batch_size, n_res, 3, 3))
-        self.assertTrue(tra.shape == (batch_size, n_res, 3))
-
-
 class TestInvariantPointAttention(unittest.TestCase):
     def test_shape(self):
         c_m = 13
@@ -210,17 +193,18 @@ class TestInvariantPointAttention(unittest.TestCase):
         z = torch.rand((batch_size, n_res, n_res, c_z))
         mask = torch.ones((batch_size, n_res))
 
-        rots = torch.rand((batch_size, n_res, 3, 3))
+        rot_mats = torch.rand((batch_size, n_res, 3, 3))
+        rots = Rotation(rot_mats=rot_mats, quats=None)
         trans = torch.rand((batch_size, n_res, 3))
 
-        t = T(rots, trans)
+        r = Rigid(rots, trans)
 
         ipa = InvariantPointAttention(
             c_m, c_z, c_hidden, no_heads, no_qp, no_vp
         )
 
         shape_before = s.shape
-        s = ipa(s, z, t, mask)
+        s = ipa(s, z, r, mask)
 
         self.assertTrue(s.shape == shape_before)
 
@@ -253,7 +237,9 @@ class TestInvariantPointAttention(unittest.TestCase):
         affines = random_affines_4x4((n_res,))
         rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
         quats = alphafold.model.r3.rigids_to_quataffine(rigids)
-        transformations = T.from_4x4(torch.as_tensor(affines).float().cuda())
+        transformations = Rigid.from_tensor_4x4(
+            torch.as_tensor(affines).float().cuda()
+        )
 
         sample_affine = quats
 
