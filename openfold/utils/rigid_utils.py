@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import Tuple, Any, Sequence, Callable
+from typing import Tuple, Any, Sequence, Callable, Optional
 
 import numpy as np
 import torch
@@ -716,7 +716,7 @@ class Rotation:
         return Rotation(rot_mats=rot_mats, quats=None) 
 
     def map_tensor_fn(self, 
-        fn: Callable[tensor.Tensor, tensor.Tensor]
+        fn: Callable[torch.Tensor, torch.Tensor]
     ) -> Rotation:
         """
             Apply a Tensor -> Tensor function to underlying rotation tensors,
@@ -1074,7 +1074,7 @@ class Rigid:
         return Rigid(rot_inv, -1 * trn_inv)
 
     def map_tensor_fn(self, 
-        fn: Callable[tensor.Tensor, tensor.Tensor]
+        fn: Callable[torch.Tensor, torch.Tensor]
     ) -> Rigid:
         """
             Apply a Tensor -> Tensor function to underlying translation and
