@@ -48,6 +48,8 @@ class OpenFoldWrapper(pl.LightningModule):
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
         )
+        
+        self.cached_weights = None
 
     def forward(self, batch):
         return self.model(batch)
