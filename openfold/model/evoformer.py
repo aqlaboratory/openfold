@@ -223,19 +223,19 @@ class EvoformerBlock(nn.Module):
         m = m + self.msa_dropout_layer(
             self.msa_att_row(m, z=z, mask=msa_mask, chunk_size=chunk_size)
         )
-        m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
+        m += self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
         m = m + self.msa_transition(
             m, mask=msa_trans_mask, chunk_size=chunk_size
         )
         z = z + self.outer_product_mean(
             m, mask=msa_mask, chunk_size=chunk_size
         )
-        z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
-        z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
-        z = z + self.ps_dropout_row_layer(
+        z += self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
+        z += self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
+        z += self.ps_dropout_row_layer(
             self.tri_att_start(z, mask=pair_mask, chunk_size=chunk_size)
         )
-        z = z + self.ps_dropout_col_layer(
+        z += self.ps_dropout_col_layer(
             self.tri_att_end(z, mask=pair_mask, chunk_size=chunk_size)
         )
         z = z + self.pair_transition(
