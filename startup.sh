@@ -6,3 +6,8 @@ export PATH=/MMseqs2/build/bin/:$PATH
 # Install DeepMind's OpenMM patch
 patch -p0 -d /tools/miniconda/envs/ottf-openfold/lib/python3.7/site-packages/ < /openfold/lib/openmm.patch
 
+# Activate environment
+source activate openfold-env
+
+# Install openfold
+python setup.py install
