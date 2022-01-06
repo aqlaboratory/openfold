@@ -93,6 +93,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor] = None, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
+        _chunk_and_checkpoint: Optional[int] = None
     ) -> torch.Tensor:
         """
         Args:
@@ -125,9 +126,9 @@ class MSAAttention(nn.Module):
         # This step simply returns a larger view of the bias, and does not
         # consume additional memory.
         # [*, N_seq, no_heads, N_res, N_res]
-        bias = bias.expand(
-            ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
-        )
+        #bias = bias.expand(
+        #    ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
+        #)
         
         biases = [bias]
 
@@ -150,7 +151,13 @@ class MSAAttention(nn.Module):
         if chunk_size is not None:
             m = self._chunk(m, biases, chunk_size)
         else:
-            m = self.mha(q_x=m, k_x=m, v_x=m, biases=biases)
+            m = self.mha(
+                q_x=m, 
+                k_x=m, 
+                v_x=m, 
+                biases=biases, 
+                _chunk_and_checkpoint=_chunk_and_checkpoint
+            )
 
         return m
 

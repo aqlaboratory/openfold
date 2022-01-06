@@ -336,7 +336,9 @@ class AlphaFold(nn.Module):
     def _disable_activation_checkpointing(self):
         self.template_pair_stack.blocks_per_ckpt = None
         self.evoformer.blocks_per_ckpt = None
-        self.extra_msa_stack.stack.blocks_per_ckpt = None
+
+        for b in self.extra_msa_stack.blocks:
+            b.ckpt = False
 
     def _enable_activation_checkpointing(self):
         self.template_pair_stack.blocks_per_ckpt = (
@@ -345,9 +347,9 @@ class AlphaFold(nn.Module):
         self.evoformer.blocks_per_ckpt = (
             self.config.evoformer_stack.blocks_per_ckpt
         )
-        self.extra_msa_stack.stack.blocks_per_ckpt = (
-            self.config.extra_msa.extra_msa_stack.blocks_per_ckpt
-        )
+
+        for b in self.extra_msa_stack.blocks:
+            b.ckpt = self.config.extra_msa.extra_msa_stack.ckpt
 
     def forward(self, batch):
         """

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import partialmethod
+from functools import partialmethod, partial
 import math
 from typing import Optional, List
 
@@ -70,7 +70,7 @@ class TriangleAttention(nn.Module):
             "biases": biases,
         }
         return chunk_layer(
-            self.mha,
+            partial(self.mha),
             mha_inputs,
             chunk_size=chunk_size,
             no_batch_dims=len(x.shape[:-2]),

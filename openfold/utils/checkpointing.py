@@ -15,17 +15,27 @@
 import deepspeed
 import torch
 import torch.utils.checkpoint
-from typing import Any, Tuple, List, Callable
+from typing import Any, Tuple, List, Callable, Optional
 
 
 BLOCK_ARG = Any
 BLOCK_ARGS = List[BLOCK_ARG]
 
+
+def get_checkpoint_fn():
+    if(deepspeed.checkpointing.is_configured()):
+        checkpoint = deepspeed.checkpointing.checkpoint
+    else:
+        checkpoint = torch.utils.checkpoint.checkpoint
+
+    return checkpoint
+
+
 @torch.jit.ignore
 def checkpoint_blocks(
     blocks: List[Callable],
     args: BLOCK_ARGS,
-    blocks_per_ckpt: int,
+    blocks_per_ckpt: Optional[int],
 ) -> BLOCK_ARGS:
     """
     Chunk a list of blocks and run each chunk with activation
@@ -68,10 +78,7 @@ def checkpoint_blocks(
     elif blocks_per_ckpt < 1 or blocks_per_ckpt > len(blocks):
         raise ValueError("blocks_per_ckpt must be between 1 and len(blocks)")
 
-    if(deepspeed.checkpointing.is_configured()):
-        checkpoint = deepspeed.checkpointing.checkpoint
-    else:
-        checkpoint = torch.utils.checkpoint.checkpoint
+    checkpoint = get_checkpoint_fn() 
 
     for s in range(0, len(blocks), blocks_per_ckpt):
         e = s + blocks_per_ckpt
