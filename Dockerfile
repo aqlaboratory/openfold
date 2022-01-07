@@ -45,13 +45,6 @@ RUN mkdir -p resources
 RUN wget -q -P resources \
     https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 
-# Certain tests need access to this file
-RUN mkdir -p tests/test_data/alphafold/common \
-    && ln -rs resources/stereo_chemical_props.txt tests/test_data/alphafold/common
-
-# Decompress test data
-RUN gunzip tests/test_data/sample_feats.pickle.gz
-
 # Download pretrain alphafold weights
 RUN scripts/download_alphafold_params.sh /openfold/resources/
 
