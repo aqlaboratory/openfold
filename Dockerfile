@@ -48,4 +48,6 @@ RUN wget -q -P resources \
 # Download pretrain alphafold weights
 RUN scripts/download_alphafold_params.sh /openfold/resources/
 
+# execute startup script
+chmod +x /openfold/startup.sh
 ENTRYPOINT ["startup.sh"]
