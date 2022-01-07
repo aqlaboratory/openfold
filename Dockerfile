@@ -9,7 +9,8 @@ RUN \
     build-essential \
     curl \
     git \
-    vim
+    vim \
+    nvidia-cuda-toolkit
 
 # Create environment
 RUN conda env create -f /openfold/environment.yaml
