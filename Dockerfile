@@ -12,6 +12,15 @@ RUN \
     vim \
     nvidia-cuda-toolkit
 
+# install miniconda
+RUN \
+    curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh && \
+    sh miniconda.sh -b -p /tools/miniconda && \
+    rm miniconda.sh && \
+    /tools/miniconda/bin/conda init && \
+    /tools/miniconda/bin/conda clean -a
+ENV PATH "$PATH:/tools/miniconda/bin"
+
 # Create environment
 RUN conda env create -f /openfold/environment.yaml
 SHELL ["conda", "run", "-n", "openfold-env", "/bin/bash", "-c"]
