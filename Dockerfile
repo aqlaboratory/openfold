@@ -49,5 +49,5 @@ RUN wget -q -P resources \
 RUN scripts/download_alphafold_params.sh /openfold/resources/
 
 # execute startup script
-chmod +x /openfold/startup.sh
+RUN chmod +x /openfold/startup.sh
 ENTRYPOINT ["startup.sh"]
