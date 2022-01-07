@@ -21,10 +21,13 @@ RUN \
     /tools/miniconda/bin/conda clean -a
 ENV PATH "$PATH:/tools/miniconda/bin"
 
+COPY . /openfold
+WORKDIR /openfold
+
 # Create environment
-RUN conda env create -f /openfold/environment.yaml
+RUN conda env create -f environment.yaml
 SHELL ["conda", "run", "-n", "openfold-env", "/bin/bash", "-c"]
-RUN pip install -r /openfold/requirements.txt
+RUN pip install -r requirements.txt
 RUN pip install nvidia-pyindex \
     && pip install nvidia-dllogger
 SHELL ["/bin/sh", "-c"]
@@ -36,18 +39,18 @@ WORKDIR /MMseqs2/build
 RUN cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. .. ; make ; make install
 
 # Download folding resources
-RUN mkdir -p /openfold/resources
-RUN wget -q -P /openfold/resources \
+RUN mkdir -p resources
+RUN wget -q -P resources \
     https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 
 # Certain tests need access to this file
-RUN mkdir -p /openfold/tests/test_data/alphafold/common \
-    && ln -rs /openfold/resources/stereo_chemical_props.txt /openfold/tests/test_data/alphafold/common
+RUN mkdir -p tests/test_data/alphafold/common \
+    && ln -rs resources/stereo_chemical_props.txt tests/test_data/alphafold/common
 
 # Decompress test data
-RUN gunzip /openfold/tests/test_data/sample_feats.pickle.gz
+RUN gunzip tests/test_data/sample_feats.pickle.gz
 
 # Download pretrain alphafold weights
-RUN /openfold/scripts/download_alphafold_params.sh /openfold/resources/
+RUN scripts/download_alphafold_params.sh /openfold/resources/
 
-ENTRYPOINT ["/openfold/startup.sh"]
+ENTRYPOINT ["startup.sh"]
