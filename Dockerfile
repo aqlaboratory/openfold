@@ -33,10 +33,12 @@ RUN pip install nvidia-pyindex \
 SHELL ["/bin/sh", "-c"]
 
 #clone mmseqs2 and compile
+WORKDIR /
 RUN git clone https://github.com/soedinglab/MMseqs2.git
 RUN mkdir -p /MMseqs2/build
 WORKDIR /MMseqs2/build
 RUN cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. .. ; make ; make install
+WORKDIR /openfold
 
 # Download folding resources
 RUN mkdir -p resources
