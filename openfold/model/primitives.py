@@ -18,6 +18,7 @@ import math
 from typing import Optional, Callable, List, Tuple, Sequence
 import numpy as np
 
+import deepspeed
 import torch
 import torch.nn as nn
 from scipy.stats import truncnorm
@@ -166,65 +167,126 @@ class Linear(nn.Linear):
                 raise ValueError("Invalid init string.")
 
 
+class LayerNorm(nn.Module):
+    def __init__(self, c_in, eps=1e-5):
+        super(LayerNorm, self).__init__()
+        
+        self.c_in = (c_in,)
+        self.eps = eps
+
+        self.weight = nn.Parameter(torch.ones(c_in))
+        self.bias = nn.Parameter(torch.zeros(c_in))
+
+    def forward(self, x):
+        d = x.dtype
+        if(d == torch.bfloat16 and not deepspeed.utils.is_initialized()):
+            with torch.cuda.amp.autocast(enabled=False):
+                out = nn.functional.layer_norm(
+                    x, 
+                    self.c_in, 
+                    self.weight.to(dtype=d), 
+                    self.bias.to(dtype=d), 
+                    self.eps
+                )
+        elif(d == torch.bfloat16):
+            raise NotImplementedError
+
+        return out
+
+
+def softmax(t, dim=-1):
+    """
+        Softmax, but without automatic casting to fp32 when the input is of
+        type bfloat16
+    """
+    d = t.dtype
+    if(d == torch.bfloat16 and not deepspeed.utils.is_initialized()):
+        with torch.cuda.amp.autocast(enabled=False):
+            s = torch.nn.functional.softmax(t, dim=dim)
+    elif(d == torch.bfloat16):
+        raise NotImplementedError
+
+    return s
+
+
 def _attention(query, key, value, biases):
+    # [*, H, Q, C_hidden]
+    query = permute_final_dims(query, (1, 0, 2))
+    
+    # [*, H, C_hidden, K]
+    key = permute_final_dims(key, (1, 2, 0))
+
+    # [*, H, V, C_hidden]
+    value = permute_final_dims(value, (1, 0, 2))
+   
+    # [*, H, Q, K]
     a = torch.matmul(query, key)
 
     for b in biases:
         a += b
 
-    a = torch.nn.functional.softmax(a, dim=-1)
+    a = softmax(a, dim=-1)
 
     # [*, H, Q, C_hidden]
-    o = torch.matmul(a, value)
+    a = torch.matmul(a, value)
 
     # [*, Q, H, C_hidden]
-    o = o.transpose(-2, -3)
+    a = a.transpose(-2, -3)
 
-    return o
+    return a
 
 
 @torch.jit.ignore
-def _attention_chunk_and_checkpoint(query, key, value, biases, chunk_size):
-    if(len(biases) > 2):
+def _attention_chunked_trainable(
+    query, key, value, biases, chunk_size, chunk_dim, checkpoint, 
+):
+    if(checkpoint and len(biases) > 2):
         raise ValueError(
-            "_chunk_and_checkpoint only permits two bias terms"
+            "Checkpointed version permits only permits two bias terms"
         )
 
-    biases = biases + [None, None]
-    bias_1, bias_2 = biases[:2]
-
     def _checkpointable_attention(q, k, v, b1, b2):
-        bs = [b1, b2]
+        bs = [b for b in [b1, b2] if b is not None]
         return _attention(q, k, v, bs)
-
-    batch_dims = query.shape[:-3]
-    no_batch_dims = len(query.shape[:-3])
-
-    # q, k, and v are assumed to have no singleton dimensions
-    flat_q = query.reshape(-1, *query.shape[-3:])
-    flat_k = key.reshape(-1, *key.shape[-3:])
-    flat_v = value.reshape(-1, *value.shape[-3:])
 
     o_chunks = []
     checkpoint_fn = get_checkpoint_fn()
-    count = flat_q.shape[0]
+    count = query.shape[chunk_dim]
     for start in range(0, count, chunk_size):
         end = start + chunk_size
-        q_chunk = flat_q[start: end, ...]
-        k_chunk = flat_k[start: end, ...]
-        v_chunk = flat_v[start: end, ...]
-        bias_1_chunk = _chunk_slice(bias_1, start, end, no_batch_dims)
-        bias_2_chunk = _chunk_slice(bias_2, start, end, no_batch_dims)
+        idx = [slice(None)] * len(query.shape)
+        idx[chunk_dim] = slice(start, end)
+        idx_tup = tuple(idx)
+        q_chunk = query[idx_tup]
+        k_chunk = key[idx_tup]
+        v_chunk = value[idx_tup]
 
-        o_chunk = checkpoint_fn(_checkpointable_attention,
-            q_chunk, k_chunk, v_chunk, bias_1_chunk, bias_2_chunk
-        )
+        def _slice_bias(b):
+            idx[chunk_dim] = (
+                slice(start, end) if b.shape[chunk_dim] != 1 else slice(None)
+            )
+            return b[tuple(idx)]
+
+        if(checkpoint):
+            bias_1_chunk, bias_2_chunk = [
+                _slice_bias(b) if b is not None else None
+                for b in (biases + [None, None])[:2]
+            ]
+
+            o_chunk = checkpoint_fn(_checkpointable_attention,
+                q_chunk, k_chunk, v_chunk, bias_1_chunk, bias_2_chunk
+            )
+        else:
+            bias_chunks = [
+                _slice_bias(b) for b in biases
+            ]
+
+            o_chunk = _attention(q_chunk, k_chunk, v_chunk, bias_chunks)
 
         o_chunks.append(o_chunk)
 
-    o_flat = torch.cat(o_chunks, dim=0)
-
-    return o_flat.reshape(batch_dims + o_flat.shape[1:])
+    o = torch.cat(o_chunks, dim=chunk_dim)
+    return o
 
 
 class Attention(nn.Module):
@@ -289,16 +351,50 @@ class Attention(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
+    def _prep_qkv(self,
+        q_x: torch.Tensor, 
+        kv_x: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        # [*, Q/K/V, H * C_hidden]
+        q = self.linear_q(q_x)
+        k = self.linear_k(kv_x)
+        v = self.linear_v(kv_x)
+
+        # [*, Q/K, H, C_hidden]
+        q = q.view(q.shape[:-1] + (self.no_heads, -1))
+        k = k.view(k.shape[:-1] + (self.no_heads, -1))
+        v = v.view(v.shape[:-1] + (self.no_heads, -1))
+
+        q /= math.sqrt(self.c_hidden)
+
+        return q, k, v
+
+    def _wrap_up(self,
+        o: torch.Tensor, 
+        q_x: torch.Tensor
+    ) -> torch.Tensor:
+        if(self.linear_g is not None):
+            g = self.sigmoid(self.linear_g(q_x))
+            # [*, Q, H, C_hidden]
+            g = g.view(g.shape[:-1] + (self.no_heads, -1))
+            o = o * g
+
+        # [*, Q, H * C_hidden]
+        o = flatten_final_dims(o, 2)
+
+        # [*, Q, C_q]
+        o = self.linear_o(o)
+
+        return o
+
     def forward(
         self,
         q_x: torch.Tensor,
-        k_x: torch.Tensor,
-        v_x: torch.Tensor,
+        kv_x: torch.Tensor,
         biases: Optional[List[torch.Tensor]] = None,
         use_lma: bool = False,
         q_chunk_size: Optional[int] = None,
         kv_chunk_size: Optional[int] = None,
-        _chunk_and_checkpoint: Optional[int] = None
     ) -> torch.Tensor:
         """
         Args:
@@ -318,59 +414,20 @@ class Attention(nn.Module):
                 "If use_lma is specified, q_chunk_size and kv_chunk_size must "
                 "be provided"
             )
-        if(use_lma and _chunk_and_checkpoint is not None):
-            raise ValueError(
-                "use_lma and _chunk_and_checkpoint are mutually exclusive"
-            )
 
-        # [*, Q/K/V, H * C_hidden]
-        q = self.linear_q(q_x)
-        k = self.linear_k(k_x)
-        v = self.linear_v(v_x)
-
-        # [*, Q/K, H, C_hidden]
-        q = q.view(q.shape[:-1] + (self.no_heads, -1))
-        k = k.view(k.shape[:-1] + (self.no_heads, -1))
-        v = v.view(v.shape[:-1] + (self.no_heads, -1))
-
-        q = q / math.sqrt(self.c_hidden) 
+        q, k, v = self._prep_qkv(q_x, kv_x)
 
         if(use_lma):
             biases = [
                 b.expand(b.shape[:-2] + (q_x.shape[-2],) + (k_x.shape[-2],)) 
                 for b in biases
             ]
+
             o = _lma(q, k, v, biases, q_chunk_size, kv_chunk_size)
         else:
-            # [*, H, Q, C_hidden]
-            q = permute_final_dims(q, (1, 0, 2))
-            
-            # [*, H, C_hidden, K]
-            k = permute_final_dims(k, (1, 2, 0))
-    
-            # [*, H, V, C_hidden]
-            v = permute_final_dims(v, (1, 0, 2))
+            o = _attention(q, k, v, biases)
 
-            if(_chunk_and_checkpoint):
-                # REMEMBER THAT THE K, Q, V COMPUTATION AND GATING ARE *NOT* 
-                # CHECKPOINTED HERE
-                o = _attention_chunk_and_checkpoint(
-                    q, k, v, biases, _chunk_and_checkpoint
-                )
-            else:
-                o = _attention(q, k, v, biases)
-
-        if(self.linear_g is not None):
-            g = self.sigmoid(self.linear_g(q_x))
-            # [*, Q, H, C_hidden]
-            g = g.view(g.shape[:-1] + (self.no_heads, -1))
-            o = o * g
-
-        # [*, Q, H * C_hidden]
-        o = flatten_final_dims(o, 2)
-
-        # [*, Q, C_q]
-        o = self.linear_o(o)
+        o = self._wrap_up(o, q_x)
 
         return o
 
@@ -399,7 +456,6 @@ class GlobalAttention(nn.Module):
         self.linear_o = Linear(c_hidden * no_heads, c_in, init="final")
 
         self.sigmoid = nn.Sigmoid()
-        self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, m: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
         # [*, N_res, C_in]
@@ -425,7 +481,7 @@ class GlobalAttention(nn.Module):
         )
         bias = (self.inf * (mask - 1))[..., :, None, :]
         a += bias
-        a = self.softmax(a)
+        a = softmax(a)
 
         # [*, N_res, H, C_hidden]
         o = torch.matmul(
