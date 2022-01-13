@@ -505,7 +505,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         else:
             raise ValueError("Invalid stage")
 
-        batch_collator = OpenFoldBatchCollator(self.config, stage)
+        batch_collator = OpenFoldBatchCollator(self.config, generator, stage)
 
         dl = OpenFoldDataLoader(
             dataset,
