@@ -66,7 +66,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         # Compute loss
         loss = self.loss(outputs, batch)
-
+        self.log("loss", loss)
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
@@ -79,6 +79,7 @@ class OpenFoldWrapper(pl.LightningModule):
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
         loss = self.loss(outputs, batch)
+        self.log("val_loss", loss, prog_bar=True)
         return {"val_loss": loss}
 
     def validation_epoch_end(self, _):

@@ -283,13 +283,14 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
             keyed_probs.append(
                 ("use_clamped_fape", [1 - clamp_prob, clamp_prob])
             )
-            if(self.config.supervised.uniform_recycling):
-                recycling_probs = [
-                    1. / (max_iters + 1) for _ in range(max_iters + 1)
-                ]
-                keyed_probs.append(
-                    ("no_recycling_iters", recycling_probs)
-                )
+
+        if(self.stage == "train" and self.config.supervised.uniform_recycling):
+            recycling_probs = [
+                1. / (max_iters + 1) for _ in range(max_iters + 1)
+            ]
+            keyed_probs.append(
+                ("no_recycling_iters", recycling_probs)
+            )
         else:
             recycling_probs = [
                 0. for _ in range(max_iters + 1)
