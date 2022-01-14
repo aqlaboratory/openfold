@@ -177,9 +177,9 @@ class LayerNorm(nn.Module):
         self.weight = nn.Parameter(torch.ones(c_in))
         self.bias = nn.Parameter(torch.zeros(c_in))
 
-    def forward(self, x):
+    def forward(self, x): 
         d = x.dtype
-        if(d == torch.bfloat16 and not deepspeed.utils.is_initialized()):
+        if(d is torch.bfloat16 and not deepspeed.utils.is_initialized()):
             with torch.cuda.amp.autocast(enabled=False):
                 out = nn.functional.layer_norm(
                     x, 
@@ -189,27 +189,34 @@ class LayerNorm(nn.Module):
                     self.eps
                 )
         elif(d == torch.bfloat16):
-            raise NotImplementedError
+            out = nn.functional.layer_norm(
+                x,
+                self.c_in,
+                self.weight,
+                self.bias,
+                self.eps,
+            )
 
         return out
 
-
-def softmax(t, dim=-1):
+@torch.jit.ignore
+def softmax(t: torch.Tensor, dim: int = -1) -> torch.Tensor:
     """
         Softmax, but without automatic casting to fp32 when the input is of
         type bfloat16
     """
     d = t.dtype
-    if(d == torch.bfloat16 and not deepspeed.utils.is_initialized()):
+    if(d is torch.bfloat16 and not deepspeed.utils.is_initialized()):
         with torch.cuda.amp.autocast(enabled=False):
             s = torch.nn.functional.softmax(t, dim=dim)
     elif(d == torch.bfloat16):
-        raise NotImplementedError
+        s = torch.nn.functional.softmax(t, dim=dim)
 
     return s
 
 
-def _attention(query, key, value, biases):
+#@torch.jit.script
+def _attention(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, biases: List[torch.Tensor]) -> torch.Tensor:
     # [*, H, Q, C_hidden]
     query = permute_final_dims(query, (1, 0, 2))
     
@@ -218,14 +225,14 @@ def _attention(query, key, value, biases):
 
     # [*, H, V, C_hidden]
     value = permute_final_dims(value, (1, 0, 2))
-   
+
     # [*, H, Q, K]
     a = torch.matmul(query, key)
 
     for b in biases:
         a += b
 
-    a = softmax(a, dim=-1)
+    a = softmax(a, -1)
 
     # [*, H, Q, C_hidden]
     a = torch.matmul(a, value)
@@ -354,7 +361,9 @@ class Attention(nn.Module):
     def _prep_qkv(self,
         q_x: torch.Tensor, 
         kv_x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[
+        torch.Tensor, torch.Tensor, torch.Tensor
+    ]:
         # [*, Q/K/V, H * C_hidden]
         q = self.linear_q(q_x)
         k = self.linear_k(kv_x)
@@ -375,6 +384,7 @@ class Attention(nn.Module):
     ) -> torch.Tensor:
         if(self.linear_g is not None):
             g = self.sigmoid(self.linear_g(q_x))
+        
             # [*, Q, H, C_hidden]
             g = g.view(g.shape[:-1] + (self.no_heads, -1))
             o = o * g

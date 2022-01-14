@@ -20,7 +20,7 @@ from typing import Optional, List
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, Attention
+from openfold.model.primitives import Linear, LayerNorm, Attention
 from openfold.utils.tensor_utils import (
     chunk_layer,
     permute_final_dims,
@@ -49,7 +49,7 @@ class TriangleAttention(nn.Module):
         self.starting = starting
         self.inf = inf
 
-        self.layer_norm = nn.LayerNorm(self.c_in)
+        self.layer_norm = LayerNorm(self.c_in)
 
         self.linear = Linear(c_in, self.no_heads, bias=False, init="normal")
 
@@ -116,7 +116,7 @@ class TriangleAttention(nn.Module):
         if chunk_size is not None:
             x = self._chunk(x, biases, chunk_size)
         else:
-            x = self.mha(q_x=x, k_x=x, v_x=x, biases=biases)
+            x = self.mha(q_x=x, kv_x=x, biases=biases)
 
         if not self.starting:
             x = x.transpose(-2, -3)
