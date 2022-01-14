@@ -19,7 +19,7 @@ from typing import Optional, List
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, Attention
+from openfold.model.primitives import Linear, LayerNorm, Attention
 from openfold.model.dropout import (
     DropoutRowwise,
     DropoutColumnwise,
@@ -80,8 +80,7 @@ class TemplatePointwiseAttention(nn.Module):
     ) -> torch.Tensor:
         mha_inputs = {
             "q_x": z,
-            "k_x": t,
-            "v_x": t,
+            "kv_x": t,
             "biases": biases,
         }
         return chunk_layer(
@@ -125,7 +124,7 @@ class TemplatePointwiseAttention(nn.Module):
         if chunk_size is not None:
             z = self._chunk(z, t, biases, chunk_size)
         else:
-            z = self.mha(q_x=z, k_x=t, v_x=t, biases=biases)
+            z = self.mha(q_x=z, kv_x=t, biases=biases)
 
         # [*, N_res, N_res, C_z]
         z = z.squeeze(-2)
@@ -292,7 +291,7 @@ class TemplatePairStack(nn.Module):
             )
             self.blocks.append(block)
 
-        self.layer_norm = nn.LayerNorm(c_t)
+        self.layer_norm = LayerNorm(c_t)
 
     def forward(
         self,

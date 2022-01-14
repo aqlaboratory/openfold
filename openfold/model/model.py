@@ -134,7 +134,7 @@ class AlphaFold(nn.Module):
                 inf=self.config.template.inf,
                 eps=self.config.template.eps,
                 **self.config.template.distogram,
-            )
+            ).to(z.dtype)
             t = self.template_pair_embedder(t)
 
             single_template_embeds.update({"pair": t})
@@ -174,6 +174,12 @@ class AlphaFold(nn.Module):
     def iteration(self, feats, m_1_prev, z_prev, x_prev, _recycle=True):
         # Primary output dictionary
         outputs = {}
+
+        # This needs to be done manually for DeepSpeed's sake
+        dtype = next(self.parameters()).dtype
+        for k in feats:
+            if(feats[k].dtype == torch.float32):
+                feats[k] = feats[k].to(dtype=dtype)
 
         # Grab some data about the input
         batch_dims = feats["target_feat"].shape[:-2]
@@ -217,7 +223,9 @@ class AlphaFold(nn.Module):
                 requires_grad=False,
             )
 
-        x_prev = pseudo_beta_fn(feats["aatype"], x_prev, None)
+        x_prev = pseudo_beta_fn(
+            feats["aatype"], x_prev, None
+        ).to(dtype=z.dtype)
 
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]

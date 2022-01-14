@@ -19,7 +19,7 @@ import torch.nn as nn
 from typing import Tuple, Optional
 from functools import partial
 
-from openfold.model.primitives import Linear
+from openfold.model.primitives import Linear, LayerNorm
 from openfold.model.dropout import DropoutRowwise, DropoutColumnwise
 from openfold.model.msa import (
     MSARowAttentionWithPairBias,
@@ -61,7 +61,7 @@ class MSATransition(nn.Module):
         self.c_m = c_m
         self.n = n
 
-        self.layer_norm = nn.LayerNorm(self.c_m)
+        self.layer_norm = LayerNorm(self.c_m)
         self.linear_1 = Linear(self.c_m, self.n * self.c_m, init="relu")
         self.relu = nn.ReLU()
         self.linear_2 = Linear(self.n * self.c_m, self.c_m, init="final")
@@ -355,15 +355,15 @@ class ExtraMSABlock(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         m = m + self.msa_dropout_layer(
             self.msa_att_row(
-                m, 
-                z=z, 
+                m.clone(), 
+                z=z.clone(), 
                 mask=msa_mask, 
                 chunk_size=chunk_size,
                 _chunk_logits=_chunk_logits,
                 _checkpoint_chunks=self.ckpt,
             )
         )
-        
+
         def fn(m, z):
             m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
             m, z = self.core(
@@ -372,7 +372,7 @@ class ExtraMSABlock(nn.Module):
             
             return m, z
 
-        if(self.ckpt):
+        if(torch.is_grad_enabled() and self.ckpt):
             checkpoint_fn = get_checkpoint_fn()
             m, z = checkpoint_fn(fn, m, z)
         else:
@@ -596,27 +596,27 @@ class ExtraMSAStack(nn.Module):
         Returns:
             [*, N_res, N_res, C_z] pair update
         """ 
-        checkpoint_fn = get_checkpoint_fn()
-        blocks = [
-            partial(b, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size, _chunk_logits=None) for b in self.blocks
-        ]
+        #checkpoint_fn = get_checkpoint_fn()
+        #blocks = [
+        #    partial(b, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size, _chunk_logits=None) for b in self.blocks
+        #]
 
-        def dodo(b, *args):
-            torch.cuda.empty_cache()
-            return b(*args)
+        #def dodo(b, *args):
+        #    torch.cuda.empty_cache()
+        #    return b(*args)
 
-        blocks = [partial(dodo, b) for b in blocks]
+        #blocks = [partial(dodo, b) for b in blocks]
 
-        for b in blocks:
-            if(torch.is_grad_enabled()):
-                m, z = checkpoint_fn(b, m, z)
-            else:
-                m, z = b(m, z)
+        #for b in blocks:
+        #    if(torch.is_grad_enabled()):
+        #        m, z = checkpoint_fn(b, *(m, z))
+        #    else:
+        #        m, z = b(m, z)
 
-        #for b in self.blocks:
-        #    m, z = b(m, z, msa_mask, pair_mask, chunk_size=chunk_size)
+        for b in self.blocks:
+            m, z = b(m, z, msa_mask, pair_mask, chunk_size=chunk_size)
 
-        #    if(self.clear_cache_between_blocks):
-        #        torch.cuda.empty_cache()
+            if(self.clear_cache_between_blocks):
+                torch.cuda.empty_cache()
 
         return z

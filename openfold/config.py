@@ -148,7 +148,7 @@ config = mlc.ConfigDict(
                     "same_prob": 0.1,
                     "uniform_prob": 0.1,
                 },
-                "max_extra_msa": 2048,
+                "max_extra_msa": 5120,
                 "max_recycling_iters": 3,
                 "msa_cluster_features": True,
                 "reduce_msa_clusters_by_max_templates": False,
@@ -226,7 +226,7 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-                    "num_workers": 1,
+                    "num_workers": 2,
                 },
             },
         },

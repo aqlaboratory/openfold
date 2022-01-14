@@ -119,7 +119,7 @@ class MSAAttention(nn.Module):
         #bias = bias.expand(
         #    ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
         #)
-       
+
         if (self.pair_bias and 
             z is not None and                       # For the 
             self.layer_norm_z is not None and       # benefit of
@@ -149,14 +149,14 @@ class MSAAttention(nn.Module):
         def _get_qkv(m, z):
             m, mask_bias, z = self._prep_inputs(m, z, mask)
             q, k, v = self.mha._prep_qkv(m, m)
-            return q, k, v, mask_bias, z
+            return m, q, k, v, mask_bias, z
 
         checkpoint_fn = get_checkpoint_fn()
-        
-        if(checkpoint):
-            q, k, v, mask_bias, z = checkpoint_fn(_get_qkv, m, z)
+
+        if(torch.is_grad_enabled() and checkpoint):
+            m, q, k, v, mask_bias, z = checkpoint_fn(_get_qkv, m, z)
         else:
-            q, k, v, mask_bias, z = _get_qkv(m, z)
+            m, q, k, v, mask_bias, z = _get_qkv(m, z)
        
         o = _attention_chunked_trainable(
             query=q, 
@@ -168,7 +168,7 @@ class MSAAttention(nn.Module):
             checkpoint=checkpoint,
         )
 
-        if(checkpoint):
+        if(torch.is_grad_enabled() and checkpoint):
             # Storing an additional m here is far from ideal
             m = checkpoint_fn(self.mha._wrap_up, o, m)
         else:

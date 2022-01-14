@@ -26,7 +26,7 @@ def rot_matmul(
 ) -> torch.Tensor:
     """
         Performs matrix multiplication of two rotation matrix tensors. Written
-        out by hand to avoid transfer to low-precision tensor cores.
+        out by hand to avoid AMP downcasting.
 
         Args:
             a: [*, 3, 3] left multiplicand
@@ -86,7 +86,7 @@ def rot_vec_mul(
 ) -> torch.Tensor:
     """
         Applies a rotation to a vector. Written out by hand to avoid transfer
-        to low-precision tensor cores.
+        to avoid AMP downcasting.
 
         Args:
             r: [*, 3, 3] rotation matrices
@@ -322,6 +322,12 @@ class Rotation:
             raise ValueError(
                 "Incorrectly shaped rotation matrix or quaternion"
             )
+
+        # Force full-precision
+        if(quats is not None):
+            quats = quats.to(dtype=torch.float32)
+        if(rot_mats is not None):
+            rot_mats = rot_mats.to(dtype=torch.float32)
 
         if(quats is not None and normalize_quats):
             quats = quats / torch.linalg.norm(quats, dim=-1, keepdim=True)
@@ -856,6 +862,9 @@ class Rigid:
         if((rots.shape != trans.shape[:-1]) or
            (rots.device != trans.device)):
             raise ValueError("Rots and trans incompatible")
+
+        # Force full precision. Happens to the rotations automatically.
+        trans = trans.to(dtype=torch.float32)
 
         self._rots = rots
         self._trans = trans
