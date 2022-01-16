@@ -174,7 +174,6 @@ config = mlc.ConfigDict(
             },
             "supervised": {
                 "clamp_prob": 0.9,
-                "uniform_recycling": True,
                 "supervised_features": [
                     "all_atom_mask",
                     "all_atom_positions",
@@ -194,6 +193,7 @@ config = mlc.ConfigDict(
                 "crop_size": None,
                 "supervised": False,
                 "subsample_recycling": False,
+                "uniform_recycling": False,
             },
             "eval": {
                 "fixed_size": True,
@@ -206,6 +206,7 @@ config = mlc.ConfigDict(
                 "crop_size": None,
                 "supervised": True,
                 "subsample_recycling": False,
+                "uniform_recycling": False,
             },
             "train": {
                 "fixed_size": True,
@@ -221,6 +222,7 @@ config = mlc.ConfigDict(
                 "clamp_prob": 0.9,
                 "subsample_recycling": True,
                 "max_distillation_msa_clusters": 1000,
+                "uniform_recycling": True,
             },
             "data_module": {
                 "use_small_bfd": False,
