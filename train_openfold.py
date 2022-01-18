@@ -67,6 +67,8 @@ class OpenFoldWrapper(pl.LightningModule):
         # Compute loss
         loss = self.loss(outputs, batch)
 
+        self.log("loss", loss)
+
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
@@ -79,6 +81,7 @@ class OpenFoldWrapper(pl.LightningModule):
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
         loss = self.loss(outputs, batch)
+        self.log("val_loss", loss)
         return {"val_loss": loss}
 
     def validation_epoch_end(self, _):
@@ -316,6 +319,15 @@ if __name__ == "__main__":
         "--script_modules", type=bool_type, default=False,
         help="Whether to TorchScript eligible components of them model"
     )
+    parser.add_argument(
+        "--train_prot_data_cache_path", type=str, default=None,
+    )
+    parser.add_argument(
+        "--distillation_prot_data_cache_path", type=str, default=None,
+    )
+    parser.add_argument(
+        "--train_epoch_len", type=int, default=10000,
+    )
     parser = pl.Trainer.add_argparse_args(parser)
    
     # Disable the initial validation pass
@@ -324,7 +336,14 @@ if __name__ == "__main__":
     )
 
     # Remove some buggy/redundant arguments introduced by the Trainer
-    remove_arguments(parser, ["--accelerator", "--resume_from_checkpoint"]) 
+    remove_arguments(
+        parser, 
+        [
+            "--accelerator", 
+            "--resume_from_checkpoint",
+            "--reload_dataloaders_every_epoch"
+        ]
+    ) 
 
     args = parser.parse_args()
 
@@ -332,5 +351,8 @@ if __name__ == "__main__":
         ((args.gpus is not None and args.gpus > 1) or 
          (args.num_nodes is not None and args.num_nodes > 1))):
         raise ValueError("For distributed training, --seed must be specified")
+
+    # This re-applies the training-time filters at the beginning of every epoch
+    args.reload_dataloaders_every_epoch = True
 
     main(args)

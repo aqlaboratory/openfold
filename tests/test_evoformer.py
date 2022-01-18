@@ -135,8 +135,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        assert torch.max(torch.abs(out_repro_msa - out_gt_msa) < consts.eps)
-        assert torch.max(torch.abs(out_repro_pair - out_gt_pair) < consts.eps)
+        assert(torch.max(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
+        assert(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
 
 
 class TestExtraMSAStack(unittest.TestCase):
@@ -172,7 +172,7 @@ class TestExtraMSAStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
-            blocks_per_ckpt=None,
+            ckpt=False,
             inf=inf,
             eps=eps,
         ).eval()
@@ -257,16 +257,19 @@ class TestMSATransition(unittest.TestCase):
         out_gt = torch.as_tensor(np.array(out_gt))
 
         model = compare_utils.get_global_pretrained_openfold()
+        
         out_repro = (
-            model.evoformer.blocks[0]
-            .msa_transition(
+            model.evoformer.blocks[0].core.msa_transition(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
             )
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        print(out_gt)
+        print(out_repro)
+        
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
 
 if __name__ == "__main__":
