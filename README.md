@@ -125,6 +125,10 @@ where `data` is the same directory as in the previous step. If `jackhmmer`,
 If you've already computed alignments for the query, you have the option to 
 circumvent the expensive alignment computation here.
 
+Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
+is enabled by default in inference mode. To disable it, set `globals.chunk_size`
+to `None` in the config.
+
 ### Training
 
 After activating the OpenFold environment with 
