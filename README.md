@@ -211,10 +211,6 @@ and supports the full range of training options that entails, including
 multi-node distributed training. For more information, consult PyTorch 
 Lightning documentation and the `--help` flag of the training script.
 
-Hardware permitting, you can train with `bfloat16` half-precision by passing
-`bf16` as the `--precision` option. If you're using DeepSpeed, make sure to
-enable `bfloat16` in the DeepSpeed config as well.
-
 Note that the data directory can also contain PDB files previously output by
 the model. These are treated as members of the self-distillation set and are
 subjected to distillation-set-only preprocessing steps.
