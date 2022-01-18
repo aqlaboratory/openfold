@@ -125,6 +125,10 @@ where `data` is the same directory as in the previous step. If `jackhmmer`,
 If you've already computed alignments for the query, you have the option to 
 circumvent the expensive alignment computation here.
 
+Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
+is enabled by default in inference mode. To disable it, set `globals.chunk_size`
+to `None` in the config.
+
 ### Training
 
 After activating the OpenFold environment with 
@@ -206,10 +210,6 @@ written with [PyTorch Lightning](https://github.com/PyTorchLightning/pytorch-lig
 and supports the full range of training options that entails, including 
 multi-node distributed training. For more information, consult PyTorch 
 Lightning documentation and the `--help` flag of the training script.
-
-Hardware permitting, you can train with `bfloat16` half-precision by passing
-`bf16` as the `--precision` option. If you're using DeepSpeed, make sure to
-enable `bfloat16` in the DeepSpeed config as well.
 
 Note that the data directory can also contain PDB files previously output by
 the model. These are treated as members of the self-distillation set and are
