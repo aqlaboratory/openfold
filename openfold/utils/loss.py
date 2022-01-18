@@ -1520,7 +1520,6 @@ class AlphaFoldLoss(nn.Module):
             weight = self.config[loss_name].weight
             if weight:
                 loss = loss_fn()
-                
                 if(torch.isnan(loss) or torch.isinf(loss)):
                     logging.warning(f"{loss_name} loss is NaN. Skipping...")
                     loss = loss.new_tensor(0., requires_grad=True)

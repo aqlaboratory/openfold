@@ -188,7 +188,7 @@ class LayerNorm(nn.Module):
                     self.bias.to(dtype=d), 
                     self.eps
                 )
-        elif(d == torch.bfloat16):
+        else:
             out = nn.functional.layer_norm(
                 x,
                 self.c_in,
@@ -209,7 +209,7 @@ def softmax(t: torch.Tensor, dim: int = -1) -> torch.Tensor:
     if(d is torch.bfloat16 and not deepspeed.utils.is_initialized()):
         with torch.cuda.amp.autocast(enabled=False):
             s = torch.nn.functional.softmax(t, dim=dim)
-    elif(d == torch.bfloat16):
+    else:
         s = torch.nn.functional.softmax(t, dim=dim)
 
     return s

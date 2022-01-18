@@ -88,15 +88,13 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0]
-            .msa_att_row(
+            model.evoformer.blocks[0].msa_att_row(
                 torch.as_tensor(msa_act).cuda(),
                 z=torch.as_tensor(pair_act).cuda(),
                 chunk_size=4,
                 mask=torch.as_tensor(msa_mask).cuda(),
             )
-            .cpu()
-        )
+        ).cpu()
 
         self.assertTrue(torch.all(torch.abs(out_gt - out_repro) < consts.eps))
 
@@ -153,14 +151,14 @@ class TestMSAColumnAttention(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0]
-            .msa_att_col(
+            model.evoformer.blocks[0].msa_att_col(
                 torch.as_tensor(msa_act).cuda(),
                 chunk_size=4,
                 mask=torch.as_tensor(msa_mask).cuda(),
             )
-            .cpu()
-        )
+        ).cpu()
+
+        print(torch.mean(torch.abs(out_gt - out_repro)))
 
         self.assertTrue(torch.all(torch.abs(out_gt - out_repro) < consts.eps))
 
@@ -218,8 +216,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.extra_msa_stack.stack.blocks[0]
-            .msa_att_col(
+            model.extra_msa_stack.blocks[0].msa_att_col(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
                 chunk_size=4,
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),

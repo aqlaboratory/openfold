@@ -4,19 +4,19 @@ from datetime import date
 
 def add_data_args(parser: argparse.ArgumentParser):
     parser.add_argument(
-        'uniref90_database_path', type=str, 
+        '--uniref90_database_path', type=str, default=None,
     )
     parser.add_argument(
-        'mgnify_database_path', type=str, 
+        '--mgnify_database_path', type=str, default=None,
     )
     parser.add_argument(
-        'pdb70_database_path', type=str,
+        '--pdb70_database_path', type=str, default=None,
     )
     parser.add_argument(
-        'template_mmcif_dir', type=str,
+        '--template_mmcif_dir', type=str, default=None,
     )
     parser.add_argument(
-        'uniclust30_database_path', type=str,
+        '--uniclust30_database_path', type=str, default=None,
     )
     parser.add_argument(
         '--bfd_database_path', type=str, default=None,

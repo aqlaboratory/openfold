@@ -25,11 +25,12 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         first_name = names[0]
         alignment_dir = os.path.join(args.output_dir, first_name)
         
-        try:
-            os.makedirs(alignment_dir)
-        except Exception as e:
-            logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
-            continue
+        os.makedirs(alignment_dir, exist_ok=True)
+#        try:
+#            os.makedirs(alignment_dir)
+#        except Exception as e:
+#            logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
+#            continue
 
         fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
         with os.fdopen(fd, 'w') as fp:
@@ -48,14 +49,14 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         os.remove(fasta_path)
 
         for name in names[1:]:
-            if(name in dirs):
-                logging.warning(
-                    f'{name} has already been processed. Skipping...'
-                )
-                continue
+            #if(name in dirs):
+            #    logging.warning(
+            #        f'{name} has already been processed. Skipping...'
+            #    )
+            #    continue
             
             cp_dir = os.path.join(args.output_dir, name)
-            os.makedirs(cp_dir)
+            os.makedirs(cp_dir, exist_ok=True)
             
             for f in os.listdir(alignment_dir):
                 copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
@@ -136,23 +137,23 @@ def main(args):
     else:
         cache = None
 
-    if(cache is not None and args.filter):
-        dirs = set(os.listdir(args.output_dir))
-       
-        def prot_is_done(f):
-            prot_id = os.path.splitext(f)[0]
-            if(prot_id in cache):
-                chain_ids = cache[prot_id]["chain_ids"]
-                for c in chain_ids:
-                    full_name = prot_id + "_" + c
-                    if(not full_name in dirs):
-                        return False
-            else:
-                return False
+    dirs = []
+    #if(cache is not None and args.filter):
+    #    dirs = set(os.listdir(args.output_dir))
+    #    def prot_is_done(f):
+    #        prot_id = os.path.splitext(f)[0]
+    #        if(prot_id in cache):
+    #            chain_ids = cache[prot_id]["chain_ids"]
+    #            for c in chain_ids:
+    #                full_name = prot_id + "_" + c
+    #                if(not full_name in dirs):
+    #                    return False
+    #        else:
+    #            return False
 
-            return True
+    #        return True
 
-        files = [f for f in files if not prot_is_done(f)]
+    #    files = [f for f in files if not prot_is_done(f)]
 
     def split_up_arglist(arglist):
         # Split up the survivors

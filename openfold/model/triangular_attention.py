@@ -65,8 +65,7 @@ class TriangleAttention(nn.Module):
     ) -> torch.Tensor:
         mha_inputs = {
             "q_x": x,
-            "k_x": x,
-            "v_x": x,
+            "kv_x": x,
             "biases": biases,
         }
         return chunk_layer(
