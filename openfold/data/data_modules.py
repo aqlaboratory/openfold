@@ -245,7 +245,7 @@ class OpenFoldDataset(torch.utils.data.IterableDataset):
 
 
 class OpenFoldBatchCollator:
-    def __init__(self, config, generator, stage="train"):
+    def __init__(self, config, stage="train"):
         self.stage = stage
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
@@ -503,7 +503,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         else:
             raise ValueError("Invalid stage")
 
-        batch_collator = OpenFoldBatchCollator(self.config, generator, stage)
+        batch_collator = OpenFoldBatchCollator(self.config, stage)
 
         dl = OpenFoldDataLoader(
             dataset,
