@@ -1,5 +1,5 @@
 #!/bin/bash
-export CONDA_INSTALL_URL=${CONDA_INSTALL_URL:-"https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"}
+CONDA_INSTALL_URL=${CONDA_INSTALL_URL:-"https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"}
 
 source scripts/vars.sh
 
@@ -14,6 +14,7 @@ wget -P /tmp \
 # Grab conda-only packages
 export PATH=lib/conda/bin:$PATH
 conda env create --name=${ENV_NAME} -f environment.yml
+source activate ${ENV_NAME}
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
