@@ -245,7 +245,7 @@ class OpenFoldDataset(torch.utils.data.IterableDataset):
 
 
 class OpenFoldBatchCollator:
-    def __init__(self, config, generator, stage="train"):
+    def __init__(self, config, stage="train"):
         self.stage = stage
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
@@ -283,21 +283,20 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
             keyed_probs.append(
                 ("use_clamped_fape", [1 - clamp_prob, clamp_prob])
             )
-            if(self.config.supervised.uniform_recycling):
-                recycling_probs = [
-                    1. / (max_iters + 1) for _ in range(max_iters + 1)
-                ]
-                keyed_probs.append(
-                    ("no_recycling_iters", recycling_probs)
-                )
+
+        if(stage_cfg.uniform_recycling):
+            recycling_probs = [
+                1. / (max_iters + 1) for _ in range(max_iters + 1)
+            ]
         else:
             recycling_probs = [
                 0. for _ in range(max_iters + 1)
             ]
             recycling_probs[-1] = 1.
-            keyed_probs.append(
-                ("no_recycling_iters", recycling_probs)
-            )
+
+        keyed_probs.append(
+            ("no_recycling_iters", recycling_probs)
+        )
 
         keys, probs = zip(*keyed_probs)
         max_len = max([len(p) for p in probs])
