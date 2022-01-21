@@ -43,8 +43,8 @@ def softmax_cross_entropy(logits, labels):
 
 
 def sigmoid_cross_entropy(logits, labels):
-    log_p = torch.nn.functional.logsigmoid(logits)
-    log_not_p = torch.nn.functional.logsigmoid(-logits)
+    log_p = torch.log(torch.sigmoid(logits))
+    log_not_p = torch.log(torch.sigmoid(-logits))
     loss = -labels * log_p - (1 - labels) * log_not_p
     return loss
 
@@ -1462,7 +1462,7 @@ class AlphaFoldLoss(nn.Module):
         self.config = config
 
     def forward(self, out, batch):
-        if "violation" not in out.keys() and self.config.violation.weight:
+        if "violation" not in out.keys():
             out["violation"] = find_structural_violations(
                 batch,
                 out["sm"]["positions"][-1],
@@ -1509,20 +1509,21 @@ class AlphaFoldLoss(nn.Module):
                 out["violation"],
                 **batch,
             ),
-            "tm": lambda: tm_loss(
+        }
+
+        if(self.config.tm.enabled):
+            loss_fns["tm"] = lambda: tm_loss(
                 logits=out["tm_logits"],
                 **{**batch, **out, **self.config.tm},
-            ),
-        }
+            )
 
         cum_loss = 0.
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
-            if weight:
-                loss = loss_fn()
-                if(torch.isnan(loss) or torch.isinf(loss)):
-                    logging.warning(f"{loss_name} loss is NaN. Skipping...")
-                    loss = loss.new_tensor(0., requires_grad=True)
-                cum_loss = cum_loss + weight * loss
+            loss = loss_fn()
+            if(torch.isnan(loss) or torch.isinf(loss)):
+                logging.warning(f"{loss_name} loss is NaN. Skipping...")
+                loss = loss.new_tensor(0., requires_grad=True)
+            cum_loss = cum_loss + weight * loss
 
         return cum_loss
