@@ -267,6 +267,11 @@ if __name__ == "__main__":
         help="""See --train_mapping_path"""
     )
     parser.add_argument(
+        "--obsolete_pdbs_file_path", type=str, default=None,
+        help="""Path to obsolete.dat file containing list of obsolete PDBs and 
+             their replacements."""
+    )
+    parser.add_argument(
         "--template_release_dates_cache_path", type=str, default=None,
         help="""Output of scripts/generate_mmcif_cache.py run on template mmCIF
                 files."""
