@@ -425,12 +425,13 @@ class DataPipeline:
         _alignment_index: Optional[Any] = None,
     ) -> Mapping[str, Any]:
         msa_data = {}
+        
         if(_alignment_index is not None):
-            fp = open(_alignment_index["db"], "rb")
+            fp = open(os.path.join(alignment_dir, _alignment_index["db"]), "rb")
 
             def read_msa(start, size):
                 fp.seek(start)
-                msa = fp.read(size).encode("utf-8")
+                msa = fp.read(size).decode("utf-8")
                 return msa
 
             for (name, start, size) in _alignment_index["files"]:
@@ -448,8 +449,8 @@ class DataPipeline:
                     data = {"msa": msa, "deletion_matrix": deletion_matrix}
                 else:
                     continue
-                
-                msa_data[f] = data
+               
+                msa_data[name] = data
             
             fp.close()
         else: 
@@ -481,18 +482,20 @@ class DataPipeline:
     ) -> Mapping[str, Any]:
         all_hits = {}
         if(_alignment_index is not None):
-            fp = open(_alignment_index["db"], 'rb')
+            fp = open(os.path.join(alignment_dir, _alignment_index["db"]), 'rb')
 
             def read_template(start, size):
                 fp.seek(start)
-                return fp.read(size).encode("utf-8")
+                return fp.read(size).decode("utf-8")
 
             for (name, start, size) in _alignment_index["files"]:
                 ext = os.path.splitext(name)[-1]
 
                 if(ext == ".hhr"):
                     hits = parsers.parse_hhr(read_template(start, size))
-                    all_hits[f] = hits
+                    all_hits[name] = hits
+
+            fp.close()
         else:
             for f in os.listdir(alignment_dir):
                 path = os.path.join(alignment_dir, f)
@@ -568,7 +571,7 @@ class DataPipeline:
             num_res=num_res,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
         
         return {
             **sequence_features,
@@ -607,7 +610,7 @@ class DataPipeline:
             query_release_date=to_date(mmcif.header["release_date"])
         )
         
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
         return {**mmcif_feats, **template_features, **msa_features}
 
@@ -641,7 +644,7 @@ class DataPipeline:
             self.template_featurizer,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
         return {**pdb_feats, **template_features, **msa_features}
 
