@@ -229,7 +229,7 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-                    "num_workers": 4,
+                    "num_workers": 16,
                 },
             },
         },
@@ -343,7 +343,7 @@ config = mlc.ConfigDict(
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
-                "clear_cache_between_blocks": True,
+                "clear_cache_between_blocks": False,
                 "inf": 1e9,
                 "eps": eps,  # 1e-10,
             },
