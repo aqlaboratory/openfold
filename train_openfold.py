@@ -97,7 +97,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
-        eps: float = 1e-5
+        eps: float = 1e-5,
     ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         return torch.optim.Adam(
@@ -292,6 +292,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--distillation_mapping_path", type=str, default=None,
         help="""See --train_mapping_path"""
+    )
+    parser.add_argument(
+        "--obsolete_pdbs_file_path", type=str, default=None,
+        help="""Path to obsolete.dat file containing list of obsolete PDBs and 
+             their replacements."""
     )
     parser.add_argument(
         "--template_release_dates_cache_path", type=str, default=None,

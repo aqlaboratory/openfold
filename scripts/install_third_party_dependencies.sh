@@ -1,32 +1,20 @@
 #!/bin/bash
+CONDA_INSTALL_URL=${CONDA_INSTALL_URL:-"https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"}
 
 source scripts/vars.sh
 
 # Install Miniconda locally
 rm -rf lib/conda
 rm -f /tmp/Miniconda3-latest-Linux-x86_64.sh
-wget -q -P /tmp \
-    https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+wget -P /tmp \
+    "${CONDA_INSTALL_URL}" \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p lib/conda \
     && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
 
 # Grab conda-only packages
-PATH=lib/conda/bin:$PATH
-conda update -qy conda \
-    && conda create --name $ENV_NAME -y python==3.7 \
-    && source lib/conda/etc/profile.d/conda.sh \
-    && conda activate $ENV_NAME \
-    && pip install -r requirements.txt \
-    && conda install -qy -c conda-forge \
-      openmm=7.5.1 \
-      pdbfixer
-
-# Comment out if you have these already installed on your system, for example in /usr/bin/
-conda install -c bioconda aria2
-conda install -y -c bioconda hmmer==3.3.2 hhsuite==3.3.0 kalign2==2.04
-
-pip install nvidia-pyindex
-pip install nvidia-dllogger
+export PATH=lib/conda/bin:$PATH
+conda env create --name=${ENV_NAME} -f environment.yml
+source activate ${ENV_NAME}
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD

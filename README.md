@@ -61,7 +61,7 @@ To install the HH-suite to `/usr/bin`, run
 To download DeepMind's pretrained parameters and common ground truth data, run:
 
 ```bash
-scripts/download_data.sh data/
+bash scripts/download_data.sh data/
 ```
 
 You have two choices for downloading protein databases, depending on whether 
@@ -70,14 +70,14 @@ you want to use DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or
 MMseqs2 instead. For the former, run:
 
 ```bash
-scripts/download_alphafold_dbs.sh data/
+bash scripts/download_alphafold_dbs.sh data/
 ```
 
 For the latter, run:
 
 ```bash
-scripts/download_mmseqs_databases.sh data/    # downloads .tar files
-scripts/prep_mmseqs_databases.sh data/        # unpacks and preps the databases
+bash scripts/download_mmseqs_dbs.sh data/    # downloads .tar files
+bash scripts/prep_mmseqs_dbs.sh data/        # unpacks and preps the databases
 ```
 
 Make sure to run the latter command on the machine that will be used for MSA
