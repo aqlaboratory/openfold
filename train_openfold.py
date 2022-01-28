@@ -67,10 +67,15 @@ class OpenFoldWrapper(pl.LightningModule):
 
         # Compute loss
         loss = self.loss(outputs, batch)
+<<<<<<< HEAD
 
         self.log("train/loss", loss, logger=True)
 
         return loss
+=======
+        self.log("loss", loss)
+        return {"loss": loss}
+>>>>>>> 0067da9fbaad9ff7ed0c36d63791ea297757f5d9
 
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
@@ -81,6 +86,7 @@ class OpenFoldWrapper(pl.LightningModule):
         # Calculate validation loss
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
+<<<<<<< HEAD
         loss = lddt_ca(
             outputs["final_atom_positions"],
             batch["all_atom_positions"],
@@ -89,6 +95,11 @@ class OpenFoldWrapper(pl.LightningModule):
             per_residue=False,
         )
         self.log("val/loss", loss, logger=True)
+=======
+        loss = self.loss(outputs, batch)
+        self.log("val_loss", loss, prog_bar=True)
+        return {"val_loss": loss}
+>>>>>>> 0067da9fbaad9ff7ed0c36d63791ea297757f5d9
 
     def validation_epoch_end(self, _):
         # Restore the model weights to normal
@@ -97,7 +108,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
-        eps: float = 1e-5
+        eps: float = 1e-5,
     ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         return torch.optim.Adam(
@@ -292,6 +303,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--distillation_mapping_path", type=str, default=None,
         help="""See --train_mapping_path"""
+    )
+    parser.add_argument(
+        "--obsolete_pdbs_file_path", type=str, default=None,
+        help="""Path to obsolete.dat file containing list of obsolete PDBs and 
+             their replacements."""
     )
     parser.add_argument(
         "--template_release_dates_cache_path", type=str, default=None,
