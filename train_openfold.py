@@ -89,7 +89,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
-        eps: float = 1e-8
+        eps: float = 1e-5,
     ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         return torch.optim.Adam(
