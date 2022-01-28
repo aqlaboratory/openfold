@@ -138,22 +138,22 @@ def main(args):
         cache = None
 
     dirs = []
-    #if(cache is not None and args.filter):
-    #    dirs = set(os.listdir(args.output_dir))
-    #    def prot_is_done(f):
-    #        prot_id = os.path.splitext(f)[0]
-    #        if(prot_id in cache):
-    #            chain_ids = cache[prot_id]["chain_ids"]
-    #            for c in chain_ids:
-    #                full_name = prot_id + "_" + c
-    #                if(not full_name in dirs):
-    #                    return False
-    #        else:
-    #            return False
+    if(cache is not None and args.filter):
+        dirs = set(os.listdir(args.output_dir))
+        def prot_is_done(f):
+            prot_id = os.path.splitext(f)[0]
+            if(prot_id in cache):
+                chain_ids = cache[prot_id]["chain_ids"]
+                for c in chain_ids:
+                    full_name = prot_id + "_" + c
+                    if(not full_name in dirs):
+                        return False
+            else:
+                return False
 
-    #        return True
+            return True
 
-    #    files = [f for f in files if not prot_is_done(f)]
+        files = [f for f in files if not prot_is_done(f)]
 
     def split_up_arglist(arglist):
         # Split up the survivors

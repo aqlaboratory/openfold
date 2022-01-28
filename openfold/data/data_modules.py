@@ -96,7 +96,9 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
-        if(mapping_path is None):
+        if(_alignment_index is not None):
+            self._chain_ids = list(_alignment_index.keys())
+        elif(mapping_path is None):
             self._chain_ids = list(os.listdir(alignment_dir))
         else:
             with open(mapping_path, "r") as f:
@@ -159,6 +161,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
 
         _alignment_index = None
         if(self._alignment_index is not None):
+            alignment_dir = self.alignment_dir
             _alignment_index = self._alignment_index[name]
 
         if(self.mode == 'train' or self.mode == 'eval'):
@@ -546,7 +549,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 self.template_release_dates_cache_path,
             obsolete_pdbs_file_path=
                 self.obsolete_pdbs_file_path,
-            _alignment_index=self._alignment_index,
         )
 
         if(self.training_mode):
@@ -560,6 +562,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 treat_pdb_as_distillation=False,
                 mode="train",
                 _output_raw=True,
+                _alignment_index=self._alignment_index,
             )
 
             distillation_dataset = None

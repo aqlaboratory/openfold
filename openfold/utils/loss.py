@@ -329,26 +329,15 @@ def compute_plddt(logits: torch.Tensor) -> torch.Tensor:
     return pred_lddt_ca * 100
 
 
-def lddt_loss(
-    logits: torch.Tensor,
+def lddt(
     all_atom_pred_pos: torch.Tensor,
     all_atom_positions: torch.Tensor,
     all_atom_mask: torch.Tensor,
-    resolution: torch.Tensor,
     cutoff: float = 15.0,
-    no_bins: int = 50,
-    min_resolution: float = 0.1,
-    max_resolution: float = 3.0,
     eps: float = 1e-10,
-    **kwargs,
+    per_residue: bool = True,
 ) -> torch.Tensor:
     n = all_atom_mask.shape[-2]
-
-    ca_pos = residue_constants.atom_order["CA"]
-    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
-    all_atom_positions = all_atom_positions[..., ca_pos, :]
-    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
-
     dmat_true = torch.sqrt(
         eps
         + torch.sum(
@@ -389,8 +378,63 @@ def lddt_loss(
     )
     score = score * 0.25
 
-    norm = 1.0 / (eps + torch.sum(dists_to_score, dim=-1))
-    score = norm * (eps + torch.sum(dists_to_score * score, dim=-1))
+    dims = (-1,) if per_residue else (-2, -1)
+    norm = 1.0 / (eps + torch.sum(dists_to_score, dim=dims))
+    score = norm * (eps + torch.sum(dists_to_score * score, dim=dims))
+
+    return score
+
+
+def lddt_ca(
+    all_atom_pred_pos: torch.Tensor,
+    all_atom_positions: torch.Tensor,
+    all_atom_mask: torch.Tensor,
+    cutoff: float = 15.0,
+    eps: float = 1e-10,
+    per_residue: bool = True,
+) -> torch.Tensor:
+    ca_pos = residue_constants.atom_order["CA"]
+    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
+    all_atom_positions = all_atom_positions[..., ca_pos, :]
+    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+
+    return lddt(
+        all_atom_pred_pos,
+        all_atom_positions,
+        all_atom_mask,
+        cutoff=cutoff,
+        eps=eps,
+        per_residue=per_residue,
+    )
+
+
+def lddt_loss(
+    logits: torch.Tensor,
+    all_atom_pred_pos: torch.Tensor,
+    all_atom_positions: torch.Tensor,
+    all_atom_mask: torch.Tensor,
+    resolution: torch.Tensor,
+    cutoff: float = 15.0,
+    no_bins: int = 50,
+    min_resolution: float = 0.1,
+    max_resolution: float = 3.0,
+    eps: float = 1e-10,
+    **kwargs,
+) -> torch.Tensor:
+    n = all_atom_mask.shape[-2]
+
+    ca_pos = residue_constants.atom_order["CA"]
+    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
+    all_atom_positions = all_atom_positions[..., ca_pos, :]
+    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+
+    score = lddt(
+        all_atom_pred_pos, 
+        all_atom_positions, 
+        all_atom_mask, 
+        cutoff=cutoff, 
+        eps=eps
+    )
 
     score = score.detach()
 
@@ -1525,5 +1569,9 @@ class AlphaFoldLoss(nn.Module):
                 logging.warning(f"{loss_name} loss is NaN. Skipping...")
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss
+
+        seq_len = torch.mean(batch["seq_length"].float())
+        crop_len = batch["aatype"].shape[-1]
+        cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
 
         return cum_loss
