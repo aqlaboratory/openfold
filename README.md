@@ -23,12 +23,10 @@ or `bfloat16` half-precision.
 
 ## Installation (Linux)
 
-Python dependencies available through `pip` are provided in `requirements.txt`. 
-OpenFold depends on `openmm==7.5.1` and `pdbfixer`, which are only available 
-via `conda`. For producing sequence alignments, you'll also need
-`kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), and one of 
-{`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (nightly build)} installed on
-on your system. Finally, some download scripts require `aria2c`.
+All Python dependencies are specified in `environment.yml`. For producing sequence 
+alignments, you'll also need `kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), 
+and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (nightly build)} 
+installed on on your system. Finally, some download scripts require `aria2c`.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
