@@ -237,9 +237,9 @@ target a maximum pointwise difference of `1e-4`.
 
 While AlphaFold's and, by extension, OpenFold's source code is licensed under
 the permissive Apache Licence, Version 2.0, DeepMind's pretrained parameters 
-remain under the more restrictive CC BY-NC 4.0 license, a copy of which is 
-downloaded to `openfold/resources/params` by the installation script. They are
-thereby made unavailable for commercial use.
+fall under the CC BY 4.0 license, a copy of which is downloaded to 
+`openfold/resources/params` by the installation script. Note that the latter
+replaced the original, more restrictive CC BY-NC 4.0 license as of January 2022.
 
 ## Contributing
 
