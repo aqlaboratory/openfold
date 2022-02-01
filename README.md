@@ -233,6 +233,56 @@ environment. These run components of AlphaFold and OpenFold side by side and
 ensure that output activations are adequately similar. For most modules, we
 target a maximum pointwise difference of `1e-4`.
 
+## Building and using the docker container
+
+### Building the docker image
+
+Openfold can be built as a docker container using the included dockerfile. To build it, run the following command from the root of this repository:
+
+```bash
+docker build -t openfold .
+```
+
+### Running the docker container 
+
+The built container contains both `run_pretrained_openfold.py` and `train_openfold.py` as well as all necessary software dependencies. It does not contain the model parameters, sequence, or structural databases. These should be downloaded to the host machine following the instructions in the Usage section above. 
+
+The docker container installs all conda components to the base conda environment in `/opt/conda`, and installs openfold itself in `/opt/openfold`,
+
+Before running the docker container, you can verify that your docker installation is able to properly communicate with your GPU by running the following command:
+
+
+```bash
+docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+```
+
+Note the `--gpus all` option passed to `docker run`. This option is necessary in order for the container to use the GPUs on the host machine.
+
+To run the inference code under docker, you can use a command like the one below.  In this example, parameters and sequences from the alphafold dataset are being used and are located at `/mnt/alphafold_database` on the host machine, and the input files are located in the current working directory. You can adjust the volume mount locations as needed to reflect the locations of your data. 
+
+```bash
+docker run \
+--gpus all \
+-v $PWD/:/data \
+-v /mnt/alphafold_database/:/database \
+-ti openfold:latest \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/input.fasta \
+/database/uniref90/uniref90.fasta \
+/database/mgnify/mgy_clusters_2018_12.fa \
+/database/pdb70/pdb70 \
+/database/pdb_mmcif/mmcif_files/ \
+/database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+--output_dir /data \
+--bfd_database_path /database/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+--model_device cuda:0 \
+--jackhmmer_binary_path /opt/conda/bin/jackhmmer \
+--hhblits_binary_path /opt/conda/bin/hhblits \
+--hhsearch_binary_path /opt/conda/bin/hhsearch \
+--kalign_binary_path /opt/conda/bin/kalign \
+--param_path /database/params/params_model_1.npz
+```
+
 ## Copyright notice
 
 While AlphaFold's and, by extension, OpenFold's source code is licensed under
