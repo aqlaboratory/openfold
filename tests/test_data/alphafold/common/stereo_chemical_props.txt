@@ -1,1 +1,0 @@
-../../../../openfold/resources/stereo_chemical_props.txt
