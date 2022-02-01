@@ -13,7 +13,7 @@ wget -P /tmp \
 
 # Grab conda-only packages
 export PATH=lib/conda/bin:$PATH
-conda env create  emv--name=${ENV_NAME} -f environment.yml
+conda env create --name=${ENV_NAME} -f environment.yml
 source activate ${ENV_NAME}
 
 # Install DeepMind's OpenMM patch
