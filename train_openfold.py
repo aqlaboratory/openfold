@@ -68,7 +68,7 @@ class OpenFoldWrapper(pl.LightningModule):
         # Compute loss
         loss = self.loss(outputs, batch)
 
-        self.log("train/loss", loss, logger=True)
+        self.log("train/loss", loss, on_step=True, logger=True)
 
         return loss
 
@@ -151,9 +151,9 @@ def main(args):
     if(args.checkpoint_best_val):
         checkpoint_dir = os.path.join(args.output_dir, "checkpoints")
         mc = ModelCheckpoint(
-            dirpath=checkpoint_dir,
             filename="openfold_{epoch}_{step}_{val_loss:.2f}",
             monitor="val/loss",
+            mode="max",
         )
         callbacks.append(mc)
 
@@ -200,6 +200,7 @@ def main(args):
         )
         if(args.wandb):
             wdb_logger.experiment.save(args.deepspeed_config_path)
+            wdb_logger.experiment.save("openfold/config.py")
     elif (args.gpus is not None and args.gpus > 1) or args.num_nodes > 1:
         strategy = DDPPlugin(find_unused_parameters=False)
     else:
@@ -372,9 +373,6 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--train_epoch_len", type=int, default=10000,
-    )
-    parser.add_argument(
-        "--obsolete_pdbs_file_path", type=str,
     )
     parser.add_argument(
         "--_alignment_index_path", type=str, default=None,
