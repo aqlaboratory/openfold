@@ -13,6 +13,7 @@ wget -P /tmp \
 
 # Grab conda-only packages
 export PATH=lib/conda/bin:$PATH
+lib/conda/bin/python3 -m pip install nvidia-pyindex
 conda env create --name=${ENV_NAME} -f environment.yml
 source activate ${ENV_NAME}
 
