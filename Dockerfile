@@ -10,9 +10,6 @@ ENV PATH /opt/conda/bin:$PATH
 
 COPY environment.yml /opt/openfold/environment.yml
 
-# this needs to be run separately so that nvidia-dllogger will install properly
-RUN /opt/conda/bin/python3 -m pip install nvidia-pyindex
-
 # installing into the base environment since the docker container wont do anything other than run openfold
 RUN conda env update -n base --file /opt/openfold/environment.yml && conda clean --all
 
