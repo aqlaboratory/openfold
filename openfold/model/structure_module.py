@@ -18,7 +18,7 @@ import torch
 import torch.nn as nn
 from typing import Optional, Tuple
 
-from openfold.model.primitives import Linear, ipa_point_weights_init_
+from openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
 from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
@@ -298,8 +298,8 @@ class InvariantPointAttention(nn.Module):
             permute_final_dims(q, (1, 0, 2)),  # [*, H, N_res, C_hidden]
             permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, N_res]
         )
-        a = a * math.sqrt(1.0 / (3 * self.c_hidden))
-        a = a + (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
+        a *= math.sqrt(1.0 / (3 * self.c_hidden))
+        a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
@@ -323,7 +323,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, H, N_res, N_res]
         pt_att = permute_final_dims(pt_att, (2, 0, 1))
-        a = a + pt_att
+        a = a + pt_att 
         a = a + square_mask.unsqueeze(-3)
         a = self.softmax(a)
 
@@ -331,7 +331,9 @@ class InvariantPointAttention(nn.Module):
         # Compute output
         ################
         # [*, N_res, H, C_hidden]
-        o = torch.matmul(a, v.transpose(-2, -3)).transpose(-2, -3)
+        o = torch.matmul(
+            a, v.transpose(-2, -3).to(dtype=a.dtype)
+        ).transpose(-2, -3)
 
         # [*, N_res, H * C_hidden]
         o = flatten_final_dims(o, 2)
@@ -360,7 +362,7 @@ class InvariantPointAttention(nn.Module):
         o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
 
         # [*, N_res, H, C_z]
-        o_pair = torch.matmul(a.transpose(-2, -3), z)
+        o_pair = torch.matmul(a.transpose(-2, -3), z.to(dtype=a.dtype))
 
         # [*, N_res, H * C_z]
         o_pair = flatten_final_dims(o_pair, 2)
@@ -369,7 +371,7 @@ class InvariantPointAttention(nn.Module):
         s = self.linear_out(
             torch.cat(
                 (o, *torch.unbind(o_pt, dim=-1), o_pt_norm, o_pair), dim=-1
-            )
+            ).to(dtype=z.dtype)
         )
 
         return s
@@ -444,7 +446,7 @@ class StructureModuleTransition(nn.Module):
             self.layers.append(l)
 
         self.dropout = nn.Dropout(self.dropout_rate)
-        self.layer_norm = nn.LayerNorm(self.c)
+        self.layer_norm = LayerNorm(self.c)
 
     def forward(self, s):
         for l in self.layers:
@@ -534,8 +536,8 @@ class StructureModule(nn.Module):
         self.atom_mask = None
         self.lit_positions = None
 
-        self.layer_norm_s = nn.LayerNorm(self.c_s)
-        self.layer_norm_z = nn.LayerNorm(self.c_z)
+        self.layer_norm_s = LayerNorm(self.c_s)
+        self.layer_norm_z = LayerNorm(self.c_z)
 
         self.linear_in = Linear(self.c_s, self.c_s)
 
@@ -551,7 +553,7 @@ class StructureModule(nn.Module):
         )
 
         self.ipa_dropout = nn.Dropout(self.dropout_rate)
-        self.layer_norm_ipa = nn.LayerNorm(self.c_s)
+        self.layer_norm_ipa = LayerNorm(self.c_s)
 
         self.transition = StructureModuleTransition(
             self.c_s,

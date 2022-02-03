@@ -19,7 +19,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear
+from openfold.model.primitives import Linear, LayerNorm
 from openfold.utils.tensor_utils import permute_final_dims
 
 
@@ -47,8 +47,8 @@ class TriangleMultiplicativeUpdate(nn.Module):
         self.linear_g = Linear(self.c_z, self.c_z, init="gating")
         self.linear_z = Linear(self.c_hidden, self.c_z, init="final")
 
-        self.layer_norm_in = nn.LayerNorm(self.c_z)
-        self.layer_norm_out = nn.LayerNorm(self.c_hidden)
+        self.layer_norm_in = LayerNorm(self.c_z)
+        self.layer_norm_out = LayerNorm(self.c_hidden)
 
         self.sigmoid = nn.Sigmoid()
 

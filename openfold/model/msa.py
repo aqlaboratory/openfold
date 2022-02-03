@@ -16,9 +16,16 @@
 import math
 import torch
 import torch.nn as nn
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
-from openfold.model.primitives import Linear, Attention, GlobalAttention
+from openfold.model.primitives import (
+    Linear, 
+    LayerNorm,
+    Attention, 
+    GlobalAttention, 
+    _attention_chunked_trainable,
+)
+from openfold.utils.checkpointing import get_checkpoint_fn
 from openfold.utils.tensor_utils import (
     chunk_layer,
     permute_final_dims,
@@ -61,16 +68,16 @@ class MSAAttention(nn.Module):
         self.c_z = c_z
         self.inf = inf
 
-        self.layer_norm_m = nn.LayerNorm(self.c_in)
+        self.layer_norm_m = LayerNorm(self.c_in)
 
         self.layer_norm_z = None
         self.linear_z = None
         if self.pair_bias:
-            self.layer_norm_z = nn.LayerNorm(self.c_z)
+            self.layer_norm_z = LayerNorm(self.c_z)
             self.linear_z = Linear(
                 self.c_z, self.no_heads, bias=False, init="normal"
             )
-
+        
         self.mha = Attention(
             self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
         )
@@ -83,16 +90,99 @@ class MSAAttention(nn.Module):
     ) -> torch.Tensor:
         return chunk_layer(
             self.mha,
-            {"q_x": m, "k_x": m, "v_x": m, "biases": biases},
+            {"q_x": m, "kv_x": m, "biases": biases},
             chunk_size=chunk_size,
             no_batch_dims=len(m.shape[:-2]),
         )
+
+    def _prep_inputs(self,
+        m: torch.Tensor,
+        z: Optional[torch.Tensor],
+        mask: Optional[torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        # [*, N_seq, N_res, C_m]
+        m = self.layer_norm_m(m)
+
+        n_seq, n_res = m.shape[-3:-1]
+        if mask is None:
+            # [*, N_seq, N_res]
+            mask = m.new_ones(
+                m.shape[:-3] + (n_seq, n_res),
+            )
+
+        # [*, N_seq, 1, 1, N_res]
+        mask_bias = (self.inf * (mask - 1))[..., :, None, None, :]
+
+        # This step simply returns a larger view of the bias, and does not
+        # consume additional memory.
+        # [*, N_seq, no_heads, N_res, N_res]
+        #bias = bias.expand(
+        #    ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
+        #)
+
+        if (self.pair_bias and 
+            z is not None and                       # For the 
+            self.layer_norm_z is not None and       # benefit of
+            self.linear_z is not None               # TorchScript
+        ):
+            # [*, N_res, N_res, C_z]
+            z = self.layer_norm_z(z)
+       
+            # [*, N_res, N_res, no_heads]
+            z = self.linear_z(z)
+
+            # [*, 1, no_heads, N_res, N_res]
+            z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
+
+        return m, mask_bias, z
+
+    @torch.jit.ignore
+    def _chunked_msa_attn(self,
+        m: torch.Tensor,
+        z: Optional[torch.Tensor],
+        mask: Optional[torch.Tensor],
+        chunk_logits: int,
+        checkpoint: bool,
+    ) -> torch.Tensor:
+        MSA_DIM = -4
+
+        def _get_qkv(m, z):
+            m, mask_bias, z = self._prep_inputs(m, z, mask)
+            q, k, v = self.mha._prep_qkv(m, m)
+            return m, q, k, v, mask_bias, z
+
+        checkpoint_fn = get_checkpoint_fn()
+
+        if(torch.is_grad_enabled() and checkpoint):
+            m, q, k, v, mask_bias, z = checkpoint_fn(_get_qkv, m, z)
+        else:
+            m, q, k, v, mask_bias, z = _get_qkv(m, z)
+       
+        o = _attention_chunked_trainable(
+            query=q, 
+            key=k, 
+            value=v, 
+            biases=[mask_bias, z], 
+            chunk_size=chunk_logits, 
+            chunk_dim=MSA_DIM,
+            checkpoint=checkpoint,
+        )
+
+        if(torch.is_grad_enabled() and checkpoint):
+            # Storing an additional m here is far from ideal
+            m = checkpoint_fn(self.mha._wrap_up, o, m)
+        else:
+            m = self.mha._wrap_up(o, m)
+
+        return m
 
     def forward(self, 
         m: torch.Tensor, 
         z: Optional[torch.Tensor] = None, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
+        _chunk_logits: Optional[int] = None,
+        _checkpoint_chunks: Optional[bool] = None,
     ) -> torch.Tensor:
         """
         Args:
@@ -109,48 +199,26 @@ class MSAAttention(nn.Module):
                 cost of slower execution. Chunking is not performed by default.
                 
         """
-        # [*, N_seq, N_res, C_m]
-        m = self.layer_norm_m(m)
+        if(_chunk_logits is not None):
+            return self._chunked_msa_attn(
+                m=m, z=z, mask=mask, 
+                chunk_logits=_chunk_logits, checkpoint=_checkpoint_chunks
+            )           
 
-        n_seq, n_res = m.shape[-3:-1]
-        if mask is None:
-            # [*, N_seq, N_res]
-            mask = m.new_ones(
-                m.shape[:-3] + (n_seq, n_res),
-            )
+        m, mask_bias, z = self._prep_inputs(m, z, mask)
 
-        # [*, N_seq, 1, 1, N_res]
-        bias = (self.inf * (mask - 1))[..., :, None, None, :]
-
-        # This step simply returns a larger view of the bias, and does not
-        # consume additional memory.
-        # [*, N_seq, no_heads, N_res, N_res]
-        bias = bias.expand(
-            ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
-        )
-        
-        biases = [bias]
-
-        if (self.pair_bias and 
-            z is not None and                       # For the 
-            self.layer_norm_z is not None and       # benefit of
-            self.linear_z is not None               # TorchScript
-        ):
-            # [*, N_res, N_res, C_z]
-            z = self.layer_norm_z(z)
-
-            # [*, N_res, N_res, no_heads]
-            z = self.linear_z(z)
-
-            # [*, 1, no_heads, N_res, N_res]
-            z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
-
+        biases = [mask_bias]
+        if(z is not None):
             biases.append(z)
 
         if chunk_size is not None:
             m = self._chunk(m, biases, chunk_size)
         else:
-            m = self.mha(q_x=m, k_x=m, v_x=m, biases=biases)
+            m = self.mha(
+                q_x=m, 
+                kv_x=m, 
+                biases=biases 
+            )
 
         return m
 

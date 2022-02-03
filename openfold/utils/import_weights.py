@@ -282,13 +282,19 @@ def import_jax_weights_(model, npz_path, version="model_1"):
                 b.msa_att_row
             ),
             col_att_name: msa_col_att_params,
-            "msa_transition": MSATransitionParams(b.msa_transition),
-            "outer_product_mean": OuterProductMeanParams(b.outer_product_mean),
-            "triangle_multiplication_outgoing": TriMulOutParams(b.tri_mul_out),
-            "triangle_multiplication_incoming": TriMulInParams(b.tri_mul_in),
-            "triangle_attention_starting_node": TriAttParams(b.tri_att_start),
-            "triangle_attention_ending_node": TriAttParams(b.tri_att_end),
-            "pair_transition": PairTransitionParams(b.pair_transition),
+            "msa_transition": MSATransitionParams(b.core.msa_transition),
+            "outer_product_mean": 
+                OuterProductMeanParams(b.core.outer_product_mean),
+            "triangle_multiplication_outgoing": 
+                TriMulOutParams(b.core.tri_mul_out),
+            "triangle_multiplication_incoming": 
+                TriMulInParams(b.core.tri_mul_in),
+            "triangle_attention_starting_node": 
+                TriAttParams(b.core.tri_att_start),
+            "triangle_attention_ending_node": 
+                TriAttParams(b.core.tri_att_end),
+            "pair_transition": 
+                PairTransitionParams(b.core.pair_transition),
         }
 
         return d
@@ -323,7 +329,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
         [TemplatePairBlockParams(b) for b in tps_blocks]
     )
 
-    ems_blocks = model.extra_msa_stack.stack.blocks
+    ems_blocks = model.extra_msa_stack.blocks
     ems_blocks_params = stacked([ExtraMSABlockParams(b) for b in ems_blocks])
 
     evo_blocks = model.evoformer.blocks

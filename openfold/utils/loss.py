@@ -43,8 +43,8 @@ def softmax_cross_entropy(logits, labels):
 
 
 def sigmoid_cross_entropy(logits, labels):
-    log_p = torch.nn.functional.logsigmoid(logits)
-    log_not_p = torch.nn.functional.logsigmoid(-logits)
+    log_p = torch.log(torch.sigmoid(logits))
+    log_not_p = torch.log(torch.sigmoid(-logits))
     loss = -labels * log_p - (1 - labels) * log_not_p
     return loss
 
@@ -329,26 +329,15 @@ def compute_plddt(logits: torch.Tensor) -> torch.Tensor:
     return pred_lddt_ca * 100
 
 
-def lddt_loss(
-    logits: torch.Tensor,
+def lddt(
     all_atom_pred_pos: torch.Tensor,
     all_atom_positions: torch.Tensor,
     all_atom_mask: torch.Tensor,
-    resolution: torch.Tensor,
     cutoff: float = 15.0,
-    no_bins: int = 50,
-    min_resolution: float = 0.1,
-    max_resolution: float = 3.0,
     eps: float = 1e-10,
-    **kwargs,
+    per_residue: bool = True,
 ) -> torch.Tensor:
     n = all_atom_mask.shape[-2]
-
-    ca_pos = residue_constants.atom_order["CA"]
-    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
-    all_atom_positions = all_atom_positions[..., ca_pos, :]
-    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
-
     dmat_true = torch.sqrt(
         eps
         + torch.sum(
@@ -389,8 +378,63 @@ def lddt_loss(
     )
     score = score * 0.25
 
-    norm = 1.0 / (eps + torch.sum(dists_to_score, dim=-1))
-    score = norm * (eps + torch.sum(dists_to_score * score, dim=-1))
+    dims = (-1,) if per_residue else (-2, -1)
+    norm = 1.0 / (eps + torch.sum(dists_to_score, dim=dims))
+    score = norm * (eps + torch.sum(dists_to_score * score, dim=dims))
+
+    return score
+
+
+def lddt_ca(
+    all_atom_pred_pos: torch.Tensor,
+    all_atom_positions: torch.Tensor,
+    all_atom_mask: torch.Tensor,
+    cutoff: float = 15.0,
+    eps: float = 1e-10,
+    per_residue: bool = True,
+) -> torch.Tensor:
+    ca_pos = residue_constants.atom_order["CA"]
+    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
+    all_atom_positions = all_atom_positions[..., ca_pos, :]
+    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+
+    return lddt(
+        all_atom_pred_pos,
+        all_atom_positions,
+        all_atom_mask,
+        cutoff=cutoff,
+        eps=eps,
+        per_residue=per_residue,
+    )
+
+
+def lddt_loss(
+    logits: torch.Tensor,
+    all_atom_pred_pos: torch.Tensor,
+    all_atom_positions: torch.Tensor,
+    all_atom_mask: torch.Tensor,
+    resolution: torch.Tensor,
+    cutoff: float = 15.0,
+    no_bins: int = 50,
+    min_resolution: float = 0.1,
+    max_resolution: float = 3.0,
+    eps: float = 1e-10,
+    **kwargs,
+) -> torch.Tensor:
+    n = all_atom_mask.shape[-2]
+
+    ca_pos = residue_constants.atom_order["CA"]
+    all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
+    all_atom_positions = all_atom_positions[..., ca_pos, :]
+    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+
+    score = lddt(
+        all_atom_pred_pos, 
+        all_atom_positions, 
+        all_atom_mask, 
+        cutoff=cutoff, 
+        eps=eps
+    )
 
     score = score.detach()
 
@@ -1462,7 +1506,7 @@ class AlphaFoldLoss(nn.Module):
         self.config = config
 
     def forward(self, out, batch):
-        if "violation" not in out.keys() and self.config.violation.weight:
+        if "violation" not in out.keys():
             out["violation"] = find_structural_violations(
                 batch,
                 out["sm"]["positions"][-1],
@@ -1509,22 +1553,26 @@ class AlphaFoldLoss(nn.Module):
                 out["violation"],
                 **batch,
             ),
-            "tm": lambda: tm_loss(
+        }
+
+        if(self.config.tm.enabled):
+            loss_fns["tm"] = lambda: tm_loss(
                 logits=out["tm_logits"],
                 **{**batch, **out, **self.config.tm},
-            ),
-        }
+            )
 
         cum_loss = 0.
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
-            if weight:
-                loss = loss_fn()
-                
-                if(torch.isnan(loss) or torch.isinf(loss)):
-                    logging.warning(f"{loss_name} loss is NaN. Skipping...")
-                    loss = loss.new_tensor(0., requires_grad=True)
-                cum_loss = cum_loss + weight * loss
+            loss = loss_fn()
+            if(torch.isnan(loss) or torch.isinf(loss)):
+                logging.warning(f"{loss_name} loss is NaN. Skipping...")
+                loss = loss.new_tensor(0., requires_grad=True)
+            cum_loss = cum_loss + weight * loss
+
+        seq_len = torch.mean(batch["seq_length"].float())
+        crop_len = batch["aatype"].shape[-1]
+        cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
 
         # Scale the loss by the square root of the minimum of the crop size and
         # the (average) sequence length. See subsection 1.9.

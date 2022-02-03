@@ -130,5 +130,6 @@ class TestModel(unittest.TestCase):
         out_repro = out_repro["sm"]["positions"][-1]
         out_repro = out_repro.squeeze(0)
 
+        print(torch.mean(torch.abs(out_gt - out_repro)))
         print(torch.max(torch.abs(out_gt - out_repro)))
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 1e-3)

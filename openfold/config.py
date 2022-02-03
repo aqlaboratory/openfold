@@ -64,6 +64,7 @@ c_s = mlc.FieldReference(384, field_type=int)
 blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
+tm_enabled = mlc.FieldReference(False, field_type=bool)
 eps = mlc.FieldReference(1e-8, field_type=float)
 templates_enabled = mlc.FieldReference(True, field_type=bool)
 embed_template_torsion_angles = mlc.FieldReference(True, field_type=bool)
@@ -228,7 +229,7 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-                    "num_workers": 8,
+                    "num_workers": 16,
                 },
             },
         },
@@ -320,10 +321,10 @@ config = mlc.ConfigDict(
                     "transition_n": 4,
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
-                    "blocks_per_ckpt": blocks_per_ckpt,
                     "clear_cache_between_blocks": True,
                     "inf": 1e9,
                     "eps": eps,  # 1e-10,
+                    "ckpt": blocks_per_ckpt is not None,
                 },
                 "enabled": True,
             },
@@ -376,7 +377,7 @@ config = mlc.ConfigDict(
                 "tm": {
                     "c_z": c_z,
                     "no_bins": aux_distogram_bins,
-                    "enabled": False,
+                    "enabled": tm_enabled,
                 },
                 "masked_msa": {
                     "c_m": c_m,
@@ -454,6 +455,7 @@ config = mlc.ConfigDict(
                 "max_resolution": 3.0,
                 "eps": eps,  # 1e-8,
                 "weight": 0.0,
+                "enabled": tm_enabled,
             },
             "eps": eps,
         },

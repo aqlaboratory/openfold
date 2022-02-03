@@ -87,9 +87,9 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         module = (
-            model.evoformer.blocks[0].tri_mul_in
+            model.evoformer.blocks[0].core.tri_mul_in
             if incoming
-            else model.evoformer.blocks[0].tri_mul_out
+            else model.evoformer.blocks[0].core.tri_mul_out
         )
         out_repro = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
