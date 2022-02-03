@@ -37,7 +37,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         mapping_path: Optional[str] = None,
         mode: str = "train", 
         _output_raw: bool = False,
-        _alignment_index: Optional[Any] = None
     ):
         """
             Args:
@@ -84,7 +83,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self.treat_pdb_as_distillation = treat_pdb_as_distillation
         self.mode = mode
         self._output_raw = _output_raw
-        self._alignment_index = _alignment_index
 
         valid_modes = ["train", "eval", "predict"]
         if(mode not in valid_modes):
@@ -96,9 +94,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
-        if(_alignment_index is not None):
-            self._chain_ids = list(_alignment_index.keys())
-        elif(mapping_path is None):
+        if(mapping_path is None):
             self._chain_ids = list(os.listdir(alignment_dir))
         else:
             with open(mapping_path, "r") as f:
@@ -125,7 +121,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if(not self._output_raw):
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
 
-    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index):
+    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -144,7 +140,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             chain_id=chain_id,
-            _alignment_index=_alignment_index
         )
 
         return data
@@ -159,11 +154,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         name = self.idx_to_chain_id(idx)
         alignment_dir = os.path.join(self.alignment_dir, name)
 
-        _alignment_index = None
-        if(self._alignment_index is not None):
-            alignment_dir = self.alignment_dir
-            _alignment_index = self._alignment_index[name]
-
         if(self.mode == 'train' or self.mode == 'eval'):
             spl = name.rsplit('_', 1)
             if(len(spl) == 2):
@@ -175,11 +165,11 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             path = os.path.join(self.data_dir, file_id)
             if(os.path.exists(path + ".cif")):
                 data = self._parse_mmcif(
-                    path + ".cif", file_id, chain_id, alignment_dir, _alignment_index,
+                    path + ".cif", file_id, chain_id, alignment_dir,
                 )
             elif(os.path.exists(path + ".core")):
                 data = self.data_pipeline.process_core(
-                    path + ".core", alignment_dir, _alignment_index,
+                    path + ".core", alignment_dir,
                 )
             elif(os.path.exists(path + ".pdb")):
                 data = self.data_pipeline.process_pdb(
@@ -187,7 +177,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     alignment_dir=alignment_dir,
                     is_distillation=self.treat_pdb_as_distillation,
                     chain_id=chain_id,
-                    _alignment_index=_alignment_index,
                 )
             else:
                 raise ValueError("Invalid file type")
@@ -196,7 +185,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             data = self.data_pipeline.process_fasta(
                 fasta_path=path,
                 alignment_dir=alignment_dir,
-                _alignment_index=_alignment_index,
             )
 
         if(self._output_raw):
@@ -486,7 +474,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
         template_release_dates_cache_path: Optional[str] = None,
         batch_seed: Optional[int] = None,
         train_epoch_len: int = 50000, 
-        _alignment_index_path: Optional[str] = None,
         **kwargs
     ):
         super(OpenFoldDataModule, self).__init__()
@@ -538,12 +525,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 'be specified as well'
         )
 
-        # An ad-hoc measure for our particular filesystem restrictions
-        self._alignment_index = None
-        if(_alignment_index_path is not None):
-            with open(_alignment_index_path, "r") as fp:
-                self._alignment_index = json.load(fp)
-
     def setup(self):
         # Most of the arguments are the same for the three datasets 
         dataset_gen = partial(OpenFoldSingleDataset,
@@ -568,7 +549,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 treat_pdb_as_distillation=False,
                 mode="train",
                 _output_raw=True,
-                _alignment_index=self._alignment_index,
             )
 
             distillation_dataset = None

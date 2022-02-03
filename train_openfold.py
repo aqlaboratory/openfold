@@ -370,9 +370,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--train_epoch_len", type=int, default=10000,
     )
-    parser.add_argument(
-        "--_alignment_index_path", type=str, default=None,
-    )
     parser = pl.Trainer.add_argparse_args(parser)
    
     # Disable the initial validation pass
