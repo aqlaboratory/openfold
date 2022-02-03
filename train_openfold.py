@@ -225,10 +225,6 @@ def main(args):
         ckpt_path=ckpt_path,
     )
 
-    trainer.save_checkpoint(
-        os.path.join(args.output_dir, "checkpoints", "final.ckpt")
-    )
-
 
 def bool_type(bool_str: str):
     bool_str_lower = bool_str.lower()
