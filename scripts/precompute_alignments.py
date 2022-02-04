@@ -25,12 +25,11 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         first_name = names[0]
         alignment_dir = os.path.join(args.output_dir, first_name)
         
-        os.makedirs(alignment_dir, exist_ok=True)
-#        try:
-#            os.makedirs(alignment_dir)
-#        except Exception as e:
-#            logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
-#            continue
+        try:
+            os.makedirs(alignment_dir)
+        except Exception as e:
+            logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
+            continue
 
         fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
         with os.fdopen(fd, 'w') as fp:
@@ -49,11 +48,11 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         os.remove(fasta_path)
 
         for name in names[1:]:
-            #if(name in dirs):
-            #    logging.warning(
-            #        f'{name} has already been processed. Skipping...'
-            #    )
-            #    continue
+            if(name in dirs):
+                logging.warning(
+                    f'{name} has already been processed. Skipping...'
+                )
+                continue
             
             cp_dir = os.path.join(args.output_dir, name)
             os.makedirs(cp_dir, exist_ok=True)
