@@ -46,7 +46,6 @@ class MSATransition(nn.Module):
 
     Implements Algorithm 9
     """
-
     def __init__(self, c_m, n):
         """
         Args:

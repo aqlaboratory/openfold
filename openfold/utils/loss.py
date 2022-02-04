@@ -84,6 +84,31 @@ def compute_fape(
     l1_clamp_distance: Optional[float] = None,
     eps=1e-8,
 ) -> torch.Tensor:
+    """
+        Computes FAPE loss.
+
+        Args:
+            pred_frames:
+                [*, N_frames] Rigid object of predicted frames
+            target_frames:
+                [*, N_frames] Rigid object of ground truth frames
+            frames_mask:
+                [*, N_frames] binary mask for the frames
+            pred_positions:
+                [*, N_pts, 3] predicted atom positions
+            target_positions:
+                [*, N_pts, 3] ground truth positions
+            positions_mask:
+                [*, N_pts] positions mask
+            length_scale:
+                Length scale by which the loss is divided
+            l1_clamp_distance:
+                Cutoff above which distance errors are disregarded
+            eps:
+                Small value used to regularize denominators
+        Returns:
+            [*] loss tensor
+    """
     # [*, N_frames, N_pts, 3]
     local_pred_pos = pred_frames.invert()[..., None].apply(
         pred_positions[..., None, :, :],
@@ -266,6 +291,29 @@ def supervised_chi_loss(
     eps=1e-6,
     **kwargs,
 ) -> torch.Tensor:
+    """
+        Implements Algorithm 27 (torsionAngleLoss)
+
+        Args:
+            angles_sin_cos:
+                [*, N, 7, 2] predicted angles
+            unnormalized_angles_sin_cos:
+                The same angles, but unnormalized
+            aatype:
+                [*, N] residue indices
+            seq_mask:
+                [*, N] sequence mask
+            chi_mask:
+                [*, N, 7] angle mask
+            chi_angles_sin_cos:
+                [*, N, 7, 2] ground truth angles
+            chi_weight:
+                Weight for the angle component of the loss
+            angle_norm_weight:
+                Weight for the normalization component of the loss
+        Returns:
+            [*] loss tensor
+    """
     pred_angles = angles_sin_cos[..., 3:, :]
     residue_type_one_hot = torch.nn.functional.one_hot(
         aatype,
@@ -1500,7 +1548,6 @@ def compute_drmsd_np(structure_1, structure_2, mask=None):
 
 class AlphaFoldLoss(nn.Module):
     """Aggregation of the various losses described in the supplement"""
-
     def __init__(self, config):
         super(AlphaFoldLoss, self).__init__()
         self.config = config
