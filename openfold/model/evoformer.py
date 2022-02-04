@@ -359,7 +359,7 @@ class ExtraMSABlock(nn.Module):
                 z=z.clone(), 
                 mask=msa_mask, 
                 chunk_size=chunk_size,
-                _chunk_logits=_chunk_logits,
+                _chunk_logits=_chunk_logits if torch.is_grad_enabled() else None,
                 _checkpoint_chunks=
                     self.ckpt if torch.is_grad_enabled() else False,
             )
