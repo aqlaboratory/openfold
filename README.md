@@ -121,7 +121,7 @@ where `data` is the same directory as in the previous step. If `jackhmmer`,
 `hhblits`, `hhsearch` and `kalign` are available at the default path of 
 `/usr/bin`, their `binary_path` command-line arguments can be dropped.
 If you've already computed alignments for the query, you have the option to 
-circumvent the expensive alignment computation here.
+skip the expensive alignment computation here.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
