@@ -33,8 +33,6 @@ def parse_file(f, args):
 
     local_data["resolution"] = mmcif.header["resolution"]
 
-    if(cluser_file)
-
     return {file_id: local_data}
 
 
