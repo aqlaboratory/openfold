@@ -103,11 +103,11 @@ pretrained parameters, run e.g.:
 ```bash
 python3 run_pretrained_openfold.py \
     target.fasta \
-    data/uniref90/uniref90.fasta \
-    data/mgnify/mgy_clusters_2018_12.fa \
-    data/pdb70/pdb70 \
     data/pdb_mmcif/mmcif_files/ \
-    data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --output_dir ./ \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
     --model_device cuda:1 \
@@ -268,11 +268,11 @@ docker run \
 -ti openfold:latest \
 python3 /opt/openfold/run_pretrained_openfold.py \
 /data/input.fasta \
-/database/uniref90/uniref90.fasta \
-/database/mgnify/mgy_clusters_2018_12.fa \
-/database/pdb70/pdb70 \
 /database/pdb_mmcif/mmcif_files/ \
-/database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+--uniref90_database_path /database/uniref90/uniref90.fasta \
+--mgnify_database_path /database/mgnify/mgy_clusters_2018_12.fa \
+--pdb70_database_path /database/pdb70/pdb70 \
+--uniclust30_database_path /database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
 --output_dir /data \
 --bfd_database_path /database/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
 --model_device cuda:0 \
