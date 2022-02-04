@@ -1570,10 +1570,6 @@ class AlphaFoldLoss(nn.Module):
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss
 
-        seq_len = torch.mean(batch["seq_length"].float())
-        crop_len = batch["aatype"].shape[-1]
-        cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
-
         # Scale the loss by the square root of the minimum of the crop size and
         # the (average) sequence length. See subsection 1.9.
         seq_len = torch.mean(batch["seq_length"].float())
