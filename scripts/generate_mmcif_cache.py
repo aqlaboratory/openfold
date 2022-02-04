@@ -1,10 +1,11 @@
 import argparse
 from functools import partial
+import json
 import logging
 from multiprocessing import Pool
 import os
+
 import sys
-import json
 sys.path.append(".") # an innocent hack to get this to run from the top level
 
 from tqdm import tqdm

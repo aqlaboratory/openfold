@@ -181,7 +181,7 @@ files, we provide `scripts/data_dir_to_fasta.py`.
 Next, generate a cache of certain datapoints in the mmCIF files:
 
 ```bash
-python3 scripts/generate_prot_data_cache.py \
+python3 scripts/generate_mmcif_cache.py \
     mmcif_dir/ \
     mmcif_cache.json \
     --no_workers 16
