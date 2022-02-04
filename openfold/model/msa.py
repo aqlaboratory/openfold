@@ -127,10 +127,10 @@ class MSAAttention(nn.Module):
         ):
             # [*, N_res, N_res, C_z]
             z = self.layer_norm_z(z)
-       
+            
             # [*, N_res, N_res, no_heads]
             z = self.linear_z(z)
-
+            
             # [*, 1, no_heads, N_res, N_res]
             z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
 

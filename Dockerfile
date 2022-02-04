@@ -1,7 +1,6 @@
 FROM nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04
 
-# I'm not sure why i needed both opencl and cuda here, but the relax phase of the script needed opencl
-RUN apt-get update && apt-get install -y wget cuda-minimal-build-11-0 nvidia-opencl-dev git
+RUN apt-get update && apt-get install -y wget cuda-minimal-build-11-0 git
 RUN wget -P /tmp \
     "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \

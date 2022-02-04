@@ -19,9 +19,6 @@ import logging
 import numpy as np
 import os
 
-# A hack to get OpenMM and PyTorch to peacefully coexist
-os.environ["OPENMM_DEFAULT_PLATFORM"] = "OpenCL"
-
 import pickle
 import random
 import sys
@@ -152,19 +149,32 @@ def main(args):
             result=out,
             b_factors=plddt_b_factors
         )
-         
+
+        # Save the unrelaxed PDB.
+        unrelaxed_output_path = os.path.join(
+            args.output_dir, f'{tag}_{args.model_name}_unrelaxed.pdb'
+        )
+        with open(unrelaxed_output_path, 'w') as f:
+            f.write(protein.to_pdb(unrelaxed_protein))
+
         amber_relaxer = relax.AmberRelaxation(
-            **config.relax
+            use_gpu=(args.model_device != "cpu"),
+            **config.relax,
         )
         
         # Relax the prediction.
         t = time.perf_counter()
+        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES")
+        if("cuda" in args.model_device):
+            device_no = args.model_device.split(":")[-1]
+            os.environ["CUDA_VISIBLE_DEVICES"] = device_no
         relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
+        os.environ["CUDA_VISIBLE_DEVICES"] = visible_devices
         logging.info(f"Relaxation time: {time.perf_counter() - t}")
         
         # Save the relaxed PDB.
         relaxed_output_path = os.path.join(
-            args.output_dir, f'{tag}_{args.model_name}.pdb'
+            args.output_dir, f'{tag}_{args.model_name}_relaxed.pdb'
         )
         with open(relaxed_output_path, 'w') as f:
             f.write(relaxed_pdb_str)
@@ -175,7 +185,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "fasta_path", type=str,
     )
-    add_data_args(parser)
+    parser.add_argument(
+        "template_mmcif_dir", type=str,
+    )
     parser.add_argument(
         "--use_precomputed_alignments", type=str, default=None,
         help="""Path to alignment directory. If provided, alignment computation 
@@ -184,7 +196,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir", type=str, default=os.getcwd(),
         help="""Name of the directory in which to output the prediction""",
-        required=True
     )
     parser.add_argument(
         "--model_device", type=str, default="cpu",
@@ -213,7 +224,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--data_random_seed', type=str, default=None
     )
-
+    add_data_args(parser)
     args = parser.parse_args()
 
     if(args.param_path is None):

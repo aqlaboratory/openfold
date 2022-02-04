@@ -13,9 +13,6 @@ def add_data_args(parser: argparse.ArgumentParser):
         '--pdb70_database_path', type=str, default=None,
     )
     parser.add_argument(
-        '--template_mmcif_dir', type=str, default=None,
-    )
-    parser.add_argument(
         '--uniclust30_database_path', type=str, default=None,
     )
     parser.add_argument(

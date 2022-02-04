@@ -83,6 +83,7 @@ def _openmm_minimize(
     stiffness: unit.Unit,
     restraint_set: str,
     exclude_residues: Sequence[int],
+    use_gpu: bool,
 ):
     """Minimize energy via openmm."""
 
@@ -96,7 +97,7 @@ def _openmm_minimize(
         _add_restraints(system, pdb, stiffness, restraint_set, exclude_residues)
 
     integrator = openmm.LangevinIntegrator(0, 0.01, 0.0)
-    platform = openmm.Platform.getPlatformByName("CPU")
+    platform = openmm.Platform.getPlatformByName("CUDA" if use_gpu else "CPU")
     simulation = openmm_app.Simulation(
         pdb.topology, system, integrator, platform
     )
@@ -411,6 +412,7 @@ def _run_one_iteration(
     restraint_set: str,
     max_attempts: int,
     exclude_residues: Optional[Collection[int]] = None,
+    use_gpu: bool,
 ):
     """Runs the minimization pipeline.
 
@@ -425,7 +427,7 @@ def _run_one_iteration(
       max_attempts: The maximum number of minimization attempts.
       exclude_residues: An optional list of zero-indexed residues to exclude from
           restraints.
-
+      use_gpu: Whether to run relaxation on GPU
     Returns:
       A `dict` of minimization info.
     """
@@ -451,9 +453,11 @@ def _run_one_iteration(
                 stiffness=stiffness,
                 restraint_set=restraint_set,
                 exclude_residues=exclude_residues,
+                use_gpu=use_gpu,
             )
             minimized = True
         except Exception as e:  # pylint: disable=broad-except
+            print(e)
             logging.info(e)
     if not minimized:
         raise ValueError(f"Minimization failed after {max_attempts} attempts.")
@@ -465,6 +469,7 @@ def _run_one_iteration(
 def run_pipeline(
     prot: protein.Protein,
     stiffness: float,
+    use_gpu: bool,
     max_outer_iterations: int = 1,
     place_hydrogens_every_iteration: bool = True,
     max_iterations: int = 0,
@@ -483,6 +488,7 @@ def run_pipeline(
     Args:
       prot: A protein to be relaxed.
       stiffness: kcal/mol A**2, the restraint stiffness.
+      use_gpu: Whether to run on GPU
       max_outer_iterations: The maximum number of iterative minimization.
       place_hydrogens_every_iteration: Whether hydrogens are re-initialized
           prior to every minimization.
@@ -519,6 +525,7 @@ def run_pipeline(
             stiffness=stiffness,
             restraint_set=restraint_set,
             max_attempts=max_attempts,
+            use_gpu=use_gpu,
         )
         prot = protein.from_pdb_string(ret["min_pdb"])
         if place_hydrogens_every_iteration:
