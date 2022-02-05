@@ -11,7 +11,7 @@ sys.path.append(".") # an innocent hack to get this to run from the top level
 from tqdm import tqdm
 
 from openfold.data.mmcif_parsing import parse 
-from openfold.np import protein
+from openfold.np import protein, residue_constants
 
 
 def parse_file(
@@ -50,7 +50,7 @@ def parse_file(
         with open(os.path.join(args.data_dir, f), "r") as fp:
             pdb_string = fp.read()
           
-        protein_object = protein.from_pdb_string(pdb_str, chain_id)
+        protein_object = protein.from_pdb_string(pdb_string, None)
 
         chain_dict = {} 
         chain_dict["seq"] = residue_constants.aatype_to_str_sequence(
