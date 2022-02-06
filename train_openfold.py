@@ -163,7 +163,7 @@ def main(args):
             min_delta=args.min_delta,
             patience=args.patience,
             verbose=False,
-            mode="min",
+            mode="max",
             check_finite=True,
             strict=True,
         )
