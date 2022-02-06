@@ -198,6 +198,7 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
     --gpus 8 --replace_sampler_ddp=True \
     --seed 42 \ # in multi-gpu settings, the seed must be specified
     --deepspeed_config_path deepspeed_config.json \
+    --checkpoint_every_epoch \
     --resume_from_ckpt ckpt_dir/
 ```
 
