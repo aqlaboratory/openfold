@@ -87,8 +87,6 @@ def model_config(name, train=False, low_prec=False):
         # a global constant
         set_inf(c, 1e4)
 
-    if tm:
-
     return c
 
 
