@@ -6,14 +6,6 @@
       "eps": 1e-05
     }
   },
-  "scheduler": {
-      "type": "WarmupLR",
-      "params": {
-        "warmup_min_lr": 0,
-        "warmup_max_lr": 0.001,
-        "warmup_num_steps": 128000
-      }
-  },
   "fp16": {
     "enabled": true,
     "min_loss_scale": 1
