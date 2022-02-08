@@ -127,7 +127,7 @@ def main(args):
         seed_everything(args.seed) 
 
     config = model_config(
-        "model_1", 
+        "initial_training", 
         train=True, 
         low_prec=(args.precision == "16")
     ) 
