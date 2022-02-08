@@ -193,7 +193,6 @@ config = mlc.ConfigDict(
                 "crop": False,
                 "crop_size": None,
                 "supervised": False,
-                "subsample_recycling": False,
                 "uniform_recycling": False,
             },
             "eval": {
@@ -206,7 +205,6 @@ config = mlc.ConfigDict(
                 "crop": False,
                 "crop_size": None,
                 "supervised": True,
-                "subsample_recycling": False,
                 "uniform_recycling": False,
             },
             "train": {
@@ -221,7 +219,6 @@ config = mlc.ConfigDict(
                 "crop_size": 256,
                 "supervised": True,
                 "clamp_prob": 0.9,
-                "subsample_recycling": True,
                 "max_distillation_msa_clusters": 1000,
                 "uniform_recycling": True,
             },
