@@ -358,10 +358,10 @@ if __name__ == "__main__":
         help="Whether to TorchScript eligible components of them model"
     )
     parser.add_argument(
-        "--train_prot_data_cache_path", type=str, default=None,
+        "--train_chain_data_cache_path", type=str, default=None,
     )
     parser.add_argument(
-        "--distillation_prot_data_cache_path", type=str, default=None,
+        "--distillation_chain_data_cache_path", type=str, default=None,
     )
     parser.add_argument(
         "--train_epoch_len", type=int, default=10000,
