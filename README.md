@@ -188,7 +188,21 @@ python3 scripts/generate_mmcif_cache.py \
 ```
 
 This cache is used to minimize the number of mmCIF parses performed during 
-training-time data preprocessing. Finally, call the training script:
+training-time data preprocessing. Next, generate a separate chain-level cache
+with data used for training-time data filtering:
+
+```bash
+python3 scripts/generate_chain_data_cache.py \
+    mmcif_dir/ \
+    chain_data_cache.json \
+    --cluster_file clusters-by-entity-40.txt \
+    --no_workers 16
+```
+
+where the `cluster_file` argument is a file of chain clusters, one cluster
+per line (e.g. [PDB40](https://cdn.rcsb.org/resources/sequence/clusters/clusters-by-entity-40.txt)).
+
+Finally, call the training script:
 
 ```bash
 python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
@@ -199,7 +213,8 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
     --seed 42 \ # in multi-gpu settings, the seed must be specified
     --deepspeed_config_path deepspeed_config.json \
     --checkpoint_every_epoch \
-    --resume_from_ckpt ckpt_dir/
+    --resume_from_ckpt ckpt_dir/ \
+    --train_prot_data_cache_path chain_data_cache.json
 ```
 
 where `--template_release_dates_cache_path` is a path to the `.json` file
