@@ -178,7 +178,7 @@ where `input.fasta` is a FASTA file containing one or more query sequences. To
 generate an input FASTA from a directory of mmCIF and/or ProteinNet .core 
 files, we provide `scripts/data_dir_to_fasta.py`.
 
-Next, generate a cache of certain datapoints in the mmCIF files:
+Next, generate a cache of certain datapoints in the template mmCIF files:
 
 ```bash
 python3 scripts/generate_mmcif_cache.py \
@@ -187,9 +187,10 @@ python3 scripts/generate_mmcif_cache.py \
     --no_workers 16
 ```
 
-This cache is used to minimize the number of mmCIF parses performed during 
-training-time data preprocessing. Next, generate a separate chain-level cache
-with data used for training-time data filtering:
+This cache is used to pre-filter templates. 
+
+Next, generate a separate chain-level cache with data used for training-time 
+data filtering:
 
 ```bash
 python3 scripts/generate_chain_data_cache.py \
