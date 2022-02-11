@@ -422,42 +422,89 @@ class DataPipeline:
     def _parse_msa_data(
         self,
         alignment_dir: str,
+        _alignment_index: Optional[Any] = None,
     ) -> Mapping[str, Any]:
-        msa_data = {}        
-        for f in os.listdir(alignment_dir):
-            path = os.path.join(alignment_dir, f)
-            ext = os.path.splitext(f)[-1]
+        msa_data = {}
+        
+        if(_alignment_index is not None):
+            fp = open(os.path.join(alignment_dir, _alignment_index["db"]), "rb")
 
-            if(ext == ".a3m"):
-                with open(path, "r") as fp:
-                    msa, deletion_matrix = parsers.parse_a3m(fp.read())
-                data = {"msa": msa, "deletion_matrix": deletion_matrix}
-            elif(ext == ".sto"):
-                with open(path, "r") as fp:
-                    msa, deletion_matrix, _ = parsers.parse_stockholm(
-                        fp.read()
+            def read_msa(start, size):
+                fp.seek(start)
+                msa = fp.read(size).decode("utf-8")
+                return msa
+
+            for (name, start, size) in _alignment_index["files"]:
+                ext = os.path.splitext(name)[-1]
+
+                if(ext == ".a3m"):
+                    msa, deletion_matrix = parsers.parse_a3m(
+                        read_msa(start, size)
                     )
-                data = {"msa": msa, "deletion_matrix": deletion_matrix}
-            else:
-                continue
+                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                elif(ext == ".sto"):
+                    msa, deletion_matrix, _ = parsers.parse_stockholm(
+                        read_msa(start, size)
+                    )
+                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                else:
+                    continue
+               
+                msa_data[name] = data
             
-            msa_data[f] = data
+            fp.close()
+        else: 
+            for f in os.listdir(alignment_dir):
+                path = os.path.join(alignment_dir, f)
+                ext = os.path.splitext(f)[-1]
+
+                if(ext == ".a3m"):
+                    with open(path, "r") as fp:
+                        msa, deletion_matrix = parsers.parse_a3m(fp.read())
+                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                elif(ext == ".sto"):
+                    with open(path, "r") as fp:
+                        msa, deletion_matrix, _ = parsers.parse_stockholm(
+                            fp.read()
+                        )
+                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                else:
+                    continue
+                
+                msa_data[f] = data
 
         return msa_data
 
     def _parse_template_hits(
         self,
         alignment_dir: str,
+        _alignment_index: Optional[Any] = None
     ) -> Mapping[str, Any]:
         all_hits = {}
-        for f in os.listdir(alignment_dir):
-            path = os.path.join(alignment_dir, f)
-            ext = os.path.splitext(f)[-1]
+        if(_alignment_index is not None):
+            fp = open(os.path.join(alignment_dir, _alignment_index["db"]), 'rb')
 
-            if(ext == ".hhr"):
-                with open(path, "r") as fp:
-                    hits = parsers.parse_hhr(fp.read())
-                all_hits[f] = hits
+            def read_template(start, size):
+                fp.seek(start)
+                return fp.read(size).decode("utf-8")
+
+            for (name, start, size) in _alignment_index["files"]:
+                ext = os.path.splitext(name)[-1]
+
+                if(ext == ".hhr"):
+                    hits = parsers.parse_hhr(read_template(start, size))
+                    all_hits[name] = hits
+
+            fp.close()
+        else:
+            for f in os.listdir(alignment_dir):
+                path = os.path.join(alignment_dir, f)
+                ext = os.path.splitext(f)[-1]
+
+                if(ext == ".hhr"):
+                    with open(path, "r") as fp:
+                        hits = parsers.parse_hhr(fp.read())
+                    all_hits[f] = hits
 
         return all_hits
 
@@ -465,8 +512,9 @@ class DataPipeline:
         self,
         alignment_dir: str,
         input_sequence: Optional[str] = None,
+        _alignment_index: Optional[str] = None
     ) -> Mapping[str, Any]:
-        msa_data = self._parse_msa_data(alignment_dir)
+        msa_data = self._parse_msa_data(alignment_dir, _alignment_index)
        
         if(len(msa_data) == 0):
             if(input_sequence is None):
@@ -496,6 +544,7 @@ class DataPipeline:
         self,
         fasta_path: str,
         alignment_dir: str,
+        _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
         """Assembles features for a single sequence in a FASTA file""" 
         with open(fasta_path) as f:
@@ -509,7 +558,7 @@ class DataPipeline:
         input_description = input_descs[0]
         num_res = len(input_sequence)
 
-        hits = self._parse_template_hits(alignment_dir)
+        hits = self._parse_template_hits(alignment_dir, _alignment_index)
         template_features = make_template_features(
             input_sequence,
             hits,
@@ -522,7 +571,7 @@ class DataPipeline:
             num_res=num_res,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
         
         return {
             **sequence_features,
@@ -535,6 +584,7 @@ class DataPipeline:
         mmcif: mmcif_parsing.MmcifObject,  # parsing is expensive, so no path
         alignment_dir: str,
         chain_id: Optional[str] = None,
+        _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
         """
             Assembles features for a specific chain in an mmCIF object.
@@ -552,7 +602,7 @@ class DataPipeline:
         mmcif_feats = make_mmcif_features(mmcif, chain_id)
 
         input_sequence = mmcif.chain_to_seqres[chain_id]
-        hits = self._parse_template_hits(alignment_dir)
+        hits = self._parse_template_hits(alignment_dir, _alignment_index)
         template_features = make_template_features(
             input_sequence,
             hits,
@@ -560,7 +610,7 @@ class DataPipeline:
             query_release_date=to_date(mmcif.header["release_date"])
         )
         
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
         return {**mmcif_feats, **template_features, **msa_features}
 
@@ -570,6 +620,7 @@ class DataPipeline:
         alignment_dir: str,
         is_distillation: bool = True,
         chain_id: Optional[str] = None,
+        _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
         """
             Assembles features for a protein in a PDB file.
@@ -586,14 +637,14 @@ class DataPipeline:
             is_distillation
         )
 
-        hits = self._parse_template_hits(alignment_dir)
+        hits = self._parse_template_hits(alignment_dir, _alignment_index)
         template_features = make_template_features(
             input_sequence,
             hits,
             self.template_featurizer,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence)
+        msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
         return {**pdb_feats, **template_features, **msa_features}
 
@@ -601,6 +652,7 @@ class DataPipeline:
         self,
         core_path: str,
         alignment_dir: str,
+        _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
         """
             Assembles features for a protein in a ProteinNet .core file.
@@ -613,7 +665,7 @@ class DataPipeline:
         description = os.path.splitext(os.path.basename(core_path))[0].upper()
         core_feats = make_protein_features(protein_object, description)
         
-        hits = self._parse_template_hits(alignment_dir)
+        hits = self._parse_template_hits(alignment_dir, _alignment_index)
         template_features = make_template_features(
             input_sequence,
             hits,
