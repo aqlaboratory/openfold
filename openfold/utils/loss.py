@@ -1552,7 +1552,7 @@ class AlphaFoldLoss(nn.Module):
         super(AlphaFoldLoss, self).__init__()
         self.config = config
 
-    def forward(self, out, batch):
+    def forward(self, out, batch, _return_breakdown=False):
         if "violation" not in out.keys():
             out["violation"] = find_structural_violations(
                 batch,
@@ -1609,6 +1609,7 @@ class AlphaFoldLoss(nn.Module):
             )
 
         cum_loss = 0.
+        losses = {}
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
             loss = loss_fn()
@@ -1616,6 +1617,9 @@ class AlphaFoldLoss(nn.Module):
                 logging.warning(f"{loss_name} loss is NaN. Skipping...")
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss
+            losses[loss_name] = loss.detach().clone()
+
+        losses["unscaled_loss"] = cum_loss.detach().clone()
 
         # Scale the loss by the square root of the minimum of the crop size and
         # the (average) sequence length. See subsection 1.9.
@@ -1623,4 +1627,7 @@ class AlphaFoldLoss(nn.Module):
         crop_len = batch["aatype"].shape[-1]
         cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
 
-        return cum_loss
+        if(not _return_breakdown):
+            return cum_loss
+        
+        return cum_loss, losses

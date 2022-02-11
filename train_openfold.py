@@ -26,14 +26,20 @@ from openfold.data.data_modules import (
 )
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
+from openfold.np import residue_constants
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
 from openfold.utils.argparse import remove_arguments
-from openfold.utils.loss import AlphaFoldLoss, lddt_ca
+from openfold.utils.loss import AlphaFoldLoss, lddt_ca, compute_drmsd
 from openfold.utils.seed import seed_everything
+from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
+from openfold.utils.validation_metrics import (
+    gdt_ts,
+    gdt_ha,
+)
 from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint
 )
@@ -52,6 +58,7 @@ class OpenFoldWrapper(pl.LightningModule):
         )
         
         self.cached_weights = None
+        self.last_lr_step = 0
 
     def forward(self, batch):
         return self.model(batch)
@@ -67,15 +74,44 @@ class OpenFoldWrapper(pl.LightningModule):
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
 
         # Compute loss
-        loss = self.loss(outputs, batch)
+        loss, loss_breakdown = self.loss(
+            outputs, batch, _return_breakdown=True
+        )
 
         # Log it
-        self.log("train/loss", loss, on_step=True, logger=True)
+        self.log(
+            "train/loss", 
+            loss, 
+            on_step=True, logger=True,
+        )
+        self.log(
+            "train/loss_epoch", 
+            loss, 
+            on_step=False, on_epoch=True, logger=True,
+        )
+        for loss_name, indiv_loss in loss_breakdown.items():
+            self.log(
+                f"train/{loss_name}", 
+                indiv_loss, 
+                on_step=True, logger=True,
+            )
+
+        with torch.no_grad():
+            other_metrics = self.compute_validation_metrics(batch, outputs) 
+
+        for k,v in other_metrics.items():
+            self.log(f"train/{k}", v, on_step=False, on_epoch=True, logger=True)
 
         return loss
 
     def on_before_zero_grad(self, *args, **kwargs):
         self.ema.update(self.model)
+
+#    def training_step_end(self, outputs):
+#        # Temporary measure to address DeepSpeed scheduler bug
+#        if(self.trainer.global_step != self.last_lr_step):
+#            self.lr_schedulers().step()
+#            self.last_lr_step = self.trainer.global_step
 
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
@@ -83,26 +119,86 @@ class OpenFoldWrapper(pl.LightningModule):
             self.cached_weights = self.model.state_dict()
             self.model.load_state_dict(self.ema.state_dict()["params"])
        
-        # Calculate validation loss
+        # Run the model
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
-        lddt_ca_score = lddt_ca(
-            outputs["final_atom_positions"],
-            batch["all_atom_positions"],
-            batch["all_atom_mask"],
-            eps=self.config.globals.eps,
-            per_residue=False,
-        )
-        self.log("val/lddt_ca", lddt_ca_score, logger=True)
 
+        # Compute loss and other metrics
         batch["use_clamped_fape"] = 0.
-        loss = self.loss(outputs, batch)
-        self.log("val/loss", loss, logger=True)
+        loss, loss_breakdown = self.loss(
+            outputs, batch, _return_breakdown=True
+        )
+        self.log("val/loss", loss, on_step=False, on_epoch=True, logger=True)
+        for loss_name, indiv_loss in loss_breakdown.items():
+            self.log(
+                f"val/{loss_name}", 
+                indiv_loss, 
+                on_step=False, on_epoch=True, logger=True,
+            )
+
+        other_metrics = self.compute_validation_metrics(
+            batch, outputs, superimposition_metrics=True,
+        ) 
+        for k,v in other_metrics.items():
+            self.log(f"val/{k}", v, on_step=False, on_epoch=True, logger=True)
 
     def validation_epoch_end(self, _):
         # Restore the model weights to normal
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
+
+    def compute_validation_metrics(self, 
+        batch, 
+        outputs, 
+        superimposition_metrics=False
+    ):
+        metrics = {}
+        
+        gt_coords = batch["all_atom_positions"]
+        pred_coords = outputs["final_atom_positions"]
+        all_atom_mask = batch["all_atom_mask"]
+    
+        # This is super janky for superimposition. Fix later
+        gt_coords_masked = gt_coords * all_atom_mask[..., None]
+        pred_coords_masked = pred_coords * all_atom_mask[..., None]
+        ca_pos = residue_constants.atom_order["CA"]
+        gt_coords_masked_ca = gt_coords_masked[..., ca_pos, :]
+        pred_coords_masked_ca = pred_coords_masked[..., ca_pos, :]
+        all_atom_mask_ca = all_atom_mask[..., ca_pos]
+    
+        lddt_ca_score = lddt_ca(
+            pred_coords,
+            gt_coords,
+            all_atom_mask,
+            eps=self.config.globals.eps,
+            per_residue=False,
+        )
+    
+        metrics["lddt_ca"] = lddt_ca_score
+    
+        drmsd_ca_score = compute_drmsd(
+            pred_coords_masked_ca,
+            gt_coords_masked_ca,
+            mask=all_atom_mask_ca,
+        )
+    
+        metrics["drmsd_ca"] = drmsd_ca_score
+    
+        if(superimposition_metrics):
+            superimposed_pred, _ = superimpose(
+                gt_coords_masked_ca, pred_coords_masked_ca
+            )
+            gdt_ts_score = gdt_ts(
+                superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
+            )
+            gdt_ha_score = gdt_ha(
+                superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
+            )
+
+            metrics["gdt_ts"] = gdt_ts_score
+            metrics["gdt_ta"] = gdt_ha_score
+    
+        return metrics
 
     def configure_optimizers(self, 
         learning_rate: float = 1e-3,
@@ -180,6 +276,10 @@ def main(args):
         )
         callbacks.append(perf)
 
+    if(args.log_lr):
+        lr_monitor = LearningRateMonitor(logging_interval="step")
+        callbacks.append(lr_monitor)
+
     loggers = []
     if(args.wandb):
         wdb_logger = WandbLogger(
@@ -202,7 +302,7 @@ def main(args):
         strategy = DDPPlugin(find_unused_parameters=False)
     else:
         strategy = None
-    
+   
     trainer = pl.Trainer.from_argparse_args(
         args,
         default_root_dir=args.output_dir,
@@ -365,6 +465,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--train_epoch_len", type=int, default=10000,
+    )
+    parser.add_argument(
+        "--_alignment_index_path", type=str, default=None,
+    )
+    parser.add_argument(
+        "--log_lr", action="store_true", default=False,
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
