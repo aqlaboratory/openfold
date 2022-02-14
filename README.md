@@ -218,9 +218,9 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
     --train_chain_data_cache_path chain_data_cache.json
 ```
 
-where `--template_release_dates_cache_path` is a path to the `.json` file
-generated in the previous step. A suitable DeepSpeed configuration file can be 
-generated with `scripts/build_deepspeed_config.py`. The training script is 
+where `--template_release_dates_cache_path` is a path to the mmCIF cache. 
+A suitable DeepSpeed configuration file can be generated with 
+`scripts/build_deepspeed_config.py`. The training script is 
 written with [PyTorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning) 
 and supports the full range of training options that entails, including 
 multi-node distributed training. For more information, consult PyTorch 
