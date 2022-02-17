@@ -223,7 +223,7 @@ def main(args):
         seed_everything(args.seed) 
 
     config = model_config(
-        "initial_training", 
+        args.model_preset, 
         train=True, 
         low_prec=(args.precision == "16")
     ) 
@@ -471,6 +471,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--log_lr", action="store_true", default=False,
+    )
+    parser.add_argument(
+        "--model_preset", type=str, default="initial_training",
+        help='Model config setting. Choose e.g. "initial_training", "finetuning", "model_1", etc.'
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
