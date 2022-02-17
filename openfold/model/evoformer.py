@@ -571,7 +571,7 @@ class ExtraMSAStack(nn.Module):
                 pair_dropout=pair_dropout,
                 inf=inf,
                 eps=eps,
-                ckpt=False,
+                ckpt=ckpt,
             )
             self.blocks.append(block)
 
