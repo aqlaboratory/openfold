@@ -196,7 +196,7 @@ class OpenFoldWrapper(pl.LightningModule):
             )
 
             metrics["gdt_ts"] = gdt_ts_score
-            metrics["gdt_ta"] = gdt_ha_score
+            metrics["gdt_ha"] = gdt_ha_score
     
         return metrics
 
