@@ -63,7 +63,7 @@ class OpenFoldWrapper(pl.LightningModule):
     def forward(self, batch):
         return self.model(batch)
 
-    def _log(self, loss, loss_breakdown, batch, train=True):
+    def _log(self, loss_breakdown, batch, train=True):
         phase = "train" if train else "val"
         for loss_name, indiv_loss in loss_breakdown.items():
             self.log(
