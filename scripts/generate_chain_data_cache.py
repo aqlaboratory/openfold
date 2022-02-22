@@ -43,10 +43,7 @@ def parse_file(
                 cluster_size = chain_cluster_size_dict.get(
                     full_name.upper(), -1
                 )
-            else:
-                cluster_size = None
-            
-            local_data["cluster_size"] = cluster_size
+                local_data["cluster_size"] = cluster_size
     elif(ext == ".pdb"):
         with open(os.path.join(args.data_dir, f), "r") as fp:
             pdb_string = fp.read()
@@ -64,10 +61,7 @@ def parse_file(
             cluster_size = chain_cluster_size_dict.get(
                 full_name.upper(), -1
             )
-        else:
-            cluster_size = None
-        
-        chain_dict["cluster_size"] = cluster_size
+            chain_dict["cluster_size"] = cluster_size
 
         out = {file_id: chain_dict}
 
