@@ -17,6 +17,7 @@
 
 import collections
 import functools
+import os
 from typing import Mapping, List, Tuple
 from importlib import resources
 
@@ -448,9 +449,9 @@ def load_stereo_chemical_props() -> Tuple[
     ("residue_virtual_bonds").
 
     Returns:
-      residue_bonds:  dict that maps resname --> list of Bond tuples
-      residue_virtual_bonds: dict that maps resname --> list of Bond tuples
-      residue_bond_angles: dict that maps resname --> list of BondAngle tuples
+      residue_bonds:  Dict that maps resname -> list of Bond tuples
+      residue_virtual_bonds: Dict that maps resname -> list of Bond tuples
+      residue_bond_angles: Dict that maps resname -> list of BondAngle tuples
     """
     # TODO: this file should be downloaded in a setup script
     stereo_chemical_props = resources.read_text("openfold.resources", "stereo_chemical_props.txt")
