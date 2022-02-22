@@ -117,7 +117,7 @@ class OpenFoldWrapper(pl.LightningModule):
         self.ema.update(self.model)
 
 #    def training_step_end(self, outputs):
-#        # Temporary measure to address DeepSpeed scheduler bug
+#        # Temporary measure to address DeepSpeed scheduler bug (PL issue 11694)
 #        if(self.trainer.global_step != self.last_lr_step):
 #            self.lr_schedulers().step()
 #            self.last_lr_step = self.trainer.global_step
