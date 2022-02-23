@@ -145,7 +145,7 @@ class OpenFoldWrapper(pl.LightningModule):
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
 
-    def compute_validation_metrics(self, 
+    def _compute_validation_metrics(self, 
         batch, 
         outputs, 
         superimposition_metrics=False
