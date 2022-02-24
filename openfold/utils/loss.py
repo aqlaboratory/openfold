@@ -1640,6 +1640,8 @@ class AlphaFoldLoss(nn.Module):
         crop_len = batch["aatype"].shape[-1]
         cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
 
+        losses["loss"] = cum_loss.detach().clone()
+
         if(not _return_breakdown):
             return cum_loss
         

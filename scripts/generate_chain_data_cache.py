@@ -38,13 +38,11 @@ def parse_file(
             local_data["release_date"] = mmcif.header["release_date"]
             local_data["seq"] = seq
             local_data["resolution"] = mmcif.header["resolution"]
-            
-            cluster_size = chain_cluster_size_dict.get(full_name.upper(), None)
-            if(cluster_size is None):
-                print(file_id)
-                out.pop(full_name)
-                continue
-            else:
+           
+            if(chain_cluster_size_dict is not None):
+                cluster_size = chain_cluster_size_dict.get(
+                    full_name.upper(), -1
+                )
                 local_data["cluster_size"] = cluster_size
     elif(ext == ".pdb"):
         with open(os.path.join(args.data_dir, f), "r") as fp:
@@ -58,12 +56,12 @@ def parse_file(
         )
         local_data["resolution"] = 0.
 
-        cluster_size = chain_cluster_size_dict.get(file_id.upper(), None)
-        if(cluster_size is None):
-            print(file_id)
-            return {}
-        else:
-            local_data["cluster_size"] = cluster_size
+        cluster_size = chain_cluster_size_dict.get(file_id.upper(), -1)
+        if(chain_cluster_size_dict is not None):
+            cluster_size = chain_cluster_size_dict.get(
+                full_name.upper(), -1
+            )
+            chain_dict["cluster_size"] = cluster_size
 
         out = {file_id: chain_dict}
 
@@ -71,8 +69,9 @@ def parse_file(
 
 
 def main(args):
-    chain_cluster_size_dict = {}
+    chain_cluster_size_dict = None
     if(args.cluster_file is not None):
+        chain_cluster_size_dict = {}
         with open(args.cluster_file, "r") as fp:
             clusters = [l.strip() for l in fp.readlines()]
 
@@ -112,7 +111,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--cluster_file", type=str, default=None,
-        help="Path to a cluster file (e.g. PDB40), one cluster per line"
+        help=(
+            "Path to a cluster file (e.g. PDB40), one cluster "
+            "({PROT1_ID}_{CHAIN_ID} {PROT2_ID}_{CHAIN_ID} ...) per line. "
+            "Chains not in this cluster file will NOT be filtered by cluster "
+            "size."
+        )
     )
     parser.add_argument(
         "--no_workers", type=int, default=4,
