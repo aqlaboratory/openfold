@@ -74,6 +74,8 @@ def model_config(name, train=False, low_prec=False):
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
+    elif "multimer" in name:
+        c.model.update(multimer_model_config_update)
     else:
         raise ValueError("Invalid model name")
 
@@ -491,5 +493,13 @@ config = mlc.ConfigDict(
             "eps": eps,
         },
         "ema": {"decay": 0.999},
+    }
+)
+
+multimer_model_config_update = mlc.ConfigDict(
+    "relative_encoding": {
+        "enabled": True,
+        "max_relative_chain": 2,
+        "max_relative_idx": 32,
     }
 )

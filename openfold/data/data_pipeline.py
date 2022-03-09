@@ -25,6 +25,7 @@ from openfold.data import (
     parsers, 
     mmcif_parsing,
     msa_identifiers,
+    msa_pairing,
 )
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date 
@@ -277,11 +278,13 @@ class AlignmentRunner:
         mgnify_database_path: Optional[str] = None,
         bfd_database_path: Optional[str] = None,
         uniclust30_database_path: Optional[str] = None,
+        uniprot_database_path: Optional[str] = None,
         template_searcher: Optional[TemplateSearcher] = None,
         use_small_bfd: Optional[bool] = None,
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
+        uniprot_max_hits: int = 50000,
     ):
         """
         Args:
@@ -320,6 +323,7 @@ class AlignmentRunner:
                     uniref90_database_path,
                     mgnify_database_path,
                     bfd_database_path if use_small_bfd else None,
+                    uniprot_database_path,
                 ],
             },
             "hhblits": {
@@ -339,6 +343,7 @@ class AlignmentRunner:
 
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
+        self.uniprot_max_hits = uniprot_max_hits
         self.use_small_bfd = use_small_bfd
 
         if(no_cpus is None):
@@ -379,6 +384,13 @@ class AlignmentRunner:
                 binary_path=jackhmmer_binary_path,
                 database_path=mgnify_database_path,
                 n_cpu=no_cpus,
+            )
+
+        self._uniprot_msa_runner = None
+        if(uniprot_database_path is not None):
+            self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
+                binary_path=jackhmmer_binary_path,
+                database_path=uniprot_database_path
             )
 
         if(template_searcher is not None and 
@@ -455,6 +467,148 @@ class AlignmentRunner:
                 msa_out_path=bfd_out_path,
                 msa_format="a3m",
             )
+
+        if(self.jackhmmer_uniprot_runner is not None):
+            uniprot_out_path = os.path.join(output_dir, 'uniprot_hits.sto')
+            result = run_msa_tool(
+                self.jackhmmer_uniprot_runner, 
+                input_fasta_path=input_fasta_path, 
+                msa_out_path=uniprot_out_path, 
+                msa_format='sto',
+                max_sto_sequences=self.uniprot_max_hits,
+            )
+
+
+@dataclasses.dataclass(frozen=True)
+class _FastaChain:
+    sequence: str
+    description: str
+
+
+def _make_chain_id_map(*,
+    sequences: Sequence[str],
+    descriptions: Sequence[str],
+) -> Mapping[str, _FastaChain]:
+    """Makes a mapping from PDB-format chain ID to sequence and description."""
+    if len(sequences) != len(descriptions):
+      raise ValueError('sequences and descriptions must have equal length. '
+                       f'Got {len(sequences)} != {len(descriptions)}.')
+    if len(sequences) > protein.PDB_MAX_CHAINS:
+      raise ValueError('Cannot process more chains than the PDB format supports. '
+                       f'Got {len(sequences)} chains.')
+    chain_id_map = {}
+    for chain_id, sequence, description in zip(
+        protein.PDB_CHAIN_IDS, sequences, descriptions):
+      chain_id_map[chain_id] = _FastaChain(
+          sequence=sequence, description=description)
+    return chain_id_map
+
+
+@contextlib.contextmanager
+def temp_fasta_file(fasta_str: str):
+    with tempfile.NamedTemporaryFile('w', suffix='.fasta') as fasta_file:
+      fasta_file.write(fasta_str)
+      fasta_file.seek(0)
+      yield fasta_file.name
+
+
+def convert_monomer_features(
+    monomer_features: FeatureDict,
+    chain_id: str
+) -> FeatureDict:
+    """Reshapes and modifies monomer features for multimer models."""
+    converted = {}
+    converted['auth_chain_id'] = np.asarray(chain_id, dtype=np.object_)
+    unnecessary_leading_dim_feats = {
+        'sequence', 'domain_name', 'num_alignments', 'seq_length'}
+    for feature_name, feature in monomer_features.items():
+      if feature_name in unnecessary_leading_dim_feats:
+        # asarray ensures it's a np.ndarray.
+        feature = np.asarray(feature[0], dtype=feature.dtype)
+      elif feature_name == 'aatype':
+        # The multimer model performs the one-hot operation itself.
+        feature = np.argmax(feature, axis=-1).astype(np.int32)
+      elif feature_name == 'template_aatype':
+        feature = np.argmax(feature, axis=-1).astype(np.int32)
+        new_order_list = residue_constants.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
+        feature = np.take(new_order_list, feature.astype(np.int32), axis=0)
+      elif feature_name == 'template_all_atom_masks':
+        feature_name = 'template_all_atom_mask'
+      converted[feature_name] = feature
+    return converted
+
+
+def int_id_to_str_id(num: int) -> str:
+    """Encodes a number as a string, using reverse spreadsheet style naming.
+  
+    Args:
+      num: A positive integer.
+  
+    Returns:
+      A string that encodes the positive integer using reverse spreadsheet style,
+      naming e.g. 1 = A, 2 = B, ..., 27 = AA, 28 = BA, 29 = CA, ... This is the
+      usual way to encode chain IDs in mmCIF files.
+    """
+    if num <= 0:
+      raise ValueError(f'Only positive integers allowed, got {num}.')
+  
+    num = num - 1  # 1-based indexing.
+    output = []
+    while num >= 0:
+      output.append(chr(num % 26 + ord('A')))
+      num = num // 26 - 1
+    return ''.join(output)
+
+
+def add_assembly_features(
+    all_chain_features: MutableMapping[str, FeatureDict],
+) -> MutableMapping[str, FeatureDict]:
+    """Add features to distinguish between chains.
+  
+    Args:
+      all_chain_features: A dictionary which maps chain_id to a dictionary of
+        features for each chain.
+  
+    Returns:
+      all_chain_features: A dictionary which maps strings of the form
+        `<seq_id>_<sym_id>` to the corresponding chain features. E.g. two
+        chains from a homodimer would have keys A_1 and A_2. Two chains from a
+        heterodimer would have keys A_1 and B_1.
+    """
+    # Group the chains by sequence
+    seq_to_entity_id = {}
+    grouped_chains = collections.defaultdict(list)
+    for chain_id, chain_features in all_chain_features.items():
+      seq = str(chain_features['sequence'])
+      if seq not in seq_to_entity_id:
+        seq_to_entity_id[seq] = len(seq_to_entity_id) + 1
+      grouped_chains[seq_to_entity_id[seq]].append(chain_features)
+  
+    new_all_chain_features = {}
+    chain_id = 1
+    for entity_id, group_chain_features in grouped_chains.items():
+      for sym_id, chain_features in enumerate(group_chain_features, start=1):
+        new_all_chain_features[
+            f'{int_id_to_str_id(entity_id)}_{sym_id}'] = chain_features
+        seq_length = chain_features['seq_length']
+        chain_features['asym_id'] = chain_id * np.ones(seq_length)
+        chain_features['sym_id'] = sym_id * np.ones(seq_length)
+        chain_features['entity_id'] = entity_id * np.ones(seq_length)
+        chain_id += 1
+  
+    return new_all_chain_features
+
+
+def pad_msa(np_example, min_num_seq):
+    np_example = dict(np_example)
+    num_seq = np_example['msa'].shape[0]
+    if num_seq < min_num_seq:
+      for feat in ('msa', 'deletion_matrix', 'bert_mask', 'msa_mask'):
+        np_example[feat] = np.pad(
+            np_example[feat], ((0, min_num_seq - num_seq), (0, 0)))
+      np_example['cluster_bias_mask'] = np.pad(
+          np_example['cluster_bias_mask'], ((0, min_num_seq - num_seq),))
+    return np_example
 
 
 class DataPipeline:
@@ -579,10 +733,9 @@ class DataPipeline:
             (v["msa"], v["deletion_matrix"]) for v in msa_data.values()
         ])
 
-        msa_features = make_msa_features(
-            msas=msas,
-            deletion_matrices=deletion_matrices,
-        )
+        msa_objects = [Msa(m, d) for m, d in zip(msas, deletion_matrices)]
+
+        msa_features = make_msa_features(msa_objects)
 
         return msa_features
 
@@ -722,3 +875,126 @@ class DataPipeline:
 
         return {**core_feats, **template_features, **msa_features}
 
+
+class DataPipelineMultimer:
+    """Runs the alignment tools and assembles the input features."""
+
+    def __init__(self,
+        monomer_data_pipeline: DataPipeline,
+        jackhmmer_binary_path: str,
+        uniprot_database_path: str,
+        max_uniprot_hits: int = 50000,
+    ):
+    """Initializes the data pipeline.
+
+    Args:
+      monomer_data_pipeline: An instance of pipeline.DataPipeline - that runs
+        the data pipeline for the monomer AlphaFold system.
+      jackhmmer_binary_path: Location of the jackhmmer binary.
+      uniprot_database_path: Location of the unclustered uniprot sequences, that
+        will be searched with jackhmmer and used for MSA pairing.
+      max_uniprot_hits: The maximum number of hits to return from uniprot.
+      use_precomputed_msas: Whether to use pre-existing MSAs; see run_alphafold.
+    """
+    self._monomer_data_pipeline = monomer_data_pipeline
+
+    def _process_single_chain(
+        self,
+        chain_id: str,
+        sequence: str,
+        description: str,
+        msa_output_dir: str,
+        is_homomer_or_monomer: bool
+    ) -> FeatureDict:
+        """Runs the monomer pipeline on a single chain."""
+        chain_fasta_str = f'>chain_{chain_id}\n{sequence}\n'
+        chain_msa_output_dir = os.path.join(msa_output_dir, chain_id)
+        if not os.path.exists(chain_msa_output_dir):
+            raise ValueError(f"Alignments for {chain_id} not found...")
+        with temp_fasta_file(chain_fasta_str) as chain_fasta_path:
+          chain_features = self._monomer_data_pipeline.process_fasta(
+              input_fasta_path=chain_fasta_path,
+              alignment_dir=chain_msa_output_dir
+          )
+  
+          # We only construct the pairing features if there are 2 or more unique
+          # sequences.
+          if not is_homomer_or_monomer:
+            all_seq_msa_features = self._all_seq_msa_features(chain_fasta_path,
+                                                              chain_msa_output_dir)
+            chain_features.update(all_seq_msa_features)
+        return chain_features
+  
+    def _all_seq_msa_features(self, input_fasta_path, msa_output_dir):
+      """Get MSA features for unclustered uniprot, for pairing."""
+      uniprot_msa_path = os.path.join(msa_output_dir, "uniprot_hits.sto")
+      with open(uniprot_msa_path, "r") as fp:
+          uniprot_msa_string = fp.read()
+      msa = parsers.parse_stockholm(uniprot_msa_string)
+      all_seq_features = make_msa_features([msa])
+      valid_feats = msa_pairing.MSA_FEATURES + (
+          'msa_uniprot_accession_identifiers',
+          'msa_species_identifiers',
+      )
+      feats = {
+          f'{k}_all_seq': v for k, v in all_seq_features.items()
+          if k in valid_feats
+      }
+      return feats
+  
+    def process(self,
+        input_fasta_path: str,
+        msa_output_dir: str,
+        is_prokaryote: bool = False
+    ) -> FeatureDict:
+        """Runs alignment tools on the input sequences and creates features."""
+        with open(input_fasta_path) as f:
+          input_fasta_str = f.read()
+        input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
+  
+        chain_id_map = _make_chain_id_map(
+            sequences=input_seqs,
+            descriptions=input_descs
+        )
+        chain_id_map_path = os.path.join(msa_output_dir, 'chain_id_map.json')
+        with open(chain_id_map_path, 'w') as f:
+            chain_id_map_dict = {
+                chain_id: dataclasses.asdict(fasta_chain)
+                for chain_id, fasta_chain in chain_id_map.items()
+            }
+            json.dump(chain_id_map_dict, f, indent=4, sort_keys=True)
+  
+        all_chain_features = {}
+        sequence_features = {}
+        is_homomer_or_monomer = len(set(input_seqs)) == 1
+        for chain_id, fasta_chain in chain_id_map.items():
+            if fasta_chain.sequence in sequence_features:
+                all_chain_features[chain_id] = copy.deepcopy(
+                    sequence_features[fasta_chain.sequence])
+                continue
+            chain_features = self._process_single_chain(
+                chain_id=chain_id,
+                sequence=fasta_chain.sequence,
+                description=fasta_chain.description,
+                msa_output_dir=msa_output_dir,
+                is_homomer_or_monomer=is_homomer_or_monomer
+            )
+  
+            chain_features = convert_monomer_features(
+                chain_features,
+                chain_id=chain_id
+            )
+            all_chain_features[chain_id] = chain_features
+            sequence_features[fasta_chain.sequence] = chain_features
+  
+        all_chain_features = add_assembly_features(all_chain_features)
+  
+        np_example = feature_processing.pair_and_merge(
+            all_chain_features=all_chain_features,
+            is_prokaryote=is_prokaryote,
+        )
+  
+        # Pad MSA to avoid zero-sized extra_msa.
+        np_example = pad_msa(np_example, 512)
+  
+        return np_example

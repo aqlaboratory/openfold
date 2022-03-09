@@ -16,7 +16,7 @@
 import math
 import torch
 import torch.nn as nn
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
 from openfold.np.residue_constants import (
@@ -151,6 +151,40 @@ class AngleResnet(nn.Module):
         return unnormalized_s, s
 
 
+class PointProjection(nn.Module):
+    def __init__(self,
+        c_hidden: int,
+        num_points: int,
+        no_heads: int
+        return_local_points: bool = False,
+    ):
+        super().__init__()
+        self.return_local_points = return_local_points
+        self.no_heads = no_heads
+        
+        self.linear = Linear(c_hidden, 3 * num_points)
+
+    def forward(self, 
+        activations: torch.Tensor, 
+        rigids: Rigid3Array,
+    ) -> Union[Vec3Array, Tuple[Vec3Array, Vec3Array]]:
+        # TODO: Needs to run in high precision during training
+        points_local = self.linear(activations)
+        points_local = points_local.reshape(
+            points_local.shape[:-1],
+            self.no_heads,
+            -1,
+        )
+        points_local = torch.split(points_local, 3, dim=-1)
+        points_local = Vec3Array(*points_local)
+        points_global = rigids[..., None, None].apply_to_point(points_local)
+
+        if(self.return_local_points):
+            return points_global, points_local
+
+        return points_global 
+
+
 class InvariantPointAttention(nn.Module):
     """
     Implements Algorithm 22.
@@ -200,13 +234,23 @@ class InvariantPointAttention(nn.Module):
         self.linear_q = Linear(self.c_s, hc)
         self.linear_kv = Linear(self.c_s, 2 * hc)
 
-        hpq = self.no_heads * self.no_qk_points * 3
-        self.linear_q_points = Linear(self.c_s, hpq)
+        self.linear_q_points = PointProjection(
+            self.c_s, 
+            self.no_qk_points, 
+            self.no_heads
+        )
 
-        hpkv = self.no_heads * (self.no_qk_points + self.no_v_points) * 3
-        self.linear_kv_points = Linear(self.c_s, hpkv)
+        self.linear_k_points = PointProjection(
+            self.c_s,
+            self.no_qk_points
+            self.no_heads,
+        )
 
-        hpv = self.no_heads * self.no_v_points * 3
+        self.linear_v_points = PointProjection(
+            self.c_s,
+            self.no_v_points
+            self.no_heads,
+        )
 
         self.linear_b = Linear(self.c_z, self.no_heads)
 
@@ -257,35 +301,14 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H, C_hidden]
         k, v = torch.split(kv, self.c_hidden, dim=-1)
 
-        # [*, N_res, H * P_q * 3]
-        q_pts = self.linear_q_points(s)
+        # [*, N_res, H, P_qk]
+        q_pts = self.linear_q_points(s, r) 
 
-        # This is kind of clunky, but it's how the original does it
-        # [*, N_res, H * P_q, 3]
-        q_pts = torch.split(q_pts, q_pts.shape[-1] // 3, dim=-1)
-        q_pts = torch.stack(q_pts, dim=-1)
-        q_pts = r[..., None].apply(q_pts)
+        # [*, N_res, H, P_qk, 3]
+        k_pts = self.linear_k_points(s, r)
 
-        # [*, N_res, H, P_q, 3]
-        q_pts = q_pts.view(
-            q_pts.shape[:-2] + (self.no_heads, self.no_qk_points, 3)
-        )
-
-        # [*, N_res, H * (P_q + P_v) * 3]
-        kv_pts = self.linear_kv_points(s)
-
-        # [*, N_res, H * (P_q + P_v), 3]
-        kv_pts = torch.split(kv_pts, kv_pts.shape[-1] // 3, dim=-1)
-        kv_pts = torch.stack(kv_pts, dim=-1)
-        kv_pts = r[..., None].apply(kv_pts)
-
-        # [*, N_res, H, (P_q + P_v), 3]
-        kv_pts = kv_pts.view(kv_pts.shape[:-2] + (self.no_heads, -1, 3))
-
-        # [*, N_res, H, P_q/P_v, 3]
-        k_pts, v_pts = torch.split(
-            kv_pts, [self.no_qk_points, self.no_v_points], dim=-2
-        )
+        # [*, N_res, H, P_v, 3]
+        v_pts = self.linear_v_points(s, r)
 
         ##########################
         # Compute attention scores
@@ -302,8 +325,8 @@ class InvariantPointAttention(nn.Module):
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
         # [*, N_res, N_res, H, P_q, 3]
-        pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
-        pt_att = pt_att ** 2
+        pt_att = q_pts[..., None, :, :] - k_pts[..., None, :, :, :]
+        pt_att = pt_att * pt_att + self.eps
 
         # [*, N_res, N_res, H, P_q]
         pt_att = sum(torch.unbind(pt_att, dim=-1))
@@ -340,26 +363,20 @@ class InvariantPointAttention(nn.Module):
 
         # As DeepMind explains, this manual matmul ensures that the operation
         # happens in float32.
-        # [*, H, 3, N_res, P_v]
-        o_pt = torch.sum(
-            (
-                a[..., None, :, :, None]
-                * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
-            ),
-            dim=-2,
+        # [*, N_res, H, P_v]
+        o_pt = v_pts.tensor_dot(
+            permute_final_dims(a, (1, 2, 0)).unsqueeze(-1) 
         )
+        o_pt = o_pt.sum(dim=-3)
 
-        # [*, N_res, H, P_v, 3]
-        o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
-        o_pt = r[..., None, None].invert_apply(o_pt)
-
-        # [*, N_res, H * P_v]
-        o_pt_norm = flatten_final_dims(
-            torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 2
-        )
+        # [*, N_res, H, P_v]
+        o_pt = r[..., None, None].apply_inverse_to_point(o_pt)
 
         # [*, N_res, H * P_v, 3]
-        o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
+        o_pt = o_pt.reshape(o_pt.shape[:-2] + (-1,))
+
+        # [*, N_res, H * P_v]
+        o_pt_norm = o_pt.norm(self.eps)
 
         # [*, N_res, H, C_z]
         o_pair = torch.matmul(a.transpose(-2, -3), z.to(dtype=a.dtype))
@@ -370,7 +387,7 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, C_s]
         s = self.linear_out(
             torch.cat(
-                (o, *torch.unbind(o_pt, dim=-1), o_pt_norm, o_pair), dim=-1
+                (o, *o_pt, o_pt_norm, o_pair), dim=-1
             ).to(dtype=z.dtype)
         )
 

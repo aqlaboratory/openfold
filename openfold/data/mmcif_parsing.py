@@ -476,6 +476,20 @@ def get_atom_coords(
                     pos[residue_constants.atom_order["SD"]] = [x, y, z]
                     mask[residue_constants.atom_order["SD"]] = 1.0
 
+            # Fix naming errors in arginine residues where NH2 is incorrectly
+            # assigned to be closer to CD than NH1
+            cd = residue_constants.atom_order['CD']
+            nh1 = residue_constants.atom_order['NH1']
+            nh2 = residue_constants.atom_order['NH2']
+            if(
+                res.get_resname() == 'ARG' and
+                all(mask[atom_index] for atom_index in (cd, nh1, nh2)) and
+                (np.linalg.norm(pos[nh1] - pos[cd]) > 
+                 np.linalg.norm(pos[nh2] - pos[cd]))
+            ):
+                pos[nh1], pos[nh2] = pos[nh2].copy(), pos[nh1].copy()
+                mask[nh1], mask[nh2] = mask[nh2].copy(), mask[nh1].copy()
+
         all_atom_positions[res_index] = pos
         all_atom_mask[res_index] = mask
 

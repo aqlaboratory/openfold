@@ -14,8 +14,10 @@
 # limitations under the License.
 
 """Functions for getting templates and calculating template features."""
+import abc
 import dataclasses
 import datetime
+import functools
 import glob
 import json
 import logging
@@ -63,10 +65,6 @@ class PrefilterError(Exception):
 
 class DateError(PrefilterError):
     """An error indicating that the hit date was after the max allowed date."""
-
-
-class PdbIdError(PrefilterError):
-    """An error indicating that the hit PDB ID was identical to the query."""
 
 
 class AlignRatioError(PrefilterError):
@@ -188,7 +186,6 @@ def _assess_hhsearch_hit(
     hit: parsers.TemplateHit,
     hit_pdb_code: str,
     query_sequence: str,
-    query_pdb_code: Optional[str],
     release_dates: Mapping[str, datetime.datetime],
     release_date_cutoff: datetime.datetime,
     max_subsequence_ratio: float = 0.95,
@@ -202,7 +199,6 @@ def _assess_hhsearch_hit(
             different from the value in the actual hit since the original pdb might
             have become obsolete.
         query_sequence: Amino acid sequence of the query.
-        query_pdb_code: 4 letter pdb code of the query.
         release_dates: Dictionary mapping pdb codes to their structure release
             dates.
         release_date_cutoff: Max release date that is valid for this query.
@@ -214,7 +210,6 @@ def _assess_hhsearch_hit(
 
     Raises:
         DateError: If the hit date was after the max allowed date.
-        PdbIdError: If the hit PDB ID was identical to the query.
         AlignRatioError: If the hit align ratio to the query was too small.
         DuplicateError: If the hit was an exact subsequence of the query.
         LengthError: If the hit was too short.
@@ -238,10 +233,6 @@ def _assess_hhsearch_hit(
             f"Date ({date}) > max template date "
             f"({release_date_cutoff})."
         )
-
-    if query_pdb_code is not None:
-        if query_pdb_code.lower() == hit_pdb_code.lower():
-            raise PdbIdError("PDB code identical to Query PDB code.")
 
     if align_ratio <= min_align_ratio:
         raise AlignRatioError(
@@ -408,9 +399,10 @@ def _realign_pdb_template_to_query(
             )
 
     try:
-        (old_aligned_template, new_aligned_template), _ = parsers.parse_a3m(
+        parsed_a3m = parsers.parse_a3m(
             aligner.align([old_template_sequence, new_template_sequence])
         )
+        old_aligned_template, new_aligned_template = parsed_a3m.sequences
     except Exception as e:
         raise QueryToTemplateAlignError(
             "Could not align old template %s to template %s (%s_%s). Error: %s"
@@ -752,7 +744,6 @@ class SingleHitResult:
 
 def _prefilter_hit(
     query_sequence: str,
-    query_pdb_code: Optional[str],
     hit: parsers.TemplateHit,
     max_template_date: datetime.datetime,
     release_dates: Mapping[str, datetime.datetime],
@@ -773,7 +764,6 @@ def _prefilter_hit(
             hit=hit,
             hit_pdb_code=hit_pdb_code,
             query_sequence=query_sequence,
-            query_pdb_code=query_pdb_code,
             release_dates=release_dates,
             release_date_cutoff=max_template_date,
         )
@@ -781,9 +771,7 @@ def _prefilter_hit(
         hit_name = f"{hit_pdb_code}_{hit_chain_id}"
         msg = f"hit {hit_name} did not pass prefilter: {str(e)}"
         logging.info("%s: %s", query_pdb_code, msg)
-        if strict_error_check and isinstance(
-            e, (DateError, PdbIdError, DuplicateError)
-        ):
+        if strict_error_check and isinstance(e, (DateError, DuplicateError)):
             # In strict mode we treat some prefilter cases as errors.
             return PrefilterResult(valid=False, error=msg, warning=None)
 
@@ -792,9 +780,16 @@ def _prefilter_hit(
     return PrefilterResult(valid=True, error=None, warning=None)
 
 
+@functools.lru_cache(16, typed=False)
+def _read_file(path):
+    with open(path, 'r') as f:
+        file_data = f.read()
+
+    return file_data
+
+
 def _process_single_hit(
     query_sequence: str,
-    query_pdb_code: Optional[str],
     hit: parsers.TemplateHit,
     mmcif_dir: str,
     max_template_date: datetime.datetime,
@@ -832,8 +827,7 @@ def _process_single_hit(
         template_sequence,
     )
     # Fail if we can't find the mmCIF file.
-    with open(cif_path, "r") as cif_file:
-        cif_string = cif_file.read()
+    cif_string = _read_file(cif_path)
 
     parsing_result = mmcif_parsing.parse(
         file_id=hit_pdb_code, mmcif_string=cif_string
@@ -866,7 +860,11 @@ def _process_single_hit(
             kalign_binary_path=kalign_binary_path,
             _zero_center_positions=_zero_center_positions,
         )
-        features["template_sum_probs"] = [hit.sum_probs]
+
+        if hit.sum_probs is None:
+            features["template_sum_probs"] = [0]
+        else:
+            features["template_sum_probs"] = [hit.sum_probs]
 
         # It is possible there were some errors when parsing the other chains in the
         # mmCIF file, but the template features for the chain we want were still
@@ -920,8 +918,8 @@ class TemplateSearchResult:
     warnings: Sequence[str]
 
 
-class TemplateHitFeaturizer:
-    """A class for turning hhr hits to template features."""
+class TemplateHitFeaturizer(abc.ABC):
+    """An abstract base class for turning template hits to features."""
     def __init__(
         self,
         mmcif_dir: str,
@@ -993,10 +991,18 @@ class TemplateHitFeaturizer:
         self._shuffle_top_k_prefiltered = _shuffle_top_k_prefiltered
         self._zero_center_positions = _zero_center_positions
 
+    @abc.abstractmethod
     def get_templates(
         self,
         query_sequence: str,
-        query_pdb_code: Optional[str],
+        hits: Sequence[parsers.TemplateHit]
+    ) -> TemplateSearchResult:
+
+
+class HhsearchHitFeaturizer(TemplateHitFeaturizer):
+    def get_templates(
+        self,
+        query_sequence: str,
         query_release_date: Optional[datetime.datetime],
         hits: Sequence[parsers.TemplateHit],
     ) -> TemplateSearchResult:
@@ -1025,7 +1031,6 @@ class TemplateHitFeaturizer:
         for hit in hits:
             prefilter_result = _prefilter_hit(
                 query_sequence=query_sequence,
-                query_pdb_code=query_pdb_code,
                 hit=hit,
                 max_template_date=template_cutoff_date,
                 release_dates=self._release_dates,
@@ -1104,4 +1109,89 @@ class TemplateHitFeaturizer:
 
         return TemplateSearchResult(
             features=template_features, errors=errors, warnings=warnings
+        )
+
+
+class HmmsearchHitFeaturizer(TemplateHitFeaturizer):
+    def get_templates(
+        self,
+        query_sequence: str,
+        hits: Sequence[parsers.TemplateHit]
+    ) -> TemplateSearchResult:
+        template_features = {}
+        for template_feature_name in TEMPLATE_FEATURES:
+            template_features[template_feature_name] = []
+
+        already_seen = set()
+        errors = []
+        warnings = []
+
+        if not hits or hits[0].sum_probs is None:
+            sorted_hits = hits
+        else:
+            sorted_hits = sorted(hits, key=lambda x: x.sum_probs, reverse=True)
+
+        for hit in sorted_hits:
+            if(len(already_seen) >= self._max_hits):
+                break
+
+        result = _process_single_hit(
+            query_sequence=query_sequence,
+            hit=hit,
+            mmcif_dir=self._mmcif_dir,
+            max_template_date = self._max_template_date,
+            release_dates = self._release_dates,
+            obsolete_pdbs = self._obsolete_pdbs,
+            strict_error_check = self._strict_error_check,
+            kalign_binary_path = self._kalign_binary_path
+        )
+
+        if result.error:
+            errors.append(result.error)
+
+        if result.warning:
+            warnings.append(result.warning)
+
+        if result.features is None:
+            logging.debug(
+                "Skipped invalid hit %s, error: %s, warning: %s",
+                hit.name, result.error, result.warning,
+            )
+        else:
+            already_seen_key = result.features["template_sequence"]
+            if(already_seen_key in already_seen):
+                continue
+            # Increment the hit counter, since we got features out of this hit.
+            already_seen.add(already_seen_key)
+            for k in template_features:
+                template_features[k].append(result.features[k])
+
+        if already_seen:
+            for name in template_features:
+                template_features[name] = np.stack(
+                    template_features[name], axis=0
+                ).astype(TEMPLATE_FEATURES[name])
+        else:
+            num_res = len(query_sequence)
+            # Construct a default template with all zeros.
+            template_features = {
+                "template_aatype": np.zeros(
+                    (1, num_res, len(residue_constants.restypes_with_x_and_gap)),
+                    np.float32
+                ),
+                "template_all_atom_masks": np.zeros(
+                    (1, num_res, residue_constants.atom_type_num), np.float32
+                ),
+                "template_all_atom_positions": np.zeros(
+                    (1, num_res, residue_constants.atom_type_num, 3), np.float32
+                ),
+                "template_domain_names": np.array([''.encode()], dtype=np.object),
+                "template_sequence": np.array([''.encode()], dtype=np.object),
+                "template_sum_probs": np.array([0], dtype=np.float32),
+            }
+
+        return TemplateSearchResult(
+            features=template_features,
+            errors=errors,
+            warnings=warnings,
         )
