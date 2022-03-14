@@ -31,7 +31,7 @@ from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
-from openfold.utils.argparse import remove_arguments
+from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.loss import AlphaFoldLoss, lddt_ca, compute_drmsd
 from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose

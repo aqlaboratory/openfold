@@ -184,7 +184,7 @@ class PointProjection(nn.Module):
 
         return points_global 
 
-
+# WEIGHTS CHANGED
 class InvariantPointAttention(nn.Module):
     """
     Implements Algorithm 22.
@@ -578,7 +578,7 @@ class StructureModule(nn.Module):
             self.dropout_rate,
         )
 
-        self.bb_update = BackboneUpdate(self.c_s)
+        self.bb_update = QuatRigid(self.c_s, full_quat=False)
 
         self.angle_resnet = AngleResnet(
             self.c_s,
