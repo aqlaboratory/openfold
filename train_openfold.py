@@ -125,7 +125,11 @@ class OpenFoldWrapper(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
         if(self.cached_weights is None):
-            self.cached_weights = self.model.state_dict()
+            # load_state_dict() is an in-place operation
+            # it will change the content in any reference of model.state_dict()
+            # therefore we need to explicitly clone the parameters
+            clone_param = lambda t: t.clone().detach()
+            self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
             self.model.load_state_dict(self.ema.state_dict()["params"])
        
         # Run the model
