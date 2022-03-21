@@ -17,7 +17,7 @@ class AlphaFoldLRScheduler(torch.optim.lr_scheduler._LRScheduler):
         base_lr: float = 0.,
         max_lr: float = 0.001,
         warmup_no_steps: int = 1000,
-        start_decay_after_n_steps: int = 10000,
+        start_decay_after_n_steps: int = 50000,
         decay_every_n_steps: int = 50000,
         decay_factor: float = 0.95,
     ):
