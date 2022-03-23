@@ -1531,7 +1531,7 @@ def compute_drmsd(structure_1, structure_2, mask=None):
     drmsd = drmsd ** 2
     drmsd = torch.sum(drmsd, dim=(-1, -2))
     n = d1.shape[-1] if mask is None else torch.sum(mask, dim=-1)
-    drmsd = drmsd * (1 / (n * (n - 1))) if n > 1 else 0.
+    drmsd = drmsd * (1 / (n * (n - 1))) if n > 1 else (drmsd * 0.)
     drmsd = torch.sqrt(drmsd)
 
     return drmsd
