@@ -78,10 +78,10 @@ def main(args):
 
     # Gather input sequences
     with open(args.fasta_path, "r") as fp:
-        lines = [l.strip() for l in fp.readlines()]
+        data = fp.read()
 
+    lines = [l.replace('\n', '') for l in data.split(">")]
     tags, seqs = lines[::2], lines[1::2]
-    tags = [l[1:] for l in tags]
 
     for tag, seq in zip(tags, seqs):
         fasta_path = os.path.join(args.output_dir, "tmp.fasta")
@@ -179,6 +179,13 @@ def main(args):
         with open(relaxed_output_path, 'w') as f:
             f.write(relaxed_pdb_str)
 
+        if(args.save_outputs):
+            output_dict_path = os.path.join(
+                args.output_dir, f'{tag}_{args.model_name}_output_dict.pkl'
+            )
+            with open(output_dict_path, "wb") as fp:
+                pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -212,6 +219,10 @@ if __name__ == "__main__":
         help="""Path to model parameters. If None, parameters are selected
              automatically according to the model name from 
              openfold/resources/params"""
+    )
+    parser.add_argument(
+        "--save_outputs", type=bool, default=False,
+        help="Whether to save all model outputs, including embeddings, etc."
     )
     parser.add_argument(
         "--cpus", type=int, default=4,
