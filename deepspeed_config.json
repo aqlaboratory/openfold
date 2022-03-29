@@ -7,7 +7,7 @@
     "enabled": false,
     "opt_level": "O2"
   },
-  "bfloat16": {
+  "bf16": {
     "enabled": true
   },
   "zero_optimization": {
