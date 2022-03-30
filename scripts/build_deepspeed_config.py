@@ -134,10 +134,10 @@ p.add_argument("--fp16", dest="fp16", action="store_true", default=False,
                help="""Whether to train in 16-bit/mixed-precision mode. 
                        Mutually exclusive with --amp""")
 
-p = parser.add_argument_group("Half-precision training (bf16)")
-p.add_argument("--bf16", dest="bf16", action="store_true",
+p = parser.add_argument_group("Half-precision training (bfloat16)")
+p.add_argument("--bfloat16", dest="bfloat16", action="store_true",
                default=False,
-               help="""Whether to train in 16-bit bf16 mode. Mutually
+               help="""Whether to train in 16-bit bfloat16 mode. Mutually
                        exclusive with --amp and --fp16. Requires hardware
                        support""")
 
@@ -258,8 +258,8 @@ if(args.scheduler is not None):
     d["scheduler"] = scheduler
 
 # 16-bit training
-if(sum([args.amp, args.fp16, args.bf16]) > 1):
-    raise ValueError("Only one of --fp16, --amp, or --bf16 can be enabled")
+if(sum([args.amp, args.fp16, args.bfloat16]) > 1):
+    raise ValueError("Only one of --fp16, --amp, or --bfloat16 can be enabled")
 
 if(args.amp):
     amp = {}
@@ -270,10 +270,10 @@ elif(args.fp16):
     fp16 = {}
     fp16["enabled"] = args.fp16
     d["fp16"] = fp16
-elif(args.bf16):
-    bf16 = {}
-    bf16["enabled"] = args.bf16
-    d["bf16"] = bf16
+elif(args.bfloat16):
+    bfloat16 = {}
+    bfloat16["enabled"] = args.bfloat16
+    d["bfloat16"] = bfloat16
 
 # Activation checkpointing
 ac = {}
