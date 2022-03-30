@@ -80,7 +80,10 @@ def main(args):
     with open(args.fasta_path, "r") as fp:
         data = fp.read()
 
-    lines = [l for l in prot.strip().split('\n') for prot in data.split(">")]
+    lines = [
+        l.replace('\n', '') 
+        for l in prot.strip().split('\n', 1) for prot in data.split(">")
+    ]
     tags, seqs = lines[::2], lines[1::2]
 
     for tag, seq in zip(tags, seqs):
