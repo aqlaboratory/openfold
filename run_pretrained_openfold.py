@@ -83,7 +83,7 @@ def main(args):
     lines = [
         l.replace('\n', '') 
         for prot in data.split('>') for l in prot.strip().split('\n', 1)
-    ]
+    ][1:]
     tags, seqs = lines[::2], lines[1::2]
 
     for tag, seq in zip(tags, seqs):
