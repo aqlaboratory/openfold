@@ -42,6 +42,7 @@ from openfold.utils.loss import (
     backbone_loss,
     sidechain_loss,
     tm_loss,
+    compute_plddt,
 )
 from openfold.utils.tensor_utils import (
     tree_map,
@@ -225,6 +226,21 @@ class TestLoss(unittest.TestCase):
             self.assertTrue(
                 torch.max(torch.abs(out_gt[k] - out_repro[k])) < consts.eps
             )
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_compute_plddt_compare(self):
+        n_res = consts.n_res
+
+        logits = np.random.rand(n_res, 50)
+
+        out_gt = alphafold.common.confidence.compute_plddt(logits)
+        out_gt = torch.tensor(out_gt)
+        logits_t = torch.tensor(logits)
+        out_repro = compute_plddt(logits_t)
+
+        self.assertTrue(
+            torch.max(torch.abs(out_gt - out_repro)) < consts.eps
+        )
 
     def test_find_structural_violations(self):
         n = consts.n_res
