@@ -206,7 +206,8 @@ def backbone_loss(
         )
 
     # Average over the batch dimension
-    fape_loss = torch.mean(fape_loss)
+    # XXXX Zeming: how the heck do you weight by lengths if you're averaging across batches here? We comment it out
+    # fape_loss = torch.mean(fape_loss)
 
     return fape_loss
 
@@ -366,7 +367,8 @@ def supervised_chi_loss(
     loss = loss + angle_norm_weight * angle_norm_loss
 
     # Average over the batch dimension
-    loss = torch.mean(loss)
+    # XXXX Zeming: how the heck do you weight by lengths if you're averaging across batches here? We comment it out
+    # loss = torch.mean(loss)
 
     return loss
 
@@ -559,7 +561,8 @@ def distogram_loss(
     mean = torch.sum(mean, dim=-1)
 
     # Average over the batch dimensions
-    mean = torch.mean(mean)
+    # XXXX Zeming: how the heck do you weight by lengths if you're averaging across batches here? We comment it out
+    # mean = torch.mean(mean)
 
     return mean
 
@@ -710,7 +713,8 @@ def tm_loss(
     )
 
     # Average over the loss dimension
-    loss = torch.mean(loss)
+    # XXXX Zeming: how the heck do you weight by lengths if you're averaging across batches here? We comment it out
+    # loss = torch.mean(loss)
 
     return loss
 

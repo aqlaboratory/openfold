@@ -723,6 +723,7 @@ class StructureModule(nn.Module):
                 "unnormalized_angles": unnormalized_angles,
                 "angles": angles,
                 "positions": pred_xyz,
+                "states": s,
             }
 
             outputs.append(preds)
