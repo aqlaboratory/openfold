@@ -131,6 +131,7 @@ class AlphaFold(nn.Module):
             # [*, S_t, N, N, C_t]
             t = build_template_pair_feat(
                 single_template_feats,
+                use_unit_vector=self.config.template.use_unit_vector,
                 inf=self.config.template.inf,
                 eps=self.config.template.eps,
                 **self.config.template.distogram,

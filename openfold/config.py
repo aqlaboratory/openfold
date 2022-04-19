@@ -255,6 +255,7 @@ config = mlc.ConfigDict(
                 "clamp_prob": 0.9,
                 "max_distillation_msa_clusters": 1000,
                 "uniform_recycling": True,
+                "distillation_prob": 0.75,
             },
             "data_module": {
                 "use_small_bfd": False,
@@ -333,6 +334,7 @@ config = mlc.ConfigDict(
                 "eps": eps,  # 1e-6,
                 "enabled": templates_enabled,
                 "embed_angles": embed_template_torsion_angles,
+                "use_unit_vector": False,
             },
             "extra_msa": {
                 "extra_msa_embedder": {
