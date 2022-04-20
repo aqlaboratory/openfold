@@ -23,7 +23,8 @@ with [DeepSpeed](https://github.com/microsoft/deepspeed) and with either `fp16`
 or `bfloat16` half-precision.
 
 OpenFold is equipped with an implementation of low-memory attention 
-(Rabe & Staats 2021), which makes possible inference on extremely long chains.
+([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)), which 
+makes possible inference on extremely long chains.
 
 We also make available efficient scripts for generating alignments. We've
 used them to generate millions of alignments that will be released alongside
