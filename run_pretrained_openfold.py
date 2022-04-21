@@ -167,7 +167,7 @@ def main(args):
         
         # Relax the prediction.
         t = time.perf_counter()
-        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES")
+        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES", default="")
         if("cuda" in args.model_device):
             device_no = args.model_device.split(":")[-1]
             os.environ["CUDA_VISIBLE_DEVICES"] = device_no
