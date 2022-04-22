@@ -657,8 +657,11 @@ def compute_tm(
     normed_residue_mask = residue_weights / (eps + residue_weights.sum())
     per_alignment = torch.sum(predicted_tm_term * normed_residue_mask, dim=-1)
     weighted = per_alignment * residue_weights
-    argmax = (weighted == torch.max(weighted)).nonzero()[0]
-    return per_alignment[tuple(argmax)]
+    argmax = (weighted == torch.max(weighted)).nonzero()
+    if argmax.numel() == 0:
+        print("Warning: compute_tm failed, returning 0")
+        return torch.tensor(0., device=logits.device)
+    return per_alignment[tuple(argmax[0])]
 
 
 def tm_loss(
