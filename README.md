@@ -26,9 +26,10 @@ OpenFold is equipped with an implementation of low-memory attention
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)), which 
 enables inference on extremely long chains.
 
-We've modified FastFold's custom CUDA kernels to support in-place attention
-during inference and training. These use 4x and 5x less GPU memory than 
-equivalent FastFold and stock PyTorch implementations, respectively.
+We've modified [FastFold](https://github.com/hpcaitech/FastFold)'s custom CUDA 
+kernels to support in-place attention during inference and training. These use 
+4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
+implementations, respectively.
 
 We also make available efficient scripts for generating alignments. We've
 used them to generate millions of alignments that will be released alongside
