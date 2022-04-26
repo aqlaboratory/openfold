@@ -131,7 +131,6 @@ void attn_softmax_inplace_forward_(
 
 template<typename T>
 __global__ void attn_softmax_inplace_grad_(
-//__global__ void attn_softmax_inplace_grad_bf16_(
     T *output,
     T *d_ov,
     T *values,
