@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from functools import partial
 import math
 from typing import Optional, Callable, List, Tuple, Sequence
@@ -24,6 +23,7 @@ import torch.nn as nn
 from scipy.stats import truncnorm
 
 from openfold.utils.checkpointing import get_checkpoint_fn
+from openfold.utils.kernel.attention_core import attention_core
 from openfold.utils.tensor_utils import (
     permute_final_dims,
     flatten_final_dims,
@@ -199,8 +199,9 @@ class LayerNorm(nn.Module):
 
         return out
 
+
 @torch.jit.ignore
-def softmax(t: torch.Tensor, dim: int = -1) -> torch.Tensor:
+def softmax_no_cast(t: torch.Tensor, dim: int = -1) -> torch.Tensor:
     """
         Softmax, but without automatic casting to fp32 when the input is of
         type bfloat16
@@ -217,14 +218,8 @@ def softmax(t: torch.Tensor, dim: int = -1) -> torch.Tensor:
 
 #@torch.jit.script
 def _attention(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, biases: List[torch.Tensor]) -> torch.Tensor:
-    # [*, H, Q, C_hidden]
-    query = permute_final_dims(query, (1, 0, 2))
-    
     # [*, H, C_hidden, K]
-    key = permute_final_dims(key, (1, 2, 0))
-
-    # [*, H, V, C_hidden]
-    value = permute_final_dims(value, (1, 0, 2))
+    key = permute_final_dims(key, (1, 0))
 
     # [*, H, Q, K]
     a = torch.matmul(query, key)
@@ -232,13 +227,10 @@ def _attention(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, bias
     for b in biases:
         a += b
 
-    a = softmax(a, -1)
+    a = softmax_no_cast(a, -1)
 
     # [*, H, Q, C_hidden]
     a = torch.matmul(a, value)
-
-    # [*, Q, H, C_hidden]
-    a = a.transpose(-2, -3)
 
     return a
 
@@ -254,7 +246,8 @@ def _attention_chunked_trainable(
 
     def _checkpointable_attention(q, k, v, b1, b2):
         bs = [b for b in [b1, b2] if b is not None]
-        return _attention(q, k, v, bs)
+        a = _attention(q, k, v, bs)
+        return a
 
     o_chunks = []
     checkpoint_fn = get_checkpoint_fn()
@@ -289,7 +282,8 @@ def _attention_chunked_trainable(
             ]
 
             o_chunk = _attention(q_chunk, k_chunk, v_chunk, bias_chunks)
-
+            
+        o_chunk = o_chunk.transpose(-2, -3)
         o_chunks.append(o_chunk)
 
     o = torch.cat(o_chunks, dim=chunk_dim)
@@ -374,6 +368,11 @@ class Attention(nn.Module):
         k = k.view(k.shape[:-1] + (self.no_heads, -1))
         v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
+        # [*, H, Q/K, C_hidden]
+        q = q.transpose(-2, -3)
+        k = k.transpose(-2, -3)
+        v = v.transpose(-2, -3)
+
         q /= math.sqrt(self.c_hidden)
 
         return q, k, v
@@ -402,6 +401,7 @@ class Attention(nn.Module):
         q_x: torch.Tensor,
         kv_x: torch.Tensor,
         biases: Optional[List[torch.Tensor]] = None,
+        use_memory_efficient_kernel: bool = False,
         use_lma: bool = False,
         q_chunk_size: Optional[int] = None,
         kv_chunk_size: Optional[int] = None,
@@ -414,8 +414,15 @@ class Attention(nn.Module):
                 [*, K, C_k] key data
             biases:
                 List of biases that broadcast to [*, H, Q, K]
+            use_memory_efficient_kernel:
+                Whether to use a custom memory-efficient attention kernel.
+                This should be the default choice for most. If none of the
+                "use_<...>" flags are True, a stock PyTorch implementation
+                is used instead
             use_lma:
-                Whether to use low-memory attention
+                Whether to use low-memory attention (Staats & Rabe 2021). If
+                none of the "use_<...>" flags are True, a stock PyTorch 
+                implementation is used instead
             q_chunk_size:
                 Query chunk size (for LMA)
             kv_chunk_size:
@@ -430,18 +437,32 @@ class Attention(nn.Module):
                 "If use_lma is specified, q_chunk_size and kv_chunk_size must "
                 "be provided"
             )
+        if(use_memory_efficient_kernel and use_lma):
+            raise ValueError(
+                "Choose one of use_memory_efficient_kernel and use_lma"
+            )
 
+        # [*, H, Q/K, C_hidden]
         q, k, v = self._prep_qkv(q_x, kv_x)
 
-        if(use_lma):
+        # [*, Q, H, C_hidden]
+        if(use_memory_efficient_kernel):
+            if(len(biases) > 2):
+                raise ValueError(
+                    "If use_memory_efficient_kernel is True, you may only "
+                    "provide up to two bias terms"
+                )
+            o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
+            o = o.transpose(-2, -3)
+        elif(use_lma):
             biases = [
                 b.expand(b.shape[:-2] + (q_x.shape[-2],) + (kv_x.shape[-2],)) 
                 for b in biases
             ]
-
             o = _lma(q, k, v, biases, q_chunk_size, kv_chunk_size)
         else:
             o = _attention(q, k, v, biases)
+            o = o.transpose(-2, -3)
 
         o = self._wrap_up(o, q_x)
 
@@ -497,7 +518,7 @@ class GlobalAttention(nn.Module):
         )
         bias = (self.inf * (mask - 1))[..., :, None, :]
         a += bias
-        a = softmax(a)
+        a = softmax_no_cast(a)
 
         # [*, N_res, H, C_hidden]
         o = torch.matmul(
