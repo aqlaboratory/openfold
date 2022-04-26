@@ -20,11 +20,16 @@ import torch
 attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
 
 
+SUPPORTED_DTYPES = [torch.float32, torch.bfloat16]
+
+
 class AttentionCoreFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, q, k, v, bias_1=None, bias_2=None):
         if(bias_1 is None and bias_2 is not None):
             raise ValueError("bias_1 must be specified before bias_2")
+        if(q.dtype not in SUPPORTED_DTYPES):
+            raise ValueError("Unsupported datatype")
 
         q = q.contiguous()
         k = k.contiguous()

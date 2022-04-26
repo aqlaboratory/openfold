@@ -671,7 +671,7 @@ class TestLoss(unittest.TestCase):
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
-    def test_backbone_loss(self):
+    def test_backbone_loss_compare(self):
         config = compare_utils.get_alphafold_config()
         c_sm = config.model.heads.structure_module
 
