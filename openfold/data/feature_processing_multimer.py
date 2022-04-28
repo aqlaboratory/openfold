@@ -15,7 +15,7 @@
 
 """Feature processing logic for multimer data pipeline."""
 
-from typing import Iterable, MutableMapping, List
+from typing import Iterable, MutableMapping, List, Mapping
 
 from openfold.data import msa_pairing
 from openfold.np import residue_constants
@@ -49,13 +49,11 @@ def _is_homomer_or_monomer(chains: Iterable[Mapping[str, np.ndarray]]) -> bool:
 
 def pair_and_merge(
     all_chain_features: MutableMapping[str, Mapping[str, np.ndarray]],
-    is_prokaryote: bool) -> Mapping[str, np.ndarray]:
+) -> Mapping[str, np.ndarray]:
   """Runs processing on features to augment, pair and merge.
 
   Args:
     all_chain_features: A MutableMap of dictionaries of features for each chain.
-    is_prokaryote: Whether the target complex is from a prokaryotic or
-    eukaryotic organism.
 
   Returns:
     A dictionary of features.
@@ -69,7 +67,8 @@ def pair_and_merge(
 
   if pair_msa_sequences:
     np_chains_list = msa_pairing.create_paired_features(
-        chains=np_chains_list, prokaryotic=is_prokaryote)
+        chains=np_chains_list
+    )
     np_chains_list = msa_pairing.deduplicate_unpaired_sequences(np_chains_list)
   np_chains_list = crop_chains(
       np_chains_list,
@@ -175,6 +174,7 @@ def process_final(
   np_example = _make_seq_mask(np_example)
   np_example = _make_msa_mask(np_example)
   np_example = _filter_features(np_example)
+   
   return np_example
 
 
@@ -210,19 +210,23 @@ def _filter_features(
 
 
 def process_unmerged_features(
-    all_chain_features: MutableMapping[str, Mapping[str, np.ndarray]]):
+    all_chain_features: MutableMapping[str, Mapping[str, np.ndarray]]
+):
   """Postprocessing stage for per-chain features before merging."""
   num_chains = len(all_chain_features)
   for chain_features in all_chain_features.values():
     # Convert deletion matrices to float.
     chain_features['deletion_matrix'] = np.asarray(
-        chain_features.pop('deletion_matrix_int'), dtype=np.float32)
+        chain_features.pop('deletion_matrix_int'), dtype=np.float32
+    )
     if 'deletion_matrix_int_all_seq' in chain_features:
       chain_features['deletion_matrix_all_seq'] = np.asarray(
-          chain_features.pop('deletion_matrix_int_all_seq'), dtype=np.float32)
+          chain_features.pop('deletion_matrix_int_all_seq'), dtype=np.float32
+      )
 
     chain_features['deletion_mean'] = np.mean(
-        chain_features['deletion_matrix'], axis=0)
+        chain_features['deletion_matrix'], axis=0
+    )
 
     # Add all_atom_mask and dummy all_atom_positions based on aatype.
     all_atom_mask = residue_constants.STANDARD_ATOM_MASK[

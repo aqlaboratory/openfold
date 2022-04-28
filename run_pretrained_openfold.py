@@ -26,7 +26,12 @@ import time
 import torch
 
 from openfold.config import model_config
-from openfold.data import templates, feature_pipeline, data_pipeline
+from openfold.data import (
+    data_pipeline,
+    feature_pipeline, 
+    templates, 
+)
+from openfold.data.tools import hhsearch, hmmsearch
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants, protein
@@ -48,79 +53,137 @@ def main(args):
     import_jax_weights_(model, args.param_path, version=args.model_name)
     #script_preset_(model)
     model = model.to(args.model_device)
- 
-    template_featurizer = templates.TemplateHitFeaturizer(
-        mmcif_dir=args.template_mmcif_dir,
-        max_template_date=args.max_template_date,
-        max_hits=config.data.predict.max_templates,
-        kalign_binary_path=args.kalign_binary_path,
-        release_dates_path=args.release_dates_path,
-        obsolete_pdbs_path=args.obsolete_pdbs_path
-    )
 
-    use_small_bfd=(args.bfd_database_path is None)
+    is_multimer = "multimer" in args.model_name
+
+    if(is_multimer):
+        if(not args.use_precomputed_alignments):
+            template_searcher = hmmsearch.Hmmsearch(
+                binary_path=args.hmmsearch_binary_path,
+                hmmbuild_binary_path=args.hmmbuild_binary_path,
+                database_path=args.pdb_seqres_database_path,
+            )
+        else:
+            template_searcher = None
+
+        template_featurizer = templates.HmmsearchHitFeaturizer(
+            mmcif_dir=args.template_mmcif_dir,
+            max_template_date=args.max_template_date,
+            max_hits=config.data.predict.max_templates,
+            kalign_binary_path=args.kalign_binary_path,
+            release_dates_path=args.release_dates_path,
+            obsolete_pdbs_path=args.obsolete_pdbs_path
+        )
+    else:
+        if(not args.use_precomputed_alignments):
+            template_searcher = hhsearch.HHSearch(
+                binary_path=args.hhsearch_binary_path,
+                databases=[args.pdb70_database_path],
+            )
+        else:
+            template_searcher = None
+
+        template_featurizer = templates.HhsearchHitFeaturizer(
+            mmcif_dir=args.template_mmcif_dir,
+            max_template_date=args.max_template_date,
+            max_hits=config.data.predict.max_templates,
+            kalign_binary_path=args.kalign_binary_path,
+            release_dates_path=args.release_dates_path,
+            obsolete_pdbs_path=args.obsolete_pdbs_path
+        )
+
+    if(not args.use_precomputed_alignments):
+        alignment_runner = data_pipeline.AlignmentRunner(
+            jackhmmer_binary_path=args.jackhmmer_binary_path,
+            hhblits_binary_path=args.hhblits_binary_path,
+            uniref90_database_path=args.uniref90_database_path,
+            mgnify_database_path=args.mgnify_database_path,
+            bfd_database_path=args.bfd_database_path,
+            uniclust30_database_path=args.uniclust30_database_path,
+            uniprot_database_path=args.uniprot_database_path,
+            template_searcher=template_searcher,
+            use_small_bfd=(args.bfd_database_path is None),
+            no_cpus=args.cpus,
+        )
+    else:
+        alignment_runner = None
 
     data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
     )
 
+    if(is_multimer):
+        data_processor = data_pipeline.DataPipelineMultimer(
+            monomer_data_pipeline=data_processor,
+        )
+
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
-    feature_processor = feature_pipeline.FeaturePipeline(config.data)
+    
+    feature_processor = feature_pipeline.FeaturePipeline(
+        config.data
+    )
+    
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
-    if(args.use_precomputed_alignments is None):
+    if(not args.use_precomputed_alignments):
         alignment_dir = os.path.join(output_dir_base, "alignments")
     else:
         alignment_dir = args.use_precomputed_alignments
 
-    # Gather input sequences
-    with open(args.fasta_path, "r") as fp:
-        lines = [l.strip() for l in fp.readlines()]
+    for fasta_path in os.listdir(args.fasta_dir):
+        if(not ".fasta" == os.path.splitext(fasta_path)[-1]):
+            print(f"Skipping {fasta_path}. Not a .fasta file...")
+            continue
+   
+        fasta_path = os.path.join(args.fasta_dir, fasta_path)
 
-    tags, seqs = lines[::2], lines[1::2]
-    tags = [l[1:] for l in tags]
+        # Gather input sequences
+        with open(fasta_path, "r") as fp:
+            data = fp.read()
 
-    for tag, seq in zip(tags, seqs):
-        fasta_path = os.path.join(args.output_dir, "tmp.fasta")
-        with open(fasta_path, "w") as fp:
-            fp.write(f">{tag}\n{seq}")
+        lines = [
+            l.replace('\n', '') 
+            for prot in data.split('>') for l in prot.strip().split('\n', 1)
+        ][1:]
+        tags, seqs = lines[::2], lines[1::2]
 
-        logging.info("Generating features...") 
-        local_alignment_dir = os.path.join(alignment_dir, tag)
-        if(args.use_precomputed_alignments is None):
-            if not os.path.exists(local_alignment_dir):
-                os.makedirs(local_alignment_dir)
-            
-            alignment_runner = data_pipeline.AlignmentRunner(
-                jackhmmer_binary_path=args.jackhmmer_binary_path,
-                hhblits_binary_path=args.hhblits_binary_path,
-                hhsearch_binary_path=args.hhsearch_binary_path,
-                uniref90_database_path=args.uniref90_database_path,
-                mgnify_database_path=args.mgnify_database_path,
-                bfd_database_path=args.bfd_database_path,
-                uniclust30_database_path=args.uniclust30_database_path,
-                pdb70_database_path=args.pdb70_database_path,
-                use_small_bfd=use_small_bfd,
-                no_cpus=args.cpus,
+        if((not is_multimer) and len(tags) != 1):
+            print(
+                f"{fasta_path} contains more than one sequence but "
+                f"multimer mode is not enabled. Skipping..."
             )
-            alignment_runner.run(
-                fasta_path, local_alignment_dir
+            continue
+        
+        for tag, seq in zip(tags, seqs):
+            tag, seq = tags[0], seqs[0]
+            local_alignment_dir = os.path.join(alignment_dir, tag)
+            if(args.use_precomputed_alignments is None):
+                if not os.path.exists(local_alignment_dir):
+                    os.makedirs(local_alignment_dir)
+                
+                alignment_runner.run(
+                    fasta_path, local_alignment_dir
+                )
+       
+        if(is_multimer):
+            local_alignment_dir = alignment_dir
+        else:
+            local_alignment_dir = os.path.join(
+                alignment_dir,
+                tags[0],
             )
-    
+
         feature_dict = data_processor.process_fasta(
             fasta_path=fasta_path, alignment_dir=local_alignment_dir
         )
 
-        # Remove temporary FASTA file
-        os.remove(fasta_path)
-    
         processed_feature_dict = feature_processor.process_features(
-            feature_dict, mode='predict',
+            feature_dict, mode='predict', is_multimer=is_multimer,
         )
-    
+        
         logging.info("Executing model...")
         batch = processed_feature_dict
         with torch.no_grad():
@@ -130,9 +193,16 @@ def main(args):
             }
         
             t = time.perf_counter()
-            out = model(batch)
+             
+            chunk_size = model.globals.chunk_size
+            try:
+                model.globals.chunk_size = None
+                out = model(batch)
+            except RuntimeError as e:
+                model.globals.chunk_size = chunk_size
+                out = model(batch)
             logging.info(f"Inference time: {time.perf_counter() - t}")
-       
+
         # Toss out the recycling dimensions --- we don't need them anymore
         batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
         out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
@@ -143,7 +213,7 @@ def main(args):
         plddt_b_factors = np.repeat(
             plddt[..., None], residue_constants.atom_type_num, axis=-1
         )
-    
+        
         unrelaxed_protein = protein.from_prediction(
             features=batch,
             result=out,
@@ -183,7 +253,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "fasta_path", type=str,
+        "fasta_dir", type=str,
     )
     parser.add_argument(
         "template_mmcif_dir", type=str,

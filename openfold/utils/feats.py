@@ -89,20 +89,32 @@ def build_template_angle_feat(template_feats):
     return template_angle_feat
 
 
+def dgram_from_positions(
+    pos: torch.Tensor, 
+    min_bin: float = 3.25, 
+    max_bin: float = 50.75, 
+    no_bins: float = 39, 
+    inf: float = 1e8,
+):
+    dgram = torch.sum(
+        (pos[..., None, :] - pos[..., None, :, :]) ** 2, dim=-1, keepdim=True
+    )
+    lower = torch.linspace(min_bin, max_bin, no_bins, device=pos.device) ** 2
+    upper = torch.cat([lower[1:], lower.new_tensor([inf])], dim=-1)
+    dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
+
+    return dgram
+
+
 def build_template_pair_feat(
-    batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e8
+    batch, min_bin, max_bin, no_bins, use_unit_vector=False, eps=1e-20, inf=1e8
 ):
     template_mask = batch["template_pseudo_beta_mask"]
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
 
     # Compute distogram (this seems to differ slightly from Alg. 5)
     tpb = batch["template_pseudo_beta"]
-    dgram = torch.sum(
-        (tpb[..., None, :] - tpb[..., None, :, :]) ** 2, dim=-1, keepdim=True
-    )
-    lower = torch.linspace(min_bin, max_bin, no_bins, device=tpb.device) ** 2
-    upper = torch.cat([lower[:-1], lower.new_tensor([inf])], dim=-1)
-    dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
+    dgram = dgram_from_positions(tpb, min_bin, max_bin, no_bins, inf)
 
     to_concat = [dgram, template_mask_2d[..., None]]
 
@@ -143,6 +155,10 @@ def build_template_pair_feat(
 
     inv_distance_scalar = inv_distance_scalar * template_mask_2d
     unit_vector = rigid_vec * inv_distance_scalar[..., None]
+    
+    if(not use_unit_vector):
+        unit_vector = unit_vector * 0.
+    
     to_concat.extend(torch.unbind(unit_vector[..., None, :], dim=-1))
     to_concat.append(template_mask_2d[..., None])
 
@@ -159,7 +175,7 @@ def build_extra_msa_feat(batch):
         batch["extra_has_deletion"].unsqueeze(-1),
         batch["extra_deletion_value"].unsqueeze(-1),
     ]
-    return torch.cat(msa_feat, dim=-1)
+    return msa_feat
 
 
 def torsion_angles_to_frames(

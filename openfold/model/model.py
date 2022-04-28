@@ -17,28 +17,25 @@ from functools import partial
 import torch
 import torch.nn as nn
 
+from openfold.data import data_transforms_multimer
 from openfold.utils.feats import (
     pseudo_beta_fn,
     build_extra_msa_feat,
-    build_template_angle_feat,
-    build_template_pair_feat,
+    dgram_from_positions,
     atom14_to_atom37,
 )
 from openfold.model.embedders import (
     InputEmbedder,
+    InputEmbedderMultimer,
     RecyclingEmbedder,
-    TemplateAngleEmbedder,
-    TemplatePairEmbedder,
+    TemplateEmbedder,
+    TemplateEmbedderMultimer,
     ExtraMSAEmbedder,
 )
 from openfold.model.evoformer import EvoformerStack, ExtraMSAStack
 from openfold.model.heads import AuxiliaryHeads
 import openfold.np.residue_constants as residue_constants
 from openfold.model.structure_module import StructureModule
-from openfold.model.template import (
-    TemplatePairStack,
-    TemplatePointwiseAttention,
-)
 from openfold.utils.loss import (
     compute_plddt,
 )
@@ -69,24 +66,28 @@ class AlphaFold(nn.Module):
         extra_msa_config = config.extra_msa
 
         # Main trunk + structure module
-        self.input_embedder = InputEmbedder(
-            **config["input_embedder"],
-        )
+        if(self.globals.is_multimer):
+            self.input_embedder = InputEmbedderMultimer(
+                **config["input_embedder"],
+            )
+        else:
+            self.input_embedder = InputEmbedder(
+                **config["input_embedder"],
+            )
+
         self.recycling_embedder = RecyclingEmbedder(
             **config["recycling_embedder"],
         )
-        self.template_angle_embedder = TemplateAngleEmbedder(
-            **template_config["template_angle_embedder"],
-        )
-        self.template_pair_embedder = TemplatePairEmbedder(
-            **template_config["template_pair_embedder"],
-        )
-        self.template_pair_stack = TemplatePairStack(
-            **template_config["template_pair_stack"],
-        )
-        self.template_pointwise_att = TemplatePointwiseAttention(
-            **template_config["template_pointwise_attention"],
-        )
+
+        if(self.globals.is_multimer):
+            self.template_embedder = TemplateEmbedderMultimer(
+                template_config,
+            )
+        else:
+            self.template_embedder = TemplateEmbedder(
+                template_config,
+            )
+
         self.extra_msa_embedder = ExtraMSAEmbedder(
             **extra_msa_config["extra_msa_embedder"],
         )
@@ -96,7 +97,9 @@ class AlphaFold(nn.Module):
         self.evoformer = EvoformerStack(
             **config["evoformer_stack"],
         )
+
         self.structure_module = StructureModule(
+            is_multimer=self.globals.is_multimer,
             **config["structure_module"],
         )
 
@@ -105,71 +108,6 @@ class AlphaFold(nn.Module):
         )
 
         self.config = config
-
-    def embed_templates(self, batch, z, pair_mask, templ_dim): 
-        # Embed the templates one at a time (with a poor man's vmap)
-        template_embeds = []
-        n_templ = batch["template_aatype"].shape[templ_dim]
-        for i in range(n_templ):
-            idx = batch["template_aatype"].new_tensor(i)
-            single_template_feats = tensor_tree_map(
-                lambda t: torch.index_select(t, templ_dim, idx),
-                batch,
-            )
-
-            single_template_embeds = {}
-            if self.config.template.embed_angles:
-                template_angle_feat = build_template_angle_feat(
-                    single_template_feats,
-                )
-
-                # [*, S_t, N, C_m]
-                a = self.template_angle_embedder(template_angle_feat)
-
-                single_template_embeds["angle"] = a
-
-            # [*, S_t, N, N, C_t]
-            t = build_template_pair_feat(
-                single_template_feats,
-                inf=self.config.template.inf,
-                eps=self.config.template.eps,
-                **self.config.template.distogram,
-            ).to(z.dtype)
-            t = self.template_pair_embedder(t)
-
-            single_template_embeds.update({"pair": t})
-
-            template_embeds.append(single_template_embeds)
-
-        template_embeds = dict_multimap(
-            partial(torch.cat, dim=templ_dim),
-            template_embeds,
-        )
-
-        # [*, S_t, N, N, C_z]
-        t = self.template_pair_stack(
-            template_embeds["pair"], 
-            pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
-            chunk_size=self.globals.chunk_size,
-            _mask_trans=self.config._mask_trans,
-        )
-
-        # [*, N, N, C_z]
-        t = self.template_pointwise_att(
-            t, 
-            z, 
-            template_mask=batch["template_mask"].to(dtype=z.dtype),
-            chunk_size=self.globals.chunk_size,
-        )
-        t = t * (torch.sum(batch["template_mask"]) > 0)
-
-        ret = {}
-        if self.config.template.embed_angles:
-            ret["template_angle_embedding"] = template_embeds["angle"]
-
-        ret.update({"template_pair_embedding": t})
-
-        return ret
 
     def iteration(self, feats, m_1_prev, z_prev, x_prev, _recycle=True):
         # Primary output dictionary
@@ -197,11 +135,7 @@ class AlphaFold(nn.Module):
 
         # m: [*, S_c, N, C_m]
         # z: [*, N, N, C_z]
-        m, z = self.input_embedder(
-            feats["target_feat"],
-            feats["residue_index"],
-            feats["msa_feat"],
-        )
+        m, z = self.input_embedder(feats)
 
         # Initialize the recycling embeddings, if needs be
         if None in [m_1_prev, z_prev, x_prev]:
@@ -257,40 +191,74 @@ class AlphaFold(nn.Module):
             template_feats = {
                 k: v for k, v in feats.items() if k.startswith("template_")
             }
-            template_embeds = self.embed_templates(
-                template_feats,
-                z,
-                pair_mask.to(dtype=z.dtype),
-                no_batch_dims,
-            )
+
+            if(self.globals.is_multimer):
+                asym_id = feats["asym_id"]
+                multichain_mask_2d = (
+                    asym_id[..., None] == asym_id[..., None, :]
+                )
+                template_embeds = self.template_embedder(
+                    template_feats,
+                    z,
+                    pair_mask.to(dtype=z.dtype),
+                    no_batch_dims,
+                    chunk_size=self.globals.chunk_size,
+                    multichain_mask_2d=multichain_mask_2d,
+                )
+                feats["template_torsion_angles_mask"] = (
+                    template_embeds["template_mask"]
+                )
+            else:
+                template_embeds = self.template_embedder(
+                    template_feats,
+                    z,
+                    pair_mask.to(dtype=z.dtype),
+                    no_batch_dims,
+                    self.globals.chunk_size
+                )
 
             # [*, N, N, C_z]
             z = z + template_embeds["template_pair_embedding"]
 
-            if self.config.template.embed_angles:
+            if(
+                self.config.template.embed_angles or 
+                (self.globals.is_multimer and self.config.template.enabled)
+            ):
                 # [*, S = S_c + S_t, N, C_m]
                 m = torch.cat(
-                    [m, template_embeds["template_angle_embedding"]], 
+                    [m, template_embeds["template_single_embedding"]], 
                     dim=-3
                 )
 
                 # [*, S, N]
-                torsion_angles_mask = feats["template_torsion_angles_mask"]
-                msa_mask = torch.cat(
-                    [feats["msa_mask"], torsion_angles_mask[..., 2]], 
-                    dim=-2
-                )
+                if(not self.globals.is_multimer):
+                    torsion_angles_mask = feats["template_torsion_angles_mask"]
+                    msa_mask = torch.cat(
+                        [feats["msa_mask"], torsion_angles_mask[..., 2]], 
+                        dim=-2
+                    )
+                else:
+                    msa_mask = torch.cat(
+                        [feats["msa_mask"], template_embeds["template_mask"]],
+                        dim=-2,
+                    )
 
         # Embed extra MSA features + merge with pairwise embeddings
         if self.config.extra_msa.enabled:
+            if(self.globals.is_multimer):
+                extra_msa_fn = data_transforms_multimer.build_extra_msa_feat
+            else:
+                extra_msa_fn = build_extra_msa_feat
+            
             # [*, S_e, N, C_e]
-            a = self.extra_msa_embedder(build_extra_msa_feat(feats))
+            extra_msa_feat = extra_msa_fn(feats)
+            extra_msa_feat = self.extra_msa_embedder(extra_msa_feat)
 
             # [*, N, N, C_z]
             z = self.extra_msa_stack(
-                a,
+                extra_msa_feat,
                 z,
-                msa_mask=feats["extra_msa_mask"].to(dtype=a.dtype),
+                msa_mask=feats["extra_msa_mask"].to(dtype=extra_msa_feat.dtype),
                 chunk_size=self.globals.chunk_size,
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 _mask_trans=self.config._mask_trans,
@@ -340,14 +308,14 @@ class AlphaFold(nn.Module):
         return outputs, m_1_prev, z_prev, x_prev
 
     def _disable_activation_checkpointing(self):
-        self.template_pair_stack.blocks_per_ckpt = None
+        self.template_embedder.template_pair_stack.blocks_per_ckpt = None
         self.evoformer.blocks_per_ckpt = None
 
         for b in self.extra_msa_stack.blocks:
             b.ckpt = False
 
     def _enable_activation_checkpointing(self):
-        self.template_pair_stack.blocks_per_ckpt = (
+        self.template_embedder.template_pair_stack.blocks_per_ckpt = (
             self.config.template.template_pair_stack.blocks_per_ckpt
         )
         self.evoformer.blocks_per_ckpt = (

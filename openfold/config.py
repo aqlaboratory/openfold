@@ -75,7 +75,17 @@ def model_config(name, train=False, low_prec=False):
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     elif "multimer" in name:
-        c.model.update(multimer_model_config_update)
+        c.globals.is_multimer = True
+        for k,v in multimer_model_config_update.items():
+            c.model[k] = v
+
+        c.data.common.unsupervised_features.extend([
+            "msa_mask",
+            "seq_mask",
+            "asym_id",
+            "entity_id",
+            "sym_id",
+        ])
     else:
         raise ValueError("Invalid model name")
 
@@ -276,6 +286,7 @@ config = mlc.ConfigDict(
             "c_e": c_e,
             "c_s": c_s,
             "eps": eps,
+            "is_multimer": False,
         },
         "model": {
             "_mask_trans": False,
@@ -335,6 +346,7 @@ config = mlc.ConfigDict(
                 "eps": eps,  # 1e-6,
                 "enabled": templates_enabled,
                 "embed_angles": embed_template_torsion_angles,
+                "use_unit_vector": False,
             },
             "extra_msa": {
                 "extra_msa_embedder": {
@@ -496,10 +508,76 @@ config = mlc.ConfigDict(
     }
 )
 
-multimer_model_config_update = mlc.ConfigDict(
-    "relative_encoding": {
-        "enabled": True,
+multimer_model_config_update = {
+    "input_embedder": {
+        "tf_dim": 21,
+        "msa_dim": 49,
+        "c_z": c_z,
+        "c_m": c_m,
+        "relpos_k": 32,
         "max_relative_chain": 2,
         "max_relative_idx": 32,
-    }
-)
+        "use_chain_relative": True,
+    },
+    "template": {
+        "distogram": {
+            "min_bin": 3.25,
+            "max_bin": 50.75,
+            "no_bins": 39,
+        },
+        "template_pair_embedder": {
+            "c_z": c_z,
+            "c_out": 64,
+            "c_dgram": 39,
+            "c_aatype": 22,
+        },
+        "template_single_embedder": {
+            "c_in": 34,
+            "c_m": c_m,
+        },
+        "template_pair_stack": {
+            "c_t": c_t,
+            # DISCREPANCY: c_hidden_tri_att here is given in the supplement
+            # as 64. In the code, it's 16.
+            "c_hidden_tri_att": 16,
+            "c_hidden_tri_mul": 64,
+            "no_blocks": 2,
+            "no_heads": 4,
+            "pair_transition_n": 2,
+            "dropout_rate": 0.25,
+            "blocks_per_ckpt": blocks_per_ckpt,
+            "inf": 1e9,
+        },
+        "c_t": c_t,
+        "c_z": c_z,
+        "inf": 1e5,  # 1e9,
+        "eps": eps,  # 1e-6,
+        "enabled": templates_enabled,
+        "embed_angles": embed_template_torsion_angles,
+    },
+    "heads": {
+        "lddt": {
+            "no_bins": 50,
+            "c_in": c_s,
+            "c_hidden": 128,
+        },
+        "distogram": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+        },
+        "tm": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+            "enabled": tm_enabled,
+        },
+        "masked_msa": {
+            "c_m": c_m,
+            "c_out": 22,
+        },
+        "experimentally_resolved": {
+            "c_s": c_s,
+            "c_out": 37,
+        },
+    },
+
+}

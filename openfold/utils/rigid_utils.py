@@ -1352,8 +1352,8 @@ class Rigid:
         c2_rots[..., 0, 0] = cos_c2
         c2_rots[..., 0, 2] = sin_c2
         c2_rots[..., 1, 1] = 1
-        c1_rots[..., 2, 0] = -1 * sin_c2
-        c1_rots[..., 2, 2] = cos_c2
+        c2_rots[..., 2, 0] = -1 * sin_c2
+        c2_rots[..., 2, 2] = cos_c2
 
         c_rots = rot_matmul(c2_rots, c1_rots)
         n_xyz = rot_vec_mul(c_rots, n_xyz)

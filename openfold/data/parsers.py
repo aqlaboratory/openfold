@@ -16,6 +16,7 @@
 """Functions for parsing various file formats."""
 import collections
 import dataclasses
+import itertools
 import re
 import string
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Set
@@ -29,8 +30,7 @@ class Msa:
     """Class representing a parsed MSA file"""
     sequences: Sequence[str]
     deletion_matrix: DeletionMatrix
-    descriptions: Sequence[str]
-
+    descriptions: Optional[Sequence[str]]
 
     def __post_init__(self):
         if(not (
@@ -173,7 +173,7 @@ def parse_a3m(a3m_string: str) -> Msa:
                 at `deletion_matrix[i][j]` is the number of residues deleted from
                 the aligned sequence i at residue position j.
     """
-    sequences, descriptions = parse_fasta(a3m_string)
+    sequences, descriptions = parse_fasta(a3m_string) 
     deletion_matrix = []
     for msa_sequence in sequences:
         deletion_vec = []
@@ -642,3 +642,20 @@ def parse_hmmsearch_a3m(
       hits.append(hit)
   
     return hits
+
+
+def parse_hmmsearch_sto(
+        output_string: str,
+        input_sequence: str
+) -> Sequence[TemplateHit]:
+    """Gets parsed template hits from the raw string output by the tool."""
+    a3m_string = convert_stockholm_to_a3m(
+        output_string,
+        remove_first_row_gaps=False
+    )
+    template_hits = parse_hmmsearch_a3m(
+        query_sequence=input_sequence,
+        a3m_string=a3m_string,
+        skip_first=False
+    )
+    return template_hits

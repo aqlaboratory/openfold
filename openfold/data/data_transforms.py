@@ -428,10 +428,16 @@ def make_hhblits_profile(protein):
 
 
 @curry1
-def make_masked_msa(protein, config, replace_fraction):
+def make_masked_msa(protein, config, replace_fraction, seed):
     """Create data for BERT on raw MSA."""
+    device = protein["msa"].device
+
     # Add a random amino acid uniformly.
-    random_aa = torch.tensor([0.05] * 20 + [0.0, 0.0], dtype=torch.float32)
+    random_aa = torch.tensor(
+        [0.05] * 20 + [0.0, 0.0], 
+        dtype=torch.float32, 
+        device=device
+    )
 
     categorical_probs = (
         config.uniform_prob * random_aa
@@ -449,11 +455,17 @@ def make_masked_msa(protein, config, replace_fraction):
     )
     assert mask_prob >= 0.0
     categorical_probs = torch.nn.functional.pad(
-        categorical_probs, pad_shapes, value=mask_prob
+        categorical_probs, pad_shapes, value=mask_prob,
     )
 
     sh = protein["msa"].shape
-    mask_position = torch.rand(sh) < replace_fraction
+
+    g = torch.Generator(device=protein["msa"].device)
+    if seed is not None:
+        g.manual_seed(seed)
+    
+    sample = torch.rand(sh, device=device, generator=g)
+    mask_position = sample < replace_fraction
 
     bert_msa = shaped_categorical(categorical_probs)
     bert_msa = torch.where(mask_position, bert_msa, protein["msa"])

@@ -48,7 +48,6 @@ _UNIPROT_PATTERN = re.compile(
 
 @dataclasses.dataclass(frozen=True)
 class Identifiers:
-  uniprot_accession_id: str = ''
   species_id: str = ''
 
 
@@ -69,8 +68,8 @@ def _parse_sequence_identifier(msa_sequence_identifier: str) -> Identifiers:
   matches = re.search(_UNIPROT_PATTERN, msa_sequence_identifier.strip())
   if matches:
     return Identifiers(
-        uniprot_accession_id=matches.group('AccessionIdentifier'),
-        species_id=matches.group('SpeciesIdentifier'))
+        species_id=matches.group('SpeciesIdentifier')
+    )
   return Identifiers()
 
 

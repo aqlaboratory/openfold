@@ -25,6 +25,9 @@ from openfold.np.residue_constants import (
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
+from openfold.utils.geometry.quat_rigid import QuatRigid
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.vector import Vec3Array
 from openfold.utils.feats import (
     frames_and_literature_positions_to_atom14_pos,
     torsion_angles_to_frames,
@@ -155,14 +158,14 @@ class PointProjection(nn.Module):
     def __init__(self,
         c_hidden: int,
         num_points: int,
-        no_heads: int
+        no_heads: int,
         return_local_points: bool = False,
     ):
         super().__init__()
         self.return_local_points = return_local_points
         self.no_heads = no_heads
         
-        self.linear = Linear(c_hidden, 3 * num_points)
+        self.linear = Linear(c_hidden, no_heads * 3 * num_points)
 
     def forward(self, 
         activations: torch.Tensor, 
@@ -171,11 +174,13 @@ class PointProjection(nn.Module):
         # TODO: Needs to run in high precision during training
         points_local = self.linear(activations)
         points_local = points_local.reshape(
-            points_local.shape[:-1],
+            *points_local.shape[:-1],
             self.no_heads,
             -1,
         )
-        points_local = torch.split(points_local, 3, dim=-1)
+        points_local = torch.split(
+            points_local, points_local.shape[-1] // 3, dim=-1
+        )
         points_local = Vec3Array(*points_local)
         points_global = rigids[..., None, None].apply_to_point(points_local)
 
@@ -184,7 +189,7 @@ class PointProjection(nn.Module):
 
         return points_global 
 
-# WEIGHTS CHANGED
+
 class InvariantPointAttention(nn.Module):
     """
     Implements Algorithm 22.
@@ -199,6 +204,7 @@ class InvariantPointAttention(nn.Module):
         no_v_points: int,
         inf: float = 1e5,
         eps: float = 1e-8,
+        is_multimer: bool = False,
     ):
         """
         Args:
@@ -225,14 +231,14 @@ class InvariantPointAttention(nn.Module):
         self.no_v_points = no_v_points
         self.inf = inf
         self.eps = eps
+        self.is_multimer = is_multimer
 
         # These linear layers differ from their specifications in the
         # supplement. There, they lack bias and use Glorot initialization.
         # Here as in the official source, they have bias and use the default
         # Lecun initialization.
         hc = self.c_hidden * self.no_heads
-        self.linear_q = Linear(self.c_s, hc)
-        self.linear_kv = Linear(self.c_s, 2 * hc)
+        self.linear_q = Linear(self.c_s, hc, bias=(not is_multimer))
 
         self.linear_q_points = PointProjection(
             self.c_s, 
@@ -240,17 +246,27 @@ class InvariantPointAttention(nn.Module):
             self.no_heads
         )
 
-        self.linear_k_points = PointProjection(
-            self.c_s,
-            self.no_qk_points
-            self.no_heads,
-        )
+        if(is_multimer):
+            self.linear_k = Linear(self.c_s, hc, bias=False)
+            self.linear_v = Linear(self.c_s, hc, bias=False)
+            self.linear_k_points = PointProjection(
+                self.c_s,
+                self.no_qk_points,
+                self.no_heads,
+            )
 
-        self.linear_v_points = PointProjection(
-            self.c_s,
-            self.no_v_points
-            self.no_heads,
-        )
+            self.linear_v_points = PointProjection(
+                self.c_s,
+                self.no_v_points,
+                self.no_heads,
+            )
+        else:
+            self.linear_kv = Linear(self.c_s, 2 * hc)
+            self.linear_kv_points = PointProjection(
+                self.c_s,
+                self.no_qk_points + self.no_v_points,
+                self.no_heads,
+            )
 
         self.linear_b = Linear(self.c_z, self.no_heads)
 
@@ -290,25 +306,48 @@ class InvariantPointAttention(nn.Module):
         #######################################
         # [*, N_res, H * C_hidden]
         q = self.linear_q(s)
-        kv = self.linear_kv(s)
 
         # [*, N_res, H, C_hidden]
         q = q.view(q.shape[:-1] + (self.no_heads, -1))
 
-        # [*, N_res, H, 2 * C_hidden]
-        kv = kv.view(kv.shape[:-1] + (self.no_heads, -1))
-
-        # [*, N_res, H, C_hidden]
-        k, v = torch.split(kv, self.c_hidden, dim=-1)
-
         # [*, N_res, H, P_qk]
         q_pts = self.linear_q_points(s, r) 
 
-        # [*, N_res, H, P_qk, 3]
-        k_pts = self.linear_k_points(s, r)
+        # The following two blocks are equivalent
+        # They're separated only to preserve compatibility with old AF weights
+        if(self.is_multimer):
+            # [*, N_res, H * C_hidden]
+            k = self.linear_k(s)
+            v = self.linear_v(s)
 
-        # [*, N_res, H, P_v, 3]
-        v_pts = self.linear_v_points(s, r)
+            # [*, N_res, H, C_hidden]
+            k = k.view(k.shape[:-1] + (self.no_heads, -1))
+            v = v.view(v.shape[:-1] + (self.no_heads, -1))
+
+            # [*, N_res, H, P_qk, 3]
+            k_pts = self.linear_k_points(s, r)
+
+            # [*, N_res, H, P_v, 3]
+            v_pts = self.linear_v_points(s, r)
+        else:
+            # [*, N_res, H * 2 * C_hidden]
+            kv = self.linear_kv(s)
+
+            # [*, N_res, H, 2 * C_hidden]
+            kv = kv.view(kv.shape[:-1] + (self.no_heads, -1))
+
+            # [*, N_res, H, C_hidden]
+            k, v = torch.split(kv, self.c_hidden, dim=-1)
+
+            kv_pts = self.linear_kv_points(s, r)
+    
+            # [*, N_res, H, (P_q + P_v), 3]
+            kv_pts = kv_pts.view(kv_pts.shape[:-2] + (self.no_heads, -1, 3))
+
+            # [*, N_res, H, P_q/P_v, 3]
+            k_pts, v_pts = torch.split(
+                kv_pts, [self.no_qk_points, self.no_v_points], dim=-2
+            )
 
         ##########################
         # Compute attention scores
@@ -324,12 +363,14 @@ class InvariantPointAttention(nn.Module):
         a *= math.sqrt(1.0 / (3 * self.c_hidden))
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
+        for c in q_pts:
+            print(type(c))
+
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts[..., None, :, :] - k_pts[..., None, :, :, :]
-        pt_att = pt_att * pt_att + self.eps
-
+        
         # [*, N_res, N_res, H, P_q]
-        pt_att = sum(torch.unbind(pt_att, dim=-1))
+        pt_att = sum([c**2 for c in pt_att]) 
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
         )
@@ -364,9 +405,7 @@ class InvariantPointAttention(nn.Module):
         # As DeepMind explains, this manual matmul ensures that the operation
         # happens in float32.
         # [*, N_res, H, P_v]
-        o_pt = v_pts.tensor_dot(
-            permute_final_dims(a, (1, 2, 0)).unsqueeze(-1) 
-        )
+        o_pt = v_pts * permute_final_dims(a, (1, 2, 0)).unsqueeze(-1) 
         o_pt = o_pt.sum(dim=-3)
 
         # [*, N_res, H, P_v]
@@ -493,6 +532,7 @@ class StructureModule(nn.Module):
         trans_scale_factor,
         epsilon,
         inf,
+        is_multimer=False,
         **kwargs,
     ):
         """
@@ -546,6 +586,7 @@ class StructureModule(nn.Module):
         self.trans_scale_factor = trans_scale_factor
         self.epsilon = epsilon
         self.inf = inf
+        self.is_multimer = is_multimer
 
         # To be lazily initialized later
         self.default_frames = None
@@ -567,6 +608,7 @@ class StructureModule(nn.Module):
             self.no_v_points,
             inf=self.inf,
             eps=self.epsilon,
+            is_multimer=self.is_multimer,
         )
 
         self.ipa_dropout = nn.Dropout(self.dropout_rate)
@@ -587,27 +629,62 @@ class StructureModule(nn.Module):
             self.no_angles,
             self.epsilon,
         )
+    
+    def _init_residue_constants(self, float_dtype, device):
+        if self.default_frames is None:
+            self.default_frames = torch.tensor(
+                restype_rigid_group_default_frame,
+                dtype=float_dtype,
+                device=device,
+                requires_grad=False,
+            )
+        if self.group_idx is None:
+            self.group_idx = torch.tensor(
+                restype_atom14_to_rigid_group,
+                device=device,
+                requires_grad=False,
+            )
+        if self.atom_mask is None:
+            self.atom_mask = torch.tensor(
+                restype_atom14_mask,
+                dtype=float_dtype,
+                device=device,
+                requires_grad=False,
+            )
+        if self.lit_positions is None:
+            self.lit_positions = torch.tensor(
+                restype_atom14_rigid_group_positions,
+                dtype=float_dtype,
+                device=device,
+                requires_grad=False,
+            )
 
-    def forward(
-        self,
+    def torsion_angles_to_frames(self, r, alpha, f):
+        # Lazily initialize the residue constants on the correct device
+        self._init_residue_constants(alpha.dtype, alpha.device)
+        # Separated purely to make testing less annoying
+        return torsion_angles_to_frames(r, alpha, f, self.default_frames)
+
+    def frames_and_literature_positions_to_atom14_pos(
+        self, r, f  # [*, N, 8]  # [*, N]
+    ):
+        # Lazily initialize the residue constants on the correct device
+        self._init_residue_constants(r.get_rots().dtype, r.get_rots().device)
+        return frames_and_literature_positions_to_atom14_pos(
+            r,
+            f,
+            self.default_frames,
+            self.group_idx,
+            self.atom_mask,
+            self.lit_positions,
+        )
+
+    def _forward_monomer(self,
         s,
         z,
         aatype,
         mask=None,
     ):
-        """
-        Args:
-            s:
-                [*, N_res, C_s] single representation
-            z:
-                [*, N_res, N_res, C_z] pair representation
-            aatype:
-                [*, N_res] amino acid indices
-            mask:
-                Optional [*, N_res] sequence mask
-        Returns:
-            A dictionary of outputs
-        """
         if mask is None:
             # [*, N]
             mask = s.new_ones(s.shape[:-1])
@@ -690,51 +767,97 @@ class StructureModule(nn.Module):
 
         return outputs
 
-    def _init_residue_constants(self, float_dtype, device):
-        if self.default_frames is None:
-            self.default_frames = torch.tensor(
-                restype_rigid_group_default_frame,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
-            )
-        if self.group_idx is None:
-            self.group_idx = torch.tensor(
-                restype_atom14_to_rigid_group,
-                device=device,
-                requires_grad=False,
-            )
-        if self.atom_mask is None:
-            self.atom_mask = torch.tensor(
-                restype_atom14_mask,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
-            )
-        if self.lit_positions is None:
-            self.lit_positions = torch.tensor(
-                restype_atom14_rigid_group_positions,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
-            )
-
-    def torsion_angles_to_frames(self, r, alpha, f):
-        # Lazily initialize the residue constants on the correct device
-        self._init_residue_constants(alpha.dtype, alpha.device)
-        # Separated purely to make testing less annoying
-        return torsion_angles_to_frames(r, alpha, f, self.default_frames)
-
-    def frames_and_literature_positions_to_atom14_pos(
-        self, r, f  # [*, N, 8]  # [*, N]
+    def _forward_multimer(self,
+        s,
+        z,
+        aatype,
+        mask=None,
     ):
-        # Lazily initialize the residue constants on the correct device
-        self._init_residue_constants(r.get_rots().dtype, r.get_rots().device)
-        return frames_and_literature_positions_to_atom14_pos(
-            r,
-            f,
-            self.default_frames,
-            self.group_idx,
-            self.atom_mask,
-            self.lit_positions,
+        if mask is None:
+            # [*, N]
+            mask = s.new_ones(s.shape[:-1])
+
+        # [*, N, C_s]
+        s = self.layer_norm_s(s)
+
+        # [*, N, N, C_z]
+        z = self.layer_norm_z(z)
+
+        # [*, N, C_s]
+        s_initial = s
+        s = self.linear_in(s)
+
+        # [*, N]
+        rigids = Rigid3Array.identity(
+            s.shape[:-1], 
+            s.device, 
         )
+        outputs = []
+        for i in range(self.no_blocks):
+            # [*, N, C_s]
+            s = s + self.ipa(s, z, rigids, mask)
+            s = self.ipa_dropout(s)
+            s = self.layer_norm_ipa(s)
+            s = self.transition(s)
+
+            # [*, N]
+            rigids = rigids @ self.bb_update(s)
+
+            # [*, N, 7, 2]
+            unnormalized_angles, angles = self.angle_resnet(s, s_initial)
+
+            all_frames_to_global = self.torsion_angles_to_frames(
+                rigids.scale_translation(self.trans_scale_factor),
+                angles,
+                aatype,
+            )
+
+            pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
+                all_frames_to_global,
+                aatype,
+            )
+            
+            preds = {
+                "frames": rigids.scale_translation(self.trans_scale_factor).to_tensor7(),
+                "sidechain_frames": all_frames_to_global.to_tensor_4x4(),
+                "unnormalized_angles": unnormalized_angles,
+                "angles": angles,
+                "positions": pred_xyz,
+            }
+
+            outputs.append(preds)
+
+            if i < (self.no_blocks - 1):
+                rigids = rigids.stop_rot_gradient()
+
+        outputs = dict_multimap(torch.stack, outputs)
+        outputs["single"] = s
+
+        return outputs
+
+    def forward(
+        self,
+        s,
+        z,
+        aatype,
+        mask=None,
+    ):
+        """
+        Args:
+            s:
+                [*, N_res, C_s] single representation
+            z:
+                [*, N_res, N_res, C_z] pair representation
+            aatype:
+                [*, N_res] amino acid indices
+            mask:
+                Optional [*, N_res] sequence mask
+        Returns:
+            A dictionary of outputs
+        """
+        if(self.is_multimer):
+            outputs = self._forward_multimer(s, z, aatype, mask)
+        else:
+            outputs = self._forward_monomer(s, z, aatype, mask)
+
+        return outputs

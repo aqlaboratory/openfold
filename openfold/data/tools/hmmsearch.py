@@ -28,11 +28,12 @@ class Hmmsearch(object):
     """Python wrapper of the hmmsearch binary."""
 
     def __init__(self,
-                             *,
-                             binary_path: str,
-                             hmmbuild_binary_path: str,
-                             database_path: str,
-                             flags: Optional[Sequence[str]] = None):
+        *,
+        binary_path: str,
+        hmmbuild_binary_path: str,
+        database_path: str,
+        flags: Optional[Sequence[str]] = None
+    ):
         """Initializes the Python hmmsearch wrapper.
 
         Args:
@@ -71,17 +72,23 @@ class Hmmsearch(object):
     def input_format(self) -> str:
         return 'sto'
 
-    def query(self, msa_sto: str) -> str:
+    def query(self, msa_sto: str, output_dir: Optional[str] = None) -> str:
         """Queries the database using hmmsearch using a given stockholm msa."""
-        hmm = self.hmmbuild_runner.build_profile_from_sto(msa_sto,
-                                                                                                            model_construction='hand')
-        return self.query_with_hmm(hmm)
+        hmm = self.hmmbuild_runner.build_profile_from_sto(
+            msa_sto,
+            model_construction='hand'
+        )
+        return self.query_with_hmm(hmm, output_dir)
 
-    def query_with_hmm(self, hmm: str) -> str:
+    def query_with_hmm(self, 
+        hmm: str, 
+        output_dir: Optional[str] = None
+    ) -> str:
         """Queries the database using hmmsearch using a given hmm."""
         with utils.tmpdir_manager() as query_tmp_dir:
             hmm_input_path = os.path.join(query_tmp_dir, 'query.hmm')
-            out_path = os.path.join(query_tmp_dir, 'output.sto')
+            output_dir = query_tmp_dir if output_dir is None else output_dir
+            out_path = os.path.join(output_dir, 'hmm_output.sto')
             with open(hmm_input_path, 'w') as f:
                 f.write(hmm)
 
@@ -117,18 +124,14 @@ class Hmmsearch(object):
 
         return out_msa
 
-    def get_template_hits(self,
+    @staticmethod
+    def get_template_hits(
         output_string: str,
         input_sequence: str
     ) -> Sequence[parsers.TemplateHit]:
         """Gets parsed template hits from the raw string output by the tool."""
-        a3m_string = parsers.convert_stockholm_to_a3m(
+        template_hits = parsers.parse_hmmsearch_sto(
             output_string,
-            remove_first_row_gaps=False
-        )
-        template_hits = parsers.parse_hmmsearch_a3m(
-            query_sequence=input_sequence,
-            a3m_string=a3m_string,
-            skip_first=False
+            input_sequence,
         )
         return template_hits

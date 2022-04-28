@@ -62,7 +62,7 @@ class Protein:
     b_factors: np.ndarray  # [num_res, num_atom_type]
 
     def __post_init__(self):
-        if(len(np.unique(self.chain_index)) > PDB_MAX_CHAINS:
+        if(len(np.unique(self.chain_index)) > PDB_MAX_CHAINS):
             raise ValueError(
                 f"Cannot build an instance with more than {PDB_MAX_CHAINS} "
                 "chains because these cannot be written to PDB format"
