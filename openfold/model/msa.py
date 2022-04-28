@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from functools import partial
 import math
 import torch
 import torch.nn as nn
@@ -79,20 +79,33 @@ class MSAAttention(nn.Module):
             )
         
         self.mha = Attention(
-            self.c_in, self.c_in, self.c_in, self.c_hidden, self.no_heads
+            self.c_in, 
+            self.c_in, 
+            self.c_in, 
+            self.c_hidden, 
+            self.no_heads,
         )
 
     @torch.jit.ignore
     def _chunk(self, 
         m: torch.Tensor,
         biases: List[torch.Tensor],
+        use_memory_efficient_kernel: bool, 
         chunk_size: int,
     ) -> torch.Tensor:
+        mha = partial(
+            self.mha, 
+            use_memory_efficient_kernel=use_memory_efficient_kernel
+        )
         return chunk_layer(
-            self.mha,
-            {"q_x": m, "kv_x": m, "biases": biases},
+            mha,
+            {
+                "q_x": m, 
+                "kv_x": m, 
+                "biases": biases, 
+            },
             chunk_size=chunk_size,
-            no_batch_dims=len(m.shape[:-2]),
+            no_batch_dims=len(m.shape[:-2])
         )
 
     def _prep_inputs(self,
@@ -112,13 +125,6 @@ class MSAAttention(nn.Module):
 
         # [*, N_seq, 1, 1, N_res]
         mask_bias = (self.inf * (mask - 1))[..., :, None, None, :]
-
-        # This step simply returns a larger view of the bias, and does not
-        # consume additional memory.
-        # [*, N_seq, no_heads, N_res, N_res]
-        #bias = bias.expand(
-        #    ((-1,) * len(bias.shape[:-4])) + (-1, self.no_heads, n_res, -1)
-        #)
 
         if (self.pair_bias and 
             z is not None and                       # For the 
@@ -144,6 +150,11 @@ class MSAAttention(nn.Module):
         chunk_logits: int,
         checkpoint: bool,
     ) -> torch.Tensor:
+        """ 
+        MSA attention with training-time chunking of the softmax computation.
+        Saves memory in the extra MSA stack. Probably obviated by our fused 
+        attention kernel, which is now used by default.
+        """
         MSA_DIM = -4
 
         def _get_qkv(m, z):
@@ -181,6 +192,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor] = None, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
+        use_memory_efficient_kernel: bool = False,
         _chunk_logits: Optional[int] = None,
         _checkpoint_chunks: Optional[bool] = None,
     ) -> torch.Tensor:
@@ -212,12 +224,13 @@ class MSAAttention(nn.Module):
             biases.append(z)
 
         if chunk_size is not None:
-            m = self._chunk(m, biases, chunk_size)
+            m = self._chunk(m, biases, use_memory_efficient_kernel, chunk_size)
         else:
             m = self.mha(
                 q_x=m, 
                 kv_x=m, 
-                biases=biases 
+                biases=biases,
+                use_memory_efficient_kernel=use_memory_efficient_kernel,
             )
 
         return m
@@ -291,7 +304,8 @@ class MSAColumnAttention(nn.Module):
     def forward(self, 
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None, 
-        chunk_size: Optional[int] = None
+        chunk_size: Optional[int] = None,
+        use_memory_efficient_kernel: bool = False,
     ) -> torch.Tensor:
         """
         Args:

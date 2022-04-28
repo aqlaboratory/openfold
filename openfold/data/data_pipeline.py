@@ -176,8 +176,8 @@ def make_protein_features(
 def make_pdb_features(
     protein_object: protein.Protein,
     description: str,
-    confidence_threshold: float = 0.5,
     is_distillation: bool = True,
+    confidence_threshold: float = 50.,
 ) -> FeatureDict:
     pdb_feats = make_protein_features(
         protein_object, description, _is_distillation=True
@@ -186,9 +186,7 @@ def make_pdb_features(
     if(is_distillation):
         high_confidence = protein_object.b_factors > confidence_threshold
         high_confidence = np.any(high_confidence, axis=-1)
-        for i, confident in enumerate(high_confidence):
-            if(not confident):
-                pdb_feats["all_atom_mask"][i] = 0
+        pdb_feats["all_atom_mask"] *= high_confidence[..., None]
 
     return pdb_feats
 
@@ -832,13 +830,24 @@ class DataPipeline:
         alignment_dir: str,
         is_distillation: bool = True,
         chain_id: Optional[str] = None,
+        _structure_index: Optional[str] = None,
         _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
         """
             Assembles features for a protein in a PDB file.
         """
-        with open(pdb_path, 'r') as f:
-            pdb_str = f.read()
+        if(_structure_index is not None):
+            db_dir = os.path.dirname(pdb_path)
+            db = _structure_index["db"]
+            db_path = os.path.join(db_dir, db)
+            fp = open(db_path, "rb")
+            _, offset, length = _structure_index["files"][0]
+            fp.seek(offset)
+            pdb_str = fp.read(length).decode("utf-8")
+            fp.close()
+        else:
+            with open(pdb_path, 'r') as f:
+                pdb_str = f.read()
 
         protein_object = protein.from_pdb_string(pdb_str, chain_id)
         input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
@@ -846,7 +855,7 @@ class DataPipeline:
         pdb_feats = make_pdb_features(
             protein_object, 
             description, 
-            is_distillation
+            is_distillation=is_distillation
         )
 
         hits = self._parse_template_hits(

@@ -107,7 +107,10 @@ def dgram_from_positions(
 
 
 def build_template_pair_feat(
-    batch, min_bin, max_bin, no_bins, use_unit_vector=False, eps=1e-20, inf=1e8
+    batch, 
+    min_bin, max_bin, no_bins, 
+    use_unit_vector=False, 
+    eps=1e-20, inf=1e8
 ):
     template_mask = batch["template_pseudo_beta_mask"]
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]

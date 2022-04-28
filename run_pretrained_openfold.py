@@ -234,7 +234,7 @@ def main(args):
         
         # Relax the prediction.
         t = time.perf_counter()
-        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES")
+        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES", default="")
         if("cuda" in args.model_device):
             device_no = args.model_device.split(":")[-1]
             os.environ["CUDA_VISIBLE_DEVICES"] = device_no
@@ -248,6 +248,13 @@ def main(args):
         )
         with open(relaxed_output_path, 'w') as f:
             f.write(relaxed_pdb_str)
+
+        if(args.save_outputs):
+            output_dict_path = os.path.join(
+                args.output_dir, f'{tag}_{args.model_name}_output_dict.pkl'
+            )
+            with open(output_dict_path, "wb") as fp:
+                pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == "__main__":
@@ -282,6 +289,10 @@ if __name__ == "__main__":
         help="""Path to model parameters. If None, parameters are selected
              automatically according to the model name from 
              openfold/resources/params"""
+    )
+    parser.add_argument(
+        "--save_outputs", type=bool, default=False,
+        help="Whether to save all model outputs, including embeddings, etc."
     )
     parser.add_argument(
         "--cpus", type=int, default=4,

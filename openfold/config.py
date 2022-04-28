@@ -267,6 +267,7 @@ config = mlc.ConfigDict(
                 "clamp_prob": 0.9,
                 "max_distillation_msa_clusters": 1000,
                 "uniform_recycling": True,
+                "distillation_prob": 0.75,
             },
             "data_module": {
                 "use_small_bfd": False,

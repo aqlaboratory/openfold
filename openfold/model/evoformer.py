@@ -352,20 +352,31 @@ class ExtraMSABlock(nn.Module):
         chunk_size: Optional[int] = None,
         _chunk_logits: Optional[int] = 1024,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        m = m + self.msa_dropout_layer(
+        def add(m1, m2):
+            # The first operation in a checkpoint can't be in-place, but it's
+            # nice to have in-place addition during inference. Thus...
+            if(torch.is_grad_enabled()):
+                m1 = m1 + m2
+            else:
+                m1 += m2
+
+            return m1
+        
+        m = add(m, self.msa_dropout_layer(
             self.msa_att_row(
-                m.clone(), 
-                z=z.clone(), 
+                m.clone() if torch.is_grad_enabled() else m, 
+                z=z.clone() if torch.is_grad_enabled() else z, 
                 mask=msa_mask, 
                 chunk_size=chunk_size,
+                use_memory_efficient_kernel=not _chunk_logits,
                 _chunk_logits=_chunk_logits if torch.is_grad_enabled() else None,
                 _checkpoint_chunks=
                     self.ckpt if torch.is_grad_enabled() else False,
             )
-        )
-
+        ))
+        
         def fn(m, z):
-            m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
+            m = add(m, self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size))
             m, z = self.core(
                 m, z, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size
             )
@@ -548,11 +559,14 @@ class ExtraMSAStack(nn.Module):
         eps: float,
         ckpt: bool,
         clear_cache_between_blocks: bool = False,
+        chunk_msa_attn: bool = False,
         **kwargs,
     ):
         super(ExtraMSAStack, self).__init__()
-        
+ 
+        self.ckpt = ckpt
         self.clear_cache_between_blocks = clear_cache_between_blocks
+        self.chunk_msa_attn = chunk_msa_attn
         self.blocks = nn.ModuleList()
         for _ in range(no_blocks):
             block = ExtraMSABlock(
@@ -569,7 +583,7 @@ class ExtraMSAStack(nn.Module):
                 pair_dropout=pair_dropout,
                 inf=inf,
                 eps=eps,
-                ckpt=ckpt,
+                ckpt=ckpt if chunk_msa_attn else False,
             )
             self.blocks.append(block)
 
@@ -593,28 +607,36 @@ class ExtraMSAStack(nn.Module):
                 Optional [*, N_res, N_res] pair mask
         Returns:
             [*, N_res, N_res, C_z] pair update
-        """ 
-        #checkpoint_fn = get_checkpoint_fn()
-        #blocks = [
-        #    partial(b, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size, _chunk_logits=None) for b in self.blocks
-        #]
+        """
+        if(not self.chunk_msa_attn):
+            checkpoint_fn = get_checkpoint_fn()
+            blocks = [
+                partial(
+                    b, 
+                    msa_mask=msa_mask, 
+                    pair_mask=pair_mask, 
+                    chunk_size=chunk_size, 
+                    _chunk_logits=None
+                ) for b in self.blocks
+            ]
 
-        #def dodo(b, *args):
-        #    torch.cuda.empty_cache()
-        #    return b(*args)
-
-        #blocks = [partial(dodo, b) for b in blocks]
-
-        #for b in blocks:
-        #    if(torch.is_grad_enabled()):
-        #        m, z = checkpoint_fn(b, *(m, z))
-        #    else:
-        #        m, z = b(m, z)
-
-        for b in self.blocks:
-            m, z = b(m, z, msa_mask, pair_mask, chunk_size=chunk_size)
+            def clear_cache(b, *args):
+                torch.cuda.empty_cache()
+                return b(*args)
 
             if(self.clear_cache_between_blocks):
-                torch.cuda.empty_cache()
+                blocks = [partial(clear_cache, b) for b in blocks]
+
+            for b in blocks:
+                if(self.ckpt and torch.is_grad_enabled()):
+                    m, z = checkpoint_fn(b, *(m, z))
+                else:
+                    m, z = b(m, z)
+        else:
+            for b in self.blocks:
+                m, z = b(m, z, msa_mask, pair_mask, chunk_size=chunk_size)
+
+                if(self.clear_cache_between_blocks):
+                    torch.cuda.empty_cache()
 
         return z

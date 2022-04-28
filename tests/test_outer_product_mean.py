@@ -81,7 +81,7 @@ class TestOuterProductMean(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0]
+            model.evoformer.blocks[0].core
             .outer_product_mean(
                 torch.as_tensor(msa_act).cuda(),
                 chunk_size=4,

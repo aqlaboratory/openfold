@@ -15,11 +15,25 @@ cases where the *Nature* paper differs from the source, we always defer to the
 latter. 
 
 OpenFold is built to support inference with AlphaFold's original JAX weights.
-Try it out with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
+It's also faster than the official code on GPU. Try it out for yourself with 
+our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Unlike DeepMind's public code, OpenFold is also trainable. It can be trained 
 with [DeepSpeed](https://github.com/microsoft/deepspeed) and with either `fp16`
 or `bfloat16` half-precision.
+
+OpenFold is equipped with an implementation of low-memory attention 
+([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)), which 
+enables inference on extremely long chains.
+
+We've modified [FastFold](https://github.com/hpcaitech/FastFold)'s custom CUDA 
+kernels to support in-place attention during inference and training. These use 
+4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
+implementations, respectively.
+
+We also make available efficient scripts for generating alignments. We've
+used them to generate millions of alignments that will be released alongside
+original OpenFold weights, trained from scratch using our code (more on that soon).
 
 ## Installation (Linux)
 
@@ -46,6 +60,12 @@ To deactivate it, run:
 
 ```bash
 source scripts/deactivate_conda_env.sh
+```
+
+With the environment active, compile OpenFold's CUDA kernels with
+
+```bash
+python3 setup.py install
 ```
 
 To install the HH-suite to `/usr/bin`, run
@@ -128,13 +148,6 @@ is enabled by default in inference mode. To disable it, set `globals.chunk_size`
 to `None` in the config.
 
 ### Training
-
-After activating the OpenFold environment with 
-`source scripts/activate_conda_env.sh`, install OpenFold by running
-
-```bash
-python setup.py install
-```
 
 To train the model, you will first need to precompute protein alignments. 
 

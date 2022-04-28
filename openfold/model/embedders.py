@@ -327,8 +327,6 @@ class RecyclingEmbedder(nn.Module):
         self.no_bins = no_bins
         self.inf = inf
 
-        self.bins = None
-
         self.linear = Linear(self.no_bins, self.c_z)
         self.layer_norm_m = LayerNorm(self.c_m)
         self.layer_norm_z = LayerNorm(self.c_z)
@@ -353,15 +351,14 @@ class RecyclingEmbedder(nn.Module):
             z:
                 [*, N_res, N_res, C_z] pair embedding update
         """
-        if self.bins is None:
-            self.bins = torch.linspace(
-                self.min_bin,
-                self.max_bin,
-                self.no_bins,
-                dtype=x.dtype,
-                device=x.device,
-                requires_grad=False,
-            )
+        bins = torch.linspace(
+            self.min_bin,
+            self.max_bin,
+            self.no_bins,
+            dtype=x.dtype,
+            device=x.device,
+            requires_grad=False,
+        )
 
         # [*, N, C_m]
         m_update = self.layer_norm_m(m)
@@ -369,7 +366,7 @@ class RecyclingEmbedder(nn.Module):
         # This squared method might become problematic in FP16 mode.
         # I'm using it because my homegrown method had a stubborn discrepancy I
         # couldn't find in time.
-        squared_bins = self.bins ** 2
+        squared_bins = bins ** 2
         upper = torch.cat(
             [squared_bins[1:], squared_bins.new_tensor([self.inf])], dim=-1
         )

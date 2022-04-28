@@ -173,9 +173,10 @@ class AlphaFold(nn.Module):
         # altogether. We zero them this way instead of computing them
         # conditionally to avoid leaving parameters unused, which has annoying
         # implications for DDP training.
-        if(not _recycle):
-            m_1_prev_emb *= 0
-            z_prev_emb *= 0
+        # EDIT: This has since been removed from the official codebase (2cd61a)
+#        if(not _recycle):
+#            m_1_prev_emb *= 0
+#            z_prev_emb *= 0
 
         # [*, S_c, N, C_m]
         m[..., 0, :, :] += m_1_prev_emb

@@ -8,6 +8,7 @@ import os
 #os.environ["NODE_RANK"]="0"
 
 import random
+import sys
 import time
 
 import numpy as np
@@ -27,16 +28,18 @@ from openfold.data.data_modules import (
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
+from openfold.utils.argparse import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
-from openfold.utils.argparse_utils import remove_arguments
-from openfold.utils.loss import AlphaFoldLoss, lddt_ca, compute_drmsd
+from openfold.utils.loss import AlphaFoldLoss, lddt_ca
+from openfold.utils.lr_schedulers import AlphaFoldLRScheduler
 from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.validation_metrics import (
+    drmsd,
     gdt_ts,
     gdt_ha,
 )
@@ -72,12 +75,12 @@ class OpenFoldWrapper(pl.LightningModule):
                 on_step=train, on_epoch=(not train), logger=True,
             )
 
-        if(train):
-            self.log(
-                f"train/loss_epoch", 
-                loss_breakdown["loss"], 
-                on_step=False, on_epoch=True, logger=True,
-            )
+            if(train):
+                self.log(
+                    f"{phase}/{loss_name}_epoch",
+                    indiv_loss,
+                    on_step=False, on_epoch=True, logger=True,
+                )
 
         with torch.no_grad():
             other_metrics = self._compute_validation_metrics(
@@ -116,16 +119,14 @@ class OpenFoldWrapper(pl.LightningModule):
     def on_before_zero_grad(self, *args, **kwargs):
         self.ema.update(self.model)
 
-#    def training_step_end(self, outputs):
-#        # Temporary measure to address DeepSpeed scheduler bug (PL issue 11694)
-#        if(self.trainer.global_step != self.last_lr_step):
-#            self.lr_schedulers().step()
-#            self.last_lr_step = self.trainer.global_step
-
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
         if(self.cached_weights is None):
-            self.cached_weights = self.model.state_dict()
+            # model.state_dict() contains references to model weights rather
+            # than copies. Therefore, we need to clone them before calling 
+            # load_state_dict().
+            clone_param = lambda t: t.detach().clone()
+            self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
             self.model.load_state_dict(self.ema.state_dict()["params"])
        
         # Run the model
@@ -171,20 +172,20 @@ class OpenFoldWrapper(pl.LightningModule):
             eps=self.config.globals.eps,
             per_residue=False,
         )
-    
+   
         metrics["lddt_ca"] = lddt_ca_score
-    
-        drmsd_ca_score = compute_drmsd(
+   
+        drmsd_ca_score = drmsd(
             pred_coords_masked_ca,
             gt_coords_masked_ca,
-            mask=all_atom_mask_ca,
+            mask=all_atom_mask_ca, # still required here to compute n
         )
-    
+   
         metrics["drmsd_ca"] = drmsd_ca_score
     
         if(superimposition_metrics):
-            superimposed_pred, _ = superimpose(
-                gt_coords_masked_ca, pred_coords_masked_ca
+            superimposed_pred, alignment_rmsd = superimpose(
+                gt_coords_masked_ca, pred_coords_masked_ca, all_atom_mask_ca,
             )
             gdt_ts_score = gdt_ts(
                 superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
@@ -193,6 +194,7 @@ class OpenFoldWrapper(pl.LightningModule):
                 superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
             )
 
+            metrics["alignment_rmsd"] = alignment_rmsd
             metrics["gdt_ts"] = gdt_ts_score
             metrics["gdt_ha"] = gdt_ha_score
     
@@ -203,11 +205,23 @@ class OpenFoldWrapper(pl.LightningModule):
         eps: float = 1e-5,
     ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
-        return torch.optim.Adam(
+        optimizer = torch.optim.Adam(
             self.model.parameters(), 
             lr=learning_rate, 
             eps=eps
         )
+        lr_scheduler = AlphaFoldLRScheduler(
+            optimizer,
+        )
+
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": lr_scheduler,
+                "interval": "step",
+                "name": "AlphaFoldLRScheduler",
+            }
+        }
 
     def on_load_checkpoint(self, checkpoint):
         self.ema.load_state_dict(checkpoint["ema"])
@@ -232,7 +246,7 @@ def main(args):
         sd = {k[len("module."):]:v for k,v in sd.items()}
         model_module.load_state_dict(sd)
         logging.info("Successfully loaded model weights...")
-
+ 
     # TorchScript components of the model
     if(args.script_modules):
         script_preset_(model_module)
@@ -251,6 +265,8 @@ def main(args):
     if(args.checkpoint_every_epoch):
         mc = ModelCheckpoint(
             every_n_epochs=1,
+            auto_insert_metric_name=False,
+            save_top_k=-1,
         )
         callbacks.append(mc)
 
@@ -300,7 +316,12 @@ def main(args):
         strategy = DDPPlugin(find_unused_parameters=False)
     else:
         strategy = None
-   
+ 
+    if(args.wandb):
+        freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
+        os.system(f"{sys.executable} -m pip freeze > {freeze_path}")
+        wdb_logger.experiment.save(f"{freeze_path}")
+
     trainer = pl.Trainer.from_argparse_args(
         args,
         default_root_dir=args.output_dir,
@@ -488,7 +509,13 @@ if __name__ == "__main__":
         )
     )
     parser.add_argument(
+        "--_distillation_structure_index_path", type=str, default=None,
+    )
+    parser.add_argument(
         "--_alignment_index_path", type=str, default=None,
+    )
+    parser.add_argument(
+        "--_distillation_alignment_index_path", type=str, default=None,
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
