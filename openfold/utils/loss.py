@@ -334,10 +334,12 @@ def supervised_chi_loss(
         (true_chi_shifted - pred_angles) ** 2, dim=-1
     )
     sq_chi_error = torch.minimum(sq_chi_error, sq_chi_error_shifted)
+    
     # The ol' switcheroo
     sq_chi_error = sq_chi_error.permute(
         *range(len(sq_chi_error.shape))[1:-2], 0, -2, -1
     )
+
     sq_chi_loss = masked_mean(
         chi_mask[..., None, :, :], sq_chi_error, dim=(-1, -2, -3)
     )
@@ -1513,39 +1515,6 @@ def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
     return loss
 
 
-def compute_drmsd(structure_1, structure_2, mask=None):
-    if(mask is not None):
-        structure_1 = structure_1 * mask[..., None]
-        structure_2 = structure_2 * mask[..., None]
-
-    d1 = structure_1[..., :, None, :] - structure_1[..., None, :, :]
-    d2 = structure_2[..., :, None, :] - structure_2[..., None, :, :]
-
-    d1 = d1 ** 2
-    d2 = d2 ** 2
-
-    d1 = torch.sqrt(torch.sum(d1, dim=-1))
-    d2 = torch.sqrt(torch.sum(d2, dim=-1))
-
-    drmsd = d1 - d2
-    drmsd = drmsd ** 2
-    drmsd = torch.sum(drmsd, dim=(-1, -2))
-    n = d1.shape[-1] if mask is None else torch.sum(mask, dim=-1)
-    drmsd = drmsd * (1 / (n * (n - 1))) if n > 1 else (drmsd * 0.)
-    drmsd = torch.sqrt(drmsd)
-
-    return drmsd
-
-
-def compute_drmsd_np(structure_1, structure_2, mask=None):
-    structure_1 = torch.tensor(structure_1)
-    structure_2 = torch.tensor(structure_2)
-    if(mask is not None):
-        mask = torch.tensor(mask)
-
-    return compute_drmsd(structure_1, structure_2, mask)
-
-
 class AlphaFoldLoss(nn.Module):
     """Aggregation of the various losses described in the supplement"""
     def __init__(self, config):
@@ -1614,6 +1583,10 @@ class AlphaFoldLoss(nn.Module):
             weight = self.config[loss_name].weight
             loss = loss_fn()
             if(torch.isnan(loss) or torch.isinf(loss)):
+                #for k,v in batch.items():
+                #    if(torch.any(torch.isnan(v)) or torch.any(torch.isinf(v))):
+                #        logging.warning(f"{k}: is nan")
+                #logging.warning(f"{loss_name}: {loss}")
                 logging.warning(f"{loss_name} loss is NaN. Skipping...")
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss

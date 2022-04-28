@@ -463,6 +463,7 @@ def make_masked_msa(protein, config, replace_fraction):
         1.0 - config.profile_prob - config.same_prob - config.uniform_prob
     )
     assert mask_prob >= 0.0
+
     categorical_probs = torch.nn.functional.pad(
         categorical_probs, pad_shapes, value=mask_prob
     )

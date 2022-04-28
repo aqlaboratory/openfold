@@ -8,6 +8,7 @@ import os
 #os.environ["NODE_RANK"]="0"
 
 import random
+import sys
 import time
 
 import numpy as np
@@ -32,12 +33,13 @@ from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
-from openfold.utils.loss import AlphaFoldLoss, lddt_ca, compute_drmsd
+from openfold.utils.loss import AlphaFoldLoss, lddt_ca
 from openfold.utils.lr_schedulers import AlphaFoldLRScheduler
 from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.validation_metrics import (
+    drmsd,
     gdt_ts,
     gdt_ha,
 )
@@ -59,6 +61,7 @@ class OpenFoldWrapper(pl.LightningModule):
         )
         
         self.cached_weights = None
+        self.last_lr_step = 0
 
     def forward(self, batch):
         return self.model(batch)
@@ -172,7 +175,7 @@ class OpenFoldWrapper(pl.LightningModule):
    
         metrics["lddt_ca"] = lddt_ca_score
    
-        drmsd_ca_score = compute_drmsd(
+        drmsd_ca_score = drmsd(
             pred_coords_masked_ca,
             gt_coords_masked_ca,
             mask=all_atom_mask_ca, # still required here to compute n
@@ -181,8 +184,8 @@ class OpenFoldWrapper(pl.LightningModule):
         metrics["drmsd_ca"] = drmsd_ca_score
     
         if(superimposition_metrics):
-            superimposed_pred, _ = superimpose(
-                gt_coords_masked_ca, pred_coords_masked_ca
+            superimposed_pred, alignment_rmsd = superimpose(
+                gt_coords_masked_ca, pred_coords_masked_ca, all_atom_mask_ca,
             )
             gdt_ts_score = gdt_ts(
                 superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
@@ -191,6 +194,7 @@ class OpenFoldWrapper(pl.LightningModule):
                 superimposed_pred, gt_coords_masked_ca, all_atom_mask_ca
             )
 
+            metrics["alignment_rmsd"] = alignment_rmsd
             metrics["gdt_ts"] = gdt_ts_score
             metrics["gdt_ha"] = gdt_ha_score
     
@@ -312,7 +316,12 @@ def main(args):
         strategy = DDPPlugin(find_unused_parameters=False)
     else:
         strategy = None
-   
+ 
+    if(args.wandb):
+        freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
+        os.system(f"{sys.executable} -m pip freeze > {freeze_path}")
+        wdb_logger.experiment.save(f"{freeze_path}")
+
     trainer = pl.Trainer.from_argparse_args(
         args,
         default_root_dir=args.output_dir,
@@ -500,7 +509,13 @@ if __name__ == "__main__":
         )
     )
     parser.add_argument(
+        "--_distillation_structure_index_path", type=str, default=None,
+    )
+    parser.add_argument(
         "--_alignment_index_path", type=str, default=None,
+    )
+    parser.add_argument(
+        "--_distillation_alignment_index_path", type=str, default=None,
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
