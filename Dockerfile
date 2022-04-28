@@ -1,6 +1,6 @@
 FROM nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04
 
-RUN apt-get update && apt-get install -y wget cuda-minimal-build-10-2 cuda-libraries-dev-10-2 git
+RUN apt-get update && apt-get install -y wget cuda-minimal-build-10-2 cuda-libraries-dev-10-1 git
 RUN wget -P /tmp \
     "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
