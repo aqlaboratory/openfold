@@ -665,8 +665,7 @@ class StructureModule(nn.Module):
 
             outputs.append(preds)
 
-            if i < (self.no_blocks - 1):
-                rigids = rigids.stop_rot_gradient()
+            rigids = rigids.stop_rot_gradient()
 
         outputs = dict_multimap(torch.stack, outputs)
         outputs["single"] = s
