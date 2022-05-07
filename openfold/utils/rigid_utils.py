@@ -50,10 +50,14 @@ def rot_matmul(
             dim=-1,
         )
 
-    row_1 = row_mul(0)
-    row_2 = row_mul(1)
-    row_3 = row_mul(2)
-    return torch.stack([row_1, row_2, row_3], dim=-2)
+    return torch.stack(
+        [
+            row_mul(0), 
+            row_mul(1), 
+            row_mul(2),
+        ], 
+        dim=-2
+    )
 
 
 def rot_vec_mul(
