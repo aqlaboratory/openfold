@@ -74,9 +74,7 @@ def rot_vec_mul(
         Returns:
             [*, 3] rotated coordinates
     """
-    x = t[..., 0]
-    y = t[..., 1]
-    z = t[..., 2]
+    x, y, z = torch.unbind(t, dim=-1)
     return torch.stack(
         [
             r[..., 0, 0] * x + r[..., 0, 1] * y + r[..., 0, 2] * z,
