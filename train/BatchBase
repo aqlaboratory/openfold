@@ -1,0 +1,82 @@
+# This file is the body to submit training job.
+# Modify this.
+
+echo "`date +%s.%N` #script start at `date`"
+
+Exec(){
+    echo "$@"
+    "$@"
+}
+
+export PLE_MPI_STD_EMPTYFILE="off"
+export UTOFU_SWAP_PROTECT=1
+
+# OPTFile
+# SRC_FILE=/data/ra010011/MLPerf/cosmoflow/opt_tgz/${OPTFile}
+# llio_transfer $SRC_FILE
+
+### The number of total processes
+NumProc=`expr 1 \* $InstNumNodes`
+#NumAllNodes=`wc -l $MapFile | cut -d " " -f 1`
+
+
+for ii in `seq 0 $(( $NumInst - 1))`; do
+    mkdir -p $LogDir/inst_$ii
+
+    ### Create hostfile
+    #Offset=$(( ${ii} * ${InstNumNodes} + 1))
+    #if [ "$ii" -lt "$(( $NumInst - 1 ))" ] ; then
+    #	EndLine=$(( ${Offset} + ${InstNumNodes} - 1))
+    #else
+    #	EndLine=$NumAllNodes
+    #fi
+    #sed -n ${Offset},${EndLine}p $MapFile > ${LogDir}/inst_$ii/vcoordfile
+
+    ### Create parameters file
+    ParamFile="$LogDir/inst_$ii/parameters"
+    cp "$LogDir/parameters" "$ParamFile"
+    sed -i -e 's|$LOGDIR|'"$LogDir/inst_$ii|" "$ParamFile"
+    sed -i -e 's|$BaseDir|'"$BaseDir|" "$ParamFile"
+    #sed -i -e 's|$LocalDataDir|'"$LocalDataDir|" "$ParamFile"
+    #sed -i -e 's|_SEED_|'"$RANDOM|" "$ParamFile"
+    #sed -i -e 's|$ConfigYaml|'"$LogDir/$ConfigYaml|" "$ParamFile"
+    #sed -i -e 's|$TrainStagingDupFactor|'"$TrainStagingDupFactor|" "$ParamFile"
+    #sed -i -e 's|$ReadyDir|'"${ReadyFlagDir}|" "$ParamFile"
+    #sed -i -e 's|$NumInstances|'"${NumInst}|" "$ParamFile"
+    #sed -i -e 's|$InstanceNum|'"${ii}|" "$ParamFile"
+    #. $ParamFile
+
+
+    ### Get num of nodes 
+    #Tmp=`grep mesh_shape ${LogDir}/${ConfigYaml} | grep -v "#" | awk '{print $2}'`
+    #Nxdim=`echo ${Tmp:1:-1} | awk -F'[,]' '{print $1}'`
+    #Nydim=`echo ${Tmp:1:-1} | awk -F'[,]' '{print $2}'`
+    #GroupSize=$(( ${Nxdim} * ${Nydim} ))
+
+    #echo "model parallel group size: ${GroupSize}"
+
+    ### Train 
+    # PARAMS[@] are defined in the file "parameters".
+
+    echo "`date +%s.%N` #mpiexec"
+    Exec $FJSVXTCLANGA/bin/mpiexec -np ${NumProc} \
+	 --mca orte_abort_print_stack 1 \
+	 --of-proc ${LogDir}/inst_$ii/output/%/1000r/out \
+	 -mca plm_ple_cpu_affinity 0 \
+	 -x ParameterFile="$ParamFile" \
+	 -x LOGDIR=${LogDir}/inst_$ii \
+	 -x dnnlverbose=${dnnlverbose} \
+	 -x NumNodes=${InstNumNodes} \
+	 -x DataDir=${DataDir} \
+	 -x LocalDataDir=${LocalDataDir} \
+	 -x SRC_FILE=${SRC_FILE} \
+	 ${LogDir}/${WORKER} | tee "$LogDir/inst_$ii/result.txt" &
+done
+
+#llio_transfer --purge $SRC_FILE
+
+wait
+
+echo "`date +%s.%N` #finished at `date`"
+
+# End of file

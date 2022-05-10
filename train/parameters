@@ -1,0 +1,31 @@
+PARAMS=(
+    python3
+    $BaseDir/../train_openfold.py
+    $BaseDir/../data/pdb_mmcif/mmcif_files
+    alignment_dir_1/
+    $BaseDir/../data/pdb_mmcif/mmcif_files
+    $LOGDIR
+    2021-10-10
+    --template_release_dates_cache_path $BaseDir/mmcif_cache.json
+    --seed 42
+    --deepspeed_config_path $BaseDir/ds_config.json
+    --checkpoint_every_epoch
+    --train_chain_data_cache_path $BaseDir/chain_data_cache.json
+)
+
+# for Python tempfile
+export TMPDIR=/worktmp
+
+# for Torch Extensions
+export TORCH_EXTENSIONS_DIR=/worktmp
+
+export OMPI_COMM_WORLD_RANK=$PMIX_RANK
+export OMPI_COMM_WORLD_LOCAL_RANK=$PLE_RANK_ON_NODE
+export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
+
+source /vol0003/ra010011/data/a04350/OpenFold/setenv
+
+#export LD_LIBRARY_PATH=/lib64:/usr/lib64:${OPT_PATH}/lib:${LD_LIBRARY_PATH}
+#export PATH=${OPT_PATH}/bin:${PATH}
+#LIBTCMALLOC_DIR="${OPT_PATH}/lib"
+#export LD_PRELOAD=${LIBTCMALLOC_DIR}/libtcmalloc.so

@@ -1,0 +1,187 @@
+#!/bin/bash
+LANG=
+
+#set -ex
+
+echo "`date +%s.%N` #Submit at `date`"
+
+if [ $# -ne 4 ] ; then
+    cat << EOF >&2
+usage: $0 nodeShape blockShape timeLimit config-file [submit-option]
+The nodeShape is the node shape. The mapFile is option.
+The blockShape is the instance block shape
+The timeLimit is the maximum of execution time with the format hh:mm:ss.
+The config-file is the yaml format config file.
+
+example: $0 48x6x16 16x2x16 12:00:00 configs/cosmo_v1.0_closed_k3.yaml
+EOF
+    exit 1
+fi
+
+NodeShape="$1" && shift
+BlockShape="$1" && shift
+TimeLimit="$1" && shift
+ConfigYaml="$1" && shift
+
+### Parameters
+dnnlverbose=0
+
+### The directory where data is stored
+DataDir="/2ndfs/ra010011/data/MLPerf/${DataDir0}"
+
+echo DataDir is $DataDir
+
+### Copy flag and directory path 
+#   copy data from remote storage to local disk
+#   and use the training data in local disk
+LocalDataDir="/worktmp"
+
+### WORKER script
+WORKER="worker.sh"
+
+### Python environment
+#OPTFile="TF220-33_220301.tgz"
+ShareDir=/worktmp
+
+NNodex=`echo "$NodeShape" | awk -F'x' '{print $1}'`
+NNodey=`echo "$NodeShape" | awk -F'x' '{print $2}'`
+NNodez=`echo "$NodeShape" | awk -F'x' '{print $3}'`
+NBlkx=`echo "$BlockShape" | awk -F'x' '{print $1}'`
+NBlky=`echo "$BlockShape" | awk -F'x' '{print $2}'`
+NBlkz=`echo "$BlockShape" | awk -F'x' '{print $3}'`
+NumNodes=$(( NNodex * NNodey * NNodez ))
+InstNumNodes=$(( NBlkx * NBlky * NBlkz ))
+NumInst=$(( NumNodes / NBlkx / NBlky / NBlkz ))
+
+# Select Resource Group
+if  [ $NumNodes -lt 385 ] ; then
+    RSC_GRP=small
+elif  [ $NumNodes -lt 55297 ] ; then
+    RSC_GRP=large
+else
+    RSC_GRP=huge
+fi
+#RSC_GRP=huge
+
+### Create log directory
+MyDir=`readlink -f "$0" | xargs dirname`
+MyName=`basename "$0"`
+Time=`date "+%y%m%d%H%M%S%3N"`
+HostName=`hostname | awk -F . '{ print $1; }'`
+JobName="$MyName.$Time"
+
+BaseFile="$MyDir/BatchBase"
+
+LogDir="$MyDir/log"/`printf "%04d" $InstNumNodes`"x"`printf "%04d" $NumInst`/"$JobName"
+mkdir -p "$LogDir" || exit
+
+###
+
+cp "$MyDir/$0" $LogDir
+cp ${MyDir}/${WORKER} ${LogDir}
+
+ParameterFile="$LogDir/parameters"
+cp "$MyDir/parameters" "$ParameterFile"
+
+cp $MyDir/$ConfigYaml ${LogDir}/ || exit
+
+git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
+
+MapFile=${LogDir}/map_${NodeShape}_${BlockShape}.txt
+MapFile=$(readlink -f $MapFile)
+
+if [ "$PJM_ENVIRONMENT" = "INTERACT" ]; then
+    #for i in `seq 0 $(($PJM_NODE-1))`; do echo "($i)"; done > $MapFile
+    :
+else
+    #./mapper2.sh $NNodex $NNodey $NNodez $NBlkx $NBlky $NBlkz > $MapFile
+    #test $? -eq 0 || exit 1
+    :
+fi
+PJM_MAPFILE="" #"#PJM --mpi rank-map-hostfile=$MapFile"
+
+### Generate qsub script
+ScriptFile="$LogDir/script"
+
+cat << EOF > "$ScriptFile"
+#!/bin/bash
+#PJM -L "rscunit=rscunit_ft01,rscgrp=${RSC_GRP}"
+#PJM -L elapse=$TimeLimit
+#PJM -L proc-core=48
+#PJM -L "node=${NodeShape}"
+##:strict,freq=2200
+#PJM --rsc-list "retention_state=0"
+#PJM -j
+#PJM -S
+${PJM_MAPFILE}
+
+hostname
+export BaseDir="$MyDir"
+
+LogDir="$LogDir"
+if [ ! -d "\$LogDir" ] ; then
+    echo "\$LogDir: not a directory" >&2
+    exit 1
+fi
+
+printenv > "$LogDir/environ"
+
+### The directory where data is stored
+DataDir="$DataDir"
+
+### The ready flag directory
+ReadyFlagDir="$ReadyFlagDir"
+
+dnnlverbose=$dnnlverbose
+echo "DNNL Verbose Level: $dnnlverbose"
+
+###
+# Copy flag and directory path 
+#   copy data from remote storage to local disk
+#   and use the training data in local disk
+LocalDataDir=${LocalDataDir}
+TmpDataDir=${DataDir}
+ShareDir=${ShareDir}
+
+###
+WORKER=${WORKER}
+OPTFile=${OPTFile}
+
+### The config yaml file
+ConfigYaml=$(basename ${ConfigYaml})
+
+### Instance info
+NumInst=${NumInst}
+InstNumNodes=${InstNumNodes}
+
+MapFile=${MapFile}
+
+EOF
+
+cat $BaseFile >> "$ScriptFile"
+
+echo ---------------
+echo Job information
+echo ---------------
+echo Mode: MPI
+echo NumNodes: $NumNodes
+echo NodeShape: $NodeShape
+echo LogDir: $LogDir
+
+if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
+    # To use LLIO (node-temporary)
+    # QsubArgs+=("--llio localtmp-size=80Gi")
+
+    QsubArgs+=("$ScriptFile")
+
+    ### Execute qsub command
+    echo "`date +%s.%N` #qsub"
+    echo "> pjsub ${QsubArgs[@]} $@"
+    pjsub ${QsubArgs[@]} "$@"
+
+else
+    # On compute node
+    bash $ScriptFile 2>&1 | tee ${LogDir}/stdout.txt
+fi
+# End of file
+
