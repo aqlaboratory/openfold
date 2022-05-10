@@ -16,7 +16,7 @@ from openfold.np import protein, residue_constants
 from utils import add_data_args
 
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 
 def run_seq_group_alignments(seq_groups, alignment_runner, args):
