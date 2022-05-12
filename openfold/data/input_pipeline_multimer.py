@@ -29,6 +29,7 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
         data_transforms.cast_to_64bit_ints,
         data_transforms_multimer.make_msa_profile,
         data_transforms_multimer.create_target_feat,
+        data_transforms.make_atom14_masks,
     ]
 
     if(common_cfg.use_templates):

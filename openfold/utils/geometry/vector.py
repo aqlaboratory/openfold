@@ -134,11 +134,18 @@ class Vec3Array:
 
         return Vec3Array(x, y, z)
 
-    def sum(self, dim) -> Vec3Array:
+    def sum(self, dim: int) -> Vec3Array:
         return Vec3Array(
             torch.sum(self.x, dim=dim),
             torch.sum(self.y, dim=dim),
             torch.sum(self.z, dim=dim),
+        )
+
+    def unsqueeze(self, dim: int):
+        return Vec3Array(
+            self.x.unsqueeze(dim),
+            self.y.unsqueeze(dim),
+            self.z.unsqueeze(dim),
         )
 
     @classmethod
@@ -150,11 +157,11 @@ class Vec3Array:
             torch.zeros(shape, dtype=torch.float32, device=device)
         )
 
-    def to_array(self) -> torch.Tensor:
+    def to_tensor(self) -> torch.Tensor:
         return torch.stack([self.x, self.y, self.z], dim=-1)
 
     @classmethod
-    def from_tensor(cls, tensor):
+    def from_array(cls, tensor):
         return cls(*torch.unbind(tensor, dim=-1))
 
     @classmethod

@@ -22,6 +22,7 @@ from typing import Dict
 
 from openfold.np import protein
 import openfold.np.residue_constants as rc
+from openfold.utils.geometry import rigid_matrix_vector, rotation_matrix
 from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     batched_gather,
@@ -213,15 +214,14 @@ def torsion_angles_to_frames(
     # This follows the original code rather than the supplement, which uses
     # different indices.
 
-    all_rots = alpha.new_zeros(default_r.get_rots().get_rot_mats().shape)
+    all_rots = alpha.new_zeros(default_r.shape + (3, 3))
     all_rots[..., 0, 0] = 1
     all_rots[..., 1, 1] = alpha[..., 1]
     all_rots[..., 1, 2] = -alpha[..., 0]
     all_rots[..., 2, 1:] = alpha
 
-    all_rots = Rigid(Rotation(rot_mats=all_rots), None)
-
-    all_frames = default_r.compose(all_rots)
+    all_rots = rotation_matrix.Rot3Array.from_array(all_rots)
+    all_frames = default_r.compose_rotation(all_rots)
 
     chi2_frame_to_frame = all_frames[..., 5]
     chi3_frame_to_frame = all_frames[..., 6]
@@ -232,7 +232,7 @@ def torsion_angles_to_frames(
     chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
     chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
 
-    all_frames_to_bb = Rigid.cat(
+    all_frames_to_bb = rigid_matrix_vector.Rigid3Array.cat(
         [
             all_frames[..., :5],
             chi2_frame_to_bb.unsqueeze(-1),
@@ -241,14 +241,14 @@ def torsion_angles_to_frames(
         ],
         dim=-1,
     )
-
+    
     all_frames_to_global = r[..., None].compose(all_frames_to_bb)
 
     return all_frames_to_global
 
 
 def frames_and_literature_positions_to_atom14_pos(
-    r: Rigid,
+    r: rigid_matrix_vector.Rigid3Array,
     aatype: torch.Tensor,
     default_frames,
     group_idx,
@@ -275,8 +275,8 @@ def frames_and_literature_positions_to_atom14_pos(
         lambda x: torch.sum(x, dim=-1)
     )
 
-    # [*, N, 14, 1]
-    atom_mask = atom_mask[aatype, ...].unsqueeze(-1)
+    # [*, N, 14]
+    atom_mask = atom_mask[aatype, ...]
 
     # [*, N, 14, 3]
     lit_positions = lit_positions[aatype, ...]

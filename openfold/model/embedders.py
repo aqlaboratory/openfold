@@ -868,7 +868,7 @@ class TemplateEmbedderMultimer(nn.Module):
             
             raw_atom_pos = single_template_feats["template_all_atom_positions"]
             
-            atom_pos = geometry.Vec3Array.from_tensor(raw_atom_pos)
+            atom_pos = geometry.Vec3Array.from_array(raw_atom_pos)
             rigid, backbone_mask = all_atom_multimer.make_backbone_affine(
                 atom_pos,
                 single_template_feats["template_all_atom_mask"],

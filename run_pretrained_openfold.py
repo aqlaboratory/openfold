@@ -217,7 +217,8 @@ def main(args):
         unrelaxed_protein = protein.from_prediction(
             features=batch,
             result=out,
-            b_factors=plddt_b_factors
+            b_factors=plddt_b_factors,
+            remove_leading_feature_dimension=not is_multimer,
         )
 
         # Save the unrelaxed PDB.
@@ -226,6 +227,9 @@ def main(args):
         )
         with open(unrelaxed_output_path, 'w') as f:
             f.write(protein.to_pdb(unrelaxed_protein))
+
+        print(unrelaxed_output_path)
+        print("asdjfh klasjdhf lkasjdhf lkjasdhflkjasdh fkl jasdhfklj hasdkljf hasldkjfh lkasjdfh lkajsdhflk asd")
 
         amber_relaxer = relax.AmberRelaxation(
             use_gpu=(args.model_device != "cpu"),

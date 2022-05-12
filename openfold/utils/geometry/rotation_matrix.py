@@ -22,6 +22,7 @@ import numpy as np
 from openfold.utils.geometry import struct_of_array
 from openfold.utils.geometry import utils
 from openfold.utils.geometry import vector
+from openfold.utils.tensor_utils import tensor_tree_map
 
 
 COMPONENTS = ['xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy', 'zz']
@@ -58,6 +59,13 @@ class Rot3Array:
                 for name in field_names
             }
         )
+    
+    def __matmul__(self, other: Rot3Array) -> Rot3Array:
+        """Composes two Rot3Arrays."""
+        c0 = self.apply_to_point(vector.Vec3Array(other.xx, other.yx, other.zx))
+        c1 = self.apply_to_point(vector.Vec3Array(other.xy, other.yy, other.zy))
+        c2 = self.apply_to_point(vector.Vec3Array(other.xz, other.yz, other.zz))
+        return Rot3Array(c0.x, c1.x, c2.x, c0.y, c1.y, c2.y, c0.z, c1.z, c2.z)
 
     def map_tensor_fn(self, fn) -> Rot3Array:
         field_names = utils.get_field_names(Rot3Array) 
@@ -88,12 +96,19 @@ class Rot3Array:
         """Applies inverse Rot3Array to point."""
         return self.inverse().apply_to_point(point)
 
-    def __matmul__(self, other: Rot3Array) -> Rot3Array:
-        """Composes two Rot3Arrays."""
-        c0 = self.apply_to_point(vector.Vec3Array(other.xx, other.yx, other.zx))
-        c1 = self.apply_to_point(vector.Vec3Array(other.xy, other.yy, other.zy))
-        c2 = self.apply_to_point(vector.Vec3Array(other.xz, other.yz, other.zz))
-        return Rot3Array(c0.x, c1.x, c2.x, c0.y, c1.y, c2.y, c0.z, c1.z, c2.z)
+
+    def unsqueeze(self, dim: int):
+        return Rot3Array(
+            *tensor_tree_map(
+                lambda t: t.unsqueeze(dim), 
+                [getattr(self, c) for c in COMPONENTS]
+            )
+        )
+
+    def stop_gradient(self) -> Rot3Array:
+        return Rot3Array(
+            *[getattr(self, c).detach() for c in COMPONENTS]
+        )
 
     @classmethod
     def identity(cls, shape, device) -> Rot3Array:
@@ -130,9 +145,11 @@ class Rot3Array:
     @classmethod
     def from_array(cls, array: torch.Tensor) -> Rot3Array:
         """Construct Rot3Array Matrix from array of shape. [..., 3, 3]."""
-        return cls(torch.unbind(array, dim=-2))
+        rows = torch.unbind(array, dim=-2)
+        rc = [torch.unbind(e, dim=-1) for e in rows]
+        return cls(*[e for row in rc for e in row])
 
-    def to_array(self) -> torch.Tensor:
+    def to_tensor(self) -> torch.Tensor:
         """Convert Rot3Array to array of shape [..., 3, 3]."""
         return torch.stack(
             [
@@ -140,7 +157,8 @@ class Rot3Array:
                 torch.stack([self.yx, self.yy, self.yz], dim=-1),
                 torch.stack([self.zx, self.zy, self.zz], dim=-1)
             ],
-            dim=-2)
+            dim=-2
+        )
 
     @classmethod
     def from_quaternion(cls,

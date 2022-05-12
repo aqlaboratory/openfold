@@ -22,8 +22,6 @@ class QuatRigid(nn.Module):
         # NOTE: During training, this needs to be run in higher precision
         rigid_flat = self.linear(activations.to(torch.float32))
         
-        print(rigid_flat.shape)
-
         rigid_flat = torch.unbind(rigid_flat, dim=-1)
         if(self.full_quat):
             qw, qx, qy, qz = rigid_flat[:4]

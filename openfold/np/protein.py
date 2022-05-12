@@ -205,7 +205,7 @@ def from_proteinnet_string(proteinnet_str: str) -> Protein:
     )
 
 
-def _chain_end(atom_index, end_resname, chain_name, residue_indx) -> str:
+def _chain_end(atom_index, end_resname, chain_name, residue_index) -> str:
     chain_end = 'TER'
     return(
         f'{chain_end:<6}{atom_index:>5}      {end_resname:>3} '

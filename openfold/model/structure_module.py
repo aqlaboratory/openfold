@@ -363,9 +363,6 @@ class InvariantPointAttention(nn.Module):
         a *= math.sqrt(1.0 / (3 * self.c_hidden))
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
-        for c in q_pts:
-            print(type(c))
-
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts[..., None, :, :] - k_pts[..., None, :, :, :]
         
@@ -669,7 +666,7 @@ class StructureModule(nn.Module):
         self, r, f  # [*, N, 8]  # [*, N]
     ):
         # Lazily initialize the residue constants on the correct device
-        self._init_residue_constants(r.get_rots().dtype, r.get_rots().device)
+        self._init_residue_constants(r.dtype, r.device)
         return frames_and_literature_positions_to_atom14_pos(
             r,
             f,
@@ -818,11 +815,11 @@ class StructureModule(nn.Module):
             )
             
             preds = {
-                "frames": rigids.scale_translation(self.trans_scale_factor).to_tensor7(),
+                "frames": rigids.scale_translation(self.trans_scale_factor).to_tensor(),
                 "sidechain_frames": all_frames_to_global.to_tensor_4x4(),
                 "unnormalized_angles": unnormalized_angles,
                 "angles": angles,
-                "positions": pred_xyz,
+                "positions": pred_xyz.to_tensor(),
             }
 
             outputs.append(preds)
