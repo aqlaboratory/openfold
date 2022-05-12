@@ -1,0 +1,25 @@
+PARAMS=(
+    python3
+    $BaseDir/../run_pretrained_openfold.py
+    $BaseDir/input/T1050.fasta
+    $BaseDir/../data/pdb_mmcif/mmcif_files
+    --model_device cpu
+    --param_path $BaseDir/../data/params/params_model_1.npz
+    --output_dir $LOGDIR
+    --use_precomputed_alignments $BaseDir/alignment
+)
+
+# for Python tempfile
+export TMPDIR=/worktmp
+
+# for Torch Extensions
+export TORCH_EXTENSIONS_DIR=/worktmp
+
+export OMPI_COMM_WORLD_RANK=$PMIX_RANK
+export OMPI_COMM_WORLD_LOCAL_RANK=$PLE_RANK_ON_NODE
+export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
+
+source /vol0003/ra010011/data/a04350/OpenFold/setenv
+
+export LD_PRELOAD=${OPT_PATH}/lib/libtcmalloc.so
+export OMP_NUM_THREADS=48

@@ -25,7 +25,6 @@ export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
 
 source /vol0003/ra010011/data/a04350/OpenFold/setenv
 
-#export LD_LIBRARY_PATH=/lib64:/usr/lib64:${OPT_PATH}/lib:${LD_LIBRARY_PATH}
-#export PATH=${OPT_PATH}/bin:${PATH}
-#LIBTCMALLOC_DIR="${OPT_PATH}/lib"
-#export LD_PRELOAD=${LIBTCMALLOC_DIR}/libtcmalloc.so
+export LD_PRELOAD=${OPT_PATH}/lib/libtcmalloc.so
+export OMP_NUM_THREADS=48
+#export DNNL_VERBOSE=2
