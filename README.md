@@ -116,7 +116,7 @@ pretrained parameters, run e.g.:
 
 ```bash
 python3 run_pretrained_openfold.py \
-    target.fasta \
+    fasta_dir \
     data/pdb_mmcif/mmcif_files/ \
     --uniref90_database_path data/uniref90/uniref90.fasta \
     --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
