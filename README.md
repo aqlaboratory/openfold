@@ -141,6 +141,14 @@ Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
 to `None` in the config.
 
+Inference-time low-memory attention (LMA) can be enabled in the model config.
+This setting trades off speed for vastly improved memory usage. By default,
+LMA is run with query and key chunk sizes of 1024 and 4096, respectively.
+These represent a favorable tradeoff in most memory-constrained cases.
+Powerusers can choose to tweak these settings in 
+`openfold/model/primitives.py`. For more information on the LMA algorithm,
+see the aforementioned Staats & Rabe preprint.
+
 ### Training
 
 To train the model, you will first need to precompute protein alignments. 
