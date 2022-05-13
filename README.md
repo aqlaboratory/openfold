@@ -299,7 +299,7 @@ docker run \
 -v /mnt/alphafold_database/:/database \
 -ti openfold:latest \
 python3 /opt/openfold/run_pretrained_openfold.py \
-/data/input.fasta \
+/data/fasta_dir \
 /database/pdb_mmcif/mmcif_files/ \
 --uniref90_database_path /database/uniref90/uniref90.fasta \
 --mgnify_database_path /database/mgnify/mgy_clusters_2018_12.fa \
