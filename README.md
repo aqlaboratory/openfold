@@ -14,7 +14,7 @@ DeepMind experiments. It is omitted here for the sake of reducing clutter. In
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
 
-OpenFold is built to support inference with official AlphaFolds parameters. Try it out for yourself with 
+OpenFold is built to support inference with AlphaFold's official parameters. Try it out for yourself with 
 our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Additionally, OpenFold has the following advantages over the reference implementation:
