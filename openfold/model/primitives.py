@@ -31,6 +31,10 @@ from openfold.utils.tensor_utils import (
 )
 
 
+DEFAULT_LMA_Q_CHUNK_SIZE=1024
+DEFAULT_LMA_KV_CHUNK_SIZE=4096
+
+
 def _prod(nums):
     out = 1
     for n in nums:
@@ -403,8 +407,8 @@ class Attention(nn.Module):
         biases: Optional[List[torch.Tensor]] = None,
         use_memory_efficient_kernel: bool = False,
         use_lma: bool = False,
-        q_chunk_size: Optional[int] = None,
-        kv_chunk_size: Optional[int] = None,
+        q_chunk_size: int = DEFAULT_LMA_Q_CHUNK_SIZE,
+        kv_chunk_size: int = DEFAULT_LMA_KV_CHUNK_SIZE,
     ) -> torch.Tensor:
         """
         Args:
@@ -460,6 +464,7 @@ class Attention(nn.Module):
                 for b in biases
             ]
             o = _lma(q, k, v, biases, q_chunk_size, kv_chunk_size)
+            o = o.transpose(-2, -3)
         else:
             o = _attention(q, k, v, biases)
             o = o.transpose(-2, -3)
@@ -494,7 +499,11 @@ class GlobalAttention(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, m: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    def forward(self, 
+        m: torch.Tensor, 
+        mask: torch.Tensor,
+        use_lma: bool = False,
+    ) -> torch.Tensor:
         # [*, N_res, C_in]
         q = torch.sum(m * mask.unsqueeze(-1), dim=-2) / (
             torch.sum(mask, dim=-1)[..., None] + self.eps
@@ -511,20 +520,30 @@ class GlobalAttention(nn.Module):
         k = self.linear_k(m)
         v = self.linear_v(m)
 
-        # [*, N_res, H, N_seq]
-        a = torch.matmul(
-            q,
-            k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq]
-        )
         bias = (self.inf * (mask - 1))[..., :, None, :]
-        a += bias
-        a = softmax_no_cast(a)
+        if(not use_lma):
+            # [*, N_res, H, N_seq]
+            a = torch.matmul(
+                q,
+                k.transpose(-1, -2),  # [*, N_res, C_hidden, N_seq]
+            )
+            a += bias
+            a = softmax_no_cast(a)
 
-        # [*, N_res, H, C_hidden]
-        o = torch.matmul(
-            a,
-            v,
-        )
+            # [*, N_res, H, C_hidden]
+            o = torch.matmul(
+                a,
+                v,
+            )
+        else:
+            o = _lma(
+                q, 
+                k, 
+                v, 
+                [bias], 
+                DEFAULT_LMA_Q_CHUNK_SIZE, 
+                DEFAULT_LMA_KV_CHUNK_SIZE
+            )
 
         # [*, N_res, N_seq, C_hidden]
         g = self.sigmoid(self.linear_g(m))
@@ -552,12 +571,12 @@ def _lma(
     q_chunk_size: int, 
     kv_chunk_size: int,
 ):
-    no_q, no_kv = q.shape[-3], k.shape[-3]
+    no_q, no_kv = q.shape[-2], k.shape[-2]
 
-    # [*, Q, H, C_hidden]
+    # [*, H, Q, C_hidden]
     o = q.new_zeros(q.shape)
     for q_s in range(0, no_q, q_chunk_size):
-        q_chunk = q[..., q_s: q_s + q_chunk_size, :, :]
+        q_chunk = q[..., q_s: q_s + q_chunk_size, :]
         large_bias_chunks = [
             b[..., q_s: q_s + q_chunk_size, :] for b in biases
         ]
@@ -566,24 +585,22 @@ def _lma(
         weights = []
         values = []
         for kv_s in range(0, no_kv, kv_chunk_size):
-            k_chunk = k[..., kv_s: kv_s + kv_chunk_size, :, :]
-            v_chunk = v[..., kv_s: kv_s + kv_chunk_size, :, :]
+            k_chunk = k[..., kv_s: kv_s + kv_chunk_size, :]
+            v_chunk = v[..., kv_s: kv_s + kv_chunk_size, :]
             small_bias_chunks = [
                 b[..., kv_s: kv_s + kv_chunk_size] for b in large_bias_chunks
             ]
 
             a = torch.einsum(
-                "...qhd,...khd->...hqk", q_chunk, k_chunk,
+                "...hqd,...hkd->...hqk", q_chunk, k_chunk,
             )
-        
+       
             for b in small_bias_chunks:
                 a += b
         
-            a = a.transpose(-2, -3)
-        
             max_a = torch.max(a, dim=-1, keepdim=True)[0]
             exp_a = torch.exp(a - max_a)
-            exp_v = torch.einsum("...vhf,...qhv->...qhf", v_chunk, exp_a)
+            exp_v = torch.einsum("...hvf,...hqv->...hqf", v_chunk, exp_a)
  
             maxes.append(max_a.detach().squeeze(-1))
             weights.append(torch.sum(exp_a, dim=-1))
@@ -595,14 +612,14 @@ def _lma(
 
         global_max = torch.max(chunk_max, dim=-3, keepdim=True)[0]
         max_diffs = torch.exp(chunk_max - global_max)
-        chunk_values *= max_diffs.unsqueeze(-1)
-        chunk_weights *= max_diffs
+        chunk_values = chunk_values * max_diffs.unsqueeze(-1)
+        chunk_weights = chunk_weights * max_diffs
 
         all_values = torch.sum(chunk_values, dim=-4)
         all_weights = torch.sum(chunk_weights.unsqueeze(-1), dim=-4)
 
         q_chunk_out = all_values / all_weights
 
-        o[..., q_s: q_s + q_chunk_size, :, :] = q_chunk_out
+        o[..., q_s: q_s + q_chunk_size, :] = q_chunk_out
 
     return o

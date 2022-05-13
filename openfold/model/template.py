@@ -77,6 +77,7 @@ class TemplatePointwiseAttention(nn.Module):
         t: torch.Tensor,
         biases: List[torch.Tensor],
         chunk_size: int,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         mha_inputs = {
             "q_x": z,
@@ -84,7 +85,7 @@ class TemplatePointwiseAttention(nn.Module):
             "biases": biases,
         }
         return chunk_layer(
-            self.mha,
+            partial(self.mha, use_lma=use_lma),
             mha_inputs,
             chunk_size=chunk_size,
             no_batch_dims=len(z.shape[:-2]),
@@ -95,7 +96,8 @@ class TemplatePointwiseAttention(nn.Module):
         t: torch.Tensor, 
         z: torch.Tensor, 
         template_mask: Optional[torch.Tensor] = None,
-        chunk_size: Optional[int] = None
+        chunk_size: Optional[int] = None,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -122,9 +124,9 @@ class TemplatePointwiseAttention(nn.Module):
         # [*, N_res, N_res, 1, C_z]
         biases = [bias]
         if chunk_size is not None:
-            z = self._chunk(z, t, biases, chunk_size)
+            z = self._chunk(z, t, biases, chunk_size, use_lma=use_lma)
         else:
-            z = self.mha(q_x=z, kv_x=t, biases=biases)
+            z = self.mha(q_x=z, kv_x=t, biases=biases, use_lma=use_lma)
 
         # [*, N_res, N_res, C_z]
         z = z.squeeze(-2)
@@ -188,6 +190,7 @@ class TemplatePairStackBlock(nn.Module):
         z: torch.Tensor, 
         mask: torch.Tensor, 
         chunk_size: Optional[int] = None, 
+        use_lma: bool = False,
         _mask_trans: bool = True
     ):
         single_templates = [
@@ -204,14 +207,16 @@ class TemplatePairStackBlock(nn.Module):
                 self.tri_att_start(
                     single,
                     chunk_size=chunk_size,
-                    mask=single_mask
+                    mask=single_mask,
+                    use_lma=use_lma,
                 )
             )
             single = single + self.dropout_col(
                 self.tri_att_end(
                     single,
                     chunk_size=chunk_size,
-                    mask=single_mask
+                    mask=single_mask,
+                    use_lma=use_lma,
                 )
             )
             single = single + self.dropout_row(
@@ -298,6 +303,7 @@ class TemplatePairStack(nn.Module):
         t: torch.tensor,
         mask: torch.tensor,
         chunk_size: int,
+        use_lma: bool = False,
         _mask_trans: bool = True,
     ):
         """
@@ -320,6 +326,7 @@ class TemplatePairStack(nn.Module):
                     b,
                     mask=mask,
                     chunk_size=chunk_size,
+                    use_lma=use_lma,
                     _mask_trans=_mask_trans,
                 )
                 for b in self.blocks

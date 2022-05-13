@@ -183,6 +183,7 @@ class EvoformerBlockCore(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_lma: bool = False,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]: 
         # DeepMind doesn't mask these transitions in the source, so _mask_trans
@@ -192,21 +193,31 @@ class EvoformerBlockCore(nn.Module):
         pair_trans_mask = pair_mask if _mask_trans else None
 
         m = m + self.msa_transition(
-            m, mask=msa_trans_mask, chunk_size=chunk_size
+            m, mask=msa_trans_mask, chunk_size=chunk_size,
         )
         z = z + self.outer_product_mean(
-            m, mask=msa_mask, chunk_size=chunk_size
+            m, mask=msa_mask, chunk_size=chunk_size,
         )
         z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
         z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
         z = z + self.ps_dropout_row_layer(
-            self.tri_att_start(z, mask=pair_mask, chunk_size=chunk_size)
+            self.tri_att_start(
+                z, 
+                mask=pair_mask, 
+                chunk_size=chunk_size, 
+                use_lma=use_lma
+            )
         )
         z = z + self.ps_dropout_col_layer(
-            self.tri_att_end(z, mask=pair_mask, chunk_size=chunk_size)
+            self.tri_att_end(
+                z, 
+                mask=pair_mask, 
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+            )
         )
         z = z + self.pair_transition(
-            z, mask=pair_trans_mask, chunk_size=chunk_size
+            z, mask=pair_trans_mask, chunk_size=chunk_size,
         )
 
         return m, z
@@ -267,18 +278,31 @@ class EvoformerBlock(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_lma: bool = False,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         m = m + self.msa_dropout_layer(
-            self.msa_att_row(m, z=z, mask=msa_mask, chunk_size=chunk_size)
+            self.msa_att_row(
+                m, 
+                z=z, 
+                mask=msa_mask, 
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+            )
         )
-        m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
+        m = m + self.msa_att_col(
+            m, 
+            mask=msa_mask, 
+            chunk_size=chunk_size,
+            use_lma=use_lma,
+        )
         m, z = self.core(
             m, 
             z, 
             msa_mask=msa_mask, 
             pair_mask=pair_mask, 
             chunk_size=chunk_size, 
+            use_lma=use_lma,
             _mask_trans=_mask_trans,
         )
 
@@ -350,7 +374,9 @@ class ExtraMSABlock(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_lma: bool = False,
         _chunk_logits: Optional[int] = 1024,
+        _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         def add(m1, m2):
             # The first operation in a checkpoint can't be in-place, but it's
@@ -368,7 +394,8 @@ class ExtraMSABlock(nn.Module):
                 z=z.clone() if torch.is_grad_enabled() else z, 
                 mask=msa_mask, 
                 chunk_size=chunk_size,
-                use_memory_efficient_kernel=not _chunk_logits,
+                use_lma=use_lma,
+                use_memory_efficient_kernel=not _chunk_logits and not use_lma,
                 _chunk_logits=_chunk_logits if torch.is_grad_enabled() else None,
                 _checkpoint_chunks=
                     self.ckpt if torch.is_grad_enabled() else False,
@@ -376,9 +403,23 @@ class ExtraMSABlock(nn.Module):
         ))
         
         def fn(m, z):
-            m = add(m, self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size))
+            m = add(
+                m, 
+                self.msa_att_col(
+                    m, 
+                    mask=msa_mask, 
+                    chunk_size=chunk_size,
+                    use_lma=use_lma,
+                )
+            )
             m, z = self.core(
-                m, z, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size
+                m, 
+                z, 
+                msa_mask=msa_mask, 
+                pair_mask=pair_mask, 
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+                _mask_trans=_mask_trans,
             )
             
             return m, z
@@ -488,6 +529,7 @@ class EvoformerStack(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
+        use_lma: bool = False,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
         """
@@ -500,6 +542,8 @@ class EvoformerStack(nn.Module):
                 [*, N_seq, N_res] MSA mask
             pair_mask:
                 [*, N_res, N_res] pair mask
+            chunk_size: Inference-time subbatch size
+            use_lma: Whether to use low-memory attention during inference
         Returns:
             m:
                 [*, N_seq, N_res, C_m] MSA embedding
@@ -514,6 +558,7 @@ class EvoformerStack(nn.Module):
                 msa_mask=msa_mask,
                 pair_mask=pair_mask,
                 chunk_size=chunk_size,
+                use_lma=use_lma,
                 _mask_trans=_mask_trans,
             )
             for b in self.blocks
@@ -591,6 +636,7 @@ class ExtraMSAStack(nn.Module):
         m: torch.Tensor,
         z: torch.Tensor,
         chunk_size: int,
+        use_lma: bool = False,
         msa_mask: Optional[torch.Tensor] = None,
         pair_mask: Optional[torch.Tensor] = None,
         _mask_trans: bool = True,
@@ -601,6 +647,8 @@ class ExtraMSAStack(nn.Module):
                 [*, N_extra, N_res, C_m] extra MSA embedding
             z:
                 [*, N_res, N_res, C_z] pair embedding
+            chunk_size: Inference-time subbatch size for Evoformer modules
+            use_lma: Whether to use low-memory attention during inference
             msa_mask:
                 Optional [*, N_extra, N_res] MSA mask
             pair_mask:
@@ -616,7 +664,9 @@ class ExtraMSAStack(nn.Module):
                     msa_mask=msa_mask, 
                     pair_mask=pair_mask, 
                     chunk_size=chunk_size, 
-                    _chunk_logits=None
+                    use_lma=use_lma,
+                    _chunk_logits=None,
+                    _mask_trans=_mask_trans,
                 ) for b in self.blocks
             ]
 
@@ -634,7 +684,15 @@ class ExtraMSAStack(nn.Module):
                     m, z = b(m, z)
         else:
             for b in self.blocks:
-                m, z = b(m, z, msa_mask, pair_mask, chunk_size=chunk_size)
+                m, z = b(
+                    m, 
+                    z, 
+                    msa_mask, 
+                    pair_mask, 
+                    chunk_size=chunk_size, 
+                    use_lma=use_lma,
+                    _mask_trans=_mask_trans
+                )
 
                 if(self.clear_cache_between_blocks):
                     torch.cuda.empty_cache()

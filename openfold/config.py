@@ -80,6 +80,7 @@ def model_config(name, train=False, low_prec=False):
     if train:
         c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
+        c.globals.use_lma = False
 
     if low_prec:
         c.globals.eps = 1e-4
@@ -269,6 +270,7 @@ config = mlc.ConfigDict(
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
+            "use_lma": False,
             "c_z": c_z,
             "c_m": c_m,
             "c_t": c_t,

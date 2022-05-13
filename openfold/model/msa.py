@@ -90,12 +90,14 @@ class MSAAttention(nn.Module):
     def _chunk(self, 
         m: torch.Tensor,
         biases: List[torch.Tensor],
-        use_memory_efficient_kernel: bool, 
         chunk_size: int,
+        use_memory_efficient_kernel: bool, 
+        use_lma: bool,
     ) -> torch.Tensor:
         mha = partial(
             self.mha, 
-            use_memory_efficient_kernel=use_memory_efficient_kernel
+            use_memory_efficient_kernel=use_memory_efficient_kernel,
+            use_lma=use_lma,
         )
         return chunk_layer(
             mha,
@@ -193,6 +195,7 @@ class MSAAttention(nn.Module):
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
         use_memory_efficient_kernel: bool = False,
+        use_lma: bool = False,
         _chunk_logits: Optional[int] = None,
         _checkpoint_chunks: Optional[bool] = None,
     ) -> torch.Tensor:
@@ -224,13 +227,20 @@ class MSAAttention(nn.Module):
             biases.append(z)
 
         if chunk_size is not None:
-            m = self._chunk(m, biases, use_memory_efficient_kernel, chunk_size)
+            m = self._chunk(
+                m, 
+                biases, 
+                chunk_size,
+                use_memory_efficient_kernel=use_memory_efficient_kernel, 
+                use_lma=use_lma,
+            )
         else:
             m = self.mha(
                 q_x=m, 
                 kv_x=m, 
                 biases=biases,
                 use_memory_efficient_kernel=use_memory_efficient_kernel,
+                use_lma=use_lma,
             )
 
         return m
@@ -305,7 +315,7 @@ class MSAColumnAttention(nn.Module):
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
-        use_memory_efficient_kernel: bool = False,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -323,7 +333,7 @@ class MSAColumnAttention(nn.Module):
         if mask is not None:
             mask = mask.transpose(-1, -2)
 
-        m = self._msa_att(m, mask=mask, chunk_size=chunk_size)
+        m = self._msa_att(m, mask=mask, chunk_size=chunk_size, use_lma=use_lma)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)
@@ -360,13 +370,14 @@ class MSAColumnGlobalAttention(nn.Module):
         m: torch.Tensor,
         mask: torch.Tensor,
         chunk_size: int,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         mha_input = {
             "m": m,
             "mask": mask,
         }
         return chunk_layer(
-            self.global_attention,
+            partial(self.global_attention, use_lma=use_lma),
             mha_input,
             chunk_size=chunk_size,
             no_batch_dims=len(m.shape[:-2]),
@@ -377,6 +388,7 @@ class MSAColumnGlobalAttention(nn.Module):
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         n_seq, n_res, c_in = m.shape[-3:]
 
@@ -396,9 +408,9 @@ class MSAColumnGlobalAttention(nn.Module):
         m = self.layer_norm_m(m)
 
         if chunk_size is not None:
-            m = self._chunk(m, mask, chunk_size) 
+            m = self._chunk(m, mask, chunk_size, use_lma=use_lma) 
         else:
-            m = self.global_attention(m=m, mask=mask)
+            m = self.global_attention(m=m, mask=mask, use_lma=use_lma)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)

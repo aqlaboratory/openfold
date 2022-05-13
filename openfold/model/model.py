@@ -152,6 +152,7 @@ class AlphaFold(nn.Module):
             template_embeds["pair"], 
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=self.globals.chunk_size,
+            use_lma=self.globals.use_lma,
             _mask_trans=self.config._mask_trans,
         )
 
@@ -161,6 +162,7 @@ class AlphaFold(nn.Module):
             z, 
             template_mask=batch["template_mask"].to(dtype=z.dtype),
             chunk_size=self.globals.chunk_size,
+            use_lma=self.globals.use_lma,
         )
         t = t * (torch.sum(batch["template_mask"]) > 0)
 
@@ -294,6 +296,7 @@ class AlphaFold(nn.Module):
                 z,
                 msa_mask=feats["extra_msa_mask"].to(dtype=a.dtype),
                 chunk_size=self.globals.chunk_size,
+                use_lma=self.globals.use_lma,
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 _mask_trans=self.config._mask_trans,
             )
@@ -308,6 +311,7 @@ class AlphaFold(nn.Module):
             msa_mask=msa_mask.to(dtype=m.dtype),
             pair_mask=pair_mask.to(dtype=z.dtype),
             chunk_size=self.globals.chunk_size,
+            use_lma=self.globals.use_lma,
             _mask_trans=self.config._mask_trans,
         )
 

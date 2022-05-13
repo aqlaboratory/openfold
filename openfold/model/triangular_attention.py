@@ -62,6 +62,7 @@ class TriangleAttention(nn.Module):
         x: torch.Tensor,
         biases: List[torch.Tensor],
         chunk_size: int,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         mha_inputs = {
             "q_x": x,
@@ -69,7 +70,7 @@ class TriangleAttention(nn.Module):
             "biases": biases,
         }
         return chunk_layer(
-            partial(self.mha),
+            partial(self.mha, use_lma=use_lma),
             mha_inputs,
             chunk_size=chunk_size,
             no_batch_dims=len(x.shape[:-2]),
@@ -78,7 +79,8 @@ class TriangleAttention(nn.Module):
     def forward(self, 
         x: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
-        chunk_size: Optional[int] = None
+        chunk_size: Optional[int] = None,
+        use_lma: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -113,9 +115,9 @@ class TriangleAttention(nn.Module):
         biases = [mask_bias, triangle_bias]
 
         if chunk_size is not None:
-            x = self._chunk(x, biases, chunk_size)
+            x = self._chunk(x, biases, chunk_size, use_lma=use_lma)
         else:
-            x = self.mha(q_x=x, kv_x=x, biases=biases)
+            x = self.mha(q_x=x, kv_x=x, biases=biases, use_lma=use_lma)
 
         if not self.starting:
             x = x.transpose(-2, -3)

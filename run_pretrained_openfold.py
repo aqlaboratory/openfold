@@ -15,6 +15,7 @@
 
 import argparse
 from datetime import date
+import gc
 import logging
 import numpy as np
 import os
@@ -76,18 +77,21 @@ def main(args):
     else:
         alignment_dir = args.use_precomputed_alignments
 
-    # Gather input sequences
-    with open(args.fasta_path, "r") as fp:
-        data = fp.read()
+    for fasta_file in os.listdir(args.fasta_dir):
+        # Gather input sequences
+        with open(os.path.join(args.fasta_dir, fasta_file), "r") as fp:
+            data = fp.read()
 
-    lines = [
-        l.replace('\n', '') 
-        for prot in data.split('>') for l in prot.strip().split('\n', 1)
-    ][1:]
-    tags, seqs = lines[::2], lines[1::2]
+        lines = [
+            l.replace('\n', '') 
+            for prot in data.split('>') for l in prot.strip().split('\n', 1)
+        ][1:]
+        tags, seqs = lines[::2], lines[1::2]
 
-    for tag, seq in zip(tags, seqs):
-        fasta_path = os.path.join(args.output_dir, "tmp.fasta")
+        assert len(seqs) == 1, "Input FASTAs may only contain one sequence"
+        tag, seq = tags[0], seqs[0]
+
+        fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
         with open(fasta_path, "w") as fp:
             fp.write(f">{tag}\n{seq}")
 
@@ -123,7 +127,7 @@ def main(args):
         processed_feature_dict = feature_processor.process_features(
             feature_dict, mode='predict',
         )
-    
+
         logging.info("Executing model...")
         batch = processed_feature_dict
         with torch.no_grad():
@@ -160,27 +164,28 @@ def main(args):
         with open(unrelaxed_output_path, 'w') as f:
             f.write(protein.to_pdb(unrelaxed_protein))
 
-        amber_relaxer = relax.AmberRelaxation(
-            use_gpu=(args.model_device != "cpu"),
-            **config.relax,
-        )
-        
-        # Relax the prediction.
-        t = time.perf_counter()
-        visible_devices = os.getenv("CUDA_VISIBLE_DEVICES", default="")
-        if("cuda" in args.model_device):
-            device_no = args.model_device.split(":")[-1]
-            os.environ["CUDA_VISIBLE_DEVICES"] = device_no
-        relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
-        os.environ["CUDA_VISIBLE_DEVICES"] = visible_devices
-        logging.info(f"Relaxation time: {time.perf_counter() - t}")
-        
-        # Save the relaxed PDB.
-        relaxed_output_path = os.path.join(
-            args.output_dir, f'{tag}_{args.model_name}_relaxed.pdb'
-        )
-        with open(relaxed_output_path, 'w') as f:
-            f.write(relaxed_pdb_str)
+        if(not args.skip_relaxation):
+            amber_relaxer = relax.AmberRelaxation(
+                use_gpu=(args.model_device != "cpu"),
+                **config.relax,
+            )
+            
+            # Relax the prediction.
+            t = time.perf_counter()
+            visible_devices = os.getenv("CUDA_VISIBLE_DEVICES", default="")
+            if("cuda" in args.model_device):
+                device_no = args.model_device.split(":")[-1]
+                os.environ["CUDA_VISIBLE_DEVICES"] = device_no
+            relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
+            os.environ["CUDA_VISIBLE_DEVICES"] = visible_devices
+            logging.info(f"Relaxation time: {time.perf_counter() - t}")
+            
+            # Save the relaxed PDB.
+            relaxed_output_path = os.path.join(
+                args.output_dir, f'{tag}_{args.model_name}_relaxed.pdb'
+            )
+            with open(relaxed_output_path, 'w') as f:
+                f.write(relaxed_pdb_str)
 
         if(args.save_outputs):
             output_dict_path = os.path.join(
@@ -193,7 +198,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "fasta_path", type=str,
+        "fasta_dir", type=str,
+        help="Path to directory containing FASTA files, one sequence per file"
     )
     parser.add_argument(
         "template_mmcif_dir", type=str,
@@ -224,7 +230,7 @@ if __name__ == "__main__":
              openfold/resources/params"""
     )
     parser.add_argument(
-        "--save_outputs", type=bool, default=False,
+        "--save_outputs", action="store_true", default=False,
         help="Whether to save all model outputs, including embeddings, etc."
     )
     parser.add_argument(
@@ -232,11 +238,14 @@ if __name__ == "__main__":
         help="""Number of CPUs with which to run alignment tools"""
     )
     parser.add_argument(
-        '--preset', type=str, default='full_dbs',
+        "--preset", type=str, default='full_dbs',
         choices=('reduced_dbs', 'full_dbs')
     )
     parser.add_argument(
-        '--data_random_seed', type=str, default=None
+        "--data_random_seed", type=str, default=None
+    )
+    parser.add_argument(
+        "--skip_relaxation", action="store_true", default=False,
     )
     add_data_args(parser)
     args = parser.parse_args()
