@@ -1,0 +1,34 @@
+--- work/Makefile.in	2011-06-20 23:26:20.000000000 +0900
++++ Makefile.in	2022-04-15 14:24:10.000000000 +0900
+@@ -1,7 +1,7 @@
+-PREFIX			= /usr/local/bin
++PREFIX			= @prefix@
+ TEST				= test/
+-CC					= gcc  
+-CFLAGS			= -O9  -Wall 
++CC					= @CC@  
++CFLAGS			= @CFLAGS@ 
+ DEBUGFLAGS		= -ggdb -Wall 
+ 
+ SOURCES			= kalign2_distance_calculation.c kalign2_dp.c kalign2_input.c kalign2_main.c kalign2_mem.c kalign2_inferface.c kalign2_misc.c kalign2_tree.c  kalign2_profile.c kalign2_alignment_types.c kalign2_feature.c kalign2_hirschberg.c  kalign2_advanced_gaps.c kalign2_hirschberg_dna.c  kalign2_output.c kalign2_string_matching.c kalign2_profile_alignment.c 
+@@ -9,6 +9,11 @@
+ DEBUGPROGS	= kalign_debug
+ 
+ 
++prefix      = @prefix@
++exec_prefix = @exec_prefix@
++datarootdir = @datarootdir@
++bindir      = @bindir@
++
+ OBJECTS			= $(SOURCES:.c=.o)
+ DEBUGOBJECTS	= $(SOURCES:.c=_debug.o)
+ 
+@@ -29,7 +34,7 @@
+ 
+ 
+ install:
+-	cp $(PROGS) /usr/local/bin/
++	cp $(PROGS) $(bindir)
+ 	
+ clean: 
+ 	rm -f $(PROGS) $(OBJECTS)

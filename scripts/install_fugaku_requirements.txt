@@ -1,0 +1,7 @@
+biopython==1.79
+dm-tree==0.1.6
+ml-collections==0.1.0
+tqdm==4.62.2
+pytorch_lightning==1.5.0
+
+git+https://github.com/openmm/pdbfixer.git

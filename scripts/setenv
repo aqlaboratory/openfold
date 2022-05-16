@@ -1,0 +1,24 @@
+############################################################
+# Please set PREFIX, OPENFOLDDIR, TMPDIR, PJSUB_OPT_GROUP
+
+export PREFIX=
+export OPENFOLDDIR=
+export TMPDIR=
+export PJSUB_OPT_GROUP=
+
+############################################################
+
+[ -z "$PREFIX" ] && echo "PREFIX is not defined" && exit 1
+[ -z "$OPENFOLDDIR" ] && echo "OPENFOLDDIR is not defined" && exit 1
+[ -z "$TMPDIR" ] && echo "TMPDIR is not defined" && exit 1
+
+export WORKDIR=$OPENFOLDDIR/third_party
+
+module purge
+module load lang/tcsds-1.2.35
+
+export TEST_TMPDIR=$TMPDIR     # for bazel
+export XDG_CACHE_HOME=$TMPDIR  # for cache
+
+export PATH=$PREFIX/bin:$PATH
+export LD_LIBRARY_PATH=/lib64:$PREFIX/lib:$LD_LIBRARY_PATH
