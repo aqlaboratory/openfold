@@ -37,7 +37,7 @@ for ii in `seq 0 $(( $NumInst - 1))`; do
     cp "$LogDir/parameters" "$ParamFile"
     sed -i -e 's|$LOGDIR|'"$LogDir/inst_$ii|" "$ParamFile"
     sed -i -e 's|$BaseDir|'"$BaseDir|" "$ParamFile"
-    #sed -i -e 's|$LocalDataDir|'"$LocalDataDir|" "$ParamFile"
+    sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
     #sed -i -e 's|_SEED_|'"$RANDOM|" "$ParamFile"
     #sed -i -e 's|$ConfigYaml|'"$LogDir/$ConfigYaml|" "$ParamFile"
     #sed -i -e 's|$TrainStagingDupFactor|'"$TrainStagingDupFactor|" "$ParamFile"

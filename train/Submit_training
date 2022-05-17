@@ -23,11 +23,13 @@ BlockShape="$1" && shift
 TimeLimit="$1" && shift
 ConfigYaml="$1" && shift
 
+. ../scripts/setenv
+
 ### Parameters
 dnnlverbose=0
 
 ### The directory where data is stored
-DataDir="/2ndfs/ra010011/data/MLPerf/${DataDir0}"
+DataDir="$DATADIR"
 
 echo DataDir is $DataDir
 
@@ -171,6 +173,9 @@ echo LogDir: $LogDir
 if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
     # To use LLIO (node-temporary)
     # QsubArgs+=("--llio localtmp-size=80Gi")
+
+    # add group option
+    QsubArgs+=("$PJSUB_OPT_GROUP")
 
     QsubArgs+=("$ScriptFile")
 

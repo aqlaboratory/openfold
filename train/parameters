@@ -1,9 +1,9 @@
 PARAMS=(
     python3
     $BaseDir/../train_openfold.py
-    $BaseDir/../data/pdb_mmcif/mmcif_files
+    $DataDir/pdb_mmcif/mmcif_files
     alignment_dir_1/
-    $BaseDir/../data/pdb_mmcif/mmcif_files
+    $DataDir/pdb_mmcif/mmcif_files
     $LOGDIR
     2021-10-10
     --template_release_dates_cache_path $BaseDir/mmcif_cache.json
@@ -23,8 +23,8 @@ export OMPI_COMM_WORLD_RANK=$PMIX_RANK
 export OMPI_COMM_WORLD_LOCAL_RANK=$PLE_RANK_ON_NODE
 export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
 
-source /vol0003/ra010011/data/a04350/OpenFold/setenv
+source $BaseDir/../scripts/setenv
 
-export LD_PRELOAD=${OPT_PATH}/lib/libtcmalloc.so
+export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
 export OMP_NUM_THREADS=48
 #export DNNL_VERBOSE=2

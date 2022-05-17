@@ -2,9 +2,9 @@ PARAMS=(
     python3
     $BaseDir/../run_pretrained_openfold.py
     $BaseDir/input/T1050.fasta
-    $BaseDir/../data/pdb_mmcif/mmcif_files
+    $DataDir/pdb_mmcif/mmcif_files
     --model_device cpu
-    --param_path $BaseDir/../data/params/params_model_1.npz
+    --param_path $DataDir/params/params_model_1.npz
     --output_dir $LOGDIR
     --use_precomputed_alignments $BaseDir/alignment
 )
@@ -19,7 +19,7 @@ export OMPI_COMM_WORLD_RANK=$PMIX_RANK
 export OMPI_COMM_WORLD_LOCAL_RANK=$PLE_RANK_ON_NODE
 export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
 
-source /vol0003/ra010011/data/a04350/OpenFold/setenv
+source $BaseDir/../scripts/setenv
 
-export LD_PRELOAD=${OPT_PATH}/lib/libtcmalloc.so
+export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
 export OMP_NUM_THREADS=48
