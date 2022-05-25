@@ -17,13 +17,15 @@ def model_config(name, train=False, low_prec=False):
         pass
     elif name == "finetuning":
         # AF2 Suppl. Table 4, "finetuning" setting
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
         c.data.train.crop_size = 384
         c.data.train.max_msa_clusters = 512
         c.loss.violation.weight = 1.
+        c.loss.experimentally_resolved.weight = 0.01
     elif name == "model_1":
         # AF2 Suppl. Table 5, Model 1.1.1
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120
         c.data.common.reduce_max_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
@@ -36,17 +38,20 @@ def model_config(name, train=False, low_prec=False):
         c.model.template.enabled = True
     elif name == "model_3":
         # AF2 Suppl. Table 5, Model 1.2.1
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120
         c.model.template.enabled = False
     elif name == "model_4":
         # AF2 Suppl. Table 5, Model 1.2.2
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120
         c.model.template.enabled = False
     elif name == "model_5":
         # AF2 Suppl. Table 5, Model 1.2.3
         c.model.template.enabled = False
     elif name == "model_1_ptm":
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120 
         c.data.common.reduce_max_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
@@ -61,12 +66,14 @@ def model_config(name, train=False, low_prec=False):
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     elif name == "model_3_ptm":
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     elif name == "model_4_ptm":
-        c.data.common.max_extra_msa = 5120
+        c.data.train.max_extra_msa = 5120
+        c.data.predict.max_extra_msa = 5120
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
@@ -184,7 +191,6 @@ config = mlc.ConfigDict(
                     "same_prob": 0.1,
                     "uniform_prob": 0.1,
                 },
-                "max_extra_msa": 1024,
                 "max_recycling_iters": 3,
                 "msa_cluster_features": True,
                 "reduce_msa_clusters_by_max_templates": False,
@@ -223,6 +229,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
+                "max_extra_msa": 1024,
                 "max_template_hits": 4,
                 "max_templates": 4,
                 "crop": False,
@@ -235,6 +242,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": False,  # We want top templates.
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
+                "max_extra_msa": 1024,
                 "max_template_hits": 4,
                 "max_templates": 4,
                 "crop": False,
@@ -247,6 +255,7 @@ config = mlc.ConfigDict(
                 "subsample_templates": True,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
+                "max_extra_msa": 1024,
                 "max_template_hits": 4,
                 "max_templates": 4,
                 "shuffle_top_k_prefiltered": 20,
@@ -262,7 +271,7 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-                    "num_workers": 16,
+                    "num_workers": 8,
                 },
             },
         },

@@ -192,6 +192,11 @@ def clean_protein(prot: protein.Protein, checks: bool = True):
     pdb_string = _get_pdb_string(as_file.getTopology(), as_file.getPositions())
     if checks:
         _check_cleaned_atoms(pdb_string, prot_pdb_string)
+    
+    headers = protein.get_pdb_headers(prot)    
+    if(len(headers) > 0):
+        pdb_string = '\n'.join(['\n'.join(headers), pdb_string])
+    
     return pdb_string
 
 
