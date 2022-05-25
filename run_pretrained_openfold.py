@@ -57,6 +57,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
             if not os.path.exists(local_alignment_dir):
                 os.makedirs(local_alignment_dir)
             
+            use_small_bfd=(args.bfd_database_path is None)
             alignment_runner = data_pipeline.AlignmentRunner(
                 jackhmmer_binary_path=args.jackhmmer_binary_path,
                 hhblits_binary_path=args.hhblits_binary_path,
@@ -209,8 +210,6 @@ def main(args):
         release_dates_path=args.release_dates_path,
         obsolete_pdbs_path=args.obsolete_pdbs_path
     )
-
-    use_small_bfd=(args.bfd_database_path is None)
 
     data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
