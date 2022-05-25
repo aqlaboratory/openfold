@@ -571,10 +571,14 @@ class EvoformerStack(nn.Module):
 
             blocks = [partial(block_with_cache_clear, b) for b in blocks]
 
+        blocks_per_ckpt = self.blocks_per_ckpt
+        if(not torch.is_grad_enabled()):
+            blocks_per_ckpt = None
+
         m, z = checkpoint_blocks(
             blocks,
             args=(m, z),
-            blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
+            blocks_per_ckpt=blocks_per_ckpt,
         )
 
         s = self.linear(m[..., 0, :, :])
