@@ -149,6 +149,12 @@ Powerusers can choose to tweak these settings in
 `openfold/model/primitives.py`. For more information on the LMA algorithm,
 see the aforementioned Staats & Rabe preprint.
 
+Input FASTA files containing multiple sequences are treated as complexes. In
+this case, the inference script runs AlphaFold-Gap, a hack proposed
+[here](https://twitter.com/minkbaek/status/1417538291709071362?lang=en), using
+the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer). To
+run inference with AlphaFold-Multimer, use the `multimer` branch instead.
+
 ### Training
 
 To train the model, you will first need to precompute protein alignments. 
