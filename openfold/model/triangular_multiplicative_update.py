@@ -100,8 +100,8 @@ class TriangleMultiplicationOutgoing(TriangleMultiplicativeUpdate):
     ):
         # [*, C, N_i, N_j]
         p = torch.matmul(
-            permute_final_dims(a, (2, 0, 1)),
-            permute_final_dims(b, (2, 1, 0)),
+            permute_final_dims(a, (2, 0, 1)).contiguous(),
+            permute_final_dims(b, (2, 1, 0)).contiguous(),
         )
 
         # [*, N_i, N_j, C]
@@ -118,8 +118,8 @@ class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
     ):
         # [*, C, N_i, N_j]
         p = torch.matmul(
-            permute_final_dims(a, (2, 1, 0)),
-            permute_final_dims(b, (2, 0, 1)),
+            permute_final_dims(a, (2, 1, 0)).contiguous(),
+            permute_final_dims(b, (2, 0, 1)).contiguous(),
         )
 
         # [*, N_i, N_j, C]
