@@ -71,7 +71,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                 no_cpus=args.cpus,
             )
             alignment_runner.run(
-                fasta_path, local_alignment_dir
+                tmp_fasta_path, local_alignment_dir
             )
 
         # Remove temporary FASTA file
