@@ -22,6 +22,13 @@ import torch.nn as nn
 from openfold.model.primitives import Linear, LayerNorm
 from openfold.utils.tensor_utils import permute_final_dims
 
+class ContiguousGrad(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x):
+        return x
+    @staticmethod
+    def backward(ctx, grad_out):
+        return grad_out.contiguous()
 
 class TriangleMultiplicativeUpdate(nn.Module):
     """
@@ -51,6 +58,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         self.layer_norm_out = LayerNorm(self.c_hidden)
 
         self.sigmoid = nn.Sigmoid()
+        self.contiguous_grad = ContiguousGrad.apply
 
     def _combine_projections(self,
         a: torch.Tensor,
@@ -103,6 +111,7 @@ class TriangleMultiplicationOutgoing(TriangleMultiplicativeUpdate):
             permute_final_dims(a, (2, 0, 1)).contiguous(),
             permute_final_dims(b, (2, 1, 0)).contiguous(),
         )
+        p = self.contiguous_grad(p)
 
         # [*, N_i, N_j, C]
         return permute_final_dims(p, (1, 2, 0))
@@ -121,6 +130,7 @@ class TriangleMultiplicationIncoming(TriangleMultiplicativeUpdate):
             permute_final_dims(a, (2, 1, 0)).contiguous(),
             permute_final_dims(b, (2, 0, 1)).contiguous(),
         )
+        p = self.contiguous_grad(p)
 
         # [*, N_i, N_j, C]
         return permute_final_dims(p, (1, 2, 0))
