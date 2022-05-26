@@ -3,8 +3,8 @@
     "device": "cpu",
     "stage": 2,
     "allgather_partitions": false,
-    "allgather_bucket_size": 1000000000.0,
-    "reduce_bucket_size": 1000000000.0,
+    "allgather_bucket_size": 16777216,
+    "reduce_bucket_size": 16777216,
     "overlap_comm": true,
     "reduce_scatter": false
   },

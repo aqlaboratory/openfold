@@ -56,8 +56,10 @@ InstNumNodes=$(( NBlkx * NBlky * NBlkz ))
 NumInst=$(( NumNodes / NBlkx / NBlky / NBlkz ))
 
 # Select Resource Group
-if  [ $NumNodes -lt 385 ] ; then
+if  [ $NumNodes -eq 1 ] ; then
     RSC_GRP=small
+elif  [ $NumNodes -lt 385 ] ; then
+    RSC_GRP=small-torus
 elif  [ $NumNodes -lt 55297 ] ; then
     RSC_GRP=large
 else

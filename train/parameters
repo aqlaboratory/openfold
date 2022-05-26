@@ -11,6 +11,7 @@ PARAMS=(
     --deepspeed_config_path $BaseDir/ds_config.json
     --checkpoint_every_epoch
     --train_chain_data_cache_path $BaseDir/chain_data_cache.json
+    --replace_sampler_ddp=True
 )
 
 # for Python tempfile
@@ -28,3 +29,4 @@ source $BaseDir/../scripts/setenv
 export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
 export OMP_NUM_THREADS=48
 #export DNNL_VERBOSE=2
+export PL_TORCH_DISTRIBUTED_BACKEND=mpi
