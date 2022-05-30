@@ -333,8 +333,11 @@ class OpenFoldDataset(torch.utils.data.Dataset):
             self.reroll()
 
     def __getitem__(self, idx):
+        logging.disable(logging.INFO)
         dataset_idx, datapoint_idx = self.datapoints[idx]
-        return self.datasets[dataset_idx][datapoint_idx]
+        ret = self.datasets[dataset_idx][datapoint_idx]
+        logging.disable(logging.NOTSET)
+        return ret
 
     def __len__(self):
         return self.epoch_len
