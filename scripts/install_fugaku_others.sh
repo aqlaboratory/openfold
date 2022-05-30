@@ -28,6 +28,11 @@ popd
 # pip packages
 pip3 install -r $OPENFOLDDIR/scripts/install_fugaku_requirements.txt
 
+# patch pytorch-lightning
+pushd $(pip show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
+patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
+popd
+
 # OpenMM
 git clone https://github.com/openmm/openmm -b 7.7.0
 pushd openmm

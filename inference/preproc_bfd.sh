@@ -1,13 +1,14 @@
 #!/bin/bash
 
+. ../scripts/setenv
+
 InputDir=$1
 OutputDir=$2
-DataDir=/vol0003/ra010011/data/a04350/OpenFold/openfold/data
-Prefix=/vol0003/ra010011/data/a04350/OpenFold/opt
-BinDir=$Prefix/bin
+DataDir=$DATADIR
+BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
 
-python3 ../scripts/precompute_alignments_small.py $InputDir $OutputDir \
+python3 ../scripts/precompute_alignments_smallbfd.py $InputDir $OutputDir \
 	--uniref90_database_path $DataDir/uniref90/uniref90.fasta \
 	--mgnify_database_path $DataDir/mgnify/mgy_clusters_2018_12.fa \
 	--pdb70_database_path $DataDir/pdb70/pdb70 \
