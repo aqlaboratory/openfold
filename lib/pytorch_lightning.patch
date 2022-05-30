@@ -1,0 +1,35 @@
+--- plugins/training_type/deepspeed.py.org	2022-05-16 21:42:04.000000000 +0900
++++ plugins/training_type/deepspeed.py	2022-05-16 21:44:48.000000000 +0900
+@@ -429,7 +429,7 @@
+         """
+         model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+         deepspeed_engine, deepspeed_optimizer, _, _ = deepspeed.initialize(
+-            args=argparse.Namespace(device_rank=self.root_device.index),
++            args=argparse.Namespace(device_rank=self.root_device.index or 0),
+             config=self.config,
+             model=model,
+             model_parameters=model_parameters,  # type: ignore
+@@ -535,12 +535,14 @@
+     def _set_deepspeed_activation_checkpointing(self):
+         if self.config.get("activation_checkpointing"):
+             checkpoint_config = self.config["activation_checkpointing"]
++            zero_config = self.config.get("zero_optimization")
+             deepspeed.checkpointing.configure(
+                 mpu_=None,
+                 partition_activations=checkpoint_config.get("partition_activations"),
+                 contiguous_checkpointing=checkpoint_config.get("contiguous_checkpointing"),
+                 checkpoint_in_cpu=checkpoint_config.get("checkpoint_in_cpu"),
+                 profile=checkpoint_config.get("profile"),
++                device=zero_config.get("device") if zero_config else None,
+             )
+ 
+     def _initialize_deepspeed_inference(self, model):
+@@ -569,7 +571,7 @@
+         # Remove all module hooks before initializing new model
+         remove_module_hooks(model)
+         model, _, _, _ = deepspeed.initialize(
+-            args=argparse.Namespace(device_rank=self.root_device.index),
++            args=argparse.Namespace(device_rank=self.root_device.index or 0),
+             config=inference_config,
+             model=model,
+             optimizer=optimizer,
