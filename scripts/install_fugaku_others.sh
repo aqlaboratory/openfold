@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 #PJM -L "node=1"
 #PJM -L "rscgrp=small"
-#PJM -L "elapse=4:0:00"
+#PJM -L "elapse=2:0:00"
 #PJM --rsc-list "retention_state=0"
 #PJM -x PJM_LLIO_GFSCACHE=/vol0004
 #PJM -j
@@ -23,14 +23,6 @@ cd build
 cmake -D CMAKE_INSTALL_PREFIX=$PREFIX -G "Unix Makefiles" ..
 make -j48
 make install
-popd
-
-# pip packages
-pip3 install -r $OPENFOLDDIR/scripts/install_fugaku_requirements.txt
-
-# patch pytorch-lightning
-pushd $(pip show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
-patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
 popd
 
 # OpenMM
@@ -76,8 +68,16 @@ make -j48
 make install
 popd
 
+# pip packages
+pip3 install -r $OPENFOLDDIR/scripts/install_fugaku_requirements.txt
+
+# patch pytorch-lightning
+pushd $(pip show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
+patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
+popd
+
 # DeepSpeed
 #git clone git@github.labs.fujitsu.com:shcpj/DeepSpeedCPU.git -b fjdev_activation_checkpoint
-pushd DeeepSpeedCPU
+pushd DeepSpeedCPU
 DS_BUILD_UTILS=1 pip3 install .
 popd
