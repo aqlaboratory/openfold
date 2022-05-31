@@ -177,7 +177,7 @@ if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
     # QsubArgs+=("--llio localtmp-size=80Gi")
 
     # add group option
-    QsubArgs+=("$PJSUB_OPT_GROUP")
+    QsubArgs+=("$PJSUB_OPT")
 
     QsubArgs+=("$ScriptFile")
 

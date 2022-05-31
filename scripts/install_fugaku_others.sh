@@ -3,9 +3,7 @@
 #PJM -L "rscgrp=small"
 #PJM -L "elapse=2:0:00"
 #PJM --rsc-list "retention_state=0"
-#PJM -x PJM_LLIO_GFSCACHE=/vol0004
 #PJM -j
-#PJM -S
 
 . scripts/setenv
 
@@ -77,7 +75,13 @@ patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
 popd
 
 # DeepSpeed
-#git clone git@github.labs.fujitsu.com:shcpj/DeepSpeedCPU.git -b fjdev_activation_checkpoint
 pushd DeepSpeedCPU
 DS_BUILD_UTILS=1 pip3 install .
 popd
+
+# OpenFold
+pushd $OPENFOLDDIR
+python3 setup.py install
+popd
+
+echo "Finished"

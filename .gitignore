@@ -1,0 +1,10 @@
+__pycache__/
+build/
+dist/
+*.egg-info/
+preproc/log/
+train/log/
+inference/log/
+openfold/resources/stereo_chemical_props.txt
+*.out
+*.stats

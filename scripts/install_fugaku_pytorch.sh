@@ -3,9 +3,7 @@
 #PJM -L "rscgrp=small"
 #PJM -L "elapse=4:0:00"
 #PJM --rsc-list "retention_state=0"
-#PJM -x PJM_LLIO_GFSCACHE=/vol0004
 #PJM -j
-#PJM -S
 
 . scripts/setenv
 
@@ -33,3 +31,5 @@ bash 8_libtcmalloc.sh
 pushd $PREFIX/bin
 ln -s python3 python
 popd
+
+echo "Finished"

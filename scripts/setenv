@@ -6,14 +6,14 @@ module load lang/tcsds-1.2.35
 
 export PREFIX=
 export OPENFOLDDIR=
-export PJSUB_OPT_GROUP=
 export DATADIR=
+export PJSUB_OPT_GROUP=
 
 ############################################################
 
 [ -z "$PREFIX" ] && echo "PREFIX is not defined" && exit 1
 [ -z "$OPENFOLDDIR" ] && echo "OPENFOLDDIR is not defined" && exit 1
-[ -z "$TMPDIR" ] && echo "TMPDIR is not defined" && exit 1
+[ -z "$DATADIR" ] && echo "DATADIR is not defined" && exit 1
 
 export WORKDIR=$OPENFOLDDIR/third_party
 
