@@ -7,7 +7,7 @@ module load lang/tcsds-1.2.35
 export PREFIX=
 export OPENFOLDDIR=
 export DATADIR=
-export PJSUB_OPT_GROUP=
+export PJSUB_OPT=
 
 ############################################################
 
