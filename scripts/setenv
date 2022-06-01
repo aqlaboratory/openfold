@@ -2,7 +2,7 @@ module purge
 module load lang/tcsds-1.2.35
 
 ############################################################
-# Please set PREFIX, OPENFOLDDIR, TMPDIR, PJSUB_OPT_GROUP
+# Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
 export PREFIX=
 export OPENFOLDDIR=
