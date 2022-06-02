@@ -9,8 +9,6 @@ echo `date` "#start hostname: " `hostname` "JOBID: "${PJM_SUBJOBID}
 ### Copy opt.tgz file and cpdata via /var/crash/MLP
 export SCRIPT_DIR=${ShareDir}
 
-export CPSCRIPT="cpdata_decomp8K.sh"
-
 #-- OPT file(SRC_FILE) defined in BatchBase
 #export OPT_PATH=${ShareDir}/TF220
 #export OPT_PATH=${ShareDir}/TF220-33

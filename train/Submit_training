@@ -5,23 +5,19 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 4 ] ; then
+if [ $# -ne 2 ] ; then
     cat << EOF >&2
-usage: $0 nodeShape blockShape timeLimit config-file [submit-option]
+usage: $0 nodeShape timeLimit [submit-option]
 The nodeShape is the node shape. The mapFile is option.
-The blockShape is the instance block shape
 The timeLimit is the maximum of execution time with the format hh:mm:ss.
-The config-file is the yaml format config file.
 
-example: $0 48x6x16 16x2x16 12:00:00 configs/cosmo_v1.0_closed_k3.yaml
+example: $0 8x2x8 12:00:00
 EOF
     exit 1
 fi
 
 NodeShape="$1" && shift
-BlockShape="$1" && shift
 TimeLimit="$1" && shift
-ConfigYaml="$1" && shift
 
 . ../scripts/setenv
 
@@ -48,12 +44,7 @@ ShareDir=/worktmp
 NNodex=`echo "$NodeShape" | awk -F'x' '{print $1}'`
 NNodey=`echo "$NodeShape" | awk -F'x' '{print $2}'`
 NNodez=`echo "$NodeShape" | awk -F'x' '{print $3}'`
-NBlkx=`echo "$BlockShape" | awk -F'x' '{print $1}'`
-NBlky=`echo "$BlockShape" | awk -F'x' '{print $2}'`
-NBlkz=`echo "$BlockShape" | awk -F'x' '{print $3}'`
 NumNodes=$(( NNodex * NNodey * NNodez ))
-InstNumNodes=$(( NBlkx * NBlky * NBlkz ))
-NumInst=$(( NumNodes / NBlkx / NBlky / NBlkz ))
 
 # Select Resource Group
 if  [ $NumNodes -eq 1 ] ; then
@@ -76,7 +67,7 @@ JobName="$MyName.$Time"
 
 BaseFile="$MyDir/BatchBase"
 
-LogDir="$MyDir/log"/`printf "%04d" $InstNumNodes`"x"`printf "%04d" $NumInst`/"$JobName"
+LogDir="$MyDir/log"/`printf "%04d" $NumNodes`/"$JobName"
 mkdir -p "$LogDir" || exit
 
 ###
@@ -87,11 +78,11 @@ cp ${MyDir}/${WORKER} ${LogDir}
 ParameterFile="$LogDir/parameters"
 cp "$MyDir/parameters" "$ParameterFile"
 
-cp $MyDir/$ConfigYaml ${LogDir}/ || exit
+cp $MyDir/ds_config.json ${LogDir}/ || exit
 
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 
-MapFile=${LogDir}/map_${NodeShape}_${BlockShape}.txt
+MapFile=${LogDir}/map_${NodeShape}.txt
 MapFile=$(readlink -f $MapFile)
 
 if [ "$PJM_ENVIRONMENT" = "INTERACT" ]; then
@@ -109,7 +100,7 @@ ScriptFile="$LogDir/script"
 
 cat << EOF > "$ScriptFile"
 #!/bin/bash
-#PJM -L "rscunit=rscunit_ft01,rscgrp=${RSC_GRP}"
+#PJM -L rscgrp=${RSC_GRP}
 #PJM -L elapse=$TimeLimit
 #PJM -L proc-core=48
 #PJM -L "node=${NodeShape}"
@@ -133,9 +124,6 @@ printenv > "$LogDir/environ"
 ### The directory where data is stored
 DataDir="$DataDir"
 
-### The ready flag directory
-ReadyFlagDir="$ReadyFlagDir"
-
 dnnlverbose=$dnnlverbose
 echo "DNNL Verbose Level: $dnnlverbose"
 
@@ -151,12 +139,7 @@ ShareDir=${ShareDir}
 WORKER=${WORKER}
 OPTFile=${OPTFile}
 
-### The config yaml file
-ConfigYaml=$(basename ${ConfigYaml})
-
-### Instance info
-NumInst=${NumInst}
-InstNumNodes=${InstNumNodes}
+NumNodes=${NumNodes}
 
 MapFile=${MapFile}
 
