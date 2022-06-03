@@ -17,7 +17,7 @@ NumProc=`expr 1 \* $NumNodes`
 ### Create parameters file
 ParamFile="$LogDir/parameters"
 sed -i -e 's|$LOGDIR|'"$LogDir|" "$ParamFile"
-sed -i -e 's|$BaseDir|'"$BaseDir|" "$ParamFile"
+sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$ParamFile"
 sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
 
 ### Train 

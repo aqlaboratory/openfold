@@ -2,7 +2,7 @@ SampleDir=/vol0003/share/hp210263/OpenFold/sample/inference
 
 PARAMS=(
     python3
-    $BaseDir/../run_pretrained_openfold.py
+    $OPENFOLDDIR/run_pretrained_openfold.py
     $SampleDir/T1084/input/query.fasta
     $DataDir/pdb_mmcif/mmcif_files
     --model_device cpu
@@ -11,7 +11,7 @@ PARAMS=(
     --use_precomputed_alignments $SampleDir/T1084/alignment_smallbfd
 )
 
-source $BaseDir/../scripts/setenv
+source $OPENFOLDDIR/scripts/setenv
 
 # for Torch Extensions
 export TORCH_EXTENSIONS_DIR=$TMPDIR

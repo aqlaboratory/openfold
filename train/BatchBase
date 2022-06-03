@@ -23,7 +23,7 @@ NumProc=$NumNodes
 ### Create parameters file
 ParamFile="$LogDir/parameters"
 sed -i -e 's|$LOGDIR|'"$LogDir|" "$ParamFile"
-sed -i -e 's|$BaseDir|'"$BaseDir|" "$ParamFile"
+sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$ParamFile"
 sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
 sed -i -e 's|$DeepSpeedConfig|'"$LogDir/ds_config.json|" "$ParamFile"
 

@@ -111,7 +111,7 @@ cat << EOF > "$ScriptFile"
 ${PJM_MAPFILE}
 
 hostname
-export BaseDir="$MyDir"
+export OpenFoldDir="$OPENFOLDDIR"
 
 LogDir="$LogDir"
 if [ ! -d "\$LogDir" ] ; then
