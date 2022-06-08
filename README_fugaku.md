@@ -1,18 +1,58 @@
 # OpenFold for Fugaku
 
+## コードの準備 (/share/hp210263/OpenFold/src/openfoldをコピーしてきた際は不要)
 1. OpenFoldをgit cloneもしくはコピーし、そのディレクトリに移動
 2. DeepSpeedCPUを`third_party`以下にgit cloneもしくはコピー
 3. stereo_chemical_props.txtを`openfold/openfold/resources/stereo_chemical_props.txt`に配置
     - 共有ディレクトリの`misc/stereo_chemical_props.txt`に以下のURLからダウンロードしたものが置いてある
         - https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
-4. `scripts/setenv`を編集しパスを設定
-    - PREFIX: インストール先ディレクトリ (必須)
-    - OPENFOLDDIR: このREADMEがあるディレクトリ (必須)
-    - DATADIR: データディレクトリ (必須)
-        - 現在はこのディレクトリ `/vol0003/share/hp210263/OpenFold/data`
-    - PJSUB_OPT: pjsub時の追加オプション (任意)
-        - シングルアカウントの場合は`-g $(グループID)`を指定する
-6. インストール用バッチジョブを投入するスクリプトを実行
+
+## 初期設定
+`scripts/setenv`を編集し、以下の変数に値を設定
+
+- PREFIX: インストール先ディレクトリ (必須)
+    - ビルド済み実行環境を使う場合は `/vol0003/share/hp210263/OpenFold/local`
+- OPENFOLDDIR: このREADMEがあるディレクトリ (必須) 
+- DATADIR: データディレクトリ (必須)
+    - 現在はこのディレクトリ `/vol0003/share/hp210263/OpenFold/data`
+- PJSUB_OPT: pjsub時の追加オプション (任意)
+    - シングルアカウントの場合は`-g $(グループID)`を指定する
+    - 場合によっては`PJM_LLIO_GFSCACHE=/vol0003`が必要
+
+## インストール (PREFIXにビルド済み実行環境を指定した場合は不要)
+- インストール用バッチジョブを投入するスクリプトを実行
 ```
 ./scripts/install_fugaku.sh
+```
+
+## 推論の実行
+1. inferenceディレクトリに移動
+2. parametersファイルを設定 (デフォルトではsampleディレクトリのT1084を利用)
+3. ジョブ投入
+```
+./Submit_inference <TimeLimit>
+
+# 例: 1時間制限で実行する場合
+# ./Submit_inference 1:0:0
+```
+
+## 学習の実行
+1. trainディレクトリに移動
+2. parametersファイルを設定 (デフォルトではsampleディレクトリの101M_Aで事前学習)
+3. ジョブ投入
+```
+./Submit_training <NodeShape> <TimeLimit>
+
+# 例: 2x2x2ノードで2時間制限で実行する場合
+# ./Submit_training 2x2x2 2:0:0
+```
+
+## 前処理の実行
+1. preprocディレクトリに移動
+2. ジョブ投入
+```
+./Submit_preproc <TimeLimit> <InputDir> <OutputDir>
+
+# 例: 1時間制限で、inputディレクトリ中の全てのfastaを前処理し、outputディレクトリに出力する場合
+./Submit_preproc 1:0:0 input output
 ```
