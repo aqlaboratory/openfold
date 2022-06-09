@@ -11,14 +11,7 @@
   "optimizer": {
     "type": "Adam",
     "params": {
-      "torch_adam": true,
-      "lr": 0.001,
-      "betas": [
-        0.8,
-        0.999
-      ],
-      "eps": 1e-8,
-      "weight_decay": 3e-7
+      "torch_adam": true
     }
   },
   "flops_profiler": {
