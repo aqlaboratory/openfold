@@ -37,7 +37,7 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationIncoming,
 )
 from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn
-from openfold.utils.tensor_utils import chunk_layer
+from openfold.utils.tensor_utils import add, chunk_layer
 
 
 class MSATransition(nn.Module):
@@ -192,32 +192,76 @@ class EvoformerBlockCore(nn.Module):
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
 
-        m = m + self.msa_transition(
-            m, mask=msa_trans_mask, chunk_size=chunk_size,
+        # Need to dodge activation checkpoints
+        inplace_safe = not (self.training or torch.is_grad_enabled())
+
+        m = add(
+            m,
+            self.msa_transition(
+                m, mask=msa_trans_mask, chunk_size=chunk_size,
+            ),
+            inplace=inplace_safe,
         )
-        z = z + self.outer_product_mean(
-            m, mask=msa_mask, chunk_size=chunk_size,
+        z = add(z, 
+            self.outer_product_mean(
+                m, mask=msa_mask, chunk_size=chunk_size, _inplace=inplace_safe
+            ),
+            inplace=inplace_safe,
         )
-        z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
-        z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
-        z = z + self.ps_dropout_row_layer(
-            self.tri_att_start(
-                z, 
-                mask=pair_mask, 
-                chunk_size=chunk_size, 
-                use_lma=use_lma
-            )
+
+        tmu_update = self.tri_mul_out(
+            z,
+            mask=pair_mask,
+            _inplace=inplace_safe,
+            _add_with_inplace=True,
         )
-        z = z + self.ps_dropout_col_layer(
-            self.tri_att_end(
-                z, 
-                mask=pair_mask, 
-                chunk_size=chunk_size,
-                use_lma=use_lma,
-            )
+        if(not inplace_safe):
+            z = z + self.ps_dropout_row_layer(tmu_update)
+        else:
+            z = tmu_update
+        
+        del tmu_update
+
+        tmu_update = self.tri_mul_in(
+            z,
+            mask=pair_mask,
+            _inplace=inplace_safe,
+            _add_with_inplace=True,
         )
-        z = z + self.pair_transition(
-            z, mask=pair_trans_mask, chunk_size=chunk_size,
+        if(not inplace_safe):
+            z = z + self.ps_dropout_row_layer(tmu_update)
+        else:
+            z = tmu_update
+       
+        del tmu_update
+
+        z = add(z, 
+            self.ps_dropout_row_layer(
+                self.tri_att_start(
+                    z, 
+                    mask=pair_mask, 
+                    chunk_size=chunk_size, 
+                    use_lma=use_lma
+                )
+            ),
+            inplace=inplace_safe,
+        )
+        z = add(z, 
+            self.ps_dropout_col_layer(
+                self.tri_att_end(
+                    z, 
+                    mask=pair_mask, 
+                    chunk_size=chunk_size,
+                    use_lma=use_lma,
+                )
+            ),
+            inplace=inplace_safe,
+        )
+        z = add(z,
+            self.pair_transition(
+                z, mask=pair_trans_mask, chunk_size=chunk_size,
+            ),
+            inplace=inplace_safe,
         )
 
         return m, z
@@ -377,40 +421,35 @@ class ExtraMSABlock(nn.Module):
         use_lma: bool = False,
         _chunk_logits: Optional[int] = 1024,
         _mask_trans: bool = True,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        def add(m1, m2):
-            # The first operation in a checkpoint can't be in-place, but it's
-            # nice to have in-place addition during inference. Thus...
-            if(torch.is_grad_enabled()):
-                m1 = m1 + m2
-            else:
-                m1 += m2
-
-            return m1
-        
-        m = add(m, self.msa_dropout_layer(
-            self.msa_att_row(
-                m.clone() if torch.is_grad_enabled() else m, 
-                z=z.clone() if torch.is_grad_enabled() else z, 
-                mask=msa_mask, 
-                chunk_size=chunk_size,
-                use_lma=use_lma,
-                use_memory_efficient_kernel=not _chunk_logits and not use_lma,
-                _chunk_logits=_chunk_logits if torch.is_grad_enabled() else None,
-                _checkpoint_chunks=
-                    self.ckpt if torch.is_grad_enabled() else False,
-            )
-        ))
+    ) -> Tuple[torch.Tensor, torch.Tensor]: 
+        # If function calls could speak...
+        m = add(m, 
+            self.msa_dropout_layer(
+                self.msa_att_row(
+                    m.clone() if torch.is_grad_enabled() else m, 
+                    z=z.clone() if torch.is_grad_enabled() else z, 
+                    mask=msa_mask, 
+                    chunk_size=chunk_size,
+                    use_lma=use_lma,
+                    use_memory_efficient_kernel=not _chunk_logits and not use_lma,
+                    _chunk_logits=
+                        _chunk_logits if torch.is_grad_enabled() else None,
+                    _checkpoint_chunks=
+                        self.ckpt if torch.is_grad_enabled() else False,
+                )
+            ),
+            inplace=not (self.training or torch.is_grad_enabled()),
+        )
         
         def fn(m, z):
-            m = add(
-                m, 
+            m = add(m, 
                 self.msa_att_col(
                     m, 
                     mask=msa_mask, 
                     chunk_size=chunk_size,
                     use_lma=use_lma,
-                )
+                ),
+                inplace=not (self.training or torch.is_grad_enabled()),
             )
             m, z = self.core(
                 m, 
@@ -590,7 +629,6 @@ class ExtraMSAStack(nn.Module):
     """
     Implements Algorithm 18.
     """
-
     def __init__(self,
         c_m: int,
         c_z: int,

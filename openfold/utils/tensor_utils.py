@@ -19,6 +19,17 @@ import torch.nn as nn
 from typing import Tuple, List, Callable, Any, Dict, Sequence, Optional
 
 
+def add(m1, m2, inplace):
+    # The first operation in a checkpoint can't be in-place, but it's
+    # nice to have in-place addition during inference. Thus...
+    if(not inplace):
+        m1 = m1 + m2
+    else:
+        m1 += m2
+
+    return m1
+
+
 def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
     zero_index = -1 * len(inds)
     first_inds = list(range(len(tensor.shape[:zero_index])))

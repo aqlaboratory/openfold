@@ -10,6 +10,29 @@ def set_inf(c, inf):
             c[k] = inf
 
 
+def enforce_config_constraints(config):
+    def string_to_setting(s):
+        path = s.split('.')
+        setting = config
+        for p in path:
+            setting = setting[p]
+
+        return setting
+
+    mutually_exclusive_bools = [
+        (
+            "model.template.average_templates", 
+            "model.template.offload_templates"
+        )
+    ]
+
+    for s1, s2 in mutually_exclusive_bools:
+        s1_setting = string_to_setting(s1)
+        s2_setting = string_to_setting(s2)
+        if(s1_setting and s2_setting):
+            raise ValueError(f"Only one of {s1} and {s2} may be set at a time")
+
+
 def model_config(name, train=False, low_prec=False):
     c = copy.deepcopy(config)
     if name == "initial_training":
@@ -22,6 +45,14 @@ def model_config(name, train=False, low_prec=False):
         c.data.train.max_msa_clusters = 512
         c.loss.violation.weight = 1.
         c.loss.experimentally_resolved.weight = 0.01
+    elif name == "finetuning_ptm":
+        c.data.train.max_extra_msa = 5120
+        c.data.train.crop_size = 384
+        c.data.train.max_msa_clusters = 512
+        c.loss.violation.weight = 1.
+        c.loss.experimentally_resolved.weight = 0.01
+        c.model.heads.tm.enabled = True
+        c.loss.tm.weight = 0.1
     elif name == "model_1":
         # AF2 Suppl. Table 5, Model 1.1.1
         c.data.train.max_extra_msa = 5120
@@ -94,6 +125,8 @@ def model_config(name, train=False, low_prec=False):
         # If we want exact numerical parity with the original, inf can't be
         # a global constant
         set_inf(c, 1e4)
+
+    enforce_config_constraints(c)
 
     return c
 
@@ -346,6 +379,16 @@ config = mlc.ConfigDict(
                 "enabled": templates_enabled,
                 "embed_angles": embed_template_torsion_angles,
                 "use_unit_vector": False,
+                # Approximate template computation, saving memory.
+                # In our experiments, results are equivalent to or better than
+                # the stock implementation. Should be enabled for all new
+                # training runs.
+                "average_templates": False,
+                # Offload template embeddings to CPU memory. Vastly reduced
+                # memory consumption at the cost of a modest increase in
+                # runtime. Useful for inference on very long sequences.
+                # Mutually exclusive with average_templates.
+                "offload_templates": False,
             },
             "extra_msa": {
                 "extra_msa_embedder": {
@@ -498,7 +541,7 @@ config = mlc.ConfigDict(
                 "min_resolution": 0.1,
                 "max_resolution": 3.0,
                 "eps": eps,  # 1e-8,
-                "weight": 0.0,
+                "weight": 0.,
                 "enabled": tm_enabled,
             },
             "eps": eps,

@@ -625,13 +625,20 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     self.train_chain_data_cache_path,
                 ]
 
+            generator = None
+            if(self.batch_seed is not None):
+                generator = torch.Generator()
+                generator = generator.manual_seed(self.batch_seed + 1)
+            
             self.train_dataset = OpenFoldDataset(
                 datasets=datasets,
                 probabilities=probabilities,
                 epoch_len=self.train_epoch_len,
                 chain_data_cache_paths=chain_data_cache_paths,
+                generator=generator,
                 _roll_at_init=False,
             )
+
     
             if(self.val_data_dir is not None):
                 self.eval_dataset = dataset_gen(
@@ -660,7 +667,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
         dataset = None
         if(stage == "train"):
             dataset = self.train_dataset
-            
             # Filter the dataset, if necessary
             dataset.reroll()
         elif(stage == "eval"):

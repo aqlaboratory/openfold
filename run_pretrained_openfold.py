@@ -110,7 +110,7 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
     # Prep protein metadata
     template_domain_names = []
     template_chain_index = None
-    if(feature_processor.config.common.use_templates):
+    if(feature_processor.config.common.use_templates and "template_domain_names" in feature_dict):
         template_domain_names = [
             t.decode("utf-8") for t in feature_dict["template_domain_names"]
         ]

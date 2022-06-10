@@ -728,6 +728,7 @@ def make_atom14_positions(protein):
             for index, correspondence in enumerate(correspondences):
                 renaming_matrix[index, correspondence] = 1.0
         all_matrices[resname] = renaming_matrix
+    
     renaming_matrices = torch.stack(
         [all_matrices[restype] for restype in restype_3]
     )
