@@ -748,6 +748,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         dataset = None
         if(stage == "train"):
             dataset = self.train_dataset
+            
             # Filter the dataset, if necessary
             # dataset.reroll()
         elif(stage == "eval"):

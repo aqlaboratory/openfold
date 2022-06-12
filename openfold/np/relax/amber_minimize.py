@@ -516,9 +516,6 @@ def run_pipeline(
     _check_residues_are_well_defined(prot)
     pdb_string = clean_protein(prot, checks=checks)
 
-    # We keep the input around to restore metadata deleted by the relaxer
-    input_prot = prot
-
     exclude_residues = exclude_residues or []
     exclude_residues = set(exclude_residues)
     violations = np.inf
@@ -535,11 +532,6 @@ def run_pipeline(
             max_attempts=max_attempts,
             use_gpu=use_gpu,
         )
-        
-        headers = protein.get_pdb_headers(prot)    
-        if(len(headers) > 0):
-            ret["min_pdb"] = '\n'.join(['\n'.join(headers), ret["min_pdb"]])
-        
         prot = protein.from_pdb_string(ret["min_pdb"])
         if place_hydrogens_every_iteration:
             pdb_string = clean_protein(prot, checks=True)

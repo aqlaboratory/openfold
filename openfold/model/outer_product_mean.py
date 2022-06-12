@@ -82,13 +82,7 @@ class OuterProductMean(nn.Module):
                 no_batch_dims=1,
             )
             out.append(outer)
-
-        # For some cursed reason making this distinction saves memory
-        if(len(out) == 1):
-            outer = out[0].unsqueeze(0)
-        else:
-            outer = torch.stack(out, dim=0)
-
+        outer = torch.stack(out, dim=0)
         outer = outer.reshape(a.shape[:-3] + outer.shape[1:])
 
         return outer
@@ -96,8 +90,7 @@ class OuterProductMean(nn.Module):
     def forward(self, 
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
-        chunk_size: Optional[int] = None,
-        _inplace: bool = False,
+        chunk_size: Optional[int] = None
     ) -> torch.Tensor:
         """
         Args:
@@ -112,17 +105,12 @@ class OuterProductMean(nn.Module):
             mask = m.new_ones(m.shape[:-1])
 
         # [*, N_seq, N_res, C_m]
-        ln = self.layer_norm(m)
+        m = self.layer_norm(m)
 
         # [*, N_seq, N_res, C]
         mask = mask.unsqueeze(-1)
-        a = self.linear_1(ln) 
-        a = a * mask
-        
-        b = self.linear_2(ln) 
-        b = b * mask
-
-        del ln
+        a = self.linear_1(m) * mask
+        b = self.linear_2(m) * mask
 
         a = a.transpose(-2, -3)
         b = b.transpose(-2, -3)
@@ -134,12 +122,8 @@ class OuterProductMean(nn.Module):
 
         # [*, N_res, N_res, 1]
         norm = torch.einsum("...abc,...adc->...bdc", mask, mask)
-        norm = norm + self.eps
 
         # [*, N_res, N_res, C_z]
-        if(_inplace):
-            outer /= norm
-        else:
-            outer = outer / norm
+        outer = outer / (self.eps + norm)
 
         return outer

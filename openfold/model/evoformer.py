@@ -37,7 +37,7 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationIncoming,
 )
 from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn
-from openfold.utils.tensor_utils import add, chunk_layer, ChunkSizeTuner
+from openfold.utils.tensor_utils import chunk_layer
 
 
 class MSATransition(nn.Module):
@@ -192,76 +192,32 @@ class EvoformerBlockCore(nn.Module):
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
 
-        # Need to dodge activation checkpoints
-        inplace_safe = not (self.training or torch.is_grad_enabled())
-
-        m = add(
-            m,
-            self.msa_transition(
-                m, mask=msa_trans_mask, chunk_size=chunk_size,
-            ),
-            inplace=inplace_safe,
+        m = m + self.msa_transition(
+            m, mask=msa_trans_mask, chunk_size=chunk_size,
         )
-        z = add(z, 
-            self.outer_product_mean(
-                m, mask=msa_mask, chunk_size=chunk_size, _inplace=inplace_safe
-            ),
-            inplace=inplace_safe,
+        z = z + self.outer_product_mean(
+            m, mask=msa_mask, chunk_size=chunk_size,
         )
-
-        tmu_update = self.tri_mul_out(
-            z,
-            mask=pair_mask,
-            _inplace=inplace_safe,
-            _add_with_inplace=True,
+        z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
+        z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
+        z = z + self.ps_dropout_row_layer(
+            self.tri_att_start(
+                z, 
+                mask=pair_mask, 
+                chunk_size=chunk_size, 
+                use_lma=use_lma
+            )
         )
-        if(not inplace_safe):
-            z = z + self.ps_dropout_row_layer(tmu_update)
-        else:
-            z = tmu_update
-        
-        del tmu_update
-
-        tmu_update = self.tri_mul_in(
-            z,
-            mask=pair_mask,
-            _inplace=inplace_safe,
-            _add_with_inplace=True,
+        z = z + self.ps_dropout_col_layer(
+            self.tri_att_end(
+                z, 
+                mask=pair_mask, 
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+            )
         )
-        if(not inplace_safe):
-            z = z + self.ps_dropout_row_layer(tmu_update)
-        else:
-            z = tmu_update
-       
-        del tmu_update
-
-        z = add(z, 
-            self.ps_dropout_row_layer(
-                self.tri_att_start(
-                    z, 
-                    mask=pair_mask, 
-                    chunk_size=chunk_size, 
-                    use_lma=use_lma
-                )
-            ),
-            inplace=inplace_safe,
-        )
-        z = add(z, 
-            self.ps_dropout_col_layer(
-                self.tri_att_end(
-                    z, 
-                    mask=pair_mask, 
-                    chunk_size=chunk_size,
-                    use_lma=use_lma,
-                )
-            ),
-            inplace=inplace_safe,
-        )
-        z = add(z,
-            self.pair_transition(
-                z, mask=pair_trans_mask, chunk_size=chunk_size,
-            ),
-            inplace=inplace_safe,
+        z = z + self.pair_transition(
+            z, mask=pair_trans_mask, chunk_size=chunk_size,
         )
 
         return m, z
@@ -421,35 +377,40 @@ class ExtraMSABlock(nn.Module):
         use_lma: bool = False,
         _chunk_logits: Optional[int] = 1024,
         _mask_trans: bool = True,
-    ) -> Tuple[torch.Tensor, torch.Tensor]: 
-        # If function calls could speak...
-        m = add(m, 
-            self.msa_dropout_layer(
-                self.msa_att_row(
-                    m.clone() if torch.is_grad_enabled() else m, 
-                    z=z.clone() if torch.is_grad_enabled() else z, 
-                    mask=msa_mask, 
-                    chunk_size=chunk_size,
-                    use_lma=use_lma,
-                    use_memory_efficient_kernel=not _chunk_logits and not use_lma,
-                    _chunk_logits=
-                        _chunk_logits if torch.is_grad_enabled() else None,
-                    _checkpoint_chunks=
-                        self.ckpt if torch.is_grad_enabled() else False,
-                )
-            ),
-            inplace=not (self.training or torch.is_grad_enabled()),
-        )
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        def add(m1, m2):
+            # The first operation in a checkpoint can't be in-place, but it's
+            # nice to have in-place addition during inference. Thus...
+            if(torch.is_grad_enabled()):
+                m1 = m1 + m2
+            else:
+                m1 += m2
+
+            return m1
+        
+        m = add(m, self.msa_dropout_layer(
+            self.msa_att_row(
+                m.clone() if torch.is_grad_enabled() else m, 
+                z=z.clone() if torch.is_grad_enabled() else z, 
+                mask=msa_mask, 
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+                use_memory_efficient_kernel=not _chunk_logits and not use_lma,
+                _chunk_logits=_chunk_logits if torch.is_grad_enabled() else None,
+                _checkpoint_chunks=
+                    self.ckpt if torch.is_grad_enabled() else False,
+            )
+        ))
         
         def fn(m, z):
-            m = add(m, 
+            m = add(
+                m, 
                 self.msa_att_col(
                     m, 
                     mask=msa_mask, 
                     chunk_size=chunk_size,
                     use_lma=use_lma,
-                ),
-                inplace=not (self.training or torch.is_grad_enabled()),
+                )
             )
             m, z = self.core(
                 m, 
@@ -498,7 +459,6 @@ class EvoformerStack(nn.Module):
         inf: float,
         eps: float,
         clear_cache_between_blocks: bool = False, 
-        tune_chunk_size: bool = False,
         **kwargs,
     ):
         """
@@ -535,8 +495,6 @@ class EvoformerStack(nn.Module):
             clear_cache_between_blocks:
                 Whether to clear CUDA's GPU memory cache between blocks of the
                 stack. Slows down each block but can reduce fragmentation
-            tune_chunk_size:
-                Whether to dynamically tune the module's chunk size
         """
         super(EvoformerStack, self).__init__()
 
@@ -565,11 +523,6 @@ class EvoformerStack(nn.Module):
 
         self.linear = Linear(c_m, c_s)
 
-        self.tune_chunk_size = tune_chunk_size
-        self.chunk_size_tuner = None
-        if(tune_chunk_size):
-            self.chunk_size_tuner = ChunkSizeTuner()
-
     def forward(self,
         m: torch.Tensor,
         z: torch.Tensor,
@@ -589,9 +542,7 @@ class EvoformerStack(nn.Module):
                 [*, N_seq, N_res] MSA mask
             pair_mask:
                 [*, N_res, N_res] pair mask
-            chunk_size: 
-                Inference-time subbatch size. Acts as a minimum if 
-                self.tune_chunk_size is True
+            chunk_size: Inference-time subbatch size
             use_lma: Whether to use low-memory attention during inference
         Returns:
             m:
@@ -600,7 +551,7 @@ class EvoformerStack(nn.Module):
                 [*, N_res, N_res, C_z] pair embedding
             s:
                 [*, N_res, C_s] single embedding (or None if extra MSA stack)
-        """ 
+        """
         blocks = [
             partial(
                 b,
@@ -614,19 +565,11 @@ class EvoformerStack(nn.Module):
         ]
 
         if(self.clear_cache_between_blocks):
-            def block_with_cache_clear(block, *args, **kwargs):
+            def block_with_cache_clear(block, *args):
                 torch.cuda.empty_cache()
-                return block(*args, **kwargs)
+                return block(*args)
 
             blocks = [partial(block_with_cache_clear, b) for b in blocks]
-
-        if(chunk_size is not None and self.chunk_size_tuner is not None):
-            chunk_size = self.chunk_size_tuner.tune_chunk_size(
-                representative_fn=blocks[0],
-                args=(m,z),
-                min_chunk_size=chunk_size,
-            )
-            blocks = [partial(b, chunk_size=chunk_size) for b in blocks]
 
         blocks_per_ckpt = self.blocks_per_ckpt
         if(not torch.is_grad_enabled()):
@@ -647,6 +590,7 @@ class ExtraMSAStack(nn.Module):
     """
     Implements Algorithm 18.
     """
+
     def __init__(self,
         c_m: int,
         c_z: int,
@@ -665,7 +609,6 @@ class ExtraMSAStack(nn.Module):
         ckpt: bool,
         clear_cache_between_blocks: bool = False,
         chunk_msa_attn: bool = False,
-        tune_chunk_size: bool = False,
         **kwargs,
     ):
         super(ExtraMSAStack, self).__init__()
@@ -692,11 +635,6 @@ class ExtraMSAStack(nn.Module):
                 ckpt=ckpt if chunk_msa_attn else False,
             )
             self.blocks.append(block)
-            
-        self.tune_chunk_size = tune_chunk_size
-        self.chunk_size_tuner = None
-        if(tune_chunk_size):
-            self.chunk_size_tuner = ChunkSizeTuner()
 
     def forward(self,
         m: torch.Tensor,
@@ -736,20 +674,12 @@ class ExtraMSAStack(nn.Module):
                 ) for b in self.blocks
             ]
 
-            def clear_cache(b, *args, **kwargs):
+            def clear_cache(b, *args):
                 torch.cuda.empty_cache()
-                return b(*args, **kwargs)
+                return b(*args)
 
             if(self.clear_cache_between_blocks):
                 blocks = [partial(clear_cache, b) for b in blocks]
-
-            if(chunk_size is not None and self.chunk_size_tuner is not None):
-                chunk_size = self.chunk_size_tuner.tune_chunk_size(
-                    representative_fn=blocks[0],
-                    args=(m,z),
-                    min_chunk_size=chunk_size,
-                )
-                blocks = [partial(b, chunk_size=chunk_size) for b in blocks]
 
             for b in blocks:
                 if(self.ckpt and torch.is_grad_enabled()):
