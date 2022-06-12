@@ -177,10 +177,9 @@ class AlphaFold(nn.Module):
             t, 
             z, 
             template_mask=batch["template_mask"].to(dtype=z.dtype),
-            chunk_size=self.globals.chunk_size,
             use_lma=self.globals.use_lma,
         )
-         
+
         if(inplace_safe):
             t *= (torch.sum(batch["template_mask"], dim=-1) > 0)
         else:
@@ -198,6 +197,8 @@ class AlphaFold(nn.Module):
             ret["template_angle_embedding"] = a
 
         ret.update({"template_pair_embedding": t})
+
+        del t
 
         return ret
 

@@ -102,7 +102,8 @@ class TemplatePointwiseAttention(nn.Module):
         t: torch.Tensor, 
         z: torch.Tensor, 
         template_mask: Optional[torch.Tensor] = None,
-        chunk_size: Optional[int] = None,
+        # This module suffers greatly from a small chunk size
+        chunk_size: Optional[int] = 256,
         use_lma: bool = False,
     ) -> torch.Tensor:
         """
@@ -209,13 +210,14 @@ class TemplatePairStackBlock(nn.Module):
         for i in range(len(single_templates)):
             single = single_templates[i]
             single_mask = single_templates_masks[i]
-          
+            
             single = add(single,
                 self.dropout_row(
                     self.tri_att_start(
                         single,
                         chunk_size=chunk_size,
                         mask=single_mask,
+                        use_memory_efficient_kernel=not use_lma,
                         use_lma=use_lma,
                     )
                 ),
@@ -228,6 +230,7 @@ class TemplatePairStackBlock(nn.Module):
                         single,
                         chunk_size=chunk_size,
                         mask=single_mask,
+                        use_memory_efficient_kernel=not use_lma,
                         use_lma=use_lma,
                     )
                 ),
