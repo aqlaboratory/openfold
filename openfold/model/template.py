@@ -130,7 +130,7 @@ class TemplatePointwiseAttention(nn.Module):
 
         # [*, N_res, N_res, 1, C_z]
         biases = [bias]
-        if chunk_size is not None:
+        if chunk_size is not None and not self.training:
             z = self._chunk(z, t, biases, chunk_size, use_lma=use_lma)
         else:
             z = self.mha(q_x=z, kv_x=t, biases=biases, use_lma=use_lma)
