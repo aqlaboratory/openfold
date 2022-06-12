@@ -227,7 +227,7 @@ if __name__ == "__main__":
     )
     add_data_args(parser)
     parser.add_argument(
-        "--raise_errors", type=bool, default=False,
+        "--raise_errors", action="store_true", default=False,
         help="Whether to crash on parsing errors"
     )
     parser.add_argument(

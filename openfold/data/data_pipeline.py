@@ -97,7 +97,8 @@ def unify_template_features(
         chain_indices = np.array(n_templates * [i])
         out_dict["template_chain_index"] = chain_indices
 
-        out_dicts.append(out_dict)
+        if(n_templates != 0):
+            out_dicts.append(out_dict)
 
     out_dict = {
         k: np.concatenate([od[k] for od in out_dicts]) for k in out_dicts[0]
@@ -741,7 +742,7 @@ class DataPipeline:
     ) -> FeatureDict:
         """
             Assembles features for a multi-sequence FASTA. Uses Minkyung Baek's
-            hack from Twitter. No templates.
+            hack from Twitter (a.k.a. AlphaFold-Gap).
         """
         with open(fasta_path, 'r') as f:
             fasta_str = f.read()

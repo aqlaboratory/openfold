@@ -698,6 +698,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 # d_prob = self.config.train.distillation_prob
                 self.train_dataset = ConcatDataset([distillation_dataset, train_dataset])
            
+<<<<<<< HEAD
             # if(distillation_dataset is not None):
             #     datasets = [train_dataset, distillation_dataset]
             #     d_prob = self.config.train.distillation_prob
@@ -720,6 +721,37 @@ class OpenFoldDataModule(pl.LightningDataModule):
             #     chain_data_cache_paths=chain_data_cache_paths,
             #     _roll_at_init=False,
             # )
+=======
+            if(distillation_dataset is not None):
+                datasets = [train_dataset, distillation_dataset]
+                d_prob = self.config.train.distillation_prob
+                probabilities = [1. - d_prob, d_prob]
+                chain_data_cache_paths = [
+                    self.train_chain_data_cache_path,
+                    self.distillation_chain_data_cache_path,
+                ]
+            else:
+                datasets = [train_dataset]
+                probabilities = [1.]   
+                chain_data_cache_paths = [
+                    self.train_chain_data_cache_path,
+                ]
+
+            generator = None
+            if(self.batch_seed is not None):
+                generator = torch.Generator()
+                generator = generator.manual_seed(self.batch_seed + 1)
+            
+            self.train_dataset = OpenFoldDataset(
+                datasets=datasets,
+                probabilities=probabilities,
+                epoch_len=self.train_epoch_len,
+                chain_data_cache_paths=chain_data_cache_paths,
+                generator=generator,
+                _roll_at_init=False,
+            )
+
+>>>>>>> 7d4423237e1297a19f1d998259f4c786dc9f4758
     
             if(self.val_data_dir is not None):
                 self.eval_dataset = dataset_gen(
@@ -748,7 +780,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
         dataset = None
         if(stage == "train"):
             dataset = self.train_dataset
-            
             # Filter the dataset, if necessary
             # dataset.reroll()
         elif(stage == "eval"):

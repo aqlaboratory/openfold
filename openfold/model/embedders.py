@@ -15,10 +15,10 @@
 
 import torch
 import torch.nn as nn
-from typing import Tuple
+from typing import Tuple, Optional
 
 from openfold.model.primitives import Linear, LayerNorm
-from openfold.utils.tensor_utils import one_hot
+from openfold.utils.tensor_utils import add, one_hot
 
 
 class InputEmbedder(nn.Module):
@@ -132,7 +132,6 @@ class RecyclingEmbedder(nn.Module):
 
     Implements Algorithm 32.
     """
-
     def __init__(
         self,
         c_m: int,
@@ -174,6 +173,7 @@ class RecyclingEmbedder(nn.Module):
         m: torch.Tensor,
         z: torch.Tensor,
         x: torch.Tensor,
+        _inplace: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -189,6 +189,19 @@ class RecyclingEmbedder(nn.Module):
             z:
                 [*, N_res, N_res, C_z] pair embedding update
         """
+        # [*, N, C_m]
+        m_update = self.layer_norm_m(m)
+        if(_inplace):
+            m.copy_(m_update)
+            m_update = m
+
+        # [*, N, N, C_z]
+        z_update = self.layer_norm_z(z)
+        if(_inplace):
+            z.copy_(z_update)
+            z_update = z
+
+        # This squared method might become problematic in FP16 mode.
         bins = torch.linspace(
             self.min_bin,
             self.max_bin,
@@ -197,13 +210,6 @@ class RecyclingEmbedder(nn.Module):
             device=x.device,
             requires_grad=False,
         )
-
-        # [*, N, C_m]
-        m_update = self.layer_norm_m(m)
-
-        # This squared method might become problematic in FP16 mode.
-        # I'm using it because my homegrown method had a stubborn discrepancy I
-        # couldn't find in time.
         squared_bins = bins ** 2
         upper = torch.cat(
             [squared_bins[1:], squared_bins.new_tensor([self.inf])], dim=-1
@@ -217,7 +223,7 @@ class RecyclingEmbedder(nn.Module):
 
         # [*, N, N, C_z]
         d = self.linear(d)
-        z_update = d + self.layer_norm_z(z)
+        z_update = add(z_update, d, _inplace)
 
         return m_update, z_update
 
@@ -315,7 +321,6 @@ class ExtraMSAEmbedder(nn.Module):
 
     Implements Algorithm 2, line 15
     """
-
     def __init__(
         self,
         c_in: int,

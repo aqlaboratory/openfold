@@ -14,9 +14,22 @@
 # limitations under the License.
 
 from functools import partial
+import logging
+import math
 import torch
 import torch.nn as nn
 from typing import Tuple, List, Callable, Any, Dict, Sequence, Optional
+
+
+def add(m1, m2, inplace):
+    # The first operation in a checkpoint can't be in-place, but it's
+    # nice to have in-place addition during inference. Thus...
+    if(not inplace):
+        m1 = m1 + m2
+    else:
+        m1 += m2
+
+    return m1
 
 
 def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
@@ -406,3 +419,74 @@ def chunk_layer(
     out = tensor_tree_map(reshape, out)
 
     return out
+
+
+class ChunkSizeTuner:
+    def __init__(self, 
+        # Heuristically, runtimes for most of the modules in the network 
+        # plateau earlier than this on all GPUs I've run the model on.
+        max_chunk_size=256,
+    ):
+        self.max_chunk_size = max_chunk_size
+        self.cached_chunk_size = None
+        self.cached_arg_data = None
+
+    def _determine_favorable_chunk_size(self, fn, args, min_chunk_size):
+        logging.info("Tuning chunk size...")
+        
+        if(min_chunk_size >= self.max_chunk_size):
+            return min_chunk_size
+    
+        candidates = [2**l for l in range(int(math.log(self.max_chunk_size, 2)) + 1)]
+        candidates = [c for c in candidates if c > min_chunk_size]
+        candidates = [min_chunk_size] + candidates
+    
+        def test_chunk_size(chunk_size):
+            try:
+                with torch.no_grad():
+                    fn(*args, chunk_size=chunk_size)
+                return True
+            except RuntimeError:
+                return False
+    
+        min_viable_chunk_size_index = 0
+        i = len(candidates) - 1
+        while i > min_viable_chunk_size_index:
+            viable = test_chunk_size(candidates[i])
+            if(not viable):
+                i = (min_viable_chunk_size_index + i) // 2
+            else:
+                min_viable_chunk_size_index = i
+                i = (i + len(candidates) - 1) // 2
+   
+        return candidates[min_viable_chunk_size_index]
+
+    def tune_chunk_size(self,
+        representative_fn: Callable,
+        args: Tuple[Any],
+        min_chunk_size: int,
+    ) -> int:
+        consistent = True
+        arg_data = [
+            arg if type(arg) != torch.Tensor else arg.shape for arg in args
+        ]
+        if(self.cached_arg_data is not None):
+            # If args have changed shape/value, we need to re-tune
+            assert(len(self.cached_arg_data) == len(args))
+            arg_data_iter = zip(self.cached_arg_data, arg_data)
+            for cached_arg_data, arg_data in arg_data_iter:
+                assert(type(cached_arg_data) == type(arg_data))
+                consistent = cached_arg_data == arg_data
+        else:
+            # Otherwise, we can reuse the precomputed value
+            consistent = False
+
+        if(not consistent):
+            self.cached_chunk_size = self._determine_favorable_chunk_size(
+                representative_fn,
+                args,
+                min_chunk_size,
+            )
+            self.cached_arg_data = arg_data
+
+        return self.cached_chunk_size

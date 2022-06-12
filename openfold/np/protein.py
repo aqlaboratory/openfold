@@ -140,12 +140,20 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
         residue_index.append(res.id[1])
         b_factors.append(res_b_factors)
 
+    parents = None
+    if("PARENT" in pdb_str):
+        for l in pdb_str.split("\n"):
+            if("PARENT" in l and not "N/A" in l):
+                parents = l.split()[1:]
+                break
+
     return Protein(
         atom_positions=np.array(atom_positions),
         atom_mask=np.array(atom_mask),
         aatype=np.array(aatype),
         residue_index=np.array(residue_index),
         b_factors=np.array(b_factors),
+        parents=parents,
     )
 
 
