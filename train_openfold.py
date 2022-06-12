@@ -49,6 +49,10 @@ from scripts.zero_to_fp32 import (
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
+from openfold.utils.import_weights import (
+    import_jax_weights_,
+)
+
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -62,6 +66,25 @@ class OpenFoldWrapper(pl.LightningModule):
         
         self.cached_weights = None
         self.last_lr_step = 0
+
+
+
+        resume_from_alphafold = 0
+        if(resume_from_alphafold):
+            print('resume_from_alphafold')
+            model_name = 'model_1'
+            # config = model_config(model_name,train=True, low_prec=(args.precision == 16))
+            model = AlphaFold(self.config)
+            param_path = os.path.join(
+                "openfold", "resources", "params", 
+                "params_" + model_name + ".npz"
+            )
+
+            import_jax_weights_(model, param_path, version=model_name)
+            #script_preset_(model)
+            model.apply(add_noise_to_weights)
+            self.model = model
+            print('loading succeed')
 
     def forward(self, batch):
         return self.model(batch)
@@ -264,7 +287,7 @@ def main(args):
     callbacks = []
     if(args.checkpoint_every_epoch):
         mc = ModelCheckpoint(
-            every_n_epochs=1,
+            every_n_epochs=20,
             auto_insert_metric_name=False,
             save_top_k=-1,
         )
@@ -328,6 +351,7 @@ def main(args):
         strategy=strategy,
         callbacks=callbacks,
         logger=loggers,
+        check_val_every_n_epoch=20,
     )
 
     if(args.resume_model_weights_only):
@@ -377,11 +401,11 @@ if __name__ == "__main__":
                 filtered by the release date of the target'''
     )
     parser.add_argument(
-        "--distillation_data_dir", type=str, default=None,
+        "--distillation_data_dir", type=str, default='/public/home/pangaq/folding/data/AF2_dis/data_merge',
         help="Directory containing training PDB files"
     )
     parser.add_argument(
-        "--distillation_alignment_dir", type=str, default=None,
+        "--distillation_alignment_dir", type=str, default='/public/home/pangaq/folding/data/AF2_dis/alignment_merge',
         help="Directory containing precomputed distillation alignments"
     )
     parser.add_argument(
@@ -407,7 +431,7 @@ if __name__ == "__main__":
         help="""See --train_mapping_path"""
     )
     parser.add_argument(
-        "--obsolete_pdbs_file_path", type=str, default=None,
+        "--obsolete_pdbs_file_path", type=str, default='/public/home/pangaq/openfold/data/pdb_mmcif/obsolete.dat',
         help="""Path to obsolete.dat file containing list of obsolete PDBs and 
              their replacements."""
     )
@@ -488,7 +512,7 @@ if __name__ == "__main__":
         "--distillation_chain_data_cache_path", type=str, default=None,
     )
     parser.add_argument(
-        "--train_epoch_len", type=int, default=10000,
+        "--train_epoch_len", type=int, default=12694,
         help=(
             "The virtual length of each training epoch. Stochastic filtering "
             "of training data means that training datasets have no "

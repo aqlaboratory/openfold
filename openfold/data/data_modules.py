@@ -12,6 +12,8 @@ import pytorch_lightning as pl
 import torch
 from torch.utils.data import RandomSampler
 
+import random
+
 from openfold.data import (
     data_pipeline,
     feature_pipeline,
@@ -19,6 +21,9 @@ from openfold.data import (
     templates,
 )
 from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
+
+from torch.utils.data import ConcatDataset
+
 
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
@@ -87,6 +92,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self._output_raw = _output_raw
         self._structure_index = _structure_index
         self._alignment_index = _alignment_index
+        self._alignment_lenth = 0
 
         self.supported_exts = [".cif", ".core", ".pdb"]
 
@@ -100,10 +106,27 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
+        file_list_ori = os.listdir(alignment_dir)
+        self.file_list_ori = file_list_ori
+        with open("/public/home/pangaq/folding/data/AF2_dis/novel/num_1278.txt","r") as f:
+            novel_list = [l.strip() for l in f.readlines()]
+        file_list = file_list_ori
+        # if(treat_pdb_as_distillation):
+        #     random.shuffle(file_list_ori)
+        #     self._alignment_lenth = 3000
+        #     file_list = file_list_ori[:self._alignment_lenth]
+        # else:
+        #     random.shuffle(file_list_ori)
+        #     self._alignment_lenth = 9000
+        #     file_list = file_list_ori[:self._alignment_lenth]
+
+        # if(len(file_list[0])==len(novel_list[0])):
+        #     file_list = file_list +novel_list
+
         if(_alignment_index is not None):
             self._chain_ids = list(_alignment_index.keys())
         elif(mapping_path is None):
-            self._chain_ids = list(os.listdir(alignment_dir))
+            self._chain_ids = file_list
         else:
             with open(mapping_path, "r") as f:
                 self._chain_ids = [l.strip() for l in f.readlines()]
@@ -160,66 +183,130 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         return self._chain_ids[idx]
 
     def __getitem__(self, idx):
+        # name = self.idx_to_chain_id(idx)
+
+        # alignment_dir = os.path.join(self.alignment_dir, name)
+
+        # _alignment_index = None
+        # if(self._alignment_index is not None):
+        #     alignment_dir = self.alignment_dir
+        #     _alignment_index = self._alignment_index[name]
+
+        # if(self.mode == 'train' or self.mode == 'eval'):
+        #     spl = name.rsplit('_', 1)
+        #     if(len(spl) == 2):
+        #         file_id, chain_id = spl
+        #     else:
+        #         file_id, = spl
+        #         chain_id = None
+
+        #     path = os.path.join(self.data_dir, file_id)
+        #     structure_index_entry = None
+        #     if(self._structure_index is not None):
+        #         structure_index_entry = self._structure_index[name]
+        #         assert(len(structure_index_entry["files"]) == 1)
+        #         filename, _, _ = structure_index_entry["files"][0]
+        #         ext = os.path.splitext(filename)[1]
+        #     else:
+        #         ext = None
+        #         for e in self.supported_exts:
+        #             if(os.path.exists(path + e)):
+        #                 ext = e
+        #                 break
+
+        #         if(ext is None):
+        #             raise ValueError("Invalid file type")
+
+        #     path += ext
+        #     if(ext == ".cif"):
+        #         data = self._parse_mmcif(
+        #             path, file_id, chain_id, alignment_dir, _alignment_index,
+        #         )
+        #     elif(ext == ".core"):
+        #         data = self.data_pipeline.process_core(
+        #             path, alignment_dir, _alignment_index,
+        #         )
+        #     elif(ext == ".pdb"):
+        #         data = self.data_pipeline.process_pdb(
+        #             pdb_path=path,
+        #             alignment_dir=alignment_dir,
+        #             is_distillation=self.treat_pdb_as_distillation,
+        #             chain_id=chain_id,
+        #             _structure_index=self._structure_index[name],
+        #             _alignment_index=_alignment_index,
+        #         )
+        #     else:
+        #        raise ValueError("Extension branch missing") 
+        # else:
+        #     path = os.path.join(name, name + ".fasta")
+        #     data = self.data_pipeline.process_fasta(
+        #         fasta_path=path,
+        #         alignment_dir=alignment_dir,
+        #         _alignment_index=_alignment_index,
+        #     )
         name = self.idx_to_chain_id(idx)
-        alignment_dir = os.path.join(self.alignment_dir, name)
 
-        _alignment_index = None
-        if(self._alignment_index is not None):
-            alignment_dir = self.alignment_dir
-            _alignment_index = self._alignment_index[name]
+        if(idx == len(self._chain_ids) -500 ):
+            print('shuffle for the end')
+            random.shuffle(self.file_list_ori)
+            file_list = self.file_list_ori[:self._alignment_lenth]
+            self._chain_ids = list(file_list)
 
-        if(self.mode == 'train' or self.mode == 'eval'):
-            spl = name.rsplit('_', 1)
-            if(len(spl) == 2):
-                file_id, chain_id = spl
-            else:
-                file_id, = spl
-                chain_id = None
 
-            path = os.path.join(self.data_dir, file_id)
-            structure_index_entry = None
-            if(self._structure_index is not None):
-                structure_index_entry = self._structure_index[name]
-                assert(len(structure_index_entry["files"]) == 1)
-                filename, _, _ = structure_index_entry["files"][0]
-                ext = os.path.splitext(filename)[1]
-            else:
-                ext = None
-                for e in self.supported_exts:
-                    if(os.path.exists(path + e)):
-                        ext = e
-                        break
 
-                if(ext is None):
+        cache_base = '/share01/pangaq/openfold_cache/cache_w_bfd_0607/'
+        pkl_path = cache_base+name+'.pkl'
+        if os.path.exists(pkl_path):
+            with open(pkl_path, 'rb') as f:
+                data = pickle.load(f)
+        else:
+
+            alignment_dir = os.path.join(self.alignment_dir, name)
+
+            _alignment_index = None
+            if(self._alignment_index is not None):
+                alignment_dir = self.alignment_dir
+                _alignment_index = self._alignment_index[name]
+
+            if(self.mode == 'train' or self.mode == 'eval'):
+                spl = name.rsplit('_', 1)
+                if spl[1].startswith('v'):
+                    file_id = name
+                    chain_id = None
+                elif(len(spl) == 2):
+                    file_id, chain_id = spl
+                else:
+                    file_id, = spl
+                    chain_id = None
+
+                path = os.path.join(self.data_dir, file_id)
+                if(os.path.exists(path + ".cif")):
+                    data = self._parse_mmcif(
+                        path + ".cif", file_id, chain_id, alignment_dir, _alignment_index,
+                    )
+                elif(os.path.exists(path + ".core")):
+                    data = self.data_pipeline.process_core(
+                        path + ".core", alignment_dir, _alignment_index,
+                    )
+                elif(os.path.exists(path + ".pdb")):
+                    data = self.data_pipeline.process_pdb(
+                        pdb_path=path + ".pdb",
+                        alignment_dir=alignment_dir,
+                        is_distillation=self.treat_pdb_as_distillation,
+                        chain_id=chain_id,
+                        _alignment_index=_alignment_index,
+                    )
+                else:
                     raise ValueError("Invalid file type")
-
-            path += ext
-            if(ext == ".cif"):
-                data = self._parse_mmcif(
-                    path, file_id, chain_id, alignment_dir, _alignment_index,
-                )
-            elif(ext == ".core"):
-                data = self.data_pipeline.process_core(
-                    path, alignment_dir, _alignment_index,
-                )
-            elif(ext == ".pdb"):
-                data = self.data_pipeline.process_pdb(
-                    pdb_path=path,
+            else:
+                path = os.path.join(name, name + ".fasta")
+                data = self.data_pipeline.process_fasta(
+                    fasta_path=path,
                     alignment_dir=alignment_dir,
-                    is_distillation=self.treat_pdb_as_distillation,
-                    chain_id=chain_id,
-                    _structure_index=self._structure_index[name],
                     _alignment_index=_alignment_index,
                 )
-            else:
-               raise ValueError("Extension branch missing") 
-        else:
-            path = os.path.join(name, name + ".fasta")
-            data = self.data_pipeline.process_fasta(
-                fasta_path=path,
-                alignment_dir=alignment_dir,
-                _alignment_index=_alignment_index,
-            )
+            with open(pkl_path, 'wb') as f:
+                pickle.dump(data,f)
 
         if(self._output_raw):
             return data
@@ -594,7 +681,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 mode="train",
                 _alignment_index=self._alignment_index,
             )
-
+            self.train_dataset = train_dataset
             distillation_dataset = None
             if(self.distillation_data_dir is not None):
                 distillation_dataset = dataset_gen(
@@ -608,30 +695,31 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     _alignment_index=self._distillation_alignment_index,
                 )
 
-                d_prob = self.config.train.distillation_prob
+                # d_prob = self.config.train.distillation_prob
+                self.train_dataset = ConcatDataset([distillation_dataset, train_dataset])
            
-            if(distillation_dataset is not None):
-                datasets = [train_dataset, distillation_dataset]
-                d_prob = self.config.train.distillation_prob
-                probabilities = [1. - d_prob, d_prob]
-                chain_data_cache_paths = [
-                    self.train_chain_data_cache_path,
-                    self.distillation_chain_data_cache_path,
-                ]
-            else:
-                datasets = [train_dataset]
-                probabilities = [1.]   
-                chain_data_cache_paths = [
-                    self.train_chain_data_cache_path,
-                ]
+            # if(distillation_dataset is not None):
+            #     datasets = [train_dataset, distillation_dataset]
+            #     d_prob = self.config.train.distillation_prob
+            #     probabilities = [1. - d_prob, d_prob]
+            #     chain_data_cache_paths = [
+            #         self.train_chain_data_cache_path,
+            #         self.distillation_chain_data_cache_path,
+            #     ]
+            # else:
+            #     datasets = [train_dataset]
+            #     probabilities = [1.]   
+            #     chain_data_cache_paths = [
+            #         self.train_chain_data_cache_path,
+            #     ]
 
-            self.train_dataset = OpenFoldDataset(
-                datasets=datasets,
-                probabilities=probabilities,
-                epoch_len=self.train_epoch_len,
-                chain_data_cache_paths=chain_data_cache_paths,
-                _roll_at_init=False,
-            )
+            # self.train_dataset = OpenFoldDataset(
+            #     datasets=datasets,
+            #     probabilities=probabilities,
+            #     epoch_len=self.train_epoch_len,
+            #     chain_data_cache_paths=chain_data_cache_paths,
+            #     _roll_at_init=False,
+            # )
     
             if(self.val_data_dir is not None):
                 self.eval_dataset = dataset_gen(
@@ -662,7 +750,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
             dataset = self.train_dataset
             
             # Filter the dataset, if necessary
-            dataset.reroll()
+            # dataset.reroll()
         elif(stage == "eval"):
             dataset = self.eval_dataset
         elif(stage == "predict"):

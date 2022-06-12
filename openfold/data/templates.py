@@ -130,19 +130,32 @@ def _is_after_cutoff(
         return False
 
 
-def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
+def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, Optional[str]]:
     """Parses the data file from PDB that lists which PDB ids are obsolete."""
     with open(obsolete_file_path) as f:
         result = {}
         for line in f:
             line = line.strip()
             # We skip obsolete entries that don't contain a mapping to a new entry.
-            if line.startswith("OBSLTE") and len(line) > 30:
-                # Format:    Date      From     To
-                # 'OBSLTE    31-JUL-94 116L     216L'
-                from_id = line[20:24].lower()
-                to_id = line[29:33].lower()
-                result[from_id] = to_id
+            # if line.startswith("OBSLTE") and len(line) > 30:
+            #     # Format:    Date      From     To
+            #     # 'OBSLTE    31-JUL-94 116L     216L'
+            #     from_id = line[20:24].lower()
+            #     to_id = line[29:33].lower()
+            #     result[from_id] = to_id
+      # 'OBSLTE    06-NOV-19 6G9Y'                - Removed, rare
+      # 'OBSLTE    31-JUL-94 116L     216L'       - Replaced, common
+      # 'OBSLTE    26-SEP-06 2H33     2JM5 2OWI'  - Replaced by multiple, rare
+            if line.startswith('OBSLTE'):
+                if len(line) > 30:
+                  # Replaced by at least one structure.
+                  from_id = line[20:24].lower()
+                  to_id = line[29:33].lower()
+                  result[from_id] = to_id
+                elif len(line) == 24:
+                  # Removed.
+                  from_id = line[20:24].lower()
+                  result[from_id] = None
         return result
 
 
@@ -762,6 +775,11 @@ def _prefilter_hit(
     # Fail hard if we can't get the PDB ID and chain name from the hit.
     hit_pdb_code, hit_chain_id = _get_pdb_id_and_chain(hit)
 
+    if hit_pdb_code in obsolete_pdbs and obsolete_pdbs[hit_pdb_code] is None:
+        return PrefilterResult(
+            valid=False, error=None, warning=f'Hit {hit_pdb_code} is obsolete.')
+            # features=None, error=None, warning=f'Hit {hit_pdb_code} is obsolete.')
+            
     if hit_pdb_code not in release_dates:
         if hit_pdb_code in obsolete_pdbs:
             hit_pdb_code = obsolete_pdbs[hit_pdb_code]

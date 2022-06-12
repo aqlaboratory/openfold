@@ -500,9 +500,9 @@ def lddt_loss(
         eps + torch.sum(all_atom_mask, dim=-1)
     )
 
-    loss = loss * (
-        (resolution >= min_resolution) & (resolution <= max_resolution)
-    )
+    # loss = loss * (
+    #     (resolution >= min_resolution) & (resolution <= max_resolution)
+    # )
 
     # Average over the batch dimension
     loss = torch.mean(loss)
@@ -699,9 +699,9 @@ def tm_loss(
     loss = torch.sum(loss, dim=-1)
     loss = loss * scale
 
-    loss = loss * (
-        (resolution >= min_resolution) & (resolution <= max_resolution)
-    )
+    # loss = loss * (
+    #     (resolution >= min_resolution) & (resolution <= max_resolution)
+    # )
 
     # Average over the loss dimension
     loss = torch.mean(loss)
@@ -1473,9 +1473,9 @@ def experimentally_resolved_loss(
     loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)))
     loss = torch.sum(loss, dim=-1)
 
-    loss = loss * (
-        (resolution >= min_resolution) & (resolution <= max_resolution)
-    )
+    # loss = loss * (
+    #     (resolution >= min_resolution) & (resolution <= max_resolution)
+    # )
 
     loss = torch.mean(loss)
 
