@@ -37,7 +37,7 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationIncoming,
 )
 from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn
-from openfold.utils.tensor_utils import add, chunk_layer
+from openfold.utils.tensor_utils import add, chunk_layer, ChunkSizeTuner
 
 
 class MSATransition(nn.Module):
@@ -498,6 +498,7 @@ class EvoformerStack(nn.Module):
         inf: float,
         eps: float,
         clear_cache_between_blocks: bool = False, 
+        tune_chunk_size: bool = True,
         **kwargs,
     ):
         """
@@ -534,6 +535,8 @@ class EvoformerStack(nn.Module):
             clear_cache_between_blocks:
                 Whether to clear CUDA's GPU memory cache between blocks of the
                 stack. Slows down each block but can reduce fragmentation
+            tune_chunk_size:
+                Whether to dynamically tune the module's chunk size
         """
         super(EvoformerStack, self).__init__()
 
@@ -562,6 +565,11 @@ class EvoformerStack(nn.Module):
 
         self.linear = Linear(c_m, c_s)
 
+        self.tune_chunk_size = tune_chunk_size
+        self.chunk_size_tuner = None
+        if(tune_chunk_size):
+            self.chunk_size_tuner = ChunkSizeTuner()
+
     def forward(self,
         m: torch.Tensor,
         z: torch.Tensor,
@@ -581,7 +589,9 @@ class EvoformerStack(nn.Module):
                 [*, N_seq, N_res] MSA mask
             pair_mask:
                 [*, N_res, N_res] pair mask
-            chunk_size: Inference-time subbatch size
+            chunk_size: 
+                Inference-time subbatch size. Acts as a minimum if 
+                self.tune_chunk_size is True
             use_lma: Whether to use low-memory attention during inference
         Returns:
             m:
@@ -590,7 +600,7 @@ class EvoformerStack(nn.Module):
                 [*, N_res, N_res, C_z] pair embedding
             s:
                 [*, N_res, C_s] single embedding (or None if extra MSA stack)
-        """
+        """ 
         blocks = [
             partial(
                 b,
@@ -604,11 +614,19 @@ class EvoformerStack(nn.Module):
         ]
 
         if(self.clear_cache_between_blocks):
-            def block_with_cache_clear(block, *args):
+            def block_with_cache_clear(block, *args, **kwargs):
                 torch.cuda.empty_cache()
-                return block(*args)
+                return block(*args, **kwargs)
 
             blocks = [partial(block_with_cache_clear, b) for b in blocks]
+
+        if(chunk_size is not None and self.chunk_size_tuner is not None):
+            chunk_size = self.chunk_size_tuner.tune_chunk_size(
+                representative_fn=blocks[0],
+                args=(m,z),
+                min_chunk_size=chunk_size,
+            )
+            blocks = [partial(b, chunk_size=chunk_size) for b in blocks]
 
         blocks_per_ckpt = self.blocks_per_ckpt
         if(not torch.is_grad_enabled()):
@@ -647,6 +665,7 @@ class ExtraMSAStack(nn.Module):
         ckpt: bool,
         clear_cache_between_blocks: bool = False,
         chunk_msa_attn: bool = False,
+        tune_chunk_size: bool = True,
         **kwargs,
     ):
         super(ExtraMSAStack, self).__init__()
@@ -673,6 +692,11 @@ class ExtraMSAStack(nn.Module):
                 ckpt=ckpt if chunk_msa_attn else False,
             )
             self.blocks.append(block)
+            
+        self.tune_chunk_size = tune_chunk_size
+        self.chunk_size_tuner = None
+        if(tune_chunk_size):
+            self.chunk_size_tuner = ChunkSizeTuner()
 
     def forward(self,
         m: torch.Tensor,
@@ -712,12 +736,20 @@ class ExtraMSAStack(nn.Module):
                 ) for b in self.blocks
             ]
 
-            def clear_cache(b, *args):
+            def clear_cache(b, *args, **kwargs):
                 torch.cuda.empty_cache()
-                return b(*args)
+                return b(*args, **kwargs)
 
             if(self.clear_cache_between_blocks):
                 blocks = [partial(clear_cache, b) for b in blocks]
+
+            if(chunk_size is not None and self.chunk_size_tuner is not None):
+                chunk_size = self.chunk_size_tuner.tune_chunk_size(
+                    representative_fn=blocks[0],
+                    args=(m,z),
+                    min_chunk_size=chunk_size,
+                )
+                blocks = [partial(b, chunk_size=chunk_size) for b in blocks]
 
             for b in blocks:
                 if(self.ckpt and torch.is_grad_enabled()):
