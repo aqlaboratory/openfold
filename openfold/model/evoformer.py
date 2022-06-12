@@ -498,7 +498,7 @@ class EvoformerStack(nn.Module):
         inf: float,
         eps: float,
         clear_cache_between_blocks: bool = False, 
-        tune_chunk_size: bool = True,
+        tune_chunk_size: bool = False,
         **kwargs,
     ):
         """
@@ -665,7 +665,7 @@ class ExtraMSAStack(nn.Module):
         ckpt: bool,
         clear_cache_between_blocks: bool = False,
         chunk_msa_attn: bool = False,
-        tune_chunk_size: bool = True,
+        tune_chunk_size: bool = False,
         **kwargs,
     ):
         super(ExtraMSAStack, self).__init__()
