@@ -309,10 +309,16 @@ def main(args):
 
     for fasta_file in os.listdir(args.fasta_dir):
         with open(os.path.join(args.fasta_dir, fasta_file), "r") as fp:
-            data = fp.read()
-    
-        tags, seqs = parse_fasta(data)
-        # assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
+            data = fp.read()     
+
+        tags = []
+        seqs = []
+        for prot in data.split(">")[1::]:
+            lines = prot.strip().split("\n")
+            tags.append(lines[0].strip().split()[0])
+            seqs.append("".join(lines[1:]))
+        
+        assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
         tag = '-'.join(tags)
     
         output_name = f'{tag}_{args.config_preset}'
