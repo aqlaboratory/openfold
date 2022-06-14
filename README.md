@@ -188,11 +188,10 @@ the following:
 
 ```bash
 python3 scripts/precompute_alignments.py mmcif_dir/ alignment_dir/ \
-    data/uniref90/uniref90.fasta \
-    data/mgnify/mgy_clusters_2018_12.fa \
-    data/pdb70/pdb70 \
-    data/pdb_mmcif/mmcif_files/ \
-    data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
     --cpus 16 \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
