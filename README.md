@@ -156,6 +156,29 @@ the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer). To
 run inference with AlphaFold-Multimer, use the (experimental) `multimer` branch 
 instead.
 
+By default, OpenFold will attempt to automatically tune the inference-time 
+`chunk_size` hyperparameter controlling a memory/runtime tradeoff in certain 
+modules during inference. The chunk size specified in the config is only 
+considered a minimum. This feature ensures consistently fast runtimes 
+regardless of input sequence length, but it also introduces some runtime 
+variability, which may be undesirable for certain users. To disable this
+feature, set the `tune_chunk_size` option in the config to `False`.
+
+As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
+stack is a major memory bottleneck for inference on long sequences. OpenFold
+supports two mutually exclusive inference modes to address this issue. One,
+`average_templates` in the `template` section of the config, is similar to the
+solution offered by AlphaFold-Multimer, which is simply to average individual
+template representations. Our version is modified slightly to accommodate 
+weights trained using the standard template algorithm. Using said weights, we
+notice no significant difference in performance between the averaged template 
+embeddings and the standard ones. The second, `offload_templates`, temporarily 
+offloads individual template embeddings into CPU memory. The former is an 
+approximation while the latter is slightly slower; both allow the model to 
+utilize arbitrarily many templates across sequence lengths. Both are disabled 
+by default, and it is up to the user to determine which best suits their needs,
+if either.
+
 ### Training
 
 To train the model, you will first need to precompute protein alignments. 

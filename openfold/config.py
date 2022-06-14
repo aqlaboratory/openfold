@@ -143,6 +143,7 @@ tm_enabled = mlc.FieldReference(False, field_type=bool)
 eps = mlc.FieldReference(1e-8, field_type=float)
 templates_enabled = mlc.FieldReference(True, field_type=bool)
 embed_template_torsion_angles = mlc.FieldReference(True, field_type=bool)
+tune_chunk_size = mlc.FieldReference(True, field_type=bool)
 
 NUM_RES = "num residues placeholder"
 NUM_MSA_SEQ = "msa placeholder"
@@ -409,6 +410,7 @@ config = mlc.ConfigDict(
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
                     "clear_cache_between_blocks": True,
+                    "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
                     "eps": eps,  # 1e-10,
                     "ckpt": blocks_per_ckpt is not None,
@@ -431,6 +433,7 @@ config = mlc.ConfigDict(
                 "pair_dropout": 0.25,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "clear_cache_between_blocks": False,
+                "tune_chunk_size": tune_chunk_size,
                 "inf": 1e9,
                 "eps": eps,  # 1e-10,
             },
