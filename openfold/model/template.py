@@ -217,7 +217,6 @@ class TemplatePairStackBlock(nn.Module):
                         single,
                         chunk_size=chunk_size,
                         mask=single_mask,
-                        use_memory_efficient_kernel=not use_lma,
                         use_lma=use_lma,
                     )
                 ),
@@ -230,7 +229,6 @@ class TemplatePairStackBlock(nn.Module):
                         single,
                         chunk_size=chunk_size,
                         mask=single_mask,
-                        use_memory_efficient_kernel=not use_lma,
                         use_lma=use_lma,
                     )
                 ),
