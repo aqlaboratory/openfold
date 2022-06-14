@@ -171,7 +171,7 @@ supports two mutually exclusive inference modes to address this issue. One,
 solution offered by AlphaFold-Multimer, which is simply to average individual
 template representations. Our version is modified slightly to accommodate 
 weights trained using the standard template algorithm. Using said weights, we
-notice no significant difference in performance between the averaged template 
+notice no significant difference in performance between our averaged template 
 embeddings and the standard ones. The second, `offload_templates`, temporarily 
 offloads individual template embeddings into CPU memory. The former is an 
 approximation while the latter is slightly slower; both allow the model to 
