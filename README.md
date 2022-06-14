@@ -264,16 +264,19 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
 ```
 
 where `--template_release_dates_cache_path` is a path to the mmCIF cache. 
-A suitable DeepSpeed configuration file can be generated with 
+Note that `template_mmcif_dir` can be the same as `mmcif_dir` which contains
+training targets. A suitable DeepSpeed configuration file can be generated with 
 `scripts/build_deepspeed_config.py`. The training script is 
 written with [PyTorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning) 
 and supports the full range of training options that entails, including 
-multi-node distributed training. For more information, consult PyTorch 
-Lightning documentation and the `--help` flag of the training script.
+multi-node distributed training, validation, and so on. For more information, 
+consult PyTorch Lightning documentation and the `--help` flag of the training 
+script.
 
-Note that the data directory can also contain PDB files previously output by
-the model. These are treated as members of the self-distillation set and are
-subjected to distillation-set-only preprocessing steps.
+Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
+or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
+which uses a self-distillation set subject to special preprocessing steps, use
+the family of `--distillation` flags.
 
 ## Testing
 
