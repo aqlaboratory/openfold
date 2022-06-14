@@ -174,10 +174,10 @@ weights trained using the standard template algorithm. Using said weights, we
 notice no significant difference in performance between our averaged template 
 embeddings and the standard ones. The second, `offload_templates`, temporarily 
 offloads individual template embeddings into CPU memory. The former is an 
-approximation while the latter is slightly slower; both allow the model to 
-utilize arbitrarily many templates across sequence lengths. Both are disabled 
-by default, and it is up to the user to determine which best suits their needs,
-if either.
+approximation while the latter is slightly slower; both are memory-efficient 
+and allow the model to utilize arbitrarily many templates across sequence 
+lengths. Both are disabled by default, and it is up to the user to determine 
+which best suits their needs, if either.
 
 ### Training
 
