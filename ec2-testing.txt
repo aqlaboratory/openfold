@@ -1,0 +1,172 @@
+python3 run_pretrained_openfold.py \
+    target.fasta \
+    data/pdb_mmcif/mmcif_files/ \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --output_dir ./ \
+    --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+    --model_device cuda:1 \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
+    --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
+
+docker run \
+--gpus all \
+-v $PWD/:/data \
+-v /mnt/alphafold_database/:/database \
+-ti openfold:latest \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/input.fasta \
+/database/pdb_mmcif/mmcif_files/ \
+--uniref90_database_path /database/uniref90/uniref90.fasta \
+--mgnify_database_path /database/mgnify/mgy_clusters_2018_12.fa \
+--pdb70_database_path /database/pdb70/pdb70 \
+--uniclust30_database_path /database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+--output_dir /data \
+--bfd_database_path /database/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+--model_device cuda:0 \
+--jackhmmer_binary_path /opt/conda/bin/jackhmmer \
+--hhblits_binary_path /opt/conda/bin/hhblits \
+--hhsearch_binary_path /opt/conda/bin/hhsearch \
+--kalign_binary_path /opt/conda/bin/kalign \
+--param_path /database/params/params_model_1.npz
+
+# T1083
+docker run \
+--rm \
+--gpus all \
+-v /home/ec2-user/data:/data \
+-v /fsx/:/database/ \
+-e CUDA_VISIBLE_DEVICES=0 \
+617302ff1b5a \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/T1083/input.fasta \
+/database/pdb_mmcif/mmcif_files/ \
+--use_precomputed_alignments /data \
+--output_dir /data/T1083 \
+--model_device cuda:0 \
+--param_path /database/params/params_model_1.npz
+
+# T1070
+docker run \
+--rm \
+--gpus all \
+-v /home/ec2-user/data:/data \
+-v /fsx/:/database/ \
+-e CUDA_VISIBLE_DEVICES=0 \
+617302ff1b5a \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/T1070/input.fasta \
+/database/pdb_mmcif/mmcif_files/ \
+--use_precomputed_alignments /data \
+--output_dir /data/T1070 \
+--model_device cuda:0 \
+--param_path /database/params/params_model_1.npz
+
+# Notes: The current implementation of OpenFold assumes that the sequences 
+# in the input FASTA file are each in a single line. Sequences that span multiple
+# lines are interpreted as sequence IDs and cause errors.
+# https://github.com/aqlaboratory/openfold/issues/89
+
+# Also, it seems like it's not possible to run the MSA step with the reduced DB at this time
+
+### MMseqs 2 
+python3 scripts/precompute_alignments_mmseqs.py \
+    /home/ubuntu/data/T1082/input.fasta \
+    /fsx/mmseqs_dbs \
+    uniref30_2103_db \
+    /home/ubuntu/data/T1082 \
+    /home/ubuntu/openfold/mmseqs/bin/mmseqs \
+    --hhsearch_binary_path home/ubuntu/openfold/lib/conda/envs/openfold_venv/bin/hhsearch \
+    --pdb70 pdb70 \
+    --env_db colabfold_envdb_202108_db
+
+bash scripts/colabfold_search.sh \
+    /home/ubuntu/openfold/mmseqs/bin/mmseqs \
+    /home/ubuntu/data/T1080/input.fasta \
+    /fsx/mmseqs_dbs \
+    /home/ubuntu/data/T1080/output \
+    uniref30_2103_db \
+    "" \
+    colabfold_envdb_202108_db \ 
+    1 0 1 1 0
+
+#Note seems to take a fair amount of time to finish (30 minutes - not faster than hhblits). 
+Need to retry using memory recommendations from https://colabfold.mmseqs.com/
+e.g. 768 GiB RAM. A x2gd.12xlarge looks to be the most cost-effective instance for this ($4/hr), or else
+a r5.24xlarge if we need an AMD ($6/hr)
+
+
+sudo wget -P /tmp "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
+    && sudo bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
+    && sudo rm /tmp/Miniconda3-latest-Linux-x86_64.sh
+
+
+220614
+
+docker run \
+--gpus all \
+-v /home/ec2-user/data:/data \
+-v /fsx/:/database/ \
+-ti openfold:latest \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/fasta_dir \
+/database/pdb_mmcif/mmcif_files/ \
+--use_precomputed_alignments /data/alignments/ \
+--output_dir /data \
+--model_device cuda:0 \
+--jax_param_path /database/params/params_model_1.npz
+
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/fasta_dir \
+/database/pdb_mmcif/mmcif_files/ \
+--use_precomputed_alignments /data/alignments/ \
+--output_dir /data \
+--model_device cuda:0 \
+--jax_param_path /database/params/params_model_1.npz
+
+
+docker run \
+--gpus all \
+-v /home/ec2-user/data:/data \
+-v /fsx/:/database/ \
+-ti openfold:latest \
+python3 /opt/openfold/run_pretrained_openfold.py \
+/data/fasta_dir \
+/database/pdb_mmcif/mmcif_files/ \
+--uniref90_database_path /database/uniref90/uniref90.fasta \
+--mgnify_database_path /database/mgnify/mgy_clusters_2018_12.fa \
+--pdb70_database_path /database/pdb70/pdb70 \
+--uniclust30_database_path /database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+--output_dir /data \
+--model_device cuda:0 \
+--jackhmmer_binary_path /opt/conda/bin/jackhmmer \
+--hhblits_binary_path /opt/conda/bin/hhblits \
+--hhsearch_binary_path /opt/conda/bin/hhsearch \
+--kalign_binary_path /opt/conda/bin/kalign \
+--jax_param_path /database/params/params_model_1.npz
+
+
+
+docker run --gpus all -v /home/ec2-user/data:/data -v /fsx/:/database/ -ti openfold:latest bash run_batch_job.sh \
+    s3://sagemaker-us-east-2-032243382548/openfold_testing/T1084.fasta \
+    /data/fasta_dir \
+    "python3 /opt/openfold/run_pretrained_openfold.py \
+    /data/fasta_dir \
+    /database/pdb_mmcif/mmcif_files/ \
+    --uniref90_database_path /database/uniref90/uniref90.fasta \
+    --mgnify_database_path /database/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path /database/pdb70/pdb70 \
+    --uniclust30_database_path /database/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --output_dir /data \
+    --model_device cuda:0 \
+    --jackhmmer_binary_path /opt/mamba/bin/jackhmmer \
+    --hhblits_binary_path /opt/mamba/bin/hhblits \
+    --hhsearch_binary_path /opt/mamba/bin/hhsearch \
+    --kalign_binary_path /opt/mamba/bin/kalign \
+    --jax_param_path /database/params/params_model_1.npz" \
+    /data \
+    s3://sagemaker-us-east-2-032243382548/openfold_testing/
