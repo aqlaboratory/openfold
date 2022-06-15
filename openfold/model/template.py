@@ -41,6 +41,7 @@ from openfold.utils.feats import (
 from openfold.utils.tensor_utils import (
     add,
     chunk_layer,
+    ChunkSizeTuner,
     permute_final_dims,
     flatten_final_dims,
     tensor_tree_map,
@@ -293,6 +294,7 @@ class TemplatePairStack(nn.Module):
         pair_transition_n,
         dropout_rate,
         blocks_per_ckpt,
+        tune_chunk_size: bool = False,
         inf=1e9,
         **kwargs,
     ):
@@ -333,6 +335,11 @@ class TemplatePairStack(nn.Module):
 
         self.layer_norm = LayerNorm(c_t)
 
+        self.tune_chunk_size = tune_chunk_size
+        self.chunk_size_tuner = None
+        if(tune_chunk_size):
+            self.chunk_size_tuner = ChunkSizeTuner()
+
     def forward(
         self,
         t: torch.tensor,
@@ -355,18 +362,28 @@ class TemplatePairStack(nn.Module):
             expand_idx[-3] = t.shape[-4]
             mask = mask.expand(*expand_idx)
 
+        blocks = [
+            partial(
+                b,
+                mask=mask,
+                chunk_size=chunk_size,
+                use_lma=use_lma,
+                _mask_trans=_mask_trans,
+                _inplace=not (self.training or torch.is_grad_enabled()),
+            )
+            for b in self.blocks
+        ]
+
+        if(chunk_size is not None and self.chunk_size_tuner is not None):
+            chunk_size = self.chunk_size_tuner.tune_chunk_size(
+                representative_fn=blocks[0],
+                args=(t,),
+                min_chunk_size=chunk_size,
+            )
+            blocks = [partial(b, chunk_size=chunk_size) for b in blocks]
+
         t, = checkpoint_blocks(
-            blocks=[
-                partial(
-                    b,
-                    mask=mask,
-                    chunk_size=chunk_size,
-                    use_lma=use_lma,
-                    _mask_trans=_mask_trans,
-                    _inplace=not (self.training or torch.is_grad_enabled()),
-                )
-                for b in self.blocks
-            ],
+            blocks=blocks,
             args=(t,),
             blocks_per_ckpt=self.blocks_per_ckpt if self.training else None,
         )
