@@ -474,9 +474,9 @@ class ChunkSizeTuner:
             # If args have changed shape/value, we need to re-tune
             assert(len(self.cached_arg_data) == len(arg_data))
             arg_data_iter = zip(self.cached_arg_data, arg_data)
-            for cached_arg_data, arg_data in arg_data_iter:
-                assert(type(cached_arg_data) == type(arg_data))
-                consistent = cached_arg_data == arg_data
+            for cached_arg_datum, arg_datum in arg_data_iter:
+                assert(type(cached_arg_datum) == type(arg_datum))
+                consistent = cached_arg_datum == arg_datum
         else:
             # Otherwise, we can reuse the precomputed value
             consistent = False
