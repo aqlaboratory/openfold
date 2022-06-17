@@ -37,6 +37,7 @@ from openfold.utils.import_weights import (
 from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
+from openfold.utils.seed import seed_everything
 
 from scripts.utils import add_data_args
 
@@ -44,6 +45,7 @@ from scripts.utils import add_data_args
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 def main(args):
+    seed_everything(2022)
     config = model_config(args.model_name)
     model = AlphaFold(config)
     model = model.eval()
