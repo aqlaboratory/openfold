@@ -189,11 +189,18 @@ def main(args):
                     args.openfold_checkpoint_path,
                     ckpt_path,
                 )
+
+            d = torch.load(ckpt_path)
+            model.load_state_dict(d["ema"]["params"])
         else:
             ckpt_path = args.openfold_checkpoint_path
-
-        d = torch.load(ckpt_path)
-        model.load_state_dict(d["ema"]["params"])
+            d = torch.load(ckpt_path)
+            
+            if("ema" in d):
+                # The public weights have had this done to them already
+                d = d["ema"]["params"]
+            
+            model.load_state_dict(d)
     else:
         raise ValueError(
             "At least one of jax_param_path or openfold_checkpoint_path must "
