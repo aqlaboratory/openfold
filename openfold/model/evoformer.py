@@ -192,7 +192,7 @@ class EvoformerBlockCore(nn.Module):
         # the original.
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
-        
+       
         if(_attn_chunk_size is None):
             _attn_chunk_size = chunk_size
 
@@ -331,7 +331,10 @@ class EvoformerBlock(nn.Module):
         _attn_chunk_size: Optional[int] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         inplace_safe = not (self.training or torch.is_grad_enabled())
-        
+
+        print(chunk_size)
+        print(_attn_chunk_size)
+
         if(_attn_chunk_size is None):
             _attn_chunk_size = chunk_size
 
@@ -653,7 +656,7 @@ class EvoformerStack(nn.Module):
                     chunk_size=tuned_chunk_size,
                     # A temporary measure to address torch's occasional
                     # inability to allocate large tensors
-                    _attn_chunk_size=max(chunk_size, tuned_chunk_size // 2),
+                    _attn_chunk_size=max(chunk_size, tuned_chunk_size // 4),
                 ) for b in blocks
             ]
 
@@ -783,7 +786,7 @@ class ExtraMSAStack(nn.Module):
                         chunk_size=tuned_chunk_size,
                         # A temporary measure to address torch's occasional
                         # inability to allocate large tensors
-                        _attn_chunk_size=max(chunk_size, tuned_chunk_size // 2),
+                        _attn_chunk_size=max(chunk_size, tuned_chunk_size // 4),
                     ) for b in blocks
                 ]
 
