@@ -14,20 +14,26 @@ DeepMind experiments. It is omitted here for the sake of reducing clutter. In
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
 
+OpenFold is trainable, and we've trained it from scratch, matching AlphaFold's
+performance. We've publicly released model weights and our training data &mdash some 
+400,000 MSAs &mdash under a permissive license. Model weights are available 
+from this repository while the MSAs are hosted by [RODA](registry.opendata.aws/openfold). 
+
 OpenFold is built to support inference with AlphaFold's official parameters. Try it out for yourself with 
 our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Additionally, OpenFold has the following advantages over the reference implementation:
 
-- Openfold is **trainable** in full precision or `bfloat16` half-precision, with or without [DeepSpeed](https://github.com/microsoft/deepspeed).
-- **Faster inference** on GPU.
+- Openfold is trainable in full precision or `bfloat16` half-precision, with or without [DeepSpeed](https://github.com/microsoft/deepspeed).
+- **Faster inference** on GPU for chains with < 1500 residues. 
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
-([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)).
+([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
+  sequences with more than 4000 residues on a single A100, and even more with offloading.
 - **Custom CUDA attention kernels** modified from [FastFold](https://github.com/hpcaitech/FastFold)'s 
 kernels support in-place attention during inference and training. They use 
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
 implementations, respectively.
-- **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments that will be released alongside original OpenFold weights, trained from scratch using our code (more on that soon).
+- **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 
 ## Installation (Linux)
 
@@ -70,7 +76,8 @@ To install the HH-suite to `/usr/bin`, run
 
 ## Usage
 
-To download DeepMind's pretrained parameters and common ground truth data, run:
+To download our original OpenFold weights, DeepMind's pretrained parameters, 
+and common ground truth data, run:
 
 ```bash
 bash scripts/download_data.sh data/
@@ -129,13 +136,21 @@ python3 run_pretrained_openfold.py \
     --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
+    --openfold_param_path openfold/openfold_params/finetuning_1.pt
 ```
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
 `hhblits`, `hhsearch` and `kalign` are available at the default path of 
 `/usr/bin`, their `binary_path` command-line arguments can be dropped.
 If you've already computed alignments for the query, you have the option to 
-skip the expensive alignment computation here.
+skip the expensive alignment computation here with 
+--use_precomputed_alignments.
+
+Exactly one of --openfold_param_path or --jax_param_path must be specified to
+run the inference script. These accept .pt/DeepSpeed OpenFold checkpoints and
+AlphaFold's .npz JAX parameter files, respectively. For a breakdown of the 
+differences between the different parameter files, see the README in 
+openfold/resources.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
@@ -344,7 +359,7 @@ python3 /opt/openfold/run_pretrained_openfold.py \
 --hhblits_binary_path /opt/conda/bin/hhblits \
 --hhsearch_binary_path /opt/conda/bin/hhsearch \
 --kalign_binary_path /opt/conda/bin/kalign \
---param_path /database/params/params_model_1.npz
+--openfold_param_path /database/openfold_params/finetuning_1.pt
 ```
 
 ## Copyright notice
