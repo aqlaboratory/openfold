@@ -307,7 +307,8 @@ def main(args):
     prediction_dir = os.path.join(args.output_dir, "predictions")
     os.makedirs(prediction_dir, exist_ok=True)
 
-    for fasta_file in os.listdir(args.fasta_dir):
+    for fasta_file in [f for f in os.listdir(args.fasta_dir) if os.path.splitext(f)[1] in [".fasta", ".fa"]]:
+        # Gather input sequences
         with open(os.path.join(args.fasta_dir, fasta_file), "r") as fp:
             data = fp.read()     
 
