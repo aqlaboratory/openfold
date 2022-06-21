@@ -1,4 +1,4 @@
-![header ](imgs/OpenFold_viz_banner.jpg)
+![header ](imgs/of_banner.png)
 
 # OpenFold
 
@@ -150,7 +150,7 @@ Exactly one of --openfold_param_path or --jax_param_path must be specified to
 run the inference script. These accept .pt/DeepSpeed OpenFold checkpoints and
 AlphaFold's .npz JAX parameter files, respectively. For a breakdown of the 
 differences between the different parameter files, see the README in 
-openfold/resources.
+`openfold/resources/openfold_params/`.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
