@@ -17,18 +17,20 @@ latter.
 OpenFold is trainable, and we've trained it from scratch, matching AlphaFold's
 performance. We've publicly released model weights and our training data &mdash some 
 400,000 MSAs &mdash under a permissive license. Model weights are available 
-from this repository while the MSAs are hosted by [RODA](registry.opendata.aws/openfold). 
+from scripts in this repository while the MSAs are hosted by the [Registry of Open
+Data on AWS (RODA)](registry.opendata.aws/openfold). 
 
-OpenFold is built to support inference with AlphaFold's official parameters. Try it out for yourself with 
-our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
+OpenFold is built to support inference with AlphaFold's official parameters. 
+Try it out for yourself with our 
+[Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 Additionally, OpenFold has the following advantages over the reference implementation:
 
 - Openfold is trainable in full precision or `bfloat16` half-precision, with or without [DeepSpeed](https://github.com/microsoft/deepspeed).
-- **Faster inference** on GPU for chains with < 1500 residues. 
+- **Faster inference** on GPU for chains with < 1500 residues.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
-  sequences with more than 4000 residues on a single A100, and even more with offloading.
+  sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
 - **Custom CUDA attention kernels** modified from [FastFold](https://github.com/hpcaitech/FastFold)'s 
 kernels support in-place attention during inference and training. They use 
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
@@ -154,15 +156,12 @@ differences between the different parameter files, see the README in
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
-to `None` in the config.
-
-Inference-time low-memory attention (LMA) can be enabled in the model config.
-This setting trades off speed for vastly improved memory usage. By default,
-LMA is run with query and key chunk sizes of 1024 and 4096, respectively.
-These represent a favorable tradeoff in most memory-constrained cases.
-Powerusers can choose to tweak these settings in 
-`openfold/model/primitives.py`. For more information on the LMA algorithm,
-see the aforementioned Staats & Rabe preprint.
+to `None` in the config. If a value is specified, OpenFold will attempt to 
+dynamically tune it, considering the chunk size specified in the config as a 
+minimum. This tuning process automatically ensures consistently fast runtimes 
+regardless of input sequence length, but it also introduces some runtime 
+variability, which may be undesirable for certain users. To disable this 
+functionality, set the `tune_chunk_size` option in the config to `False`.
 
 Input FASTA files containing multiple sequences are treated as complexes. In
 this case, the inference script runs AlphaFold-Gap, a hack proposed
@@ -171,15 +170,10 @@ the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer). To
 run inference with AlphaFold-Multimer, use the (experimental) `multimer` branch 
 instead.
 
-By default, OpenFold will attempt to automatically tune the inference-time 
-`chunk_size` hyperparameter controlling a memory/runtime tradeoff in certain 
-modules during inference. The chunk size specified in the config is only 
-considered a minimum. This feature ensures consistently fast runtimes 
-regardless of input sequence length, but it also introduces some runtime 
-variability, which may be undesirable for certain users. To disable this
-feature, set the `tune_chunk_size` option in the config to `False`.
+To minimize memory usage during inference on long sequences, consider the
+following options:
 
-As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
+- As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
 stack is a major memory bottleneck for inference on long sequences. OpenFold
 supports two mutually exclusive inference modes to address this issue. One,
 `average_templates` in the `template` section of the config, is similar to the
@@ -193,6 +187,20 @@ approximation while the latter is slightly slower; both are memory-efficient
 and allow the model to utilize arbitrarily many templates across sequence 
 lengths. Both are disabled by default, and it is up to the user to determine 
 which best suits their needs, if either.
+- Inference-time low-memory attention (LMA) can be enabled in the model config.
+This setting trades off speed for vastly improved memory usage. By default,
+LMA is run with query and key chunk sizes of 1024 and 4096, respectively.
+These represent a favorable tradeoff in most memory-constrained cases.
+Powerusers can choose to tweak these settings in 
+`openfold/model/primitives.py`. For more information on the LMA algorithm,
+see the aforementioned Staats & Rabe preprint.
+- As a last resort, consider enabling `offload_inference`. This enables more
+extensive CPU offloading at various bottlenecks throughout the model.
+
+With all of these enabled, we were able to run inference on a 4600-residue
+complex with a single A100. Compared to AlphaFold's own memory offloading mode,
+ours is considerably faster: the same complex took the more efficent 
+AlphaFold-Multimer more than double the time.
 
 ### Training
 
