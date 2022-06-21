@@ -81,9 +81,14 @@ class InputEmbedder(nn.Module):
         d = ri[..., None] - ri[..., None, :]
         boundaries = torch.arange(
             start=-self.relpos_k, end=self.relpos_k + 1, device=d.device
-        )
-        oh = one_hot(d, boundaries).type(ri.dtype)
-        return self.linear_relpos(oh)
+        ) 
+        reshaped_bins = boundaries.view(((1,) * len(d.shape)) + (len(boundaries),))
+        d = d[..., None] - reshaped_bins
+        d = torch.abs(d)
+        d = torch.argmin(d, dim=-1)
+        d = nn.functional.one_hot(d, num_classes=len(boundaries)).float()
+        d = d.to(ri.dtype)
+        return self.linear_relpos(d)
 
     def forward(
         self,
@@ -106,13 +111,22 @@ class InputEmbedder(nn.Module):
                 [*, N_res, N_res, C_z] pair embedding
 
         """
+        inplace_safe = not (self.training or torch.is_grad_enabled())
+        
         # [*, N_res, c_z]
         tf_emb_i = self.linear_tf_z_i(tf)
         tf_emb_j = self.linear_tf_z_j(tf)
 
         # [*, N_res, N_res, c_z]
-        pair_emb = tf_emb_i[..., None, :] + tf_emb_j[..., None, :, :]
-        pair_emb = pair_emb + self.relpos(ri.type(pair_emb.dtype))
+        pair_emb = self.relpos(ri.type(tf_emb_i.dtype))
+        pair_emb = add(pair_emb, 
+            tf_emb_i[..., None, :], 
+            inplace=inplace_safe
+        )
+        pair_emb = add(pair_emb, 
+            tf_emb_j[..., None, :, :], 
+            inplace=inplace_safe
+        )
 
         # [*, N_clust, N_res, c_m]
         n_clust = msa.shape[-3]

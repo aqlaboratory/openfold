@@ -20,7 +20,8 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear, LayerNorm
-from openfold.utils.tensor_utils import add, chunk_layer, permute_final_dims
+from openfold.utils.chunk_utils import chunk_layer
+from openfold.utils.tensor_utils import add, permute_final_dims
 
 
 class TriangleMultiplicativeUpdate(nn.Module):

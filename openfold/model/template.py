@@ -34,14 +34,16 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationIncoming,
 )
 from openfold.utils.checkpointing import checkpoint_blocks
+from openfold.utils.chunk_utils import (
+    chunk_layer,
+    ChunkSizeTuner,
+)
 from openfold.utils.feats import (
     build_template_angle_feat,
     build_template_pair_feat,
 )
 from openfold.utils.tensor_utils import (
     add,
-    chunk_layer,
-    ChunkSizeTuner,
     permute_final_dims,
     flatten_final_dims,
     tensor_tree_map,
@@ -381,7 +383,7 @@ class TemplatePairStack(nn.Module):
         if(chunk_size is not None and self.chunk_size_tuner is not None):
             tuned_chunk_size = self.chunk_size_tuner.tune_chunk_size(
                 representative_fn=blocks[0],
-                args=(t,),
+                args=(t.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [

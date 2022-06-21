@@ -263,22 +263,29 @@ class AlphaFold(nn.Module):
             feats["aatype"], x_prev, None
         ).to(dtype=z.dtype)
 
+        if(self.globals.offload_inference and inplace_safe):
+            m = m.cpu()
+            z = z.cpu()
+
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]
         m_1_prev_emb, z_prev_emb = self.recycling_embedder(
             m_1_prev,
             z_prev,
             x_prev,
-            _inplace=not (self.training or torch.is_grad_enabled()),
+            _inplace=inplace_safe,
         )
+
+        if(self.globals.offload_inference and inplace_safe):
+            m = m.to(m_1_prev_emb.device)
+            z = z.to(z_prev.device)
 
         # [*, S_c, N, C_m]
         m[..., 0, :, :] += m_1_prev_emb
 
         # [*, N, N, C_z]
-        z += z_prev_emb
+        z = add(z, z_prev_emb, inplace=inplace_safe)
 
-        # This matters during inference with large N
         del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
@@ -317,44 +324,52 @@ class AlphaFold(nn.Module):
         if self.config.extra_msa.enabled:
             # [*, S_e, N, C_e]
             a = self.extra_msa_embedder(build_extra_msa_feat(feats))
-           
+          
+            input_tensors = [a, z]
+            del a, z
+
             # [*, N, N, C_z]
-            z = self.extra_msa_stack(
-                a,
-                z,
-                msa_mask=feats["extra_msa_mask"].to(dtype=a.dtype),
+            z = self.extra_msa_stack._forward_list(
+                input_tensors,
+                msa_mask=feats["extra_msa_mask"].to(dtype=m.dtype),
                 chunk_size=self.globals.chunk_size,
                 use_lma=self.globals.use_lma,
-                pair_mask=pair_mask.to(dtype=z.dtype),
+                pair_mask=pair_mask.to(dtype=m.dtype),
                 _mask_trans=self.config._mask_trans,
+                _offload_inference=self.globals.offload_inference,
             )
 
-            del a
+            del input_tensors
 
         # Run MSA + pair embeddings through the trunk of the network
         # m: [*, S, N, C_m]
         # z: [*, N, N, C_z]
-        # s: [*, N, C_s]
-        m, z, s = self.evoformer(
-            m,
-            z,
-            msa_mask=msa_mask.to(dtype=m.dtype),
-            pair_mask=pair_mask.to(dtype=z.dtype),
+        # s: [*, N, C_s]          
+        input_tensors = [m, z]
+        del m, z
+        m, z, s = self.evoformer._forward_list(
+            input_tensors,
+            msa_mask=msa_mask.to(dtype=input_tensors[0].dtype),
+            pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
             chunk_size=self.globals.chunk_size,
             use_lma=self.globals.use_lma,
             _mask_trans=self.config._mask_trans,
         )
 
+        del input_tensors
+
         outputs["msa"] = m[..., :n_seq, :, :]
         outputs["pair"] = z
         outputs["single"] = s
 
+        del z
+
         # Predict 3D structure
         outputs["sm"] = self.structure_module(
-            s,
-            z,
+            outputs,
             feats["aatype"],
             mask=feats["seq_mask"].to(dtype=s.dtype),
+            _offload_inference=self.globals.offload_inference,
         )
         outputs["final_atom_positions"] = atom14_to_atom37(
             outputs["sm"]["positions"][-1], feats
@@ -368,7 +383,7 @@ class AlphaFold(nn.Module):
         m_1_prev = m[..., 0, :, :]
 
         # [*, N, N, C_z]
-        z_prev = z
+        z_prev = outputs["pair"]
 
         # [*, N, 3]
         x_prev = outputs["final_atom_positions"]
