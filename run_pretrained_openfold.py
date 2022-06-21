@@ -207,7 +207,6 @@ def load_models_from_command_line(args, config):
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
     if args.jax_param_path:
-
         for path in args.jax_param_path.split(","):
             model = AlphaFold(config)
             model = model.eval()
@@ -217,7 +216,7 @@ def load_models_from_command_line(args, config):
             model = model.to(args.model_device)
             yield model, None
     if args.openfold_checkpoint_path:
-        for path in args.openfold_checkpoint_path:
+        for path in args.openfold_checkpoint_path.split(","):
             model = AlphaFold(config)
             model = model.eval()
             checkpoint_basename = None
@@ -234,7 +233,7 @@ def load_models_from_command_line(args, config):
 
                 if not os.path.isfile(ckpt_path):
                     convert_zero_checkpoint_to_fp32_state_dict(
-                        args.openfold_checkpoint_path,
+                        path,
                         ckpt_path,
                     )
             else:
@@ -244,7 +243,7 @@ def load_models_from_command_line(args, config):
             model.load_state_dict(d["ema"]["params"])
             model = model.to(args.model_device)
             yield model, checkpoint_basename
-    else:
+    if not args.jax_param_path and not args.openfold_checkpoint_path:
         raise ValueError(
             "At least one of jax_param_path or openfold_checkpoint_path must "
             "be specified."
