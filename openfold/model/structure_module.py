@@ -233,7 +233,7 @@ class InvariantPointAttention(nn.Module):
         r: Rigid,
         mask: torch.Tensor,
         _offload_inference: bool = False,
-        _z_reference_list: Optional[Sequence[torch.Tensor] = None,
+        _z_reference_list: Optional[Sequence[torch.Tensor]] = None,
     ) -> torch.Tensor:
         """
         Args:
