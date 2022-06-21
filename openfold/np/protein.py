@@ -92,68 +92,76 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
         )
     model = models[0]
 
-    if chain_id is not None:
-        chain = model[chain_id]
-    else:
-        chains = list(model.get_chains())
-        if len(chains) != 1:
-            raise ValueError(
-                "Only single chain PDBs are supported when chain_id not specified. "
-                f"Found {len(chains)} chains."
-            )
-        else:
-            chain = chains[0]
-
     atom_positions = []
     aatype = []
     atom_mask = []
     residue_index = []
+    chain_ids = []
     b_factors = []
 
-    for res in chain:
-        if res.id[2] != " ":
-            raise ValueError(
-                f"PDB contains an insertion code at chain {chain.id} and residue "
-                f"index {res.id[1]}. These are not supported."
-            )
-        res_shortname = residue_constants.restype_3to1.get(res.resname, "X")
-        restype_idx = residue_constants.restype_order.get(
-            res_shortname, residue_constants.restype_num
-        )
-        pos = np.zeros((residue_constants.atom_type_num, 3))
-        mask = np.zeros((residue_constants.atom_type_num,))
-        res_b_factors = np.zeros((residue_constants.atom_type_num,))
-        for atom in res:
-            if atom.name not in residue_constants.atom_types:
-                continue
-            pos[residue_constants.atom_order[atom.name]] = atom.coord
-            mask[residue_constants.atom_order[atom.name]] = 1.0
-            res_b_factors[
-                residue_constants.atom_order[atom.name]
-            ] = atom.bfactor
-        if np.sum(mask) < 0.5:
-            # If no known atom positions are reported for the residue then skip it.
+    for chain in model:
+        if(chain_id is not None and chain.id != chain_id):
             continue
-        aatype.append(restype_idx)
-        atom_positions.append(pos)
-        atom_mask.append(mask)
-        residue_index.append(res.id[1])
-        b_factors.append(res_b_factors)
+        for res in chain:
+            if res.id[2] != " ":
+                raise ValueError(
+                    f"PDB contains an insertion code at chain {chain.id} and residue "
+                    f"index {res.id[1]}. These are not supported."
+                )
+            res_shortname = residue_constants.restype_3to1.get(res.resname, "X")
+            restype_idx = residue_constants.restype_order.get(
+                res_shortname, residue_constants.restype_num
+            )
+            pos = np.zeros((residue_constants.atom_type_num, 3))
+            mask = np.zeros((residue_constants.atom_type_num,))
+            res_b_factors = np.zeros((residue_constants.atom_type_num,))
+            for atom in res:
+                if atom.name not in residue_constants.atom_types:
+                    continue
+                pos[residue_constants.atom_order[atom.name]] = atom.coord
+                mask[residue_constants.atom_order[atom.name]] = 1.0
+                res_b_factors[
+                    residue_constants.atom_order[atom.name]
+                ] = atom.bfactor
+            if np.sum(mask) < 0.5:
+                # If no known atom positions are reported for the residue then skip it.
+                continue
+            aatype.append(restype_idx)
+            atom_positions.append(pos)
+            atom_mask.append(mask)
+            residue_index.append(res.id[1])
+            chain_ids.append(chain.id)
+            b_factors.append(res_b_factors)
 
     parents = None
+    parents_chain_index = None
     if("PARENT" in pdb_str):
+        parents = []
+        parents_chain_index = []
+        chain_id = 0
         for l in pdb_str.split("\n"):
-            if("PARENT" in l and not "N/A" in l):
-                parents = l.split()[1:]
-                break
+            if("PARENT" in l):
+                if(not "N/A" in l):
+                    parent_names = l.split()[1:]
+                    parents.extend(parent_names)
+                    parents_chain_index.extend([
+                        chain_id for _ in parent_names
+                    ])
+                chain_id += 1
+
+    unique_chain_ids = np.unique(chain_ids)
+    chain_id_mapping = {cid: n for n, cid in enumerate(string.ascii_uppercase)}
+    chain_index = np.array([chain_id_mapping[cid] for cid in chain_ids])
 
     return Protein(
         atom_positions=np.array(atom_positions),
         atom_mask=np.array(atom_mask),
         aatype=np.array(aatype),
         residue_index=np.array(residue_index),
+        chain_index=chain_index,
         b_factors=np.array(b_factors),
         parents=parents,
+        parents_chain_index=parents_chain_index,
     )
 
 
