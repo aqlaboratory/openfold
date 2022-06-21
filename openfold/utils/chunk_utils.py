@@ -415,8 +415,6 @@ class ChunkSizeTuner:
             # Otherwise, we can reuse the precomputed value
             consistent = False
 
-        print(consistent)
-
         if(not consistent):
             self.cached_chunk_size = self._determine_favorable_chunk_size(
                 representative_fn,

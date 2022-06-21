@@ -232,6 +232,7 @@ class InvariantPointAttention(nn.Module):
         z: Optional[torch.Tensor],
         r: Rigid,
         mask: torch.Tensor,
+        inplace_safe: bool = False,
         _offload_inference: bool = False,
         _z_reference_list: Optional[Sequence[torch.Tensor]] = None,
     ) -> torch.Tensor:
@@ -248,12 +249,11 @@ class InvariantPointAttention(nn.Module):
         Returns:
             [*, N_res, C_s] single representation update
         """
-        inplace_safe = not (self.training or torch.is_grad_enabled())
         if(_offload_inference and inplace_safe):
             z = _z_reference_list
         else:
             z = [z]
-        
+       
         #######################################
         # Generate scalar and point activations
         #######################################
@@ -619,6 +619,7 @@ class StructureModule(nn.Module):
         evoformer_output_dict,
         aatype,
         mask=None,
+        inplace_safe=False,
         _offload_inference=False,
     ):
         """
@@ -674,6 +675,7 @@ class StructureModule(nn.Module):
                 z, 
                 rigids, 
                 mask, 
+                inplace_safe=inplace_safe,
                 _offload_inference=_offload_inference, 
                 _z_reference_list=z_reference_list
             )

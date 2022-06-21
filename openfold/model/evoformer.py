@@ -182,6 +182,7 @@ class EvoformerBlockCore(nn.Module):
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
         _attn_chunk_size: Optional[int] = None,
         _offload_inference: bool = False,
@@ -191,15 +192,12 @@ class EvoformerBlockCore(nn.Module):
         # the original.
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
-       
+      
         if(_attn_chunk_size is None):
             _attn_chunk_size = chunk_size
 
         m, z = input_tensors
         
-        # Need to dodge activation checkpoints
-        inplace_safe = not (self.training or torch.is_grad_enabled())
-
         m = add(
             m,
             self.msa_transition(
@@ -213,9 +211,9 @@ class EvoformerBlockCore(nn.Module):
             input_tensors[1] = input_tensors[1].cpu()
             torch.cuda.empty_cache()
             m, z = input_tensors 
- 
+
         opm = self.outer_product_mean(
-            m, mask=msa_mask, chunk_size=chunk_size, _inplace=inplace_safe
+            m, mask=msa_mask, chunk_size=chunk_size, inplace_safe=inplace_safe
         )
 
         if(_offload_inference and inplace_safe):
@@ -230,7 +228,7 @@ class EvoformerBlockCore(nn.Module):
         tmu_update = self.tri_mul_out(
             z,
             mask=pair_mask,
-            _inplace=inplace_safe,
+            inplace_safe=inplace_safe,
             _add_with_inplace=True,
         )
         if(not inplace_safe):
@@ -243,7 +241,7 @@ class EvoformerBlockCore(nn.Module):
         tmu_update = self.tri_mul_in(
             z,
             mask=pair_mask,
-            _inplace=inplace_safe,
+            inplace_safe=inplace_safe,
             _add_with_inplace=True,
         )
         if(not inplace_safe):
@@ -259,7 +257,8 @@ class EvoformerBlockCore(nn.Module):
                     z, 
                     mask=pair_mask, 
                     chunk_size=_attn_chunk_size, 
-                    use_lma=use_lma
+                    use_lma=use_lma,
+                    inplace_safe=inplace_safe,
                 )
             ),
             inplace=inplace_safe,
@@ -277,6 +276,7 @@ class EvoformerBlockCore(nn.Module):
                     mask=pair_mask.transpose(-1, -2),
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
+                    inplace_safe=inplace_safe,
                 )
             ),
             inplace=inplace_safe,
@@ -355,19 +355,26 @@ class EvoformerBlock(nn.Module):
         )
 
     def forward(self,
-        input_tensors: Sequence[torch.Tensor],
+        m: Optional[torch.Tensor],
+        z: Optional[torch.Tensor],
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
         _attn_chunk_size: Optional[int] = None,
         _offload_inference: bool = False,
+        _offloadable_inputs: Optional[Sequence[torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        inplace_safe = not (self.training or torch.is_grad_enabled())
-
         if(_attn_chunk_size is None):
             _attn_chunk_size = chunk_size
+
+        if(_offload_inference and inplace_safe):
+            input_tensors = _offloadable_inputs
+            del _offloadable_inputs
+        else:
+            input_tensors = [m, z]
 
         m, z = input_tensors
 
@@ -404,17 +411,13 @@ class EvoformerBlock(nn.Module):
             pair_mask=pair_mask, 
             chunk_size=chunk_size, 
             use_lma=use_lma,
+            inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
             _attn_chunk_size=_attn_chunk_size,
             _offload_inference=_offload_inference,
         )
 
-        if(inplace_safe):
-            out = input_tensors
-        else:
-            out = [m, z]
-
-        return out
+        return m, z
 
 
 class ExtraMSABlock(nn.Module):
@@ -477,22 +480,29 @@ class ExtraMSABlock(nn.Module):
         )
 
     def forward(self,
-        input_tensors: Sequence[torch.Tensor],
+        m: Optional[torch.Tensor],
+        z: Optional[torch.Tensor],
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
         _attn_chunk_size: Optional[int] = None,
         _offload_inference: bool = False,
+        _offloadable_inputs: Optional[Sequence[torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:  
         if(_attn_chunk_size is None):
             _attn_chunk_size = chunk_size
+       
+        if(_offload_inference and inplace_safe):
+            input_tensors = _offloadable_inputs
+            del _offloadable_inputs
+        else:
+            input_tensors = [m, z]
 
         m, z = input_tensors
-        inplace_safe = not (self.training or torch.is_grad_enabled())
 
-        # If function calls could speak...
         m = add(m, 
             self.msa_dropout_layer(
                 self.msa_att_row(
@@ -509,8 +519,11 @@ class ExtraMSABlock(nn.Module):
             inplace=inplace_safe,
         )
 
+        if(not inplace_safe):
+            input_tensors = [m, z]
+
         del m, z
-        
+
         def fn(input_tensors): 
             m = add(input_tensors[0], 
                 self.msa_att_col(
@@ -523,7 +536,7 @@ class ExtraMSABlock(nn.Module):
             )
 
             if(not inplace_safe):
-                input_tensors [m, input_tensors[1]]
+                input_tensors = [m, input_tensors[1]]
 
             del m
 
@@ -533,6 +546,7 @@ class ExtraMSABlock(nn.Module):
                 pair_mask=pair_mask, 
                 chunk_size=chunk_size,
                 use_lma=use_lma,
+                inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
                 _attn_chunk_size=_attn_chunk_size,
                 _offload_inference=_offload_inference,
@@ -647,15 +661,16 @@ class EvoformerStack(nn.Module):
         if(tune_chunk_size):
             self.chunk_size_tuner = ChunkSizeTuner()
 
-    def _forward_list(self,
-        input_tensors: Sequence[torch.Tensor],
-        msa_mask: torch.Tensor,
-        pair_mask: torch.Tensor,
+    def _prep_blocks(self, 
+        m: torch.Tensor, 
+        z: torch.Tensor, 
         chunk_size: int,
-        use_lma: bool = False,
-        _mask_trans: bool = True,
-        _offload_inference: bool = False,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        use_lma: bool,
+        msa_mask: Optional[torch.Tensor],
+        pair_mask: Optional[torch.Tensor],
+        inplace_safe: bool,
+        _mask_trans: bool,
+    ):
         blocks = [
             partial(
                 b,
@@ -663,8 +678,8 @@ class EvoformerStack(nn.Module):
                 pair_mask=pair_mask,
                 chunk_size=chunk_size,
                 use_lma=use_lma,
+                inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
-                _offload_inference=_offload_inference,
             )
             for b in self.blocks
         ]
@@ -677,11 +692,11 @@ class EvoformerStack(nn.Module):
             blocks = [partial(block_with_cache_clear, b) for b in blocks]
 
         if(chunk_size is not None and self.chunk_size_tuner is not None):
-            print("evo")
+            assert(not self.training)
             tuned_chunk_size = self.chunk_size_tuner.tune_chunk_size(
                 representative_fn=blocks[0],
                 # We don't want to write in-place during chunk tuning runs
-                args=([t.clone() for t in input_tensors],),
+                args=(m.clone(), z.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -693,16 +708,43 @@ class EvoformerStack(nn.Module):
                 ) for b in blocks
             ]
 
-        blocks_per_ckpt = self.blocks_per_ckpt
-        if(not torch.is_grad_enabled()):
-            blocks_per_ckpt = None
+        return blocks
 
-        m, z = checkpoint_blocks(
-            blocks,
-            args=input_tensors,
-            blocks_per_ckpt=blocks_per_ckpt,
-        )[0]
+    def _forward_offload(self,
+        input_tensors: Sequence[torch.Tensor],
+        msa_mask: torch.Tensor,
+        pair_mask: torch.Tensor,
+        chunk_size: int,
+        use_lma: bool = False,
+        _mask_trans: bool = True,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        assert(not (self.training or torch.is_grad_enabled()))
+        blocks = self._prep_blocks(
+            # We are very careful not to create references to these tensors in
+            # this function
+            m=input_tensors[0],
+            z=input_tensors[1],
+            chunk_size=chunk_size,
+            use_lma=use_lma,
+            msa_mask=msa_mask,
+            pair_mask=pair_mask,
+            inplace_safe=True,
+            _mask_trans=_mask_trans,
+        )
 
+        for b in blocks:
+            m, z = b(
+                None, 
+                None, 
+                _offload_inference=True,
+                _offloadable_inputs=input_tensors,
+            )
+            input_tensors[0] = m
+            input_tensors[1] = z
+            del m, z
+        
+        m, z = input_tensors
+        
         s = self.linear(m[..., 0, :, :])
         
         return m, z, s
@@ -714,6 +756,7 @@ class EvoformerStack(nn.Module):
         pair_mask: torch.Tensor,
         chunk_size: int,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -738,14 +781,30 @@ class EvoformerStack(nn.Module):
             s:
                 [*, N_res, C_s] single embedding (or None if extra MSA stack)
         """ 
-        return self._forward_list(
-            [m, z],
-            msa_mask=msa_mask,
-            pair_mask=pair_mask,
+        blocks = self._prep_blocks(
+            m=m,
+            z=z,
             chunk_size=chunk_size,
             use_lma=use_lma,
+            msa_mask=msa_mask,
+            pair_mask=pair_mask,
+            inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
         )
+
+        blocks_per_ckpt = self.blocks_per_ckpt
+        if(not torch.is_grad_enabled()):
+            blocks_per_ckpt = None
+        
+        m, z = checkpoint_blocks(
+            blocks,
+            args=(m, z),
+            blocks_per_ckpt=blocks_per_ckpt,
+        )
+
+        s = self.linear(m[..., 0, :, :])
+
+        return m, z, s
 
 
 class ExtraMSAStack(nn.Module):
@@ -769,7 +828,6 @@ class ExtraMSAStack(nn.Module):
         eps: float,
         ckpt: bool,
         clear_cache_between_blocks: bool = False,
-        chunk_msa_attn: bool = False,
         tune_chunk_size: bool = False,
         **kwargs,
     ):
@@ -777,7 +835,6 @@ class ExtraMSAStack(nn.Module):
  
         self.ckpt = ckpt
         self.clear_cache_between_blocks = clear_cache_between_blocks
-        self.chunk_msa_attn = chunk_msa_attn
         self.blocks = nn.ModuleList()
         for _ in range(no_blocks):
             block = ExtraMSABlock(
@@ -794,7 +851,7 @@ class ExtraMSAStack(nn.Module):
                 pair_dropout=pair_dropout,
                 inf=inf,
                 eps=eps,
-                ckpt=ckpt if chunk_msa_attn else False,
+                ckpt=False,
             )
             self.blocks.append(block)
             
@@ -810,6 +867,7 @@ class ExtraMSAStack(nn.Module):
         use_lma: bool,
         msa_mask: Optional[torch.Tensor],
         pair_mask: Optional[torch.Tensor],
+        inplace_safe: bool,
         _mask_trans: bool,
     ):
         blocks = [
@@ -819,6 +877,7 @@ class ExtraMSAStack(nn.Module):
                 pair_mask=pair_mask, 
                 chunk_size=chunk_size, 
                 use_lma=use_lma,
+                inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
             ) for b in self.blocks
         ]
@@ -831,10 +890,12 @@ class ExtraMSAStack(nn.Module):
             blocks = [partial(clear_cache, b) for b in blocks]
 
         if(chunk_size is not None and self.chunk_size_tuner is not None):
-            print("extra")
             tuned_chunk_size = self.chunk_size_tuner.tune_chunk_size(
                 representative_fn=blocks[0],
-                args=([m.clone(), z.clone()],),
+                # Tensors cloned to avoid getting written to in-place
+                # A corollary is that chunk size tuning should be disabled for
+                # large N, when z gets really big
+                args=(m.clone(), z.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -848,16 +909,15 @@ class ExtraMSAStack(nn.Module):
 
         return blocks
 
-    def _forward_list(self,
+    def _forward_offload(self,
         input_tensors: Sequence[torch.Tensor],
         chunk_size: int,
         use_lma: bool = False,
         msa_mask: Optional[torch.Tensor] = None,
         pair_mask: Optional[torch.Tensor] = None,
         _mask_trans: bool = True,
-        _offload_inference: bool = False,
     ) -> torch.Tensor:
-        assert(not self.training)
+        assert(not (self.training or torch.is_grad_enabled()))
         blocks = self._prep_blocks(
             # We are very careful not to create references to these tensors in
             # this function
@@ -867,11 +927,17 @@ class ExtraMSAStack(nn.Module):
             use_lma=use_lma,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
+            inplace_safe=True,
             _mask_trans=_mask_trans,
         )
 
         for b in blocks:
-            m, z = b(input_tensors, _offload_inference=_offload_inference)
+            m, z = b(
+                None, 
+                None, 
+                _offload_inference=True,
+                _offloadable_inputs=input_tensors,
+            )
             input_tensors[0] = m
             input_tensors[1] = z
             del m, z
@@ -885,6 +951,7 @@ class ExtraMSAStack(nn.Module):
         use_lma: bool = False,
         msa_mask: Optional[torch.Tensor] = None,
         pair_mask: Optional[torch.Tensor] = None,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
     ) -> torch.Tensor:
         """
@@ -910,12 +977,13 @@ class ExtraMSAStack(nn.Module):
             use_lma=use_lma,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
+            inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
         )
 
         for b in blocks:
             if(self.ckpt and torch.is_grad_enabled()):
-                m, z = checkpoint_fn(b, (m, z))
+                m, z = checkpoint_fn(b, m, z)
             else:
                 m, z = b(m, z)
 

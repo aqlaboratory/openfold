@@ -117,10 +117,9 @@ class MSAAttention(nn.Module):
     def _prep_inputs(self,
         m: torch.Tensor,
         z: Optional[torch.Tensor],
-        mask: Optional[torch.Tensor]
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        _inplace_safe = not (self.training or torch.is_grad_enabled())
-        
+        mask: Optional[torch.Tensor],
+        inplace_safe: bool = False,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: 
         n_seq, n_res = m.shape[-3:-1]
         if mask is None:
             # [*, N_seq, N_res]
@@ -163,6 +162,7 @@ class MSAAttention(nn.Module):
         mask: Optional[torch.Tensor],
         chunk_logits: int,
         checkpoint: bool,
+        inplace_safe: bool = False
     ) -> torch.Tensor:
         """ 
         MSA attention with training-time chunking of the softmax computation.
@@ -172,7 +172,9 @@ class MSAAttention(nn.Module):
         MSA_DIM = -4
 
         def _get_qkv(m, z):
-            m, mask_bias, z = self._prep_inputs(m, z, mask)
+            m, mask_bias, z = self._prep_inputs(
+                m, z, mask, inplace_safe=inplace_safe
+            )
             q, k, v = self.mha._prep_qkv(m, m)
             return m, q, k, v, mask_bias, z
 
@@ -208,6 +210,7 @@ class MSAAttention(nn.Module):
         chunk_size: Optional[int] = None,
         use_memory_efficient_kernel: bool = False,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _chunk_logits: Optional[int] = None,
         _checkpoint_chunks: Optional[bool] = None,
     ) -> torch.Tensor:
@@ -229,10 +232,14 @@ class MSAAttention(nn.Module):
         if(_chunk_logits is not None):
             return self._chunked_msa_attn(
                 m=m, z=z, mask=mask, 
-                chunk_logits=_chunk_logits, checkpoint=_checkpoint_chunks
+                chunk_logits=_chunk_logits, 
+                checkpoint=_checkpoint_chunks,
+                inplace_safe=inplace_safe,
             )           
 
-        m, mask_bias, z = self._prep_inputs(m, z, mask)
+        m, mask_bias, z = self._prep_inputs(
+            m, z, mask, inplace_safe=inplace_safe
+        )
 
         biases = [mask_bias]
         if(z is not None):

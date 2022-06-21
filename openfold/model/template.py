@@ -201,8 +201,8 @@ class TemplatePairStackBlock(nn.Module):
         mask: torch.Tensor, 
         chunk_size: Optional[int] = None, 
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
-        _inplace: bool = False,
         _attn_chunk_size: Optional[int] = None,
     ):
         if(_attn_chunk_size is None):
@@ -214,6 +214,7 @@ class TemplatePairStackBlock(nn.Module):
         single_templates_masks = [
             m.unsqueeze(-3) for m in torch.unbind(mask, dim=-3)
         ]
+
         for i in range(len(single_templates)):
             single = single_templates[i]
             single_mask = single_templates_masks[i]
@@ -225,9 +226,10 @@ class TemplatePairStackBlock(nn.Module):
                         chunk_size=_attn_chunk_size,
                         mask=single_mask,
                         use_lma=use_lma,
+                        inplace_safe=inplace_safe,
                     )
                 ),
-                _inplace,
+                inplace_safe,
             )
 
             single = add(single,
@@ -237,18 +239,19 @@ class TemplatePairStackBlock(nn.Module):
                         chunk_size=_attn_chunk_size,
                         mask=single_mask,
                         use_lma=use_lma,
+                        inplace_safe=inplace_safe,
                     )
                 ),
-                _inplace,
+                inplace_safe,
             )
 
             tmu_update = self.tri_mul_out(
                 single,
                 mask=single_mask,
-                _inplace=_inplace,
+                inplace_safe=inplace_safe,
                 _add_with_inplace=True,
             )
-            if(not _inplace):
+            if(not inplace_safe):
                 single = single + self.dropout_row(tmu_update)
             else:
                 single = tmu_update
@@ -258,10 +261,10 @@ class TemplatePairStackBlock(nn.Module):
             tmu_update = self.tri_mul_in(
                 single,
                 mask=single_mask,
-                _inplace=_inplace,
+                inplace_safe=inplace_safe,
                 _add_with_inplace=True,
             )
-            if(not _inplace):
+            if(not inplace_safe):
                 single = single + self.dropout_row(tmu_update)
             else:
                 single = tmu_update
@@ -274,13 +277,13 @@ class TemplatePairStackBlock(nn.Module):
                     mask=single_mask if _mask_trans else None,
                     chunk_size=chunk_size,
                 ),
-                _inplace,
+                inplace_safe,
             )
 
-            if(not _inplace):
+            if(not inplace_safe):
                 single_templates[i] = single
 
-        if(not _inplace):
+        if(not inplace_safe):
             z = torch.cat(single_templates, dim=-4)
 
         return z
@@ -352,6 +355,7 @@ class TemplatePairStack(nn.Module):
         mask: torch.tensor,
         chunk_size: int,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _mask_trans: bool = True,
     ):
         """
@@ -374,13 +378,14 @@ class TemplatePairStack(nn.Module):
                 mask=mask,
                 chunk_size=chunk_size,
                 use_lma=use_lma,
+                inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
-                _inplace=not (self.training or torch.is_grad_enabled()),
             )
             for b in self.blocks
         ]
 
         if(chunk_size is not None and self.chunk_size_tuner is not None):
+            assert(not self.training)
             tuned_chunk_size = self.chunk_size_tuner.tune_chunk_size(
                 representative_fn=blocks[0],
                 args=(t.clone(),),
@@ -411,6 +416,7 @@ def embed_templates_offload(
     pair_mask, 
     templ_dim, 
     template_chunk_size=256,
+    inplace_safe=False,
 ):
     """
     Args:
@@ -435,8 +441,6 @@ def embed_templates_offload(
     offloads the large template pair tensor to CPU. Slower but more frugal 
     with GPU memory than the original. Useful for long-sequence inference.
     """
-    inplace_safe = not (model.training or torch.is_grad_enabled())
-
     # Embed the templates one at a time (with a poor man's vmap)
     pair_embeds_cpu = []
     n = z.shape[-2]
@@ -519,6 +523,7 @@ def embed_templates_average(
     pair_mask, 
     templ_dim,
     templ_group_size=2,
+    inplace_safe=False,
 ):
     """
     Args:
@@ -547,8 +552,6 @@ def embed_templates_average(
     embedding, while its low memory footprint allows the number of templates 
     to scale almost indefinitely.
     """
-    inplace_safe = not (model.training or torch.is_grad_enabled())
-
     # Embed the templates one at a time (with a poor man's vmap)
     n = z.shape[-2]
     n_templ = batch["template_aatype"].shape[templ_dim]

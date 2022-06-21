@@ -97,7 +97,7 @@ class OuterProductMean(nn.Module):
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
         chunk_size: Optional[int] = None,
-        _inplace: bool = False,
+        inplace_safe: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -137,7 +137,7 @@ class OuterProductMean(nn.Module):
         norm = norm + self.eps
 
         # [*, N_res, N_res, C_z]
-        if(_inplace):
+        if(inplace_safe):
             outer /= norm
         else:
             outer = outer / norm

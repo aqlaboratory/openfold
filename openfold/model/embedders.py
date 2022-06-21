@@ -95,6 +95,7 @@ class InputEmbedder(nn.Module):
         tf: torch.Tensor,
         ri: torch.Tensor,
         msa: torch.Tensor,
+        inplace_safe: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -111,8 +112,6 @@ class InputEmbedder(nn.Module):
                 [*, N_res, N_res, C_z] pair embedding
 
         """
-        inplace_safe = not (self.training or torch.is_grad_enabled())
-        
         # [*, N_res, c_z]
         tf_emb_i = self.linear_tf_z_i(tf)
         tf_emb_j = self.linear_tf_z_j(tf)
@@ -187,7 +186,7 @@ class RecyclingEmbedder(nn.Module):
         m: torch.Tensor,
         z: torch.Tensor,
         x: torch.Tensor,
-        _inplace: bool = False,
+        inplace_safe: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -205,13 +204,13 @@ class RecyclingEmbedder(nn.Module):
         """
         # [*, N, C_m]
         m_update = self.layer_norm_m(m)
-        if(_inplace):
+        if(inplace_safe):
             m.copy_(m_update)
             m_update = m
 
         # [*, N, N, C_z]
         z_update = self.layer_norm_z(z)
-        if(_inplace):
+        if(inplace_safe):
             z.copy_(z_update)
             z_update = z
 
@@ -237,7 +236,7 @@ class RecyclingEmbedder(nn.Module):
 
         # [*, N, N, C_z]
         d = self.linear(d)
-        z_update = add(z_update, d, _inplace)
+        z_update = add(z_update, d, inplace_safe)
 
         return m_update, z_update
 

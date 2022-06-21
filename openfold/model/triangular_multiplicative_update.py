@@ -357,7 +357,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
     def forward(self, 
         z: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
-        _inplace: bool = False,
+        inplace_safe: bool = False,
         _add_with_inplace: bool = False,
         _inplace_chunk_size: Optional[int] = 256,
     ) -> torch.Tensor:
@@ -370,7 +370,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         Returns:
             [*, N_res, N_res, C_z] output tensor
         """
-        if(_inplace):
+        if(inplace_safe):
             x = self._inference_forward(
                 z, 
                 mask, 
