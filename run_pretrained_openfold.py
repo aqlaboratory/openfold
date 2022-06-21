@@ -19,6 +19,7 @@ import gc
 import logging
 import numpy as np
 import os
+from copy import deepcopy
 
 import pickle
 from pytorch_lightning.utilities.deepspeed import (
@@ -289,14 +290,15 @@ def main(args):
 
         for model, model_version in load_models_from_command_line(args, config):
 
-            out = run_model(model, batch, tag, args)
+            working_batch = deepcopy(batch)
+            out = run_model(model, working_batch, tag, args)
 
             # Toss out the recycling dimensions --- we don't need them anymore
-            batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
+            working_batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), working_batch)
             out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
 
             unrelaxed_protein = prep_output(
-                out, batch, feature_dict, feature_processor, args
+                out, working_batch, feature_dict, feature_processor, args
             )
 
             output_name = f'{tag}_{args.model_name}'
