@@ -171,7 +171,7 @@ run inference with AlphaFold-Multimer, use the (experimental) `multimer` branch
 instead.
 
 To minimize memory usage during inference on long sequences, consider the
-following options:
+following changes:
 
 - As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
 stack is a major memory bottleneck for inference on long sequences. OpenFold
@@ -194,13 +194,15 @@ These represent a favorable tradeoff in most memory-constrained cases.
 Powerusers can choose to tweak these settings in 
 `openfold/model/primitives.py`. For more information on the LMA algorithm,
 see the aforementioned Staats & Rabe preprint.
+- Disable `tune_chunk_size` for long sequences. Past a certain point, it only
+wastes time.
 - As a last resort, consider enabling `offload_inference`. This enables more
 extensive CPU offloading at various bottlenecks throughout the model.
 
-With all of these enabled, we were able to run inference on a 4600-residue
-complex with a single A100. Compared to AlphaFold's own memory offloading mode,
-ours is considerably faster: the same complex took the more efficent 
-AlphaFold-Multimer more than double the time.
+Using the most conservative settings, we were able to run inference on a 
+4600-residue complex with a single A100. Compared to AlphaFold's own memory 
+offloading mode, ours is considerably faster: the same complex takes the more 
+efficent AlphaFold-Multimer more than double the time.
 
 ### Training
 
