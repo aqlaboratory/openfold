@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Generates uniclust30 all-against-all alignments on a SLURM cluster.
+# Thanks to Milot Mirdita for help & feedback on this script.
+
 set -e
 
 if [[ $# != 3 ]]; then
