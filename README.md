@@ -45,7 +45,7 @@ installed on on your system. Finally, some download scripts require `aria2c`.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
-useful resources (including DeepMind's pretrained parameters). Run:
+useful resources, including both sets of model parameters. Run:
 
 ```bash
 scripts/install_third_party_dependencies.sh
