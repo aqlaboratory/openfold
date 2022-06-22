@@ -206,7 +206,7 @@ extensive CPU offloading at various bottlenecks throughout the model.
 
 Using the most conservative settings, we were able to run inference on a 
 4600-residue complex with a single A100. Compared to AlphaFold's own memory 
-offloading mode, ours is considerably faster: the same complex takes the more 
+offloading mode, ours is considerably faster; the same complex takes the more 
 efficent AlphaFold-Multimer more than double the time.
 
 ### Training
