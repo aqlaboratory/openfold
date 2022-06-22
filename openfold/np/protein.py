@@ -252,9 +252,9 @@ def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
         out_pdb_lines.append(f"REMARK {remark}")
 
     parents_per_chain = None
-    if(prot.parents is not None):
+    if(prot.parents is not None and len(prot.parents) > 0):
         parents_per_chain = []
-        if(prot.parents_chain_index is not None and len(prot.parents_chain_index) > 0):
+        if(prot.parents_chain_index is not None):
             cur_chain = prot.parents_chain_index[0]
             parent_dict = {}
             for p, i in zip(prot.parents, prot.parents_chain_index):
