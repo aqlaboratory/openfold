@@ -637,11 +637,11 @@ class StructureModule(nn.Module):
         Returns:
             A dictionary of outputs
         """
+        s = evoformer_output_dict["single"]
+        
         if mask is None:
             # [*, N]
             mask = s.new_ones(s.shape[:-1])
-
-        s = evoformer_output_dict["single"]
 
         # [*, N, C_s]
         s = self.layer_norm_s(s)
