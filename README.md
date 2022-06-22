@@ -302,6 +302,10 @@ multi-node distributed training, validation, and so on. For more information,
 consult PyTorch Lightning documentation and the `--help` flag of the training 
 script.
 
+If you're using your own MSAs or MSAs from the RODA repository, make sure that
+the `alignment_dir` contains one directory per chain and that each of these
+contains alignments (.sto, .a3m, and .hhr) corresponding to that chain.
+
 Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
 or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
 which uses a self-distillation set subject to special preprocessing steps, use
