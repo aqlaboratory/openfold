@@ -241,6 +241,9 @@ def get_pdb_headers(prot: Protein, chain_id: int = 0) -> Sequence[str]:
 
 
 def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
+    """ Add pdb headers to an existing PDB string. Useful during multi-chain
+        recycling
+    """
     out_pdb_lines = []
     lines = pdb_str.split('\n')
     
@@ -253,16 +256,15 @@ def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
         parents_per_chain = []
         if(prot.parents_chain_index is not None):
             cur_chain = prot.parents_chain_index[0]
-            parents = []
+            parent_dict = {}
             for p, i in zip(prot.parents, prot.parents_chain_index):
-                if(i != cur_chain):
-                    if(len(parents) == 0):
-                        parents = ["N/A"]
-                    parents_per_chain.append(parents)
-                    parents = []
-                    cur_chain = i
+                parent_dict.setdefault(str(i), [])
+                parent_dict[str(i)].append(p)
 
-                parents.append(p)
+            max_idx = max([int(chain_idx) for chain_idx in parent_dict])
+            for i in range(max_idx + 1):
+                chain_parents = parent_dict.get(str(i), ["N/A"])
+                parents_per_chain.append(chain_parents)
         else:
             parents_per_chain.append(prot.parents)
     else:
@@ -273,13 +275,17 @@ def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
     out_pdb_lines.append(make_parent_line(parents_per_chain[0]))
 
     chain_counter = 0
-    for l in lines:
-        out_pdb_lines.append(l)
-        if("TER" in l):
+    for i, l in enumerate(lines):
+        if("PARENT" not in l and "REMARK" not in l):
+            out_pdb_lines.append(l)
+        if("TER" in l and not "END" in lines[i + 1]):
             chain_counter += 1
             if(not chain_counter >= len(parents_per_chain)):
                 chain_parents = parents_per_chain[chain_counter]
-                out_pdb_lines.append(make_parent_line(chain_parents))
+            else:
+                chain_parents = ["N/A"]
+
+            out_pdb_lines.append(make_parent_line(chain_parents))
 
     return '\n'.join(out_pdb_lines)
 
