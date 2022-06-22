@@ -240,6 +240,50 @@ def get_pdb_headers(prot: Protein, chain_id: int = 0) -> Sequence[str]:
     return pdb_headers
 
 
+def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
+    out_pdb_lines = []
+    lines = pdb_str.split('\n')
+    
+    remark = prot.remark
+    if(remark is not None):
+        out_pdb_lines.append(f"REMARK {remark}")
+
+    parents_per_chain = None
+    if(prot.parents is not None):
+        parents_per_chain = []
+        if(prot.parents_chain_index is not None):
+            cur_chain = prot.parents_chain_index[0]
+            parents = []
+            for p, i in zip(prot.parents, prot.parents_chain_index):
+                if(i != cur_chain):
+                    if(len(parents) == 0):
+                        parents = ["N/A"]
+                    parents_per_chain.append(parents)
+                    parents = []
+                    cur_chain = i
+
+                parents.append(p)
+        else:
+            parents_per_chain.append(prot.parents)
+    else:
+        parents_per_chain = [["N/A"]]
+
+    make_parent_line = lambda p: f"PARENT {' '.join(p)}"
+
+    out_pdb_lines.append(make_parent_line(parents_per_chain[0]))
+
+    chain_counter = 0
+    for l in lines:
+        out_pdb_lines.append(l)
+        if("TER" in l):
+            chain_counter += 1
+            if(not chain_counter >= len(parents_per_chain)):
+                chain_parents = parents_per_chain[chain_counter]
+                out_pdb_lines.append(make_parent_line(chain_parents))
+
+    return '\n'.join(out_pdb_lines)
+
+
 def to_pdb(prot: Protein) -> str:
     """Converts a `Protein` instance to a PDB string.
 

@@ -88,8 +88,6 @@ class AmberRelaxation(object):
             "total_per_residue_violations_mask"
         ]
 
-        headers = protein.get_pdb_headers(prot)    
-        if(len(headers) > 0):
-            min_pdb = '\n'.join(['\n'.join(headers), min_pdb])
+        min_pdb = protein.add_pdb_headers(prot, min_pdb)
 
         return min_pdb, debug_data, violations
