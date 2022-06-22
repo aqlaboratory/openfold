@@ -237,14 +237,13 @@ def load_models_from_command_line(args, config):
         for path in args.openfold_checkpoint_path.split(","):
             model = AlphaFold(config)
             model = model.eval()
-            checkpoint_basename = None
+            checkpoint_basename = os.path.splitext(
+                os.path.basename(
+                    os.path.normpath(path)
+                )
+            )[0]
             if os.path.isdir(path):
                 # A DeepSpeed checkpoint
-                checkpoint_basename = os.path.splitext(
-                    os.path.basename(
-                        os.path.normpath(path)
-                    )
-                )[0]
                 ckpt_path = os.path.join(
                     args.output_dir,
                     checkpoint_basename + ".pt",
@@ -313,13 +312,19 @@ def main(args):
 
     for fasta_file in os.listdir(args.fasta_dir):
 
-        batch, tag, feature_dict = generate_batch(
+        batch_data = generate_batch(
             fasta_file,
             args.fasta_dir,
             alignment_dir,
             data_processor,
             feature_processor,
             prediction_dir)
+
+        if batch_data is None:
+            # this file has already been processed
+            continue
+
+        batch, tag, feature_dict = batch_data
 
         for model, model_version in load_models_from_command_line(args, config):
 
@@ -381,7 +386,7 @@ def main(args):
                 with open(output_dict_path, "wb") as fp:
                     pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-            logger.info(f"Model output written to {output_dict_path}...")
+                logger.info(f"Model output written to {output_dict_path}...")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
