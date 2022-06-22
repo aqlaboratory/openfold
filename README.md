@@ -20,12 +20,11 @@ We've publicly released model weights and our training data &mdash some 400,000
 MSAs &mdash under a permissive license. Model weights are available from 
 scripts in this repository while the MSAs are hosted by the 
 [Registry of Open Data on AWS (RODA)](registry.opendata.aws/openfold). 
+Try out running inference for yourself with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
-OpenFold is built to support inference with AlphaFold's official parameters. 
-Try it out for yourself with our 
-[Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
+OpenFold also supports inference using AlphaFold's official parameters.
 
-Additionally, OpenFold has the following advantages over the reference implementation:
+OpenFold has the following advantages over the reference implementation:
 
 - **Faster inference** on GPU for chains with < 1500 residues.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
