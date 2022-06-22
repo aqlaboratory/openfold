@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Downloads and unzips OpenFold parameters.
+# Downloads and unzips OpenFold parameters from Google Drive. Alternative to
+# the HuggingFace version.
 #
-# Usage: bash download_openfold_params.sh /path/to/download/directory
+# Usage: bash download_openfold_params_gdrive.sh /path/to/download/directory
 set -e
 
 if [[ $# -eq 0 ]]; then
