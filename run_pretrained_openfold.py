@@ -334,7 +334,7 @@ def main(args):
                 out, working_batch, feature_dict, feature_processor, args
             )
 
-            output_name = f'{tag}_{args.model_name}'
+            output_name = f'{tag}_{args.config_preset}'
 
             if model_version is not None:
                 output_name = f'{output_name}_{model_version}'
