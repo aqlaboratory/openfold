@@ -81,15 +81,21 @@ class InputEmbedder(nn.Module):
         d = ri[..., None] - ri[..., None, :]
         boundaries = torch.arange(
             start=-self.relpos_k, end=self.relpos_k + 1, device=d.device
-        )
-        oh = one_hot(d, boundaries).type(ri.dtype)
-        return self.linear_relpos(oh)
+        ) 
+        reshaped_bins = boundaries.view(((1,) * len(d.shape)) + (len(boundaries),))
+        d = d[..., None] - reshaped_bins
+        d = torch.abs(d)
+        d = torch.argmin(d, dim=-1)
+        d = nn.functional.one_hot(d, num_classes=len(boundaries)).float()
+        d = d.to(ri.dtype)
+        return self.linear_relpos(d)
 
     def forward(
         self,
         tf: torch.Tensor,
         ri: torch.Tensor,
         msa: torch.Tensor,
+        inplace_safe: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -111,8 +117,15 @@ class InputEmbedder(nn.Module):
         tf_emb_j = self.linear_tf_z_j(tf)
 
         # [*, N_res, N_res, c_z]
-        pair_emb = tf_emb_i[..., None, :] + tf_emb_j[..., None, :, :]
-        pair_emb = pair_emb + self.relpos(ri.type(pair_emb.dtype))
+        pair_emb = self.relpos(ri.type(tf_emb_i.dtype))
+        pair_emb = add(pair_emb, 
+            tf_emb_i[..., None, :], 
+            inplace=inplace_safe
+        )
+        pair_emb = add(pair_emb, 
+            tf_emb_j[..., None, :, :], 
+            inplace=inplace_safe
+        )
 
         # [*, N_clust, N_res, c_m]
         n_clust = msa.shape[-3]
@@ -173,7 +186,7 @@ class RecyclingEmbedder(nn.Module):
         m: torch.Tensor,
         z: torch.Tensor,
         x: torch.Tensor,
-        _inplace: bool = False,
+        inplace_safe: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -191,13 +204,13 @@ class RecyclingEmbedder(nn.Module):
         """
         # [*, N, C_m]
         m_update = self.layer_norm_m(m)
-        if(_inplace):
+        if(inplace_safe):
             m.copy_(m_update)
             m_update = m
 
         # [*, N, N, C_z]
         z_update = self.layer_norm_z(z)
-        if(_inplace):
+        if(inplace_safe):
             z.copy_(z_update)
             z_update = z
 
@@ -223,7 +236,7 @@ class RecyclingEmbedder(nn.Module):
 
         # [*, N, N, C_z]
         d = self.linear(d)
-        z_update = add(z_update, d, _inplace)
+        z_update = add(z_update, d, inplace_safe)
 
         return m_update, z_update
 

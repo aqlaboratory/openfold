@@ -26,8 +26,8 @@ from openfold.model.primitives import (
     _attention_chunked_trainable,
 )
 from openfold.utils.checkpointing import get_checkpoint_fn
+from openfold.utils.chunk_utils import chunk_layer
 from openfold.utils.tensor_utils import (
-    chunk_layer,
     permute_final_dims,
     flatten_final_dims,
 )
@@ -94,16 +94,20 @@ class MSAAttention(nn.Module):
         use_memory_efficient_kernel: bool, 
         use_lma: bool,
     ) -> torch.Tensor:
-        mha = partial(
-            self.mha, 
-            use_memory_efficient_kernel=use_memory_efficient_kernel,
-            use_lma=use_lma,
-        )
+        def fn(m, biases):
+            m = self.layer_norm_m(m)
+            return self.mha(
+                q_x=m, 
+                kv_x=m, 
+                biases=biases,
+                use_memory_efficient_kernel=use_memory_efficient_kernel,
+                use_lma=use_lma,
+            )
+
         return chunk_layer(
-            mha,
+            fn,
             {
-                "q_x": m, 
-                "kv_x": m, 
+                "m": m, 
                 "biases": biases, 
             },
             chunk_size=chunk_size,
@@ -113,11 +117,9 @@ class MSAAttention(nn.Module):
     def _prep_inputs(self,
         m: torch.Tensor,
         z: Optional[torch.Tensor],
-        mask: Optional[torch.Tensor]
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        # [*, N_seq, N_res, C_m]
-        m = self.layer_norm_m(m)
-
+        mask: Optional[torch.Tensor],
+        inplace_safe: bool = False,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: 
         n_seq, n_res = m.shape[-3:-1]
         if mask is None:
             # [*, N_seq, N_res]
@@ -133,11 +135,20 @@ class MSAAttention(nn.Module):
             self.layer_norm_z is not None and       # benefit of
             self.linear_z is not None               # TorchScript
         ):
-            # [*, N_res, N_res, C_z]
-            z = self.layer_norm_z(z)
+            chunks = []
+
+            for i in range(0, z.shape[-3], 256):
+                z_chunk = z[..., i: i + 256, :, :]
+
+                # [*, N_res, N_res, C_z]
+                z_chunk = self.layer_norm_z(z_chunk)
             
-            # [*, N_res, N_res, no_heads]
-            z = self.linear_z(z)
+                # [*, N_res, N_res, no_heads]
+                z_chunk = self.linear_z(z_chunk)
+
+                chunks.append(z_chunk)
+            
+            z = torch.cat(chunks, dim=-3)
             
             # [*, 1, no_heads, N_res, N_res]
             z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
@@ -151,6 +162,7 @@ class MSAAttention(nn.Module):
         mask: Optional[torch.Tensor],
         chunk_logits: int,
         checkpoint: bool,
+        inplace_safe: bool = False
     ) -> torch.Tensor:
         """ 
         MSA attention with training-time chunking of the softmax computation.
@@ -160,7 +172,9 @@ class MSAAttention(nn.Module):
         MSA_DIM = -4
 
         def _get_qkv(m, z):
-            m, mask_bias, z = self._prep_inputs(m, z, mask)
+            m, mask_bias, z = self._prep_inputs(
+                m, z, mask, inplace_safe=inplace_safe
+            )
             q, k, v = self.mha._prep_qkv(m, m)
             return m, q, k, v, mask_bias, z
 
@@ -196,6 +210,7 @@ class MSAAttention(nn.Module):
         chunk_size: Optional[int] = None,
         use_memory_efficient_kernel: bool = False,
         use_lma: bool = False,
+        inplace_safe: bool = False,
         _chunk_logits: Optional[int] = None,
         _checkpoint_chunks: Optional[bool] = None,
     ) -> torch.Tensor:
@@ -217,10 +232,14 @@ class MSAAttention(nn.Module):
         if(_chunk_logits is not None):
             return self._chunked_msa_attn(
                 m=m, z=z, mask=mask, 
-                chunk_logits=_chunk_logits, checkpoint=_checkpoint_chunks
+                chunk_logits=_chunk_logits, 
+                checkpoint=_checkpoint_chunks,
+                inplace_safe=inplace_safe,
             )           
 
-        m, mask_bias, z = self._prep_inputs(m, z, mask)
+        m, mask_bias, z = self._prep_inputs(
+            m, z, mask, inplace_safe=inplace_safe
+        )
 
         biases = [mask_bias]
         if(z is not None):
@@ -376,8 +395,13 @@ class MSAColumnGlobalAttention(nn.Module):
             "m": m,
             "mask": mask,
         }
+
+        def fn(m, mask):
+            m = self.layer_norm_m(m)
+            return self.global_attention(m, mask, use_lma=use_lma)
+
         return chunk_layer(
-            partial(self.global_attention, use_lma=use_lma),
+            fn,
             mha_input,
             chunk_size=chunk_size,
             no_batch_dims=len(m.shape[:-2]),
@@ -405,11 +429,12 @@ class MSAColumnGlobalAttention(nn.Module):
         mask = mask.transpose(-1, -2)
 
         # [*, N_res, N_seq, C_in]
-        m = self.layer_norm_m(m)
+        #m = self.layer_norm_m(m)
 
         if chunk_size is not None:
             m = self._chunk(m, mask, chunk_size, use_lma=use_lma) 
         else:
+            m = self.layer_norm_m(m)
             m = self.global_attention(m=m, mask=mask, use_lma=use_lma)
 
         # [*, N_seq, N_res, C_in]

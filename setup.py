@@ -55,7 +55,7 @@ extra_cuda_flags += cc_flag
 
 setup(
     name='openfold',
-    version='0.1.0',
+    version='1.0.0',
     description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
     author='Gustaf Ahdritz & DeepMind',
     author_email='gahdritz@gmail.com',

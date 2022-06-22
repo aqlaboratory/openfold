@@ -20,7 +20,8 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear, LayerNorm
-from openfold.utils.tensor_utils import add, chunk_layer, permute_final_dims
+from openfold.utils.chunk_utils import chunk_layer
+from openfold.utils.tensor_utils import add, permute_final_dims
 
 
 class TriangleMultiplicativeUpdate(nn.Module):
@@ -356,7 +357,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
     def forward(self, 
         z: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
-        _inplace: bool = False,
+        inplace_safe: bool = False,
         _add_with_inplace: bool = False,
         _inplace_chunk_size: Optional[int] = 256,
     ) -> torch.Tensor:
@@ -369,7 +370,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         Returns:
             [*, N_res, N_res, C_z] output tensor
         """
-        if(_inplace):
+        if(inplace_safe):
             x = self._inference_forward(
                 z, 
                 mask, 

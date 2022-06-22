@@ -119,7 +119,9 @@ def model_config(name, train=False, low_prec=False):
         c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
         c.globals.use_lma = False
-
+        c.globals.offload_inference = False
+        c.model.template.average_templates = False
+        c.model.template.offload_templates = False
     if low_prec:
         c.globals.eps = 1e-4
         # If we want exact numerical parity with the original, inf can't be
@@ -314,6 +316,7 @@ config = mlc.ConfigDict(
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
             "use_lma": False,
+            "offload_inference": False,
             "c_z": c_z,
             "c_m": c_m,
             "c_t": c_t,
@@ -364,6 +367,7 @@ config = mlc.ConfigDict(
                     "pair_transition_n": 2,
                     "dropout_rate": 0.25,
                     "blocks_per_ckpt": blocks_per_ckpt,
+                    "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
                 },
                 "template_pointwise_attention": {
@@ -409,7 +413,7 @@ config = mlc.ConfigDict(
                     "transition_n": 4,
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
-                    "clear_cache_between_blocks": True,
+                    "clear_cache_between_blocks": False,
                     "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
                     "eps": eps,  # 1e-10,

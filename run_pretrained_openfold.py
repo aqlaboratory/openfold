@@ -46,6 +46,11 @@ from openfold.utils.tensor_utils import (
 from scripts.utils import add_data_args
 
 
+logging.basicConfig()
+logger = logging.getLogger(__file__)
+logger.setLevel(level=logging.INFO)
+
+
 def precompute_alignments(tags, seqs, alignment_dir, args):
     for tag, seq in zip(tags, seqs):
         tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
@@ -54,11 +59,10 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
 
         local_alignment_dir = os.path.join(alignment_dir, tag)
         if(args.use_precomputed_alignments is None):
-            logging.info(f"Generating alignments for {tag}...") 
+            logger.info(f"Generating alignments for {tag}...")
             if not os.path.exists(local_alignment_dir):
                 os.makedirs(local_alignment_dir)
-            
-            use_small_bfd=(args.bfd_database_path is None)
+
             alignment_runner = data_pipeline.AlignmentRunner(
                 jackhmmer_binary_path=args.jackhmmer_binary_path,
                 hhblits_binary_path=args.hhblits_binary_path,
@@ -68,7 +72,6 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                 bfd_database_path=args.bfd_database_path,
                 uniclust30_database_path=args.uniclust30_database_path,
                 pdb70_database_path=args.pdb70_database_path,
-                use_small_bfd=use_small_bfd,
                 no_cpus=args.cpus,
             )
             alignment_runner.run(
@@ -80,7 +83,6 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
 
 
 def run_model(model, batch, tag, args):
-    logging.info("Executing model...")
     with torch.no_grad():
         batch = {
             k:torch.as_tensor(v, device=args.model_device) 
@@ -88,14 +90,14 @@ def run_model(model, batch, tag, args):
         }
  
         # Disable templates if there aren't any in the batch
-        model.config.template.enabled = any([
+        model.config.template.enabled = model.config.template.enabled and any([
             "template_" in k for k in batch
         ])
 
-        logging.info(f"Running inference for {tag}...")
+        logger.info(f"Running inference for {tag}...")
         t = time.perf_counter()
         out = model(batch)
-        logging.info(f"Inference time: {time.perf_counter() - t}")
+        logger.info(f"Inference time: {time.perf_counter() - t}")
     
     return out
 
@@ -131,7 +133,7 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
     remark = ', '.join([
         f"no_recycling={no_recycling}",
         f"max_templates={feature_processor.config.predict.max_templates}",
-        f"config_preset={args.model_name}",
+        f"config_preset={args.config_preset}",
     ])
 
     # For multi-chain FASTAs
@@ -160,7 +162,7 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
     return unrelaxed_protein
 
 
-def generate_batch(fasta_file, fasta_dir, alignment_dir, data_processor, feature_processor):
+def generate_batch(fasta_file, fasta_dir, alignment_dir, data_processor, feature_processor, prediction_dir):
     with open(os.path.join(fasta_dir, fasta_file), "r") as fp:
         data = fp.read()
 
@@ -171,8 +173,20 @@ def generate_batch(fasta_file, fasta_dir, alignment_dir, data_processor, feature
     tags, seqs = lines[::2], lines[1::2]
 
     tags = [t.split()[0] for t in tags]
-    assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
+    # assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
     tag = '-'.join(tags)
+
+    output_name = f'{tag}_{args.config_preset}'
+    if args.output_postfix is not None:
+        output_name = f'{output_name}_{args.output_postfix}'
+
+    # Save the unrelaxed PDB.
+    unrelaxed_output_path = os.path.join(
+        prediction_dir, f'{output_name}_unrelaxed.pdb'
+    )
+
+    if os.path.exists(unrelaxed_output_path):
+        return
 
     precompute_alignments(tags, seqs, alignment_dir, args)
 
@@ -215,6 +229,9 @@ def load_models_from_command_line(args, config):
                 model, path, version=args.model_name
             )
             model = model.to(args.model_device)
+            logger.info(
+                f"Successfully loaded JAX parameters at {args.jax_param_path}..."
+            )
             yield model, None
     if args.openfold_checkpoint_path:
         for path in args.openfold_checkpoint_path.split(","):
@@ -222,6 +239,7 @@ def load_models_from_command_line(args, config):
             model = model.eval()
             checkpoint_basename = None
             if os.path.isdir(path):
+                # A DeepSpeed checkpoint
                 checkpoint_basename = os.path.splitext(
                     os.path.basename(
                         os.path.normpath(path)
@@ -237,12 +255,20 @@ def load_models_from_command_line(args, config):
                         path,
                         ckpt_path,
                     )
+                d = torch.load(ckpt_path)
+                model.load_state_dict(d["ema"]["params"])
             else:
                 ckpt_path = path
+                d = torch.load(ckpt_path)
 
-            d = torch.load(ckpt_path)
-            model.load_state_dict(d["ema"]["params"])
+                if ("ema" in d):
+                    # The public weights have had this done to them already
+                    d = d["ema"]["params"]
+                model.load_state_dict(d)
             model = model.to(args.model_device)
+            logger.info(
+                f"Loaded OpenFold parameters at {args.openfold_checkpoint_path}..."
+            )
             yield model, checkpoint_basename
     if not args.jax_param_path and not args.openfold_checkpoint_path:
         raise ValueError(
@@ -255,7 +281,7 @@ def main(args):
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
-    config = model_config(args.model_name)
+    config = model_config(args.config_preset)
     template_featurizer = templates.TemplateHitFeaturizer(
         mmcif_dir=args.template_mmcif_dir,
         max_template_date=args.max_template_date,
@@ -280,13 +306,20 @@ def main(args):
         alignment_dir = os.path.join(output_dir_base, "alignments")
     else:
         alignment_dir = args.use_precomputed_alignments
+        logger.info(f"Using precomputed alignments at {alignment_dir}...")
 
     prediction_dir = os.path.join(args.output_dir, "predictions")
     os.makedirs(prediction_dir, exist_ok=True)
 
     for fasta_file in os.listdir(args.fasta_dir):
 
-        batch, tag, feature_dict = generate_batch(fasta_file, args.fasta_dir, alignment_dir, data_processor, feature_processor)
+        batch, tag, feature_dict = generate_batch(
+            fasta_file,
+            args.fasta_dir,
+            alignment_dir,
+            data_processor,
+            feature_processor,
+            prediction_dir)
 
         for model, model_version in load_models_from_command_line(args, config):
 
@@ -315,6 +348,7 @@ def main(args):
             with open(unrelaxed_output_path, 'w') as fp:
                 fp.write(protein.to_pdb(unrelaxed_protein))
 
+            logger.info(f"Output written to {unrelaxed_output_path}...")
             if not args.skip_relaxation:
                 amber_relaxer = relax.AmberRelaxation(
                     use_gpu=(args.model_device != "cpu"),
@@ -322,6 +356,7 @@ def main(args):
                 )
 
                 # Relax the prediction.
+                logger.info(f"Running relaxation on {unrelaxed_output_path}...")
                 t = time.perf_counter()
                 visible_devices = os.getenv("CUDA_VISIBLE_DEVICES", default="")
                 if "cuda" in args.model_device:
@@ -329,7 +364,7 @@ def main(args):
                     os.environ["CUDA_VISIBLE_DEVICES"] = device_no
                 relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
                 os.environ["CUDA_VISIBLE_DEVICES"] = visible_devices
-                logging.info(f"Relaxation time: {time.perf_counter() - t}")
+                logger.info(f"Relaxation time: {time.perf_counter() - t}")
 
                 # Save the relaxed PDB.
                 relaxed_output_path = os.path.join(
@@ -337,6 +372,7 @@ def main(args):
                 )
                 with open(relaxed_output_path, 'w') as fp:
                     fp.write(relaxed_pdb_str)
+                logger.info(f"Relaxed output written to {relaxed_output_path}...")
 
             if args.save_outputs:
                 output_dict_path = os.path.join(
@@ -345,6 +381,7 @@ def main(args):
                 with open(output_dict_path, "wb") as fp:
                     pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
+            logger.info(f"Model output written to {output_dict_path}...")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -370,7 +407,7 @@ if __name__ == "__main__":
              device name is accepted (e.g. "cpu", "cuda:0")"""
     )
     parser.add_argument(
-        "--model_name", type=str, default="model_1",
+        "--config_preset", type=str, default="model_1",
         help="""Name of a model config. Choose one of model_{1-5} or 
              model_{1-5}_ptm, as defined on the AlphaFold GitHub."""
     )
@@ -417,7 +454,7 @@ if __name__ == "__main__":
     if(args.jax_param_path is None and args.openfold_checkpoint_path is None):
         args.jax_param_path = os.path.join(
             "openfold", "resources", "params", 
-            "params_" + args.model_name + ".npz"
+            "params_" + args.config_preset + ".npz"
         )
 
     if(args.model_device == "cpu" and torch.cuda.is_available()):

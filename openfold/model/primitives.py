@@ -23,11 +23,11 @@ import torch.nn as nn
 from scipy.stats import truncnorm
 
 from openfold.utils.checkpointing import get_checkpoint_fn
+from openfold.utils.chunk_utils import _chunk_slice
 from openfold.utils.kernel.attention_core import attention_core
 from openfold.utils.tensor_utils import (
     permute_final_dims,
     flatten_final_dims,
-    _chunk_slice,
 )
 
 
@@ -149,26 +149,26 @@ class Linear(nn.Linear):
             with torch.no_grad():
                 self.bias.fill_(0)
 
-        if init_fn is not None:
-            init_fn(self.weight, self.bias)
-        else:
-            if init == "default":
-                lecun_normal_init_(self.weight)
-            elif init == "relu":
-                he_normal_init_(self.weight)
-            elif init == "glorot":
-                glorot_uniform_init_(self.weight)
-            elif init == "gating":
-                gating_init_(self.weight)
-                if bias:
-                    with torch.no_grad():
-                        self.bias.fill_(1.0)
-            elif init == "normal":
-                normal_init_(self.weight)
-            elif init == "final":
-                final_init_(self.weight)
+        with torch.no_grad():
+            if init_fn is not None:
+                init_fn(self.weight, self.bias)
             else:
-                raise ValueError("Invalid init string.")
+                if init == "default":
+                    lecun_normal_init_(self.weight)
+                elif init == "relu":
+                    he_normal_init_(self.weight)
+                elif init == "glorot":
+                    glorot_uniform_init_(self.weight)
+                elif init == "gating":
+                    gating_init_(self.weight)
+                    if bias:
+                        self.bias.fill_(1.0)
+                elif init == "normal":
+                    normal_init_(self.weight)
+                elif init == "final":
+                    final_init_(self.weight)
+                else:
+                    raise ValueError("Invalid init string.")
 
 
 class LayerNorm(nn.Module):

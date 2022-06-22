@@ -432,7 +432,7 @@ def _is_set(data: str) -> bool:
 def get_atom_coords(
     mmcif_object: MmcifObject, 
     chain_id: str, 
-    _zero_center_positions: bool = True
+    _zero_center_positions: bool = False
 ) -> Tuple[np.ndarray, np.ndarray]:
     # Locate the right chain
     chains = list(mmcif_object.structure.get_chains())

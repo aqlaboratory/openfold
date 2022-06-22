@@ -1,8 +1,8 @@
-![header ](imgs/OpenFold_viz_banner.jpg)
+![header ](imgs/of_banner.png)
 
 # OpenFold
 
-A faithful PyTorch reproduction of DeepMind's 
+A faithful but trainable PyTorch reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
 ## Features
@@ -14,20 +14,27 @@ DeepMind experiments. It is omitted here for the sake of reducing clutter. In
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
 
-OpenFold is built to support inference with AlphaFold's official parameters. Try it out for yourself with 
-our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
+OpenFold is trainable in full precision or `bfloat16` with or without DeepSpeed, 
+and we've trained it from scratch, matching the performance of the original. 
+We've publicly released model weights and our training data &mdash; some 400,000 
+MSAs and PDB70 template hit files &mdash; under a permissive license. Model weights 
+are available via scripts in this repository while the MSAs are hosted by the 
+[Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold). 
+Try out running inference for yourself with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
-Additionally, OpenFold has the following advantages over the reference implementation:
+OpenFold also supports inference using AlphaFold's official parameters.
 
-- Openfold is **trainable** in full precision or `bfloat16` half-precision, with or without [DeepSpeed](https://github.com/microsoft/deepspeed).
-- **Faster inference** on GPU.
+OpenFold has the following advantages over the reference implementation:
+
+- **Faster inference** on GPU for chains with < 1500 residues.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
-([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)).
+([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
+  sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
 - **Custom CUDA attention kernels** modified from [FastFold](https://github.com/hpcaitech/FastFold)'s 
 kernels support in-place attention during inference and training. They use 
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
 implementations, respectively.
-- **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments that will be released alongside original OpenFold weights, trained from scratch using our code (more on that soon).
+- **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 
 ## Installation (Linux)
 
@@ -70,7 +77,7 @@ To install the HH-suite to `/usr/bin`, run
 
 ## Usage
 
-To download DeepMind's pretrained parameters and common ground truth data, run:
+To download the databases used to train OpenFold and AlphaFold run:
 
 ```bash
 bash scripts/download_data.sh data/
@@ -96,12 +103,13 @@ Make sure to run the latter command on the machine that will be used for MSA
 generation (the script estimates how the precomputed database index used by
 MMseqs2 should be split according to the memory available on the system).
 
-Alternatively, you can use raw MSAs from 
+Alternatively, you can use raw MSAs from our aforementioned MSA database or
 [ProteinNet](https://github.com/aqlaboratory/proteinnet). After downloading
-the database, use `scripts/prep_proteinnet_msas.py` to convert the data into
-a format recognized by the OpenFold parser. The resulting directory becomes the
-`alignment_dir` used in subsequent steps. Use `scripts/unpack_proteinnet.py` to
-extract `.core` files from ProteinNet text files.
+the latter database, use `scripts/prep_proteinnet_msas.py` to convert the data 
+into a format recognized by the OpenFold parser. The resulting directory 
+becomes the `alignment_dir` used in subsequent steps. Use 
+`scripts/unpack_proteinnet.py` to extract `.core` files from ProteinNet text 
+files.
 
 For both inference and training, the model's hyperparameters can be tuned from
 `openfold/config.py`. Of course, if you plan to perform inference using 
@@ -124,30 +132,41 @@ python3 run_pretrained_openfold.py \
     --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --output_dir ./ \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --model_device cuda:1 \
+    --model_device "cuda:0" \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
     --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
+    --config_preset "model_1_ptm"
+    --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_2_ptm.pt
 ```
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
 `hhblits`, `hhsearch` and `kalign` are available at the default path of 
 `/usr/bin`, their `binary_path` command-line arguments can be dropped.
 If you've already computed alignments for the query, you have the option to 
-skip the expensive alignment computation here.
+skip the expensive alignment computation here with 
+`--use_precomputed_alignments`.
+
+Exactly one of `--openfold_checkpoint_path` or `--jax_param_path` must be specified 
+to run the inference script. These accept .pt/DeepSpeed OpenFold checkpoints 
+and AlphaFold's .npz JAX parameter files, respectively. For a breakdown of the 
+differences between the different parameter files, see the README downloaded to 
+`openfold/resources/openfold_params/`. Since OpenFold was trained under a 
+newer training schedule than the one from which the `model_n` config 
+presets are derived, there is no clean correspondence between `config_preset`
+settings and OpenFold checkpoints; the only restraint is that `*_ptm`
+checkpoints must be run with `*_ptm` config presets.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
-to `None` in the config.
-
-Inference-time low-memory attention (LMA) can be enabled in the model config.
-This setting trades off speed for vastly improved memory usage. By default,
-LMA is run with query and key chunk sizes of 1024 and 4096, respectively.
-These represent a favorable tradeoff in most memory-constrained cases.
-Powerusers can choose to tweak these settings in 
-`openfold/model/primitives.py`. For more information on the LMA algorithm,
-see the aforementioned Staats & Rabe preprint.
+to `None` in the config. If a value is specified, OpenFold will attempt to 
+dynamically tune it, considering the chunk size specified in the config as a 
+minimum. This tuning process automatically ensures consistently fast runtimes 
+regardless of input sequence length, but it also introduces some runtime 
+variability, which may be undesirable for certain users. It is also recommended
+to disable this feature for very long chains (see below). To do so, set the 
+`tune_chunk_size` option in the config to `False`.
 
 Input FASTA files containing multiple sequences are treated as complexes. In
 this case, the inference script runs AlphaFold-Gap, a hack proposed
@@ -156,15 +175,10 @@ the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer). To
 run inference with AlphaFold-Multimer, use the (experimental) `multimer` branch 
 instead.
 
-By default, OpenFold will attempt to automatically tune the inference-time 
-`chunk_size` hyperparameter controlling a memory/runtime tradeoff in certain 
-modules during inference. The chunk size specified in the config is only 
-considered a minimum. This feature ensures consistently fast runtimes 
-regardless of input sequence length, but it also introduces some runtime 
-variability, which may be undesirable for certain users. To disable this
-feature, set the `tune_chunk_size` option in the config to `False`.
+To minimize memory usage during inference on long sequences, consider the
+following changes:
 
-As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
+- As noted in the AlphaFold-Multimer paper, the AlphaFold/OpenFold template
 stack is a major memory bottleneck for inference on long sequences. OpenFold
 supports two mutually exclusive inference modes to address this issue. One,
 `average_templates` in the `template` section of the config, is similar to the
@@ -178,6 +192,22 @@ approximation while the latter is slightly slower; both are memory-efficient
 and allow the model to utilize arbitrarily many templates across sequence 
 lengths. Both are disabled by default, and it is up to the user to determine 
 which best suits their needs, if either.
+- Inference-time low-memory attention (LMA) can be enabled in the model config.
+This setting trades off speed for vastly improved memory usage. By default,
+LMA is run with query and key chunk sizes of 1024 and 4096, respectively.
+These represent a favorable tradeoff in most memory-constrained cases.
+Powerusers can choose to tweak these settings in 
+`openfold/model/primitives.py`. For more information on the LMA algorithm,
+see the aforementioned Staats & Rabe preprint.
+- Disable `tune_chunk_size` for long sequences. Past a certain point, it only
+wastes time.
+- As a last resort, consider enabling `offload_inference`. This enables more
+extensive CPU offloading at various bottlenecks throughout the model.
+
+Using the most conservative settings, we were able to run inference on a 
+4600-residue complex with a single A100. Compared to AlphaFold's own memory 
+offloading mode, ours is considerably faster; the same complex takes the more 
+efficent AlphaFold-Multimer more than double the time.
 
 ### Training
 
@@ -344,7 +374,7 @@ python3 /opt/openfold/run_pretrained_openfold.py \
 --hhblits_binary_path /opt/conda/bin/hhblits \
 --hhsearch_binary_path /opt/conda/bin/hhsearch \
 --kalign_binary_path /opt/conda/bin/kalign \
---param_path /database/params/params_model_1.npz
+--openfold_checkpoint_path /database/openfold_params/finetuning_2_ptm.pt
 ```
 
 ## Copyright notice
