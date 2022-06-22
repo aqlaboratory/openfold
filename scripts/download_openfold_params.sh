@@ -51,9 +51,8 @@ download_from_gdrive() {
 }
 
 DOWNLOAD_DIR="$1"
-PARAM_DIR="${DOWNLOAD_DIR}/params"
-mkdir -p "${PARAM_DIR}"
-DOWNLOAD_PATH=$(download_from_gdrive $FILE_ID "${PARAM_DIR}")
+mkdir -p "${DOWNLOAD_DIR}"
+DOWNLOAD_PATH=$(download_from_gdrive $FILE_ID "${DOWNLOAD_DIR}")
 
 DOWNLOAD_FILENAME=$(basename "${DOWNLOAD_PATH}")
 if [[ $FILENAME != $DOWNLOAD_FILENAME ]]; then
@@ -63,5 +62,5 @@ if [[ $FILENAME != $DOWNLOAD_FILENAME ]]; then
 fi
 
 tar --extract --verbose --file="${DOWNLOAD_PATH}" \
-  --directory="${PARAM_DIR}" --preserve-permissions
+  --directory="${DOWNLOAD_DIR}" --preserve-permissions
 rm "${DOWNLOAD_PATH}"
