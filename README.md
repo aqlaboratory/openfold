@@ -26,7 +26,6 @@ OpenFold also supports inference using AlphaFold's official parameters.
 
 OpenFold has the following advantages over the reference implementation:
 
-- **Faster inference** on GPU for chains with < 1500 residues.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
@@ -35,17 +34,19 @@ kernels support in-place attention during inference and training. They use
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
+- **Faster inference** on GPU for short chains.
 
 ## Installation (Linux)
 
 All Python dependencies are specified in `environment.yml`. For producing sequence 
 alignments, you'll also need `kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), 
 and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (nightly build)} 
-installed on on your system. Finally, some download scripts require `aria2c`.
+installed on on your system. You'll need `git-lfs` to download OpenFold parameters. 
+Finally, some download scripts require `aria2c`.
 
 For convenience, we provide a script that installs Miniconda locally, creates a 
 `conda` virtual environment, installs all Python dependencies, and downloads
-useful resources (including DeepMind's pretrained parameters). Run:
+useful resources, including both sets of model parameters. Run:
 
 ```bash
 scripts/install_third_party_dependencies.sh
@@ -301,6 +302,10 @@ and supports the full range of training options that entails, including
 multi-node distributed training, validation, and so on. For more information, 
 consult PyTorch Lightning documentation and the `--help` flag of the training 
 script.
+
+If you're using your own MSAs or MSAs from the RODA repository, make sure that
+the `alignment_dir` contains one directory per chain and that each of these
+contains alignments (.sto, .a3m, and .hhr) corresponding to that chain.
 
 Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
 or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
