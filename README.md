@@ -26,7 +26,6 @@ OpenFold also supports inference using AlphaFold's official parameters.
 
 OpenFold has the following advantages over the reference implementation:
 
-- **Faster inference** on GPU for chains with < 1500 residues.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
@@ -35,6 +34,7 @@ kernels support in-place attention during inference and training. They use
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
+- **Faster inference** on GPU for short chains.
 
 ## Installation (Linux)
 
