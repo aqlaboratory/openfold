@@ -226,7 +226,7 @@ def load_models_from_command_line(args, config):
             model = AlphaFold(config)
             model = model.eval()
             import_jax_weights_(
-                model, path, version=args.model_name
+                model, path, version=args.config_preset
             )
             model = model.to(args.model_device)
             logger.info(
