@@ -308,7 +308,7 @@ def main(args):
     os.makedirs(prediction_dir, exist_ok=True)
 
     for fasta_file in os.listdir(args.fasta_dir):
-        with open(os.path.join(fasta_dir, fasta_file), "r") as fp:
+        with open(os.path.join(args.fasta_dir, fasta_file), "r") as fp:
             data = fp.read()
     
         tags, seqs = parse_fasta(data)
