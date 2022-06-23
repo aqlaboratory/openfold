@@ -342,7 +342,7 @@ def main(args):
         )
 
         for model, model_version in load_models_from_command_line(args, config):
-            working_batch = deepcopy(batch)
+            working_batch = deepcopy(processed_feature_dict)
             out = run_model(model, working_batch, tag, args)
 
             # Toss out the recycling dimensions --- we don't need them anymore
