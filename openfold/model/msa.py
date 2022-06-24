@@ -254,6 +254,7 @@ class MSAAttention(nn.Module):
                 use_lma=use_lma,
             )
         else:
+            m = self.layer_norm_m(m)
             m = self.mha(
                 q_x=m, 
                 kv_x=m, 
