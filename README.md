@@ -22,7 +22,8 @@ are available via scripts in this repository while the MSAs are hosted by the
 [Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold). 
 Try out running inference for yourself with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
-OpenFold also supports inference using AlphaFold's official parameters.
+OpenFold also supports inference using AlphaFold's official parameters, and 
+vice versa (see `scripts/convert_of_weights_to_jax.py`).
 
 OpenFold has the following advantages over the reference implementation:
 
