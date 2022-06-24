@@ -1,4 +1,6 @@
 ![header ](imgs/of_banner.png)
+_Figure: Comparison of OpenFold, AlphaFold2, and experimental structure of Streptomyces tokunonesis TokK protein (pdb code 7KDX), related to novel antibiotics used for rare infections including during COVID-19 infection._
+
 
 # OpenFold
 
