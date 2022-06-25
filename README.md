@@ -1,5 +1,5 @@
-![header ](imgs/of_banner.png)
-_Figure: Comparison of OpenFold, AlphaFold2, and experimental structure of Streptomyces tokunonesis TokK protein (pdb code 7KDX), related to novel antibiotics used for rare infections including during COVID-19 infection._
+![Figure: Comparison of OpenFold, AlphaFold2, and experimental structure of Streptomyces tokunonesis TokK protein (pdb code 7KDX), related to novel antibiotics used for rare infections including during COVID-19 infection](imgs/of_banner.png)
+
 
 
 # OpenFold
@@ -15,6 +15,10 @@ fared poorly in DeepMind's own ablation testing and is being phased out in futur
 DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
+
+The Figure above is a comparison of the OpenFold, AlphaFold2, and experimental 
+structure of Streptomyces tokunonesis TokK protein (pdb code 7KDX), related 
+to novel antibiotics used for rare infections including during COVID-19 infection.
 
 OpenFold is trainable in full precision or `bfloat16` with or without DeepSpeed, 
 and we've trained it from scratch, matching the performance of the original. 
