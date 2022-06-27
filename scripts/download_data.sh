@@ -47,7 +47,7 @@ bash "${SCRIPT_DIR}/download_pdb_mmcif.sh" "${DOWNLOAD_DIR}"
 
 if [[ -d openfold/resources/params ]]; then
     ln -s openfold/resources/params "${DOWNLOAD_DIR}/params"
-    ln -s openfold/resources/openfold_params "${DOWNLOAD_DIR}/params"
+    ln -s openfold/resources/openfold_params "${DOWNLOAD_DIR}/openfold_params"
 fi
 
 echo "All data downloaded."
