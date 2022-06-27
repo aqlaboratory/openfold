@@ -512,10 +512,12 @@ if __name__ == "__main__":
         "--_distillation_structure_index_path", type=str, default=None,
     )
     parser.add_argument(
-        "--_alignment_index_path", type=str, default=None,
+        "--alignment_index_path", type=str, default=None,
+        help="Training alignment index. See the README for instructions."
     )
     parser.add_argument(
-        "--_distillation_alignment_index_path", type=str, default=None,
+        "--distillation_alignment_index_path", type=str, default=None,
+        help="Distillation alignment index. See the README for instructions."
     )
     parser = pl.Trainer.add_argparse_args(parser)
    
