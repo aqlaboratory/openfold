@@ -29,6 +29,7 @@ import random
 import sys
 import time
 import torch
+import re
 
 from openfold.config import model_config
 from openfold.data import templates, feature_pipeline, data_pipeline
@@ -163,6 +164,7 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
 
 
 def parse_fasta(data):
+    data = re.sub('>$', '', data, flags=re.M)
     lines = [
         l.replace('\n', '')
         for prot in data.split('>') for l in prot.strip().split('\n', 1)
@@ -272,6 +274,8 @@ def load_models_from_command_line(args, config):
             "be specified."
         )
 
+def list_files_with_extensions(dir, extensions):
+    return [f for f in os.listdir(dir) if f.endswith(extensions)]
 
 def main(args):
     # Create the output directory
@@ -307,7 +311,8 @@ def main(args):
     prediction_dir = os.path.join(args.output_dir, "predictions")
     os.makedirs(prediction_dir, exist_ok=True)
 
-    for fasta_file in os.listdir(args.fasta_dir):
+    for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
+        # Gather input sequences
         with open(os.path.join(args.fasta_dir, fasta_file), "r") as fp:
             data = fp.read()
     
