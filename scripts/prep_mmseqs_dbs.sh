@@ -28,7 +28,7 @@ do
   tar --extract --verbose --file="${f}" \
       --directory=$ROOT_DIR
   rm "${f}"
-  BASENAME="$(basename {f%%.*})"
+  BASENAME="$(basename ${f%%.*})"
   DB_NAME="${BASENAME}_db"
   OLD_PWD=$(pwd)
   cd $ROOT_DIR 
