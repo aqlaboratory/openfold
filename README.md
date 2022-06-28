@@ -293,7 +293,8 @@ python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
     --deepspeed_config_path deepspeed_config.json \
     --checkpoint_every_epoch \
     --resume_from_ckpt ckpt_dir/ \
-    --train_chain_data_cache_path chain_data_cache.json
+    --train_chain_data_cache_path chain_data_cache.json \
+    --obsolete_pdbs_file_path obsolete.dat
 ```
 
 where `--template_release_dates_cache_path` is a path to the mmCIF cache. 
