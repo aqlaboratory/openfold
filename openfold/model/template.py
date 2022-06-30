@@ -393,7 +393,7 @@ class TemplatePairStack(nn.Module):
             )
             blocks = [
                 partial(b, 
-                    chunk_size=chunk_size,
+                    chunk_size=tuned_chunk_size,
                     _attn_chunk_size=max(chunk_size, tuned_chunk_size // 4),
                 ) for b in blocks
             ]
