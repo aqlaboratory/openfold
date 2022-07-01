@@ -1,5 +1,5 @@
 ![header ](imgs/of_banner.png)
-_Figure: Comparison of OpenFold, AlphaFold2, and experimental structures of Streptomyces tokunonesis TokK protein (pdb code 7KDX)._
+_Figure: Comparison of OpenFold, AlphaFold2, and experimental structures of Streptomyces tokunonesis TokK protein (PDB code 7KDX)._
 
 
 # OpenFold
