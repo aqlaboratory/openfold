@@ -79,24 +79,29 @@ class AlphaFold(nn.Module):
         self.recycling_embedder = RecyclingEmbedder(
             **self.config["recycling_embedder"],
         )
-        self.template_angle_embedder = TemplateAngleEmbedder(
-            **self.template_config["template_angle_embedder"],
-        )
-        self.template_pair_embedder = TemplatePairEmbedder(
-            **self.template_config["template_pair_embedder"],
-        )
-        self.template_pair_stack = TemplatePairStack(
-            **self.template_config["template_pair_stack"],
-        )
-        self.template_pointwise_att = TemplatePointwiseAttention(
-            **self.template_config["template_pointwise_attention"],
-        )
-        self.extra_msa_embedder = ExtraMSAEmbedder(
-            **self.extra_msa_config["extra_msa_embedder"],
-        )
-        self.extra_msa_stack = ExtraMSAStack(
-            **self.extra_msa_config["extra_msa_stack"],
-        )
+        
+        if(self.template_config.enabled):
+            self.template_angle_embedder = TemplateAngleEmbedder(
+                **self.template_config["template_angle_embedder"],
+            )
+            self.template_pair_embedder = TemplatePairEmbedder(
+                **self.template_config["template_pair_embedder"],
+            )
+            self.template_pair_stack = TemplatePairStack(
+                **self.template_config["template_pair_stack"],
+            )
+            self.template_pointwise_att = TemplatePointwiseAttention(
+                **self.template_config["template_pointwise_attention"],
+            )
+       
+        if(self.extra_msa_config.enabled):
+            self.extra_msa_embedder = ExtraMSAEmbedder(
+                **self.extra_msa_config["extra_msa_embedder"],
+            )
+            self.extra_msa_stack = ExtraMSAStack(
+                **self.extra_msa_config["extra_msa_stack"],
+            )
+        
         self.evoformer = EvoformerStack(
             **self.config["evoformer_stack"],
         )
