@@ -36,9 +36,9 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         treat_pdb_as_distillation: bool = True,
         mapping_path: Optional[str] = None,
         mode: str = "train", 
+        alignment_index: Optional[Any] = None,
         _output_raw: bool = False,
         _structure_index: Optional[Any] = None,
-        _alignment_index: Optional[Any] = None,
     ):
         """
             Args:
@@ -84,9 +84,9 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self.config = config
         self.treat_pdb_as_distillation = treat_pdb_as_distillation
         self.mode = mode
+        self.alignment_index = alignment_index
         self._output_raw = _output_raw
         self._structure_index = _structure_index
-        self._alignment_index = _alignment_index
 
         self.supported_exts = [".cif", ".core", ".pdb"]
 
@@ -100,8 +100,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
-        if(_alignment_index is not None):
-            self._chain_ids = list(_alignment_index.keys())
+        if(alignment_index is not None):
+            self._chain_ids = list(alignment_index.keys())
         elif(mapping_path is None):
             self._chain_ids = list(os.listdir(alignment_dir))
         else:
@@ -129,7 +129,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if(not self._output_raw):
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
 
-    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index):
+    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -148,7 +148,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             chain_id=chain_id,
-            _alignment_index=_alignment_index
+            alignment_index=alignment_index
         )
 
         return data
@@ -163,10 +163,10 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         name = self.idx_to_chain_id(idx)
         alignment_dir = os.path.join(self.alignment_dir, name)
 
-        _alignment_index = None
-        if(self._alignment_index is not None):
+        alignment_index = None
+        if(self.alignment_index is not None):
             alignment_dir = self.alignment_dir
-            _alignment_index = self._alignment_index[name]
+            alignment_index = self.alignment_index[name]
 
         if(self.mode == 'train' or self.mode == 'eval'):
             spl = name.rsplit('_', 1)
@@ -196,11 +196,11 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             path += ext
             if(ext == ".cif"):
                 data = self._parse_mmcif(
-                    path, file_id, chain_id, alignment_dir, _alignment_index,
+                    path, file_id, chain_id, alignment_dir, alignment_index,
                 )
             elif(ext == ".core"):
                 data = self.data_pipeline.process_core(
-                    path, alignment_dir, _alignment_index,
+                    path, alignment_dir, alignment_index,
                 )
             elif(ext == ".pdb"):
                 data = self.data_pipeline.process_pdb(
@@ -208,8 +208,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     alignment_dir=alignment_dir,
                     is_distillation=self.treat_pdb_as_distillation,
                     chain_id=chain_id,
+                    alignment_index=alignment_index,
                     _structure_index=self._structure_index[name],
-                    _alignment_index=_alignment_index,
                 )
             else:
                raise ValueError("Extension branch missing") 
@@ -218,7 +218,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             data = self.data_pipeline.process_fasta(
                 fasta_path=path,
                 alignment_dir=alignment_dir,
-                _alignment_index=_alignment_index,
+                alignment_index=alignment_index,
             )
 
         if(self._output_raw):
@@ -500,8 +500,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
         batch_seed: Optional[int] = None,
         train_epoch_len: int = 50000, 
         _distillation_structure_index_path: Optional[str] = None,
-        _alignment_index_path: Optional[str] = None,
-        _distillation_alignment_index_path: Optional[str] = None,
+        alignment_index_path: Optional[str] = None,
+        distillation_alignment_index_path: Optional[str] = None,
         **kwargs
     ):
         super(OpenFoldDataModule, self).__init__()
@@ -559,15 +559,15 @@ class OpenFoldDataModule(pl.LightningDataModule):
             with open(_distillation_structure_index_path, "r") as fp:
                 self._distillation_structure_index = json.load(fp)
         
-        self._alignment_index = None
-        if(_alignment_index_path is not None):
-            with open(_alignment_index_path, "r") as fp:
-                self._alignment_index = json.load(fp)
+        self.alignment_index = None
+        if(alignment_index_path is not None):
+            with open(alignment_index_path, "r") as fp:
+                self.alignment_index = json.load(fp)
 
-        self._distillation_alignment_index = None
-        if(_distillation_alignment_index_path is not None):
-            with open(_distillation_alignment_index_path, "r") as fp:
-                self._distillation_alignment_index = json.load(fp)
+        self.distillation_alignment_index = None
+        if(distillation_alignment_index_path is not None):
+            with open(distillation_alignment_index_path, "r") as fp:
+                self.distillation_alignment_index = json.load(fp)
 
     def setup(self):
         # Most of the arguments are the same for the three datasets 
@@ -592,7 +592,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     self.config.train.shuffle_top_k_prefiltered,
                 treat_pdb_as_distillation=False,
                 mode="train",
-                _alignment_index=self._alignment_index,
+                alignment_index=self.alignment_index,
             )
 
             distillation_dataset = None
@@ -604,8 +604,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     max_template_hits=self.config.train.max_template_hits,
                     treat_pdb_as_distillation=True,
                     mode="train",
+                    alignment_index=self.distillation_alignment_index,
                     _structure_index=self._distillation_structure_index,
-                    _alignment_index=self._distillation_alignment_index,
                 )
 
                 d_prob = self.config.train.distillation_prob
@@ -625,7 +625,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     self.train_chain_data_cache_path,
                 ]
 
-            generator = None
             if(self.batch_seed is not None):
                 generator = torch.Generator()
                 generator = generator.manual_seed(self.batch_seed + 1)
@@ -638,7 +637,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 generator=generator,
                 _roll_at_init=False,
             )
-
     
             if(self.val_data_dir is not None):
                 self.eval_dataset = dataset_gen(
