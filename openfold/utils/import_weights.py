@@ -397,8 +397,7 @@ def generate_translation_dict(model, version):
         tps_blocks = model.template_pair_stack.blocks
         tps_blocks_params = stacked(
             [TemplatePairBlockParams(b) for b in tps_blocks]
-        )
-        
+        ) 
         template_param_dict = {
             "template_embedding": {
                 "single_template_embedding": {
@@ -421,6 +420,7 @@ def generate_translation_dict(model, version):
                 model.template_angle_embedder.linear_2
             ),
         }
+        
         translations["evoformer"].update(template_param_dict)   
 
     if "_ptm" in version:
