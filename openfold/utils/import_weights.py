@@ -393,7 +393,7 @@ def generate_translation_dict(model, version):
         "model_5_ptm",
     ]
 
-    if version in no_templ:
+    if version not in no_templ:
         tps_blocks = model.template_pair_stack.blocks
         tps_blocks_params = stacked(
             [TemplatePairBlockParams(b) for b in tps_blocks]
