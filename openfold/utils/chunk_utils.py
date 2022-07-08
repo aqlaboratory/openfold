@@ -343,7 +343,7 @@ class ChunkSizeTuner:
     def __init__(self, 
         # Heuristically, runtimes for most of the modules in the network 
         # plateau earlier than this on all GPUs I've run the model on.
-        max_chunk_size=256,
+        max_chunk_size=512,
     ):
         self.max_chunk_size = max_chunk_size
         self.cached_chunk_size = None
@@ -402,7 +402,7 @@ class ChunkSizeTuner:
         representative_fn: Callable,
         args: Tuple[Any],
         min_chunk_size: int,
-    ) -> int:
+    ) -> int: 
         consistent = True
         remove_tensors = lambda a: a.shape if type(a) is torch.Tensor else a
         arg_data = tree_map(remove_tensors, args, object) 
