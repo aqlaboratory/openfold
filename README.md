@@ -29,7 +29,7 @@ vice versa (see `scripts/convert_of_weights_to_jax.py`).
 
 OpenFold has the following advantages over the reference implementation:
 
-- **Faster inference** on GPU, sometimes by as much as 2x.
+- **Faster inference** on GPU, sometimes by as much as 2x. The greatest speedups can be observed on (>= Ampere) GPUs.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
