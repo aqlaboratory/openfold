@@ -29,6 +29,7 @@ vice versa (see `scripts/convert_of_weights_to_jax.py`).
 
 OpenFold has the following advantages over the reference implementation:
 
+- **Faster inference** on GPU, sometimes by as much as 2x.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
@@ -37,7 +38,7 @@ kernels support in-place attention during inference and training. They use
 4x and 5x less GPU memory than equivalent FastFold and stock PyTorch 
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
-- **Faster inference** on GPU for short chains.
+- **FlashAttention** support greatly speeds up MSA attention.
 
 ## Installation (Linux)
 
@@ -142,7 +143,7 @@ python3 run_pretrained_openfold.py \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
     --config_preset "model_1_ptm"
-    --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_2_ptm.pt
+    --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_ptm_2.pt
 ```
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
@@ -171,6 +172,14 @@ regardless of input sequence length, but it also introduces some runtime
 variability, which may be undesirable for certain users. It is also recommended
 to disable this feature for very long chains (see below). To do so, set the 
 `tune_chunk_size` option in the config to `False`.
+
+For large-scale batch inference, we offer an optional tracing mode, which
+massively improves runtimes at the cost of a lengthy model compilation process.
+To enable it, add `--trace_model` to the inference command.
+
+By default, [FlashAttention](https://github.com/HazyResearch/flash-attention)
+is enabled in the config. This speeds up computation of the evoformer's MSA
+column attention module.
 
 Input FASTA files containing multiple sequences are treated as complexes. In
 this case, the inference script runs AlphaFold-Gap, a hack proposed
@@ -395,7 +404,7 @@ python3 /opt/openfold/run_pretrained_openfold.py \
 --hhblits_binary_path /opt/conda/bin/hhblits \
 --hhsearch_binary_path /opt/conda/bin/hhsearch \
 --kalign_binary_path /opt/conda/bin/kalign \
---openfold_checkpoint_path /database/openfold_params/finetuning_2_ptm.pt
+--openfold_checkpoint_path /database/openfold_params/finetuning_ptm_2.pt
 ```
 
 ## Copyright notice
