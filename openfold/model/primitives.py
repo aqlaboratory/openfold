@@ -439,10 +439,10 @@ class Attention(nn.Module):
         Returns
             [*, Q, C_q] attention update
         """
-        if(use_lma and (q_chunk_size is None or kv_chunk_size is None)):
+        if(use_lma and (lma_q_chunk_size is None or lma_kv_chunk_size is None)):
             raise ValueError(
-                "If use_lma is specified, q_chunk_size and kv_chunk_size must "
-                "be provided"
+                "If use_lma is specified, lma_q_chunk_size and "
+                "lma_kv_chunk_size must be provided"
             )
 
         if(use_flash and biases is not None):
