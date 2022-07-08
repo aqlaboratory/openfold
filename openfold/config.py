@@ -23,7 +23,11 @@ def enforce_config_constraints(config):
         (
             "model.template.average_templates", 
             "model.template.offload_templates"
-        )
+        ),
+        (
+            "globals.use_lma",
+            "globals.use_flash",
+        ),
     ]
 
     for s1, s2 in mutually_exclusive_bools:
@@ -315,7 +319,12 @@ config = mlc.ConfigDict(
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
+            # Use Staats & Rabe's low-memory attention algorithm. Mutually
+            # exclusive with use_flash.
             "use_lma": False,
+            # Use FlashAttention in selected modules. Mutually exclusive with 
+            # use_lma.
+            "use_flash": True,
             "offload_inference": False,
             "c_z": c_z,
             "c_m": c_m,
