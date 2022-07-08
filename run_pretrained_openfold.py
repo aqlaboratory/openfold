@@ -130,6 +130,9 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
         plddt[..., None], residue_constants.atom_type_num, axis=-1
     )
 
+    if(args.subtract_plddt):
+        plddt_b_factors = 100 - plddt_b_factors
+
     # Prep protein metadata
     template_domain_names = []
     template_chain_index = None
@@ -562,6 +565,11 @@ if __name__ == "__main__":
         help="""Whether to convert parts of each model to TorchScript.
                 Significantly improves runtime at the cost of lengthy
                 'compilation.' Useful for large batch jobs."""
+    )
+    parser.add_argument(
+        "--subtract_plddt", action="store_true", default=False,
+        help=""""Whether to output (100 - pLDDT) in the B-factor column instead
+                 of the pLDDT itself"""
     )
     add_data_args(parser)
     args = parser.parse_args()
