@@ -203,13 +203,16 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     path, alignment_dir, alignment_index,
                 )
             elif(ext == ".pdb"):
+                structure_index = None
+                if(self._structure_index is not None):
+                    structure_index = self._structure_index[name]
                 data = self.data_pipeline.process_pdb(
                     pdb_path=path,
                     alignment_dir=alignment_dir,
                     is_distillation=self.treat_pdb_as_distillation,
                     chain_id=chain_id,
                     alignment_index=alignment_index,
-                    _structure_index=self._structure_index[name],
+                    _structure_index=structure_index,
                 )
             else:
                raise ValueError("Extension branch missing") 
