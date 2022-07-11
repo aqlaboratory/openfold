@@ -27,5 +27,5 @@ dependencies:
       - typing-extensions==3.10.0.2
       - pytorch_lightning==1.5.10
       - wandb==0.12.21
-      - git+https://github.com/HazyResearch/flash-attention.git
+      - git+https://github.com/HazyResearch/flash-attention.git@5b838a8bef78186196244a4156ec35bbb58c337d
       - git+https://github.com/NVIDIA/dllogger.git
