@@ -14,7 +14,7 @@ ENV PATH /opt/conda/bin:$PATH
 COPY environment.yml /opt/openfold/environment.yml
 
 # installing into the base environment since the docker container wont do anything other than run openfold
-RUN conda install cudatoolkit-dev==11.3.*
+RUN conda install "cudatoolkit-dev==11.*"
 RUN conda env update -n base --file /opt/openfold/environment.yml && conda clean --all
 
 COPY openfold /opt/openfold/openfold
