@@ -630,7 +630,9 @@ class OpenFoldDataModule(pl.LightningDataModule):
 
             if(self.batch_seed is not None):
                 generator = torch.Generator()
-                generator = generator.manual_seed(self.batch_seed + 1)
+                # A standin for the rank, which I don't know how to get
+                pid = os.getpid() % 10000
+                generator = generator.manual_seed(self.batch_seed + pid)
             
             self.train_dataset = OpenFoldDataset(
                 datasets=datasets,
