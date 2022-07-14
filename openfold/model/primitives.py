@@ -13,14 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from functools import partial
+import importlib
 import math
 from typing import Optional, Callable, List, Tuple, Sequence
 import numpy as np
 
 import deepspeed
-from flash_attn.bert_padding import unpad_input, pad_input
-from flash_attn.flash_attention import FlashAttention
-from flash_attn.flash_attn_interface import flash_attn_unpadded_kvpacked_func
+
+fa_is_installed = importlib.util.find_spec("flash_attn") is not None
+if(fa_is_installed):
+    from flash_attn.bert_padding import unpad_input, pad_input
+    from flash_attn.flash_attention import FlashAttention
+    from flash_attn.flash_attn_interface import flash_attn_unpadded_kvpacked_func
+
 import torch
 import torch.nn as nn
 from scipy.stats import truncnorm
@@ -643,6 +648,11 @@ def _lma(
 
 @torch.jit.ignore
 def _flash_attn(q, k, v, kv_mask):
+    if(not fa_is_installed):
+        raise ValueError(
+            "_flash_attn requires that FlashAttention be installed"
+        )
+    
     batch_dims = q.shape[:-3]
     no_heads, n, c = q.shape[-3:]
     dtype = q.dtype
