@@ -58,7 +58,8 @@ class ExponentialMovingAverage:
         self._update_state_dict_(model.state_dict(), self.params)
 
     def load_state_dict(self, state_dict: OrderedDict) -> None:
-        self.params = state_dict["params"]
+        for k in state_dict["params"].keys():
+            self.params[k] = state_dict["params"][k].clone()
         self.decay = state_dict["decay"]
 
     def state_dict(self) -> OrderedDict:

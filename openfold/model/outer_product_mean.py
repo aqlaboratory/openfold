@@ -20,7 +20,7 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear
-from openfold.utils.tensor_utils import chunk_layer
+from openfold.utils.chunk_utils import chunk_layer
 
 
 class OuterProductMean(nn.Module):
@@ -82,7 +82,13 @@ class OuterProductMean(nn.Module):
                 no_batch_dims=1,
             )
             out.append(outer)
-        outer = torch.stack(out, dim=0)
+
+        # For some cursed reason making this distinction saves memory
+        if(len(out) == 1):
+            outer = out[0].unsqueeze(0)
+        else:
+            outer = torch.stack(out, dim=0)
+
         outer = outer.reshape(a.shape[:-3] + outer.shape[1:])
 
         return outer
@@ -90,7 +96,8 @@ class OuterProductMean(nn.Module):
     def forward(self, 
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
-        chunk_size: Optional[int] = None
+        chunk_size: Optional[int] = None,
+        inplace_safe: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -105,12 +112,17 @@ class OuterProductMean(nn.Module):
             mask = m.new_ones(m.shape[:-1])
 
         # [*, N_seq, N_res, C_m]
-        m = self.layer_norm(m)
+        ln = self.layer_norm(m)
 
         # [*, N_seq, N_res, C]
         mask = mask.unsqueeze(-1)
-        a = self.linear_1(m) * mask
-        b = self.linear_2(m) * mask
+        a = self.linear_1(ln) 
+        a = a * mask
+        
+        b = self.linear_2(ln) 
+        b = b * mask
+
+        del ln
 
         a = a.transpose(-2, -3)
         b = b.transpose(-2, -3)
@@ -122,8 +134,12 @@ class OuterProductMean(nn.Module):
 
         # [*, N_res, N_res, 1]
         norm = torch.einsum("...abc,...adc->...bdc", mask, mask)
+        norm = norm + self.eps
 
         # [*, N_res, N_res, C_z]
-        outer = outer / (self.eps + norm)
+        if(inplace_safe):
+            outer /= norm
+        else:
+            outer = outer / norm
 
         return outer

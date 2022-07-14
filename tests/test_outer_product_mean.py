@@ -81,7 +81,7 @@ class TestOuterProductMean(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0]
+            model.evoformer.blocks[0].core
             .outer_product_mean(
                 torch.as_tensor(msa_act).cuda(),
                 chunk_size=4,
@@ -92,7 +92,7 @@ class TestOuterProductMean(unittest.TestCase):
 
         # Even when correct, OPM has large, precision-related errors. It gets
         # a special pass from consts.eps.
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < 5e-4))
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 5e-4)
 
 
 if __name__ == "__main__":

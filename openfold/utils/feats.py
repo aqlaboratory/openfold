@@ -90,7 +90,10 @@ def build_template_angle_feat(template_feats):
 
 
 def build_template_pair_feat(
-    batch, min_bin, max_bin, no_bins, eps=1e-20, inf=1e8
+    batch, 
+    min_bin, max_bin, no_bins, 
+    use_unit_vector=False, 
+    eps=1e-20, inf=1e8
 ):
     template_mask = batch["template_pseudo_beta_mask"]
     template_mask_2d = template_mask[..., None] * template_mask[..., None, :]
@@ -101,7 +104,7 @@ def build_template_pair_feat(
         (tpb[..., None, :] - tpb[..., None, :, :]) ** 2, dim=-1, keepdim=True
     )
     lower = torch.linspace(min_bin, max_bin, no_bins, device=tpb.device) ** 2
-    upper = torch.cat([lower[:-1], lower.new_tensor([inf])], dim=-1)
+    upper = torch.cat([lower[1:], lower.new_tensor([inf])], dim=-1)
     dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
 
     to_concat = [dgram, template_mask_2d[..., None]]
@@ -143,6 +146,10 @@ def build_template_pair_feat(
 
     inv_distance_scalar = inv_distance_scalar * template_mask_2d
     unit_vector = rigid_vec * inv_distance_scalar[..., None]
+    
+    if(not use_unit_vector):
+        unit_vector = unit_vector * 0.
+    
     to_concat.extend(torch.unbind(unit_vector[..., None, :], dim=-1))
     to_concat.append(template_mask_2d[..., None])
 

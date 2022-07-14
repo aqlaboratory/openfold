@@ -39,13 +39,15 @@ fi
 
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 
-echo "Downloading AlphaFold parameters..."
-bash "${SCRIPT_DIR}/download_alphafold_params.sh" "${DOWNLOAD_DIR}"
-
 echo "Downloading PDB70..."
 bash "${SCRIPT_DIR}/download_pdb70.sh" "${DOWNLOAD_DIR}"
 
 echo "Downloading PDB mmCIF files..."
 bash "${SCRIPT_DIR}/download_pdb_mmcif.sh" "${DOWNLOAD_DIR}"
+
+if [[ -d openfold/resources/params ]]; then
+    ln -s openfold/resources/params "${DOWNLOAD_DIR}/params"
+    ln -s openfold/resources/openfold_params "${DOWNLOAD_DIR}/params"
+fi
 
 echo "All data downloaded."

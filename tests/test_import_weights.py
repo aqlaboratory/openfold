@@ -65,7 +65,7 @@ class TestImportWeights(unittest.TestCase):
                         )
                     ][1].transpose(-1, -2)
                 ),
-                model.evoformer.blocks[1].outer_product_mean.linear_1.weight,
+                model.evoformer.blocks[1].core.outer_product_mean.linear_1.weight,
             ),
         ]
 
