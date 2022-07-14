@@ -177,9 +177,8 @@ For large-scale batch inference, we offer an optional tracing mode, which
 massively improves runtimes at the cost of a lengthy model compilation process.
 To enable it, add `--trace_model` to the inference command.
 
-By default, [FlashAttention](https://github.com/HazyResearch/flash-attention)
-is enabled in the config. This speeds up computation of the evoformer's MSA
-column attention module.
+To get a speedup during inference, [FlashAttention](https://github.com/HazyResearch/flash-attention)
+enable FlashAttention in the config.
 
 Input FASTA files containing multiple sequences are treated as complexes. In
 this case, the inference script runs AlphaFold-Gap, a hack proposed
