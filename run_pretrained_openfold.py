@@ -117,7 +117,8 @@ def run_model(model, batch, tag, args):
         logger.info(f"Running inference for {tag}...")
         t = time.perf_counter()
         out = model(batch)
-        logger.info(f"Inference time: {time.perf_counter() - t}")
+        inference_time = time.perf_counter() - t
+        logger.info(f"Inference time: {inference_time}")
    
     return out
 
@@ -429,8 +430,9 @@ def main(args):
                     )
                     t = time.perf_counter()
                     trace_model_(model, processed_feature_dict)
+                    tracing_time = time.perf_counter() - t
                     logger.info(
-                        f"Tracing time: {time.perf_counter() - t}"
+                        f"Tracing time: {tracing_time}"
                     )
                     cur_tracing_interval = rounded_seqlen
 
