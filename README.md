@@ -153,14 +153,13 @@ If you've already computed alignments for the query, you have the option to
 skip the expensive alignment computation here with 
 `--use_precomputed_alignments`.
 
-Exactly one of `--openfold_checkpoint_path` or `--jax_param_path` must be specified 
-to run the inference script. These accept .pt/DeepSpeed OpenFold checkpoints 
-and AlphaFold's .npz JAX parameter files, respectively. For a breakdown of the 
-differences between the different parameter files, see the README downloaded to 
-`openfold/resources/openfold_params/`. Since OpenFold was trained under a 
-newer training schedule than the one from which the `model_n` config 
-presets are derived, there is no clean correspondence between `config_preset`
-settings and OpenFold checkpoints; the only restraint is that `*_ptm`
+`--openfold_checkpoint_path` or `--jax_param_path` accept comma-delineated lists
+of .pt/DeepSpeed OpenFold checkpoints and AlphaFold's .npz JAX parameter files, 
+respectively. For a breakdown of the differences between the different parameter 
+files, see the README downloaded to `openfold/resources/openfold_params/`. Since 
+OpenFold was trained under a newer training schedule than the one from which the 
+`model_n` config presets are derived, there is no clean correspondence between 
+`config_preset` settings and OpenFold checkpoints; the only restraint is that `*_ptm`
 checkpoints must be run with `*_ptm` config presets.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
