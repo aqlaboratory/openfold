@@ -176,8 +176,8 @@ For large-scale batch inference, we offer an optional tracing mode, which
 massively improves runtimes at the cost of a lengthy model compilation process.
 To enable it, add `--trace_model` to the inference command.
 
-To get a speedup during inference, [FlashAttention](https://github.com/HazyResearch/flash-attention)
-enable FlashAttention in the config.
+To get a speedup during inference, enable [FlashAttention](https://github.com/HazyResearch/flash-attention)
+in the config. Note that it appears to work best for sequences with < 1000 residues.
 
 Input FASTA files containing multiple sequences are treated as complexes. In
 this case, the inference script runs AlphaFold-Gap, a hack proposed
