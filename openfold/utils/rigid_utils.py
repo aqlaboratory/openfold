@@ -36,6 +36,7 @@ def rot_matmul(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
     """
     with autocast(enabled=False):
         return a.to(torch.float32) @ b.to(torch.float32)
+
     row_1 = torch.stack(
         [
             a[..., 0, 0] * b[..., 0, 0]
