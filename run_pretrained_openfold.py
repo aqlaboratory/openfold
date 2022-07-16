@@ -379,7 +379,7 @@ def main(args):
         # assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
         tag = '-'.join(tags)
 
-        tag_list.append(tag)
+        tag_list.append((tag, tags))
         seq_list.append(seqs)
 
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
@@ -387,7 +387,7 @@ def main(args):
     feature_dicts = {}
     for model, output_directory in load_models_from_command_line(args, config): 
         cur_tracing_interval = 0
-        for tag, seqs in sorted_targets:
+        for (tag, tags), seqs in sorted_targets:
             output_name = f'{tag}_{args.config_preset}'
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
