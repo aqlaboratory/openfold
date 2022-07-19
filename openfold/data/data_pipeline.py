@@ -100,9 +100,12 @@ def unify_template_features(
         if(n_templates != 0):
             out_dicts.append(out_dict)
 
-    out_dict = {
-        k: np.concatenate([od[k] for od in out_dicts]) for k in out_dicts[0]
-    }
+    if(len(out_dicts) > 0):
+        out_dict = {
+            k: np.concatenate([od[k] for od in out_dicts]) for k in out_dicts[0]
+        }
+    else:
+        out_dict = empty_template_feats(sum(seq_lens))
 
     return out_dict
 
