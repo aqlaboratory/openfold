@@ -89,16 +89,6 @@ setup(
         }
     )],
     cmdclass={'build_ext': BuildExtension},
-    install_requires=[
-        'torch',
-        'deepspeed',
-        'biopython',
-        'ml-collections',
-        'numpy',
-        'scipy',
-        'pytorch_lightning',
-        'dm-tree',
-    ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
