@@ -18,8 +18,14 @@ import io
 from openfold.np import residue_constants
 from Bio import PDB
 import numpy as np
-from simtk.openmm import app as openmm_app
-from simtk.openmm.app.internal.pdbstructure import PdbStructure
+try:
+    # openmm >= 7.6
+    from openmm import app as openmm_app
+    from openmm.app.internal.pdbstructure import PdbStructure
+except ImportError:
+    # openmm < 7.6 (requires DeepMind patch)
+    from simtk.openmm import app as openmm_app
+    from simtk.openmm.app.internal.pdbstructure import PdbStructure
 
 
 def overwrite_pdb_coordinates(pdb_str: str, pos) -> str:
