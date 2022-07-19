@@ -35,7 +35,7 @@ mkdir -p tests/test_data/alphafold/common
 ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/common
 
 echo "Downloading OpenFold parameters..."
-bash scripts/download_openfold_params_huggingface.sh openfold/resources
+bash scripts/download_openfold_params.sh openfold/resources
 
 echo "Downloading AlphaFold parameters..."
 bash scripts/download_alphafold_params.sh openfold/resources
