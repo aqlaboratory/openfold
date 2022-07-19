@@ -1,0 +1,23 @@
+name: openfold_venv
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::setuptools=59.5.0
+  - conda-forge::pip
+  - conda-forge::openmm=7.5.1
+  - conda-forge::pdbfixer
+  - conda-forge::cudatoolkit==11.3.*
+  - bioconda::hmmer==3.3.2
+  - bioconda::hhsuite==3.3.0
+  - bioconda::kalign2==2.04
+  - pip:
+      - biopython==1.79
+      - dm-tree==0.1.6
+      - ml-collections==0.1.0
+      - numpy==1.21.2
+      - PyYAML==5.4.1
+      - requests==2.26.0
+      - scipy==1.7.1
+      - tqdm==4.62.2
+      - typing-extensions==3.10.0.2
