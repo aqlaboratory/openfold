@@ -15,16 +15,11 @@ import os
 import operator
 import time
 
+import dllogger as logger
+from dllogger import JSONStreamBackend, StdOutBackend, Verbosity
 import numpy as np
-import torch.cuda.profiler as profiler
 from pytorch_lightning import Callback
-
-# We make this optional for the Colab's sake
-try:
-    import dllogger as logger
-    from dllogger import JSONStreamBackend, StdOutBackend, Verbosity
-except:
-    pass
+import torch.cuda.profiler as profiler
 
 
 def is_main_process():
