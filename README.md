@@ -328,8 +328,8 @@ alignments, alignment directories can be consolidated using the scripts in
 `scripts/alignment_db_scripts/`. First, run `create_alignment_db.py` to
 consolidate an alignment directory into a pair of database and index files.
 Once all alignment directories (or shards of a single alignment directory)
-have been compiled, unify the indices with `unify_alignment_db_indices`. The
-resulting index, `super.index` can be passed to the training script flags
+have been compiled, unify the indices with `unify_alignment_db_indices.py`. The
+resulting index, `super.index`, can be passed to the training script flags
 containing the phrase `alignment_index`. In this scenario, the `alignment_dir`
 flags instead represent the directory containing the compiled alignment
 databases. Both the training and distillation datasets can be compiled in this
