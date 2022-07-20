@@ -550,7 +550,7 @@ config = mlc.ConfigDict(
                 "eps": 1e-4,
                 "weight": 1.0,
             },
-            "lddt": {
+            "plddt_loss": {
                 "min_resolution": 0.1,
                 "max_resolution": 3.0,
                 "cutoff": 15.0,

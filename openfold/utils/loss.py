@@ -1562,7 +1562,7 @@ class AlphaFoldLoss(nn.Module):
             "plddt_loss": lambda: lddt_loss(
                 logits=out["lddt_logits"],
                 all_atom_pred_pos=out["final_atom_positions"],
-                **{**batch, **self.config.lddt},
+                **{**batch, **self.config.plddt_loss},
             ),
             "masked_msa": lambda: masked_msa_loss(
                 logits=out["masked_msa_logits"],
