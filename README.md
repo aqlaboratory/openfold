@@ -159,8 +159,9 @@ respectively. For a breakdown of the differences between the different parameter
 files, see the README downloaded to `openfold/resources/openfold_params/`. Since 
 OpenFold was trained under a newer training schedule than the one from which the 
 `model_n` config presets are derived, there is no clean correspondence between 
-`config_preset` settings and OpenFold checkpoints; the only restraint is that `*_ptm`
-checkpoints must be run with `*_ptm` config presets.
+`config_preset` settings and OpenFold checkpoints; the only restraints are that 
+`*_ptm` checkpoints must be run with `*_ptm` config presets and that `_no_templ_`
+checkpoints are only compatible with template-less presets (`model_3` and above).
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
