@@ -1,5 +1,12 @@
 FROM nvidia/cuda:11.3.1-cudnn8-runtime-ubuntu18.04
 
+# metainformation
+LABEL org.opencontainers.image.version = "1.0.0"
+LABEL org.opencontainers.image.authors = "Gustaf Ahdritz"
+LABEL org.opencontainers.image.source = "https://github.com/aqlaboratory/openfold"
+LABEL org.opencontainers.image.licenses = "Apache License 2.0"
+LABEL org.opencontainers.image.base.name="docker.io/nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
+
 RUN apt-key del 7fa2af80
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
