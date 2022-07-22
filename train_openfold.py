@@ -405,14 +405,14 @@ if __name__ == "__main__":
         help="Path to the kalign binary"
     )
     parser.add_argument(
-        "--train_mapping_path", type=str, default=None,
-        help='''Optional path to a .json file containing a mapping from
-                consecutive numerical indices to sample names. Used to filter
-                the training set'''
+        "--train_filter_path", type=str, default=None,
+        help='''Optional path to a text file containing names of training
+                examples to include, one per line. Used to filter the training 
+                set'''
     )
     parser.add_argument(
-        "--distillation_mapping_path", type=str, default=None,
-        help="""See --train_mapping_path"""
+        "--distillation_filter_path", type=str, default=None,
+        help="""See --train_filter_path"""
     )
     parser.add_argument(
         "--obsolete_pdbs_file_path", type=str, default=None,
