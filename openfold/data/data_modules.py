@@ -102,11 +102,14 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
 
         if(alignment_index is not None):
             self._chain_ids = list(alignment_index.keys())
-        elif(filter_path is None):
-            self._chain_ids = list(os.listdir(alignment_dir))
         else:
+            self._chain_ids = list(os.listdir(alignment_dir))
+        
+        if(filter_path is not None):
             with open(filter_path, "r") as f:
-                self._chain_ids = [l.strip() for l in f.readlines()]
+                chains_to_include = [l.strip() for l in f.readlines()]
+
+            self._chain_ids = [c for c in self._chain_ids if c in chains_to_include]
        
         self._chain_id_to_idx_dict = {
             chain: i for i, chain in enumerate(self._chain_ids)
