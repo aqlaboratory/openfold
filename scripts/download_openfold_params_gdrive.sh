@@ -25,8 +25,8 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-FILE_ID="1OpeMrfWEUSD_KqffbPqd5p7WsJjlC3ZE"
-FILENAME="openfold_params_06_22.tar.gz"
+FILE_ID="1GVzZA2nbdBbz6TKydvzquhfELJ3Movnb"
+FILENAME="openfold_params_07_22.tar.gz"
 
 download_from_gdrive() {
     FILE_ID="$1"
