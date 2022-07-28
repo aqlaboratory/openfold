@@ -721,6 +721,7 @@ class EvoformerStack(nn.Module):
         pair_mask: torch.Tensor,
         chunk_size: int,
         use_lma: bool = False,
+        use_flash: bool = False,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         assert(not (self.training or torch.is_grad_enabled()))
@@ -731,6 +732,7 @@ class EvoformerStack(nn.Module):
             z=input_tensors[1],
             chunk_size=chunk_size,
             use_lma=use_lma,
+            use_flash=use_flash,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
             inplace_safe=True,
