@@ -631,6 +631,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     self.train_chain_data_cache_path,
                 ]
 
+            generator = None
             if(self.batch_seed is not None):
                 generator = torch.Generator()
                 generator = generator.manual_seed(self.batch_seed + 1)
