@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from __future__ import annotations
+from functools import lru_cache
 from typing import Tuple, Any, Sequence, Callable, Optional
 
 import numpy as np
@@ -34,30 +35,8 @@ def rot_matmul(
         Returns:
             The product ab
     """
-    def row_mul(i):
-        return torch.stack(
-            [
-                a[..., i, 0] * b[..., 0, 0]
-                + a[..., i, 1] * b[..., 1, 0]
-                + a[..., i, 2] * b[..., 2, 0],
-                a[..., i, 0] * b[..., 0, 1]
-                + a[..., i, 1] * b[..., 1, 1]
-                + a[..., i, 2] * b[..., 2, 1],
-                a[..., i, 0] * b[..., 0, 2]
-                + a[..., i, 1] * b[..., 1, 2]
-                + a[..., i, 2] * b[..., 2, 2],
-            ],
-            dim=-1,
-        )
-
-    return torch.stack(
-        [
-            row_mul(0), 
-            row_mul(1), 
-            row_mul(2),
-        ], 
-        dim=-2
-    )
+    with torch.autocast(a.device.type, enabled=False):
+        return a.to(torch.float32) @ b.to(torch.float32)
 
 
 def rot_vec_mul(
@@ -74,17 +53,13 @@ def rot_vec_mul(
         Returns:
             [*, 3] rotated coordinates
     """
-    x, y, z = torch.unbind(t, dim=-1)
-    return torch.stack(
-        [
-            r[..., 0, 0] * x + r[..., 0, 1] * y + r[..., 0, 2] * z,
-            r[..., 1, 0] * x + r[..., 1, 1] * y + r[..., 1, 2] * z,
-            r[..., 2, 0] * x + r[..., 2, 1] * y + r[..., 2, 2] * z,
-        ],
-        dim=-1,
-    )
+    with torch.autocast(r.device.type, enabled=False):
+        r = r.to(torch.float32)
+        t = t.to(torch.float32)
+        return (r @ t.unsqueeze(-1)).squeeze(-1)
 
-    
+
+@lru_cache(maxsize=None)
 def identity_rot_mats(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None, 
@@ -100,6 +75,7 @@ def identity_rot_mats(
     return rots
 
 
+@lru_cache(maxsize=None)
 def identity_trans(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None,
@@ -115,6 +91,7 @@ def identity_trans(
     return trans
 
 
+@lru_cache(maxsize=None)
 def identity_quats(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None,
@@ -174,7 +151,7 @@ def quat_to_rot(quat: torch.Tensor) -> torch.Tensor:
     quat = quat[..., None] * quat[..., None, :]
 
     # [4, 4, 3, 3]
-    mat = quat.new_tensor(_QTR_MAT, requires_grad=False)
+    mat = _get_quat("_QTR_MAT", dtype=quat.dtype, device=quat.device)
 
     # [*, 4, 4, 3, 3]
     shaped_qtr_mat = mat.view((1,) * len(quat.shape[:-2]) + mat.shape)
@@ -229,10 +206,20 @@ _QUAT_MULTIPLY[:, :, 3] = [[ 0, 0, 0, 1],
 
 _QUAT_MULTIPLY_BY_VEC = _QUAT_MULTIPLY[:, 1:, :]
 
+_CACHED_QUATS = {
+    "_QTR_MAT": _QTR_MAT,
+    "_QUAT_MULTIPLY": _QUAT_MULTIPLY,
+    "_QUAT_MULTIPLY_BY_VEC": _QUAT_MULTIPLY_BY_VEC
+}
+
+@lru_cache(maxsize=None)
+def _get_quat(quat_key, dtype, device):
+    return torch.tensor(_CACHED_QUATS[quat_key], dtype=dtype, device=device)
+
 
 def quat_multiply(quat1, quat2):
     """Multiply a quaternion by another quaternion."""
-    mat = quat1.new_tensor(_QUAT_MULTIPLY)
+    mat = _get_quat("_QUAT_MULTIPLY", dtype=quat1.dtype, device=quat1.device)
     reshaped_mat = mat.view((1,) * len(quat1.shape[:-1]) + mat.shape)
     return torch.sum(
         reshaped_mat *
@@ -244,7 +231,7 @@ def quat_multiply(quat1, quat2):
 
 def quat_multiply_by_vec(quat, vec):
     """Multiply a quaternion by a pure-vector quaternion."""
-    mat = quat.new_tensor(_QUAT_MULTIPLY_BY_VEC)
+    mat = _get_quat("_QUAT_MULTIPLY_BY_VEC", dtype=quat.dtype, device=quat.device)
     reshaped_mat = mat.view((1,) * len(quat.shape[:-1]) + mat.shape)
     return torch.sum(
         reshaped_mat *

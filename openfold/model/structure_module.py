@@ -573,11 +573,11 @@ class StructureModule(nn.Module):
         self.epsilon = epsilon
         self.inf = inf
 
-        # To be lazily initialized later
-        self.default_frames = None
-        self.group_idx = None
-        self.atom_mask = None
-        self.lit_positions = None
+        # Buffers to be lazily initialized later
+        # self.default_frames
+        # self.group_idx
+        # self.atom_mask
+        # self.lit_positions
 
         self.layer_norm_s = LayerNorm(self.c_s)
         self.layer_norm_z = LayerNorm(self.c_z)
@@ -723,6 +723,7 @@ class StructureModule(nn.Module):
                 "unnormalized_angles": unnormalized_angles,
                 "angles": angles,
                 "positions": pred_xyz,
+                "states": s,
             }
 
             outputs.append(preds)
@@ -742,32 +743,44 @@ class StructureModule(nn.Module):
         return outputs
 
     def _init_residue_constants(self, float_dtype, device):
-        if self.default_frames is None:
-            self.default_frames = torch.tensor(
-                restype_rigid_group_default_frame,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
+        if not hasattr(self, "default_frames"):
+            self.register_buffer(
+                "default_frames",
+                torch.tensor(
+                    restype_rigid_group_default_frame,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
             )
-        if self.group_idx is None:
-            self.group_idx = torch.tensor(
-                restype_atom14_to_rigid_group,
-                device=device,
-                requires_grad=False,
+        if not hasattr(self, "group_idx"):
+            self.register_buffer(
+                "group_idx",
+                torch.tensor(
+                    restype_atom14_to_rigid_group,
+                    device=device,
+                    requires_grad=False,
+                ),
             )
-        if self.atom_mask is None:
-            self.atom_mask = torch.tensor(
-                restype_atom14_mask,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
+        if not hasattr(self, "atom_mask"):
+            self.register_buffer(
+                "atom_mask",
+                torch.tensor(
+                    restype_atom14_mask,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
             )
-        if self.lit_positions is None:
-            self.lit_positions = torch.tensor(
-                restype_atom14_rigid_group_positions,
-                dtype=float_dtype,
-                device=device,
-                requires_grad=False,
+        if not hasattr(self, "lit_positions"):
+            self.register_buffer(
+                "lit_positions",
+                torch.tensor(
+                    restype_atom14_rigid_group_positions,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
             )
 
     def torsion_angles_to_frames(self, r, alpha, f):
