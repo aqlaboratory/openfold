@@ -752,6 +752,7 @@ class StructureModule(nn.Module):
                     device=device,
                     requires_grad=False,
                 ),
+                persistent=False,
             )
         if not hasattr(self, "group_idx"):
             self.register_buffer(
@@ -761,6 +762,7 @@ class StructureModule(nn.Module):
                     device=device,
                     requires_grad=False,
                 ),
+                persistent=False,
             )
         if not hasattr(self, "atom_mask"):
             self.register_buffer(
@@ -771,6 +773,7 @@ class StructureModule(nn.Module):
                     device=device,
                     requires_grad=False,
                 ),
+                persistent=False,
             )
         if not hasattr(self, "lit_positions"):
             self.register_buffer(
@@ -781,6 +784,7 @@ class StructureModule(nn.Module):
                     device=device,
                     requires_grad=False,
                 ),
+                persistent=False,
             )
 
     def torsion_angles_to_frames(self, r, alpha, f):
