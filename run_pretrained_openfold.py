@@ -109,8 +109,9 @@ def round_up_seqlen(seqlen):
 
 def run_model(model, batch, tag, args):
     with torch.no_grad(): 
-        # Disable templates if there aren't any in the batch
-        model.config.template.enabled = model.config.template.enabled and any([
+        # Temporarily disable templates if there aren't any in the batch
+        template_enabled = model.config.template.enabled
+        model.config.template.enabled = template_enabled and any([
             "template_" in k for k in batch
         ])
 
@@ -120,6 +121,8 @@ def run_model(model, batch, tag, args):
         inference_time = time.perf_counter() - t
         logger.info(f"Inference time: {inference_time}")
    
+        model.config.template.enabled = template_enabled
+
     return out
 
 
