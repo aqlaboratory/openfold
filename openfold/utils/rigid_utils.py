@@ -96,6 +96,7 @@ def identity_rot_mats(
     )
     rots = rots.view(*((1,) * len(batch_dims)), 3, 3)
     rots = rots.expand(*batch_dims, -1, -1)
+    rots = rots.contiguous()
 
     return rots
 
