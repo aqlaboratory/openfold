@@ -292,7 +292,7 @@ per line (e.g. [PDB40](https://cdn.rcsb.org/resources/sequence/clusters/clusters
 Finally, call the training script:
 
 ```bash
-python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ \
+python3 train_openfold.py mmcif_dir/ alignment_dir/ template_mmcif_dir/ output_dir/ \
     2021-10-10 \ 
     --template_release_dates_cache_path mmcif_cache.json \ 
     --precision bf16 \
