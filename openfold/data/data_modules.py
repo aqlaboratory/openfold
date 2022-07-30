@@ -107,7 +107,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         
         if(filter_path is not None):
             with open(filter_path, "r") as f:
-                chains_to_include = [l.strip() for l in f.readlines()]
+                chains_to_include = set([l.strip() for l in f.readlines()])
 
             self._chain_ids = [c for c in self._chain_ids if c in chains_to_include]
        
