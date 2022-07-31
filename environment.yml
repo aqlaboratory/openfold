@@ -16,7 +16,7 @@ dependencies:
   - pytorch::pytorch=1.12.*
   - pip:
       - biopython==1.79
-      - deepspeed==0.5.9
+      - deepspeed==0.5.10
       - dm-tree==0.1.6
       - ml-collections==0.1.0
       - numpy==1.21.2
