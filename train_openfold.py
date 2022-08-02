@@ -250,7 +250,10 @@ def main(args):
     
     model_module = OpenFoldWrapper(config)
     if(args.resume_from_ckpt and args.resume_model_weights_only):
-        sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
+        if(os.path.isdir(args.resume_from_ckpt)):
+            sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
+        else:
+            sd = torch.load(args.resume_from_ckpt)
         sd = {k[len("module."):]:v for k,v in sd.items()}
         model_module.load_state_dict(sd)
         logging.info("Successfully loaded model weights...")
