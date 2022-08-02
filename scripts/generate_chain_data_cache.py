@@ -54,9 +54,8 @@ def parse_file(
         chain_dict["seq"] = residue_constants.aatype_to_str_sequence(
             protein_object.aatype,
         )
-        local_data["resolution"] = 0.
-
-        cluster_size = chain_cluster_size_dict.get(file_id.upper(), -1)
+        chain_dict["resolution"] = 0.
+        
         if(chain_cluster_size_dict is not None):
             cluster_size = chain_cluster_size_dict.get(
                 full_name.upper(), -1
