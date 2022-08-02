@@ -44,7 +44,8 @@ from openfold.utils.validation_metrics import (
     gdt_ha,
 )
 from scripts.zero_to_fp32 import (
-    get_fp32_state_dict_from_zero_checkpoint
+    get_fp32_state_dict_from_zero_checkpoint,
+    get_global_step_from_zero_checkpoint
 )
 
 from openfold.utils.logger import PerformanceLoggingCallback
@@ -61,7 +62,7 @@ class OpenFoldWrapper(pl.LightningModule):
         )
         
         self.cached_weights = None
-        self.last_lr_step = 0
+        self.last_lr_step = -1
 
     def forward(self, batch):
         return self.model(batch)
@@ -215,6 +216,12 @@ class OpenFoldWrapper(pl.LightningModule):
             lr=learning_rate, 
             eps=eps
         )
+
+        if self.last_lr_step != -1:
+            for group in optimizer.param_groups:
+                if 'initial_lr' not in group:
+                    group['initial_lr'] = learning_rate
+
         lr_scheduler = AlphaFoldLRScheduler(
             optimizer,
         )
@@ -237,6 +244,9 @@ class OpenFoldWrapper(pl.LightningModule):
     def on_save_checkpoint(self, checkpoint):
         checkpoint["ema"] = self.ema.state_dict()
 
+    def resume_last_lr_step(self, lr_step):
+        self.last_lr_step = lr_step
+
 
 def main(args):
     if(args.seed is not None):
@@ -249,6 +259,14 @@ def main(args):
     ) 
     
     model_module = OpenFoldWrapper(config)
+    if(args.resume_from_ckpt):
+        if(os.path.isdir(args.resume_from_ckpt)):  
+            last_global_step = get_global_step_from_zero_checkpoint(args.resume_from_ckpt)
+        else:
+            sd = torch.load(args.resume_from_ckpt)
+            last_global_step = int(sd['global_step'])
+        model_module.resume_last_lr_step(last_global_step)
+        logging.info("Successfully loaded last lr step...")
     if(args.resume_from_ckpt and args.resume_model_weights_only):
         if(os.path.isdir(args.resume_from_ckpt)):
             sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
