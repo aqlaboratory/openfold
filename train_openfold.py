@@ -245,7 +245,7 @@ def main(args):
     config = model_config(
         args.config_preset, 
         train=True, 
-        low_prec=(args.precision == "16")
+        low_prec=(str(args.precision) == "16")
     ) 
     
     model_module = OpenFoldWrapper(config)
