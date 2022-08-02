@@ -291,7 +291,8 @@ per line (e.g. [PDB40](https://cdn.rcsb.org/resources/sequence/clusters/clusters
 
 Optionally, download an AlphaFold-style validation set from CAMEO using 
 `scripts/download_cameo.py`. Use the resulting FASTA files to generate
-validation alignments.
+validation alignments and then specify the validation set's location 
+using the `--val_...` family of training script flags.
 
 Finally, call the training script:
 
