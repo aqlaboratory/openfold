@@ -289,6 +289,10 @@ python3 scripts/generate_chain_data_cache.py \
 where the `cluster_file` argument is a file of chain clusters, one cluster
 per line (e.g. [PDB40](https://cdn.rcsb.org/resources/sequence/clusters/clusters-by-entity-40.txt)).
 
+Optionally, download an AlphaFold-style validation set from CAMEO using 
+`scripts/download_cameo.py`. Use the resulting FASTA files to generate
+validation alignments.
+
 Finally, call the training script:
 
 ```bash
