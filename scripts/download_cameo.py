@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 import requests
 
 from openfold.data import mmcif_parsing
@@ -73,6 +74,7 @@ def main(args):
         with open(os.path.join(data_dir_path, cif_filename), "w") as fp:
             fp.write(pdb_file)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -94,5 +96,9 @@ if __name__ == '__main__':
 
     if(args.period not in VALID_PERIODS):
         raise ValueError(f"Invalid period. Choose from {VALID_PERIODS}")
+
+    date_regex = re.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    if(not date_regex.match(args.end_date)):
+        raise ValueError(f"Invalid end_date: {args.end_date}. Use YYYY-MM-DD format")
 
     main(args)
