@@ -50,7 +50,7 @@ def get_nvidia_cc():
     installed in the system (formatted as a tuple of strings) and an error
     message. When the former is provided, the latter is None, and vice versa.
 
-    Adapted from script by Jan Schlüte a
+    Adapted from script by Jan Schlüte t
     https://gist.github.com/f0k/63a664160d016a491b2cbea15913d549
     """
     CUDA_SUCCESS = 0
