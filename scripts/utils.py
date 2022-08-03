@@ -89,7 +89,7 @@ def get_nvidia_cc():
         return None, error_str.value.decode()
 
     if(nGpus.value < 1):
-        return None, err.value.decode()
+        return None, "No GPUs detected"
 
     result = cuda.cuDeviceGet(ctypes.byref(device), 0)
     if result != CUDA_SUCCESS:
