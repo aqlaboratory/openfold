@@ -64,7 +64,7 @@ def get_nvidia_cc():
         else:
             break
     else:
-        raise OSError("could not load any of: " + ' '.join(libnames))
+        return None, "Could not load any of: " + ' '.join(libnames)
 
     nGpus = ctypes.c_int()
     cc_major = ctypes.c_int()
