@@ -18,6 +18,8 @@ import subprocess
 
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
 
+from scripts.utils import get_nvidia_cc
+
 
 version_dependent_macros = [
     '-DVERSION_GE_1_1',
@@ -26,11 +28,11 @@ version_dependent_macros = [
 ]
 
 extra_cuda_flags = [
-    '-std=c++14', 
-    '-maxrregcount=50', 
+    '-std=c++14',
+    '-maxrregcount=50',
     '-U__CUDA_NO_HALF_OPERATORS__',
-    '-U__CUDA_NO_HALF_CONVERSIONS__', 
-    '--expt-relaxed-constexpr', 
+    '-U__CUDA_NO_HALF_CONVERSIONS__',
+    '--expt-relaxed-constexpr',
     '--expt-extended-lambda'
 ]
 
@@ -44,11 +46,24 @@ def get_cuda_bare_metal_version(cuda_dir):
 
     return raw_output, bare_metal_major, bare_metal_minor
 
-cc_flag = ['-gencode', 'arch=compute_70,code=sm_70']
+compute_capabilities = set()
+compute_capabilities.add((7, 0))
 _, bare_metal_major, _ = get_cuda_bare_metal_version(CUDA_HOME)
 if int(bare_metal_major) >= 11:
-    cc_flag.append('-gencode')
-    cc_flag.append('arch=compute_80,code=sm_80')
+    compute_capabilities.add((8, 0))
+
+compute_capability, _ = get_nvidia_cc()
+if compute_capability is not None:
+    compute_capabilities.add(compute_capability)
+
+print(compute_capabilities)
+
+cc_flag = []
+for major, minor in list(compute_capabilities):
+    cc_flag.extend([
+        '-gencode',
+        f'arch=compute_{major}{minor},code=sm_{major}{minor}',
+    ])
 
 extra_cuda_flags += cc_flag
 
@@ -75,15 +90,15 @@ setup(
         ],
         include_dirs=[
             os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), 
+                os.path.dirname(os.path.abspath(__file__)),
                 'openfold/utils/kernel/csrc/'
             )
         ],
         extra_compile_args={
             'cxx': ['-O3'] + version_dependent_macros,
             'nvcc': (
-                ['-O3', '--use_fast_math'] + 
-                version_dependent_macros + 
+                ['-O3', '--use_fast_math'] +
+                version_dependent_macros +
                 extra_cuda_flags
             ),
         }
@@ -92,7 +107,10 @@ setup(
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.7,' 
+        'Programming Language :: Python :: 3.7,'
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
 )
+
+
+
