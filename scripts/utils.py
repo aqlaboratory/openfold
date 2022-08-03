@@ -55,7 +55,12 @@ def get_nvidia_cc():
     """
     CUDA_SUCCESS = 0
 
-    libnames = ('libcuda.so', 'libcuda.dylib', 'cuda.dll')
+    libnames = [
+        'libcuda.so', 
+        'libcuda.dylib', 
+        'cuda.dll',
+        '/usr/local/cuda/compat/libcuda.so',
+    ]
     for libname in libnames:
         try:
             cuda = ctypes.CDLL(libname)
@@ -64,7 +69,8 @@ def get_nvidia_cc():
         else:
             break
     else:
-        return None, "Could not load any of: " + ' '.join(libnames)
+        raise OSError("Could not load CUDA library")
+        #return None, "Could not load any of: " + ' '.join(libnames)
 
     nGpus = ctypes.c_int()
     cc_major = ctypes.c_int()
