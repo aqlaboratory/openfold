@@ -59,7 +59,7 @@ def get_nvidia_cc():
         'libcuda.so', 
         'libcuda.dylib', 
         'cuda.dll',
-        '/usr/local/cuda/compat/libcuda.so',
+        '/usr/local/cuda/compat/libcuda.so', # For Docker
     ]
     for libname in libnames:
         try:
@@ -69,8 +69,7 @@ def get_nvidia_cc():
         else:
             break
     else:
-        raise OSError("Could not load CUDA library")
-        #return None, "Could not load any of: " + ' '.join(libnames)
+        return None, "Could not load any of: " + ' '.join(libnames)
 
     nGpus = ctypes.c_int()
     cc_major = ctypes.c_int()
@@ -83,6 +82,7 @@ def get_nvidia_cc():
     result = cuda.cuInit(0)
     if result != CUDA_SUCCESS:
         err = cuda.cuGetErrorString(result, ctypes.byref(error_str))
+        print(err.value.decode())
         return None, err.value.decode()
     result = cuda.cuDeviceGetCount(ctypes.byref(nGpus))
     if result != CUDA_SUCCESS:
