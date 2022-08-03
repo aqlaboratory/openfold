@@ -81,21 +81,20 @@ def get_nvidia_cc():
 
     result = cuda.cuInit(0)
     if result != CUDA_SUCCESS:
-        err = cuda.cuGetErrorString(result, ctypes.byref(error_str))
-        print(err.value.decode())
-        return None, err.value.decode()
+        cuda.cuGetErrorString(result, ctypes.byref(error_str))
+        return None, error_str.value.decode()
     result = cuda.cuDeviceGetCount(ctypes.byref(nGpus))
     if result != CUDA_SUCCESS:
-        err = cuda.cuGetErrorString(result, ctypes.byref(error_str))
-        return None, err.value.decode()
+        cuda.cuGetErrorString(result, ctypes.byref(error_str))
+        return None, error_str.value.decode()
 
     if(nGpus.value < 1):
         return None, err.value.decode()
 
     result = cuda.cuDeviceGet(ctypes.byref(device), 0)
     if result != CUDA_SUCCESS:
-        err = cuda.cuGetErrorString(result, ctypes.byref(error_str))
-        return None, err.value.decode()
+        cuda.cuGetErrorString(result, ctypes.byref(error_str))
+        return None, error_str.value.decode()
 
     if cuda.cuDeviceComputeCapability(ctypes.byref(cc_major), ctypes.byref(cc_minor), device) != CUDA_SUCCESS:
         return None, "Compute Capability not found"
