@@ -46,7 +46,12 @@ def get_cuda_bare_metal_version(cuda_dir):
 
     return raw_output, bare_metal_major, bare_metal_minor
 
-compute_capabilities = set()
+compute_capabilities = set([
+    (3, 7), # K80, e.g.
+    (5, 2), # Titan X
+    (6, 1), # GeForce 1000-series
+])
+
 compute_capabilities.add((7, 0))
 _, bare_metal_major, _ = get_cuda_bare_metal_version(CUDA_HOME)
 if int(bare_metal_major) >= 11:
@@ -54,7 +59,9 @@ if int(bare_metal_major) >= 11:
 
 compute_capability, _ = get_nvidia_cc()
 if compute_capability is not None:
-    compute_capabilities.add(compute_capability)
+    compute_capabilities = set([compute_capability])
+
+print(compute_capabilities)
 
 cc_flag = []
 for major, minor in list(compute_capabilities):
