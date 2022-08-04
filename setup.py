@@ -61,8 +61,6 @@ compute_capability, _ = get_nvidia_cc()
 if compute_capability is not None:
     compute_capabilities = set([compute_capability])
 
-print(compute_capabilities)
-
 cc_flag = []
 for major, minor in list(compute_capabilities):
     cc_flag.extend([
