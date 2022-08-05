@@ -41,8 +41,19 @@ def enforce_config_constraints(config):
     if(config.globals.use_flash and not fa_is_installed):
         raise ValueError("use_flash requires that FlashAttention is installed")
 
+    if(
+        config.globals.offload_inference and 
+        not config.model.template.average_templates
+    ):
+        config.model.template.offload_templates = True
 
-def model_config(name, train=False, low_prec=False):
+
+def model_config(
+    name, 
+    train=False, 
+    low_prec=False, 
+    long_sequence_inference=False
+):
     c = copy.deepcopy(config)
     # TRAINING PRESETS
     if name == "initial_training":
@@ -144,6 +155,16 @@ def model_config(name, train=False, low_prec=False):
     else:
         raise ValueError("Invalid model name")
 
+    if long_sequence_inference:
+        assert(not train)
+        c.globals.offload_inference = True
+        c.globals.use_lma = True
+        c.globals.use_flash = False
+        c.model.template.offload_inference = True
+        c.model.template.template_pair_stack.tune_chunk_size = False
+        c.model.extra_msa.extra_msa_stack.tune_chunk_size = False
+        c.model.evoformer_stack.tune_chunk_size = False
+    
     if train:
         c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
@@ -151,6 +172,7 @@ def model_config(name, train=False, low_prec=False):
         c.globals.offload_inference = False
         c.model.template.average_templates = False
         c.model.template.offload_templates = False
+    
     if low_prec:
         c.globals.eps = 1e-4
         # If we want exact numerical parity with the original, inf can't be
@@ -426,7 +448,8 @@ config = mlc.ConfigDict(
                 # Offload template embeddings to CPU memory. Vastly reduced
                 # memory consumption at the cost of a modest increase in
                 # runtime. Useful for inference on very long sequences.
-                # Mutually exclusive with average_templates.
+                # Mutually exclusive with average_templates. Automatically
+                # enabled if offload_inference is set.
                 "offload_templates": False,
             },
             "extra_msa": {

@@ -215,11 +215,14 @@ see the aforementioned Staats & Rabe preprint.
 wastes time.
 - As a last resort, consider enabling `offload_inference`. This enables more
 extensive CPU offloading at various bottlenecks throughout the model.
+- Disable FlashAttention, which seems unstable on long sequences.
 
 Using the most conservative settings, we were able to run inference on a 
 4600-residue complex with a single A100. Compared to AlphaFold's own memory 
 offloading mode, ours is considerably faster; the same complex takes the more 
-efficent AlphaFold-Multimer more than double the time.
+efficent AlphaFold-Multimer more than double the time. Use the
+`long_sequence_inference` config option to enable all of these interventions
+at once.
 
 ### Training
 
