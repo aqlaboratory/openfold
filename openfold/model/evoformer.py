@@ -511,7 +511,7 @@ class ExtraMSABlock(nn.Module):
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
-                    use_memory_efficient_kernel=False, # not use_lma, # disabled for fugaku
+                    use_memory_efficient_kernel=not use_lma,
                     _checkpoint_chunks=
                         self.ckpt if torch.is_grad_enabled() else False,
                 )

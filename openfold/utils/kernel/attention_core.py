@@ -17,7 +17,10 @@ from operator import mul
 
 import torch
 
-attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
+if torch.cuda.is_available():
+    attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
+else:
+    import openfold.utils.kernel.attention_core_cpu as attn_core_inplace_cuda
 
 
 SUPPORTED_DTYPES = [torch.float32, torch.bfloat16]

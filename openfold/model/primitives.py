@@ -24,8 +24,7 @@ from scipy.stats import truncnorm
 
 from openfold.utils.checkpointing import get_checkpoint_fn
 from openfold.utils.chunk_utils import _chunk_slice
-# commented out for fugaku
-# from openfold.utils.kernel.attention_core import attention_core
+from openfold.utils.kernel.attention_core import attention_core
 from openfold.utils.tensor_utils import (
     permute_final_dims,
     flatten_final_dims,

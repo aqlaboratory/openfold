@@ -15,11 +15,12 @@ class TestAttentionCore(unittest.TestCase):
         n_seq = consts.n_extra
         c = consts.c_e
         dtype = torch.float32
+        device = torch.device('cpu')
         
-        q = torch.rand([n_seq, h, n_res, c], dtype=dtype).cuda()
-        k = torch.rand([n_seq, h, n_res, c], dtype=dtype).cuda()
-        v = torch.rand([n_seq, h, n_res, c], dtype=dtype).cuda()
-        mask = torch.randint(0, 2, [n_seq, n_res]).cuda()
+        q = torch.rand([n_seq, h, n_res, c], dtype=dtype).to(device)
+        k = torch.rand([n_seq, h, n_res, c], dtype=dtype).to(device)
+        v = torch.rand([n_seq, h, n_res, c], dtype=dtype).to(device)
+        mask = torch.randint(0, 2, [n_seq, n_res]).to(device)
         mask_bias = (1e9 * mask - 1)[..., None, None, :].to(dtype)
         
         out_repro = attention_core(q, k, v, mask_bias, None)
@@ -36,14 +37,14 @@ class TestAttentionCore(unittest.TestCase):
         
         q = torch.rand(
             [n_seq, h, n_res, c], dtype=dtype, requires_grad=True
-        ).cuda()
+        ).to(device)
         k = torch.rand(
             [n_seq, h, n_res, c], dtype=dtype, requires_grad=True
-        ).cuda()
+        ).to(device)
         v = torch.rand(
             [n_seq, h, n_res, c], dtype=dtype, requires_grad=True
-        ).cuda()
-        mask = torch.randint(0, 2, [n_seq, n_res]).cuda()
+        ).to(device)
+        mask = torch.randint(0, 2, [n_seq, n_res]).to(device)
         mask_bias = (1e9 * mask - 1)[..., None, None, :].to(dtype)
         
         def clone(t):

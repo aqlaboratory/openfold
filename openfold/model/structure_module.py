@@ -39,8 +39,10 @@ from openfold.utils.tensor_utils import (
     flatten_final_dims,
 )
 
-# commented out for fugaku
-# attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
+if torch.cuda.is_available():
+    attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
+else:
+    import openfold.utils.kernel.attention_core_cpu as attn_core_inplace_cuda
 
 
 class AngleResnetBlock(nn.Module):
@@ -676,7 +678,7 @@ class StructureModule(nn.Module):
                 z, 
                 rigids, 
                 mask, 
-                inplace_safe=False, # inplace_safe, # disabled for fugaku
+                inplace_safe=inplace_safe,
                 _offload_inference=_offload_inference, 
                 _z_reference_list=z_reference_list
             )
