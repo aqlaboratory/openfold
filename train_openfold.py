@@ -1,12 +1,6 @@
 import argparse
 import logging
 import os
-
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-#os.environ["MASTER_ADDR"]="10.119.81.14"
-#os.environ["MASTER_PORT"]="42069"
-#os.environ["NODE_RANK"]="0"
-
 import random
 import sys
 import time
