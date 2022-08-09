@@ -358,6 +358,7 @@ class ChunkSizeTuner:
         candidates = [2**l for l in range(int(math.log(self.max_chunk_size, 2)) + 1)]
         candidates = [c for c in candidates if c > min_chunk_size]
         candidates = [min_chunk_size] + candidates
+        candidates[-1] += 4
     
         def test_chunk_size(chunk_size):
             try:
