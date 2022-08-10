@@ -5,21 +5,23 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 3 ] ; then
+if [ $# -ne 5 ] ; then
     cat << EOF >&2
-usage: $0 TimeLimit InputDir OutputDir [submit-option]
+usage: $0 NumNodes TimeLimit InputDir OutputDir MMCIFFileList [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
 The InputDir is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
 
-example: $0 2:00:00 input alignment
+example: $0 4 2:00:00 input alinment
 EOF
     exit 1
 fi
 
+NumNodes="$1" && shift
 TimeLimit="$1" && shift
 InputDir="$1" && shift
 OutputDir="$1" && shift
+MMCIFFileList="$1" && shift
 
 . ../scripts/setenv
 
@@ -31,10 +33,16 @@ echo DataDir is $DataDir
 ### WORKER script
 WORKER="worker.sh"
 
-NumNodes=1
-
 # Select Resource Group
-RSC_GRP=small
+if  [ $NumNodes -eq 1 ] ; then
+    RSC_GRP=small
+elif  [ $NumNodes -lt 385 ] ; then
+    RSC_GRP=small
+elif  [ $NumNodes -lt 55297 ] ; then
+    RSC_GRP=large
+else
+    RSC_GRP=huge
+fi
 
 ### Create log directory
 MyDir=`readlink -f "$0" | xargs dirname`
@@ -82,15 +90,17 @@ DataDir="$DataDir"
 
 ###
 WORKER=${WORKER}
+NumNodes=$NumNodes
+InputDir=$InputDir
+OutputDir=$OutputDir
+MMCIFFileList=$MMCIFFileList
 
 source ../scripts/setenv
-
-$LogDir/$WORKER $InputDir $OutputDir 2>&1 | tee "$LogDir/output"
 
 
 EOF
 
-#cat $BaseFile >> "$ScriptFile"
+cat BatchBase >> "$ScriptFile"
 
 echo ---------------
 echo Job information

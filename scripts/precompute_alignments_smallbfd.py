@@ -63,6 +63,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
 def parse_and_align(files, alignment_runner, args):
     for f in files:
+        logging.info('Start processing protain {}'.format(f))
         path = os.path.join(args.input_dir, f)
         file_id = os.path.splitext(f)[0]
         seq_group_dict = {}  
@@ -110,6 +111,8 @@ def parse_and_align(files, alignment_runner, args):
 
         seq_group_tuples = [(k,v) for k,v in seq_group_dict.items()]
         run_seq_group_alignments(seq_group_tuples, alignment_runner, args)
+        logging.info('End processing protain {}'.format(f))
+
 
 
 def main(args):
@@ -127,7 +130,11 @@ def main(args):
         no_cpus=args.cpus_per_task,
     )
 
-    files = list(os.listdir(args.input_dir))
+    if (args.mmcif_file_list):
+        with open(args.mmcif_file_list, 'r', encoding='utf-8') as f:
+            files = [line.rstrip('\n') for line in f.readlines()]
+    else:
+        files = list(os.listdir(args.input_dir))
 
     # Do some filtering
     if(args.mmcif_cache is not None):
@@ -243,6 +250,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--filter", type=bool, default=True,
+    )
+    parser.add_argument(
+        "--mmcif_file_list", type=str, default=None,
+        help="Path to mmCIF file list"
     )
 
     args = parser.parse_args()
