@@ -27,9 +27,7 @@ for chain_dir in $(ls "${RODA_DIR}"); do
     CHAIN_DIR_PATH="${RODA_DIR}/${chain_dir}"
     for subdir in $(ls "${CHAIN_DIR_PATH}"); do
         if [[ $subdir = "pdb" ]] || [[ $subdir = "cif" ]]; then
-            CHAIN_DATA_DIR="${DATA_DIR}/${chain_dir}"
-            mkdir -p "${CHAIN_DATA_DIR}"
-            mv "${CHAIN_DIR_PATH}/${subdir}"/* "${CHAIN_DATA_DIR}"
+            mv "${CHAIN_DIR_PATH}/${subdir}"/* "${DATA_DIR}"
         else
             CHAIN_ALIGNMENT_DIR="${ALIGNMENT_DIR}/${chain_dir}"
             mkdir -p "${CHAIN_ALIGNMENT_DIR}"
