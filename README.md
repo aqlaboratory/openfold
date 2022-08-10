@@ -326,7 +326,8 @@ script.
 
 If you're using your own MSAs or MSAs from the RODA repository, make sure that
 the `alignment_dir` contains one directory per chain and that each of these
-contains alignments (.sto, .a3m, and .hhr) corresponding to that chain.
+contains alignments (.sto, .a3m, and .hhr) corresponding to that chain. You
+can use `scripts/flatten_roda.sh` to reformat RODA downloads in this way.
 
 Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
 or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
