@@ -141,8 +141,8 @@ python3 run_pretrained_openfold.py \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
     --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
-    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign
-    --config_preset "model_1_ptm"
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
+    --config_preset "model_1_ptm" \
     --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_ptm_2.pt
 ```
 
