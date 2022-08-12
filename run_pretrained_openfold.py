@@ -509,8 +509,11 @@ def update_timings(dict, output_file=os.path.join(os.getcwd(), "timings.json")):
     import json
     if os.path.exists(output_file):
         with open(output_file, "r") as f:
-            if f:
+            try:
                 timings = json.load(f)
+            except json.JSONDecodeError:
+                logger.info(f"Overwriting non-standard JSON in {output_file}.")
+                timings = {}
     else:
         timings = {}
     timings.update(dict)
