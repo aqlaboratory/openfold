@@ -509,12 +509,13 @@ def update_timings(dict, output_file=os.path.join(os.getcwd(), "timings.json")):
     import json
     if os.path.exists(output_file):
         with open(output_file, "r") as f:
-            timings = json.loads(f)
+            if f:
+                timings = json.load(f)
     else:
         timings = {}
     timings.update(dict)
     with open(output_file, "w") as f:
-        timings.dumps(f)
+        json.dump(timings, f)
     return output_file
 
 if __name__ == "__main__":
