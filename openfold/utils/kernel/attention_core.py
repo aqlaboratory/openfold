@@ -25,6 +25,7 @@ else:
 
 SUPPORTED_DTYPES = [torch.float32, torch.bfloat16]
 
+_recompute = True
 
 class AttentionCoreFunction(torch.autograd.Function):
     @staticmethod
@@ -57,13 +58,37 @@ class AttentionCoreFunction(torch.autograd.Function):
 
         ctx.bias_1_shape = bias_1.shape if bias_1 is not None else None
         ctx.bias_2_shape = bias_2.shape if bias_2 is not None else None
-        ctx.save_for_backward(q, k, v, attention_logits)
+
+        if _recompute:
+            ctx.save_for_backward(q, k, v, bias_1, bias_2)
+        else:
+            ctx.save_for_backward(q, k, v, attention_logits)
 
         return o
 
     @staticmethod
     def backward(ctx, grad_output):
-        q, k, v, attention_logits = ctx.saved_tensors
+        if _recompute:
+            q, k, v, bias_1, bias_2 = ctx.saved_tensors
+            #attention_logits
+
+            # [*, H, Q, K] 
+            attention_logits = torch.matmul(
+                q, k.transpose(-1, -2), 
+            )
+
+            if(bias_1 is not None):
+                attention_logits += bias_1
+            if(bias_2 is not None):
+                attention_logits += bias_2
+
+            attn_core_inplace_cuda.forward_(
+                attention_logits, 
+                reduce(mul, attention_logits.shape[:-1]),
+                attention_logits.shape[-1],
+            )
+        else:
+            q, k, v, attention_logits = ctx.saved_tensors
         grad_q = grad_k = grad_v = grad_bias_1 = grad_bias_2 = None
        
         grad_v = torch.matmul(
