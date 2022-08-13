@@ -14,7 +14,13 @@ def backward_(attention_logits, #output
               rows,
               cols_output,
               cols_values):
-    v_t = permute_final_dims(v, (1, 0))
-    dy_buf = torch.matmul(grad_output, v_t)
-    tmp_sum = torch.sum(attention_logits * dy_buf, dim=-1)
-    attention_logits.mul_(dy_buf.sub_(tmp_sum.unsqueeze(-1)))
+
+    seq_dim = -4
+    chunk_size = 128
+    for al_c, go_c, v_c in zip(torch.split(attention_logits, chunk_size, dim=seq_dim),
+                               torch.split(grad_output, chunk_size, dim=seq_dim),
+                               torch.split(v, chunk_size, dim=seq_dim)):
+        v_t = permute_final_dims(v_c, (1, 0))
+        dy_buf = torch.matmul(go_c, v_t)
+        tmp_sum = torch.sum(al_c * dy_buf, dim=-1)
+        al_c.mul_(dy_buf.sub_(tmp_sum.unsqueeze(-1)))

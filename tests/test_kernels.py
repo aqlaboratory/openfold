@@ -34,6 +34,7 @@ class TestAttentionCore(unittest.TestCase):
         n_seq = consts.n_extra
         c = consts.c_e
         dtype = torch.float32
+        device = torch.device('cpu')
         
         q = torch.rand(
             [n_seq, h, n_res, c], dtype=dtype, requires_grad=True
