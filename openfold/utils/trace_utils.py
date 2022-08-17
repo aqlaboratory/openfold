@@ -168,7 +168,6 @@ def trace_model_(model, sample_input):
         # Trim unspecified arguments
         fn_arg_names = fn_arg_names[:len(arg_list)]
         name_tups = list(zip(fn_arg_names, [n for n, _ in arg_list]))
-        print(name_tups)
         assert(all([n1 == n2 for n1, n2 in name_tups]))
 
     evoformer_attn_chunk_size = max(

@@ -183,10 +183,16 @@ class AlphaFold(nn.Module):
             use_lma=self.globals.use_lma,
         )
 
+        t_mask = torch.sum(batch["template_mask"], dim=-1) > 0
+        # Append singletons
+        t_mask = t_mask.reshape(
+            *t_mask.shape, *([1] * (len(t.shape) - len(t_mask.shape)))
+        )
+
         if(inplace_safe):
-            t *= (torch.sum(batch["template_mask"], dim=-1) > 0)
+            t *= t_mask
         else:
-            t = t * (torch.sum(batch["template_mask"], dim=-1) > 0)
+            t = t * t_mask
 
         ret = {}
 
@@ -380,7 +386,6 @@ class AlphaFold(nn.Module):
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
                 chunk_size=self.globals.chunk_size,
                 use_lma=self.globals.use_lma,
-                use_flash=self.globals.use_flash,
                 _mask_trans=self.config._mask_trans,
             )
     
