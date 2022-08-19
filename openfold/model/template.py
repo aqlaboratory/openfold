@@ -448,7 +448,7 @@ def embed_templates_offload(
     for i in range(n_templ):
         idx = batch["template_aatype"].new_tensor(i)
         single_template_feats = tensor_tree_map(
-            lambda t: torch.index_select(t, templ_dim, idx),
+            lambda t: torch.index_select(t, templ_dim, idx).squeeze(templ_dim),
             batch,
         )
 
