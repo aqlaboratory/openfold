@@ -160,7 +160,7 @@ class AlphaFold(nn.Module):
             del t
 
         if(not inplace_safe):
-            t_pair = torch.cat(pair_embeds, dim=templ_dim)
+            t_pair = torch.stack(pair_embeds, dim=templ_dim)
        
         del pair_embeds
 
