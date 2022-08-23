@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from __future__ import annotations
+from functools import lru_cache
 from typing import Tuple, Any, Sequence, Callable, Optional
 
 import numpy as np
@@ -84,7 +85,7 @@ def rot_vec_mul(
         dim=-1,
     )
 
-    
+@lru_cache(maxsize=None)
 def identity_rot_mats(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None, 
@@ -101,6 +102,7 @@ def identity_rot_mats(
     return rots
 
 
+@lru_cache(maxsize=None)
 def identity_trans(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None,
@@ -116,6 +118,7 @@ def identity_trans(
     return trans
 
 
+@lru_cache(maxsize=None)
 def identity_quats(
     batch_dims: Tuple[int], 
     dtype: Optional[torch.dtype] = None,
@@ -175,7 +178,7 @@ def quat_to_rot(quat: torch.Tensor) -> torch.Tensor:
     quat = quat[..., None] * quat[..., None, :]
 
     # [4, 4, 3, 3]
-    mat = quat.new_tensor(_QTR_MAT, requires_grad=False)
+    mat = _get_quat("_QTR_MAT", dtype=quat.dtype, device=quat.device)
 
     # [*, 4, 4, 3, 3]
     shaped_qtr_mat = mat.view((1,) * len(quat.shape[:-2]) + mat.shape)
@@ -230,10 +233,20 @@ _QUAT_MULTIPLY[:, :, 3] = [[ 0, 0, 0, 1],
 
 _QUAT_MULTIPLY_BY_VEC = _QUAT_MULTIPLY[:, 1:, :]
 
+_CACHED_QUATS = {
+    "_QTR_MAT": _QTR_MAT,
+    "_QUAT_MULTIPLY": _QUAT_MULTIPLY,
+    "_QUAT_MULTIPLY_BY_VEC": _QUAT_MULTIPLY_BY_VEC
+}
+
+@lru_cache(maxsize=None)
+def _get_quat(quat_key, dtype, device):
+    return torch.tensor(_CACHED_QUATS[quat_key], dtype=dtype, device=device)
+
 
 def quat_multiply(quat1, quat2):
     """Multiply a quaternion by another quaternion."""
-    mat = quat1.new_tensor(_QUAT_MULTIPLY)
+    mat = _get_quat("_QUAT_MULTIPLY", dtype=quat1.dtype, device=quat1.device)
     reshaped_mat = mat.view((1,) * len(quat1.shape[:-1]) + mat.shape)
     return torch.sum(
         reshaped_mat *
@@ -245,7 +258,7 @@ def quat_multiply(quat1, quat2):
 
 def quat_multiply_by_vec(quat, vec):
     """Multiply a quaternion by a pure-vector quaternion."""
-    mat = quat.new_tensor(_QUAT_MULTIPLY_BY_VEC)
+    mat = _get_quat("_QUAT_MULTIPLY_BY_VEC", dtype=quat.dtype, device=quat.device)
     reshaped_mat = mat.view((1,) * len(quat.shape[:-1]) + mat.shape)
     return torch.sum(
         reshaped_mat *
