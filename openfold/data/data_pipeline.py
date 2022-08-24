@@ -21,6 +21,7 @@ from typing import Mapping, Optional, Sequence, Any
 import numpy as np
 
 from openfold.data import templates, parsers, mmcif_parsing
+from openfold.data.templates import get_custom_template_features
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
 from openfold.data.tools.utils import to_date 
 from openfold.np import residue_constants, protein
@@ -258,6 +259,41 @@ def make_msa_features(
     )
     return features
 
+
+def make_sequence_features_with_custom_template(
+        sequence: str,
+        mmcif_path: str,
+        pdb_id: str,
+        chain_id: str,
+        kalign_binary_path: str) -> FeatureDict:
+    """
+    process a single fasta file using features derived from a single template rather than an alignment
+    """
+    num_res = len(sequence)
+
+    sequence_features = make_sequence_features(
+        sequence=sequence,
+        description=pdb_id,
+        num_res=num_res,
+    )
+
+    msa_data = [[sequence]]
+    deletion_matrix = [[[0 for _ in sequence]]]
+
+    msa_features = make_msa_features(msa_data, deletion_matrix)
+    template_features = get_custom_template_features(
+        mmcif_path=mmcif_path,
+        query_sequence=sequence,
+        pdb_id=pdb_id,
+        chain_id=chain_id,
+        kalign_binary_path=kalign_binary_path
+    )
+
+    return {
+        **sequence_features,
+        **msa_features,
+        **template_features.features
+    }
 
 class AlignmentRunner:
     """Runs alignment tools and saves the results"""
