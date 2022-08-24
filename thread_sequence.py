@@ -38,9 +38,9 @@ def main(args):
 
     config = model_config(args.config_preset)
 
-
-    #TODO make configurable
-    random_seed = random.randrange(2 ** 32)
+    random_seed = args.data_random_seed
+    if random_seed is None:
+        random_seed = random.randrange(2**32)
 
     numpy.random.seed(random_seed)
     torch.manual_seed(random_seed + 1)
@@ -148,6 +148,10 @@ if __name__ == "__main__":
         "--subtract_plddt", action="store_true", default=False,
         help=""""Whether to output (100 - pLDDT) in the B-factor column instead
                  of the pLDDT itself"""
+    )
+
+    parser.add_argument(
+        "--data_random_seed", type=str, default=None
     )
 
     add_data_args(parser)
