@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import math
+import sys
 import torch
 import torch.nn as nn
 from typing import Tuple, Sequence, Optional
@@ -208,6 +208,7 @@ class EvoformerBlockCore(nn.Module):
 
         if(_offload_inference and inplace_safe):
             del m, z
+            assert(sys.getrefcount(input_tensors[1]) == 2)
             input_tensors[1] = input_tensors[1].cpu()
             torch.cuda.empty_cache()
             m, z = input_tensors 
@@ -218,6 +219,7 @@ class EvoformerBlockCore(nn.Module):
 
         if(_offload_inference and inplace_safe):
             del m, z
+            assert(sys.getrefcount(input_tensors[0]) == 2)
             input_tensors[0] = input_tensors[0].cpu()
             input_tensors[1] = input_tensors[1].to(opm.device)
             m, z = input_tensors
@@ -300,6 +302,8 @@ class EvoformerBlockCore(nn.Module):
         if(_offload_inference and inplace_safe):
             device = z.device
             del m, z
+            assert(sys.getrefcount(input_tensors[0]) == 2)
+            assert(sys.getrefcount(input_tensors[1]) == 2)
             input_tensors[0] = input_tensors[0].to(device)
             input_tensors[1] = input_tensors[1].to(device)
             m, z = input_tensors

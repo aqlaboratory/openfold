@@ -14,6 +14,7 @@
 # limitations under the License.
 from functools import partial
 import math
+import sys
 from typing import Optional, List
 
 import torch
@@ -470,6 +471,8 @@ def embed_templates_offload(
             use_lma=model.globals.use_lma,
             _mask_trans=model.config._mask_trans,
         )
+
+        assert(sys.getrefcount(t) == 2)
 
         pair_embeds_cpu.append(t.cpu())
 

@@ -15,6 +15,7 @@
 from functools import reduce
 import importlib
 import math
+import sys
 from operator import mul
 
 import torch
@@ -307,6 +308,7 @@ class InvariantPointAttention(nn.Module):
         b = self.linear_b(z[0])
         
         if(_offload_inference):
+            assert(sys.getrefcount(z[0]) == 2)
             z[0] = z[0].cpu()
 
         # [*, H, N_res, N_res]
@@ -651,6 +653,7 @@ class StructureModule(nn.Module):
 
         z_reference_list = None
         if(_offload_inference):
+            assert(sys.getrefcount(evoformer_output_dict["pair"]) == 2)
             evoformer_output_dict["pair"] = evoformer_output_dict["pair"].cpu()
             z_reference_list = [z]
             z = None
