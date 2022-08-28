@@ -332,9 +332,10 @@ consult PyTorch Lightning documentation and the `--help` flag of the training
 script.
 
 Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
-or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
-which uses a self-distillation set subject to special preprocessing steps, use
-the family of `--distillation` flags.
+or even ProteinNet .core files. 
+
+To emulate the AlphaFold training procedure, which uses a self-distillation set 
+subject to special preprocessing steps, use the family of `--distillation` flags.
 
 In cases where it may be burdensome to create separate files for each chain's
 alignments, alignment directories can be consolidated using the scripts in 
@@ -346,7 +347,7 @@ resulting index, `super.index`, can be passed to the training script flags
 containing the phrase `alignment_index`. In this scenario, the `alignment_dir`
 flags instead represent the directory containing the compiled alignment
 databases. Both the training and distillation datasets can be compiled in this
-way.
+way. Anecdotally, this can speed up training in I/O-bottlenecked environments.
 
 ## Testing
 
