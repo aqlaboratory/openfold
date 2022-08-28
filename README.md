@@ -82,14 +82,9 @@ To install the HH-suite to `/usr/bin`, run
 
 ## Usage
 
-To download the databases used to train OpenFold and AlphaFold run:
-
-```bash
-bash scripts/download_data.sh data/
-```
-
-You have two choices for downloading protein databases, depending on whether 
-you want to use DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or 
+If you intend to generate your own alignments, e.g. for inference, you have two 
+choices for downloading protein databases, depending on whether you want to use 
+DeepMind's MSA generation pipeline (w/ HMMR & HHblits) or 
 [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster
 MMseqs2 instead. For the former, run:
 
@@ -108,9 +103,21 @@ Make sure to run the latter command on the machine that will be used for MSA
 generation (the script estimates how the precomputed database index used by
 MMseqs2 should be split according to the memory available on the system).
 
-Alternatively, you can use raw MSAs from our aforementioned MSA database or
+If you're using your own precomputed MSAs or MSAs from the RODA repository, 
+there's no need to download these alignment databases. Simply make sure that
+the `alignment_dir` contains one directory per chain and that each of these
+contains alignments (.sto, .a3m, and .hhr) corresponding to that chain. You
+can use `scripts/flatten_roda.sh` to reformat RODA downloads in this way.
+Note that the RODA alignments are NOT compatible with the recent .cif ground
+truth files downloaded by `scripts/download_alphafold_dbs.sh`. To fetch .cif 
+files that match the RODA MSAs, once the alignments are flattened, use 
+`scripts/download_roda_pdbs.sh`. That script outputs a list of alignment dirs 
+for which matching .cif files could not be found. These should be removed from 
+the alignment directory.
+
+Alternatively, you can use raw MSAs from 
 [ProteinNet](https://github.com/aqlaboratory/proteinnet). After downloading
-the latter database, use `scripts/prep_proteinnet_msas.py` to convert the data 
+that database, use `scripts/prep_proteinnet_msas.py` to convert the data 
 into a format recognized by the OpenFold parser. The resulting directory 
 becomes the `alignment_dir` used in subsequent steps. Use 
 `scripts/unpack_proteinnet.py` to extract `.core` files from ProteinNet text 
@@ -323,11 +330,6 @@ and supports the full range of training options that entails, including
 multi-node distributed training, validation, and so on. For more information, 
 consult PyTorch Lightning documentation and the `--help` flag of the training 
 script.
-
-If you're using your own MSAs or MSAs from the RODA repository, make sure that
-the `alignment_dir` contains one directory per chain and that each of these
-contains alignments (.sto, .a3m, and .hhr) corresponding to that chain. You
-can use `scripts/flatten_roda.sh` to reformat RODA downloads in this way.
 
 Note that, despite its variable name, `mmcif_dir` can also contain PDB files 
 or even ProteinNet .core files. To emulate the AlphaFold training procedure, 
