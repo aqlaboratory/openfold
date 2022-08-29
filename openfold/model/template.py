@@ -465,7 +465,7 @@ def embed_templates_offload(
 
         # [*, 1, N, N, C_z]
         t = model.template_pair_stack(
-            t,
+            t.unsqueeze(templ_dim),
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=model.globals.chunk_size,
             use_lma=model.globals.use_lma,
