@@ -615,7 +615,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
         if(self.training_mode):
             train_dataset = dataset_gen(
                 data_dir=self.train_data_dir,
-                chain_data_cache_path=self.train_data_cache_path,
                 alignment_dir=self.train_alignment_dir,
                 mapping_path=self.train_mapping_path,
                 max_template_hits=self.config.train.max_template_hits,
@@ -630,7 +629,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
             if(self.distillation_data_dir is not None):
                 distillation_dataset = dataset_gen(
                     data_dir=self.distillation_data_dir,
-                    chain_data_cache_path=self.distillation_chain_data_cache_path,
                     alignment_dir=self.distillation_alignment_dir,
                     mapping_path=self.distillation_mapping_path,
                     max_template_hits=self.config.train.max_template_hits,
