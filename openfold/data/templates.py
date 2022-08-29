@@ -926,8 +926,9 @@ def get_custom_template_features(
     mmcif_parse_result = mmcif_parsing.parse(
         file_id=pdb_id, mmcif_string=cif_string
     )
-
+    print(mmcif_parse_result.errors)
     template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
+
 
     mapping = {x:x for x, _ in enumerate(query_sequence)}
 
