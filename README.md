@@ -79,6 +79,24 @@ To install the HH-suite to `/usr/bin`, run
 ```bash
 # scripts/install_hh_suite.sh
 ```
+## Only Install For msa_alignment
+```bash
+#!/bin/bash
+CONDA_INSTALL_URL=${CONDA_INSTALL_URL:-"https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"}
+
+ENV_NAME=openfold_venv
+
+wget -P /tmp \
+    "${CONDA_INSTALL_URL}" \
+    && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p lib/conda \
+    && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
+
+export PATH=lib/conda/bin:$PATH
+conda env create --name=${ENV_NAME} -f environment.yml
+
+source lib/conda/etc/profile.d/conda.sh
+conda activate $ENV_NAME
+```
 
 ## Usage
 
@@ -121,7 +139,38 @@ For both inference and training, the model's hyperparameters can be tuned from
 DeepMind's pretrained parameters, you will only be able to make changes that
 do not affect the shapes of model parameters. For an example of initializing
 the model, consult `run_pretrained_openfold.py`.
+### MSA_alignment
+For a fast way to caculate the msa alignment, we have tested many parallelization methods. The best method is as fallow:
+32-cpu per node
+2-tasks per per job(2-threading)
+3-process for jackhmmer\hhblits\hhsearch
 
+```bash
+#!/bin/bash
+#SBATCH -p ***
+#SBATCH -N *
+#SBATCH --cpus-per-task=32
+#SBATCH --ntasks-per-node=1
+#SBATCH -J msa_alignment
+#SBATCH -o log/output/01_%j.out
+#SBATCH -e log/error/01_%j.err
+
+source ~/lib/miniconda/etc/profile.d
+conda activate openfold_venv
+
+srun python msa_alignment/MSA_alignments.py msa_alignment/input_dir msa_alignment/output_alignment_dir/ \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+    --jackhmmer_binary_path lib/miniconda/envs/openfold_venv/bin/jackhmmer \
+    --hhblits_binary_path lib/miniconda/envs/openfold_venv/bin/hhblits \
+    --hhsearch_binary_path lib/miniconda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/miniconda/envs/openfold_venv/bin/kalign \
+    --cpus 32 \
+    --no_tasks 2 \
+```
 ### Inference
 
 To run inference on a sequence or multiple sequences using a set of DeepMind's 
