@@ -15,8 +15,9 @@ def backward_(attention_logits, #output
               cols_output,
               cols_values):
 
-    seq_dim = -4
-    chunk_size = 128
+    seq_dim = -4 # [1, 5120, 8, 384, 384] #右から3番目以降の次元で連続して分割可能な次元
+    chunk_size = 5120
+
     for al_c, go_c, v_c in zip(torch.split(attention_logits, chunk_size, dim=seq_dim),
                                torch.split(grad_output, chunk_size, dim=seq_dim),
                                torch.split(v, chunk_size, dim=seq_dim)):
