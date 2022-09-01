@@ -359,6 +359,7 @@ config = mlc.ConfigDict(
                 "data_loaders": {
                     "batch_size": 1,
                     "num_workers": 8,
+                    "pin_memory": True,
                 },
             },
         },
