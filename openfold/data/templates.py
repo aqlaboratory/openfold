@@ -913,6 +913,56 @@ def _process_single_hit(
         return SingleHitResult(features=None, error=error, warning=None)
 
 
+def get_custom_template_features(
+        mmcif_path: str,
+        query_sequence: str,
+        pdb_id: str,
+        chain_id: str,
+        kalign_binary_path: str):
+
+    with open(mmcif_path, "r") as mmcif_path:
+        cif_string = mmcif_path.read()
+
+    mmcif_parse_result = mmcif_parsing.parse(
+        file_id=pdb_id, mmcif_string=cif_string
+    )
+    template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
+
+
+    mapping = {x:x for x, _ in enumerate(query_sequence)}
+
+
+    features, warnings = _extract_template_features(
+        mmcif_object=mmcif_parse_result.mmcif_object,
+        pdb_id=pdb_id,
+        mapping=mapping,
+        template_sequence=template_sequence,
+        query_sequence=query_sequence,
+        template_chain_id=chain_id,
+        kalign_binary_path=kalign_binary_path,
+        _zero_center_positions=True
+    )
+    features["template_sum_probs"] = [1.0]
+
+    # TODO: clean up this logic
+    template_features = {}
+    for template_feature_name in TEMPLATE_FEATURES:
+        template_features[template_feature_name] = []
+
+    for k in template_features:
+        template_features[k].append(features[k])
+
+    for name in template_features:
+        template_features[name] = np.stack(
+            template_features[name], axis=0
+        ).astype(TEMPLATE_FEATURES[name])
+
+    return TemplateSearchResult(
+        features=template_features, errors=None, warnings=warnings
+    )
+
+
+
 @dataclasses.dataclass(frozen=True)
 class TemplateSearchResult:
     features: Mapping[str, Any]
