@@ -12,3 +12,5 @@ openfold/resources/stereo_chemical_props.txt
 # oyama
 preproc/input/*.fasta
 preproc/output/*
+preproc_fugaku/input/*.fasta
+preproc_fugaku/output/*
