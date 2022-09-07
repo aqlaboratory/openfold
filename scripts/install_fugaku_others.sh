@@ -91,7 +91,8 @@ popd
 
 # OpenFold
 pushd $OPENFOLDDIR
-python3 setup.py install
+# python3 setup.py install
+pip3 install -e .
 popd
 
 echo "Finished"

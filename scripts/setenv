@@ -4,10 +4,10 @@ module load lang/tcsds-1.2.35
 ############################################################
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
-export PREFIX=
-export OPENFOLDDIR=
-export DATADIR=
-export PJSUB_OPT=
+export PREFIX=/vol0003/hp210263/data/oyama/openfold_install
+export OPENFOLDDIR=/vol0003/hp210263/data/oyama/repo/openfold
+export DATADIR=/vol0003/share/hp210263/OpenFold/data
+export PJSUB_OPT="-g hp210263 -x PJM_LLIO_GFSCACHE=/vol0003"
 
 ############################################################
 

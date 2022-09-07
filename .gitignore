@@ -8,3 +8,6 @@ inference/log/
 openfold/resources/stereo_chemical_props.txt
 *.out
 *.stats
+
+# oyama
+preproc/input/*.fasta
