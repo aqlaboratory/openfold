@@ -5,21 +5,30 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 3 ] ; then
+if [ $# -ne 4 ] ; then
     cat << EOF >&2
-usage: $0 TimeLimit InputDir OutputDir [submit-option]
+usage: $0 TimeLimit InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
-The InputDir is the directory contains input fasta files
+The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
+The Mode is one from {mgnify}
 
-example: $0 2:00:00 input alignment
+example: $0 2:00:00 input.fasta alignment mode
 EOF
     exit 1
 fi
 
 TimeLimit="$1" && shift
-InputDir="$1" && shift
+InputFile="$1" && shift
 OutputDir="$1" && shift
+Mode="$1" && shift
+
+if [[ $Mode == "mgnify" ]]; then
+    :
+else
+    echo "Invalid Mode: ${Mode}" >&2
+    exit
+fi
 
 . ../scripts/setenv
 
@@ -85,7 +94,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputDir $OutputDir 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $Mode 2>&1 | tee "$LogDir/output"
 
 
 EOF
@@ -117,4 +126,3 @@ else
     bash $ScriptFile 2>&1 | tee ${LogDir}/stdout.txt
 fi
 # End of file
-
