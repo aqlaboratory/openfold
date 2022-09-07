@@ -8,7 +8,7 @@ DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
 
-python3 ../scripts/precompute_alignments_smallbfd.py $InputDir $OutputDir \
+python3 ../scripts/precompute_alignments_fugaku.py $InputDir $OutputDir \
 	--uniref90_database_path $DataDir/uniref90/uniref90.fasta \
 	--mgnify_database_path $DataDir/mgnify/mgy_clusters_2018_12.fa \
 	--pdb70_database_path $DataDir/pdb70/pdb70 \
@@ -18,4 +18,4 @@ python3 ../scripts/precompute_alignments_smallbfd.py $InputDir $OutputDir \
 	--hhblits_binary_path $BinDir/hhblits \
 	--hhsearch_binary_path $BinDir/hhsearch \
 	--kalign_binary_path $BinDir/kalign \
-	--bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta 
+	--bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
