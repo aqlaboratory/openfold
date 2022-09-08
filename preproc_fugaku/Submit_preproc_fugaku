@@ -5,15 +5,16 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 4 ] ; then
+if [ $# -ne 5 ] ; then
     cat << EOF >&2
 usage: $0 TimeLimit InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
 The Mode is one from {mgnify}
+The UseCache if whether DB is cached by using llio_transfer
 
-example: $0 2:00:00 input.fasta alignment mode
+example: $0 2:00:00 input.fasta alignment mode 0
 EOF
     exit 1
 fi
@@ -22,9 +23,11 @@ TimeLimit="$1" && shift
 InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
+UseCache="$1" && shift
 
-if [[ $Mode == "mgnify" ]]; then
-    :
+LocalTempSize=0Gi
+if [[ $Mode = "mgnify" ]]; then
+    LocalTempSize=65Gi # 63.92 GiB
 else
     echo "Invalid Mode: ${Mode}" >&2
     exit
@@ -94,7 +97,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $Mode 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $Mode $UseCache 2>&1 | tee "$LogDir/output"
 
 
 EOF
@@ -109,7 +112,7 @@ echo LogDir: $LogDir
 
 if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
     # To use LLIO (node-temporary)
-    # QsubArgs+=("--llio localtmp-size=80Gi")
+    QsubArgs+=("--llio localtmp-size=$LocalTempSize")
 
     # add group option
     QsubArgs+=("$PJSUB_OPT")
