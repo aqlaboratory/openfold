@@ -10,36 +10,75 @@ mpiexec hostname
 InputDir=$1
 OutputDir=$2
 Mode=$3
-UseCache=$4
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
 
+Uniref90=$DataDir/uniref90/uniref90.fasta
+Pdb70=$DataDir/pdb70
 Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
 
 LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
 
+if [[ $Mode = "uniref90" ]]; then
+    Database=$Uniref90
+    DatabaseIsFile=1
+elif [[ $Mode = "pdb70" ]]; then
+    Database=$Pdb70
+    DatabaseIsFile=0
+elif [[ $Mode = "mgnify" ]]; then
+    Database=$Mgnify
+    DatabaseIsFile=1
+else
+    echo "Invalid Mode: $Mode" >&2
+    exit
+fi
+
+echo "Executing LLIO transfer for OpenFold"
+time $DirTransfer $PREFIX
+time $DirTransfer $OPENFOLDDIR/openfold
+time $DirTransfer $OPENFOLDDIR/openfold.egg-info
+
 DatabaseArgs=""
-if [[ $Mode = "mgnify" ]]; then
+if [[ $DatabaseIsFile = 1 ]]; then
     # Move DB from 2ndfs to cache
-    if [[ $UseCache = 1 ]]; then
-	echo "Executing LLIO transfer"
-	time $LLIOTransfer $Mgnify
-    fi
+    echo "Executing LLIO transfer for the database"
+    time $LLIOTransfer $Database
 
     # Move cache to local temp
     # FIXME: This works only when one node is used
     echo "Copying DB to local temp"
-    MgnifyLocal=$PJM_LOCALTMP/mgnify.fasta
-    time cp $Mgnify $MgnifyLocal
-    MgnifyLocal=$Mgnify
+    DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
+    time cp $Database $DatabaseLocal
+    Database=$DatabaseLocal
 
-    DatabaseArgs="--mgnify_database_path $Mgnify"
 else
-    echo "Invalid Mode: ${Mode}" >&2
+    echo "Executing LLIO transfer for the database"
+    time $DirTransfer $Database
+
+    # Move cache to local temp
+    # FIXME: This works only when one node is used
+    echo "Copying DB to local temp"
+    DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
+    time cp -r $Database $DatabaseLocal
+    Database=$DatabaseLocal
+fi
+
+# FIXME: remove
+echo Database=$Database
+
+if [[ $Mode = "uniref90" ]]; then
+    DatabaseArgs="--uniref90_database_path $Database"
+elif [[ $Mode = "pdb70" ]]; then
+    DatabaseArgs="--pdb70_database_path $Database"
+elif [[ $Mode = "mgnify" ]]; then
+    DatabaseArgs="--mgnify_database_path $Database"
+else
+    echo "Invalid Mode: $Mode" >&2
     exit
 fi
+
 
 echo "Starting the script"
 mpiexec \

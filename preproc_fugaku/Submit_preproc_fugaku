@@ -7,29 +7,38 @@ echo "`date +%s.%N` #Submit at `date`"
 
 if [ $# -ne 5 ] ; then
     cat << EOF >&2
-usage: $0 TimeLimit InputFile OutputDir Mode [submit-option]
+usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
+The NumNodes is the number of nodes
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
-The Mode is one from {mgnify}
-The UseCache if whether DB is cached by using llio_transfer
+The Mode is one from {uniref90, pdb70, mgnify}
 
-example: $0 2:00:00 input.fasta alignment mode 0
+example: $0 2:00:00 4 input.fasta alignment mode 0
 EOF
     exit 1
 fi
 
 TimeLimit="$1" && shift
+NumNodes="$1" && shift
 InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
-UseCache="$1" && shift
+
+if (( $NumNodes < 4 )); then
+    echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify." >&2
+    exit
+fi
 
 LocalTempSize=0Gi
-if [[ $Mode = "mgnify" ]]; then
-    LocalTempSize=65Gi # 63.92 GiB
+if [[ $Mode = "uniref90" ]]; then
+    LocalTempSize=64Gi # 62.4 GiB
+elif [[ $Mode = "pdb70" ]]; then
+    LocalTempSize=57Gi # 56.0 GiB
+elif [[ $Mode = "mgnify" ]]; then
+    LocalTempSize=65Gi # 63.9 GiB
 else
-    echo "Invalid Mode: ${Mode}" >&2
+    echo "Invalid Mode: $Mode" >&2
     exit
 fi
 
@@ -42,8 +51,6 @@ echo DataDir is $DataDir
 
 ### WORKER script
 WORKER="worker.sh"
-
-NumNodes=1
 
 # Select Resource Group
 RSC_GRP=small
@@ -97,7 +104,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $Mode $UseCache 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $Mode 2>&1 | tee "$LogDir/output"
 
 
 EOF
