@@ -12,7 +12,7 @@ The TimeLimit is the maximum of execution time with the format hh:mm:ss.
 The NumNodes is the number of nodes
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
-The Mode is one from {uniref90, pdb70, mgnify}
+The Mode is one from {uniref90, pdb70, mgnify, small_bfd}
 
 example: $0 2:00:00 4 input.fasta alignment mode 0
 EOF
@@ -26,7 +26,7 @@ OutputDir="$1" && shift
 Mode="$1" && shift
 
 if (( $NumNodes < 4 )); then
-    echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify." >&2
+    echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
     exit
 fi
 
@@ -37,6 +37,8 @@ elif [[ $Mode = "pdb70" ]]; then
     LocalTempSize=57Gi # 56.0 GiB
 elif [[ $Mode = "mgnify" ]]; then
     LocalTempSize=65Gi # 63.9 GiB
+elif [[ $Mode = "small_bfd" ]]; then
+    LocalTempSize=18Gi # 16.9 GiB
 else
     echo "Invalid Mode: $Mode" >&2
     exit
