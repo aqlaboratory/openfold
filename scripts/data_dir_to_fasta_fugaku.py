@@ -8,7 +8,7 @@ from openfold.np import protein, residue_constants
 
 
 def parse_all(data_dir, fnames, raise_errors, fasta):
-    for fname in os.listdir(data_dir):
+    for fname in fnames:
         basename, ext = os.path.splitext(fname)
         basename = basename.upper()
         fpath = os.path.join(data_dir, fname)
@@ -56,13 +56,13 @@ def main(args):
     for i in range(args.no_tasks):
         ret_fasta[i] = []
         print(f"Started thread {i}...")
-        args = [
+        targs = [
             args.data_dir,
             fnames[i::args.no_tasks],
-            raise_errors,
+            args.raise_errors,
             ret_fasta[i],
         ]
-        t = threading.Thread(target=parse_all, args=args)
+        t = threading.Thread(target=parse_all, args=targs)
         threads.append(t)
         t.start()
 

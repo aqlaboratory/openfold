@@ -4,8 +4,8 @@ source ../scripts/setenv
 
 set -eu
 
-# PDB_MMCIF=/vol0003/share/hp210263/OpenFold/data/pdb_mmcif/mmcif_files
-PDB_MMCIF=/vol0003/hp210263/data/oyama/repo/openfold/data_dir_to_fasta_fugaku/test_dir
+PDB_MMCIF=/vol0003/share/hp210263/OpenFold/data/pdb_mmcif/mmcif_files
+# PDB_MMCIF=/vol0003/hp210263/data/oyama/repo/openfold/data_dir_to_fasta_fugaku/test_dir
 DirTransfer=/home/system/tool/dir_transfer
 
 echo "Executing LLIO transfer"

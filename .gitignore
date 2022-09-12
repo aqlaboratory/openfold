@@ -7,7 +7,8 @@ train/log/
 inference/log/
 openfold/resources/stereo_chemical_props.txt
 *.out
-*.out.*.0
+*.out.0.*
+*.out.1.*
 *.stats
 llio_transfer.*.list
 
