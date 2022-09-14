@@ -335,6 +335,7 @@ class MSAColumnAttention(nn.Module):
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
         use_lma: bool = False,
+        use_memory_efficient_kernel: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -352,7 +353,8 @@ class MSAColumnAttention(nn.Module):
         if mask is not None:
             mask = mask.transpose(-1, -2)
 
-        m = self._msa_att(m, mask=mask, chunk_size=chunk_size, use_lma=use_lma)
+        m = self._msa_att(m, mask=mask, chunk_size=chunk_size, use_lma=use_lma,
+                          use_memory_efficient_kernel=use_memory_efficient_kernel)
 
         # [*, N_seq, N_res, C_in]
         m = m.transpose(-2, -3)

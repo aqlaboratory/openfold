@@ -26,7 +26,7 @@ else:
 SUPPORTED_DTYPES = [torch.float32, torch.bfloat16]
 
 _recompute = True
-chunk_size = 1024
+chunk_size = 256
 seq_dim = -4
 
 def split_chunks(tensor, dim_size, chunk_size, dim):

@@ -259,6 +259,7 @@ class EvoformerBlockCore(nn.Module):
                     chunk_size=_attn_chunk_size, 
                     use_lma=use_lma,
                     inplace_safe=inplace_safe,
+                    use_memory_efficient_kernel=True,
                 )
             ),
             inplace=inplace_safe,
@@ -277,6 +278,7 @@ class EvoformerBlockCore(nn.Module):
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
                     inplace_safe=inplace_safe,
+                    use_memory_efficient_kernel=True,
                 )
             ),
             inplace=inplace_safe,
@@ -386,6 +388,7 @@ class EvoformerBlock(nn.Module):
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
+                    use_memory_efficient_kernel=True,
                 )
             ),
             inplace=inplace_safe,
@@ -396,6 +399,7 @@ class EvoformerBlock(nn.Module):
                 mask=msa_mask, 
                 chunk_size=chunk_size,
                 use_lma=use_lma,
+                use_memory_efficient_kernel=True,
             ),
             inplace=inplace_safe,
         )
