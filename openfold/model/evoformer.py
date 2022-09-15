@@ -41,6 +41,25 @@ from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn
 from openfold.utils.chunk_utils import chunk_layer, ChunkSizeTuner
 from openfold.utils.tensor_utils import add
 
+import tempfile
+class save_on_file(torch.autograd.graph.saved_tensors_hooks):
+    def __init__(self, dir=None):
+        def pack_to_file(tensor):
+            f = tempfile.NamedTemporaryFile(dir=dir)
+            print("save tensor to tmpfile {}".format(f.name), flush=True)
+            torch.save(tensor, f)
+            f.flush()
+            f.seek(0)
+            return (tensor.device, f)
+
+        def unpack_from_file(packed):
+            device, f = packed
+            tensor = torch.load(f, map_location=device)
+            f.close()
+            return tensor
+
+        super().__init__(pack_to_file, unpack_from_file)
+
 
 class MSATransition(nn.Module):
     """
@@ -799,12 +818,13 @@ class EvoformerStack(nn.Module):
         blocks_per_ckpt = self.blocks_per_ckpt
         if(not torch.is_grad_enabled()):
             blocks_per_ckpt = None
-        
-        m, z = checkpoint_blocks(
-            blocks,
-            args=(m, z),
-            blocks_per_ckpt=blocks_per_ckpt,
-        )
+
+        with save_on_file():
+            m, z = checkpoint_blocks(
+                blocks,
+                args=(m, z),
+                blocks_per_ckpt=blocks_per_ckpt,
+            )
 
         s = self.linear(m[..., 0, :, :])
 
