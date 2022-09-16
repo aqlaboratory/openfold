@@ -27,10 +27,6 @@ LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
 MpiExecEachNode=mpiexec
 
-# FIXME
-echo MpiExecEachNode
-$MpiExecEachNode hostname
-
 if [[ $Mode = "uniref90" ]]; then
     Database=$Uniref90
     DatabaseIsFile=1
@@ -52,7 +48,8 @@ else
 fi
 
 echo "Executing LLIO transfer for OpenFold"
-time $DirTransfer $PREFIX
+time $DirTransfer $PREFIX/lib
+time $DirTransfer $PREFIX/bin
 time $DirTransfer $OPENFOLDDIR/scripts
 time $DirTransfer $OPENFOLDDIR/openfold
 time $DirTransfer $OPENFOLDDIR/openfold.egg-info
