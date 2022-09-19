@@ -18,7 +18,12 @@ conda env create --name=${ENV_NAME} -f environment.yml
 source scripts/activate_conda_env.sh
 
 echo "Attempting to install FlashAttention"
-pip install git+https://github.com/HazyResearch/flash-attention.git@5b838a8bef78186196244a4156ec35bbb58c337d && echo "Installation successful"
+git clone https://github.com/HazyResearch/flash-attention
+CUR_DIR=$PWD
+cd flash-attention
+git checkout 5b838a8bef
+python3 setup.py install
+cd $CUR_DIR
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
