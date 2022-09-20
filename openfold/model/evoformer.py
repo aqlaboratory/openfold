@@ -46,7 +46,6 @@ class save_on_file(torch.autograd.graph.saved_tensors_hooks):
     def __init__(self, dir=None):
         def pack_to_file(tensor):
             f = tempfile.NamedTemporaryFile(dir=dir)
-            print("save tensor to tmpfile {}".format(f.name), flush=True)
             torch.save(tensor, f)
             f.flush()
             f.seek(0)
@@ -683,6 +682,8 @@ class EvoformerStack(nn.Module):
         self.chunk_size_tuner = None
         if(tune_chunk_size):
             self.chunk_size_tuner = ChunkSizeTuner()
+        self.save_activation_to_file = kwargs['save_activation_to_file']
+        self.activation_tmp_dir = kwargs['activation_tmp_dir']
 
     def _prep_blocks(self, 
         m: torch.Tensor, 
@@ -819,7 +820,14 @@ class EvoformerStack(nn.Module):
         if(not torch.is_grad_enabled()):
             blocks_per_ckpt = None
 
-        with save_on_file():
+        if self.save_activation_to_file:
+            with save_on_file(dir=self.activation_tmp_dir):
+                m, z = checkpoint_blocks(
+                    blocks,
+                    args=(m, z),
+                    blocks_per_ckpt=blocks_per_ckpt,
+                )
+        else:
             m, z = checkpoint_blocks(
                 blocks,
                 args=(m, z),
