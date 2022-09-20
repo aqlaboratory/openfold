@@ -1,3 +1,5 @@
+set -eu
+
 pjsub -L node=1 \
       -L elapse=24:00:00 \
       -L rscgrp=small \
