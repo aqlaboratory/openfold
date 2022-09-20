@@ -19,3 +19,5 @@ preproc/output/*
 preproc_fugaku/input/*.fasta
 preproc_fugaku/log/*
 preproc_fugaku/output/*
+preproc_fugaku/script.o*
+preproc_fugaku/script.e*

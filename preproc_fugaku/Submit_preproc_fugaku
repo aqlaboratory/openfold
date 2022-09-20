@@ -25,15 +25,17 @@ InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
 
-if [[ $Mode = "bfd" ]]; then
-    if (( $NumNodes < 26 )); then
-	echo "NumNodes must be >= 26 to use bfd." >&2
-	exit
-    fi
-else
-    if (( $NumNodes < 4 )); then
-	echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
-	exit
+if [[ -v IS_FUGAKU ]]; then
+    if [[ $Mode = "bfd" ]]; then
+	if (( $NumNodes < 26 )); then
+	    echo "NumNodes must be >= 26 to use bfd." >&2
+	    exit
+	fi
+    else
+	if (( $NumNodes < 4 )); then
+	    echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
+	    exit
+	fi
     fi
 fi
 
@@ -128,10 +130,25 @@ echo ---------------
 echo NumNodes: $NumNodes
 echo LogDir: $LogDir
 
-if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
-    # To use LLIO (node-temporary)
-    QsubArgs+=("--llio localtmp-size=$LocalTempSize")
+DoSubmitJob=0
+if [[ -v IS_FUGAKU ]]; then
+    if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
+	DoSubmitJob=1
+	SubmitCommand=pjsub
 
+	# To use LLIO (node-temporary)
+	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
+    fi
+
+elif [[ -v IS_ABCI ]]; then
+    DoSubmitJob=1
+    SubmitCommand=qsub
+
+    QsubArgs+=("-l rt_F=${NumNodes}")
+    QsubArgs+=("-cwd")
+fi
+
+if [[ ${DoSubmitJob} == 1 ]]; then
     # add group option
     QsubArgs+=("$PJSUB_OPT")
 
@@ -140,7 +157,7 @@ if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
     ### Execute qsub command
     echo "`date +%s.%N` #qsub"
     echo "> pjsub ${QsubArgs[@]} $@"
-    pjsub ${QsubArgs[@]} "$@"
+    ${SubmitCommand} ${QsubArgs[@]} "$@"
 
 else
     # On compute node

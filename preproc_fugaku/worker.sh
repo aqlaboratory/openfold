@@ -48,11 +48,13 @@ else
 fi
 
 echo "Executing LLIO transfer for OpenFold"
-time $DirTransfer $PREFIX/lib
-time $DirTransfer $PREFIX/bin
-time $DirTransfer $OPENFOLDDIR/scripts
-time $DirTransfer $OPENFOLDDIR/openfold
-time $DirTransfer $OPENFOLDDIR/openfold.egg-info
+if [[ -v IS_FUGAKU ]]; then
+    time $DirTransfer $PREFIX/lib
+    time $DirTransfer $PREFIX/bin
+    time $DirTransfer $OPENFOLDDIR/scripts
+    time $DirTransfer $OPENFOLDDIR/openfold
+    time $DirTransfer $OPENFOLDDIR/openfold.egg-info
+fi
 
 DatabaseArgs=""
 if [[ $Mode = "bfd" ]]; then
@@ -68,25 +70,27 @@ if [[ $Mode = "bfd" ]]; then
     Bfd=$BfdLocal
 fi
 
-if [[ $DatabaseIsFile = 1 ]]; then
-    echo "Executing LLIO transfer for the DB file"
-    time $LLIOTransfer $Database
+if [[ -v IS_FUGAKU ]]; then
+    if [[ $DatabaseIsFile = 1 ]]; then
+	echo "Executing LLIO transfer for the DB file"
+	time $LLIOTransfer $Database
 
-    echo "Copying the DB file to local temp"
-    DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
-    time $MpiExecEachNode cp $Database $DatabaseLocal
+	echo "Copying the DB file to local temp"
+	DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
+	time $MpiExecEachNode cp $Database $DatabaseLocal
 
-    Database=$DatabaseLocal
+	Database=$DatabaseLocal
 
-else
-    echo "Executing LLIO transfer for the DB directory"
-    time $DirTransfer $Database
+    else
+	echo "Executing LLIO transfer for the DB directory"
+	time $DirTransfer $Database
 
-    echo "Copying the DB directory to local temp"
-    DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
-    time $MpiExecEachNode cp -r $Database $DatabaseLocal
+	echo "Copying the DB directory to local temp"
+	DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
+	time $MpiExecEachNode cp -r $Database $DatabaseLocal
 
-    Database=$DatabaseLocal
+	Database=$DatabaseLocal
+    fi
 fi
 
 # FIXME: remove

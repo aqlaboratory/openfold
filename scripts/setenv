@@ -1,14 +1,35 @@
-module purge
-module load lang/tcsds-1.2.35
+if [[ -n `hostname | grep abci` ]]; then
+  export IS_ABCI=1
+elif [[ -n `hostname | grep kagami` ]]; then
+  export IS_KAGAMI=1
+elif [[ -e ~/.is_fugaku ]]; then
+  export IS_FUGAKU=1
+fi
+
+if [[ -v IS_FUGAKU ]]; then
+  module purge
+  module load lang/tcsds-1.2.35
+elif [[ -v IS_ABCI ]]; then
+  module purge
+  module load python/3.7/3.7.13 openmpi/4.0.5
+  python3 -m venv ~/venv/openfold
+  source ~/venv/openfold/bin/activate
+fi
 
 ############################################################
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
-export PREFIX=/vol0003/hp210263/data/oyama/openfold_install
-export OPENFOLDDIR=/vol0003/hp210263/data/oyama/repo/openfold
-export DATADIR=/vol0003/share/hp210263/OpenFold/data
-export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0003"
-# hp210263
+if [[ ${IS_FUGAKU} == 1 ]]; then
+  export PREFIX=/vol0003/hp210263/data/oyama/openfold_install
+  export OPENFOLDDIR=/vol0003/hp210263/data/oyama/repo/openfold
+  export DATADIR=/vol0003/share/hp210263/OpenFold/data
+  export PJSUB_OPT="-g hp210263 -x PJM_LLIO_GFSCACHE=/vol0003"
+elif [[ ${IS_ABCI} == 1 ]]; then
+  export PREFIX=/home/acd13359ld/openfold_install
+  export OPENFOLDDIR=/home/acd13359ld/repo/openfold
+  export DATADIR=/groups/4/gcd50734/openfold
+  export PJSUB_OPT="-g gca50115"
+fi
 
 ############################################################
 

@@ -7,6 +7,8 @@ if [[ ${yes} == "y" ]]; then
        script.*.out.0.* \
        script.*.out.1.* \
        script.*.stats \
+       script.o* \
+       script.e* \
        llio_transfer.*.list
     rmdir log output
 fi
