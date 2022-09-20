@@ -25,7 +25,7 @@ else:
 
 SUPPORTED_DTYPES = [torch.float32, torch.bfloat16]
 
-_recompute = True
+_recompute = False
 chunk_size = 256
 seq_dim = -4
 
