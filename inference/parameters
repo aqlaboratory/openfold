@@ -3,10 +3,10 @@ SampleDir=/vol0003/share/hp210263/OpenFold/sample/inference
 PARAMS=(
     python3
     $OPENFOLDDIR/run_pretrained_openfold.py
-    $SampleDir/T1084/input/query.fasta
+    $SampleDir/T1084/input
     $DataDir/pdb_mmcif/mmcif_files
     --model_device cpu
-    --param_path $DataDir/params/params_model_1.npz
+    --jax_param_path $DataDir/params/params_model_1.npz
     --output_dir $LOGDIR
     --use_precomputed_alignments $SampleDir/T1084/alignment_smallbfd
 )
