@@ -15,6 +15,7 @@ consts = mlc.ConfigDict(
         "c_s": 384,
         "c_t": 64,
         "c_e": 64,
+        "n_heads_extra_msa": 128,
     }
 )
 

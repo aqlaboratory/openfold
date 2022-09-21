@@ -6,7 +6,7 @@ channels:
 dependencies:
   - pip:
       - biopython==1.79
-      - deepspeed==0.5.3
+      - deepspeed==0.5.9
       - dm-tree==0.1.6
       - ml-collections==0.1.0
       - numpy==1.21.2
@@ -15,7 +15,7 @@ dependencies:
       - scipy==1.7.1
       - tqdm==4.62.2
       - typing-extensions==3.10.0.2
-      - pytorch_lightning==1.5.0
+      - pytorch_lightning==1.5.10
       - git+https://github.com/NVIDIA/dllogger.git
   - pytorch::pytorch=1.10.*
   - conda-forge::python=3.7
@@ -23,6 +23,8 @@ dependencies:
   - conda-forge::pip
   - conda-forge::openmm=7.5.1
   - conda-forge::pdbfixer
+  - conda-forge::cudatoolkit==10.2.*
+  - conda-forge::cudatoolkit-dev==10.*
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04

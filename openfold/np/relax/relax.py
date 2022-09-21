@@ -87,4 +87,7 @@ class AmberRelaxation(object):
         violations = out["structural_violations"][
             "total_per_residue_violations_mask"
         ]
+
+        min_pdb = protein.add_pdb_headers(prot, min_pdb)
+
         return min_pdb, debug_data, violations
