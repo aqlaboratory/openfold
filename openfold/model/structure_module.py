@@ -312,10 +312,18 @@ class InvariantPointAttention(nn.Module):
             z[0] = z[0].cpu()
 
         # [*, H, N_res, N_res]
-        a = torch.matmul(
-            permute_final_dims(q, (1, 0, 2)),  # [*, H, N_res, C_hidden]
-            permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, N_res]
-        )
+        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
+        if float16_enabled and torch.is_autocast_enabled():
+            with torch.cuda.amp.autocast(enabled=False):
+                a = torch.matmul(
+                    permute_final_dims(q.float(), (1, 0, 2)),  # [*, H, N_res, C_hidden]
+                    permute_final_dims(k.float(), (1, 2, 0)),  # [*, H, C_hidden, N_res]
+                )
+        else:
+            a = torch.matmul(
+                permute_final_dims(q, (1, 0, 2)),  # [*, H, N_res, C_hidden]
+                permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, N_res]
+            )
         a *= math.sqrt(1.0 / (3 * self.c_hidden))
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 

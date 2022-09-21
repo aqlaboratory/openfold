@@ -93,7 +93,7 @@ class OuterProductMean(nn.Module):
 
         return outer
 
-    def forward(self, 
+    def _forward(self, 
         m: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
         chunk_size: Optional[int] = None,
@@ -143,3 +143,18 @@ class OuterProductMean(nn.Module):
             outer = outer / norm
 
         return outer
+
+    def forward(self,
+                m: torch.Tensor,
+                mask: Optional[torch.Tensor] = None,
+                chunk_size: Optional[int] = None,
+                inplace_safe: bool = False,
+    ) -> torch.Tensor:
+
+        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
+        if float16_enabled and torch.is_autocast_enabled():
+            with torch.cuda.amp.autocast(enabled=False):
+                return self._forward(m.float(), mask, chunk_size, inplace_safe)
+        else:
+            return self._forward(m, mask, chunk_size, inplace_safe)
+        

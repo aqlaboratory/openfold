@@ -479,6 +479,7 @@ class Attention(nn.Module):
         q, k, v = self._prep_qkv(q_x, kv_x)
 
         # [*, Q, H, C_hidden]
+        use_memory_efficient_kernel = False
         if(use_memory_efficient_kernel):
             if(len(biases) > 2):
                 raise ValueError(
