@@ -20,8 +20,8 @@ OpenFold is trainable in full precision or `bfloat16` with or without DeepSpeed,
 and we've trained it from scratch, matching the performance of the original. 
 We've publicly released model weights and our training data &mdash; some 400,000 
 MSAs and PDB70 template hit files &mdash; under a permissive license. Model weights 
-are available via scripts in this repository while the MSAs are hosted by the 
-[Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold). 
+are available via scripts in this repository or [on Hugging Face](https://huggingface.co/nz/OpenFold),
+while the MSAs are hosted by the [Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold). 
 Try out running inference for yourself with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 OpenFold also supports inference using AlphaFold's official parameters, and 
