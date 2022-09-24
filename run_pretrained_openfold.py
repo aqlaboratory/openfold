@@ -266,7 +266,8 @@ def main(args):
                 feature_dict, 
                 feature_processor, 
                 args.config_preset,
-                args.multimer_ri_gap
+                args.multimer_ri_gap,
+                args.subtract_plddt
             )
 
             unrelaxed_output_path = os.path.join(
