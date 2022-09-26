@@ -97,7 +97,7 @@ fi
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
 elif [[ $Mode = "pdb70" ]]; then
-    DatabaseArgs="--pdb70_database_path $Database"
+    DatabaseArgs="--pdb70_database_path $Database/pdb70"
 elif [[ $Mode = "mgnify" ]]; then
     DatabaseArgs="--mgnify_database_path $Database"
 elif [[ $Mode = "small_bfd" ]]; then
