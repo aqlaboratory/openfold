@@ -111,6 +111,7 @@ else
     exit
 fi
 
+mkdir -p $OutputDir
 
 echo "Starting the script"
 mpiexec \

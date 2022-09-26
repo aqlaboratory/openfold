@@ -20,11 +20,11 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
     export DATADIR=/vol0003/share/hp210263/OpenFold/data
     export PJSUB_OPT="-g hp210263 -x PJM_LLIO_GFSCACHE=/vol0003"
 elif [[ ${IS_ABCI} == 1 ]]; then
-    export PREFIX=/home/acd13359ld/openfold_install
+    export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
+    export PREFIX=${OPENFOLDVENV}/tools_install
     export OPENFOLDDIR=/home/acd13359ld/repo/openfold
     export DATADIR=/groups/4/gcd50734/openfold
-    export PJSUB_OPT="-g gca50115"
-    export OPENFOLDVENV=/groups/4/gcd50734/venv/openfold_fugaku
+    export PJSUB_OPT="-g gcd50734"
 fi
 
 ############################################################

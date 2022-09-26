@@ -7,6 +7,7 @@ import threading
 from multiprocessing import cpu_count
 from shutil import copyfile
 import tempfile
+import traceback
 
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
@@ -41,6 +42,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                 fasta_path, alignment_dir
             )
         except:
+            traceback.print_exc()
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
             os.remove(fasta_path)
             os.rmdir(alignment_dir)
@@ -78,7 +80,7 @@ def main(args):
     )
 
     input_file = args.input_file
-    with open(path, 'r') as fp:
+    with open(input_file, 'r') as fp:
         fasta_str = fp.read()
     input_seqs, input_chains = parse_fasta(fasta_str)
     # TODO: Check whether input_seqs is a unique set
@@ -93,7 +95,7 @@ def main(args):
 
     run_seq_group_alignments(
         zip(input_seqs, [[x] for x in input_chains]), # TODO: Support multiple names
-        alignment_rnner,
+        alignment_runner,
         args)
 
 
