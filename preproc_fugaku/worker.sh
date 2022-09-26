@@ -48,7 +48,7 @@ else
 fi
 
 echo "Executing LLIO transfer for OpenFold"
-if [[ -v IS_FUGAKU ]]; then
+if [[ ${IS_FUGAKU} == 1 ]]; then
     time $DirTransfer $PREFIX/lib
     time $DirTransfer $PREFIX/bin
     time $DirTransfer $OPENFOLDDIR/scripts
@@ -70,7 +70,7 @@ if [[ $Mode = "bfd" ]]; then
     Bfd=$BfdLocal
 fi
 
-if [[ -v IS_FUGAKU ]]; then
+if [[ ${IS_FUGAKU} == 1 ]]; then
     if [[ $DatabaseIsFile = 1 ]]; then
 	echo "Executing LLIO transfer for the DB file"
 	time $LLIOTransfer $Database

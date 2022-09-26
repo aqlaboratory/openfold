@@ -25,7 +25,7 @@ InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
 
-if [[ -v IS_FUGAKU ]]; then
+if [[ ${IS_FUGAKU} == 1 ]]; then
     if [[ $Mode = "bfd" ]]; then
 	if (( $NumNodes < 26 )); then
 	    echo "NumNodes must be >= 26 to use bfd." >&2
@@ -131,7 +131,7 @@ echo NumNodes: $NumNodes
 echo LogDir: $LogDir
 
 DoSubmitJob=0
-if [[ -v IS_FUGAKU ]]; then
+if [[ ${IS_FUGAKU} == 1 ]]; then
     if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
 	DoSubmitJob=1
 	SubmitCommand=pjsub
@@ -140,7 +140,7 @@ if [[ -v IS_FUGAKU ]]; then
 	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
     fi
 
-elif [[ -v IS_ABCI ]]; then
+elif [[ ${IS_ABCI} == 1 ]]; then
     DoSubmitJob=1
     SubmitCommand=qsub
 
