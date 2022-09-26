@@ -6,7 +6,8 @@ set -eu
 
 InputDir=$1
 OutputDir=$2
-Mode=$3
+NumNodes=$3
+Mode=$4
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
@@ -93,9 +94,6 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
     fi
 fi
 
-# FIXME: remove
-echo Database=$Database
-
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
 elif [[ $Mode = "pdb70" ]]; then
@@ -115,10 +113,10 @@ mkdir -p $OutputDir
 
 echo "Starting the script"
 mpiexec \
-    -n 1 \
+    -n $NumNodes \
     python3 $Script \
     $InputDir $OutputDir \
-    --cpus_per_task 48 \
+    --cpus_per_task $NUM_CORES \
     --jackhmmer_binary_path $BinDir/jackhmmer \
     --hhblits_binary_path $BinDir/hhblits \
     --hhsearch_binary_path $BinDir/hhsearch \

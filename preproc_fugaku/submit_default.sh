@@ -1,6 +1,6 @@
 ./Submit_preproc_fugaku \
     0:30:00 \
-    1 \
+    2 \
     input/1A8J_4.fasta \
     output \
-    mgnify
+    small_bfd

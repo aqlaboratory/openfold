@@ -86,8 +86,17 @@ def main(args):
     # TODO: Check whether input_seqs is a unique set
 
     # Get Fujitsu MPI's rank and size and split seqs.
-    mpi_rank = int(os.environ["PMIX_RANK"])
-    mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
+
+    if "OMPI_COMM_WORLD_RANK" in os.environ:
+        # ABCI (OpenMPI)
+        mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
+        mpi_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
+
+    else:
+        # Fugaku
+        mpi_rank = int(os.environ["PMIX_RANK"])
+        mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
+
     assert mpi_size > 0
     assert mpi_rank >= 0 and mpi_rank < mpi_size
     input_seqs   =   input_seqs[mpi_rank::mpi_size]

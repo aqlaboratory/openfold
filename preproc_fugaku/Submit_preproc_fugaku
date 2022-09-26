@@ -117,7 +117,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $Mode 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $NumNodes $Mode 2>&1 | tee "$LogDir/output"
 
 
 EOF
