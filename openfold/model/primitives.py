@@ -479,7 +479,9 @@ class Attention(nn.Module):
         q, k, v = self._prep_qkv(q_x, kv_x)
 
         # [*, Q, H, C_hidden]
-        use_memory_efficient_kernel = False
+        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
+        if float16_enabled:
+            use_memory_efficient_kernel = False
         if(use_memory_efficient_kernel):
             if(len(biases) > 2):
                 raise ValueError(
