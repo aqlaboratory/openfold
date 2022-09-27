@@ -7,7 +7,7 @@ set -eu
 InputDir=$1
 OutputDir=$2
 NumNodes=$3
-NumCores=$4
+NumThreads=$4
 Mode=$5
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
@@ -16,7 +16,7 @@ Log=log_`date +%Y%m%d_%H%M%S`
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
 echo NumNodes=$NumNodes
-echo NumCores=$NumCores
+echo NumThreads=$NumThreads
 echo Mode=$Mode
 
 # DBs
@@ -29,19 +29,28 @@ SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
 Bfd=$DataDir/bfd
 BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
-# Temp locations
-if [[ ${IS_FUGAKU} == 1 ]]; then
-    LOCALTMP=$PJM_LOCALTMP # Shared SSD, 87 GiB/node
-elif [[ ${IS_ABCI} == 1 ]]; then
-    LOCALTMP=/dev/shm # Private memory, 384 GiB/node (V)
-    # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
-fi
-
 # commands
 Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
 MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
+NumProcsPerNode=`expr $NUM_CORES / $NumThreads`
+NumTaskProcs=`expr $NumProcsPerNode \* $NumNodes`
+MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcsPerNode"
+
+echo NumProcsPerNode=$NumProcsPerNode
+echo NumTaskProcs=$NumTaskProcs
+echo MpiExecEachNode=$MpiExecEachNode
+echo MpiExecTask=$MpiExecTask
+
+# Temp locations
+if [[ ${IS_FUGAKU} == 1 ]]; then
+    LOCALTMP=$PJM_LOCALTMP # Shared SSD, 87 GiB/node
+elif [[ ${IS_ABCI} == 1 ]]; then
+    rm -rf /dev/shm/* 2>/dev/null || true
+    LOCALTMP=/dev/shm # Private memory, 384 GiB/node (V)
+    # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
+fi
 
 if [[ $Mode = "uniref90" ]]; then
     Database=$Uniref90
@@ -127,20 +136,15 @@ fi
 mkdir -p $OutputDir
 
 echo "Starting the script"
-export OMP_NUM_THREADS=$NumCores # Define just in case it is used
-$MpiExecEachNode \
+export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
+$MpiExecTask \
     -x OMP_NUM_THREADS \
     python3 $Script \
     $InputDir $OutputDir \
-    --cpus_per_task $NumCores \
+    --cpus_per_task $NumThreads \
     --jackhmmer_binary_path $BinDir/jackhmmer \
     --hhblits_binary_path $BinDir/hhblits \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
-    $DatabaseArgs
-
-# --uniref90_database_path $DataDir/uniref90/uniref90.fasta \
-    # --mgnify_database_path $Mgnify \
-    # --pdb70_database_path $DataDir/pdb70/pdb70 \
-    # --uniclust30_database_path $DataDir/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
-    # --bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta \
+    $DatabaseArgs \
+    --ignore_unique # TODO: remove in real runs

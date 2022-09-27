@@ -105,7 +105,12 @@ def main(args):
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
     input_seqs, input_chains = parse_fasta(fasta_str)
-    input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
+
+    if not args.ignore_unique:
+        input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
+    else:
+        logging.warning(f"--ignore_unique is enabled. The process might be redundant")
+        input_chains = [[x] for x in input_chains]
 
     if "OMPI_COMM_WORLD_RANK" in os.environ:
         # ABCI (OpenMPI)
@@ -119,8 +124,11 @@ def main(args):
 
     assert mpi_size > 0
     assert mpi_rank >= 0 and mpi_rank < mpi_size
+    total_count = len(input_seqs)
     input_seqs   =   input_seqs[mpi_rank::mpi_size]
     input_chains = input_chains[mpi_rank::mpi_size]
+
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, total_count={total_count}, my_count={len(input_seqs)}")
 
     run_seq_group_alignments(
         zip(input_seqs, input_chains),
@@ -159,6 +167,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--use_small_bfd", type=bool, default=False,
+    )
+    parser.add_argument(
+        "--ignore_unique",
+        dest="ignore_unique", action="store_const",
+        const=True, default=False,
+        help="Do not merge the same sequences (use only for testing)"
     )
 
     args = parser.parse_args()
