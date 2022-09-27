@@ -81,7 +81,7 @@ def make_uniq_seq_groups(input_seqs, input_chains):
     items = list(dic.items())
 
     # items must be inter-process consistent as it is divided by processes
-    items = sorted(items, key=lambda x: x[0])
+    items = sorted(items, key=lambda x: x[1])
 
     return [x[0] for x in items], [x[1] for x in items]
 
