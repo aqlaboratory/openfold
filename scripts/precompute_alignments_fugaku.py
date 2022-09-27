@@ -64,6 +64,28 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                 copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
 
 
+def make_uniq_seq_groups(input_seqs, input_chains):
+    assert len(input_seqs) == len(input_chains)
+    assert len(input_chains) == len(set(input_chains)) # Chain IDs must be unique
+
+    dic = {}
+    for seq, chain in zip(input_seqs, input_chains):
+        if seq not in dic.keys():
+            dic[seq] = []
+
+        dic[seq].append(chain)
+
+    for k in dic.keys():
+        dic[k] = sorted(dic[k])
+
+    items = list(dic.items())
+
+    # items must be inter-process consistent as it is divided by processes
+    items = sorted(items, key=lambda x: x[0])
+
+    return [x[0] for x in items], [x[1] for x in items]
+
+
 def main(args):
     # Build the alignment tool runner
     alignment_runner = AlignmentRunner(
@@ -83,9 +105,7 @@ def main(args):
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
     input_seqs, input_chains = parse_fasta(fasta_str)
-    # TODO: Check whether input_seqs is a unique set
-
-    # Get Fujitsu MPI's rank and size and split seqs.
+    input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
 
     if "OMPI_COMM_WORLD_RANK" in os.environ:
         # ABCI (OpenMPI)
@@ -93,7 +113,7 @@ def main(args):
         mpi_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
 
     else:
-        # Fugaku
+        # Fugaku (Fujitsu MPI)
         mpi_rank = int(os.environ["PMIX_RANK"])
         mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
 
@@ -103,7 +123,7 @@ def main(args):
     input_chains = input_chains[mpi_rank::mpi_size]
 
     run_seq_group_alignments(
-        zip(input_seqs, [[x] for x in input_chains]), # TODO: Support multiple names
+        zip(input_seqs, input_chains),
         alignment_runner,
         args)
 
