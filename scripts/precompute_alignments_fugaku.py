@@ -39,7 +39,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
         try:
             alignment_runner.run(
-                fasta_path, alignment_dir
+                fasta_path, alignment_dir,
+                ignore_if_exists=True
             )
         except:
             traceback.print_exc()
@@ -51,15 +52,11 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         os.remove(fasta_path)
 
         for name in names[1:]:
-            if(name in dirs):
-                logging.warning(
-                    f'{name} has already been processed. Skipping...'
-                )
-                continue
-
             cp_dir = os.path.join(args.output_dir, name)
-            os.makedirs(cp_dir, exist_ok=True)
+            if not os.path.exists(cp_dir):
+                os.makedirs(cp_dir, exist_ok=True)
 
+            # FIXME: copy files created in this job only
             for f in os.listdir(alignment_dir):
                 copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
 

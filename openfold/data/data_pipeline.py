@@ -400,6 +400,7 @@ class AlignmentRunner:
         self,
         fasta_path: str,
         output_dir: str,
+        ignore_if_exists: bool=False
     ):
         """Runs alignment tools on a sequence"""
         if(self.jackhmmer_uniref90_runner is not None or \
@@ -407,7 +408,8 @@ class AlignmentRunner:
             uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
             uniref90_msa_as_a3m = None
 
-        if(self.jackhmmer_uniref90_runner is not None):
+        if(self.jackhmmer_uniref90_runner is not None and \
+           not (ignore_if_exists and os.path.exists(uniref90_out_path))):
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path
             )[0]
@@ -419,44 +421,49 @@ class AlignmentRunner:
                 f.write(uniref90_msa_as_a3m)
 
         if(self.hhsearch_pdb70_runner is not None):
-            if uniref90_msa_as_a3m is None:
-                with open(uniref90_out_path, "r") as f:
-                    uniref90_msa_as_a3m = f.read()
-
-            hhsearch_result = self.hhsearch_pdb70_runner.query(
-                uniref90_msa_as_a3m
-            )
             pdb70_out_path = os.path.join(output_dir, "pdb70_hits.hhr")
-            with open(pdb70_out_path, "w") as f:
-                f.write(hhsearch_result)
+            if not (ignore_if_exists and os.path.exists(pdb70_out_path)):
+                if uniref90_msa_as_a3m is None:
+                    with open(uniref90_out_path, "r") as f:
+                        uniref90_msa_as_a3m = f.read()
+
+                hhsearch_result = self.hhsearch_pdb70_runner.query(
+                    uniref90_msa_as_a3m
+                )
+                with open(pdb70_out_path, "w") as f:
+                    f.write(hhsearch_result)
 
         if(self.jackhmmer_mgnify_runner is not None):
-            jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
-                fasta_path
-            )[0]
-            mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                jackhmmer_mgnify_result["sto"],
-                max_sequences=self.mgnify_max_hits
-            )
             mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
-            with open(mgnify_out_path, "w") as f:
-                f.write(mgnify_msa_as_a3m)
+            if not (ignore_if_exists and os.path.exists(mgnify_out_path)):
+                jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
+                    fasta_path
+                )[0]
+                mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                    jackhmmer_mgnify_result["sto"],
+                    max_sequences=self.mgnify_max_hits
+                )
+                with open(mgnify_out_path, "w") as f:
+                    f.write(mgnify_msa_as_a3m)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
-                fasta_path
-            )[0]
             bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
-            with open(bfd_out_path, "w") as f:
-                f.write(jackhmmer_small_bfd_result["sto"])
-        elif(self.hhblits_bfd_uniclust_runner is not None):
-            hhblits_bfd_uniclust_result = (
-                self.hhblits_bfd_uniclust_runner.query(fasta_path)
-            )
-            if output_dir is not None:
-                bfd_out_path = os.path.join(output_dir, "bfd_uniclust_hits.a3m")
+            if not (ignore_if_exists and os.path.exists(bfd_out_path)):
+                jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
+                    fasta_path
+                )[0]
                 with open(bfd_out_path, "w") as f:
-                    f.write(hhblits_bfd_uniclust_result["a3m"])
+                    f.write(jackhmmer_small_bfd_result["sto"])
+
+        elif(self.hhblits_bfd_uniclust_runner is not None):
+            bfd_out_path = os.path.join(output_dir, "bfd_uniclust_hits.a3m")
+            if not (ignore_if_exists and os.path.exists(bfd_out_path)):
+                hhblits_bfd_uniclust_result = (
+                    self.hhblits_bfd_uniclust_runner.query(fasta_path)
+                )
+                if output_dir is not None:
+                    with open(bfd_out_path, "w") as f:
+                        f.write(hhblits_bfd_uniclust_result["a3m"])
 
 
 class DataPipeline:
