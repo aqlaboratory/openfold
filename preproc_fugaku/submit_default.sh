@@ -1,6 +1,7 @@
 ./Submit_preproc_fugaku \
     0:10:00 \
-    2 \
-    input_examples/mmcif_head_10_uniq_2.fasta \
+    1 \
+    20 \
+    input_examples/short.fasta \
     output \
     small_bfd

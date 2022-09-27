@@ -7,10 +7,17 @@ set -eu
 InputDir=$1
 OutputDir=$2
 NumNodes=$3
-Mode=$4
+NumCores=$4
+Mode=$5
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
+
+echo InputDir=$InputDir
+echo OutputDir=$OutputDir
+echo NumNodes=$NumNodes
+echo NumCores=$NumCores
+echo Mode=$Mode
 
 # DBs
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -124,7 +131,7 @@ mpiexec \
     -n $NumNodes \
     python3 $Script \
     $InputDir $OutputDir \
-    --cpus_per_task $NUM_CORES \
+    --cpus_per_task $NumCores \
     --jackhmmer_binary_path $BinDir/jackhmmer \
     --hhblits_binary_path $BinDir/hhblits \
     --hhsearch_binary_path $BinDir/hhsearch \
