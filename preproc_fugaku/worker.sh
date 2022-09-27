@@ -35,6 +35,7 @@ LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
 MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
 NumProcsPerNode=`expr $NUM_CORES / $NumThreads`
+# NumProcsPerNode=1
 NumTaskProcs=`expr $NumProcsPerNode \* $NumNodes`
 MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcsPerNode"
 
@@ -83,15 +84,23 @@ fi
 
 DatabaseArgs=""
 if [[ $Mode = "bfd" ]]; then
-    echo "Executing LLIO transfer for a BFD file"
-    time $DirTransfer $Bfd
+    if [[ ${IS_FUGAKU} == 1 ]]; then
+	echo "Executing LLIO transfer for a BFD file"
+	time $DirTransfer $Bfd
+    fi
 
-    $MpiExecEachNode \
-	./prepare_bfd.sh \
-	$Bfd \
-	$BfdLocal \
-	$BfdCs219Data
+    BfdLocal=$LOCALTMP/`basename $Bfd`
 
+    # TODO: remove
+    echo Bfd=$Bfd
+    echo BfdLocal=$BfdLocal
+    echo BfdCs219Data=$BfdCs219Data
+
+    time $MpiExecEachNode \
+	 ./prepare_bfd.sh \
+	 $Bfd \
+	 $BfdLocal \
+	 $BfdCs219Data
     Bfd=$BfdLocal
 fi
 
@@ -127,7 +136,7 @@ elif [[ $Mode = "mgnify" ]]; then
 elif [[ $Mode = "small_bfd" ]]; then
     DatabaseArgs="--bfd_database_path $Database --use_small_bfd True"
 elif [[ $Mode = "bfd" ]]; then
-    DatabaseArgs="--uniclust30_database_path $Database --bfd_database_path $Bfd"
+    DatabaseArgs="--uniclust30_database_path $Database/uniclust30_2018_08 --bfd_database_path $Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 else
     echo "Invalid Mode: $Mode" >&2
     exit
