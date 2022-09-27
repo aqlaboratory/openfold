@@ -402,10 +402,14 @@ class AlignmentRunner:
         output_dir: str,
         ignore_if_exists: bool=False
     ):
-        """Runs alignment tools on a sequence"""
+        """Runs alignment tools on a sequence and returns path(s) of generated files"""
+
+        generated = []
+
         if(self.jackhmmer_uniref90_runner is not None or \
            self.hhsearch_pdb70_runner is not None):
-            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
+            uniref90_out_filename = "uniref90_hits.a3m"
+            uniref90_out_path = os.path.join(output_dir, uniref90_out_filename)
             uniref90_msa_as_a3m = None
 
         if(self.jackhmmer_uniref90_runner is not None and \
@@ -420,8 +424,11 @@ class AlignmentRunner:
             with open(uniref90_out_path, "w") as f:
                 f.write(uniref90_msa_as_a3m)
 
+            generated.append(uniref90_out_filename)
+
         if(self.hhsearch_pdb70_runner is not None):
-            pdb70_out_path = os.path.join(output_dir, "pdb70_hits.hhr")
+            pdb70_out_filename = "pdb70_hits.hhr"
+            pdb70_out_path = os.path.join(output_dir, pdb70_out_filename)
             if not (ignore_if_exists and os.path.exists(pdb70_out_path)):
                 if uniref90_msa_as_a3m is None:
                     with open(uniref90_out_path, "r") as f:
@@ -433,8 +440,11 @@ class AlignmentRunner:
                 with open(pdb70_out_path, "w") as f:
                     f.write(hhsearch_result)
 
+                generated.append(pdb70_out_filename)
+
         if(self.jackhmmer_mgnify_runner is not None):
-            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
+            mgnify_out_filename = "mgnify_hits.a3m"
+            mgnify_out_path = os.path.join(output_dir, mgnify_out_filename)
             if not (ignore_if_exists and os.path.exists(mgnify_out_path)):
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path
@@ -446,8 +456,11 @@ class AlignmentRunner:
                 with open(mgnify_out_path, "w") as f:
                     f.write(mgnify_msa_as_a3m)
 
+                generated.append(mgnify_out_filename)
+
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
+            bfd_out_filename = "small_bfd_hits.sto"
+            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if not (ignore_if_exists and os.path.exists(bfd_out_path)):
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path
@@ -455,8 +468,11 @@ class AlignmentRunner:
                 with open(bfd_out_path, "w") as f:
                     f.write(jackhmmer_small_bfd_result["sto"])
 
+                generated.append(bfd_out_filename)
+
         elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_path = os.path.join(output_dir, "bfd_uniclust_hits.a3m")
+            bfd_out_filename = "bfd_uniclust_hits.a3m"
+            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if not (ignore_if_exists and os.path.exists(bfd_out_path)):
                 hhblits_bfd_uniclust_result = (
                     self.hhblits_bfd_uniclust_runner.query(fasta_path)
@@ -465,6 +481,9 @@ class AlignmentRunner:
                     with open(bfd_out_path, "w") as f:
                         f.write(hhblits_bfd_uniclust_result["a3m"])
 
+                    generated.append(bfd_out_filename)
+
+        return generated
 
 class DataPipeline:
     """Assembles input features."""

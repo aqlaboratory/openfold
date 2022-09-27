@@ -38,7 +38,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
             fp.write(f'>query\n{seq}')
 
         try:
-            alignment_runner.run(
+            generated = alignment_runner.run(
                 fasta_path, alignment_dir,
                 ignore_if_exists=True
             )
@@ -57,8 +57,12 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                 os.makedirs(cp_dir, exist_ok=True)
 
             # FIXME: copy files created in this job only
-            for f in os.listdir(alignment_dir):
-                copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
+            for f in generated:
+                f_path = os.path.join(alignment_dir, f)
+                if not os.path.exists(f_path):
+                    logging.warning(f"Generated file doesn't exist ({f_path}). Skipping...")
+
+                copyfile(f_path, os.path.join(cp_dir, f))
 
 
 def make_uniq_seq_groups(input_seqs, input_chains):
@@ -102,6 +106,7 @@ def main(args):
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
     input_seqs, input_chains = parse_fasta(fasta_str)
+    orig_total_count = len(input_seqs)
 
     if not args.ignore_unique:
         input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
@@ -125,7 +130,7 @@ def main(args):
     input_seqs   =   input_seqs[mpi_rank::mpi_size]
     input_chains = input_chains[mpi_rank::mpi_size]
 
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, total_count={total_count}, my_count={len(input_seqs)}")
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
 
     run_seq_group_alignments(
         zip(input_seqs, input_chains),
