@@ -15,10 +15,10 @@ fi
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
 if [[ ${IS_FUGAKU} == 1 ]]; then
-    export PREFIX=/vol0003/hp210263/data/oyama/openfold_install
-    export OPENFOLDDIR=/vol0003/hp210263/data/oyama/repo/openfold
+    export PREFIX=/vol0006/ra000018/data/u10130/openfold_install
+    export OPENFOLDDIR=/vol0006/ra000018/data/u10130/repo/openfold
     export DATADIR=/vol0003/share/hp210263/OpenFold/data
-    export PJSUB_OPT="-g hp210263 -x PJM_LLIO_GFSCACHE=/vol0003"
+    export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
     export NUM_CORES=48
 elif [[ ${IS_ABCI} == 1 ]]; then
     export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
