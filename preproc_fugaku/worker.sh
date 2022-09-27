@@ -127,8 +127,9 @@ fi
 mkdir -p $OutputDir
 
 echo "Starting the script"
-mpiexec \
-    -n $NumNodes \
+export OMP_NUM_THREADS=$NumCores # Define just in case it is used
+$MpiExecEachNode \
+    -x OMP_NUM_THREADS \
     python3 $Script \
     $InputDir $OutputDir \
     --cpus_per_task $NumCores \
