@@ -22,11 +22,19 @@ SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
 Bfd=$DataDir/bfd
 BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
+# Temp locations
+if [[ ${IS_FUGAKU} == 1 ]]; then
+    LOCALTMP=$PJM_LOCALTMP # Shared SSD, 87 GiB/node
+elif [[ ${IS_ABCI} == 1 ]]; then
+    LOCALTMP=/dev/shm # Private memory, 384 GiB/node (V)
+    # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
+fi
+
 # commands
 Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
-MpiExecEachNode=mpiexec
+MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
 
 if [[ $Mode = "uniref90" ]]; then
     Database=$Uniref90
@@ -48,8 +56,8 @@ else
     exit
 fi
 
-echo "Executing LLIO transfer for OpenFold"
 if [[ ${IS_FUGAKU} == 1 ]]; then
+    echo "Executing LLIO transfer for OpenFold"
     time $DirTransfer $PREFIX/lib
     time $DirTransfer $PREFIX/bin
     time $DirTransfer $OPENFOLDDIR/scripts
@@ -71,27 +79,27 @@ if [[ $Mode = "bfd" ]]; then
     Bfd=$BfdLocal
 fi
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
-    if [[ $DatabaseIsFile = 1 ]]; then
+if [[ $DatabaseIsFile = 1 ]]; then
+    if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB file"
 	time $LLIOTransfer $Database
+    fi
 
-	echo "Copying the DB file to local temp"
-	DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
-	time $MpiExecEachNode cp $Database $DatabaseLocal
+    echo "Copying the DB file to local temp"
+    DatabaseLocal=$LOCALTMP/`basename $Database`
+    time $MpiExecEachNode cp $Database $DatabaseLocal
+    Database=$DatabaseLocal
 
-	Database=$DatabaseLocal
-
-    else
+else
+    if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB directory"
 	time $DirTransfer $Database
-
-	echo "Copying the DB directory to local temp"
-	DatabaseLocal=$PJM_LOCALTMP/`basename $Database`
-	time $MpiExecEachNode cp -r $Database $DatabaseLocal
-
-	Database=$DatabaseLocal
     fi
+
+    echo "Copying the DB directory to local temp"
+    DatabaseLocal=$LOCALTMP/`basename $Database`
+    time $MpiExecEachNode cp -r $Database $DatabaseLocal
+    Database=$DatabaseLocal
 fi
 
 if [[ $Mode = "uniref90" ]]; then
