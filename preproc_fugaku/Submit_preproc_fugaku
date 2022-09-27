@@ -151,7 +151,9 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
     fi
 
 elif [[ ${IS_ABCI} == 1 ]]; then
-    DoSubmitJob=1
+    if [[ -n `hostname | grep -e ^es1 -e ^es2` ]]; then
+	DoSubmitJob=1
+    fi
     SubmitCommand=qsub
 
     QsubArgs+=("-l ${ABCI_RESOURCE}=${NumNodes}")
