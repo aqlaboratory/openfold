@@ -16,7 +16,7 @@ DeepMind experiments. It is omitted here for the sake of reducing clutter. In
 cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
 
-OpenFold is trainable in full precision or `bfloat16` with or without DeepSpeed, 
+OpenFold is trainable in full precision, half precision, or `bfloat16` with or without DeepSpeed, 
 and we've trained it from scratch, matching the performance of the original. 
 We've publicly released model weights and our training data &mdash; some 400,000 
 MSAs and PDB70 template hit files &mdash; under a permissive license. Model weights 
