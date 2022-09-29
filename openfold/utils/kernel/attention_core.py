@@ -111,9 +111,9 @@ class AttentionCoreFunction(torch.autograd.Function):
         grad_k = torch.empty_like(k)
         grad_v = torch.empty_like(v)
         if(ctx.bias_1_shape is not None):
-            grad_bias_1 = torch.empty(ctx.bias_1_shape)
+            grad_bias_1 = torch.zeros(ctx.bias_1_shape)
         if(ctx.bias_2_shape is not None):
-            grad_bias_2 = torch.empty(ctx.bias_2_shape)
+            grad_bias_2 = torch.zeros(ctx.bias_2_shape)
 
         for q_c, k_c, v_c, b1_c, b2_c, al_c, g_out_c, g_q_c, g_k_c, g_v_c, g_b1_c, g_b2_c in \
             zip(torch.split(q, chunk_size, dim=seq_dim),
@@ -149,11 +149,11 @@ class AttentionCoreFunction(torch.autograd.Function):
                     al_c.shape[-1],
                 )
 
-            torch.matmul(
+            tmp_g_v_c = torch.matmul(
                 al_c.transpose(-1, -2),
                 g_out_c,
-                out=g_v_c
             )
+            g_v_c.copy_(tmp_g_v_c)
 
             attn_core_inplace_cuda.backward_(
                 al_c,
@@ -165,29 +165,29 @@ class AttentionCoreFunction(torch.autograd.Function):
             )
 
             if(ctx.bias_1_shape is not None):
-                torch.sum(
+                tmp = torch.sum(
                     al_c,
                     dim=tuple(i for i,d in enumerate(ctx.bias_1_shape) if d == 1),
                     keepdim=True,
-                    out=g_b1_c
                 )
+                g_b1_c.add_(tmp)
 
             if(ctx.bias_2_shape is not None):
-                torch.sum(
+                tmp = torch.sum(
                     al_c,
                     dim=tuple(i for i,d in enumerate(ctx.bias_2_shape) if d == 1),
                     keepdim=True,
-                    out=g_b2_c
                 )
+                g_b2_c.add_(tmp)
 
             torch.matmul(
                 al_c, k_c,
                 out=g_q_c
             )
-            torch.matmul(
+            tmp_g_k_c = torch.matmul(
                 q_c.transpose(-1, -2), al_c,
-                out=g_k_c
             ).transpose(-1, -2)
+            g_k_c.copy_(tmp_g_k_c)
 
         return grad_q, grad_k, grad_v, grad_bias_1, grad_bias_2
 
