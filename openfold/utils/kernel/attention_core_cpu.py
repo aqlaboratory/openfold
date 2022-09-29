@@ -2,11 +2,12 @@ import torch
 from openfold.utils.tensor_utils import permute_final_dims
 
 def forward_(attention_logits, rows, cols):
-    col_max, _ = torch.max(attention_logits, dim=-1)
-    attention_logits.sub_(col_max.unsqueeze(-1))
-    torch.exp(attention_logits, out=attention_logits)
-    col_sum = torch.sum(attention_logits, dim=-1)
-    attention_logits.div_(col_sum.unsqueeze(-1))
+    chunk_dim = -4
+    chunk_size = 256
+
+    for al_c in torch.split(attention_logits, chunk_size, dim=chunk_dim):
+        tmp = torch.nn.functional.softmax(al_c, dim=-1)
+        al_c.copy_(tmp)
 
 def backward_(attention_logits, #output
               grad_output, #d_ov
