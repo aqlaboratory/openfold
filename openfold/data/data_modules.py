@@ -440,11 +440,6 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
         stage_cfg = self.config[self.stage]
 
         max_iters = self.config.common.max_recycling_iters
-        if(stage_cfg.supervised):
-            clamp_prob = self.config.supervised.clamp_prob
-            keyed_probs.append(
-                ("use_clamped_fape", [1 - clamp_prob, clamp_prob])
-            )
         
         if(stage_cfg.uniform_recycling):
             recycling_probs = [
