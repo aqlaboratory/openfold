@@ -94,6 +94,21 @@ def np_example_to_features(
             cfg[mode],
         )
 
+    if mode == "train":
+        p = torch.rand(1).item()
+        use_clamped_fape_value = float(p < cfg.supervised.clamp_prob)
+        features["use_clamped_fape"] = torch.full(
+            size=[cfg.common.max_recycling_iters + 1],
+            fill_value=use_clamped_fape_value,
+            dtype=torch.float32,
+        )
+    else:
+        features["use_clamped_fape"] = torch.full(
+            size=[cfg.common.max_recycling_iters + 1],
+            fill_value=0.0,
+            dtype=torch.float32,
+        )
+
     return {k: v for k, v in features.items()}
 
 
