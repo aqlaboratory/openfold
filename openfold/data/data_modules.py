@@ -334,7 +334,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
     """
     def __init__(self,
         datasets: Sequence[OpenFoldSingleDataset],
-        probabilities: Sequence[int],
+        probabilities: Sequence[float],
         epoch_len: int,
         generator: torch.Generator = None,
         _roll_at_init: bool = True,
