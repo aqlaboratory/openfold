@@ -7,8 +7,9 @@ set -eu
 InputDir=$1
 OutputDir=$2
 NumNodes=$3
-NumThreads=$4
-Mode=$5
+NumProcs=$4
+NumThreads=$5
+Mode=$6
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
@@ -16,6 +17,7 @@ Log=log_`date +%Y%m%d_%H%M%S`
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
 echo NumNodes=$NumNodes
+echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
 echo Mode=$Mode
 
@@ -34,12 +36,9 @@ Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
 MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
-NumProcsPerNode=`expr $NUM_CORES / $NumThreads`
-# NumProcsPerNode=1
-NumTaskProcs=`expr $NumProcsPerNode \* $NumNodes`
-MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcsPerNode"
+NumTaskProcs=`expr $NumProcs \* $NumNodes`
+MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
 
-echo NumProcsPerNode=$NumProcsPerNode
 echo NumTaskProcs=$NumTaskProcs
 echo MpiExecEachNode=$MpiExecEachNode
 echo MpiExecTask=$MpiExecTask

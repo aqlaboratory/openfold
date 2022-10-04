@@ -7,11 +7,12 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 6 ] ; then
+if [ $# -ne 7 ] ; then
     cat << EOF >&2
 usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
 The NumNodes is the number of nodes
+The NumProcs is the number of processes for each node
 The NumThreads is the number of threads for each task
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
@@ -24,6 +25,7 @@ fi
 
 TimeLimit="$1" && shift
 NumNodes="$1" && shift
+NumProcs="$1" && shift
 NumThreads="$1" && shift
 InputFile="$1" && shift
 OutputDir="$1" && shift
@@ -42,13 +44,6 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	    exit
 	fi
     fi
-fi
-
-# Check NumThreads
-NumProcsPerNode=`expr $NUM_CORES / $NumThreads`
-if [[ ! `expr $NumProcsPerNode \* $NumThreads` = $NUM_CORES ]]; then
-    echo "NUM_CORES ($NUM_CORES) must be divided by NumThreads ($NumThreads)" >&2
-    exit
 fi
 
 LocalTempSize=0Gi
@@ -127,7 +122,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $NumNodes $NumThreads $Mode 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $NumNodes $NumProcs $NumThreads $Mode 2>&1 | tee "$LogDir/output"
 
 
 EOF
