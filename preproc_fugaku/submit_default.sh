@@ -1,9 +1,9 @@
-NumThreads=1
+NumThreads=20
 
 ./Submit_preproc_fugaku \
-    0:10:00 \
+    0:30:00 \
     1 \
     $NumThreads \
-    input_examples/short_`expr 20 / $NumThreads`.fasta \
+    input_examples/4X96.fasta \
     output \
-    small_bfd
+    uniref90

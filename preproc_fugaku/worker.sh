@@ -147,6 +147,7 @@ mkdir -p $OutputDir
 echo "Starting the script"
 export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
 $MpiExecTask \
+    --bind-to none \
     -x OMP_NUM_THREADS \
     python3 $Script \
     $InputDir $OutputDir \
