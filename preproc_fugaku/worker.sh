@@ -156,4 +156,6 @@ $MpiExecTask \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
     $DatabaseArgs \
-    --ignore_unique # TODO: remove in real runs
+    --ignore_unique \
+    --weak_scale
+# TODO: Remove ignore_unique and weak_scaling in real runs

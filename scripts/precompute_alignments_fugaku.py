@@ -113,6 +113,9 @@ def main(args):
         logging.warning(f"--ignore_unique is enabled. The process might be redundant")
         input_chains = [[x] for x in input_chains]
 
+    # input_seqs   = [AAA, BBB, ...]
+    # input_chains = [[A_1, A_2], [B_1], ...]
+
     if "OMPI_COMM_WORLD_RANK" in os.environ:
         # ABCI (OpenMPI)
         mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
@@ -122,6 +125,14 @@ def main(args):
         # Fugaku (Fujitsu MPI)
         mpi_rank = int(os.environ["PMIX_RANK"])
         mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
+
+    if args.weak_scale:
+        logging.warning(f"--weak_scale is enabled. The process might be redundant")
+        assert len(input_seqs) == 1
+        assert len(input_chains) == 1
+        assert len(input_chains[0]) == 1
+        input_seqs = [input_seqs[0]]*mpi_size
+        input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
 
     assert mpi_size > 0
     assert mpi_rank >= 0 and mpi_rank < mpi_size
@@ -169,11 +180,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_small_bfd", type=bool, default=False,
     )
+
     parser.add_argument(
         "--ignore_unique",
         dest="ignore_unique", action="store_const",
         const=True, default=False,
         help="Do not merge the same sequences (use only for testing)"
+    )
+
+    parser.add_argument(
+        "--weak_scale",
+        dest="weak_scale", action="store_const",
+        const=True, default=False,
+        help="Duplicate the single input sequence for every process (use only for testing)"
     )
 
     args = parser.parse_args()
