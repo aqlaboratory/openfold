@@ -46,7 +46,6 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
             traceback.print_exc()
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
             os.remove(fasta_path)
-            os.rmdir(alignment_dir)
             continue
 
         os.remove(fasta_path)
