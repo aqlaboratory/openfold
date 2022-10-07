@@ -7,8 +7,7 @@ BfdCs219Data=$3
 echo "Copying the DB file to local temp"
 mkdir $BfdLocal
 time cp $BfdCs219Data $BfdLocal
-
-# FIXME: Copy .ffindex to memory
+time cp $Bfd/*.ffindex $BfdLocal
 
 echo "Adding links of the DB files to local temp"
 for x in `ls $Bfd`; do

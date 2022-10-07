@@ -84,46 +84,52 @@ fi
 DatabaseArgs=""
 if [[ $Mode = "bfd" ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
-	echo "Executing LLIO transfer for a BFD file"
+	echo "Executing LLIO transfer for BFD files"
+	for ffindex in `find $Bfd -name *ffindex`; do
+	    time $LLIOTransfer $ffindex
+	done
+	time $LLIOTransfer $BfdCs219Data
 	time $DirTransfer $Bfd
+
+    else
+	BfdLocal=$LOCALTMP/`basename $Bfd`
+
+	echo Bfd=$Bfd
+	echo BfdLocal=$BfdLocal
+	echo BfdCs219Data=$BfdCs219Data
+
+	time $MpiExecEachNode \
+	     ./prepare_bfd.sh \
+	     $Bfd \
+	     $BfdLocal \
+	     $BfdCs219Data
+	Bfd=$BfdLocal
     fi
-
-    BfdLocal=$LOCALTMP/`basename $Bfd`
-
-    # TODO: remove
-    echo Bfd=$Bfd
-    echo BfdLocal=$BfdLocal
-    echo BfdCs219Data=$BfdCs219Data
-
-    time $MpiExecEachNode \
-	 ./prepare_bfd.sh \
-	 $Bfd \
-	 $BfdLocal \
-	 $BfdCs219Data
-    Bfd=$BfdLocal
 fi
 
 if [[ $DatabaseIsFile = 1 ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB file"
 	time $LLIOTransfer $Database
-    fi
 
-    echo "Copying the DB file to local temp"
-    DatabaseLocal=$LOCALTMP/`basename $Database`
-    time $MpiExecEachNode cp $Database $DatabaseLocal
-    Database=$DatabaseLocal
+    else
+	echo "Copying the DB file to local temp"
+	DatabaseLocal=$LOCALTMP/`basename $Database`
+	time $MpiExecEachNode cp $Database $DatabaseLocal
+	Database=$DatabaseLocal
+    fi
 
 else
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB directory"
 	time $DirTransfer $Database
-    fi
 
-    echo "Copying the DB directory to local temp"
-    DatabaseLocal=$LOCALTMP/`basename $Database`
-    time $MpiExecEachNode cp -r $Database $DatabaseLocal
-    Database=$DatabaseLocal
+    else
+	echo "Copying the DB directory to local temp"
+	DatabaseLocal=$LOCALTMP/`basename $Database`
+	time $MpiExecEachNode cp -r $Database $DatabaseLocal
+	Database=$DatabaseLocal
+    fi
 fi
 
 if [[ $Mode = "uniref90" ]]; then
