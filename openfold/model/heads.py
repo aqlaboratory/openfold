@@ -22,6 +22,7 @@ from openfold.utils.loss import (
     compute_tm,
     compute_predicted_aligned_error,
 )
+from openfold.utils.precision_utils import is_fp16_enabled
 
 
 class AuxiliaryHeads(nn.Module):
@@ -151,8 +152,7 @@ class DistogramHead(nn.Module):
         return logits
     
     def forward(self, z): 
-        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
-        if float16_enabled and torch.is_autocast_enabled():
+        if(is_fp16_enabled()):
             with torch.cuda.amp.autocast(enabled=False):
                 return self._forward(z.float())
         else:

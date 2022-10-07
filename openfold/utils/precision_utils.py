@@ -13,22 +13,11 @@
 # limitations under the License.
 import importlib
 
-deepspeed_is_installed = importlib.util.find_spec("deepspeed") is not None
-if(deepspeed_is_installed):
-    import deepspeed
-
 import torch
 
 def is_fp16_enabled():
     # Autocast world
     fp16_enabled = torch.get_autocast_gpu_dtype() == torch.float16
     fp16_enabled = fp16_enabled and torch.is_autocast_enabled()
-
-    # DeepSpeed world
-    deepspeed_is_initialized = (
-        deepspeed_is_installed and 
-        deepspeed.utils.is_initialized()
-    )
-    print(dir(deepspeed))
 
     return fp16_enabled

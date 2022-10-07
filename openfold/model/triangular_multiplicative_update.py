@@ -21,6 +21,7 @@ import torch.nn as nn
 
 from openfold.model.primitives import Linear, LayerNorm
 from openfold.utils.chunk_utils import chunk_layer
+from openfold.utils.precision_utils import is_fp16_enabled
 from openfold.utils.tensor_utils import add, permute_final_dims
 
 
@@ -392,8 +393,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         b = b * self.sigmoid(self.linear_b_g(z))
         b = b * self.linear_b_p(z)
         
-        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
-        if float16_enabled and torch.is_autocast_enabled():
+        if(is_fp16_enabled()): 
             with torch.cuda.amp.autocast(enabled=False):
                 x = self._combine_projections(a.float(), b.float())
         else:

@@ -21,6 +21,7 @@ import torch.nn as nn
 
 from openfold.model.primitives import Linear
 from openfold.utils.chunk_utils import chunk_layer
+from openfold.utils.precision_utils import is_fp16_enabled
 
 
 class OuterProductMean(nn.Module):
@@ -150,9 +151,7 @@ class OuterProductMean(nn.Module):
                 chunk_size: Optional[int] = None,
                 inplace_safe: bool = False,
     ) -> torch.Tensor:
-
-        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
-        if float16_enabled and torch.is_autocast_enabled():
+        if(is_fp16_enabled()):
             with torch.cuda.amp.autocast(enabled=False):
                 return self._forward(m.float(), mask, chunk_size, inplace_safe)
         else:

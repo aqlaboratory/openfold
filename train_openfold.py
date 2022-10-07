@@ -567,6 +567,9 @@ if __name__ == "__main__":
          (args.num_nodes is not None and args.num_nodes > 1))):
         raise ValueError("For distributed training, --seed must be specified")
 
+    if(args.precision == "16" and args.deepspeed_config_path is not None):
+        raise ValueError("DeepSpeed and FP16 training are not compatible")
+
     # This re-applies the training-time filters at the beginning of every epoch
     args.reload_dataloaders_every_n_epochs = 1
 

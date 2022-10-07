@@ -33,6 +33,7 @@ from openfold.utils.feats import (
     frames_and_literature_positions_to_atom14_pos,
     torsion_angles_to_frames,
 )
+from openfold.utils.precision_utils import is_fp16_enabled
 from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     dict_multimap,
@@ -312,8 +313,7 @@ class InvariantPointAttention(nn.Module):
             z[0] = z[0].cpu()
 
         # [*, H, N_res, N_res]
-        float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
-        if float16_enabled and torch.is_autocast_enabled():
+        if(is_fp16_enabled()):
             with torch.cuda.amp.autocast(enabled=False):
                 a = torch.matmul(
                     permute_final_dims(q.float(), (1, 0, 2)),  # [*, H, N_res, C_hidden]
