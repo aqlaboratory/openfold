@@ -480,8 +480,9 @@ class Attention(nn.Module):
 
         # [*, Q, H, C_hidden]
         float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
-        if float16_enabled:
+        if float16_enabled and torch.is_autocast_enabled():
             use_memory_efficient_kernel = False
+        
         if(use_memory_efficient_kernel):
             if(len(biases) > 2):
                 raise ValueError(

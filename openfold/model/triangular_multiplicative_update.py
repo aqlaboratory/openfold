@@ -391,12 +391,14 @@ class TriangleMultiplicativeUpdate(nn.Module):
         b = mask
         b = b * self.sigmoid(self.linear_b_g(z))
         b = b * self.linear_b_p(z)
+        
         float16_enabled = (torch.get_autocast_gpu_dtype() == torch.float16)
         if float16_enabled and torch.is_autocast_enabled():
             with torch.cuda.amp.autocast(enabled=False):
                 x = self._combine_projections(a.float(), b.float())
         else:
             x = self._combine_projections(a, b)
+        
         del a, b
         x = self.layer_norm_out(x)
         x = self.linear_z(x)
