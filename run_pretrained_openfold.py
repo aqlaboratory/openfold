@@ -116,7 +116,9 @@ def generate_feature_dict(
 
         local_alignment_dir = os.path.join(alignment_dir, tag)
         feature_dict = data_processor.process_fasta(
-            fasta_path=tmp_fasta_path, alignment_dir=local_alignment_dir
+            fasta_path=tmp_fasta_path,
+            alignment_dir=local_alignment_dir,
+            seqemb_mode=args.use_single_seq_mode,
         )
     else:
         with open(tmp_fasta_path, "w") as fp:
@@ -307,6 +309,10 @@ if __name__ == "__main__":
         "--use_precomputed_alignments", type=str, default=None,
         help="""Path to alignment directory. If provided, alignment computation 
                 is skipped and database path arguments are ignored."""
+    )
+    parser.add_argument(
+        "--use_single_seq_mode", action="store_true", default=False,
+        help="""Use single sequence embeddings instead of MSAs."""
     )
     parser.add_argument(
         "--output_dir", type=str, default=os.getcwd(),
