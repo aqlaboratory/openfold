@@ -643,6 +643,7 @@ class DataPipeline:
         fasta_path: str,
         alignment_dir: str,
         alignment_index: Optional[str] = None,
+        seqemb_mode: bool = False,
     ) -> FeatureDict:
         """Assembles features for a single sequence in a FASTA file""" 
         with open(fasta_path) as f:
@@ -668,8 +669,10 @@ class DataPipeline:
             description=input_description,
             num_res=num_res,
         )
-
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
+        if seqemb_mode:
+            msa_features = make_dummy_msa_feats(input_sequence)
+        else:
+            msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
         
         return {
             **sequence_features,
