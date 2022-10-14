@@ -260,6 +260,17 @@ def make_msa_features(
     return features
 
 
+def make_dummy_msa_feats(input_sequence):
+    msas = [[input_sequence]]
+    deletion_matrices = [[[0 for _ in input_sequence]]]
+    msa_features = make_msa_features(
+        msas=msas,
+        deletion_matrices=deletion_matrices,
+    )
+
+    return msa_features
+
+
 def make_sequence_features_with_custom_template(
         sequence: str,
         mmcif_path: str,
