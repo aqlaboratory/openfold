@@ -52,6 +52,8 @@ elif [[ ${IS_ABCI} == 1 ]]; then
     # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
 fi
 
+echo LOCALTMP=$LOCALTMP
+
 if [[ $Mode = "uniref90" ]]; then
     Database=$Uniref90
     DatabaseIsFile=1
@@ -98,6 +100,7 @@ if [[ $Mode = "bfd" ]]; then
 	echo BfdLocal=$BfdLocal
 	echo BfdCs219Data=$BfdCs219Data
 
+	echo "Executing prepare_bfd"
 	time $MpiExecEachNode \
 	     ./prepare_bfd.sh \
 	     $Bfd \
@@ -164,4 +167,3 @@ $MpiExecTask \
     $DatabaseArgs \
     --ignore_unique \
     --weak_scale
-# TODO: Remove ignore_unique and weak_scaling in real runs
