@@ -167,6 +167,9 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
 def main(args):
     seed_everything(2022)
 
+    pid = os.getpid()
+    initial_cpu_affinity = os.sched_getaffinity(pid)
+
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
@@ -338,6 +341,9 @@ def main(args):
         logger.info(f"Output written to {unrelaxed_output_path}...")
 
         if(not args.skip_relaxation):
+            # re-setting cpu affinity. fcc openmp changes the affinity to single core.
+            os.sched_setaffinity(pid, initial_cpu_affinity)
+
             amber_relaxer = relax.AmberRelaxation(
                 use_gpu=(args.model_device != "cpu"),
                 **config.relax,
