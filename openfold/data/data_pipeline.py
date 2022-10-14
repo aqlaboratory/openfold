@@ -638,6 +638,18 @@ class DataPipeline:
 
         return msa_features
 
+    def _process_seqemb_features(self,
+        alignment_dir: str,
+    ) -> Mapping[str, Any]:
+        for f in os.listdir(alignment_dir):
+            path = os.path.join(alignment_dir, f)
+            ext = os.path.splitext(f)[-1]
+
+            if (ext == ".pt"):
+                seqemb_data = torch.load(path)
+
+        return seqemb_data
+
     def process_fasta(
         self,
         fasta_path: str,
@@ -669,15 +681,19 @@ class DataPipeline:
             description=input_description,
             num_res=num_res,
         )
+
+        sequence_embedding_features = {}
         if seqemb_mode:
             msa_features = make_dummy_msa_feats(input_sequence)
+            sequence_embedding_features = self._process_seqemb_features(alignment_dir)
         else:
             msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
         
         return {
             **sequence_features,
             **msa_features, 
-            **template_features
+            **template_features,
+            **sequence_embedding_features,
         }
 
     def process_mmcif(
