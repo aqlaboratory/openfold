@@ -144,6 +144,7 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 
 	# To use LLIO (node-temporary)
 	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
+	QsubArgs+=("--mpi max-proc-per-node=$NumProcs")
     fi
 
 elif [[ ${IS_ABCI} == 1 ]]; then

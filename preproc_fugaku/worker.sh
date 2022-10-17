@@ -35,9 +35,17 @@ BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219
 Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=/home/system/tool/dir_transfer
-MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
 NumTaskProcs=`expr $NumProcs \* $NumNodes`
-MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
+
+if [[ ${IS_FUGAKU} == 1 ]]; then
+    MpiExecEachNode="STUB"
+    MpiExecTask="mpiexec -n $NumTaskProcs"
+    MpiArgs=""
+else
+    MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
+    MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
+    MpiArgs="--bind-to none"
+fi
 
 echo NumTaskProcs=$NumTaskProcs
 echo MpiExecEachNode=$MpiExecEachNode
@@ -76,11 +84,16 @@ fi
 
 if [[ ${IS_FUGAKU} == 1 ]]; then
     echo "Executing LLIO transfer for OpenFold"
-    time $DirTransfer $PREFIX/lib
-    time $DirTransfer $PREFIX/bin
+
+    # FIXME: The following dirs fail because some files include a space
+    # time $DirTransfer $PREFIX/lib
+    # time $DirTransfer $PREFIX/bin
+
+    set +eu
     time $DirTransfer $OPENFOLDDIR/scripts
     time $DirTransfer $OPENFOLDDIR/openfold
     time $DirTransfer $OPENFOLDDIR/openfold.egg-info
+    set -eu
 fi
 
 DatabaseArgs=""
@@ -154,8 +167,10 @@ mkdir -p $OutputDir
 
 echo "Starting the script"
 export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
+export PARALLEL=$OMP_NUM_THREADS
 $MpiExecTask \
-    --bind-to none \
+    $MpiArgs \
+    -x PARALLEL \
     -x OMP_NUM_THREADS \
     python3 $Script \
     $InputDir $OutputDir \
