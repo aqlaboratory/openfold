@@ -514,6 +514,7 @@ config = mlc.ConfigDict(
                 "transition_n": 4,
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
+                "no_column_attention": False,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "clear_cache_between_blocks": False,
                 "tune_chunk_size": tune_chunk_size,
