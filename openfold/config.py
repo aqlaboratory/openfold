@@ -152,6 +152,12 @@ def model_config(
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
+    # SINGLE SEQUENCE EMBEDDING PRESETS
+    elif name == "seqemb_initial_training":
+        c.data.seqemb_mode.enabled = True
+        c.globals.seqemb_mode_enabled = True
+        c.model.extra_msa.enabled = False
+        c.model.evoformer_stack.no_column_attention = True
     else:
         raise ValueError("Invalid model name")
 
