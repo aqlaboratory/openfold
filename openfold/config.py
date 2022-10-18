@@ -377,6 +377,7 @@ config = mlc.ConfigDict(
         },
         # Recurring FieldReferences that can be changed globally here
         "globals": {
+            "seqemb_mode_enabled": False,
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
             # Use Staats & Rabe's low-memory attention algorithm. Mutually
