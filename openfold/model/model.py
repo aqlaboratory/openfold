@@ -24,6 +24,7 @@ from openfold.model.embedders import (
     TemplateAngleEmbedder,
     TemplatePairEmbedder,
     ExtraMSAEmbedder,
+    PreembeddingEmbedder,
 )
 from openfold.model.evoformer import EvoformerStack, ExtraMSAStack
 from openfold.model.heads import AuxiliaryHeads
@@ -71,11 +72,17 @@ class AlphaFold(nn.Module):
         self.config = config.model
         self.template_config = self.config.template
         self.extra_msa_config = self.config.extra_msa
+        self.seqemb_mode = config.globals.seqemb_mode_enabled
 
         # Main trunk + structure module
-        self.input_embedder = InputEmbedder(
-            **self.config["input_embedder"],
-        )
+        if self.seqemb_mode:
+            self.preembedding_embedder = PreembeddingEmbedder(
+                **self.config["preembedding_embedder"],
+            )
+        else:
+            self.input_embedder = InputEmbedder(
+                **self.config["input_embedder"],
+            )
         self.recycling_embedder = RecyclingEmbedder(
             **self.config["recycling_embedder"],
         )
@@ -237,17 +244,27 @@ class AlphaFold(nn.Module):
         seq_mask = feats["seq_mask"]
         pair_mask = seq_mask[..., None] * seq_mask[..., None, :]
         msa_mask = feats["msa_mask"]
-        
-        ## Initialize the MSA and pair representations
 
-        # m: [*, S_c, N, C_m]
+        ## Initialize the SingleSeq and pair representations
+        # m: [*, 1, N, C_m]
         # z: [*, N, N, C_z]
-        m, z = self.input_embedder(
-            feats["target_feat"],
-            feats["residue_index"],
-            feats["msa_feat"],
-            inplace_safe=inplace_safe,
-        )
+        if self.seqemb_mode:
+            m, z = self.preembedding_embedder(
+                feats["target_feat"],
+                feats["residue_index"],
+                feats["seq_embedding"]
+            )
+
+        else:
+            ## Initialize the MSA and pair representations
+            # m: [*, S_c, N, C_m]
+            # z: [*, N, N, C_z]
+            m, z = self.input_embedder(
+                feats["target_feat"],
+                feats["residue_index"],
+                feats["msa_feat"],
+                inplace_safe=inplace_safe,
+            )
 
         # Unpack the recycling embeddings. Removing them from the list allows 
         # them to be freed further down in this function, saving memory
