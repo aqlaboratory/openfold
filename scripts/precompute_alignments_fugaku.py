@@ -99,6 +99,8 @@ def main(args):
         pdb70_database_path=args.pdb70_database_path,
         use_small_bfd=args.use_small_bfd,
         no_cpus=args.cpus_per_task,
+        use_ok_files=True,
+        disable_write_permission=True,
     )
 
     input_file = args.input_file
@@ -146,6 +148,8 @@ def main(args):
         zip(input_seqs, input_chains),
         alignment_runner,
         args)
+
+    print("DONE!")
 
 
 if __name__ == "__main__":

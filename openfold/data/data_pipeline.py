@@ -17,6 +17,7 @@ import os
 import datetime
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
+from pathlib import Path
 
 import numpy as np
 
@@ -272,6 +273,8 @@ class AlignmentRunner:
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
+        use_ok_files: Optional[bool] = False,
+        disable_write_permission: Optional[bool] = False,
     ):
         """
         Args:
@@ -306,6 +309,10 @@ class AlignmentRunner:
                 Max number of uniref hits
             mgnify_max_hits:
                 Max number of mgnify hits
+            use_ok_files:
+                Write _OK files after preprocessing
+            disable_write_permission:
+                Apply chmod 440 after preprocessing
         """
         db_map = {
             "jackhmmer": {
@@ -396,6 +403,9 @@ class AlignmentRunner:
                 n_cpu=no_cpus,
             )
 
+        self.use_ok_files = use_ok_files
+        self.disable_write_permission = disable_write_permission
+
     def run(
         self,
         fasta_path: str,
@@ -403,6 +413,20 @@ class AlignmentRunner:
         ignore_if_exists: bool=False
     ):
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
+
+        def is_not_processed_yet(path):
+            return not (ignore_if_exists and \
+                        os.path.exists(path+("_ok" if self.use_ok_files else "")))
+
+        def touch_ok(path):
+            if self.use_ok_files:
+                p = Path(path+"_ok")
+                p.touch()
+                if self.disable_write_permission:
+                    p.chmod(0o440)
+
+            if self.disable_write_permission:
+                Path(path).chmod(0o440)
 
         generated = []
 
@@ -413,7 +437,7 @@ class AlignmentRunner:
             uniref90_msa_as_a3m = None
 
         if(self.jackhmmer_uniref90_runner is not None and \
-           not (ignore_if_exists and os.path.exists(uniref90_out_path))):
+           is_not_processed_yet(uniref90_out_path)):
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path
             )[0]
@@ -424,12 +448,13 @@ class AlignmentRunner:
             with open(uniref90_out_path, "w") as f:
                 f.write(uniref90_msa_as_a3m)
 
+            touch_ok(uniref90_out_path)
             generated.append(uniref90_out_filename)
 
         if(self.hhsearch_pdb70_runner is not None):
             pdb70_out_filename = "pdb70_hits.hhr"
             pdb70_out_path = os.path.join(output_dir, pdb70_out_filename)
-            if not (ignore_if_exists and os.path.exists(pdb70_out_path)):
+            if is_not_processed_yet(pdb70_out_path):
                 if uniref90_msa_as_a3m is None:
                     with open(uniref90_out_path, "r") as f:
                         uniref90_msa_as_a3m = f.read()
@@ -440,12 +465,13 @@ class AlignmentRunner:
                 with open(pdb70_out_path, "w") as f:
                     f.write(hhsearch_result)
 
+                touch_ok(pdb70_out_path)
                 generated.append(pdb70_out_filename)
 
         if(self.jackhmmer_mgnify_runner is not None):
             mgnify_out_filename = "mgnify_hits.a3m"
             mgnify_out_path = os.path.join(output_dir, mgnify_out_filename)
-            if not (ignore_if_exists and os.path.exists(mgnify_out_path)):
+            if is_not_processed_yet(mgnify_out_path):
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path
                 )[0]
@@ -456,24 +482,26 @@ class AlignmentRunner:
                 with open(mgnify_out_path, "w") as f:
                     f.write(mgnify_msa_as_a3m)
 
+                touch_ok(mgnify_out_path)
                 generated.append(mgnify_out_filename)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
             bfd_out_filename = "small_bfd_hits.sto"
             bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if not (ignore_if_exists and os.path.exists(bfd_out_path)):
+            if is_not_processed_yet(bfd_out_path):
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path
                 )[0]
                 with open(bfd_out_path, "w") as f:
                     f.write(jackhmmer_small_bfd_result["sto"])
 
+                touch_ok(bfd_out_path)
                 generated.append(bfd_out_filename)
 
         elif(self.hhblits_bfd_uniclust_runner is not None):
             bfd_out_filename = "bfd_uniclust_hits.a3m"
             bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if not (ignore_if_exists and os.path.exists(bfd_out_path)):
+            if is_not_processed_yet(bfd_out_path):
                 hhblits_bfd_uniclust_result = (
                     self.hhblits_bfd_uniclust_runner.query(fasta_path)
                 )
@@ -481,6 +509,7 @@ class AlignmentRunner:
                     with open(bfd_out_path, "w") as f:
                         f.write(hhblits_bfd_uniclust_result["a3m"])
 
+                    touch_ok(bfd_out_path)
                     generated.append(bfd_out_filename)
 
         return generated

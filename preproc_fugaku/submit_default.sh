@@ -6,7 +6,7 @@ if "true"; then
 	20 \
 	input_examples/short.fasta \
 	output \
-	bfd
+	small_bfd
 
 elif "true"; then
     # Strong scaling with 1 proc.
