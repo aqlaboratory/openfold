@@ -158,6 +158,14 @@ def model_config(
         c.globals.seqemb_mode_enabled = True
         c.model.extra_msa.enabled = False
         c.model.evoformer_stack.no_column_attention = True
+    elif name == "seqemb_finetuning":
+        c.data.seqemb_mode.enabled = True
+        c.globals.seqemb_mode_enabled = True
+        c.model.extra_msa.enabled = False
+        c.model.evoformer_stack.no_column_attention = True
+        c.data.train.crop_size = 384
+        c.loss.violation.weight = 1.
+        c.loss.experimentally_resolved.weight = 0.01
     else:
         raise ValueError("Invalid model name")
 
