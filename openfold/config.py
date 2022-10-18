@@ -189,6 +189,7 @@ c_m = mlc.FieldReference(256, field_type=int)
 c_t = mlc.FieldReference(64, field_type=int)
 c_e = mlc.FieldReference(64, field_type=int)
 c_s = mlc.FieldReference(384, field_type=int)
+preemb_dim_size = mlc.FieldReference(1280, field_type=int)
 blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
@@ -399,6 +400,13 @@ config = mlc.ConfigDict(
             "input_embedder": {
                 "tf_dim": 22,
                 "msa_dim": 49,
+                "c_z": c_z,
+                "c_m": c_m,
+                "relpos_k": 32,
+            },
+            "preembedding_embedder": {
+                "tf_dim": 22,
+                "preembedding_dim": preemb_dim_size,
                 "c_z": c_z,
                 "c_m": c_m,
                 "relpos_k": 32,
