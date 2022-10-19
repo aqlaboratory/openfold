@@ -9,6 +9,21 @@ if "true"; then
 	small_bfd \
 	""
 
+elif "false"; then
+    dbs=(uniref90 mgnify small_bfd bfd)
+    for db in ${dbs[@]}; do
+	./Submit_preproc_fugaku \
+	    1:00:00 \
+	    1 \
+	    1 \
+	    20 \
+	    input_examples/short.fasta \
+	    output \
+	    ${db} \
+	    ""
+	sleep 1
+    done
+
 elif "true"; then
     # Strong scaling with 1 proc.
     NumProcs=1

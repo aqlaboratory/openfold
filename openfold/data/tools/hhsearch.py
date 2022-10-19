@@ -62,7 +62,10 @@ class HHSearch:
                     f"Could not find HHsearch database {database_path}"
                 )
 
-    def query(self, a3m: str) -> str:
+    def query(
+            self,
+            a3m: str,
+            input_label: str) -> str:
         """Queries the database using HHsearch using a given a3m."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             input_path = os.path.join(query_tmp_dir, "query.a3m")
@@ -90,7 +93,7 @@ class HHSearch:
             process = subprocess.Popen(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-            with utils.timing("HHsearch query"):
+            with utils.timing(f"HHsearch query ({input_label})"):
                 stdout, stderr = process.communicate()
                 retcode = process.wait()
 

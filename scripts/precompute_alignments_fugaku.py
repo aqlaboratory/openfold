@@ -39,7 +39,9 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
         try:
             generated = alignment_runner.run(
-                fasta_path, alignment_dir,
+                fasta_path,
+                alignment_dir,
+                first_name,
                 ignore_if_exists=True
             )
         except:

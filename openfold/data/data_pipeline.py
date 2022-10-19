@@ -410,6 +410,7 @@ class AlignmentRunner:
         self,
         fasta_path: str,
         output_dir: str,
+        input_label: str,
         ignore_if_exists: bool=False
     ):
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
@@ -439,7 +440,8 @@ class AlignmentRunner:
         if(self.jackhmmer_uniref90_runner is not None and \
            is_not_processed_yet(uniref90_out_path)):
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
-                fasta_path
+                fasta_path,
+                input_label,
             )[0]
             uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                 jackhmmer_uniref90_result["sto"],
@@ -460,7 +462,8 @@ class AlignmentRunner:
                         uniref90_msa_as_a3m = f.read()
 
                 hhsearch_result = self.hhsearch_pdb70_runner.query(
-                    uniref90_msa_as_a3m
+                    uniref90_msa_as_a3m,
+                    input_label,
                 )
                 with open(pdb70_out_path, "w") as f:
                     f.write(hhsearch_result)
@@ -473,7 +476,8 @@ class AlignmentRunner:
             mgnify_out_path = os.path.join(output_dir, mgnify_out_filename)
             if is_not_processed_yet(mgnify_out_path):
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
-                    fasta_path
+                    fasta_path,
+                    input_label,
                 )[0]
                 mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                     jackhmmer_mgnify_result["sto"],
@@ -490,7 +494,8 @@ class AlignmentRunner:
             bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if is_not_processed_yet(bfd_out_path):
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
-                    fasta_path
+                    fasta_path,
+                    input_label,
                 )[0]
                 with open(bfd_out_path, "w") as f:
                     f.write(jackhmmer_small_bfd_result["sto"])
@@ -503,7 +508,10 @@ class AlignmentRunner:
             bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if is_not_processed_yet(bfd_out_path):
                 hhblits_bfd_uniclust_result = (
-                    self.hhblits_bfd_uniclust_runner.query(fasta_path)
+                    self.hhblits_bfd_uniclust_runner.query(
+                        fasta_path,
+                        input_label
+                    )
                 )
                 if output_dir is not None:
                     with open(bfd_out_path, "w") as f:

@@ -99,7 +99,10 @@ class HHBlits:
         self.p = p
         self.z = z
 
-    def query(self, input_fasta_path: str) -> Mapping[str, Any]:
+    def query(
+            self,
+            input_fasta_path: str,
+            input_label: str) -> Mapping[str, Any]:
         """Queries the database using HHblits."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             a3m_path = os.path.join(query_tmp_dir, "output.a3m")
@@ -146,7 +149,7 @@ class HHBlits:
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 
-            with utils.timing("HHblits query"):
+            with utils.timing(f"HHblits query ({input_label})"):
                 stdout, stderr = process.communicate()
                 retcode = process.wait()
 

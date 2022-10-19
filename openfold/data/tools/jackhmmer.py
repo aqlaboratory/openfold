@@ -93,8 +93,10 @@ class Jackhmmer:
         self.streaming_callback = streaming_callback
 
     def _query_chunk(
-        self, input_fasta_path: str, database_path: str
-    ) -> Mapping[str, Any]:
+            self,
+            input_fasta_path: str,
+            database_path: str,
+            input_label: str) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             sto_path = os.path.join(query_tmp_dir, "output.sto")
@@ -151,7 +153,7 @@ class Jackhmmer:
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             with utils.timing(
-                f"Jackhmmer ({os.path.basename(database_path)}) query"
+                f"Jackhmmer ({os.path.basename(database_path)}) query ({input_label})"
             ):
                 _, stderr = process.communicate()
                 retcode = process.wait()
