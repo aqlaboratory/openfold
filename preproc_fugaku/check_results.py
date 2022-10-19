@@ -63,6 +63,7 @@ if __name__ == "__main__":
 
     dirs = os.listdir(root)
 
+    print(f"Checking {len(dirs)} directories...")
     results = pmap(check_dir, [os.path.join(root, x) for x in dirs])
     df = pd.DataFrame(results)
     print(df)
