@@ -7,12 +7,12 @@ import pandas as pd
 from foycc import pmap
 from openfold.data.parsers import parse_fasta, parse_a3m, parse_hhr, parse_stockholm
 
-USE_OK_FILES = False
+USE_OK_FILES = True
 
 STATUS_OK         = "OK"
 STATUS_ERROR      = "ERR"
 STATUS_INCOMPLETE = "INC"
-STATUS_NOT_FOUND  = "NA"
+STATUS_NOT_FOUND  = "NOF"
 
 
 def check_file(path, parse_count=None):
@@ -32,7 +32,9 @@ def check_file(path, parse_count=None):
     return STATUS_OK, None
 
 
-def check_dir(path):
+def check_dir(input_chain):
+    path, seq = input_chain
+
     ret = {"name": os.path.basename(path)}
 
     exists = os.path.exists(path)
@@ -73,16 +75,18 @@ if __name__ == "__main__":
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
-        input_seqs, input_chains = parse_fasta(fasta_str)
-        input_chains_set = input_chains
-    if len(input_chains) != len(input_chains_set):
+
+    input_seqs, input_chains = parse_fasta(fasta_str)
+    if len(input_chains) != len(set(input_chains)):
         sys.stderr.write("The input chain names must be unique.\n")
         exit()
 
-    input_chains = sorted(input_chains_set)
+    input_chains = zip(input_chains, input_seqs)
+    input_chains = sorted(input_chains, key=lambda x: x[0])
+    input_chains = [(os.path.join(args.output_dir, x[0]), x[1]) for x in input_chains]
 
     print(f"Checking {len(input_chains)} directories...")
-    results = pmap(check_dir, [os.path.join(args.output_dir, x) for x in input_chains])
+    results = pmap(check_dir, input_chains)
     df = pd.DataFrame(results)
     print(df)
     df.to_csv("results.csv", index=False)
