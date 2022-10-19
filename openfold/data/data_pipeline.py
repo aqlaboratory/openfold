@@ -19,6 +19,7 @@ from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
 
 import numpy as np
+import torch
 
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.templates import get_custom_template_features
