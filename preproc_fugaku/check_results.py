@@ -42,7 +42,7 @@ def check_dir(input_chain):
 
     parse_count_a3m = lambda x: len(parse_a3m(x)[0])
     parse_count_sto = lambda x: len(parse_stockholm(x)[0])
-    parse_count_hhr = lambda x: len(parse_hhr(x)) # REVIEW
+    parse_count_hhr = lambda x: len(parse_hhr(x))
 
     types = [
         ("uniref90",  parse_count_a3m, "uniref90_hits.a3m"    ),
