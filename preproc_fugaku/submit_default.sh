@@ -6,7 +6,8 @@ if "true"; then
 	20 \
 	input_examples/short.fasta \
 	output \
-	small_bfd
+	small_bfd \
+	""
 
 elif "true"; then
     # Strong scaling with 1 proc.
@@ -20,7 +21,8 @@ elif "true"; then
 	    $NumThreads \
 	    input_examples/short.fasta \
 	    output_$NumThreads \
-	    uniref90
+	    uniref90 \
+	    "--ignore_unique"
 	sleep 1
     done
 
@@ -43,7 +45,8 @@ else
 	    $NumThreads \
 	    input_examples/4X96.fasta \
 	    output_$NumProcs \
-	    uniref90
+	    uniref90 \
+	    "--ignore_unique --weak_scale"
 	sleep 1
     done
 fi

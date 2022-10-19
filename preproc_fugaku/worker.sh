@@ -10,6 +10,7 @@ NumNodes=$3
 NumProcs=$4
 NumThreads=$5
 Mode=$6
+ScriptArgs=$7
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
@@ -180,5 +181,4 @@ $MpiExecTask \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
     $DatabaseArgs \
-    --ignore_unique \
-    --weak_scale
+    $ScriptArgs
