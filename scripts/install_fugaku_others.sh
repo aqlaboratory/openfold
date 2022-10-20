@@ -7,6 +7,8 @@
 
 . scripts/setenv
 
+set -eu
+
 cd $WORKDIR
 
 # Bazel
