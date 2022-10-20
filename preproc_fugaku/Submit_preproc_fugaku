@@ -41,10 +41,11 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	    exit
 	fi
     else
-	if (( $NumNodes < 4 )); then
-	    echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
-	    exit
-	fi
+	:
+	# if (( $NumNodes < 4 )); then
+	#     echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
+	#     exit
+	# fi
     fi
 fi
 
