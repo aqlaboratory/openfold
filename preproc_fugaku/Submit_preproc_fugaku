@@ -7,7 +7,7 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 7 ] ; then
+if [ $# -ne 8 ] ; then
     cat << EOF >&2
 usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
@@ -17,6 +17,7 @@ The NumThreads is the number of threads for each task
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
 The Mode is one from {uniref90, pdb70, mgnify, small_bfd, bfd}
+The ScriptArgs is the arguments passsed to the preproc. script
 
 example: $0 2:00:00 4 input.fasta alignment mode 0
 EOF
@@ -30,6 +31,7 @@ NumThreads="$1" && shift
 InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
+ScriptArgs="$1" && shift
 
 # Check NumNodes
 if [[ ${IS_FUGAKU} == 1 ]]; then
@@ -123,7 +125,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $NumNodes $NumProcs $NumThreads $Mode 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $NumNodes $NumProcs $NumThreads $Mode "$ScriptArgs" 2>&1 | tee "$LogDir/output"
 
 
 EOF

@@ -21,6 +21,7 @@ echo NumNodes=$NumNodes
 echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
 echo Mode=$Mode
+echo ScriptArgs=$ScriptArgs
 
 # DBs
 Uniref90=$DataDir/uniref90/uniref90.fasta

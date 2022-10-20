@@ -182,10 +182,13 @@ class Jackhmmer:
 
         return raw_output
 
-    def query(self, input_fasta_path: str) -> Sequence[Mapping[str, Any]]:
+    def query(
+            self,
+            input_fasta_path: str,
+            input_label: str) -> Sequence[Mapping[str, Any]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            return [self._query_chunk(input_fasta_path, self.database_path)]
+            return [self._query_chunk(input_fasta_path, self.database_path, input_label)]
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -219,7 +222,7 @@ class Jackhmmer:
                 # Run Jackhmmer with the chunk
                 future.result()
                 chunked_output.append(
-                    self._query_chunk(input_fasta_path, db_local_chunk(i))
+                    self._query_chunk(input_fasta_path, db_local_chunk(i), input_label)
                 )
 
                 # Remove the local copy of the chunk

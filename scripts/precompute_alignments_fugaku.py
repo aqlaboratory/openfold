@@ -37,13 +37,15 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         with os.fdopen(fd, 'w') as fp:
             fp.write(f'>query\n{seq}')
 
+        logging.info(f"Processing for {first_name} on {fasta_path}")
         try:
             generated = alignment_runner.run(
                 fasta_path,
                 alignment_dir,
-                first_name,
+                input_label=first_name,
                 ignore_if_exists=True
             )
+            logging.info(f"Processing for {first_name} done!")
         except:
             traceback.print_exc()
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
@@ -63,6 +65,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                 if not os.path.exists(f_path):
                     logging.warning(f"Generated file doesn't exist ({f_path}). Skipping...")
 
+                logging.info(f"Copying result from {first_name} to {name}")
                 copyfile(f_path, os.path.join(cp_dir, f))
 
 
