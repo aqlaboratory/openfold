@@ -17,7 +17,7 @@ fi
 if [[ ${IS_FUGAKU} == 1 ]]; then
     export PREFIX=/vol0006/ra000018/data/u10130/openfold_install
     export OPENFOLDDIR=/vol0006/ra000018/data/u10130/repo/openfold
-    export DATADIR=/vol0003/share/hp210263/OpenFold/data
+    export DATADIR=/vol0006/ra000018/data/OpenFold/data
     export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
     export NUM_CORES=48
 elif [[ ${IS_ABCI} == 1 ]]; then
