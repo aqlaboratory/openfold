@@ -642,14 +642,16 @@ class DataPipeline:
     def _process_seqemb_features(self,
         alignment_dir: str,
     ) -> Mapping[str, Any]:
+        seqemb_features = {}
         for f in os.listdir(alignment_dir):
             path = os.path.join(alignment_dir, f)
             ext = os.path.splitext(f)[-1]
 
             if (ext == ".pt"):
                 seqemb_data = torch.load(path)
+                seqemb_features["seq_embedding"] = seqemb_data
 
-        return seqemb_data
+        return seqemb_features
 
     def process_fasta(
         self,
