@@ -106,7 +106,7 @@ if [[ $Mode = "bfd" ]]; then
 	    time $LLIOTransfer $ffindex
 	done
 	time $LLIOTransfer $BfdCs219Data
-	time $DirTransfer $Bfd
+	# time $DirTransfer $Bfd
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
@@ -150,6 +150,7 @@ else
     fi
 fi
 
+echo "Setting DatabaseArgs"
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
 elif [[ $Mode = "pdb70" ]]; then
@@ -165,6 +166,9 @@ else
     exit
 fi
 
+echo "DatabaseArgs=$DatabaseArgs"
+
+echo "Creating output directory"
 mkdir -p $OutputDir
 
 echo "Starting the script"

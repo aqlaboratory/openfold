@@ -36,14 +36,9 @@ ScriptArgs="$1" && shift
 # Check NumNodes
 if [[ ${IS_FUGAKU} == 1 ]]; then
     if [[ $Mode = "bfd" ]]; then
-	if (( $NumNodes < 26 )); then
-	    echo "NumNodes must be >= 26 to use bfd." >&2
-	    exit
-	fi
-    else
 	:
-	# if (( $NumNodes < 4 )); then
-	#     echo "NumNodes must be >= 4 to cache uniref90/pdb70/mgnify/small_bfd." >&2
+	# if (( $NumNodes < 26 )); then
+	#     echo "NumNodes must be >= 26 to use bfd." >&2
 	#     exit
 	# fi
     fi
