@@ -9,7 +9,7 @@ if "true"; then
 	small_bfd \
 	""
 
-elif "false"; then
+elif "true"; then
     dbs=(uniref90 mgnify small_bfd bfd)
     for db in ${dbs[@]}; do
 	./Submit_preproc_fugaku \
@@ -36,16 +36,17 @@ elif "true"; then
 	    $NumThreads \
 	    input_examples/short.fasta \
 	    output_$NumThreads \
-	    uniref90 \
+	    small_bfd \
 	    "--ignore_unique"
 	sleep 1
     done
 
 else
-    Weak scaling with 1 proc.
+    # Weak scaling with 1 proc.
+    source ../scripts/setenv # required for getting NUM_CORES
     NumProcss=(1 2 5 10 20)
     for NumProcs in ${NumProcss[@]}; do
-	NumCpus=20
+	NumCpus=$NUM_CORES
 	NumThreads=`expr $NumCpus / $NumProcs`
 
 	if [[ ! `expr $NumProcs \* $NumThreads` == $NumCpus ]]; then
@@ -60,7 +61,7 @@ else
 	    $NumThreads \
 	    input_examples/4X96.fasta \
 	    output_$NumProcs \
-	    uniref90 \
+	    small_bfd \
 	    "--ignore_unique --weak_scale"
 	sleep 1
     done

@@ -21,6 +21,7 @@ The ScriptArgs is the arguments passsed to the preproc. script
 
 example: $0 2:00:00 4 input.fasta alignment mode 0
 EOF
+    echo '$#'=$#
     exit 1
 fi
 
