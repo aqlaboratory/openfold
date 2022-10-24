@@ -148,13 +148,14 @@ def main(args):
     input_chains = input_chains[mpi_rank::mpi_size]
 
     logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
+    logging.info(f"my chains: {input_chains}")
 
     run_seq_group_alignments(
         zip(input_seqs, input_chains),
         alignment_runner,
         args)
 
-    print("DONE!")
+    logging.info("DONE!")
 
 
 if __name__ == "__main__":
