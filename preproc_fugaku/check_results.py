@@ -2,6 +2,9 @@
 
 import argparse
 import os
+import re
+import glob
+
 import pandas as pd
 
 from foycc import pmap
@@ -13,6 +16,53 @@ STATUS_OK         = "OK"
 STATUS_ERROR      = "ERR"
 STATUS_INCOMPLETE = "INC"
 STATUS_NOT_FOUND  = "NOF"
+
+
+def parse_output(path):
+    with open(path, "r") as f:
+        lines = f.read().strip().split("\n")
+
+    def grep_lines(pattern, multiple=False):
+        matcher = re.compile(pattern)
+        hits = []
+        for l in lines:
+            m = matcher.match(l)
+            if m is not None:
+                hits.append(m.groups())
+
+        if not multiple:
+            if len(hits) == 0:
+                raise Exception(f"Pattern not found: {matcher}, path={path}")
+            elif len(hits) > 1:
+                raise Exception(f"Multiple hits found: {hits}, path={path}")
+
+            return hits[0]
+
+        return hits
+
+    def grep_env(env):
+        return grep_lines(f"{env}=(.+)")[0]
+
+    num_nodes   = int(grep_env("NumNodes"))
+    num_procs   = int(grep_env("NumProcs"))
+    num_threads = int(grep_env("NumThreads"))
+    mode        = grep_env("Mode")
+    times        = grep_lines(
+        ".*:Finished .+ query \(([^)]+)\) in ([^ ]+) seconds",
+        multiple=True)
+
+    ret = []
+    for chain, time in times:
+        ret.append({
+            "mode":        mode,
+            "chain":       chain,
+            "time":        float(time),
+            "num_nodes":   num_nodes,
+            "num_procs":   num_procs,
+            "num_threads": num_threads,
+        })
+
+    return ret
 
 
 def check_file(path, parse_count=None):
@@ -68,25 +118,52 @@ def check_dir(input_chain):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_file", help="The input .fasta file")
-    parser.add_argument("output_dir", help="The output directory")
+    parser.add_argument("mode", help="output or log")
+    parser.add_argument("directory", help="The output/log directory")
+    parser.add_argument(
+        "--fasta",
+        default=None,
+        help="The input .fasta file")
     args = parser.parse_args()
 
-    input_file = args.input_file
-    with open(input_file, 'r') as fp:
-        fasta_str = fp.read()
+    if args.mode == "output":
+        input_file = args.fasta
+        if input_file is not None:
+            with open(input_file, 'r') as fp:
+                fasta_str = fp.read()
 
-    input_seqs, input_chains = parse_fasta(fasta_str)
-    if len(input_chains) != len(set(input_chains)):
-        sys.stderr.write("The input chain names must be unique.\n")
-        exit()
+            input_seqs, input_chains = parse_fasta(fasta_str)
+            print(f"Loaded {len(input_chains)} from the fast file ({input_file})")
 
-    input_chains = zip(input_chains, input_seqs)
-    input_chains = sorted(input_chains, key=lambda x: x[0])
-    input_chains = [(os.path.join(args.output_dir, x[0]), x[1]) for x in input_chains]
+        else:
+            input_chains = os.listdir(args.directory)
+            input_seqs = [None]*len(input_chains)
 
-    print(f"Checking {len(input_chains)} directories...")
-    results = pmap(check_dir, input_chains)
-    df = pd.DataFrame(results)
-    print(df)
-    df.to_csv("results.csv", index=False)
+        if len(input_chains) != len(set(input_chains)):
+            sys.stderr.write("The input chain names must be unique.\n")
+            exit()
+
+        input_chains = zip(input_chains, input_seqs)
+        input_chains = sorted(input_chains, key=lambda x: x[0])
+        input_chains = [(os.path.join(args.directory, x[0]), x[1]) for x in input_chains]
+
+        print(f"Checking {len(input_chains)} directories...")
+        results = pmap(check_dir, input_chains)
+
+        df = pd.DataFrame(results)
+        print(df)
+        df.to_csv("results.csv", index=False)
+
+    elif args.mode == "log":
+        outputs = glob.glob(os.path.join(args.directory, "*", "output"))
+        # outputs += glob.glob(os.path.join(args.directory, "*", "*", "*", "stderr.*"))
+        times = []
+        for output in outputs:
+            times.extend(parse_output(output))
+
+        times = pd.DataFrame(times)
+        print(times)
+        times.to_csv("times.csv", index=False)
+
+    else:
+        raise Exception(f"Invalid mode: {args.mode}")
