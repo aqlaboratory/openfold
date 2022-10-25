@@ -18,10 +18,7 @@ STATUS_INCOMPLETE = "INC"
 STATUS_NOT_FOUND  = "NOF"
 
 
-def parse_output(path):
-    with open(path, "r") as f:
-        lines = f.read().strip().split("\n")
-
+def parse_output(lines):
     def grep_lines(pattern, multiple=False):
         matcher = re.compile(pattern)
         hits = []
@@ -32,9 +29,9 @@ def parse_output(path):
 
         if not multiple:
             if len(hits) == 0:
-                raise Exception(f"Pattern not found: {matcher}, path={path}")
+                raise Exception(f"Pattern not found: {matcher}")
             elif len(hits) > 1:
-                raise Exception(f"Multiple hits found: {hits}, path={path}")
+                raise Exception(f"Multiple hits found: {hits}")
 
             return hits[0]
 
@@ -155,11 +152,32 @@ if __name__ == "__main__":
         df.to_csv("results.csv", index=False)
 
     elif args.mode == "log":
-        outputs = glob.glob(os.path.join(args.directory, "*", "output"))
-        # outputs += glob.glob(os.path.join(args.directory, "*", "*", "*", "stderr.*"))
+        # Fugaku
+        outputs = glob.glob(os.path.join(args.directory, "script.*.out"))
+        if len(outputs) > 0:
+            for i, o in enumerate(outputs):
+                jobid = int(re.compile(".*/script\.(\d+)\.out").match(o).group(1))
+                assert jobid > 0
+                stderrs = glob.glob(os.path.join(
+                    args.directory, f"output.{jobid}", "*", "*", "stderr.*"))
+                if len(stderrs) > 0:
+                    outputs[i] = [o]+stderrs
+                else:
+                    outputs[i] = None
+
+            outputs = [x for x in outputs if x is not None]
+
+        else:
+            outputs = [[x] for x in glob.glob(os.path.join(args.directory, "*", "output"))]
+
         times = []
         for output in outputs:
-            times.extend(parse_output(output))
+            lines = []
+            for o in output:
+                with open(o, "r") as f:
+                    lines.extend(f.read().strip().split("\n"))
+
+            times.extend(parse_output(lines))
 
         times = pd.DataFrame(times)
         print(times)
