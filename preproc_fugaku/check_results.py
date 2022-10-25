@@ -8,6 +8,8 @@ import glob
 import pandas as pd
 
 from foycc import pmap
+
+os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
 from openfold.data.parsers import parse_fasta, parse_a3m, parse_hhr, parse_stockholm
 
 USE_OK_FILES = True
