@@ -123,6 +123,10 @@ if __name__ == "__main__":
         "--fasta",
         default=None,
         help="The input .fasta file")
+    parser.add_argument("--weak_scale",
+                    dest="weak_scale", action="store_const",
+                    const=True, default=False,
+                    help="Show the maximum time for each chain")
     args = parser.parse_args()
 
     if args.mode == "output":
@@ -180,6 +184,34 @@ if __name__ == "__main__":
                     lines.extend(f.read().strip().split("\n"))
 
             times.extend(parse_output(lines))
+
+        if args.weak_scale:
+            def get_merge_key(time):
+                time = dict(time.items())
+                del time["time"]
+                chain = re.compile("(.+)_\d+").match(time["chain"]).group(1)
+                time["chain"] = chain
+                time = sorted(time.items(), key=lambda x: x[0])
+                return str(time), chain
+
+            uniq_keys = set()
+            for t in times:
+                key, chain = get_merge_key(t)
+                t["key"] = key
+                t["chain"] = chain
+                uniq_keys.add(key)
+
+            merged_times = []
+            for key in uniq_keys:
+                ts = [x for x in times if x["key"] == key]
+                time = max([x["time"] for x in ts])
+                merged = dict(ts[0].items())
+                merged["time"] = time
+                merged["count"] = len(ts)
+                del merged["key"]
+                merged_times.append(merged)
+
+            times = merged_times
 
         times = pd.DataFrame(times)
         print(times)
