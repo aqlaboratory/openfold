@@ -128,10 +128,15 @@ def main(args):
         mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
         mpi_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
 
-    else:
+    elif "PMIX_RANK" in os.environ:
         # Fugaku (Fujitsu MPI)
         mpi_rank = int(os.environ["PMIX_RANK"])
         mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
+
+    else:
+        logging.warning("MPI rank/size environment variables not found")
+        mpi_rank = 0
+        mpi_size = 1
 
     if args.weak_scale:
         logging.warning(f"--weak_scale is enabled. The process might be redundant")
