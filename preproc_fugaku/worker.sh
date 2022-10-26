@@ -140,7 +140,9 @@ if [[ $DatabaseIsFile = 1 ]]; then
 else
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB directory"
+	set +e
 	time $DirTransfer $Database
+	set -e
 
     else
 	echo "Copying the DB directory to local temp"
