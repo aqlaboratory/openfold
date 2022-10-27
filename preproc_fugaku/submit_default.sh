@@ -1,7 +1,6 @@
 ToolTimeLimit=3600
 
 if "true"; then
-    # FIXME: tool time limit
     ./Submit_preproc_fugaku \
 	1:00:00 \
 	$ToolTimeLimit \
