@@ -27,7 +27,8 @@ elif "true"; then
 elif "true"; then
     # Strong scaling with 1 proc.
     NumProcs=1
-    NumThreadss=(1 2 5 10 20)
+    NumThreadss=(1 2 5 10 20) # ABCI
+    # NumThreadss=(1 2 6 12 24 48) # Fugaku
     for NumThreads in ${NumThreadss[@]}; do
 	./Submit_preproc_fugaku \
 	    1:00:00 \
@@ -35,7 +36,7 @@ elif "true"; then
 	    $NumProcs \
 	    $NumThreads \
 	    input_examples/short.fasta \
-	    output_$NumThreads \
+	    output_strong_$NumThreads \
 	    small_bfd \
 	    "--ignore_unique"
 	sleep 1
@@ -44,7 +45,8 @@ elif "true"; then
 else
     # Weak scaling with 1 proc.
     source ../scripts/setenv # required for getting NUM_CORES
-    NumProcss=(1 2 5 10 20)
+    NumProcss=(1 2 5 10 20) # ABCI
+    # NumProcss=(1 2 6 12 24 48) # Fugaku
     for NumProcs in ${NumProcss[@]}; do
 	NumCpus=$NUM_CORES
 	NumThreads=`expr $NumCpus / $NumProcs`
@@ -59,8 +61,8 @@ else
 	    1 \
 	    $NumProcs \
 	    $NumThreads \
-	    input_examples/4X96.fasta \
-	    output_$NumProcs \
+	    input_examples/short.fasta \
+	    output_weak_$NumProcs \
 	    small_bfd \
 	    "--ignore_unique --weak_scale"
 	sleep 1
