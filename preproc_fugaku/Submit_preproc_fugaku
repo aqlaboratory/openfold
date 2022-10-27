@@ -7,10 +7,11 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 8 ] ; then
+if [ $# -ne 9 ] ; then
     cat << EOF >&2
 usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
+The ToolTimeLimit is the maximum of execution time in seconds for each tool.
 The NumNodes is the number of nodes
 The NumProcs is the number of processes for each node
 The NumThreads is the number of threads for each task
@@ -26,6 +27,7 @@ EOF
 fi
 
 TimeLimit="$1" && shift
+ToolTimeLimit="$1" && shift
 NumNodes="$1" && shift
 NumProcs="$1" && shift
 NumThreads="$1" && shift
@@ -122,7 +124,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $NumNodes $NumProcs $NumThreads $Mode "$ScriptArgs" 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $ToolTimeLimit $NumNodes $NumProcs $NumThreads $Mode "$ScriptArgs" 2>&1 | tee "$LogDir/output"
 
 
 EOF

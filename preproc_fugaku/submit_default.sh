@@ -1,6 +1,10 @@
+ToolTimeLimit=3600
+
 if "true"; then
+    # FIXME: tool time limit
     ./Submit_preproc_fugaku \
 	1:00:00 \
+	$ToolTimeLimit \
 	1 \
 	1 \
 	20 \
@@ -14,6 +18,7 @@ elif "true"; then
     for db in ${dbs[@]}; do
 	./Submit_preproc_fugaku \
 	    1:00:00 \
+	    $ToolTimeLimit \
 	    1 \
 	    1 \
 	    20 \
@@ -32,6 +37,7 @@ elif "true"; then
     for NumThreads in ${NumThreadss[@]}; do
 	./Submit_preproc_fugaku \
 	    1:00:00 \
+	    $ToolTimeLimit \
 	    1 \
 	    $NumProcs \
 	    $NumThreads \
@@ -58,6 +64,7 @@ else
 
 	./Submit_preproc_fugaku \
 	    1:00:00 \
+	    $ToolTimeLimit \
 	    1 \
 	    $NumProcs \
 	    $NumThreads \

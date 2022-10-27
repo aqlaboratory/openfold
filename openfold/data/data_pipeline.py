@@ -275,6 +275,7 @@ class AlignmentRunner:
         mgnify_max_hits: int = 5000,
         use_ok_files: Optional[bool] = False,
         disable_write_permission: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ):
         """
         Args:
@@ -313,6 +314,8 @@ class AlignmentRunner:
                 Write _OK files after preprocessing
             disable_write_permission:
                 Apply chmod 440 after preprocessing
+            timeout:
+                Timeout in seconds for each tool
         """
         db_map = {
             "jackhmmer": {
@@ -405,6 +408,7 @@ class AlignmentRunner:
 
         self.use_ok_files = use_ok_files
         self.disable_write_permission = disable_write_permission
+        self.timeout = timeout
 
     def run(
         self,
@@ -442,6 +446,7 @@ class AlignmentRunner:
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path,
                 input_label,
+                timeout=self.timeout
             )[0]
             uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                 jackhmmer_uniref90_result["sto"],
@@ -464,6 +469,7 @@ class AlignmentRunner:
                 hhsearch_result = self.hhsearch_pdb70_runner.query(
                     uniref90_msa_as_a3m,
                     input_label,
+                    timeout=self.timeout
                 )
                 with open(pdb70_out_path, "w") as f:
                     f.write(hhsearch_result)
@@ -478,6 +484,7 @@ class AlignmentRunner:
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path,
                     input_label,
+                    timeout=self.timeout
                 )[0]
                 mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                     jackhmmer_mgnify_result["sto"],
@@ -496,6 +503,7 @@ class AlignmentRunner:
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path,
                     input_label,
+                    timeout=self.timeout
                 )[0]
                 with open(bfd_out_path, "w") as f:
                     f.write(jackhmmer_small_bfd_result["sto"])
@@ -510,7 +518,8 @@ class AlignmentRunner:
                 hhblits_bfd_uniclust_result = (
                     self.hhblits_bfd_uniclust_runner.query(
                         fasta_path,
-                        input_label
+                        input_label,
+                        timeout=self.timeout
                     )
                 )
                 if output_dir is not None:

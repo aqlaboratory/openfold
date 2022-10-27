@@ -6,17 +6,19 @@ set -eu
 
 InputDir=$1
 OutputDir=$2
-NumNodes=$3
-NumProcs=$4
-NumThreads=$5
-Mode=$6
-ScriptArgs=$7
+ToolTimeLimit=$3
+NumNodes=$4
+NumProcs=$5
+NumThreads=$6
+Mode=$7
+ScriptArgs=$8
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
 
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
+echo ToolTimeLimit=$ToolTimeLimit
 echo NumNodes=$NumNodes
 echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
@@ -187,5 +189,6 @@ $MpiExecTask \
     --hhblits_binary_path $BinDir/hhblits \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
+    --timeout $ToolTimeLimit \
     $DatabaseArgs \
     $ScriptArgs

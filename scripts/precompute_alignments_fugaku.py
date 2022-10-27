@@ -106,6 +106,7 @@ def main(args):
         no_cpus=args.cpus_per_task,
         use_ok_files=True,
         disable_write_permission=True,
+        timeout=args.timeout,
     )
 
     input_file = args.input_file
@@ -208,6 +209,10 @@ if __name__ == "__main__":
         dest="weak_scale", action="store_const",
         const=True, default=False,
         help="Duplicate the single input sequence for every process (use only for testing)"
+    )
+
+    parser.add_argument(
+        '--timeout', type=float, default=None
     )
 
     args = parser.parse_args()

@@ -65,7 +65,8 @@ class HHSearch:
     def query(
             self,
             a3m: str,
-            input_label: str) -> str:
+            input_label: str,
+            timeout: float=None) -> str:
         """Queries the database using HHsearch using a given a3m."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             input_path = os.path.join(query_tmp_dir, "query.a3m")
@@ -94,8 +95,12 @@ class HHSearch:
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             with utils.timing(f"HHsearch query ({input_label})"):
-                stdout, stderr = process.communicate()
-                retcode = process.wait()
+                stdout, stderr = process.communicate(timeout=timeout)
+                try:
+                    retcode = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired as e:
+                    raise e
+
 
             if retcode:
                 # Stderr is truncated to prevent proto size errors in Beam.

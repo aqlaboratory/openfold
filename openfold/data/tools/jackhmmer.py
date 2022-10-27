@@ -96,7 +96,8 @@ class Jackhmmer:
             self,
             input_fasta_path: str,
             database_path: str,
-            input_label: str) -> Mapping[str, Any]:
+            input_label: str,
+            timeout: float=None) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             sto_path = os.path.join(query_tmp_dir, "output.sto")
@@ -155,8 +156,11 @@ class Jackhmmer:
             with utils.timing(
                 f"Jackhmmer ({os.path.basename(database_path)}) query ({input_label})"
             ):
-                _, stderr = process.communicate()
-                retcode = process.wait()
+                _, stderr = process.communicate(timeout=timeout)
+                try:
+                    retcode = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired as e:
+                    raise e
 
             if retcode:
                 raise RuntimeError(
@@ -185,10 +189,11 @@ class Jackhmmer:
     def query(
             self,
             input_fasta_path: str,
-            input_label: str) -> Sequence[Mapping[str, Any]]:
+            input_label: str,
+            timeout: float=None) -> Sequence[Mapping[str, Any]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            return [self._query_chunk(input_fasta_path, self.database_path, input_label)]
+            return [self._query_chunk(input_fasta_path, self.database_path, input_label, timeout=timeout)]
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -222,7 +227,7 @@ class Jackhmmer:
                 # Run Jackhmmer with the chunk
                 future.result()
                 chunked_output.append(
-                    self._query_chunk(input_fasta_path, db_local_chunk(i), input_label)
+                    self._query_chunk(input_fasta_path, db_local_chunk(i), input_label, timeout=timeout)
                 )
 
                 # Remove the local copy of the chunk
