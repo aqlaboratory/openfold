@@ -73,17 +73,26 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
 
             os.makedirs(local_alignment_dir)
 
-            alignment_runner = data_pipeline.AlignmentRunner(
-                jackhmmer_binary_path=args.jackhmmer_binary_path,
-                hhblits_binary_path=args.hhblits_binary_path,
-                hhsearch_binary_path=args.hhsearch_binary_path,
-                uniref90_database_path=args.uniref90_database_path,
-                mgnify_database_path=args.mgnify_database_path,
-                bfd_database_path=args.bfd_database_path,
-                uniclust30_database_path=args.uniclust30_database_path,
-                pdb70_database_path=args.pdb70_database_path,
-                no_cpus=args.cpus,
-            )
+            if args.use_single_seq_mode:
+                alignment_runner = data_pipeline.AlignmentRunner(
+                    jackhmmer_binary_path=args.jackhmmer_binary_path,
+                    hhsearch_binary_path=args.hhsearch_binary_path,
+                    uniref90_database_path=args.uniref90_database_path,
+                    pdb70_database_path=args.pdb70_database_path,
+                    no_cpus=args.cpus,
+                )
+            else:
+                alignment_runner = data_pipeline.AlignmentRunner(
+                    jackhmmer_binary_path=args.jackhmmer_binary_path,
+                    hhblits_binary_path=args.hhblits_binary_path,
+                    hhsearch_binary_path=args.hhsearch_binary_path,
+                    uniref90_database_path=args.uniref90_database_path,
+                    mgnify_database_path=args.mgnify_database_path,
+                    bfd_database_path=args.bfd_database_path,
+                    uniclust30_database_path=args.uniclust30_database_path,
+                    pdb70_database_path=args.pdb70_database_path,
+                    no_cpus=args.cpus,
+                )
             alignment_runner.run(
                 tmp_fasta_path, local_alignment_dir
             )
