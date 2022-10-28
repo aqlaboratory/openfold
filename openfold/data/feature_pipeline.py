@@ -62,6 +62,9 @@ def make_data_config(
 
     feature_names = cfg.common.unsupervised_features
 
+    if cfg.seqemb_mode.enabled:
+        feature_names += cfg.common.seqemb_features
+
     if cfg.common.use_templates:
         feature_names += cfg.common.template_features
 
