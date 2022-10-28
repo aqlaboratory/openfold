@@ -73,6 +73,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
 
             os.makedirs(local_alignment_dir)
 
+            # In seqemb mode, use AlignmentRunner only to generate templates
             if args.use_single_seq_mode:
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,

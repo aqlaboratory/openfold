@@ -337,6 +337,7 @@ class EvoformerBlock(nn.Module):
             inf=inf,
         )
 
+        # Specifically, seqemb mode does not use column attention
         self.no_column_attention = no_column_attention
         if self.no_column_attention == False:
             self.msa_att_col = MSAColumnAttention(
@@ -401,6 +402,7 @@ class EvoformerBlock(nn.Module):
             inplace=inplace_safe,
         )
 
+        # Specifically, column attention is not used in seqemb mode.
         if self.no_column_attention == False:
             m = add(m,
                 self.msa_att_col(
@@ -637,6 +639,9 @@ class EvoformerStack(nn.Module):
                 Dropout used for pair activations
             blocks_per_ckpt:
                 Number of Evoformer blocks in each activation checkpoint
+            no_column_attention:
+                When True, doesn't use column attention. Required for running
+                sequence embedding mode
             clear_cache_between_blocks:
                 Whether to clear CUDA's GPU memory cache between blocks of the
                 stack. Slows down each block but can reduce fragmentation
