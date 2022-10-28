@@ -75,6 +75,8 @@ class AlphaFold(nn.Module):
         self.seqemb_mode = config.globals.seqemb_mode_enabled
 
         # Main trunk + structure module
+        # If using seqemb mode, embed the sequence embeddings passed
+        # to the model ("preembeddings") instead of embedding the sequence
         if self.seqemb_mode:
             self.preembedding_embedder = PreembeddingEmbedder(
                 **self.config["preembedding_embedder"],

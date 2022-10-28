@@ -154,8 +154,10 @@ def model_config(
         c.loss.tm.weight = 0.1
     # SINGLE SEQUENCE EMBEDDING PRESETS
     elif name == "seqemb_initial_training":
+        # Tell the data pipeline that we will use sequence embeddings instead of MSAs.
         c.data.seqemb_mode.enabled = True
         c.globals.seqemb_mode_enabled = True
+        # In seqemb mode, we turn off the ExtraMSAStack and Evoformer's column attention.
         c.model.extra_msa.enabled = False
         c.model.evoformer_stack.no_column_attention = True
     elif name == "seqemb_finetuning":
@@ -211,7 +213,11 @@ c_m = mlc.FieldReference(256, field_type=int)
 c_t = mlc.FieldReference(64, field_type=int)
 c_e = mlc.FieldReference(64, field_type=int)
 c_s = mlc.FieldReference(384, field_type=int)
+
+# For seqemb mode, dimension size of the per-residue sequence embedding passed to the model
+# In current model, the dimension size is the ESM-1b dimension size i.e. 1280.
 preemb_dim_size = mlc.FieldReference(1280, field_type=int)
+
 blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
@@ -322,13 +328,13 @@ config = mlc.ConfigDict(
                     "deletion_matrix",
                     "no_recycling_iters",
                 ],
-                "seqemb_features": [
+                "seqemb_features": [ # List of features to be generated in seqemb mode
                     "seq_embedding"
                 ],
                 "use_templates": templates_enabled,
                 "use_template_torsion_angles": embed_template_torsion_angles,
             },
-            "seqemb_mode": {
+            "seqemb_mode": { # Configuration for sequence embedding mode
                 "enabled": False, # If True, use seq emb instead of MSA
                 "seqemb_config": {
                     "max_msa_clusters": 0,
@@ -400,7 +406,7 @@ config = mlc.ConfigDict(
         },
         # Recurring FieldReferences that can be changed globally here
         "globals": {
-            "seqemb_mode_enabled": False,
+            "seqemb_mode_enabled": False, # Global flag for enabling seq emb mode
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
             # Use Staats & Rabe's low-memory attention algorithm. Mutually
@@ -426,7 +432,7 @@ config = mlc.ConfigDict(
                 "c_m": c_m,
                 "relpos_k": 32,
             },
-            "preembedding_embedder": {
+            "preembedding_embedder": { # Used in sequence embedding mode
                 "tf_dim": 22,
                 "preembedding_dim": preemb_dim_size,
                 "c_z": c_z,
