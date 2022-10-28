@@ -166,6 +166,14 @@ def model_config(
         c.data.train.crop_size = 384
         c.loss.violation.weight = 1.
         c.loss.experimentally_resolved.weight = 0.01
+    elif name == "seqemb_inference":
+        c.data.seqemb_mode.enabled = True
+        c.globals.seqemb_mode_enabled = True
+        c.model.extra_msa.enabled = False
+        c.model.evoformer_stack.no_column_attention = True
+        c.data.common.use_templates = True
+        c.data.common.use_template_torsion_angles = True
+        c.model.template.enabled = True
     else:
         raise ValueError("Invalid model name")
 
