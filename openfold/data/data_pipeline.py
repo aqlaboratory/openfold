@@ -261,6 +261,7 @@ def make_msa_features(
     return features
 
 
+# Generate 1-sequence MSA features having only the input sequence
 def make_dummy_msa_feats(input_sequence):
     msas = [[input_sequence]]
     deletion_matrices = [[[0 for _ in input_sequence]]]
@@ -639,6 +640,7 @@ class DataPipeline:
 
         return msa_features
 
+    # Load and process sequence embedding features
     def _process_seqemb_features(self,
         alignment_dir: str,
     ) -> Mapping[str, Any]:
@@ -648,6 +650,7 @@ class DataPipeline:
             ext = os.path.splitext(f)[-1]
 
             if (ext == ".pt"):
+                # Load embedding file
                 seqemb_data = torch.load(path)
                 seqemb_features["seq_embedding"] = seqemb_data
 
@@ -686,6 +689,7 @@ class DataPipeline:
         )
 
         sequence_embedding_features = {}
+        # If using seqemb mode, generate a dummy MSA features using just the sequence
         if seqemb_mode:
             msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)
@@ -732,6 +736,7 @@ class DataPipeline:
         )
 
         sequence_embedding_features = {}
+        # If using seqemb mode, generate a dummy MSA features using just the sequence
         if seqemb_mode:
             msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)

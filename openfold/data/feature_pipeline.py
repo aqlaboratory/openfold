@@ -41,6 +41,7 @@ def np_to_tensor_dict(
         A dictionary of features mapping feature names to features. Only the given
         features are returned, all other ones are filtered out.
     """
+    # torch generates warnings if feature is already a torch Tensor
     to_tensor = lambda t: torch.tensor(t) if type(t) != torch.Tensor else t.clone().detach()
     tensor_dict = {
         k: to_tensor(v) for k, v in np_example.items() if k in features
@@ -62,6 +63,7 @@ def make_data_config(
 
     feature_names = cfg.common.unsupervised_features
 
+    # Add seqemb related features if using seqemb mode.
     if cfg.seqemb_mode.enabled:
         feature_names += cfg.common.seqemb_features
 
