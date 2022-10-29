@@ -753,6 +753,7 @@ class DataPipeline:
         chain_id: Optional[str] = None,
         _structure_index: Optional[str] = None,
         alignment_index: Optional[str] = None,
+        seqemb_mode: bool = False,
     ) -> FeatureDict:
         """
             Assembles features for a protein in a PDB file.
@@ -786,9 +787,15 @@ class DataPipeline:
             self.template_featurizer,
         )
 
-        msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
+        sequence_embedding_features = {}
+        # If in sequence embedding mode, generate dummy MSA features using just the input sequence
+        if seqemb_mode:
+            msa_features = make_dummy_msa_feats(input_sequence)
+            sequence_embedding_features = self._process_seqemb_features(alignment_dir)
+        else:
+            msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
 
-        return {**pdb_feats, **template_features, **msa_features}
+        return {**pdb_feats, **template_features, **msa_features, **sequence_embedding_features}
 
     def process_core(
         self,
