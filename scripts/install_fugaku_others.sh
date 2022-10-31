@@ -28,10 +28,14 @@ git clone https://github.com/openmm/openmm -b 7.7.0
 pushd openmm
 mkdir build
 cd build
-cmake -D CMAKE_INSTALL_PREFIX=$PREFIX -G "Unix Makefiles" ..
-make -j48
-make install
-make PythonInstall
+(
+    export CC="fcc -Nclang -Kfast -Knolargepage -lpthread -Kopenmp"
+    export CXX="FCC -Nclang -Kfast -Knolargepage -lpthread -Kopenmp"
+    cmake -D CMAKE_INSTALL_PREFIX=$PREFIX -G "Unix Makefiles" ..
+    make -j48
+    make install
+    make PythonInstall
+)
 popd
 
 # HMMER
