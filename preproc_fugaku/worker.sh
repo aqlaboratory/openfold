@@ -107,8 +107,9 @@ if [[ $Mode = "bfd" ]]; then
 	for ffindex in `find $Bfd -name *ffindex`; do
 	    time $LLIOTransfer $ffindex
 	done
-	time $LLIOTransfer $BfdCs219Data
-	# time $DirTransfer $Bfd
+
+	# Cache the entire BFD
+	time $DirTransfer $Bfd
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
