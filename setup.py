@@ -44,13 +44,13 @@ def get_cuda_bare_metal_version(cuda_dir):
 
     return raw_output, bare_metal_major, bare_metal_minor
 
-cc_flag = ['-gencode', 'arch=compute_70,code=sm_70']
-_, bare_metal_major, _ = get_cuda_bare_metal_version(CUDA_HOME)
-if int(bare_metal_major) >= 11:
-    cc_flag.append('-gencode')
-    cc_flag.append('arch=compute_80,code=sm_80')
-
-extra_cuda_flags += cc_flag
+# cc_flag = ['-gencode', 'arch=compute_70,code=sm_70']
+# _, bare_metal_major, _ = get_cuda_bare_metal_version(CUDA_HOME)
+# if int(bare_metal_major) >= 11:
+#     cc_flag.append('-gencode')
+#     cc_flag.append('arch=compute_80,code=sm_80')
+# 
+# extra_cuda_flags += cc_flag
 
 
 setup(
@@ -67,27 +67,27 @@ setup(
         "openfold": ['utils/kernel/csrc/*'],
         "": ["resources/stereo_chemical_props.txt"]
     },
-    ext_modules=[CUDAExtension(
-        name="attn_core_inplace_cuda",
-        sources=[
-            "openfold/utils/kernel/csrc/softmax_cuda.cpp",
-            "openfold/utils/kernel/csrc/softmax_cuda_kernel.cu",
-        ],
-        include_dirs=[
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), 
-                'openfold/utils/kernel/csrc/'
-            )
-        ],
-        extra_compile_args={
-            'cxx': ['-O3'] + version_dependent_macros,
-            'nvcc': (
-                ['-O3', '--use_fast_math'] + 
-                version_dependent_macros + 
-                extra_cuda_flags
-            ),
-        }
-    )],
+    # ext_modules=[CUDAExtension(
+    #     name="attn_core_inplace_cuda",
+    #     sources=[
+    #         "openfold/utils/kernel/csrc/softmax_cuda.cpp",
+    #         "openfold/utils/kernel/csrc/softmax_cuda_kernel.cu",
+    #     ],
+    #     include_dirs=[
+    #         os.path.join(
+    #             os.path.dirname(os.path.abspath(__file__)), 
+    #             'openfold/utils/kernel/csrc/'
+    #         )
+    #     ],
+    #     extra_compile_args={
+    #         'cxx': ['-O3'] + version_dependent_macros,
+    #         'nvcc': (
+    #             ['-O3', '--use_fast_math'] + 
+    #             version_dependent_macros + 
+    #             extra_cuda_flags
+    #         ),
+    #     }
+    # )],
     cmdclass={'build_ext': BuildExtension},
     install_requires=[
         'torch',
