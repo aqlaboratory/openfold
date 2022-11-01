@@ -160,11 +160,15 @@ def model_config(
         # In seqemb mode, we turn off the ExtraMSAStack and Evoformer's column attention.
         c.model.extra_msa.enabled = False
         c.model.evoformer_stack.no_column_attention = True
+        c.data.train.max_msa_clusters = 1
+        c.data.eval.max_msa_clusters = 1
     elif name == "seqemb_finetuning":
         c.data.seqemb_mode.enabled = True
         c.globals.seqemb_mode_enabled = True
         c.model.extra_msa.enabled = False
         c.model.evoformer_stack.no_column_attention = True
+        c.data.train.max_msa_clusters = 1
+        c.data.eval.max_msa_clusters = 1
         c.data.train.crop_size = 384
         c.loss.violation.weight = 1.
         c.loss.experimentally_resolved.weight = 0.01
@@ -176,6 +180,7 @@ def model_config(
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
         c.model.template.enabled = True
+        c.data.predict.max_msa_clusters = 1
     else:
         raise ValueError("Invalid model name")
 
@@ -337,9 +342,9 @@ config = mlc.ConfigDict(
             "seqemb_mode": { # Configuration for sequence embedding mode
                 "enabled": False, # If True, use seq emb instead of MSA
                 "seqemb_config": {
-                    "max_msa_clusters": 0,
+                    "max_msa_clusters": 1,
                     "max_extra_msa": 0,
-                    "max_distillation_msa_clusters": 0
+                    "max_distillation_msa_clusters": 1
                 },
             },
             "supervised": {
