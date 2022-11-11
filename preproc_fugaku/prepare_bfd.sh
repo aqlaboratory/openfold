@@ -14,6 +14,6 @@ time cp $Bfd/*.ffindex $BfdLocal
 echo "prepare_bfd: Adding links of the DB files to local temp"
 for x in `ls $Bfd`; do
     if [[ ! -e $BfdLocal/$x ]]; then
-	ln -s `realpath $Bfd/$x $BfdLocal/`
+	ln -s `realpath $Bfd/$x` $BfdLocal/$x
     fi
 done
