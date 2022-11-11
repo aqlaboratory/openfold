@@ -107,6 +107,7 @@ def main(args):
         use_ok_files=True,
         disable_write_permission=True,
         timeout=args.timeout,
+        deflate_bfd=args.deflate_bfd,
     )
 
     input_file = args.input_file
@@ -203,14 +204,18 @@ if __name__ == "__main__":
         const=True, default=False,
         help="Do not merge the same sequences (use only for testing)"
     )
-
     parser.add_argument(
         "--weak_scale",
         dest="weak_scale", action="store_const",
         const=True, default=False,
         help="Duplicate the single input sequence for every process (use only for testing)"
     )
-
+    parser.add_argument(
+        "--deflate_bfd",
+        dest="deflate_bfd", action="store_const",
+        const=True, default=False,
+        help="Use the deflate-compressed version of BFD"
+    )
     parser.add_argument(
         '--timeout', type=float, default=None
     )

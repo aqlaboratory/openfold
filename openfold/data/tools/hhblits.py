@@ -46,6 +46,7 @@ class HHBlits:
         alt: Optional[int] = None,
         p: int = _HHBLITS_DEFAULT_P,
         z: int = _HHBLITS_DEFAULT_Z,
+        deflate_first: bool = False,
     ):
         """Initializes the Python HHblits wrapper.
 
@@ -71,6 +72,7 @@ class HHBlits:
             HHblits default: 20.
           z: Hard cap on number of hits reported in the hhr file.
             HHblits default: 500. NB: The relevant HHblits flag is -Z not -z.
+          deflate_first: Assumes that the first database is compressed.
 
         Raises:
           RuntimeError: If HHblits binary not found within the path.
@@ -98,6 +100,7 @@ class HHBlits:
         self.alt = alt
         self.p = p
         self.z = z
+        self.deflate_first = deflate_first
 
     def query(
             self,
@@ -144,6 +147,9 @@ class HHBlits:
             if self.z != _HHBLITS_DEFAULT_Z:
                 cmd += ["-Z", str(self.z)]
             cmd += db_cmd
+
+            if self.deflate_first:
+                cmd += ["-deflate-first"]
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(

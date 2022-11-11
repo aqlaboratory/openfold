@@ -276,6 +276,7 @@ class AlignmentRunner:
         use_ok_files: Optional[bool] = False,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
+        deflate_bfd: Optional[bool] = False,
     ):
         """
         Args:
@@ -316,6 +317,8 @@ class AlignmentRunner:
                 Apply chmod 440 after preprocessing
             timeout:
                 Timeout in seconds for each tool
+            deflate_bfd:
+                Use the deflate-compressed version of the BFD
         """
         db_map = {
             "jackhmmer": {
@@ -388,6 +391,7 @@ class AlignmentRunner:
                     binary_path=hhblits_binary_path,
                     databases=dbs,
                     n_cpu=no_cpus,
+                    deflate_first=deflate_bfd,
                 )
 
         self.jackhmmer_mgnify_runner = None
