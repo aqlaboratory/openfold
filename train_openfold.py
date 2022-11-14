@@ -74,7 +74,7 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{loss_name}", 
                 indiv_loss, 
-                on_step=train, on_epoch=(not train), logger=True, prog_bar=(loss_name == 'loss'),
+                on_step=train, on_epoch=(not train), logger=True, prog_bar=(loss_name == 'loss'), sync_dist=True,
             )
 
             if(train):
