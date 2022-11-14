@@ -28,3 +28,6 @@ export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
 export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
 export OMP_NUM_THREADS=48
 export PL_TORCH_DISTRIBUTED_BACKEND=mpi
+
+# for multi-node training using PyTorch Lightning
+export NODE_RANK=$PMIX_RANK
