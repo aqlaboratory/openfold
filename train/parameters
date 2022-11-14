@@ -14,6 +14,7 @@ PARAMS=(
     --checkpoint_every_epoch
     --train_chain_data_cache_path $SampleDir/chain_data_cache.json
     --replace_sampler_ddp=True
+    --num_nodes ${NumNodes}
 )
 
 source $OPENFOLDDIR/scripts/setenv
