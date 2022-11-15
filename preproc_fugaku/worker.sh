@@ -29,10 +29,15 @@ echo ScriptArgs=$ScriptArgs
 Uniref90=$DataDir/uniref90/uniref90.fasta
 Pdb70=$DataDir/pdb70
 Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
-Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
 
 SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
-Bfd=$DataDir/bfd
+
+if [[ $Mode = "bfd_deflate" ]]; then
+    Bfd=$DataDir/hhblits_deflate/bfd
+else
+    Bfd=$DataDir/bfd
+fi
+Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
 BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
 # commands
@@ -78,7 +83,7 @@ elif [[ $Mode = "mgnify" ]]; then
 elif [[ $Mode = "small_bfd" ]]; then
     Database=$SmallBfd
     DatabaseIsFile=1
-elif [[ $Mode = "bfd" ]]; then
+elif [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     Database=$Uniclust30
     DatabaseIsFile=0
 else
@@ -101,8 +106,14 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 fi
 
 DatabaseArgs=""
-if [[ $Mode = "bfd" ]]; then
+if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
+
+	if [[ $Mode = "bfd" ]]; then
+	    echo "Mode must be bfd_deflate on Fugaku" >&2
+	    exit
+	fi
+
 	echo "Executing LLIO transfer for BFD files"
 	for ffindex in `find $Bfd -name *ffindex`; do
 	    time $LLIOTransfer $ffindex
@@ -164,7 +175,7 @@ elif [[ $Mode = "mgnify" ]]; then
     DatabaseArgs="--mgnify_database_path $Database"
 elif [[ $Mode = "small_bfd" ]]; then
     DatabaseArgs="--bfd_database_path $Database --use_small_bfd True"
-elif [[ $Mode = "bfd" ]]; then
+elif [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     DatabaseArgs="--uniclust30_database_path $Database/uniclust30_2018_08 --bfd_database_path $Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 else
     echo "Invalid Mode: $Mode" >&2
@@ -175,6 +186,16 @@ echo "DatabaseArgs=$DatabaseArgs"
 
 echo "Creating output directory"
 mkdir -p $OutputDir
+
+
+if [[ $Mode = "bfd_deflate" ]]; then
+    # TODO: Do not use hhblits in the home directory
+    export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
+    echo hhblits=`which hhblits`
+    DeflateArg="--deflate_bfd"
+else
+    DeflateArg=""
+fi
 
 echo "Starting the script"
 export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
@@ -187,9 +208,10 @@ $MpiExecTask \
     $InputDir $OutputDir \
     --cpus_per_task $NumThreads \
     --jackhmmer_binary_path $BinDir/jackhmmer \
-    --hhblits_binary_path $BinDir/hhblits \
+    --hhblits_binary_path `which hhblits` \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
     --timeout $ToolTimeLimit \
     $DatabaseArgs \
-    $ScriptArgs
+    $ScriptArgs \
+    $DeflateArg
