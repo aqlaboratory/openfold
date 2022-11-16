@@ -124,7 +124,8 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
 	echo "Executing LLIO transfer for BFD files"
 	echo "Bfd=${Bfd}"
 	set +e
-	time $DirTransfer $Bfd
+	time $LLIOTransfer $Bfd/*_cs219* $Bfd/*_hhm*
+	time $DirTransfer $BfdA3M
 	set -e
 
     else
