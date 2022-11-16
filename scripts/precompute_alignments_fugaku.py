@@ -107,7 +107,7 @@ def main(args):
         use_ok_files=True,
         disable_write_permission=True,
         timeout=args.timeout,
-        deflate_bfd=args.deflate_bfd,
+        bfd_deflate_a3m_path=args.bfd_deflate_a3m_path,
     )
 
     input_file = args.input_file
@@ -211,10 +211,8 @@ if __name__ == "__main__":
         help="Duplicate the single input sequence for every process (use only for testing)"
     )
     parser.add_argument(
-        "--deflate_bfd",
-        dest="deflate_bfd", action="store_const",
-        const=True, default=False,
-        help="Use the deflate-compressed version of BFD"
+        "--bfd_deflate_a3m_path",
+        type=str, default=None,
     )
     parser.add_argument(
         '--timeout', type=float, default=None

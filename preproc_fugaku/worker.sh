@@ -35,13 +35,15 @@ SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
 if [[ $Mode = "bfd_deflate" ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	# TODO: Move to share
-	Bfd=/vol0006/ra000018/data/u10130/hhblits_deflate/bfd
+	BfdA3M=/vol0006/ra000018/data/u10130/hhblits_deflate/bfd
     else
-	Bfd=$DataDir/hhblits_deflate/bfd
+	# TODO: Do staging for a3m.ffindex
+	BfdA3M=$DataDir/hhblits_deflate/bfd
     fi
 else
-    Bfd=$DataDir/bfd
+    BfdA3M=""
 fi
+Bfd=$DataDir/bfd
 Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
 BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
@@ -167,8 +169,15 @@ else
     else
 	echo "Copying the DB directory to local temp"
 	DatabaseLocal=$LOCALTMP/`basename $Database`
-	time $MpiExecEachNode cp -r $Database $DatabaseLocal
+	time $MpiExecEachNode mkdir -p $DatabaseLocal
+	time $MpiExecEachNode cp -r $Database/*.ffdata $DatabaseLocal/
+	time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
 	Database=$DatabaseLocal
+
+	# FIXME: remove
+	echo "DatabaseLocal:"
+	ls $DatabaseLocal/
+
     fi
 fi
 
@@ -183,6 +192,9 @@ elif [[ $Mode = "small_bfd" ]]; then
     DatabaseArgs="--bfd_database_path $Database --use_small_bfd True"
 elif [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     DatabaseArgs="--uniclust30_database_path $Database/uniclust30_2018_08 --bfd_database_path $Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+    if [[ -n $BfdA3M ]]; then
+	DatabaseArgs="$DatabaseArgs --bfd_deflate_a3m_path $BfdA3M/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+    fi
 else
     echo "Invalid Mode: $Mode" >&2
     exit
@@ -202,9 +214,6 @@ if [[ $Mode = "bfd_deflate" ]]; then
 	export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
     fi
     echo hhblits=`which hhblits`
-    DeflateArg="--deflate_bfd"
-else
-    DeflateArg=""
 fi
 
 echo "Starting the script"
@@ -223,5 +232,4 @@ $MpiExecTask \
     --kalign_binary_path $BinDir/kalign \
     --timeout $ToolTimeLimit \
     $DatabaseArgs \
-    $ScriptArgs \
-    $DeflateArg
+    $ScriptArgs

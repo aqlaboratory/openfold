@@ -46,7 +46,7 @@ class HHBlits:
         alt: Optional[int] = None,
         p: int = _HHBLITS_DEFAULT_P,
         z: int = _HHBLITS_DEFAULT_Z,
-        deflate_first: bool = False,
+        deflate_a3m_databases: Sequence[str] = None,
     ):
         """Initializes the Python HHblits wrapper.
 
@@ -72,7 +72,7 @@ class HHBlits:
             HHblits default: 20.
           z: Hard cap on number of hits reported in the hhr file.
             HHblits default: 500. NB: The relevant HHblits flag is -Z not -z.
-          deflate_first: Assumes that the first database is compressed.
+          deflate_a3m_databases: A sequence of HHblits database paths for deflate a3m
 
         Raises:
           RuntimeError: If HHblits binary not found within the path.
@@ -100,7 +100,7 @@ class HHBlits:
         self.alt = alt
         self.p = p
         self.z = z
-        self.deflate_first = deflate_first
+        self.deflate_a3m_databases = deflate_a3m_databases
 
     def query(
             self,
@@ -148,8 +148,8 @@ class HHBlits:
                 cmd += ["-Z", str(self.z)]
             cmd += db_cmd
 
-            if self.deflate_first:
-                cmd += ["-deflate-first"]
+            for x in self.deflate_a3m_databases:
+                cmd += ["-da3m", x]
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(
