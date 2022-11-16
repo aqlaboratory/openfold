@@ -33,7 +33,12 @@ Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
 SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
 
 if [[ $Mode = "bfd_deflate" ]]; then
-    Bfd=$DataDir/hhblits_deflate/bfd
+    if [[ ${IS_FUGAKU} == 1 ]]; then
+	# TODO: Move to share
+	Bfd=/vol0006/ra000018/data/u10130/hhblits_deflate/bfd
+    else
+	Bfd=$DataDir/hhblits_deflate/bfd
+    fi
 else
     Bfd=$DataDir/bfd
 fi
@@ -115,12 +120,10 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
 	fi
 
 	echo "Executing LLIO transfer for BFD files"
-	for ffindex in `find $Bfd -name *ffindex`; do
-	    time $LLIOTransfer $ffindex
-	done
-
-	# Cache the entire BFD
+	echo "Bfd=${Bfd}"
+	set +e
 	time $DirTransfer $Bfd
+	set -e
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
@@ -154,9 +157,12 @@ if [[ $DatabaseIsFile = 1 ]]; then
 else
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB directory"
-	set +e
-	time $DirTransfer $Database
-	set -e
+	Exts=(ffdata ffindex)
+	for Ext in ${Exts[@]}; do
+	    set +e
+	    time $LLIOTransfer $Database/*.$Exts
+	    set -e
+	done
 
     else
 	echo "Copying the DB directory to local temp"
@@ -190,7 +196,11 @@ mkdir -p $OutputDir
 
 if [[ $Mode = "bfd_deflate" ]]; then
     # TODO: Do not use hhblits in the home directory
-    export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
+    if [[ ${IS_FUGAKU} == 1 ]]; then
+	export PATH=/vol0006/ra000018/data/u10130/repo/hh-suite/build/src:${PATH}
+    else
+	export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
+    fi
     echo hhblits=`which hhblits`
     DeflateArg="--deflate_bfd"
 else
