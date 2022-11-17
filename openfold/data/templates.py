@@ -763,7 +763,7 @@ def _prefilter_hit(
     hit_pdb_code, hit_chain_id = _get_pdb_id_and_chain(hit)
 
     if hit_pdb_code not in release_dates:
-        if hit_pdb_code in obsolete_pdbs:
+        while hit_pdb_code in obsolete_pdbs:
             hit_pdb_code = obsolete_pdbs[hit_pdb_code]
 
     # Pass hit_pdb_code since it might have changed due to the pdb being 
@@ -809,7 +809,7 @@ def _process_single_hit(
     hit_pdb_code, hit_chain_id = _get_pdb_id_and_chain(hit)
 
     if hit_pdb_code not in release_dates:
-        if hit_pdb_code in obsolete_pdbs:
+        while hit_pdb_code in obsolete_pdbs:
             hit_pdb_code = obsolete_pdbs[hit_pdb_code]
 
     mapping = _build_query_to_hit_index_mapping(
