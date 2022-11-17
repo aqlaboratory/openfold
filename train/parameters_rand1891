@@ -1,0 +1,41 @@
+SampleDir=/vol0003/share/hp210263/OpenFold/sample/training
+MMCIFDir=/vol0006/ra000018/data/a04305/apps/OpenFold/data/pdb_mmcif_rand1891/mmcif_files
+AlignmentDir=/vol0006/ra000018/data/u10271/alignment/alignment_rand1891
+ChainDataCacheFile=/vol0006/ra000018/data/a04305/apps/OpenFold/data/pdb_mmcif_rand1891/chain_data_cache.json
+MMCIFCacheFile=/vol0006/ra000018/data/a04305/apps/OpenFold/data/pdb_mmcif_rand1891/mmcif_cache.json
+EpochLen=100
+
+PARAMS=(
+    python3
+    $OPENFOLDDIR/train_openfold.py
+    $MMCIFDir
+    $AlignmentDir
+    $DataDir/pdb_mmcif/mmcif_files
+    $LOGDIR
+    2021-10-10
+    --template_release_dates_cache_path $MMCIFCacheFile
+    --seed 42
+    --deepspeed_config_path $DeepSpeedConfig
+    --checkpoint_every_epoch
+    --train_chain_data_cache_path $ChainDataCacheFile
+    --replace_sampler_ddp=True
+    --num_nodes ${NumNodes}
+    --obsolete_pdbs_file_path $DataDir/pdb_mmcif/obsolete.dat
+    --train_epoch_len $EpochLen
+)
+
+source $OPENFOLDDIR/scripts/setenv
+
+# for Torch Extensions
+export TORCH_EXTENSIONS_DIR=$TMPDIR
+
+export OMPI_COMM_WORLD_RANK=$PMIX_RANK
+export OMPI_COMM_WORLD_LOCAL_RANK=$PLE_RANK_ON_NODE
+export LOCAL_RANK=$OMPI_COMM_WORLD_LOCAL_RANK
+
+export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
+export OMP_NUM_THREADS=48
+export PL_TORCH_DISTRIBUTED_BACKEND=mpi
+
+# for multi-node training using PyTorch Lightning
+export NODE_RANK=$PMIX_RANK
