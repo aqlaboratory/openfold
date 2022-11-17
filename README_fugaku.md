@@ -1,6 +1,6 @@
 # OpenFold for Fugaku
 
-## コードの準備 (/share/hp210263/OpenFold/src/openfoldをコピーしてきた際は不要)
+## コードの準備 (/vol0006/ra000018/data/OpenFold/src/openfold_v1.0.0をコピーしてきた際は不要)
 1. OpenFoldをgit cloneもしくはコピーし、そのディレクトリに移動
 2. DeepSpeedCPUを`third_party`以下にgit cloneもしくはコピー
 3. stereo_chemical_props.txtを`openfold/openfold/resources/stereo_chemical_props.txt`に配置
@@ -11,13 +11,13 @@
 `scripts/setenv`を編集し、以下の変数に値を設定
 
 - PREFIX: インストール先ディレクトリ (必須)
-    - ビルド済み実行環境を使う場合は `/vol0003/share/hp210263/OpenFold/local`
+    - ビルド済み実行環境を使う場合は `/vol0006/ra000018/data/OpenFold/local`
 - OPENFOLDDIR: このREADMEがあるディレクトリ (必須) 
 - DATADIR: データディレクトリ (必須)
-    - 現在はこのディレクトリ `/vol0003/share/hp210263/OpenFold/data`
+    - 現在はこのディレクトリ `/vol0006/ra000018/data/OpenFold/data`
 - PJSUB_OPT: pjsub時の追加オプション (任意)
     - シングルアカウントの場合は`-g $(グループID)`を指定する
-    - 場合によっては`PJM_LLIO_GFSCACHE=/vol0003`が必要
+    - 場合によっては`PJM_LLIO_GFSCACHE=/vol0006`が必要
 
 ## インストール (PREFIXにビルド済み実行環境を指定した場合は不要)
 - インストール用バッチジョブを投入するスクリプトを実行
@@ -39,7 +39,7 @@
 
 ## 学習の実行
 1. trainディレクトリに移動
-2. parametersファイルを設定 (デフォルトではsampleディレクトリの101M_Aで事前学習)
+2. parametersファイルを設定 (デフォルトではsampleディレクトリの101M_Aで事前学習)。データセットにPDBの1/100を使用する場合はparameters_rand1891をparametersに上書き
 3. ジョブ投入
 ```
 ./Submit_training <NodeShape> <TimeLimit>
