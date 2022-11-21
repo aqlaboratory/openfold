@@ -163,7 +163,7 @@ else
 	Exts=(ffdata ffindex)
 	for Ext in ${Exts[@]}; do
 	    set +e
-	    time $LLIOTransfer $Database/*.$Exts
+	    time $LLIOTransfer $Database/*.$Ext
 	    set -e
 	done
 
