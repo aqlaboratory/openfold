@@ -12,22 +12,21 @@ device = torch.device('cpu')
 
 n_res = consts.n_res
 h = 8
-#n_seq = consts.n_extra
 c = consts.c_e
 
 patterns = [
+    {'qkv_shape':      [516, h, n_res,     c],
+     'bias1_shape':    [516, 1,     1, n_res],
+     'bias2_shape':    [  1, h, n_res, n_res],},
+    {'qkv_shape':      [516, h, n_res,     c],
+     'bias1_shape':    [516, 1,     1, n_res],
+     'bias2_shape':    [516, 1,     1, n_res],},
     {'qkv_shape':   [1, 516, h, n_res,     c],
      'bias1_shape': [1, 516, 1,     1, n_res],
      'bias2_shape': [1,   1, h, n_res, n_res],},
     {'qkv_shape':   [1, 516, h, n_res,     c],
      'bias1_shape': [1, 516, 1,     1, n_res],
      'bias2_shape': [1, 516, 1,     1, n_res],},
-    {'qkv_shape':   [2, 516, h, n_res,     c],
-     'bias1_shape': [2, 516, 1,     1, n_res],
-     'bias2_shape': [2,   1, h, n_res, n_res],},
-    {'qkv_shape':   [2, 516, h, n_res,     c],
-     'bias1_shape': [2, 516, 1,     1, n_res],
-     'bias2_shape': [2, 516, 1,     1, n_res],},
     ]
 
 
@@ -53,6 +52,7 @@ class TestAttentionCore(unittest.TestCase):
                 print(d, "close={}, d_sum={}".format(torch.allclose(out_repro, out_gt),
                                                      torch.sum(torch.abs(out_repro - out_gt), dtype=torch.float64)))
                 self.assertTrue(torch.max(torch.abs(out_repro - out_gt)) < consts.eps)
+                self.assertTrue(out_repro.shape == out_gt.shape)
 
     def test_attention_core_backward(self):
         for pattern in patterns:
@@ -111,7 +111,8 @@ class TestAttentionCore(unittest.TestCase):
                     ) 
                     self.assertTrue(
                         torch.max(torch.abs(t_repro - t_gt)) < consts.eps
-                    ) 
+                    )
+                    self.assertTrue(t_repro.shape == t_gt.shape)
 
 if __name__ == '__main__':
     unittest.main()
