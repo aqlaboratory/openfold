@@ -85,7 +85,8 @@ authors:
 - family-names: "AlQuraishi"
   given-names: "Mohammed"
   orcid: https://orcid.org/0000-0001-6817-1322
-title: "OpenFold"
+title: "OpenFold: Retraining AlphaFold2 yields new insights into its learning mechanisms and capacity for generalization"
+type: article
 doi: 10.1101/2022.11.20.517210
 date-released: 2021-11-12
 url: "https://doi.org/10.1101/2022.11.20.517210"
