@@ -45,6 +45,8 @@ def model_config(name, train=False, low_prec=False):
         c.data.train.max_msa_clusters = 512
         c.loss.violation.weight = 1.
         c.loss.experimentally_resolved.weight = 0.01
+        c.model.evoformer_stack.save_activation_to_file = True
+        c.globals.recompute_attention = True
     elif name == "finetuning_ptm":
         c.data.train.max_extra_msa = 5120
         c.data.train.crop_size = 384
@@ -53,6 +55,8 @@ def model_config(name, train=False, low_prec=False):
         c.loss.experimentally_resolved.weight = 0.01
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
+        c.model.evoformer_stack.save_activation_to_file = True
+        c.globals.recompute_attention = True
     elif name == "model_1":
         # AF2 Suppl. Table 5, Model 1.1.1
         c.data.train.max_extra_msa = 5120
@@ -323,6 +327,7 @@ config = mlc.ConfigDict(
             "c_e": c_e,
             "c_s": c_s,
             "eps": eps,
+            "recompute_attention": False,
         },
         "model": {
             "_mask_trans": False,
@@ -440,6 +445,8 @@ config = mlc.ConfigDict(
                 "tune_chunk_size": tune_chunk_size,
                 "inf": 1e9,
                 "eps": eps,  # 1e-10,
+                "save_activation_to_file": False,
+                "activation_tmp_dir": "/local",
             },
             "structure_module": {
                 "c_s": c_s,

@@ -107,6 +107,9 @@ class AlphaFold(nn.Module):
             self.config["heads"],
         )
 
+        import openfold.utils.kernel.attention_core as attention_core
+        attention_core._recompute = self.globals.recompute_attention
+
     def embed_templates(self, batch, z, pair_mask, templ_dim, inplace_safe): 
         if(self.template_config.offload_templates):
             return embed_templates_offload(self, 
