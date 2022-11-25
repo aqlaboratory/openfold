@@ -328,7 +328,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
 
                 x_chunk = torch.matmul(
                      a,
-                     b_chunk,
+                     b_chunk.contiguous(),
                 )
                 x_chunk = permute_final_dims(x_chunk, (1, 2, 0))
                 x_chunk = self.layer_norm_out(x_chunk)
