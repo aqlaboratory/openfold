@@ -8,6 +8,6 @@ if [[ ${yes} == "y" ]]; then
        script.*.stats \
        script.o* \
        script.e* \
-       llio_transfer.*.list
+       llio_transfer.*.list*
     rmdir log output
 fi

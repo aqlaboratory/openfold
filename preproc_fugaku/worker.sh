@@ -50,7 +50,7 @@ BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219
 # commands
 Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
-DirTransfer=/home/system/tool/dir_transfer
+DirTransfer=./my_dir_transfer
 NumTaskProcs=`expr $NumProcs \* $NumNodes`
 
 if [[ ${IS_FUGAKU} == 1 ]]; then
@@ -101,15 +101,16 @@ fi
 if [[ ${IS_FUGAKU} == 1 ]]; then
     echo "Executing LLIO transfer for OpenFold"
 
-    # FIXME: The following dirs fail because some files include a space
-    # time $DirTransfer $PREFIX/lib
-    # time $DirTransfer $PREFIX/bin
-
-    set +eu
-    time $DirTransfer $OPENFOLDDIR/scripts
-    time $DirTransfer $OPENFOLDDIR/openfold
-    time $DirTransfer $OPENFOLDDIR/openfold.egg-info
-    set -eu
+    # FIXME: Enable this
+    # set -x
+    # time $DirTransfer \
+	#	 $PREFIX/lib \
+	#	 $PREFIX/bin
+    # time $DirTransfer \
+	#	 $OPENFOLDDIR/scripts \
+	#	 $OPENFOLDDIR/openfold \
+	#	 $OPENFOLDDIR/openfold.egg-info
+    # set +x
 fi
 
 DatabaseArgs=""
@@ -123,10 +124,12 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
 
 	echo "Executing LLIO transfer for BFD files"
 	echo "Bfd=${Bfd}"
-	set +e
-	time $LLIOTransfer $Bfd/*_cs219* $Bfd/*_hhm*
-	time $DirTransfer $BfdA3M
-	set -e
+	set -x
+	time $LLIOTransfer \
+	     $Bfd/*_cs219*
+	set +x
+	# FIXME* cache hhm
+	# $Bfd/*_hhm*
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
@@ -148,7 +151,10 @@ fi
 if [[ $DatabaseIsFile = 1 ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB file"
-	time $LLIOTransfer $Database
+	set -x
+	time $LLIOTransfer \
+	     $Database
+	set +x
 
     else
 	echo "Copying the DB file to local temp"
@@ -162,9 +168,10 @@ else
 	echo "Executing LLIO transfer for the DB directory"
 	Exts=(ffdata ffindex)
 	for Ext in ${Exts[@]}; do
-	    set +e
-	    time $LLIOTransfer $Database/*.$Ext
-	    set -e
+	    set -x
+	    time $LLIOTransfer \
+		 $Database/*.$Ext
+	    set +x
 	done
 
     else

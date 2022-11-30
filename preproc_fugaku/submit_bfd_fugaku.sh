@@ -5,7 +5,7 @@ NumThreads=`expr $NumCpus / $NumProcs`
 ./Submit_preproc_fugaku \
     1:00:00 \
     3600 \
-    3 \
+    6\
     $NumProcs \
     $NumThreads \
     input_examples/short.fasta \
