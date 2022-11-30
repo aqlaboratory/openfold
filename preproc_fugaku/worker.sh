@@ -36,12 +36,15 @@ if [[ $Mode = "bfd_deflate" ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	# TODO: Move to share
 	BfdA3M=/vol0006/ra000018/data/u10130/hhblits_deflate/bfd
+	Uniclust30A3M=/vol0006/ra000018/data/u10130/hhblits_deflate/uniclust30
     else
 	# TODO: Do staging for .ffindex
 	BfdA3M=$DataDir/hhblits_deflate/bfd
+	Uniclust30A3M=$DataDir/hhblits_deflate/uniclust30
     fi
 else
     BfdA3M=""
+    Uniclust30A3M=""
 fi
 Bfd=$DataDir/bfd
 Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
@@ -166,13 +169,23 @@ if [[ $DatabaseIsFile = 1 ]]; then
 else
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for the DB directory"
-	Exts=(ffdata ffindex)
-	for Ext in ${Exts[@]}; do
+	if [[ $Mode = "bfd_deflate" ]]; then
 	    set -x
 	    time $LLIOTransfer \
-		 $Database/*.$Ext
+		 $Database/*_cs219.ffdata
+	    time $LLIOTransfer \
+		 $Database/*.ffindex
 	    set +x
-	done
+
+	else
+	    Exts=(ffdata ffindex)
+	    for Ext in ${Exts[@]}; do
+		set -x
+		time $LLIOTransfer \
+		     $Database/*.$Ext
+		set +x
+	    done
+	fi
 
     else
 	echo "Copying the DB directory to local temp"
@@ -189,6 +202,24 @@ else
     fi
 fi
 
+if [[ -n $BfdA3M ]]; then
+    echo "Executing LLIO transfer for deflate BFD"
+    set -x
+    time $LLIOTransfer \
+	 $BfdA3M/*.ffdata \
+	 $BfdA3M/*.ffindex
+    set +x
+fi
+
+if [[ -n $Uniclust30A3M ]]; then
+    echo "Executing LLIO transfer for deflate Uniclust30"
+    set -x
+    time $LLIOTransfer \
+	 $Uniclust30A3M/*.ffdata \
+	 $Uniclust30A3M/*.ffindex
+    set +x
+fi
+
 echo "Setting DatabaseArgs"
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
@@ -202,42 +233,44 @@ elif [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     DatabaseArgs="--uniclust30_database_path $Database/uniclust30_2018_08 --bfd_database_path $Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
     if [[ -n $BfdA3M ]]; then
 	DatabaseArgs="$DatabaseArgs --bfd_deflate_a3m_hhm_path $BfdA3M/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
-    fi
-else
-    echo "Invalid Mode: $Mode" >&2
-    exit
-fi
-
-echo "DatabaseArgs=$DatabaseArgs"
-
-echo "Creating output directory"
-mkdir -p $OutputDir
-
-
-if [[ $Mode = "bfd_deflate" ]]; then
-    # TODO: Do not use hhblits in the home directory
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-	export PATH=/vol0006/ra000018/data/u10130/repo/hh-suite/build/src:${PATH}
+	if [[ -n $Uniclust30A3M ]]; then
+	    DatabaseArgs="$DatabaseArgs --uniclust30_deflate_a3m_hhm_path $Uniclust30A3M/uniclust30_2018_08"
+	fi
     else
-	export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
+	echo "Invalid Mode: $Mode" >&2
+	exit
     fi
-    echo hhblits=`which hhblits`
-fi
 
-echo "Starting the script"
-export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
-export PARALLEL=$OMP_NUM_THREADS
-$MpiExecTask \
-    $MpiArgs \
-    -x PARALLEL \
-    -x OMP_NUM_THREADS \
-    python3 $Script \
-    $InputDir $OutputDir \
-    --cpus_per_task $NumThreads \
-    --jackhmmer_binary_path $BinDir/jackhmmer \
-    --hhblits_binary_path `which hhblits` \
-    --hhsearch_binary_path $BinDir/hhsearch \
-    --kalign_binary_path $BinDir/kalign \
-    --timeout $ToolTimeLimit \
-    $DatabaseArgs \
-    $ScriptArgs
+    echo "DatabaseArgs=$DatabaseArgs"
+
+    echo "Creating output directory"
+    mkdir -p $OutputDir
+
+
+    if [[ $Mode = "bfd_deflate" ]]; then
+	# TODO: Do not use hhblits in the home directory
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+	    export PATH=/vol0006/ra000018/data/u10130/repo/hh-suite/build/src:${PATH}
+	else
+	    export PATH=/home/acd13359ld/repo/hh-suite/build/src:${PATH}
+	fi
+	echo hhblits=`which hhblits`
+    fi
+
+    echo "Starting the script"
+    export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
+    export PARALLEL=$OMP_NUM_THREADS
+    $MpiExecTask \
+	$MpiArgs \
+	-x PARALLEL \
+	-x OMP_NUM_THREADS \
+	python3 $Script \
+	$InputDir $OutputDir \
+	--cpus_per_task $NumThreads \
+	--jackhmmer_binary_path $BinDir/jackhmmer \
+	--hhblits_binary_path `which hhblits` \
+	--hhsearch_binary_path $BinDir/hhsearch \
+	--kalign_binary_path $BinDir/kalign \
+	--timeout $ToolTimeLimit \
+	$DatabaseArgs \
+	$ScriptArgs
