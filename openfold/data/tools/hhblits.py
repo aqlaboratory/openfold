@@ -149,7 +149,7 @@ class HHBlits:
             cmd += db_cmd
 
             for x in self.deflate_a3m_hhm_databases:
-                cmd += ["-da3m", x]
+                cmd += ["-da3mhhm", x]
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(

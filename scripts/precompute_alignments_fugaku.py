@@ -108,6 +108,7 @@ def main(args):
         disable_write_permission=True,
         timeout=args.timeout,
         bfd_deflate_a3m_hhm_path=args.bfd_deflate_a3m_hhm_path,
+        uniclust30_deflate_a3m_hhm_path=args.uniclust30_deflate_a3m_hhm_path,
     )
 
     input_file = args.input_file
@@ -212,6 +213,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--bfd_deflate_a3m_hhm_path",
+        type=str, default=None,
+    )
+    parser.add_argument(
+        "--uniclust30_deflate_a3m_hhm_path",
         type=str, default=None,
     )
     parser.add_argument(

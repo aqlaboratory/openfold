@@ -277,6 +277,7 @@ class AlignmentRunner:
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
         bfd_deflate_a3m_hhm_path: Optional[str] = None,
+        uniclust30_deflate_a3m_hhm_path: Optional[str] = None,
     ):
         """
         Args:
@@ -317,8 +318,8 @@ class AlignmentRunner:
                 Apply chmod 440 after preprocessing
             timeout:
                 Timeout in seconds for each tool
-            bfd_deflate_bfd_path:
-                Path to deflate a3m BFD database.
+            {bfd,uniclust30}_deflate_bfd_path:
+                Path to deflate a3m BFD/uniclust30 database.
         """
         db_map = {
             "jackhmmer": {
@@ -384,14 +385,26 @@ class AlignmentRunner:
                     n_cpu=no_cpus,
                 )
             else:
+                assert (uniclust30_database_path is not None) == (uniclust30_deflate_a3m_hhm_path is not None)
+
                 dbs = [bfd_database_path]
                 if(uniclust30_database_path is not None):
                     dbs.append(uniclust30_database_path)
+
+                deflate_dbs = []
+                if bfd_deflate_a3m_hhm_path is not None:
+                    deflate_dbs.append(bfd_deflate_a3m_hhm_path)
+
+                if uniclust30_deflate_a3m_hhm_path is not None:
+                    if bfd_deflate_a3m_hhm_path is None:
+                        dbs = list(reversed(dbs))
+
+                    deflate_dbs.append(uniclust30_deflate_a3m_hhm_path)
+
                 self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
                     binary_path=hhblits_binary_path,
                     databases=dbs,
-                    deflate_a3m_hhm_databases=\
-                    ([bfd_deflate_a3m_hhm_path, ] if bfd_deflate_a3m_hhm_path is not None else []),
+                    deflate_a3m_hhm_databases=deflate_dbs,
                     n_cpu=no_cpus,
                 )
 
