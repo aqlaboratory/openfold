@@ -37,7 +37,7 @@ if [[ $Mode = "bfd_deflate" ]]; then
 	# TODO: Move to share
 	BfdA3M=/vol0006/ra000018/data/u10130/hhblits_deflate/bfd
     else
-	# TODO: Do staging for a3m.ffindex
+	# TODO: Do staging for .ffindex
 	BfdA3M=$DataDir/hhblits_deflate/bfd
     fi
 else
@@ -194,7 +194,7 @@ elif [[ $Mode = "small_bfd" ]]; then
 elif [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     DatabaseArgs="--uniclust30_database_path $Database/uniclust30_2018_08 --bfd_database_path $Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
     if [[ -n $BfdA3M ]]; then
-	DatabaseArgs="$DatabaseArgs --bfd_deflate_a3m_path $BfdA3M/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+	DatabaseArgs="$DatabaseArgs --bfd_deflate_a3m_hhm_path $BfdA3M/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
     fi
 else
     echo "Invalid Mode: $Mode" >&2

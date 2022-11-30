@@ -107,7 +107,7 @@ def main(args):
         use_ok_files=True,
         disable_write_permission=True,
         timeout=args.timeout,
-        bfd_deflate_a3m_path=args.bfd_deflate_a3m_path,
+        bfd_deflate_a3m_hhm_path=args.bfd_deflate_a3m_hhm_path,
     )
 
     input_file = args.input_file
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         help="Duplicate the single input sequence for every process (use only for testing)"
     )
     parser.add_argument(
-        "--bfd_deflate_a3m_path",
+        "--bfd_deflate_a3m_hhm_path",
         type=str, default=None,
     )
     parser.add_argument(

@@ -276,7 +276,7 @@ class AlignmentRunner:
         use_ok_files: Optional[bool] = False,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
-        bfd_deflate_a3m_path: Optional[str] = None,
+        bfd_deflate_a3m_hhm_path: Optional[str] = None,
     ):
         """
         Args:
@@ -390,8 +390,8 @@ class AlignmentRunner:
                 self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
                     binary_path=hhblits_binary_path,
                     databases=dbs,
-                    deflate_a3m_databases=\
-                    ([bfd_deflate_a3m_path, ] if bfd_deflate_a3m_path is not None else []),
+                    deflate_a3m_hhm_databases=\
+                    ([bfd_deflate_a3m_hhm_path, ] if bfd_deflate_a3m_hhm_path is not None else []),
                     n_cpu=no_cpus,
                 )
 
