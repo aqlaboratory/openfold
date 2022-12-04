@@ -104,16 +104,15 @@ fi
 if [[ ${IS_FUGAKU} == 1 ]]; then
     echo "Executing LLIO transfer for OpenFold"
 
-    # FIXME: Enable this
-    # set -x
-    # time $DirTransfer \
-	#	 $PREFIX/lib \
-	#	 $PREFIX/bin
-    # time $DirTransfer \
-	#	 $OPENFOLDDIR/scripts \
-	#	 $OPENFOLDDIR/openfold \
-	#	 $OPENFOLDDIR/openfold.egg-info
-    # set +x
+    set -x
+    time $DirTransfer \
+	 $PREFIX/lib \
+	 $PREFIX/bin
+    time $DirTransfer \
+	 $OPENFOLDDIR/scripts \
+	 $OPENFOLDDIR/openfold \
+	 $OPENFOLDDIR/openfold.egg-info
+    set +x
 fi
 
 DatabaseArgs=""
@@ -131,8 +130,6 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
 	time $LLIOTransfer \
 	     $Bfd/*_cs219*
 	set +x
-	# FIXME* cache hhm
-	# $Bfd/*_hhm*
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
@@ -198,11 +195,6 @@ else
 	    time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
 	fi
 	Database=$DatabaseLocal
-
-	# FIXME: remove
-	echo "DatabaseLocal:"
-	ls $DatabaseLocal/
-
     fi
 fi
 
