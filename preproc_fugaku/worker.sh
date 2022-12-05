@@ -106,12 +106,16 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 
     set -x
     time $DirTransfer \
-	 $PREFIX/lib \
-	 $PREFIX/bin
+	 $PREFIX/bin \
+	 $PREFIX/lib
+    time $LLIOTransfer \
+	 $OPENFOLDDIR/*.py
+    set +e # Allow errors as some files (such as scripts/setenv) might be already cached
     time $DirTransfer \
 	 $OPENFOLDDIR/scripts \
 	 $OPENFOLDDIR/openfold \
 	 $OPENFOLDDIR/openfold.egg-info
+    set -e
     set +x
 fi
 
