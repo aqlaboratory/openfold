@@ -23,6 +23,41 @@ from openfold.model.primitives import Linear
 from openfold.utils.chunk_utils import chunk_layer
 
 
+def einsum_bac_dae_bdce(a, b):
+    dim_notation_n = a.shape[:-3]
+    dim_notation_a = a.shape[-2]
+    dim_notation_b = a.shape[-3]
+    dim_notation_c = a.shape[-1]
+    dim_notation_d = b.shape[-3]
+    dim_notation_e = b.shape[-1]
+
+    # ...bca <- ...bac
+    a = a.transpose(-2, -1)
+    # ...ade <- ...dae
+    b = b.transpose(-3, -2)
+
+    # ...xa <- ...bca
+    a = a.reshape(-1, dim_notation_b * dim_notation_c, dim_notation_a)
+    # ...ay <- ...ade
+    b = b.reshape(-1, dim_notation_a, dim_notation_d * dim_notation_e)
+
+    # ...xy <- ...xa * ...ay
+    if a.shape[0] == 1:
+        # mm
+        r = torch.matmul(a[0,...], b[0,...])
+    else:
+        r = torch.empty([a.shape[0]] + [dim_notation_b * dim_notation_c, dim_notation_d * dim_notation_e])
+        for i in range(a.shape[0]):
+            r[i,...] = torch.matmul(a[i,...], b[i,...])
+
+    # ...bcde <- ...xy
+    r = r.reshape(list(dim_notation_n) + [dim_notation_b, dim_notation_c, dim_notation_d, dim_notation_e])
+    # ...bdce <- ...bcde
+    r = r.transpose(-3, -2)
+
+    return r
+
+
 class OuterProductMean(nn.Module):
     """
     Implements Algorithm 10.
@@ -52,7 +87,8 @@ class OuterProductMean(nn.Module):
 
     def _opm(self, a, b):
         # [*, N_res, N_res, C, C]
-        outer = torch.einsum("...bac,...dae->...bdce", a, b)
+        # outer = torch.einsum("...bac,...dae->...bdce", a, b)
+        outer = einsum_bac_dae_bdce(a, b)
 
         # [*, N_res, N_res, C * C]
         outer = outer.reshape(outer.shape[:-2] + (-1,))
