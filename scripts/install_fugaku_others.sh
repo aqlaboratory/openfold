@@ -14,6 +14,7 @@ wget -O $PREFIX/bin/bazel https://github.com/bazelbuild/bazelisk/releases/downlo
 chmod +x $PREFIX/bin/bazel
 
 # Doxygen
+rm -rf doxygen
 git clone https://github.com/doxygen/doxygen.git -b Release_1_9_4
 pushd doxygen
 mkdir build
@@ -24,6 +25,7 @@ make install
 popd
 
 # OpenMM
+rm -rf openmm
 git clone https://github.com/openmm/openmm -b 7.7.0
 pushd openmm
 mkdir build
@@ -39,6 +41,7 @@ cd build
 popd
 
 # HMMER
+rm -rf hmmer
 git clone https://github.com/EddyRivasLab/hmmer.git -b h3-arm
 pushd hmmer
 git clone https://github.com/EddyRivasLab/easel -b develop
@@ -51,6 +54,7 @@ make install
 popd
 
 # HH suite
+rm -rf hh-suite
 git clone https://github.com/soedinglab/hh-suite.git -b v3.3.0
 mkdir -p hh-suite/build
 pushd hh-suite/build
@@ -60,6 +64,7 @@ make install
 popd
 
 # kalign2
+rm -rf kalign2
 mkdir kalign2
 pushd kalign2
 wget http://msa.sbc.su.se/downloads/kalign/current.tar.gz

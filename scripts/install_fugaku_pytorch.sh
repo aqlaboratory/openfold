@@ -9,6 +9,7 @@
 
 cd $WORKDIR
 
+rm -rf pytorch
 git clone -b fujitsu_v1.10.1_for_a64fx https://github.com/fujitsu/pytorch.git
 pushd pytorch/scripts/fujitsu
 
