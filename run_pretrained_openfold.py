@@ -336,8 +336,9 @@ def main(args):
         unrelaxed_output_path = os.path.join(
             prediction_dir, f'{output_name}_unrelaxed.pdb'
         )
-        with open(unrelaxed_output_path, 'w') as fp:
+        with open(unrelaxed_output_path + '.incomp', 'w') as fp:
             fp.write(protein.to_pdb(unrelaxed_protein))
+        os.rename(unrelaxed_output_path + '.incomp', unrelaxed_output_path)
 
         logger.info(f"Output written to {unrelaxed_output_path}...")
 
@@ -365,8 +366,9 @@ def main(args):
             relaxed_output_path = os.path.join(
                 prediction_dir, f'{output_name}_relaxed.pdb'
             )
-            with open(relaxed_output_path, 'w') as fp:
+            with open(relaxed_output_path + '.incomp', 'w') as fp:
                 fp.write(relaxed_pdb_str)
+            os.rename(relaxed_output_path + '.incomp', relaxed_output_path)
 
             logger.info(f"Relaxed output written to {relaxed_output_path}...")
 
