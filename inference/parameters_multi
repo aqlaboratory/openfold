@@ -1,0 +1,25 @@
+InputFasta=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/input/query.fasta
+AlignmentDir=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/alignment_smallbfd
+InputFasta=/vol0006/ra000018/data/u10271/OpenFold/openfold/inference/multi_test/input.fasta
+AlignmentDir=/home/u10271/ra000018/OpenFold/openfold/inference/multi_test/alignment
+
+PARAMS=(
+    python3
+    $OPENFOLDDIR/run_pretrained_openfold_multi.py
+    $InputFasta
+    $LOGDIR
+    $DataDir/pdb_mmcif/mmcif_files
+    --model_device cpu
+    --jax_param_path $DataDir/params/params_model_1.npz
+    --use_precomputed_alignments $AlignmentDir
+    --timeout 600
+)
+
+source $OPENFOLDDIR/scripts/setenv
+
+# for Torch Extensions
+export TORCH_EXTENSIONS_DIR=$TMPDIR
+
+export LD_PRELOAD=$PREFIX/lib/libtcmalloc.so
+export OMP_NUM_THREADS=48
+export OPENMM_CPU_THREADS=48
