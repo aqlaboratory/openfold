@@ -22,40 +22,65 @@ from scripts.openfold_runner import OpenFoldInference
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
+
+def pdb_path(pred_dir, name, model, relaxed):
+    if relaxed:
+        return os.path.join(pred_dir, '{}_{}_relaxed.pdb'.format(name, model))
+    else:
+        return os.path.join(pred_dir, '{}_{}_unrelaxed.pdb'.format(name, model))
+
+def is_inferred(name, pred_dir, args):
+    # e.g. 4X96_D_model_1_relaxed.pdb
+    unrelaxed_pdb_path = pdb_path(pred_dir, name, args.config_preset, False)
+    relaxed_pdb_path = pdb_path(pred_dir, name, args.config_preset, True)
+
+    return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
+
+def run_inference(runner, name, seq, args):
+    with tempfile.TemporaryDirectory() as fasta_dir:
+        logging.info(f"Temporal fasta dir {fasta_dir}")
+        fd, fasta_path = tempfile.mkstemp(dir=fasta_dir, suffix=".fasta")
+        with os.fdopen(fd, 'w') as fp:
+            fp.write(f'>{name}\n{seq}')
+
+        logging.info(f"Processing for {name} on {fasta_path}")
+        runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
+        logging.info(f"Processing for {name} done!")
+
+    generated_files = [pdb_path(pred_dir, name, args.config_preset, False)]
+    if not args.skip_relaxation:
+        generated_files.append(pdb_path(pred_dir, name, args.config_preset, True))
+
+    for gen_file in generated_files:
+        if os.path.isfile(gen_file):
+            logging.info(f"Generated pdb file: {gen_file}")
+        else:
+            raise Exception(f'{gen_File} is not exist')
+    return generated_files
+
 def run_seq_group_inference(seq_groups, args):
     dirs = set(os.listdir(args.output_dir))
+    pred_dir = os.path.join(args.output_dir, 'predictions')
+    runner = OpenFoldInference('run_pretrained_openfold.py', os.environ.get('OPENFOLDDIR'))
+
     for seq, names in seq_groups:
         print("seq, names", seq, names)
         first_name = names[0]
 
-        with tempfile.TemporaryDirectory() as fasta_dir:
-            logging.info(f"Temporal fasta dir {fasta_dir}")
-            fd, fasta_path = tempfile.mkstemp(dir=fasta_dir, suffix=".fasta")
-            with os.fdopen(fd, 'w') as fp:
-                fp.write(f'>{first_name}\n{seq}')
-
-            logging.info(f"Processing for {first_name} on {fasta_path}")
+        if not is_inferred(first_name, pred_dir, args):
             try:
-                runner = OpenFoldInference('run_pretrained_openfold.py', os.environ.get('OPENFOLDDIR'))
-                runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
-                generated_files = glob.glob(os.path.join(args.output_dir, 'predictions', f'{first_name}_*'))
-                for gen_file in generated_files:
-                    logging.info(f"Generated pdb file: {gen_file}")
-                logging.info(f"Processing for {first_name} done!")
+                generated_files = run_inference(runner, first_name, seq, args)
             except:
                 traceback.print_exc()
                 logging.warning(f"Failed to run inference for {first_name}. Skipping...")
                 continue
 
         for name in names[1:]:
-            # FIXME: copy files created in this job only
-            for f in generated_files:
-                if not os.path.exists(f):
-                    logging.warning(f"Generated file doesn't exist ({f}). Skipping...")
-
-                copy_file = os.path.join(args.output_dir, 'predictions', '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
-                logging.info(f"Copying result from {f} to {copy_file}")
-                copyfile(f, copy_file)
+            if not is_inferred(name, pred_Dir, args):
+                for f in generated_files:
+                        copy_file = os.path.join(pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
+                        logging.info(f"Copying result from {f} to {copy_file}")
+                        copyfile(f, copy_file)
 
 
 def make_uniq_seq_groups(input_seqs, input_chains):
