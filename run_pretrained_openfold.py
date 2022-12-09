@@ -28,6 +28,7 @@ import random
 import sys
 import time
 import torch
+import tempfile
 
 from openfold.config import model_config
 from openfold.data import templates, feature_pipeline, data_pipeline
@@ -290,7 +291,7 @@ def main(args):
 
         precompute_alignments(tags, seqs, alignment_dir, args)
 
-        tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
+        _, tmp_fasta_path = tempfile.mkstemp(suffix=".fasta")
         if(len(seqs) == 1):
             seq = seqs[0]
             with open(tmp_fasta_path, "w") as fp:
