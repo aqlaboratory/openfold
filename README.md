@@ -229,7 +229,8 @@ Using the most conservative settings, we were able to run inference on a
 offloading mode, ours is considerably faster; the same complex takes the more 
 efficent AlphaFold-Multimer more than double the time. Use the
 `long_sequence_inference` config option to enable all of these interventions
-at once.
+at once. The `run_pretrained_openfold.py` script can enable this config option with the 
+`--long_sequence_inference` command line option
 
 ### Training
 

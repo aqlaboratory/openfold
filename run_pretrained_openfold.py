@@ -140,7 +140,7 @@ def main(args):
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
-    config = model_config(args.config_preset)
+    config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
     
     if(args.trace_model):
         if(not config.data.predict.fixed_size):
@@ -368,6 +368,10 @@ if __name__ == "__main__":
         "--subtract_plddt", action="store_true", default=False,
         help=""""Whether to output (100 - pLDDT) in the B-factor column instead
                  of the pLDDT itself"""
+    )
+    parser.add_argument(
+        "--long_sequence_inference", action="store_true", default=False,
+        help="""enable options to reduce memory usage at the cost of speed, helps longer sequences fit into GPU memory, see the README for details"""
     )
     add_data_args(parser)
     args = parser.parse_args()
