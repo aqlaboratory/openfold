@@ -13,7 +13,7 @@ PARAMS=(
     --model_device cpu
     --jax_param_path $DataDir/params/params_model_1.npz
     --use_precomputed_alignments $AlignmentDir
-    --timeout 600
+    --timeout 6000
 )
 
 source $OPENFOLDDIR/scripts/setenv

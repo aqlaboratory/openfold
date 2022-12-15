@@ -20,6 +20,12 @@ sed -i -e 's|$LOGDIR|'"$LogDir|" "$ParamFile"
 sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$ParamFile"
 sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
 
+### llio_transfer
+if [ -e $LogDir/llio_transfer_list_multi ]; then
+  echo "`date +%s.%N` #llio_transfer start at `date`"
+  cat $LogDir/llio_transfer_list_multi | xargs -L 100 llio_transfer
+fi
+
 ### Train 
 # PARAMS[@] are defined in the file "parameters".
 

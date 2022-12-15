@@ -34,6 +34,7 @@ if [ $RANK -eq "0" ]; then
     #PID_VMSTAT=$!
 fi
 
+#         strace -ff -e trace=open,openat -o ${LogDir}/strace.${PMIX_RANK} 
 time -p numactl --cpunodebind 4-7 --membind 4-7 \
     "${PARAMS[@]}"
 
