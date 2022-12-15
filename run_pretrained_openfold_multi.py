@@ -4,6 +4,7 @@ import os
 from shutil import copyfile
 import tempfile
 import traceback
+import time
 
 from openfold.data.parsers import parse_fasta
 from scripts.utils import add_data_args
@@ -26,7 +27,7 @@ def is_inferred(name, pred_dir, args):
 
     return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
 
-def run_inference(runner, name, seq, args):
+def run_inference(runner, name, seq, pred_dir, args):
     with tempfile.TemporaryDirectory() as fasta_dir:
         logging.info(f"Temporal fasta dir {fasta_dir}")
         fd, fasta_path = tempfile.mkstemp(dir=fasta_dir, suffix=".fasta")
@@ -58,12 +59,18 @@ def run_seq_group_inference(seq_groups, args):
         first_name = names[0]
 
         if not is_inferred(first_name, pred_dir, args):
+            begin_time = time.time()
             try:
-                generated_files = run_inference(runner, first_name, seq, args)
+                generated_files = run_inference(runner, first_name, seq, pred_dir, args)
             except:
                 traceback.print_exc()
                 logging.warning(f"Failed to run inference for {first_name}. Skipping...")
+                end_time = time.time()
+                logging.info('inference_stat {} {} {} {}'.format(first_name, len(seq), end_time - begin_time, False))
                 continue
+            else:
+                end_time = time.time()
+                logging.info('inference_stat {} {} {} {}'.format(first_name, len(seq), end_time - begin_time, True))
 
         for name in names[1:]:
             if not is_inferred(name, pred_Dir, args):
@@ -106,6 +113,14 @@ def main(args):
     else:
         logging.warning(f"--ignore_unique is enabled. The process might be redundant")
         input_chains = [[x] for x in input_chains]
+
+    def to_first_lower(s):
+        x = s.split(sep='_')
+        x[0] = x[0].lower()
+        return '_'.join(x)
+
+    if args.first_lower:
+        input_chains = [list(map(to_first_lower, g)) for g in input_chains]
 
     # input_seqs   = [AAA, BBB, ...]
     # input_chains = [[A_1, A_2], [B_1], ...]
@@ -181,6 +196,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--timeout', type=float, default=None
+    )
+    parser.add_argument(
+        "--first_lower",
+        dest="first_lower", action="store_const",
+        const=True, default=False,
+        help="Convert first part of chain name to lower (e.g. 4X96_D -> 4x96_D)"
     )
 
     
