@@ -1,22 +1,12 @@
 import argparse
-from functools import partial
-import json
 import logging
 import os
-import threading
-from multiprocessing import cpu_count
 from shutil import copyfile
 import tempfile
 import traceback
 
-import openfold.data.mmcif_parsing as mmcif_parsing
-from openfold.data.data_pipeline import AlignmentRunner
 from openfold.data.parsers import parse_fasta
-from openfold.np import protein, residue_constants
-
 from scripts.utils import add_data_args
-import glob
-
 from scripts.openfold_runner import OpenFoldInference
 
 
