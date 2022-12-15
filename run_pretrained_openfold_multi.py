@@ -38,17 +38,6 @@ def run_inference(runner, name, seq, pred_dir, args):
         runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
         logging.info(f"Processing for {name} done!")
 
-    generated_files = [pdb_path(pred_dir, name, args.config_preset, False)]
-    if not args.skip_relaxation:
-        generated_files.append(pdb_path(pred_dir, name, args.config_preset, True))
-
-    for gen_file in generated_files:
-        if os.path.isfile(gen_file):
-            logging.info(f"Generated pdb file: {gen_file}")
-        else:
-            raise Exception(f'{gen_File} is not exist')
-    return generated_files
-
 def run_seq_group_inference(seq_groups, args):
     dirs = set(os.listdir(args.output_dir))
     pred_dir = os.path.join(args.output_dir, 'predictions')
@@ -61,7 +50,7 @@ def run_seq_group_inference(seq_groups, args):
         if not is_inferred(first_name, pred_dir, args):
             begin_time = time.time()
             try:
-                generated_files = run_inference(runner, first_name, seq, pred_dir, args)
+                run_inference(runner, first_name, seq, pred_dir, args)
             except:
                 traceback.print_exc()
                 logging.warning(f"Failed to run inference for {first_name}. Skipping...")
@@ -72,9 +61,17 @@ def run_seq_group_inference(seq_groups, args):
                 end_time = time.time()
                 logging.info('inference_stat {} {} {} {}'.format(first_name, len(seq), end_time - begin_time, True))
 
+        generated_pdbs = [pdb_path(pred_dir, first_name, args.config_preset, False)]
+        if not args.skip_relaxation:
+            generated_pdbs.append(pdb_path(pred_dir, first_name, args.config_preset, True))
+
+        for gen_file in generated_pdbs:
+            if not os.path.isfile(gen_file):
+                raise Exception(f'{gen_File} is not exist')
+
         for name in names[1:]:
-            if not is_inferred(name, pred_Dir, args):
-                for f in generated_files:
+            if not is_inferred(name, pred_dir, args):
+                for f in generated_pdbs:
                         copy_file = os.path.join(pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
                         logging.info(f"Copying result from {f} to {copy_file}")
                         copyfile(f, copy_file)
