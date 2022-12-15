@@ -21,8 +21,16 @@ sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$ParamFile"
 sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
 
 ### llio_transfer
-if [ -e $LogDir/llio_transfer_list_multi ]; then
+TransferFile="$LogDir/llio_transfer_list_multi"
+if [ -e $TransferFile ]; then
+  ### Create llio_transfer_list file
+  sed -i -e 's|$PREFIX|'"$Prefix|" "$TransferFile"
+  sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$TransferFile"
+  sed -i -e '1i '"$LogDir/$WORKER" "$TransferFile"
+  sed -i -e '1i '"$ParamFile" "$TransferFile"
+  sed -i -e '1i '"$DataDir/params/params_model_1.npz" "$TransferFile"
   echo "`date +%s.%N` #llio_transfer start at `date`"
+
   cat $LogDir/llio_transfer_list_multi | xargs -L 100 llio_transfer
 fi
 

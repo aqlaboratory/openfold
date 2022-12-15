@@ -110,6 +110,7 @@ ${PJM_MAPFILE}
 
 hostname
 export OpenFoldDir="$OPENFOLDDIR"
+export Prefix="$PREFIX"
 
 LogDir="$LogDir"
 if [ ! -d "\$LogDir" ] ; then
