@@ -5,9 +5,9 @@ if "true"; then
 	1:00:00 \
 	$ToolTimeLimit \
 	1 \
-	1 \
-	20 \
-	input_examples/short.fasta \
+	12 \
+	4 \
+	input_examples/202212_experiments/20221219_pdb_mmcif_sampled_24.fasta \
 	output \
 	small_bfd \
 	""
