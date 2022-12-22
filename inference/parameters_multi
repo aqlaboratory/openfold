@@ -1,3 +1,5 @@
+MMCIFCache=/vol0006/ra000018/data/OpenFold/sample/training/mmcif_cache.json
+
 InputFasta=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/input/query.fasta
 AlignmentDir=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/alignment_smallbfd
 InputFasta=/vol0006/ra000018/data/u10271/OpenFold/openfold/inference/multi_test/input.fasta
@@ -13,7 +15,10 @@ PARAMS=(
     --model_device cpu
     --jax_param_path $DataDir/params/params_model_1.npz
     --use_precomputed_alignments $AlignmentDir
-    --timeout 6000
+    --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
+    --max_template_date 2021-10-10
+    --release_dates_path $MMCIFCache
+    --timeout 3600
     --first_lower
 )
 

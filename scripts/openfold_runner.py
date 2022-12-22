@@ -73,8 +73,16 @@ class OpenFoldInference:
             "--output_dir",
             args.output_dir,
             "--use_precomputed_alignments",
-            args.use_precomputed_alignments
+            args.use_precomputed_alignments,
+            "--max_template_date",
+            args.max_template_date,
         ]
+        if args.obsolete_pdbs_path is not None:
+            cmd.append("--obsolete_pdbs_path")
+            cmd.append(args.obsolete_pdbs_path)
+        if args.release_dates_path is not None:
+            cmd.append("--release_dates_path")
+            cmd.append(args.release_dates_path)
 
         logging.info('Launching subprocess "%s"', " ".join(cmd))
         process = subprocess.Popen(
