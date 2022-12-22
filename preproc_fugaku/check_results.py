@@ -9,9 +9,6 @@ import pandas as pd
 
 from foycc import pmap
 
-os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
-from openfold.data.parsers import parse_fasta, parse_a3m, parse_hhr, parse_stockholm
-
 USE_OK_FILES = True
 
 STATUS_OK         = "OK"
@@ -116,6 +113,9 @@ def check_dir(input_chain):
     return ret
 
 if __name__ == "__main__":
+    os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
+    from openfold.data.parsers import parse_fasta, parse_a3m, parse_hhr, parse_stockholm
+
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", help="output or log")
     parser.add_argument("directory", help="The output/log directory")
