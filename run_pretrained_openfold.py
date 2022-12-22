@@ -56,7 +56,7 @@ logger.setLevel(level=logging.INFO)
 
 def precompute_alignments(tags, seqs, alignment_dir, args):
     for tag, seq in zip(tags, seqs):
-        tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
+        _, tmp_fasta_path = tempfile.mkstemp(suffix=".fasta")
         with open(tmp_fasta_path, "w") as fp:
             fp.write(f">{tag}\n{seq}")
 
