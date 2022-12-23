@@ -267,6 +267,9 @@ export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
 export PARALLEL=$OMP_NUM_THREADS
 $MpiExecTask \
     $MpiArgs \
+    hostname
+$MpiExecTask \
+    $MpiArgs \
     -x PARALLEL \
     -x OMP_NUM_THREADS \
     python3 $Script \
