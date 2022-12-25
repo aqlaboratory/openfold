@@ -67,7 +67,7 @@ def run_seq_group_inference(seq_groups, args):
 
         for gen_file in generated_pdbs:
             if not os.path.isfile(gen_file):
-                raise Exception(f'{gen_File} is not exist')
+                raise Exception(f'{gen_file} is not exist')
 
         for name in names[1:]:
             if not is_inferred(name, pred_dir, args):
