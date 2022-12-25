@@ -119,6 +119,11 @@ def main(args):
     if args.first_lower:
         input_chains = [list(map(to_first_lower, g)) for g in input_chains]
 
+    # sort by sequence length
+    zip_seqs_chains = zip(input_seqs, input_chains)
+    zip_seqs_chains_sorted = sorted(zip_seqs_chains, key=lambda x: len(x[0]))
+    input_seqs, input_chains = zip(*zip_seqs_chains_sorted)
+
     # input_seqs   = [AAA, BBB, ...]
     # input_chains = [[A_1, A_2], [B_1], ...]
 
