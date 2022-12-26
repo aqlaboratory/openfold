@@ -286,7 +286,7 @@ def main(args):
             prediction_dir, f'{output_name}_unrelaxed.pdb'
         )
 
-        if(os.path.exists(unrelaxed_output_path)):
+        if(os.path.exists(unrelaxed_output_path) and args.skip_relaxation):
             continue
 
         precompute_alignments(tags, seqs, alignment_dir, args)
