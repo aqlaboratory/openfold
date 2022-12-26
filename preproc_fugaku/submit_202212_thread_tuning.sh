@@ -1,3 +1,5 @@
+set -eu
+
 # Expected time:
 #   small_bfd: 300s
 #   mgnify:    1200s
