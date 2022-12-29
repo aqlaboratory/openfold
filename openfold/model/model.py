@@ -413,6 +413,8 @@ class AlphaFold(nn.Module):
         outputs["sm"] = self.structure_module(
             outputs,
             feats["aatype"],
+            positions=feats.get("positions"),
+            orientations=feats.get("orientations"),
             mask=feats["seq_mask"].to(dtype=s.dtype),
             inplace_safe=inplace_safe,
             _offload_inference=self.globals.offload_inference,

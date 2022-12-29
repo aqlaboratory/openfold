@@ -629,6 +629,8 @@ class StructureModule(nn.Module):
         self,
         evoformer_output_dict,
         aatype,
+        positions=None,
+        orientations=None,
         mask=None,
         inplace_safe=False,
         _offload_inference=False,
@@ -672,13 +674,16 @@ class StructureModule(nn.Module):
         s = self.linear_in(s)
 
         # [*, N]
-        rigids = Rigid.identity(
-            s.shape[:-1], 
-            s.dtype, 
-            s.device, 
-            self.training,
-            fmt="quat",
-        )
+        if positions is None:
+            rigids = Rigid.identity(
+                s.shape[:-1], 
+                s.dtype, 
+                s.device, 
+                self.training,
+                fmt="quat",
+            )
+        else:
+            rigids = Rigid(Rotation(rot_mats=None, quats=orientations), positions)
         outputs = []
         for i in range(self.no_blocks):
             # [*, N, C_s]
