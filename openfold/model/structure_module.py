@@ -756,6 +756,7 @@ class StructureModule(nn.Module):
 
         outputs = dict_multimap(torch.stack, outputs)
         outputs["single"] = s
+        outputs["single_initial"] = s_initial
 
         return outputs
 
