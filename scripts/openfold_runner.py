@@ -16,6 +16,7 @@
 """A Python wrapper for OpenFold."""
 import os
 import subprocess
+import re
 from typing import Sequence
 
 from absl import logging
@@ -96,14 +97,22 @@ class OpenFoldInference:
             except subprocess.TimeoutExpired as e:
                 raise e
 
+            stdout_dec = stdout.decode("utf-8")
+            stderr_dec = stderr.decode("utf-8")
             logging.info(
                 "OpenFold inference stdout:\n%s\n\nstderr:\n%s\n",
-                stdout.decode("utf-8"),
-                stderr.decode("utf-8"),
+                stdout_dec,
+                stderr_dec,
             )
 
         if retcode:
             raise RuntimeError(
                 "OpenFold inference failed\nstdout:\n%s\n\nstderr:\n%s\n"
-                % (stdout.decode("utf-8"), stderr.decode("utf-8"))
+                % (stdout_dec, stderr_dec)
             )
+
+        ret = dict()
+        ret['inference_time'] = float(re.findall('Inference time: *(.*)', stderr_dec)[0])
+        ret['relaxation_time'] = float(re.findall('Relaxation time: *(.*)', stderr_dec)[0])
+
+        return ret

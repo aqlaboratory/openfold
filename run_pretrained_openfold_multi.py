@@ -5,6 +5,7 @@ from shutil import copyfile
 import tempfile
 import traceback
 import time
+import subprocess
 
 from openfold.data.parsers import parse_fasta
 from scripts.utils import add_data_args
@@ -35,8 +36,9 @@ def run_inference(runner, name, seq, pred_dir, args):
             fp.write(f'>{name}\n{seq}')
 
         logging.info(f"Processing for {name} on {fasta_path}")
-        runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
+        ret = runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
         logging.info(f"Processing for {name} done!")
+    return ret
 
 def run_seq_group_inference(seq_groups, args):
     dirs = set(os.listdir(args.output_dir))
@@ -50,16 +52,20 @@ def run_seq_group_inference(seq_groups, args):
         if not is_inferred(first_name, pred_dir, args):
             begin_time = time.time()
             try:
-                run_inference(runner, first_name, seq, pred_dir, args)
-            except:
+                ret = run_inference(runner, first_name, seq, pred_dir, args)
+            except Exception as e:
+                duration = time.time() - begin_time
                 traceback.print_exc()
                 logging.warning(f"Failed to run inference for {first_name}. Skipping...")
-                end_time = time.time()
-                logging.info('inference_stat {} {} {} {}'.format(first_name, len(seq), end_time - begin_time, False))
+                if isinstance(e, subprocess.TimeoutExpired):
+                    state = 'NG_timeout'
+                else:
+                    state = 'NG_unknown'
+                logging.info(f"inference_stat {first_name} {len(seq)} {state} {duration:.1f} 0 0")
                 continue
             else:
-                end_time = time.time()
-                logging.info('inference_stat {} {} {} {}'.format(first_name, len(seq), end_time - begin_time, True))
+                duration = time.time() - begin_time
+                logging.info(f"inference_stat {first_name} {len(seq)} OK {duration:.1f} {ret['inference_time']:.1f} {ret['relaxation_time']:.1f}")
 
         generated_pdbs = [pdb_path(pred_dir, first_name, args.config_preset, False)]
         if not args.skip_relaxation:
