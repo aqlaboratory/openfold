@@ -95,11 +95,13 @@ git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 ### Generate qsub script
 ScriptFile="$LogDir/script"
 
+NodeShape=$NumNodes:torus
+
 cat << EOF > "$ScriptFile"
 #!/bin/bash
 #PJM -L rscgrp=${RSC_GRP}
 #PJM -L elapse=$TimeLimit
-#PJM -L node=${NumNodes}
+#PJM -L node=${NodeShape}
 ##:strict,freq=2200
 #PJM --rsc-list "retention_state=0"
 #PJM -j

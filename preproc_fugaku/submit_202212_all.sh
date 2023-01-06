@@ -12,16 +12,15 @@ Database=small_bfd
 # Database=pdb70
 
 NumNodes=12
-NumCpus=48
 NumProcs=12
 NumThreads=4
 ./Submit_preproc_fugaku \
     1:00:00 \
     3600 \
-    12 \
+    $NumNodes \
     $NumProcs \
     $NumThreads \
-    /vol0006/share/ra000018/openfold/202212_experiments/pdb_mmcif/latest/pdb_mmcif_sampled_100.fasta \
+    /vol0006/share/ra000018/openfold/202212_experiments/pdb_mmcif/latest/pdb_mmcif_sampled_10000.fasta \
     output_202212_all \
     $Database \
     ""
