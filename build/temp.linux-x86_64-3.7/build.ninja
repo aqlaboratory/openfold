@@ -1,0 +1,34 @@
+ninja_required_version = 1.3
+cxx = c++
+nvcc = /home/ec2-user/miniconda3/envs/openfold_train_env/bin/nvcc
+
+cflags = -pthread -B /home/ec2-user/miniconda3/envs/openfold_train_env/compiler_compat -Wl,--sysroot=/ -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/shared/openfold-release/openfold/utils/kernel/csrc/ -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/TH -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/THC -I/home/ec2-user/miniconda3/envs/openfold_train_env/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/include/python3.7m -c
+post_cflags = -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=attn_core_inplace_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+cuda_cflags = -I/shared/openfold-release/openfold/utils/kernel/csrc/ -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/TH -I/home/ec2-user/miniconda3/envs/openfold_train_env/lib/python3.7/site-packages/torch/include/THC -I/home/ec2-user/miniconda3/envs/openfold_train_env/include -I/home/ec2-user/miniconda3/envs/openfold_train_env/include/python3.7m -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -O3 --use_fast_math -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -std=c++14 -maxrregcount=50 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ --expt-relaxed-constexpr --expt-extended-lambda -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=attn_core_inplace_cuda -D_GLIBCXX_USE_CXX11_ABI=0
+cuda_dlink_post_cflags = 
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  depfile = $out.d
+  deps = gcc
+  command = $nvcc  $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+
+
+build /shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda.o: compile /shared/openfold-release/openfold/utils/kernel/csrc/softmax_cuda.cpp
+build /shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda_kernel.o: cuda_compile /shared/openfold-release/openfold/utils/kernel/csrc/softmax_cuda_kernel.cu
+
+
+
+
+
+
+

@@ -78,5 +78,11 @@ class AlphaFoldLRScheduler(torch.optim.lr_scheduler._LRScheduler):
             lr = self.max_lr * (self.decay_factor ** exp)
         else: # plateau
             lr = self.max_lr
+        # SK: Temporary correction: Since LR state restoring from checkpoint doesn't work,
+        # we have to resort to manually specifying correct LR when resuming from a checkpoint.
+        # Here, I am specifying max_lr since the checkpoints from which we resume are already
+        # in the plateau phase. If we don't specify, then the LR starts from scratch and
+        # warms-up again since it's state is set to the beginning without checkpoint restoration.
+        lr = 0.0005
 
         return [lr for group in self.optimizer.param_groups]

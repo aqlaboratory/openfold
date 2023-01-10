@@ -1,0 +1,75 @@
+#!/bin/bash
+# use the bash shell
+
+# XSEDE batch configs
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=39
+#SBATCH --partition=gpu
+#SBATCH -t 45:00:00
+#SBATCH --gpus=4
+#SBATCH --mem=377390M
+#SBATCH --account=col160
+
+# echo each command to standard out before running it
+set -x
+
+module purge
+module load conda
+module load gpu
+module load cuda10.2/blas
+module load cuda10.2/fft
+module load cuda10.2/nsight
+module load cuda10.2/profiler
+module load cuda10.2/toolkit
+conda activate openfold_train_env
+
+# on your cluster you might need these:
+# set the network interface
+# export NCCL_SOCKET_IFNAME=^docker0,lo
+
+# move to working directory
+cd /expanse/lustre/projects/col160/sachinkadyan/openfold-train
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+
+current_working_dir=$(pwd)
+train_script="$current_working_dir/train_openfold.py"
+data_dir="../databases"
+
+
+# Path and user config (change me if required)
+template_mmcif_dir="$data_dir/pdb_mmcif/mmcif_files/"
+obsolete_pdbs_path="$data_dir/pdb_mmcif/obsolete.dat"
+protein_data_dir="$current_working_dir/../databases/pdb_mmcif/mmcif_files/"
+protein_msa_dir="$current_working_dir/../pdb_esm_embeddings/"
+output_dir="./output_dir"
+
+
+# Binary path (change me if required)
+
+
+#python3 $train_script $protein_data_dir $protein_msa_dir $template_mmcif_dir $output_dir 2021-10-10 --template_release_dates_cache_path ../databases/pdb_mmcif/mmcif_cache.json  --train_chain_data_cache_path ../train_data_openfold/1IQQ_A/chain_data_cache.json --train_epoch_len 2 --max_epochs -1 --gpus 1 --replace_sampler_ddp=True --log_lr --seed=42 --deepspeed_config_path deepspeed_config.json --precision 32 --resume_from_ckpt output_dir/single_sequence/35ijz0zv/checkpoints/epoch\=3464-step\=6929.ckpt --wandb --experiment_name esm_1IQQ_with_templates --wandb_project single_sequence --wandb_entity openfold --wandb_id 35ijz0zv
+which python
+python $train_script $protein_data_dir $protein_msa_dir $template_mmcif_dir $output_dir 2021-10-10 --train_chain_data_cache_path ../databases/pdb_mmcif/chain_data_cache.json --train_epoch_len 100 --max_epochs -1 --gpus 4 --num_nodes 4 --replace_sampler_ddp=True --log_lr --deepspeed_config_path deepspeed_config.json --precision 32 --seed 42 --wandb --experiment_name esm_on_all_pdb --wandb_project single_sequence --wandb_entity openfold
+#
+############### For ESM embedding computation ######
+## XSEDE batch configs
+##SBATCH -N 1
+##SBATCH -p RM
+##SBATCH -t 30:00:00
+#
+## echo each command to standard out before running it
+#set -x
+#
+#module load AI/anaconda3-tf2.2020.11
+#module load cuda/11.1.1
+#conda activate /jet/home/kadyan/.conda/envs/openfold_train_env
+#
+## move to working directory
+#cd $PROJECT/esm
+#export PYTHONPATH=$PYTHONPATH:$(pwd)
+#
+#
+#current_working_dir=$(pwd)
+#
+#python extract.py esm1b_t33_650M_UR50S ../esm_embeddings_pdb/fastas/chunk1.fasta ../esm_embeddings_pdb/chunk1 --include per_tok --truncate

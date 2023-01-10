@@ -12,13 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import logging
 import os
 import datetime
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
 
 import numpy as np
+import torch
 
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
@@ -97,7 +98,8 @@ def unify_template_features(
         chain_indices = np.array(n_templates * [i])
         out_dict["template_chain_index"] = chain_indices
 
-        out_dicts.append(out_dict)
+        if(n_templates != 0):
+            out_dicts.append(out_dict)
 
     out_dict = {
         k: np.concatenate([od[k] for od in out_dicts]) for k in out_dicts[0]
@@ -491,7 +493,7 @@ class DataPipeline:
                 msa_data[name] = data
             
             fp.close()
-        else: 
+        elif (os.path.exists(alignment_dir)):
             for f in os.listdir(alignment_dir):
                 path = os.path.join(alignment_dir, f)
                 ext = os.path.splitext(f)[-1]
@@ -535,14 +537,15 @@ class DataPipeline:
 
             fp.close()
         else:
-            for f in os.listdir(alignment_dir):
-                path = os.path.join(alignment_dir, f)
-                ext = os.path.splitext(f)[-1]
+            if (os.path.exists(alignment_dir)):
+                for f in os.listdir(alignment_dir):
+                    path = os.path.join(alignment_dir, f)
+                    ext = os.path.splitext(f)[-1]
 
-                if(ext == ".hhr"):
-                    with open(path, "r") as fp:
-                        hits = parsers.parse_hhr(fp.read())
-                    all_hits[f] = hits
+                    if(ext == ".hhr"):
+                        with open(path, "r") as fp:
+                            hits = parsers.parse_hhr(fp.read())
+                        all_hits[f] = hits
 
         return all_hits
 
@@ -618,18 +621,29 @@ class DataPipeline:
             num_res=num_res,
         )
 
+        esm_data = {}
+        name = os.path.basename(alignment_dir)
+        parent_alignment_dir = os.path.dirname(alignment_dir)
+        if (os.path.exists(os.path.join(alignment_dir, name + ".pt"))):
+            esm = torch.load(os.path.join(alignment_dir, name + ".pt"))
+            esm_data["esm_embedding"] = esm["representations"][33]
+          # logging.warning(f"sachinkadyan7: Loaded ESM for {name}")
+        # logging.warning(f"sachinkadyan7: Looking for ESM for {name} len {len(input_sequence)} at {os.path.join(alignment_dir, name+'.pt')}")
+
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
-        
+
         return {
             **sequence_features,
             **msa_features, 
-            **template_features
+            **template_features,
+            **esm_data
         }
 
     def process_mmcif(
         self,
         mmcif: mmcif_parsing.MmcifObject,  # parsing is expensive, so no path
         alignment_dir: str,
+        esm_dir: str,
         chain_id: Optional[str] = None,
         _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
@@ -646,6 +660,8 @@ class DataPipeline:
                 raise ValueError("No chains in mmCIF file")
             chain_id = chain.id
 
+        # logging.warning(f"sachinkadyan7: Processing MMCIF {mmcif.file_id} input_sequence len {len(mmcif.chain_to_seqres[chain_id])}")
+        # logging.warning(f"sachinkadyan7: Processing MMCIF {alignment_dir}")
         mmcif_feats = make_mmcif_features(mmcif, chain_id)
 
         input_sequence = mmcif.chain_to_seqres[chain_id]
@@ -656,15 +672,33 @@ class DataPipeline:
             self.template_featurizer,
             query_release_date=to_date(mmcif.header["release_date"])
         )
-        
+        esm_data = {}
+        name = os.path.basename(alignment_dir)
+        parent_alignment_dir = os.path.dirname(alignment_dir)
+        #if (os.path.exists(os.path.join(alignment_dir, name + ".npy"))):
+        #    esm = np.load(os.path.join(alignment_dir, name + ".npy"))
+        #    esm_data["esm_embedding"] = torch.from_numpy(esm)
+            # logging.warning(f"sachinkadyan7: Loaded ESM for {name}")
+        # logging.warning(f"sachinkadyan7: Looking for ESM for {name} len {len(input_sequence)} rank {torch.distributed.get_rank()}")
+        for chunk_index in range(7):
+            file_to_check = os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt" )
+        #     # logging.warning(f"sachinkadyan7: Looking for ESM for {name} in {file_to_check}")
+            if (os.path.exists(os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt" ))):
+                esm = torch.load(os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt"))
+                esm_data["esm_embedding"] = esm["representations"][33]
+        #         # logging.warning(f"sachinkadyan7: Loaded ESM for {name}")
+                break
+        else:
+            logging.warning(f"sachinkadyan7: ESM not found for {name}")
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
-        return {**mmcif_feats, **template_features, **msa_features}
+        return {**mmcif_feats, **template_features, **msa_features, **esm_data}
 
     def process_pdb(
         self,
         pdb_path: str,
         alignment_dir: str,
+        esm_dir: str,
         is_distillation: bool = True,
         chain_id: Optional[str] = None,
         _structure_index: Optional[str] = None,
@@ -673,6 +707,7 @@ class DataPipeline:
         """
             Assembles features for a protein in a PDB file.
         """
+        # logging.warning(f"sachinkadyan7: Processing PDB {pdb_path}, alignment_path: {alignment_dir}")
         if(_structure_index is not None):
             db_dir = os.path.dirname(pdb_path)
             db = _structure_index["db"]
@@ -702,9 +737,25 @@ class DataPipeline:
             self.template_featurizer,
         )
 
+        ##### This stuff is for the case that the ESM file is in the alignment_dir
+        esm_data = {}
+        name = os.path.basename(alignment_dir)
+        parent_alignment_dir = os.path.dirname(alignment_dir)
+        # logging.warning(f"sachinkadyan7: Looking for distillation ESM for {name}")
+        for chunk_index in range(6):
+            file_to_check = os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt" )
+            # logging.warning(f"sachinkadyan7: Looking for distillation ESM for {name} in {file_to_check}")
+            if (os.path.exists(os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt" ))):
+                esm = torch.load(os.path.join(esm_dir, "chunk"+str(chunk_index), name + ".pt"))
+                esm_data["esm_embedding"] = esm["representations"][33]
+                # logging.warning(f"sachinkadyan7: Loaded distillation ESM for distillation {name}")
+                break
+        else:
+            logging.warning(f"sachinkadyan7: distillation ESM not found for {name}")
+
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
-        return {**pdb_feats, **template_features, **msa_features}
+        return {**pdb_feats, **template_features, **msa_features, **esm_data}
 
     def process_core(
         self,
@@ -741,7 +792,7 @@ class DataPipeline:
     ) -> FeatureDict:
         """
             Assembles features for a multi-sequence FASTA. Uses Minkyung Baek's
-            hack from Twitter. No templates.
+            hack from Twitter (a.k.a. AlphaFold-Gap).
         """
         with open(fasta_path, 'r') as f:
             fasta_str = f.read()

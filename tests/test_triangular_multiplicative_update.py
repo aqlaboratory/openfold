@@ -30,12 +30,10 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
     def test_shape(self):
         c_z = consts.c_z
         c = 11
-        outgoing = True
 
         tm = TriangleMultiplicationOutgoing(
             c_z,
             c,
-            outgoing,
         )
 
         n_res = consts.c_z
@@ -94,9 +92,10 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         out_repro = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            _inplace=True, _inplace_chunk_size=4,
         ).cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_tri_mul_out_compare(self):
@@ -106,6 +105,40 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
     def test_tri_mul_in_compare(self):
         self._tri_mul_compare(incoming=True)
 
+    def _tri_mul_inplace(self, incoming=False):
+        n_res = consts.n_res
+        
+        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
+        pair_mask = np.random.randint(low=0, high=2, size=(n_res, n_res))
+        pair_mask = pair_mask.astype(np.float32)
+
+
+        model = compare_utils.get_global_pretrained_openfold()
+        module = (
+            model.evoformer.blocks[0].core.tri_mul_in
+            if incoming
+            else model.evoformer.blocks[0].core.tri_mul_out
+        )
+        out_stock = module(
+            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            _inplace=False,
+        ).cpu()
+        
+        # This has to come second because inference mode is in-place
+        out_inplace = module(
+            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
+            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            _inplace=True, _inplace_chunk_size=2,
+        ).cpu()
+
+        self.assertTrue(torch.mean(torch.abs(out_stock - out_inplace)) < consts.eps)
+
+    def test_tri_mul_out_inference(self):
+        self._tri_mul_inplace()
+
+    def test_tri_mul_in_inference(self):
+        self._tri_mul_inplace(incoming=True)
 
 if __name__ == "__main__":
     unittest.main()

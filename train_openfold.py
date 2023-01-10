@@ -19,6 +19,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins.training_type import DeepSpeedPlugin, DDPPlugin
 from pytorch_lightning.plugins.environments import SLURMEnvironment
 import torch
+from torch.profiler import profile, record_function, ProfilerActivity
 
 from openfold.config import model_config
 from openfold.data.data_modules import (
@@ -62,6 +63,7 @@ class OpenFoldWrapper(pl.LightningModule):
         
         self.cached_weights = None
         self.last_lr_step = 0
+        self.step_num = 0
 
     def forward(self, batch):
         return self.model(batch)
@@ -99,20 +101,32 @@ class OpenFoldWrapper(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         if(self.ema.device != batch["aatype"].device):
             self.ema.to(batch["aatype"].device)
-
-        # Run the model
-        outputs = self(batch)
         
-        # Remove the recycling dimension
-        batch = tensor_tree_map(lambda t: t[..., -1], batch)
+        try:
+            # Run the model
+            with profile(activities=[ProfilerActivity.CUDA], profile_memory=True, record_shapes=True) as prof:
+                #with record_function(f"model_iteration_{self.step_num}_{batch['aatype'].device}"):
+                outputs = self(batch)
+                self.step_num += 1
+            print(prof.key_averages().table(sort_by="self_cuda_memory_usage", row_limit=10))
+        
+            # Remove the recycling dimension
+            batch2 = tensor_tree_map(lambda t: t[..., -1], batch)
 
-        # Compute loss
-        loss, loss_breakdown = self.loss(
-            outputs, batch, _return_breakdown=True
-        )
+            # Compute loss
+            loss, loss_breakdown = self.loss(
+                outputs, batch2, _return_breakdown=True
+            )
+        #logging.warning(f"sachinkadyan7: loss {loss}")
+        #logging.warning(f"sachinkadyan7: loss_breakdown {loss_breakdown}")
 
         # Log it
-        self._log(loss_breakdown, batch, outputs)
+            self._log(loss_breakdown, batch2, outputs)
+        except Exception as e:
+            logging.warning(f"sachinkadyan7: Exception happened in training_step, around time {time.time()}")
+            torch.save(batch, f"training_step_error_batch_{time.time()}.pt")
+            torch.save(outputs, f"training_step_error_outputs_{time.time()}.pt")
+            raise e
 
         return loss
 
@@ -132,6 +146,8 @@ class OpenFoldWrapper(pl.LightningModule):
         # Run the model
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
+        # logging.warning(f"sachinkadyan7: validation_step output.keys() {outputs.keys()} rank: {torch.distributed.get_rank()}"
+        #                 f"\n output.msa.shape {outputs['msa'].shape}")
 
         # Compute loss and other metrics
         batch["use_clamped_fape"] = 0.
@@ -204,6 +220,16 @@ class OpenFoldWrapper(pl.LightningModule):
         learning_rate: float = 1e-3,
         eps: float = 1e-5,
     ) -> torch.optim.Adam:
+        # print("sachinkadyan7: len(list(self.model_parameters()))", len(list(self.model.parameters())))
+        # print("sachinkadyan7: list(self.model.parameters()))", list(self.model.parameters()))
+        # print("sachinkadyan7: list(self.model.named_parameters()))", list(self.model.named_parameters()))
+        # for i, (k, v) in enumerate(self.model.named_parameters()):
+        #     print("sachinkadyan7: ", i, k)
+        # print("sachinkadyan7: ", list(self.model.parameters())[145:147])
+        # print("sachinkadyan7: ", list(self.model.named_parameters())[145:147])
+        # if torch.distributed.get_rank() == 0:
+        #     # print("sachinkadyan7: list(self.model.parameters()): ", list(self.model.parameters()))
+        #     torch.save(list(self.model.named_parameters()), 'OF_model_named_parameters_60GPUs_rank0.pt')
         # Ignored as long as a DeepSpeed optimizer is configured
         optimizer = torch.optim.Adam(
             self.model.parameters(), 
@@ -224,6 +250,7 @@ class OpenFoldWrapper(pl.LightningModule):
         }
 
     def on_load_checkpoint(self, checkpoint):
+        logging.warning("sachinkadyan7: train_openfold.on_load_checkpoint Loading EMA state from checkpoint")
         self.ema.load_state_dict(checkpoint["ema"])
 
     def on_save_checkpoint(self, checkpoint):
@@ -242,21 +269,28 @@ def main(args):
     
     model_module = OpenFoldWrapper(config)
     if(args.resume_from_ckpt and args.resume_model_weights_only):
-        sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
-        sd = {k[len("module."):]:v for k,v in sd.items()}
+        # sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
+        # logging.warning(f"sachinkadyan7: ckpt state_dict {list(sd)[0]}, {sd['model.input_embedder.linear_tf_m.weight']}")
+        # model_module.load_state_dict(sd)
+        sd = torch.load(os.path.join(args.resume_from_ckpt, 'global_step77000', 'mp_rank_00_model_states.pt'))
+        sd = {'model.'+k:v for k,v in sd['ema']['params'].items()}
+        #logging.warning(f"sachinkadyan7: ckpt state_dict {sd['model.input_embedder.linear_tf_m.weight']}")
+        #logging.info("Successfully loaded model weights...")
         model_module.load_state_dict(sd)
-        logging.info("Successfully loaded model weights...")
- 
+        #logging.warning(f"sachinkadyan7: model state_dict post loading {list(model_module.state_dict())[0]},"
+                        #f" {model_module.state_dict()['model.input_embedder.linear_tf_m.weight']}")
     # TorchScript components of the model
     if(args.script_modules):
         script_preset_(model_module)
-
+    # logging.warning("sachinkadyan7: Coming till train_openfold OpenFoldDataModule")
     #data_module = DummyDataLoader("new_batch.pickle")
     data_module = OpenFoldDataModule(
         config=config.data, 
         batch_seed=args.seed,
         **vars(args)
     )
+    logging.warning(f"sachinkadyan7: train_openfold data_module {data_module}")
+    # logging.warning("sachinkadyan7: Coming till train_openfold data_module.prepare_data()")
 
     data_module.prepare_data()
     data_module.setup()
@@ -332,9 +366,11 @@ def main(args):
 
     if(args.resume_model_weights_only):
         ckpt_path = None
+        logging.warning("sachinkadyan7: args.resume_from_ckpt model_weights_only.")
     else:
         ckpt_path = args.resume_from_ckpt
-
+        logging.warning("sachinkadyan7: Using args.resume_from_ckpt")
+    # logging.warning("sachinkadyan7: Coming till begin of training in train_openfold.py")
     trainer.fit(
         model_module, 
         datamodule=data_module,
@@ -363,6 +399,9 @@ if __name__ == "__main__":
         help="Directory containing precomputed training alignments"
     )
     parser.add_argument(
+        "train_esm_dir", type=str
+    )
+    parser.add_argument(
         "template_mmcif_dir", type=str,
         help="Directory containing mmCIF files to search for templates"
     )
@@ -385,12 +424,18 @@ if __name__ == "__main__":
         help="Directory containing precomputed distillation alignments"
     )
     parser.add_argument(
+        "--distillation_esm_dir", type=str, default=None
+    )
+    parser.add_argument(
         "--val_data_dir", type=str, default=None,
         help="Directory containing validation mmCIF files"
     )
     parser.add_argument(
         "--val_alignment_dir", type=str, default=None,
         help="Directory containing precomputed validation alignments"
+    )
+    parser.add_argument(
+        "--val_esm_dir", type=str, default=None
     )
     parser.add_argument(
         "--kalign_binary_path", type=str, default='/usr/bin/kalign',

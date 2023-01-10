@@ -1,0 +1,7 @@
+# ninja log v5
+1	20360	1655787919000000000	/fsx/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda.o	22b643602a92b21c
+1	78979	1655787978000000000	/fsx/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda_kernel.o	36c0121c072f60da
+8	19487	1668128611000000000	/shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda.o	be77eb6386eaf165
+8	71494	1668128663000000000	/shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda_kernel.o	d5d1628e1da5dd00
+133	26246	1668194779000000000	/shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda.o	be77eb6386eaf165
+133	84204	1668194837000000000	/shared/openfold-release/build/temp.linux-x86_64-3.7/openfold/utils/kernel/csrc/softmax_cuda_kernel.o	9ad99825723f5fdb

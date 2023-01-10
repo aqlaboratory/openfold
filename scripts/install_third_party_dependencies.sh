@@ -31,8 +31,11 @@ wget -q -P openfold/resources \
 mkdir -p tests/test_data/alphafold/common
 ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/common
 
-# Download pretrained openfold weights
-scripts/download_alphafold_params.sh openfold/resources
+echo "Downloading OpenFold parameters..."
+bash scripts/download_openfold_params_huggingface.sh openfold/resources
+
+echo "Downloading AlphaFold parameters..."
+bash scripts/download_alphafold_params.sh openfold/resources
 
 # Decompress test data
 gunzip tests/test_data/sample_feats.pickle.gz

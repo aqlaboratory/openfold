@@ -24,7 +24,8 @@ from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
         data_dir: str,
-        alignment_dir: str, 
+        alignment_dir: str,
+        esm_dir: str,
         template_mmcif_dir: str,
         max_template_date: str,
         config: mlc.ConfigDict,
@@ -81,6 +82,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         super(OpenFoldSingleDataset, self).__init__()
         self.data_dir = data_dir
         self.alignment_dir = alignment_dir
+        self.esm_dir = esm_dir
         self.config = config
         self.treat_pdb_as_distillation = treat_pdb_as_distillation
         self.mode = mode
@@ -103,11 +105,19 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if(_alignment_index is not None):
             self._chain_ids = list(_alignment_index.keys())
         elif(mapping_path is None):
-            self._chain_ids = list(os.listdir(alignment_dir))
+            # self._chain_ids = list(os.listdir(alignment_dir))
+            # logging.warning("sachinkadyan7: Coming till data_modules.OpenFoldSingleDataset glob")
+            import glob
+            # logging.warning(f"sachinkadyan7: data_modules.OpenFoldSingleModule self.esm_dir {self.esm_dir}")
+            files = glob.glob(self.esm_dir + '/chunk*/*.pt', recursive=True) # Use this for chunk*/*.py format
+            # files = glob.glob(self.esm_dir + '/*.npy', recursive=True) # Use this for **.npy numpy files. TODO: Eliminate this type of cache generation which uses list of files.
+            self._chain_ids = [os.path.splitext(os.path.basename(filename))[0] for filename in files]
+            # logging.warning("sachinkadyan7: Exiting data_module.OpenFoldSingleDataset glob")
+            # logging.warning(f'sachinkadyan7: Total number of proteins: {len(self._chain_ids)}')
         else:
             with open(mapping_path, "r") as f:
                 self._chain_ids = [l.strip() for l in f.readlines()]
-       
+
         self._chain_id_to_idx_dict = {
             chain: i for i, chain in enumerate(self._chain_ids)
         }
@@ -129,7 +139,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if(not self._output_raw):
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
 
-    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index):
+    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index, esm_dir):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -147,6 +157,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         data = self.data_pipeline.process_mmcif(
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
+            esm_dir=esm_dir,
             chain_id=chain_id,
             _alignment_index=_alignment_index
         )
@@ -162,6 +173,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         name = self.idx_to_chain_id(idx)
         alignment_dir = os.path.join(self.alignment_dir, name)
+        esm_dir = self.esm_dir
 
         _alignment_index = None
         if(self._alignment_index is not None):
@@ -191,12 +203,14 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                         break
 
                 if(ext is None):
+                    logging.warning(f"sachinkadyan7: No supported file found in dir {path}")
                     raise ValueError("Invalid file type")
 
             path += ext
             if(ext == ".cif"):
+                # logging.warning(f"sachinkadyan7: Getting new CIF, esm_dir: {esm_dir}")
                 data = self._parse_mmcif(
-                    path, file_id, chain_id, alignment_dir, _alignment_index,
+                    path, file_id, chain_id, alignment_dir, _alignment_index, esm_dir
                 )
             elif(ext == ".core"):
                 data = self.data_pipeline.process_core(
@@ -206,13 +220,17 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 data = self.data_pipeline.process_pdb(
                     pdb_path=path,
                     alignment_dir=alignment_dir,
+                    esm_dir=esm_dir,
                     is_distillation=self.treat_pdb_as_distillation,
                     chain_id=chain_id,
                     _structure_index=self._structure_index[name],
                     _alignment_index=_alignment_index,
                 )
+            # if (os.path.exists(os.path.join(self.data_dir, name + ".pt"))):
+            #     esm = torch.load(os.path.join(self.data_dir, name + ".pt"))
+            #     data["esm_embedding"] = esm['representations'][33]
             else:
-               raise ValueError("Extension branch missing") 
+               raise ValueError("Extension branch missing")
         else:
             path = os.path.join(name, name + ".fasta")
             data = self.data_pipeline.process_fasta(
@@ -233,7 +251,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         return feats
 
     def __len__(self):
-        return len(self._chain_ids) 
+        # logging.warning("sachinkadyan7: From inside OpenFoldSingleDataset len: "+str(len(self._chain_ids)))
+        return len(self._chain_ids)
 
 
 def deterministic_train_filter(
@@ -296,49 +315,76 @@ class OpenFoldDataset(torch.utils.data.Dataset):
         _roll_at_init: bool = True,
     ):
         self.datasets = datasets
+        # logging.warning("sachinkadyan7: OpenFoldDataset __init__ datasets: len "+str(len(datasets)))
+        # logging.warning("sachinkadyan7: OpenFoldDataset __init__ datasets: "+str(datasets))
         self.probabilities = probabilities
         self.epoch_len = epoch_len
         self.generator = generator
-        
+        # logging.warning("sachinkadyan7: "+str(datasets)+" "+str(type(datasets))+" "+str(len(datasets)))
+
         self.chain_data_caches = []
         for path in chain_data_cache_paths:
             with open(path, "r") as fp:
-                self.chain_data_caches.append(json.load(fp))
+                data_cache_json = json.load(fp)
+                data_cache_json_lowerized_keys = dict((k.lower(), v) for k, v in data_cache_json.items())
+                del data_cache_json
+                self.chain_data_caches.append(data_cache_json_lowerized_keys)
 
         def looped_shuffled_dataset_idx(dataset_len):
             while True:
                 # Uniformly shuffle each dataset's indices
                 weights = [1. for _ in range(dataset_len)]
+                # logging.warning("sachinkadyan7: looped_shuffled dataset_len: "+str(dataset_len))
                 shuf = torch.multinomial(
                     torch.tensor(weights),
                     num_samples=dataset_len,
                     replacement=False,
                     generator=self.generator,
                 )
+                # logging.warning("sachinkadyan7: looped_shuffled selected indeces: "+str(shuf))
+                # i = 0
                 for idx in shuf:
+                    # logging.warning(f"sachinkadyan7: looped_shuffled yielding index iter{i} "+str(idx))
+                    # i += 1
                     yield idx
 
         def looped_samples(dataset_idx):
             max_cache_len = int(epoch_len * probabilities[dataset_idx])
             dataset = self.datasets[dataset_idx]
+            # logging.warning("sachinkadyan7: num of datasets: "+str(len(self.datasets)))
+            # logging.warning("sachinkadyan7: length of selected dataset: "+str(len(dataset)))
             idx_iter = looped_shuffled_dataset_idx(len(dataset))
             chain_data_cache = self.chain_data_caches[dataset_idx]
+            # logging.warning("sachinkadyan7: max_cache_len: "+ str(max_cache_len))
+            # logging.warning("sachinkadyan7: idx_iter: "+str(idx_iter))
+            # logging.warning("sachinkadyan7: len(chain_data_cache): "+str(len(chain_data_cache)))
             while True:
                 weights = []
                 idx = []
-                for _ in range(max_cache_len):
-                    candidate_idx = next(idx_iter)
-                    chain_id = dataset.idx_to_chain_id(candidate_idx)
-                    chain_data_cache_entry = chain_data_cache[chain_id]
+                for i in range(max_cache_len):
+                    try:
+                        candidate_idx = next(idx_iter)
+                        chain_id = dataset.idx_to_chain_id(candidate_idx)
+                        # logging.warning(f"sachinkadyan7: Processing protein {candidate_idx} {chain_id} on rank {torch.distributed.get_rank()}")
+                        chain_data_cache_entry = chain_data_cache[chain_id.lower()]
+                    except Exception as e:
+                        logging.exception(f"sachinkadyan7: Exception occurred for idx {candidate_idx} {chain_id}", exc_info=e)
+                        continue
+                    # logging.warning("sachinkadyan7: cache iteration: "+str(i))
+                    # logging.warning("sachinkadyan7: Picking candidate_idx: "+str(candidate_idx)+" chain_id: "+str(chain_id))
+                    # logging.warning("sachinkadyan7: chain_id: "+str(chain_id))
+                    # logging.warning("sachinkadyan7: chain_data_cache_entry: "+str(chain_data_cache_entry))
                     if(not deterministic_train_filter(chain_data_cache_entry)):
                         continue
-
+                    # logging.warning(f"sachinkadyan7: stochastic_train_filter for chain_id: {chain_id}")
                     p = get_stochastic_train_filter_prob(
                         chain_data_cache_entry,
                     )
                     weights.append([1. - p, p])
                     idx.append(candidate_idx)
+                    # logging.warning("sachinkadyan7: Added to select idx: "+str(candidate_idx))
 
+                # logging.warning("sachinkadyan7: selected indices: "+str(idx))
                 samples = torch.multinomial(
                     torch.tensor(weights),
                     num_samples=1,
@@ -347,6 +393,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
                 samples = samples.squeeze()
 
                 cache = [i for i, s in zip(idx, samples) if s]
+                # logging.warning("sachinkadyan7: num samples in cache: "+str(len(cache)))
 
                 for datapoint_idx in cache:
                     yield datapoint_idx
@@ -370,7 +417,8 @@ class OpenFoldDataset(torch.utils.data.Dataset):
             replacement=True,
             generator=self.generator,
         )
-
+        # logging.warning("sachinkadyan7: dataset_choices: " + str(dataset_choices)+" " + str(dataset_choices.shape))
+        # logging.warning("sachinkadyan7: samples: " + str(self._samples))
         self.datapoints = []
         for dataset_idx in dataset_choices:
             samples = self._samples[dataset_idx]
@@ -381,7 +429,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
 class OpenFoldBatchCollator:
     def __call__(self, prots):
         stack_fn = partial(torch.stack, dim=0)
-        return dict_multimap(stack_fn, prots) 
+        return dict_multimap(stack_fn, prots)
 
 
 class OpenFoldDataLoader(torch.utils.data.DataLoader):
@@ -394,6 +442,7 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
             generator = torch.Generator()
         
         self.generator = generator
+        # logging.warning(f"sachinkadyan7: OpenFoldDataLoader generator.initial_seed: {generator.initial_seed()}")
         self._prep_batch_properties_probs()
 
     def _prep_batch_properties_probs(self):
@@ -484,12 +533,15 @@ class OpenFoldDataModule(pl.LightningDataModule):
         max_template_date: str,
         train_data_dir: Optional[str] = None,
         train_alignment_dir: Optional[str] = None,
+        train_esm_dir: Optional[str] = None,
         train_chain_data_cache_path: Optional[str] = None,
         distillation_data_dir: Optional[str] = None,
         distillation_alignment_dir: Optional[str] = None,
+        distillation_esm_dir: Optional[str] = None,
         distillation_chain_data_cache_path: Optional[str] = None,
         val_data_dir: Optional[str] = None,
         val_alignment_dir: Optional[str] = None,
+        val_esm_dir: Optional[str] = None,
         predict_data_dir: Optional[str] = None,
         predict_alignment_dir: Optional[str] = None,
         kalign_binary_path: str = '/usr/bin/kalign',
@@ -511,14 +563,18 @@ class OpenFoldDataModule(pl.LightningDataModule):
         self.max_template_date = max_template_date
         self.train_data_dir = train_data_dir
         self.train_alignment_dir = train_alignment_dir
+        self.train_esm_dir = train_esm_dir
+        # logging.warning(f"sachinkadyan7: OpenFoldDataModule.init self.train_esm_dir {self.train_esm_dir} self.train_alignment_dir {self.train_alignment_dir}")
         self.train_chain_data_cache_path = train_chain_data_cache_path
         self.distillation_data_dir = distillation_data_dir
         self.distillation_alignment_dir = distillation_alignment_dir
+        self.distillation_esm_dir = distillation_esm_dir
         self.distillation_chain_data_cache_path = (
             distillation_chain_data_cache_path
         )
         self.val_data_dir = val_data_dir
         self.val_alignment_dir = val_alignment_dir
+        self.val_esm_dir = val_esm_dir
         self.predict_data_dir = predict_data_dir
         self.predict_alignment_dir = predict_alignment_dir
         self.kalign_binary_path = kalign_binary_path
@@ -558,7 +614,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
         if(_distillation_structure_index_path is not None):
             with open(_distillation_structure_index_path, "r") as fp:
                 self._distillation_structure_index = json.load(fp)
-        
+
         self._alignment_index = None
         if(_alignment_index_path is not None):
             with open(_alignment_index_path, "r") as fp:
@@ -586,6 +642,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
             train_dataset = dataset_gen(
                 data_dir=self.train_data_dir,
                 alignment_dir=self.train_alignment_dir,
+                esm_dir=self.train_esm_dir,
                 mapping_path=self.train_mapping_path,
                 max_template_hits=self.config.train.max_template_hits,
                 shuffle_top_k_prefiltered=
@@ -600,6 +657,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 distillation_dataset = dataset_gen(
                     data_dir=self.distillation_data_dir,
                     alignment_dir=self.distillation_alignment_dir,
+                    esm_dir=self.distillation_esm_dir,
                     mapping_path=self.distillation_mapping_path,
                     max_template_hits=self.config.train.max_template_hits,
                     treat_pdb_as_distillation=True,
@@ -625,18 +683,27 @@ class OpenFoldDataModule(pl.LightningDataModule):
                     self.train_chain_data_cache_path,
                 ]
 
+            generator = None
+            if(self.batch_seed is not None):
+                generator = torch.Generator()
+                generator = generator.manual_seed(self.batch_seed + 1)
+
+            # logging.warning("sachinkadyan7: setup train_dataset datasets: "+str(len(datasets)))
             self.train_dataset = OpenFoldDataset(
                 datasets=datasets,
                 probabilities=probabilities,
                 epoch_len=self.train_epoch_len,
                 chain_data_cache_paths=chain_data_cache_paths,
+                generator=generator,
                 _roll_at_init=False,
             )
-    
+
+
             if(self.val_data_dir is not None):
                 self.eval_dataset = dataset_gen(
                     data_dir=self.val_data_dir,
                     alignment_dir=self.val_alignment_dir,
+                    esm_dir=self.val_esm_dir,
                     mapping_path=None,
                     max_template_hits=self.config.eval.max_template_hits,
                     mode="eval",
@@ -653,14 +720,15 @@ class OpenFoldDataModule(pl.LightningDataModule):
             )
 
     def _gen_dataloader(self, stage):
+        # logging.warning("sachinkadyan7: OpenFoldDataModule._gen_dataloader invoked")
         generator = torch.Generator()
         if(self.batch_seed is not None):
+            # logging.warning(f"sachinkadyan7: seed {self.batch_seed} + rank {torch.distributed.get_rank()}")
             generator = generator.manual_seed(self.batch_seed)
 
         dataset = None
         if(stage == "train"):
             dataset = self.train_dataset
-            
             # Filter the dataset, if necessary
             dataset.reroll()
         elif(stage == "eval"):

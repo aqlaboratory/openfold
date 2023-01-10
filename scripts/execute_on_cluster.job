@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# use the bash shell
+
+# XSEDE batch configs
+#SBATCH -N 1
+#SBATCH -p GPU-shared
+#SBATCH -t 45:00:00
+#SBATCH --gpus=1
+
+# echo each command to standard out before running it
+set -x
+
+# Copy to $LOCAL storage for faster IO.
+# Can also use a ramdisk.
+RC=1
+n=0
+
+module load AI/anaconda3-tf2.2020.11
+module load cuda/11.1.1
+conda activate /jet/home/kadyan/.conda/envs/openfold_train_env
+
+# move to working directory
+cd $PROJECT/openfold-train
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+
+current_working_dir=$(pwd)
+train_script="$current_working_dir/train_openfold.py"
+data_dir="$PROJECT/databases"
+
+
+# Path and user config (change me if required)
+template_mmcif_dir="$data_dir/pdb_mmcif/mmcif_files/"
+obsolete_pdbs_path="$data_dir/pdb_mmcif/obsolete.dat"
+protein_data_dir="$current_working_dir/../train_data_openfold/data/"
+protein_msa_dir="$current_working_dir/../train_data_openfold/alignments/"
+output_dir="./output_dir"
+
+
+# Binary path (change me if required)
+
+
+#python3 $train_script $protein_data_dir $protein_msa_dir $template_mmcif_dir $output_dir 2021-10-10 --template_release_dates_cache_path ../databases/pdb_mmcif/mmcif_cache.json  --train_chain_data_cache_path ../train_data_openfold/1IQQ_A/chain_data_cache.json --train_epoch_len 2 --max_epochs -1 --gpus 1 --replace_sampler_ddp=True --log_lr --seed=42 --deepspeed_config_path deepspeed_config.json --precision 32 --resume_from_ckpt output_dir/single_sequence/35ijz0zv/checkpoints/epoch\=3464-step\=6929.ckpt --wandb --experiment_name esm_1IQQ_with_templates --wandb_project single_sequence --wandb_entity openfold --wandb_id 35ijz0zv
+
+python3 $train_script $protein_data_dir $protein_msa_dir $template_mmcif_dir $output_dir 2021-10-10 --template_release_dates_cache_path ../databases/pdb_mmcif/mmcif_cache.json  --train_chain_data_cache_path ../train_data_openfold/chain_data_cache.json --train_epoch_len 23 --max_epochs -1 --gpus 2 --replace_sampler_ddp=True --log_lr --seed=42 --deepspeed_config_path deepspeed_config.json --precision 32 --resume_from_ckpt output_dir/single_sequence/14ti2cy6/checkpoints/epoch\=790-step\=9491.ckpt --wandb --experiment_name esm_23_with_templates --wandb_project single_sequence --wandb_entity openfold --wandb_id 14ti2cy6

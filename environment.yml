@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
   - pytorch
+  - nvidia
 dependencies:
   - pip:
       - biopython==1.79
@@ -17,14 +18,14 @@ dependencies:
       - typing-extensions==3.10.0.2
       - pytorch_lightning==1.5.10
       - git+https://github.com/NVIDIA/dllogger.git
-  - pytorch::pytorch=1.10.*
+  - pytorch::pytorch
+  - pytorch::pytorch-cuda=11.7.* 
   - conda-forge::python=3.7
   - conda-forge::setuptools=59.5.0
   - conda-forge::pip
   - conda-forge::openmm=7.5.1
   - conda-forge::pdbfixer
-  - conda-forge::cudatoolkit==10.2.*
-  - conda-forge::cudatoolkit-dev==10.*
+  - conda-forge::cudatoolkit==11.7.*
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04
