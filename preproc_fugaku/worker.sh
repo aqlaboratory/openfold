@@ -15,6 +15,7 @@ ScriptArgs=$8
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
+MaxMem=`expr $MAX_MEM / $NumProcs`
 
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
@@ -24,6 +25,7 @@ echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
 echo Mode=$Mode
 echo ScriptArgs=$ScriptArgs
+echo MaxMem=$MaxMem
 
 # DBs
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -280,5 +282,6 @@ $MpiExecTask \
     --hhsearch_binary_path $BinDir/hhsearch \
     --kalign_binary_path $BinDir/kalign \
     --timeout $ToolTimeLimit \
+    --max_memory $MaxMem \
     $DatabaseArgs \
     $ScriptArgs

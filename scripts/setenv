@@ -20,6 +20,7 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
     export DATADIR=/vol0006/ra000018/data/OpenFold/data
     export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
     export NUM_CORES=48
+    export MAX_MEM=34359738368 # 32 GiB
 elif [[ ${IS_ABCI} == 1 ]]; then
     export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
     export PREFIX=${OPENFOLDVENV}/tools_install
@@ -27,6 +28,7 @@ elif [[ ${IS_ABCI} == 1 ]]; then
     export DATADIR=/groups/4/gcd50734/openfold
     export PJSUB_OPT="-g gcd50734"
     export NUM_CORES=40
+    export MAX_MEM=412316860416 # 384 GiB
     export ABCI_RESOURCE=rt_F
 fi
 

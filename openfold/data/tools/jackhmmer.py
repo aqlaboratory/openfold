@@ -97,7 +97,8 @@ class Jackhmmer:
             input_fasta_path: str,
             database_path: str,
             input_label: str,
-            timeout: float=None) -> Mapping[str, Any]:
+            timeout: float=None,
+            preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             sto_path = os.path.join(query_tmp_dir, "output.sto")
@@ -151,7 +152,8 @@ class Jackhmmer:
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                preexec_fn=preexec_fn,
             )
             with utils.timing(
                 f"Jackhmmer ({os.path.basename(database_path)}) query ({input_label})"
@@ -190,10 +192,15 @@ class Jackhmmer:
             self,
             input_fasta_path: str,
             input_label: str,
-            timeout: float=None) -> Sequence[Mapping[str, Any]]:
+            timeout: float=None,
+            preexec_fn: Callable=None) -> Sequence[Mapping[str, Any]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            return [self._query_chunk(input_fasta_path, self.database_path, input_label, timeout=timeout)]
+            return [self._query_chunk(input_fasta_path,
+                                      self.database_path,
+                                      input_label,
+                                      timeout=timeout,
+                                      preexec_fn=preexec_fn)]
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -227,7 +234,11 @@ class Jackhmmer:
                 # Run Jackhmmer with the chunk
                 future.result()
                 chunked_output.append(
-                    self._query_chunk(input_fasta_path, db_local_chunk(i), input_label, timeout=timeout)
+                    self._query_chunk(input_fasta_path,
+                                      db_local_chunk(i),
+                                      input_label,
+                                      timeout=timeout,
+                                      preexec_fn=preexec_fn)
                 )
 
                 # Remove the local copy of the chunk

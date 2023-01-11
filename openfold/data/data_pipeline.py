@@ -18,6 +18,8 @@ import datetime
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
 from pathlib import Path
+import resource
+import logging
 
 import numpy as np
 
@@ -440,9 +442,19 @@ class AlignmentRunner:
         fasta_path: str,
         output_dir: str,
         input_label: str,
-        ignore_if_exists: bool=False
+        ignore_if_exists: bool=False,
+        max_memory: int=None,
     ):
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
+
+        if max_memory is not None:
+            logging.info(f"Setting max memory to {max_memory}")
+            def preexec_fn():
+                resource.setrlimit(resource.RLIMIT_AS,
+                                   (max_memory, resource.RLIM_INFINITY))
+
+        else:
+            preexec_fn = None
 
         def touch_ok(path):
             if self.use_ok_files:
@@ -467,7 +479,8 @@ class AlignmentRunner:
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path,
                 input_label,
-                timeout=self.timeout
+                timeout=self.timeout,
+                preexec_fn=preexec_fn,
             )[0]
             uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                 jackhmmer_uniref90_result["sto"],
@@ -490,7 +503,8 @@ class AlignmentRunner:
                 hhsearch_result = self.hhsearch_pdb70_runner.query(
                     uniref90_msa_as_a3m,
                     input_label,
-                    timeout=self.timeout
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
                 )
                 with open(pdb70_out_path, "w") as f:
                     f.write(hhsearch_result)
@@ -505,7 +519,8 @@ class AlignmentRunner:
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path,
                     input_label,
-                    timeout=self.timeout
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
                 )[0]
                 mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                     jackhmmer_mgnify_result["sto"],
@@ -524,7 +539,8 @@ class AlignmentRunner:
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path,
                     input_label,
-                    timeout=self.timeout
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
                 )[0]
                 with open(bfd_out_path, "w") as f:
                     f.write(jackhmmer_small_bfd_result["sto"])
@@ -540,7 +556,8 @@ class AlignmentRunner:
                     self.hhblits_bfd_uniclust_runner.query(
                         fasta_path,
                         input_label,
-                        timeout=self.timeout
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn,
                     )
                 )
                 if output_dir is not None:

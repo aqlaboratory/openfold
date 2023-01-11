@@ -43,7 +43,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                 fasta_path,
                 alignment_dir,
                 input_label=first_name,
-                ignore_if_exists=True
+                ignore_if_exists=True,
+                max_memory=args.max_memory,
             )
             logging.info(f"Processing for {first_name} done!")
         except:
@@ -180,6 +181,7 @@ def main(args):
     input_chains = input_chains[mpi_rank::mpi_size]
 
     logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
+    logging.info("max_memory={args.max_memory}")
     logging.info(f"my chains: {input_chains}")
 
     run_seq_group_alignments(
@@ -245,6 +247,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--timeout', type=float, default=None
+    )
+    parser.add_argument(
+        '--max_memory', type=int, default=None
     )
 
     args = parser.parse_args()
