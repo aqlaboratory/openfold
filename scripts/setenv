@@ -26,8 +26,8 @@ elif [[ ${IS_ABCI} == 1 ]]; then
     export OPENFOLDDIR=/home/acd13359ld/repo/openfold
     export DATADIR=/groups/4/gcd50734/openfold
     export PJSUB_OPT="-g gcd50734"
-    export NUM_CORES=20
-    export ABCI_RESOURCE=rt_C.large
+    export NUM_CORES=40
+    export ABCI_RESOURCE=rt_F
 fi
 
 ############################################################
