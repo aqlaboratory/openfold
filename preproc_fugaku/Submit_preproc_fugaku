@@ -145,6 +145,8 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	DoSubmitJob=1
 	SubmitCommand=pjsub
 
+	QsubArgs+=("--mpi rank-map-bynode")
+
 	# To use LLIO (node-temporary)
 	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
 	QsubArgs+=("--mpi max-proc-per-node=$NumProcs")
