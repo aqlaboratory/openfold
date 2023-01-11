@@ -35,7 +35,7 @@ function num_exist_output() {
     Dir=$1
     Name=$2
     #1awi_A_model_1_unrelaxed.pdb
-    Result=(`find $Dir -maxdepth 1 -name $Name_*.pdb`)
+    Result=(`find $Dir -maxdepth 1 -name ${Name}_*.pdb`)
     echo ${#Result[@]}
 }
 
