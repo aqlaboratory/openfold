@@ -4,6 +4,7 @@ InputFasta=$1
 OutputFasta=$2
 AlignmentDir=$3
 PredictionDir=$4
+NGList=$5
 
 if [ ! -f $InputFasta ]; then
     echo "InputFasta ($InputFasta) does not exist"
@@ -25,18 +26,23 @@ if [ "$PredictionDir" != "" ] && [ ! -d $PredictionDir ]; then
     exit 4
 fi
 
+if [ "$NGList" != "" ] && [ ! -f $NGList ]; then
+    echo "NGList ($NGList) does not exist"
+    exit 5
+fi
 
 function num_exist_output() {
     Dir=$1
     Name=$2
     #1awi_A_model_1_unrelaxed.pdb
-    Result=(`find $Dir -maxdepth 1 -name $Name*.pdb`)
+    Result=(`find $Dir -maxdepth 1 -name $Name_*.pdb`)
     echo ${#Result[@]}
 }
 
 NumNoAlignment=0
 NumContainX=0
 NumProcessed=0
+NumNG=0
 NumOutput=0
 
 NameLines=(`grep -E "^>" $InputFasta`)
@@ -55,6 +61,12 @@ for ((i=0; i<$NumInput; i++)); do
 
     if [[ "$Seq" =~ "X" ]] ; then
 	((NumContainX++))
+	continue
+    fi
+
+    grepNG=`grep -E "^${NameLower}$" $NGList`
+    if [ "$grepNG" != "" ]; then
+	((NumNG++))
 	continue
     fi
 
@@ -82,4 +94,5 @@ echo "NumInput:" $NumInput
 echo "NumContainX:" $NumContainX
 echo "NumNoAlignment:" $NumNoAlignment
 echo "NumProcessed:" $NumProcessed
+echo "NumNG:" $NumNG
 echo "NumOutput:" $NumOutput
