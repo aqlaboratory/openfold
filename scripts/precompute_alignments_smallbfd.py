@@ -37,7 +37,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
         try:
             alignment_runner.run(
-                fasta_path, alignment_dir,
+                fasta_path,
+                alignment_dir,
                 input_label=first_name,
             )
         except Exception as e:
