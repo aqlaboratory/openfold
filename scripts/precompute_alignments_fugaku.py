@@ -59,7 +59,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
             if not os.path.exists(cp_dir):
                 os.makedirs(cp_dir, exist_ok=True)
 
-            # FIXME: copy files created in this job only
+            # TODO: copy files created in this job only
             for f in generated:
                 f_path = os.path.join(alignment_dir, f)
                 if not os.path.exists(f_path):
@@ -90,6 +90,22 @@ def make_uniq_seq_groups(input_seqs, input_chains):
 
     return [x[0] for x in items], [x[1] for x in items]
 
+
+def make_uncompleted_seq_groups(input_seqs, input_chains, output_dir, alignment_runner):
+    assert len(input_seqs) == len(input_chains)
+    items = []
+    for seq, chains in zip(input_seqs, input_chains):
+        first_name = chains[0]
+        alignment_dir = os.path.join(output_dir, first_name)
+        dry_run = alignment_runner.dry_run(
+            alignment_dir,
+            input_label=first_name,
+            ignore_if_exists=True
+        )
+        if dry_run:
+            items.append((seq, chains))
+
+    return [x[0] for x in items], [x[1] for x in items]
 
 def main(args):
     # Build the alignment tool runner
@@ -126,6 +142,14 @@ def main(args):
     # input_seqs   = [AAA, BBB, ...]
     # input_chains = [[A_1, A_2], [B_1], ...]
 
+    # Remove completed chains
+    input_seqs, input_chains = make_uncompleted_seq_groups(
+        input_seqs,
+        input_chains,
+        args.output_dir,
+        alignment_runner)
+    uncompleted_total_count = len(input_seqs)
+
     if "OMPI_COMM_WORLD_RANK" in os.environ:
         # ABCI (OpenMPI)
         mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
@@ -155,7 +179,7 @@ def main(args):
     input_seqs   =   input_seqs[mpi_rank::mpi_size]
     input_chains = input_chains[mpi_rank::mpi_size]
 
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
     logging.info(f"my chains: {input_chains}")
 
     run_seq_group_alignments(
