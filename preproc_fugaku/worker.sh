@@ -15,7 +15,8 @@ ScriptArgs=$8
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
-MaxMem=`expr $MAX_MEM / $NumProcs`
+
+NumTotalThreads=$(($NumProcs * $NumThreads))
 
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
@@ -25,7 +26,7 @@ echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
 echo Mode=$Mode
 echo ScriptArgs=$ScriptArgs
-echo MaxMem=$MaxMem
+echo NumTotalThreads=$NumTotalThreads
 
 # DBs
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -56,21 +57,16 @@ BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219
 Script=../scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=./my_dir_transfer
-NumTaskProcs=`expr $NumProcs \* $NumNodes`
 
 if [[ ${IS_FUGAKU} == 1 ]]; then
     MpiExecEachNode="STUB"
-    MpiExecTask="mpiexec -n $NumTaskProcs"
     MpiArgs=""
 else
     MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
-    MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
     MpiArgs="--bind-to none"
 fi
 
-echo NumTaskProcs=$NumTaskProcs
 echo MpiExecEachNode=$MpiExecEachNode
-echo MpiExecTask=$MpiExecTask
 
 # Temp locations
 if [[ ${IS_FUGAKU} == 1 ]]; then
@@ -265,23 +261,54 @@ if [[ $Mode = "bfd_deflate" ]]; then
 fi
 
 echo "Starting the script"
-export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
-export PARALLEL=$OMP_NUM_THREADS
-$MpiExecTask \
-    $MpiArgs \
-    hostname
-$MpiExecTask \
-    $MpiArgs \
-    -x PARALLEL \
-    -x OMP_NUM_THREADS \
-    python3 $Script \
-    $InputDir $OutputDir \
-    --cpus_per_task $NumThreads \
-    --jackhmmer_binary_path $BinDir/jackhmmer \
-    --hhblits_binary_path `which hhblits` \
-    --hhsearch_binary_path $BinDir/hhsearch \
-    --kalign_binary_path $BinDir/kalign \
-    --timeout $ToolTimeLimit \
-    --max_memory $MaxMem \
-    $DatabaseArgs \
-    $ScriptArgs
+
+while (( $NumProcs > 0 )); do
+    echo NumProcs=$NumProcs
+    echo NumThreads=$NumThreads
+
+    MaxMem=$(($MAX_MEM / $NumProcs))
+    echo MaxMem=$MaxMem
+
+    export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
+    export PARALLEL=$OMP_NUM_THREADS
+
+    NumTaskProcs=$(($NumProcs * $NumNodes))
+    echo NumTaskProcs=$NumTaskProcs
+    if [[ ${IS_FUGAKU} == 1 ]]; then
+	MpiExecTask="mpiexec -n $NumTaskProcs"
+    else
+	MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
+    fi
+    echo MpiExecTask=$MpiExecTask
+
+    $MpiExecTask \
+	$MpiArgs \
+	hostname
+    $MpiExecTask \
+	$MpiArgs \
+	-x PARALLEL \
+	-x OMP_NUM_THREADS \
+	python3 $Script \
+	$InputDir $OutputDir \
+	--cpus_per_task $NumThreads \
+	--jackhmmer_binary_path $BinDir/jackhmmer \
+	--hhblits_binary_path `which hhblits` \
+	--hhsearch_binary_path $BinDir/hhsearch \
+	--kalign_binary_path $BinDir/kalign \
+	--timeout $ToolTimeLimit \
+	--max_memory $MaxMem \
+	$DatabaseArgs \
+	$ScriptArgs
+
+    NumProcs=$(($NumProcs / 2))
+    if (( $NumProcs > 0 )); then
+	NumThreads=$(($NumTotalThreads / $NumProcs))
+    else
+	NumThreads=0
+    fi
+
+    echo ""
+    echo "---"
+    echo ""
+
+done
