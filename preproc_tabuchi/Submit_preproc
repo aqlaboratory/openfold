@@ -1,0 +1,130 @@
+#!/bin/bash
+LANG=
+
+#set -ex
+
+echo "`date +%s.%N` #Submit at `date`"
+
+if [ $# -ne 5 ] ; then
+    cat << EOF >&2
+usage: $0 NumNodes TimeLimit InputDir OutputDir MMCIFFileList [submit-option]
+The TimeLimit is the maximum of execution time with the format hh:mm:ss.
+The InputDir is the directory contains input fasta files
+The OutputDir is the directoy where alignment results are stored
+
+example: $0 4 2:00:00 input alinment
+EOF
+    exit 1
+fi
+
+NumNodes="$1" && shift
+TimeLimit="$1" && shift
+InputDir="$1" && shift
+OutputDir="$1" && shift
+MMCIFFileList="$1" && shift
+
+. ../scripts/setenv
+
+### The directory where data is stored
+DataDir="$DATADIR"
+
+echo DataDir is $DataDir
+
+### WORKER script
+WORKER="worker.sh"
+
+# Select Resource Group
+if  [ $NumNodes -eq 1 ] ; then
+    RSC_GRP=small
+elif  [ $NumNodes -lt 385 ] ; then
+    RSC_GRP=small
+elif  [ $NumNodes -lt 55297 ] ; then
+    RSC_GRP=large
+else
+    RSC_GRP=huge
+fi
+
+### Create log directory
+MyDir=`readlink -f "$0" | xargs dirname`
+MyName=`basename "$0"`
+Time=`date "+%y%m%d%H%M%S%3N"`
+HostName=`hostname | awk -F . '{ print $1; }'`
+JobName="$MyName.$Time"
+
+LogDir="$MyDir/log"/"$JobName"
+mkdir -p "$LogDir" || exit
+
+###
+
+cp "$MyDir/$0" $LogDir
+cp ${MyDir}/${WORKER} ${LogDir}
+
+git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
+
+### Generate qsub script
+ScriptFile="$LogDir/script"
+
+cat << EOF > "$ScriptFile"
+#!/bin/bash
+#PJM -L rscgrp=${RSC_GRP}
+#PJM -L elapse=$TimeLimit
+#PJM -L node=${NumNodes}
+##:strict,freq=2200
+#PJM --rsc-list "retention_state=0"
+#PJM -j
+#PJM -S
+
+hostname
+export BaseDir="$MyDir"
+
+LogDir="$LogDir"
+if [ ! -d "\$LogDir" ] ; then
+    echo "\$LogDir: not a directory" >&2
+    exit 1
+fi
+
+printenv > "$LogDir/environ"
+
+### The directory where data is stored
+DataDir="$DataDir"
+
+###
+WORKER=${WORKER}
+NumNodes=$NumNodes
+InputDir=$InputDir
+OutputDir=$OutputDir
+MMCIFFileList=$MMCIFFileList
+
+source ../scripts/setenv
+
+
+EOF
+
+cat BatchBase >> "$ScriptFile"
+
+echo ---------------
+echo Job information
+echo ---------------
+echo NumNodes: $NumNodes
+echo LogDir: $LogDir
+
+if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
+    # To use LLIO (node-temporary)
+    # QsubArgs+=("--llio localtmp-size=80Gi")
+
+    # add group option
+    QsubArgs+=("$PJSUB_OPT")
+
+    QsubArgs+=("$ScriptFile")
+
+    ### Execute qsub command
+    echo "`date +%s.%N` #qsub"
+    echo "> pjsub ${QsubArgs[@]} $@"
+    pjsub ${QsubArgs[@]} "$@"
+
+else
+    # On compute node
+    bash $ScriptFile 2>&1 | tee ${LogDir}/stdout.txt
+fi
+# End of file
+
