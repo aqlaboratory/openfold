@@ -159,8 +159,7 @@ def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
                 from_id = line[20:24].lower()
                 to_id = line[29:33].lower()
                 result[from_id] = to_id
-        _replace_obsolete_references(result)
-        return result
+        return _replace_obsolete_references(result)
 
 
 def generate_release_dates_cache(mmcif_dir: str, out_path: str):
