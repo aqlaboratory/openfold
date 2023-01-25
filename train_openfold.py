@@ -494,6 +494,12 @@ if __name__ == "__main__":
         help="Whether to load just model weights as opposed to training state"
     )
     parser.add_argument(
+        "--jax_param_path", type=str, default=None,
+        help="""Path to JAX model parameters. If None, and openfold_checkpoint_path
+             is also None, parameters are selected automatically according to 
+             the model name from openfold/resources/params"""
+    )
+    parser.add_argument(
         "--log_performance", type=bool_type, default=False,
         help="Measure performance"
     )
@@ -549,12 +555,6 @@ if __name__ == "__main__":
         )
     )
     parser.add_argument(
-        "--jax_param_path", type=str, default=None,
-        help="""Path to JAX model parameters. If None, and openfold_checkpoint_path
-             is also None, parameters are selected automatically according to 
-             the model name from openfold/resources/params"""
-    )
-    parser.add_argument(
         "--_distillation_structure_index_path", type=str, default=None,
     )
     parser.add_argument(
@@ -593,7 +593,7 @@ if __name__ == "__main__":
     if(str(args.precision) == "16" and args.deepspeed_config_path is not None):
         raise ValueError("DeepSpeed and FP16 training are not compatible")
 
-    if(str(args.jax_param_path) is not None and args.resume_from_ckpt is not None):
+    if(args.jax_param_path is not None and args.resume_from_ckpt is not None):
         raise ValueError("Choose between loading pretrained Jax-weights and a checkpoint-path")
 
     # This re-applies the training-time filters at the beginning of every epoch
