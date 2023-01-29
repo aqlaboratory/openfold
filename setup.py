@@ -110,7 +110,7 @@ else:
 
 setup(
     name='openfold',
-    version='1.0.0',
+    version='1.0.1',
     description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
     author='Gustaf Ahdritz & DeepMind',
     author_email='gahdritz@gmail.com',
