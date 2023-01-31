@@ -494,10 +494,8 @@ if __name__ == "__main__":
         help="Whether to load just model weights as opposed to training state"
     )
     parser.add_argument(
-        "--jax_param_path", type=str, default=None,
-        help="""Path to JAX model parameters. If None, and openfold_checkpoint_path
-             is also None, parameters are selected automatically according to 
-             the model name from openfold/resources/params"""
+        "--resume_from_jax_params", type=str, default=None,
+        help="""Path to an .npz JAX parameter file with which to initialize the model"""
     )
     parser.add_argument(
         "--log_performance", type=bool_type, default=False,
