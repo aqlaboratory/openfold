@@ -139,8 +139,6 @@ class TestTemplatePairStack(unittest.TestCase):
             _mask_trans=False,
         ).cpu()
 
-        print(torch.max(torch.abs(out_gt - out_repro)))
-        print(torch.mean(torch.abs(out_gt - out_repro)))
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
 
