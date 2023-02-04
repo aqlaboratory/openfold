@@ -229,7 +229,8 @@ Using the most conservative settings, we were able to run inference on a
 offloading mode, ours is considerably faster; the same complex takes the more 
 efficent AlphaFold-Multimer more than double the time. Use the
 `long_sequence_inference` config option to enable all of these interventions
-at once.
+at once. The `run_pretrained_openfold.py` script can enable this config option with the 
+`--long_sequence_inference` command line option
 
 ### Training
 
@@ -434,16 +435,20 @@ welcome pull requests from the community.
 
 ## Citing this work
 
-For now, cite OpenFold as follows:
+Please cite our paper:
 
 ```bibtex
-@software{Ahdritz_OpenFold_2021,
-  author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and AlQuraishi, Mohammed},
-  doi = {10.5281/zenodo.5709539},
-  month = {11},
-  title = {{OpenFold}},
-  url = {https://github.com/aqlaboratory/openfold},
-  year = {2021}
+@article {Ahdritz2022.11.20.517210,
+	author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed},
+	title = {OpenFold: Retraining AlphaFold2 yields new insights into its learning mechanisms and capacity for generalization},
+	elocation-id = {2022.11.20.517210},
+	year = {2022},
+	doi = {10.1101/2022.11.20.517210},
+	publisher = {Cold Spring Harbor Laboratory},
+	abstract = {AlphaFold2 revolutionized structural biology with the ability to predict protein structures with exceptionally high accuracy. Its implementation, however, lacks the code and data required to train new models. These are necessary to (i) tackle new tasks, like protein-ligand complex structure prediction, (ii) investigate the process by which the model learns, which remains poorly understood, and (iii) assess the model{\textquoteright}s generalization capacity to unseen regions of fold space. Here we report OpenFold, a fast, memory-efficient, and trainable implementation of AlphaFold2, and OpenProteinSet, the largest public database of protein multiple sequence alignments. We use OpenProteinSet to train OpenFold from scratch, fully matching the accuracy of AlphaFold2. Having established parity, we assess OpenFold{\textquoteright}s capacity to generalize across fold space by retraining it using carefully designed datasets. We find that OpenFold is remarkably robust at generalizing despite extreme reductions in training set size and diversity, including near-complete elisions of classes of secondary structure elements. By analyzing intermediate structures produced by OpenFold during training, we also gain surprising insights into the manner in which the model learns to fold proteins, discovering that spatial dimensions are learned sequentially. Taken together, our studies demonstrate the power and utility of OpenFold, which we believe will prove to be a crucial new resource for the protein modeling community.},
+	URL = {https://www.biorxiv.org/content/10.1101/2022.11.20.517210},
+	eprint = {https://www.biorxiv.org/content/early/2022/11/22/2022.11.20.517210.full.pdf},
+	journal = {bioRxiv}
 }
 ```
 

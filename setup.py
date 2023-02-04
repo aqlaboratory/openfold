@@ -16,7 +16,7 @@ import os
 from setuptools import setup, Extension, find_packages
 import subprocess
 
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
+from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension, CUDA_HOME
 
 from scripts.utils import get_nvidia_cc
 
@@ -37,14 +37,18 @@ extra_cuda_flags = [
 ]
 
 def get_cuda_bare_metal_version(cuda_dir):
-    raw_output = subprocess.check_output([cuda_dir + "/bin/nvcc", "-V"], universal_newlines=True)
-    output = raw_output.split()
-    release_idx = output.index("release") + 1
-    release = output[release_idx].split(".")
-    bare_metal_major = release[0]
-    bare_metal_minor = release[1][0]
-
-    return raw_output, bare_metal_major, bare_metal_minor
+    if cuda_dir==None:
+        print("CUDA is not found, cpu version is installed")
+        return None, -1, 0
+    else:
+        raw_output = subprocess.check_output([cuda_dir + "/bin/nvcc", "-V"], universal_newlines=True)
+        output = raw_output.split()
+        release_idx = output.index("release") + 1
+        release = output[release_idx].split(".")
+        bare_metal_major = release[0]
+        bare_metal_minor = release[1][0]
+        
+        return raw_output, bare_metal_major, bare_metal_minor
 
 compute_capabilities = set([
     (3, 7), # K80, e.g.
@@ -70,22 +74,8 @@ for major, minor in list(compute_capabilities):
 
 extra_cuda_flags += cc_flag
 
-
-setup(
-    name='openfold',
-    version='1.0.0',
-    description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
-    author='Gustaf Ahdritz & DeepMind',
-    author_email='gahdritz@gmail.com',
-    license='Apache License, Version 2.0',
-    url='https://github.com/aqlaboratory/openfold',
-    packages=find_packages(exclude=["tests", "scripts"]),
-    include_package_data=True,
-    package_data={
-        "openfold": ['utils/kernel/csrc/*'],
-        "": ["resources/stereo_chemical_props.txt"]
-    },
-    ext_modules=[CUDAExtension(
+if bare_metal_major != -1:
+    modules = [CUDAExtension(
         name="attn_core_inplace_cuda",
         sources=[
             "openfold/utils/kernel/csrc/softmax_cuda.cpp",
@@ -105,7 +95,34 @@ setup(
                 extra_cuda_flags
             ),
         }
-    )],
+    )]
+else:
+    modules = [CppExtension(
+        name="attn_core_inplace_cuda",
+        sources=[
+            "openfold/utils/kernel/csrc/softmax_cuda.cpp",
+            "openfold/utils/kernel/csrc/softmax_cuda_stub.cpp",
+        ],
+        extra_compile_args={
+            'cxx': ['-O3'],
+        }
+    )]
+
+setup(
+    name='openfold',
+    version='1.0.1',
+    description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
+    author='Gustaf Ahdritz & DeepMind',
+    author_email='gahdritz@gmail.com',
+    license='Apache License, Version 2.0',
+    url='https://github.com/aqlaboratory/openfold',
+    packages=find_packages(exclude=["tests", "scripts"]),
+    include_package_data=True,
+    package_data={
+        "openfold": ['utils/kernel/csrc/*'],
+        "": ["resources/stereo_chemical_props.txt"]
+    },
+    ext_modules=modules,
     cmdclass={'build_ext': BuildExtension},
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
@@ -114,6 +131,3 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
 )
-
-
-

@@ -334,7 +334,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
     """
     def __init__(self,
         datasets: Sequence[OpenFoldSingleDataset],
-        probabilities: Sequence[int],
+        probabilities: Sequence[float],
         epoch_len: int,
         generator: torch.Generator = None,
         _roll_at_init: bool = True,
@@ -440,11 +440,6 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
         stage_cfg = self.config[self.stage]
 
         max_iters = self.config.common.max_recycling_iters
-        if(stage_cfg.supervised):
-            clamp_prob = self.config.supervised.clamp_prob
-            keyed_probs.append(
-                ("use_clamped_fape", [1 - clamp_prob, clamp_prob])
-            )
         
         if(stage_cfg.uniform_recycling):
             recycling_probs = [
