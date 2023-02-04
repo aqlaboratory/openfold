@@ -49,7 +49,7 @@ class TestDataTransforms(unittest.TestCase):
         template_seq_one_hot = torch.FloatTensor(template_seq.shape[0], 20).zero_()
         template_seq_one_hot.scatter_(1, template_seq, 1)
         template_aatype = template_seq_one_hot.clone().detach().unsqueeze(0)
-        protein = {'template_aatype': template_aatype}
+        protein = {'template_aatype': template_aatype, 'aatype': template_aatype}
         protein = fix_templates_aatype(protein)
         template_seq_ours = torch.tensor([[0, 4, 3, 6, 13, 7, 8, 9, 11, 10, 12, 2, 14, 5, 1, 15, 16, 19, 17, 18]*2])
         assert torch.all(torch.eq(protein['template_aatype'], template_seq_ours))
@@ -175,7 +175,10 @@ class TestDataTransforms(unittest.TestCase):
         with open('tests/test_data/features.pkl', 'rb') as file:
             features = pickle.load(file)
 
-        protein = {'msa': torch.tensor(features['msa'], dtype=torch.int64)}
+        protein = {
+            'msa': torch.tensor(features['msa'], dtype=torch.int64),
+            'aatype': torch.tensor(features['aatype'], dtype=torch.int64),
+        }
         protein = make_hhblits_profile(protein)
         masked_msa_config = config.data.common.masked_msa
         protein = make_masked_msa.__wrapped__(protein, masked_msa_config, replace_fraction=0.15)

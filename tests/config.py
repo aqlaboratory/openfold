@@ -7,6 +7,7 @@ consts = mlc.ConfigDict(
         "n_seq": 13,
         "n_templ": 3,
         "n_extra": 17,
+        "n_heads_extra_msa": 8,
         "eps": 5e-4,
         # For compatibility with DeepMind's pretrained weights, it's easiest for
         # everyone if these take their real values.

@@ -287,7 +287,6 @@ class EvoformerBlockCore(nn.Module):
         )
 
         z = z.transpose(-2, -3)
-        
         if(inplace_safe):
             input_tensors[1] = z.contiguous()
             z = input_tensors[1]

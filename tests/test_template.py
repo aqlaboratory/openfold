@@ -139,6 +139,8 @@ class TestTemplatePairStack(unittest.TestCase):
             _mask_trans=False,
         ).cpu()
 
+        print(torch.max(torch.abs(out_gt - out_repro)))
+        print(torch.mean(torch.abs(out_gt - out_repro)))
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
 
@@ -182,6 +184,7 @@ class Template(unittest.TestCase):
             torch.as_tensor(pair_act).cuda(),
             torch.as_tensor(pair_mask).cuda(),
             templ_dim=0,
+            inplace_safe=False
         )
         out_repro = out_repro["template_pair_embedding"]
         out_repro = out_repro.cpu()
