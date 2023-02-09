@@ -493,24 +493,25 @@ class DataPipeline:
             
             fp.close()
         else: 
-            for f in os.listdir(alignment_dir):
-                path = os.path.join(alignment_dir, f)
-                ext = os.path.splitext(f)[-1]
+            for dirpath, dirs, files in os.walk(alignment_dir):
+                for f in files:
+                    path = os.path.join(dirpath, f)
+                    ext = os.path.splitext(f)[-1]
 
-                if(ext == ".a3m"):
-                    with open(path, "r") as fp:
-                        msa, deletion_matrix = parsers.parse_a3m(fp.read())
-                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
-                elif(ext == ".sto"):
-                    with open(path, "r") as fp:
-                        msa, deletion_matrix, _ = parsers.parse_stockholm(
-                            fp.read()
-                        )
-                    data = {"msa": msa, "deletion_matrix": deletion_matrix}
-                else:
-                    continue
+                    if(ext == ".a3m"):
+                        with open(path, "r") as fp:
+                            msa, deletion_matrix = parsers.parse_a3m(fp.read())
+                        data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                    elif(ext == ".sto"):
+                        with open(path, "r") as fp:
+                            msa, deletion_matrix, _ = parsers.parse_stockholm(
+                                fp.read()
+                            )
+                        data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                    else:
+                        continue
                 
-                msa_data[f] = data
+                    msa_data[f] = data
 
         return msa_data
 
@@ -536,14 +537,15 @@ class DataPipeline:
 
             fp.close()
         else:
-            for f in os.listdir(alignment_dir):
-                path = os.path.join(alignment_dir, f)
-                ext = os.path.splitext(f)[-1]
+            for dirpath, dirs, files in os.walk(alignment_dir):
+                for f in files:
+                    path = os.path.join(dirpath, f)
+                    ext = os.path.splitext(f)[-1]
 
-                if(ext == ".hhr"):
-                    with open(path, "r") as fp:
-                        hits = parsers.parse_hhr(fp.read())
-                    all_hits[f] = hits
+                    if(ext == ".hhr"):
+                        with open(path, "r") as fp:
+                            hits = parsers.parse_hhr(fp.read())
+                        all_hits[f] = hits
 
         return all_hits
 
