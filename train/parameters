@@ -15,6 +15,8 @@ PARAMS=(
     --train_chain_data_cache_path $SampleDir/chain_data_cache.json
     --replace_sampler_ddp=True
     --num_nodes ${NumNodes}
+    --obsolete_pdbs_file_path $DataDir/pdb_mmcif/obsolete.dat
+    --kalign_binary_path $PREFIX/bin/kalign
 )
 
 source $OPENFOLDDIR/scripts/setenv

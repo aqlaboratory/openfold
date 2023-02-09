@@ -21,6 +21,7 @@ PARAMS=(
     --replace_sampler_ddp=True
     --num_nodes ${NumNodes}
     --obsolete_pdbs_file_path $DataDir/pdb_mmcif/obsolete.dat
+    --kalign_binary_path $PREFIX/bin/kalign
     --train_epoch_len $EpochLen
 )
 

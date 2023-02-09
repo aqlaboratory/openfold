@@ -1,3 +1,4 @@
+MMCIFCache=/vol0006/ra000018/data/OpenFold/sample/training/mmcif_cache.json
 SampleDir=/vol0003/share/hp210263/OpenFold/sample/inference
 
 PARAMS=(
@@ -8,7 +9,11 @@ PARAMS=(
     --model_device cpu
     --jax_param_path $DataDir/params/params_model_1.npz
     --output_dir $LOGDIR
+    --kalign_binary_path $PREFIX/bin/kalign
     --use_precomputed_alignments $SampleDir/T1084/alignment_smallbfd
+    --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
+    --max_template_date 2021-10-10
+    --release_dates_path $MMCIFCache
 )
 
 source $OPENFOLDDIR/scripts/setenv

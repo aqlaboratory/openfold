@@ -91,7 +91,8 @@ class Kalign:
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL
             )
 
             with utils.timing("Kalign query"):
