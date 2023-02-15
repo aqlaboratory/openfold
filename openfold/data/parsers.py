@@ -69,6 +69,7 @@ def parse_fasta(fasta_string: str) -> Tuple[Sequence[str], Sequence[str]]:
 
 def parse_stockholm(
     stockholm_string: str,
+    max_sequences: Optional[int] = 30000
 ) -> Tuple[Sequence[str], DeletionMatrix, Sequence[str]]:
     """Parses sequences and deletion matrix from stockholm format alignment.
 
@@ -88,11 +89,16 @@ def parse_stockholm(
     """
     name_to_sequence = collections.OrderedDict()
     for line in stockholm_string.splitlines():
+        reached_max_sequences = (
+            max_sequences and len(name_to_sequence) >= max_sequences
+        )
         line = line.strip()
         if not line or line.startswith(("#", "//")):
             continue
         name, sequence = line.split()
         if name not in name_to_sequence:
+            if reached_max_sequences:
+                continue
             name_to_sequence[name] = ""
         name_to_sequence[name] += sequence
 

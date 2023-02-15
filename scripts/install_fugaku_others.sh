@@ -12,6 +12,7 @@ cd $WORKDIR
 # Bazel
 wget -O $PREFIX/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-arm64
 chmod +x $PREFIX/bin/bazel
+export USE_BAZEL_VERSION=5.4.0
 
 # Doxygen
 rm -rf doxygen
