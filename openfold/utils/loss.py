@@ -640,9 +640,7 @@ def compute_tm(
     )
 
     bin_centers = _calculate_bin_centers(boundaries)
-    torch.sum(residue_weights)
-    n = logits.shape[-2]
-    clipped_n = max(n, 19)
+    clipped_n = max(torch.sum(residue_weights), 19)
 
     d0 = 1.24 * (clipped_n - 15) ** (1.0 / 3) - 1.8
 
