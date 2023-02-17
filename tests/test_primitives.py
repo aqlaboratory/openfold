@@ -13,12 +13,10 @@
 # limitations under the License.
 
 import torch
-import numpy as np
 import unittest
 
 from openfold.model.primitives import (
-    Attention,
-    LowMemoryAttention,
+    Attention
 )
 from tests.config import consts
 
@@ -40,7 +38,7 @@ class TestLMA(unittest.TestCase):
         gating_fill = torch.rand(c_hidden * no_heads, c_hidden)
         o_fill = torch.rand(c_hidden, c_hidden * no_heads)
         
-        lma = LowMemoryAttention(
+        lma = Attention(
             c_hidden, c_hidden, c_hidden, c_hidden, no_heads
         ).cuda()
         a = Attention(
@@ -60,7 +58,7 @@ class TestLMA(unittest.TestCase):
                 m.linear_o.weight.copy_(o_fill)
         
         with torch.no_grad():
-            l = lma(q, k, v, 1024, 4096, biases=bias)
+            l = lma(q, k, v, biases=bias, use_lma=True, q_chunk_size=1024, kv_chunk_size=4096)
             real = a(q, k, v, biases=bias)
         
         self.assertTrue(torch.max(torch.abs(l - real)) < consts.eps)

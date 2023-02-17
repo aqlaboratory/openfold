@@ -142,7 +142,7 @@ class Rigid3Array:
     def reshape(self, new_shape) -> Rigid3Array:
         rots = self.rotation.reshape(new_shape)
         trans = self.translation.reshape(new_shape)
-        return Rigid3Aray(rots, trans)
+        return Rigid3Array(rots, trans)
 
     def stop_rot_gradient(self) -> Rigid3Array:
         return Rigid3Array(
@@ -174,3 +174,6 @@ class Rigid3Array:
             array[..., 0, 3], array[..., 1, 3], array[..., 2, 3]
         )
         return cls(rotation, translation)
+
+    def cuda(self) -> Rigid3Array:
+        return Rigid3Array.from_tensor_4x4(self.to_tensor_4x4().cuda())

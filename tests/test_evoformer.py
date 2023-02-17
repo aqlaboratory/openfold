@@ -48,6 +48,7 @@ class TestEvoformerStack(unittest.TestCase):
         transition_n = 2
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
         inf = 1e9
         eps = 1e-10
 
@@ -65,6 +66,7 @@ class TestEvoformerStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
+            opm_first,
             blocks_per_ckpt=None,
             inf=inf,
             eps=eps,
@@ -156,6 +158,7 @@ class TestExtraMSAStack(unittest.TestCase):
         transition_n = 5
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
         inf = 1e9
         eps = 1e-10
 
@@ -172,6 +175,7 @@ class TestExtraMSAStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
+            opm_first,
             ckpt=False,
             inf=inf,
             eps=eps,
@@ -259,7 +263,7 @@ class TestMSATransition(unittest.TestCase):
         model = compare_utils.get_global_pretrained_openfold()
         
         out_repro = (
-            model.evoformer.blocks[0].core.msa_transition(
+            model.evoformer.blocks[0].msa_transition(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
             )

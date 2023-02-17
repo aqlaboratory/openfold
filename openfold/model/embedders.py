@@ -216,10 +216,12 @@ class InputEmbedderMultimer(nn.Module):
                 (2 * self.max_relative_idx + 1) * 
                 torch.ones_like(clipped_offset)
             )
-
-            rel_pos = torch.nn.functional.one_hot(
+            boundaries = torch.arange(
+                start=0, end=2 * self.max_relative_idx + 2, device=final_offset.device
+            )
+            rel_pos = one_hot(
                 final_offset,
-                2 * self.max_relative_idx + 2,
+                boundaries,
             )
 
             rel_feats.append(rel_pos)
@@ -245,15 +247,21 @@ class InputEmbedderMultimer(nn.Module):
                 torch.ones_like(clipped_rel_chain)
             )
 
-            rel_chain = torch.nn.functional.one_hot(
+            boundaries = torch.arange(
+                start=0, end=2 * max_rel_chain + 2, device=final_rel_chain.device
+            )
+            rel_chain = one_hot(
                 final_rel_chain,
-                2 * max_rel_chain + 2,
+                boundaries,
             )
 
             rel_feats.append(rel_chain)
         else:
-            rel_pos = torch.nn.functional.one_hot(
-                clipped_offset, 2 * self.max_relative_idx + 1,
+            boundaries = torch.arange(
+                start=0, end=2 * self.max_relative_idx + 1, device=clipped_offset.device
+            )
+            rel_pos = one_hot(
+                clipped_offset, boundaries,
             )
             rel_feats.append(rel_pos)
 
@@ -471,102 +479,6 @@ class TemplatePairEmbedder(nn.Module):
         return x
 
 
-class TemplateEmbedder(nn.Module):
-    def __init__(
-        self,
-        config,
-    ):
-        super().__init__()
-        self.config = config
-
-        self.template_angle_embedder = TemplateAngleEmbedder(
-            **config["template_angle_embedder"],
-        )
-        self.template_pair_embedder = TemplatePairEmbedder(
-            **config["template_pair_embedder"],
-        )
-        self.template_pair_stack = TemplatePairStack(
-            **config["template_pair_stack"],
-        )
-        self.template_pointwise_att = TemplatePointwiseAttention(
-            **config["template_pointwise_attention"],
-        )
-
-    def forward(
-        self,
-        batch, 
-        z, 
-        pair_mask, 
-        templ_dim,
-        chunk_size,
-        _mask_trans=True,
-    ):
-        # Embed the templates one at a time (with a poor man's vmap)
-        template_embeds = []
-        n_templ = batch["template_aatype"].shape[templ_dim]
-        for i in range(n_templ):
-            idx = batch["template_aatype"].new_tensor(i)
-            single_template_feats = tensor_tree_map(
-                lambda t: torch.index_select(t, templ_dim, idx),
-                batch,
-            )
-
-            single_template_embeds = {}
-            if self.config.embed_angles:
-                template_angle_feat = build_template_angle_feat(
-                    single_template_feats,
-                )
-
-                # [*, S_t, N, C_m]
-                a = self.template_angle_embedder(template_angle_feat)
-
-                single_template_embeds["angle"] = a
-
-            # [*, S_t, N, N, C_t]
-            t = build_template_pair_feat(
-                single_template_feats,
-                use_unit_vector=self.config.use_unit_vector,
-                inf=self.config.inf,
-                eps=self.config.eps,
-                **self.config.distogram,
-            ).to(z.dtype)
-            t = self.template_pair_embedder(t)
-
-            single_template_embeds.update({"pair": t})
-
-            template_embeds.append(single_template_embeds)
-
-        template_embeds = dict_multimap(
-            partial(torch.cat, dim=templ_dim),
-            template_embeds,
-        )
-
-        # [*, S_t, N, N, C_z]
-        t = self.template_pair_stack(
-            template_embeds["pair"], 
-            pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
-            chunk_size=chunk_size,
-            _mask_trans=_mask_trans,
-        )
-
-        # [*, N, N, C_z]
-        t = self.template_pointwise_att(
-            t, 
-            z, 
-            template_mask=batch["template_mask"].to(dtype=z.dtype),
-            chunk_size=chunk_size,
-        )
-        t = t * (torch.sum(batch["template_mask"]) > 0)
-
-        ret = {}
-        if self.config.embed_angles:
-            ret["template_pair_embedding"] = template_embeds["angle"]
-
-        ret.update({"template_pair_embedding": t})
-
-        return ret
-
-
 class ExtraMSAEmbedder(nn.Module):
     """
     Embeds unclustered MSA sequences.
@@ -625,12 +537,13 @@ class TemplateEmbedder(nn.Module):
             **config["template_pointwise_attention"],
         )
     
-    def forward(self, 
-        batch, 
+    def forward(
+        self,
+        batch,
         z, 
-        pair_mask, 
-        templ_dim, 
-        chunk_size, 
+        pair_mask,
+        templ_dim,
+        chunk_size,
         _mask_trans=True
     ):
         # Embed the templates one at a time (with a poor man's vmap)
@@ -706,7 +619,7 @@ class TemplatePairEmbedderMultimer(nn.Module):
         c_dgram: int,
         c_aatype: int,
     ):
-        super().__init__()
+        super(TemplatePairEmbedderMultimer, self).__init__()
 
         self.dgram_linear = Linear(c_dgram, c_out)
         self.aatype_linear_1 = Linear(c_aatype, c_out)
@@ -765,7 +678,7 @@ class TemplateSingleEmbedderMultimer(nn.Module):
         c_in: int,
         c_m: int,
     ):
-        super().__init__()
+        super(TemplateSingleEmbedderMultimer, self).__init__()
         self.template_single_embedder = Linear(c_in, c_m)
         self.template_projector = Linear(c_m, c_m)
     

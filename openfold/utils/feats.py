@@ -18,7 +18,7 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-from typing import Dict
+from typing import Dict, Union
 
 from openfold.np import protein
 import openfold.np.residue_constants as rc
@@ -179,11 +179,11 @@ def build_extra_msa_feat(batch):
         batch["extra_has_deletion"].unsqueeze(-1),
         batch["extra_deletion_value"].unsqueeze(-1),
     ]
-    return msa_feat
+    return torch.cat(msa_feat, dim=-1)
 
 
 def torsion_angles_to_frames(
-    r: Rigid,
+    r: Union[Rigid, rigid_matrix_vector.Rigid3Array],
     alpha: torch.Tensor,
     aatype: torch.Tensor,
     rrgdf: torch.Tensor,
@@ -220,8 +220,14 @@ def torsion_angles_to_frames(
     all_rots[..., 1, 2] = -alpha[..., 0]
     all_rots[..., 2, 1:] = alpha
 
-    all_rots = rotation_matrix.Rot3Array.from_array(all_rots)
-    all_frames = default_r.compose_rotation(all_rots)
+    if isinstance(r, Rigid):
+        rigid_type = Rigid
+        all_rots = Rigid(Rotation(rot_mats=all_rots), None)
+        all_frames = default_r.compose(all_rots)
+    else:
+        rigid_type = rigid_matrix_vector.Rigid3Array
+        all_rots = rotation_matrix.Rot3Array.from_array(all_rots)
+        all_frames = default_r.compose_rotation(all_rots)
 
     chi2_frame_to_frame = all_frames[..., 5]
     chi3_frame_to_frame = all_frames[..., 6]
@@ -232,7 +238,7 @@ def torsion_angles_to_frames(
     chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
     chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
 
-    all_frames_to_bb = rigid_matrix_vector.Rigid3Array.cat(
+    all_frames_to_bb = rigid_type.cat(
         [
             all_frames[..., :5],
             chi2_frame_to_bb.unsqueeze(-1),
@@ -248,7 +254,7 @@ def torsion_angles_to_frames(
 
 
 def frames_and_literature_positions_to_atom14_pos(
-    r: rigid_matrix_vector.Rigid3Array,
+    r: Union[Rigid, rigid_matrix_vector.Rigid3Array],
     aatype: torch.Tensor,
     default_frames,
     group_idx,
@@ -277,6 +283,8 @@ def frames_and_literature_positions_to_atom14_pos(
 
     # [*, N, 14]
     atom_mask = atom_mask[aatype, ...]
+    if isinstance(r, Rigid):
+        atom_mask = atom_mask.unsqueeze(-1)
 
     # [*, N, 14, 3]
     lit_positions = lit_positions[aatype, ...]

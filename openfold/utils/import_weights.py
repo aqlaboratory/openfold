@@ -129,7 +129,7 @@ def assign(translation_dict, orig_weights):
                 raise
 
 
-def get_translation_dict(model, is_multimer=False):
+def get_translation_dict(model, version, is_multimer=False):
     #######################
     # Some templates
     #######################
@@ -247,7 +247,7 @@ def get_translation_dict(model, is_multimer=False):
     )
 
     IPAParams = lambda ipa: {
-        "q_scalar_projection": LinearParams(ipa.linear_q),
+        "q_scalar": LinearParams(ipa.linear_q),
         "kv_scalar": LinearParams(ipa.linear_kv),
         "q_point_local": LinearParams(ipa.linear_q_points.linear),
         "kv_point_local": LinearParams(ipa.linear_kv_points.linear),
@@ -331,19 +331,19 @@ def get_translation_dict(model, is_multimer=False):
                 b.msa_att_row
             ),
             col_att_name: msa_col_att_params,
-            "msa_transition": MSATransitionParams(b.core.msa_transition),
+            "msa_transition": MSATransitionParams(b.msa_transition),
             "outer_product_mean": 
-                OuterProductMeanParams(b.core.outer_product_mean),
+                OuterProductMeanParams(b.outer_product_mean),
             "triangle_multiplication_outgoing": 
-                TriMulOutParams(b.core.tri_mul_out),
+                TriMulOutParams(b.pair_stack.tri_mul_out),
             "triangle_multiplication_incoming": 
-                TriMulInParams(b.core.tri_mul_in),
+                TriMulInParams(b.pair_stack.tri_mul_in),
             "triangle_attention_starting_node": 
-                TriAttParams(b.core.tri_att_start),
+                TriAttParams(b.pair_stack.tri_att_start),
             "triangle_attention_ending_node": 
-                TriAttParams(b.core.tri_att_end),
+                TriAttParams(b.pair_stack.tri_att_end),
             "pair_transition": 
-                PairTransitionParams(b.core.pair_transition),
+                PairTransitionParams(b.pair_stack.pair_transition),
         }
 
         return d
@@ -584,17 +584,6 @@ def get_translation_dict(model, is_multimer=False):
             },
         }
 
-    return translations
-
-
-def import_jax_weights_(model, npz_path, version="model_1"):
-    data = np.load(npz_path)
-    
-    translations = get_translation_dict(
-        model, 
-        is_multimer=("multimer" in version)
-    )
-    
     no_templ = [
         "model_3",
         "model_4",
@@ -614,6 +603,18 @@ def import_jax_weights_(model, npz_path, version="model_1"):
         translations["predicted_aligned_error_head"] = {
             "logits": LinearParams(model.aux_heads.tm.linear)
         }
+
+    return translations
+
+
+def import_jax_weights_(model, npz_path, version="model_1"):
+    data = np.load(npz_path)
+    
+    translations = get_translation_dict(
+        model,
+        version,
+        is_multimer=("multimer" in version)
+    )
 
     # Flatten keys and insert missing key prefixes
     flat = _process_translations_dict(translations)

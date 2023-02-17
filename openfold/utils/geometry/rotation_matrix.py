@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 import dataclasses
+from typing import List
 
 import torch
 import numpy as np
@@ -172,10 +173,10 @@ class Rot3Array:
         """Construct Rot3Array from components of quaternion."""
         if normalize:
             inv_norm = torch.rsqrt(eps + w**2 + x**2 + y**2 + z**2)
-            w *= inv_norm
-            x *= inv_norm
-            y *= inv_norm
-            z *= inv_norm
+            w = w * inv_norm
+            x = x * inv_norm
+            y = y * inv_norm
+            z = z * inv_norm
         xx = 1 - 2 * (y ** 2 + z ** 2)
         xy = 2 * (x * y - w * z)
         xz = 2 * (x * z + w * y)

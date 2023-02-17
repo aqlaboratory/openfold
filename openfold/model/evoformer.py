@@ -117,34 +117,19 @@ class MSATransition(nn.Module):
         return m
 
 
-class EvoformerBlockCore(nn.Module):
+class PairStack(nn.Module):
     def __init__(
         self,
-        c_m: int,
         c_z: int,
-        c_hidden_opm: int,
         c_hidden_mul: int,
         c_hidden_pair_att: int,
-        no_heads_msa: int,
         no_heads_pair: int,
         transition_n: int,
         pair_dropout: float,
         inf: float,
-        eps: float,
-        _is_extra_msa_stack: bool = False,
+        eps: float
     ):
-        super(EvoformerBlockCore, self).__init__()
-
-        self.msa_transition = MSATransition(
-            c_m=c_m,
-            n=transition_n,
-        )
-
-        self.outer_product_mean = OuterProductMean(
-            c_m,
-            c_z,
-            c_hidden_opm,
-        )
+        super(PairStack, self).__init__()
 
         self.tri_mul_out = TriangleMultiplicationOutgoing(
             c_z,
@@ -178,25 +163,15 @@ class EvoformerBlockCore(nn.Module):
 
     def forward(
         self,
-        m: torch.Tensor,
         z: torch.Tensor,
-        msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
         _mask_trans: bool = True,
-    ) -> Tuple[torch.Tensor, torch.Tensor]: 
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         # DeepMind doesn't mask these transitions in the source, so _mask_trans
         # should be disabled to better approximate the exact activations of
         # the original.
-        msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
-
-        m = m + self.msa_transition(
-            m, mask=msa_trans_mask, chunk_size=chunk_size
-        )
-        z = z + self.outer_product_mean(
-            m, mask=msa_mask, chunk_size=chunk_size
-        )
         z = z + self.ps_dropout_row_layer(self.tri_mul_out(z, mask=pair_mask))
         z = z + self.ps_dropout_row_layer(self.tri_mul_in(z, mask=pair_mask))
         z = z + self.ps_dropout_row_layer(
@@ -209,7 +184,7 @@ class EvoformerBlockCore(nn.Module):
             z, mask=pair_trans_mask, chunk_size=chunk_size
         )
 
-        return m, z
+        return z
 
 
 class EvoformerBlock(nn.Module):
@@ -225,10 +200,13 @@ class EvoformerBlock(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        opm_first: bool,
         inf: float,
         eps: float,
     ):
         super(EvoformerBlock, self).__init__()
+
+        self.opm_first = opm_first
 
         self.msa_att_row = MSARowAttentionWithPairBias(
             c_m=c_m,
@@ -247,18 +225,26 @@ class EvoformerBlock(nn.Module):
 
         self.msa_dropout_layer = DropoutRowwise(msa_dropout)
 
-        self.core = EvoformerBlockCore(
+        self.msa_transition = MSATransition(
             c_m=c_m,
+            n=transition_n,
+        )
+
+        self.outer_product_mean = OuterProductMean(
+            c_m,
+            c_z,
+            c_hidden_opm,
+        )
+
+        self.pair_stack = PairStack(
             c_z=c_z,
-            c_hidden_opm=c_hidden_opm,
             c_hidden_mul=c_hidden_mul,
             c_hidden_pair_att=c_hidden_pair_att,
-            no_heads_msa=no_heads_msa,
             no_heads_pair=no_heads_pair,
             transition_n=transition_n,
             pair_dropout=pair_dropout,
             inf=inf,
-            eps=eps,
+            eps=eps
         )
 
     def forward(self,
@@ -269,17 +255,34 @@ class EvoformerBlock(nn.Module):
         chunk_size: Optional[int] = None,
         _mask_trans: bool = True,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        # DeepMind doesn't mask these transitions in the source, so _mask_trans
+        # should be disabled to better approximate the exact activations of
+        # the original.
+        msa_trans_mask = msa_mask if _mask_trans else None
+
+        if self.opm_first:
+            z = z + self.outer_product_mean(
+                m, mask=msa_mask, chunk_size=chunk_size
+            )
+
         m = m + self.msa_dropout_layer(
             self.msa_att_row(m, z=z, mask=msa_mask, chunk_size=chunk_size)
         )
         m = m + self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size)
-        m, z = self.core(
-            m, 
-            z, 
-            msa_mask=msa_mask, 
-            pair_mask=pair_mask, 
-            chunk_size=chunk_size, 
-            _mask_trans=_mask_trans,
+
+        m = m + self.msa_transition(
+            m, mask=msa_trans_mask, chunk_size=chunk_size
+        )
+
+        if not self.opm_first:
+            z = z + self.outer_product_mean(
+                m, mask=msa_mask, chunk_size=chunk_size
+            )
+
+        z = self.pair_stack(
+            z,
+            pair_mask=pair_mask,
+            chunk_size=chunk_size,
         )
 
         return m, z
@@ -304,12 +307,14 @@ class ExtraMSABlock(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        opm_first: bool,
         inf: float,
         eps: float,
         ckpt: bool,
     ):
         super(ExtraMSABlock, self).__init__()
-        
+
+        self.opm_first = opm_first
         self.ckpt = ckpt
 
         self.msa_att_row = MSARowAttentionWithPairBias(
@@ -330,13 +335,21 @@ class ExtraMSABlock(nn.Module):
 
         self.msa_dropout_layer = DropoutRowwise(msa_dropout)
 
-        self.core = EvoformerBlockCore(
+        self.msa_transition = MSATransition(
             c_m=c_m,
+            n=transition_n,
+        )
+
+        self.outer_product_mean = OuterProductMean(
+            c_m,
+            c_z,
+            c_hidden_opm,
+        )
+
+        self.pair_stack = PairStack(
             c_z=c_z,
-            c_hidden_opm=c_hidden_opm,
             c_hidden_mul=c_hidden_mul,
             c_hidden_pair_att=c_hidden_pair_att,
-            no_heads_msa=no_heads_msa,
             no_heads_pair=no_heads_pair,
             transition_n=transition_n,
             pair_dropout=pair_dropout,
@@ -361,6 +374,11 @@ class ExtraMSABlock(nn.Module):
                 m1 += m2
 
             return m1
+
+        if self.opm_first:
+            z = z + self.outer_product_mean(
+                m, mask=msa_mask, chunk_size=chunk_size
+            )
         
         m = add(m, self.msa_dropout_layer(
             self.msa_att_row(
@@ -377,8 +395,17 @@ class ExtraMSABlock(nn.Module):
         
         def fn(m, z):
             m = add(m, self.msa_att_col(m, mask=msa_mask, chunk_size=chunk_size))
-            m, z = self.core(
-                m, z, msa_mask=msa_mask, pair_mask=pair_mask, chunk_size=chunk_size
+            m = add(m, self.msa_transition(
+                m, mask=msa_mask, chunk_size=chunk_size
+            ))
+
+            if not self.opm_first:
+                z = z + self.outer_product_mean(
+                    m, mask=msa_mask, chunk_size=chunk_size
+                )
+
+            z = self.pair_stack(
+                z, pair_mask=pair_mask, chunk_size=chunk_size
             )
             
             return m, z
@@ -414,6 +441,7 @@ class EvoformerStack(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        opm_first: bool,
         blocks_per_ckpt: int,
         inf: float,
         eps: float,
@@ -475,6 +503,7 @@ class EvoformerStack(nn.Module):
                 transition_n=transition_n,
                 msa_dropout=msa_dropout,
                 pair_dropout=pair_dropout,
+                opm_first=opm_first,
                 inf=inf,
                 eps=eps,
             )
@@ -555,6 +584,7 @@ class ExtraMSAStack(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        opm_first: bool,
         inf: float,
         eps: float,
         ckpt: bool,
@@ -581,6 +611,7 @@ class ExtraMSAStack(nn.Module):
                 transition_n=transition_n,
                 msa_dropout=msa_dropout,
                 pair_dropout=pair_dropout,
+                opm_first=opm_first,
                 inf=inf,
                 eps=eps,
                 ckpt=ckpt if chunk_msa_attn else False,

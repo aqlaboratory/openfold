@@ -141,6 +141,7 @@ class TemplatePairStackBlock(nn.Module):
         no_heads: int,
         pair_transition_n: int,
         dropout_rate: float,
+        tri_mul_first: bool,
         inf: float,
         **kwargs,
     ):
@@ -153,6 +154,7 @@ class TemplatePairStackBlock(nn.Module):
         self.pair_transition_n = pair_transition_n
         self.dropout_rate = dropout_rate
         self.inf = inf
+        self.tri_mul_first = tri_mul_first
 
         self.dropout_row = DropoutRowwise(self.dropout_rate)
         self.dropout_col = DropoutColumnwise(self.dropout_rate)
@@ -184,6 +186,38 @@ class TemplatePairStackBlock(nn.Module):
             self.pair_transition_n,
         )
 
+    def tri_att_start_end(self, single, single_mask, chunk_size):
+        single = single + self.dropout_row(
+            self.tri_att_start(
+                single,
+                chunk_size=chunk_size,
+                mask=single_mask
+            )
+        )
+        single = single + self.dropout_col(
+            self.tri_att_end(
+                single,
+                chunk_size=chunk_size,
+                mask=single_mask
+            )
+        )
+        return single
+
+    def tri_mul_out_in(self, single, single_mask):
+        single = single + self.dropout_row(
+            self.tri_mul_out(
+                single,
+                mask=single_mask
+            )
+        )
+        single = single + self.dropout_row(
+            self.tri_mul_in(
+                single,
+                mask=single_mask
+            )
+        )
+        return single
+
     def forward(self, 
         z: torch.Tensor, 
         mask: torch.Tensor, 
@@ -200,32 +234,17 @@ class TemplatePairStackBlock(nn.Module):
             single = single_templates[i]
             single_mask = single_templates_masks[i]
             
-            single = single + self.dropout_row(
-                self.tri_att_start(
-                    single,
-                    chunk_size=chunk_size,
-                    mask=single_mask
-                )
-            )
-            single = single + self.dropout_col(
-                self.tri_att_end(
-                    single,
-                    chunk_size=chunk_size,
-                    mask=single_mask
-                )
-            )
-            single = single + self.dropout_row(
-                self.tri_mul_out(
-                    single,
-                    mask=single_mask
-                )
-            )
-            single = single + self.dropout_row(
-                self.tri_mul_in(
-                    single,
-                    mask=single_mask
-                )
-            )
+            if self.tri_mul_first:
+                single = self.tri_att_start_end(single=self.tri_mul_out_in(single=single,
+                                                                           single_mask=single_mask),
+                                                single_mask=single_mask,
+                                                chunk_size=chunk_size)
+            else:
+                single = self.tri_mul_out_in(single=self.tri_att_start_end(single=single,
+                                                                           single_mask=single_mask,
+                                                                           chunk_size=chunk_size),
+                                             single_mask=single_mask)
+
             single = single + self.pair_transition(
                 single,
                 mask=single_mask if _mask_trans else None,
@@ -252,6 +271,7 @@ class TemplatePairStack(nn.Module):
         no_heads,
         pair_transition_n,
         dropout_rate,
+        tri_mul_first,
         blocks_per_ckpt,
         inf=1e9,
         **kwargs,
@@ -287,6 +307,7 @@ class TemplatePairStack(nn.Module):
                 no_heads=no_heads,
                 pair_transition_n=pair_transition_n,
                 dropout_rate=dropout_rate,
+                tri_mul_first=tri_mul_first,
                 inf=inf,
             )
             self.blocks.append(block)

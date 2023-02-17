@@ -1048,7 +1048,7 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
 
         for i in idx:
             # We got all the templates we wanted, stop processing hits.
-            if len(already_seen) >= self.max_hits:
+            if len(already_seen) >= self._max_hits:
                 break
 
             hit = filtered[i]
@@ -1088,16 +1088,29 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
                 for k in template_features:
                     template_features[k].append(result.features[k])
 
-        for name in template_features:
-            if num_hits > 0:
+        if already_seen:
+            for name in template_features:
                 template_features[name] = np.stack(
                     template_features[name], axis=0
                 ).astype(TEMPLATE_FEATURES[name])
-            else:
-                # Make sure the feature has correct dtype even if empty.
-                template_features[name] = np.array(
-                    [], dtype=TEMPLATE_FEATURES[name]
-                )
+        else:
+            num_res = len(query_sequence)
+            # Construct a default template with all zeros.
+            template_features = {
+                "template_aatype": np.zeros(
+                    (1, num_res, len(residue_constants.restypes_with_x_and_gap)),
+                    np.float32
+                ),
+                "template_all_atom_masks": np.zeros(
+                    (1, num_res, residue_constants.atom_type_num), np.float32
+                ),
+                "template_all_atom_positions": np.zeros(
+                    (1, num_res, residue_constants.atom_type_num, 3), np.float32
+                ),
+                "template_domain_names": np.array([''.encode()], dtype=np.object),
+                "template_sequence": np.array([''.encode()], dtype=np.object),
+                "template_sum_probs": np.array([0], dtype=np.float32),
+            }
 
         return TemplateSearchResult(
             features=template_features, errors=errors, warnings=warnings

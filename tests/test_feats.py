@@ -25,6 +25,9 @@ from openfold.np.residue_constants import (
 )
 import openfold.utils.feats as feats
 from openfold.utils.rigid_utils import Rotation, Rigid
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.rotation_matrix import Rot3Array
+from openfold.utils.geometry.vector import Vec3Array
 from openfold.utils.tensor_utils import (
     tree_map,
     tensor_tree_map,
@@ -40,6 +43,19 @@ if compare_utils.alphafold_is_installed():
 
 
 class TestFeats(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if consts.is_multimer:
+            cls.am_atom = alphafold.model.all_atom_multimer
+            cls.am_fold = alphafold.model.folding_multimer
+            cls.am_modules = alphafold.model.modules_multimer
+            cls.am_rigid = alphafold.model.geometry
+        else:
+            cls.am_atom = alphafold.model.all_atom
+            cls.am_fold = alphafold.model.folding
+            cls.am_modules = alphafold.model.modules
+            cls.am_rigid = alphafold.model.r3
+
     @compare_utils.skip_unless_alphafold_installed()
     def test_pseudo_beta_fn_compare(self):
         def test_pbf(aatype, all_atom_pos, all_atom_mask):
@@ -131,7 +147,9 @@ class TestFeats(unittest.TestCase):
     @compare_utils.skip_unless_alphafold_installed()
     def test_atom37_to_frames_compare(self):
         def run_atom37_to_frames(aatype, all_atom_positions, all_atom_mask):
-            return alphafold.model.all_atom.atom37_to_frames(
+            if consts.is_multimer:
+                all_atom_positions = self.am_rigid.Vec3Array.from_array(all_atom_positions)
+            return self.am_atom.atom37_to_frames(
                 aatype, all_atom_positions, all_atom_mask
             )
 
@@ -150,7 +168,14 @@ class TestFeats(unittest.TestCase):
         }
 
         out_gt = f.apply({}, None, **batch)
-        to_tensor = lambda t: torch.tensor(np.array(t))
+
+        if consts.is_multimer:
+            to_tensor = (lambda t: torch.tensor(np.array(t))
+                         if not isinstance(t, self.am_rigid.Rigid3Array)
+                         else torch.tensor(np.array(t.to_array())).view(*t.shape[:2], 12))
+        else:
+            to_tensor = lambda t: torch.tensor(np.array(t))
+
         out_gt = {k: to_tensor(v) for k, v in out_gt.items()}
 
         def flat12_to_4x4(flat12):
@@ -187,7 +212,13 @@ class TestFeats(unittest.TestCase):
         n = 5
         rots = torch.rand((batch_size, n, 3, 3))
         trans = torch.rand((batch_size, n, 3))
-        ts = Rigid(Rotation(rot_mats=rots), trans)
+
+        if consts.is_multimer:
+            rotation = Rot3Array.from_array(rots)
+            translation = Vec3Array.from_array(trans)
+            ts = Rigid3Array(rotation, translation)
+        else:
+            ts = Rigid(Rotation(rot_mats=rots), trans)
 
         angles = torch.rand((batch_size, n, 7, 2))
 
@@ -208,7 +239,7 @@ class TestFeats(unittest.TestCase):
         def run_torsion_angles_to_frames(
             aatype, backb_to_global, torsion_angles_sin_cos
         ):
-            return alphafold.model.all_atom.torsion_angles_to_frames(
+            return self.am_atom.torsion_angles_to_frames(
                 aatype,
                 backb_to_global,
                 torsion_angles_sin_cos,
@@ -221,10 +252,17 @@ class TestFeats(unittest.TestCase):
         aatype = np.random.randint(0, 21, size=(n_res,))
 
         affines = random_affines_4x4((n_res,))
-        rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
-        transformations = Rigid.from_tensor_4x4(
-            torch.as_tensor(affines).float()
-        )
+
+        if consts.is_multimer:
+            rigids = self.am_rigid.Rigid3Array.from_array4x4(affines)
+            transformations = Rigid3Array.from_tensor_4x4(
+                torch.as_tensor(affines).float()
+            )
+        else:
+            rigids = self.am_rigid.rigids_from_tensor4x4(affines)
+            transformations = Rigid.from_tensor_4x4(
+                torch.as_tensor(affines).float()
+            )
 
         torsion_angles_sin_cos = np.random.rand(n_res, 7, 2)
 
@@ -264,7 +302,13 @@ class TestFeats(unittest.TestCase):
 
         rots = torch.rand((batch_size, n_res, 8, 3, 3))
         trans = torch.rand((batch_size, n_res, 8, 3))
-        ts = Rigid(Rotation(rot_mats=rots), trans)
+
+        if consts.is_multimer:
+            rotation = Rot3Array.from_array(rots)
+            translation = Vec3Array.from_array(trans)
+            ts = Rigid3Array(rotation, translation)
+        else:
+            ts = Rigid(Rotation(rot_mats=rots), trans)
 
         f = torch.randint(low=0, high=21, size=(batch_size, n_res)).long()
 
@@ -277,13 +321,15 @@ class TestFeats(unittest.TestCase):
             torch.tensor(restype_atom14_rigid_group_positions),
         )
 
+        if consts.is_multimer:
+            xyz = xyz.to_tensor()
+
         self.assertTrue(xyz.shape == (batch_size, n_res, 14, 3))
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_frames_and_literature_positions_to_atom14_pos_compare(self):
         def run_f(aatype, affines):
-            am = alphafold.model
-            return am.all_atom.frames_and_literature_positions_to_atom14_pos(
+            return self.am_atom.frames_and_literature_positions_to_atom14_pos(
                 aatype, affines
             )
 
@@ -294,16 +340,27 @@ class TestFeats(unittest.TestCase):
         aatype = np.random.randint(0, 21, size=(n_res,))
 
         affines = random_affines_4x4((n_res, 8))
-        rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
-        transformations = Rigid.from_tensor_4x4(
-            torch.as_tensor(affines).float()
-        )
+
+        if consts.is_multimer:
+            rigids = self.am_rigid.Rigid3Array.from_array4x4(affines)
+            transformations = Rigid3Array.from_tensor_4x4(
+                torch.as_tensor(affines).float()
+            )
+        else:
+            rigids = self.am_rigid.rigids_from_tensor4x4(affines)
+            transformations = Rigid.from_tensor_4x4(
+                torch.as_tensor(affines).float()
+            )
 
         out_gt = f.apply({}, None, aatype, rigids)
         jax.tree_map(lambda x: x.block_until_ready(), out_gt)
-        out_gt = torch.stack(
-            [torch.as_tensor(np.array(x)) for x in out_gt], dim=-1
-        )
+
+        if consts.is_multimer:
+            out_gt = torch.as_tensor(np.array(out_gt.to_array()))
+        else:
+            out_gt = torch.stack(
+                [torch.as_tensor(np.array(x)) for x in out_gt], dim=-1
+            )
 
         out_repro = feats.frames_and_literature_positions_to_atom14_pos(
             transformations.cuda(),

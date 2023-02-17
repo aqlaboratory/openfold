@@ -1,0 +1,12 @@
+.DS_Store
+*.DS_Store
+**/.DS_Store
+.idea/
+**/__pycache__
+*.pyc
+build/
+dist/
+*.egg-info/
+openfold/resources
+**/stereo_chemical_props.txt
+**/sample_feats.pickle

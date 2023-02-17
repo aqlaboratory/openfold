@@ -169,8 +169,8 @@ class PointProjection(nn.Module):
 
     def forward(self, 
         activations: torch.Tensor, 
-        rigids: Rigid3Array,
-    ) -> Union[Vec3Array, Tuple[Vec3Array, Vec3Array]]:
+        rigids: Union[Rigid, Rigid3Array],
+    ) -> Union[Vec3Array, Tuple[Vec3Array, Vec3Array], torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         # TODO: Needs to run in high precision during training
         points_local = self.linear(activations)
         points_local = points_local.reshape(
@@ -181,8 +181,9 @@ class PointProjection(nn.Module):
         points_local = torch.split(
             points_local, points_local.shape[-1] // 3, dim=-1
         )
-        points_local = Vec3Array(*points_local)
-        points_global = rigids[..., None, None].apply_to_point(points_local)
+
+        points_local = torch.stack(points_local, dim=-1)
+        points_global = rigids[..., None, None].apply(points_local)
 
         if(self.return_local_points):
             return points_global, points_local
@@ -285,7 +286,7 @@ class InvariantPointAttention(nn.Module):
         self,
         s: torch.Tensor,
         z: torch.Tensor,
-        r: Rigid,
+        r: Union[Rigid, Rigid3Array],
         mask: torch.Tensor,
     ) -> torch.Tensor:
         """
@@ -340,9 +341,6 @@ class InvariantPointAttention(nn.Module):
             k, v = torch.split(kv, self.c_hidden, dim=-1)
 
             kv_pts = self.linear_kv_points(s, r)
-    
-            # [*, N_res, H, (P_q + P_v), 3]
-            kv_pts = kv_pts.view(kv_pts.shape[:-2] + (self.no_heads, -1, 3))
 
             # [*, N_res, H, P_q/P_v, 3]
             k_pts, v_pts = torch.split(
@@ -364,10 +362,16 @@ class InvariantPointAttention(nn.Module):
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
         # [*, N_res, N_res, H, P_q, 3]
-        pt_att = q_pts[..., None, :, :] - k_pts[..., None, :, :, :]
-        
-        # [*, N_res, N_res, H, P_q]
-        pt_att = sum([c**2 for c in pt_att]) 
+        if self.is_multimer:
+            pt_att = q_pts.unsqueeze(-3) - k_pts.unsqueeze(-4)
+
+            # [*, N_res, N_res, H, P_q]
+            pt_att = sum([c ** 2 for c in pt_att])
+        else:
+            pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
+            pt_att = pt_att ** 2
+            pt_att = sum(torch.unbind(pt_att, dim=-1))
+
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
         )
@@ -399,20 +403,42 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H * C_hidden]
         o = flatten_final_dims(o, 2)
 
-        # As DeepMind explains, this manual matmul ensures that the operation
-        # happens in float32.
-        # [*, N_res, H, P_v]
-        o_pt = v_pts * permute_final_dims(a, (1, 2, 0)).unsqueeze(-1) 
-        o_pt = o_pt.sum(dim=-3)
+        if self.is_multimer:
+            # As DeepMind explains, this manual matmul ensures that the operation
+            # happens in float32.
+            # [*, N_res, H, P_v]
+            o_pt = v_pts[..., None, :, :, :] * permute_final_dims(a, (1, 2, 0)).unsqueeze(-1)
+            o_pt = o_pt.sum(dim=-3)
 
-        # [*, N_res, H, P_v]
-        o_pt = r[..., None, None].apply_inverse_to_point(o_pt)
+            # [*, N_res, H, P_v]
+            o_pt = r[..., None, None].apply_inverse_to_point(o_pt)
 
-        # [*, N_res, H * P_v, 3]
-        o_pt = o_pt.reshape(o_pt.shape[:-2] + (-1,))
+            # [*, N_res, H * P_v, 3]
+            o_pt = o_pt.reshape(o_pt.shape[:-2] + (-1,))
 
-        # [*, N_res, H * P_v]
-        o_pt_norm = o_pt.norm(self.eps)
+            # [*, N_res, H * P_v]
+            o_pt_norm = o_pt.norm(self.eps)
+        else:
+            o_pt = torch.sum(
+                (
+                        a[..., None, :, :, None]
+                        * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
+                ),
+                dim=-2,
+            )
+
+            # [*, N_res, H, P_v, 3]
+            o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
+            o_pt = r[..., None, None].invert_apply(o_pt)
+
+            # [*, N_res, H * P_v]
+            o_pt_norm = flatten_final_dims(
+                torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 2
+            )
+
+            # [*, N_res, H * P_v, 3]
+            o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
+            o_pt = torch.unbind(o_pt, dim=-1)
 
         # [*, N_res, H, C_z]
         o_pair = torch.matmul(a.transpose(-2, -3), z.to(dtype=a.dtype))
@@ -617,7 +643,10 @@ class StructureModule(nn.Module):
             self.dropout_rate,
         )
 
-        self.bb_update = QuatRigid(self.c_s, full_quat=False)
+        if self.is_multimer:
+            self.bb_update = QuatRigid(self.c_s, full_quat=False)
+        else:
+            self.bb_update = BackboneUpdate(self.c_s)
 
         self.angle_resnet = AngleResnet(
             self.c_s,

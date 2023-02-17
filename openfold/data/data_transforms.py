@@ -93,7 +93,7 @@ def fix_templates_aatype(protein):
         # Map hhsearch-aatype to our aatype.
         new_order_list = rc.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
         new_order = torch.tensor(
-            new_order_list, dtype=torch.int64, device=protein["aatype"].device,
+            new_order_list, dtype=torch.int64, device=protein["template_aatype"].device,
         ).expand(num_templates, -1)
         protein["template_aatype"] = torch.gather(
             new_order, 1, index=protein["template_aatype"]
@@ -669,8 +669,8 @@ def make_atom14_masks(protein):
 
 def make_atom14_masks_np(batch):
     batch = tree_map(
-        lambda n: torch.tensor(n, device=batch["aatype"].device), 
-        batch, 
+        lambda n: torch.tensor(n, device="cpu"),
+        batch,
         np.ndarray
     )
     out = make_atom14_masks(batch)
