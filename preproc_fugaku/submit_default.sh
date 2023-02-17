@@ -10,6 +10,7 @@ if "true"; then
 	input_examples/202212_experiments/20221219_pdb_mmcif_sampled_24.fasta \
 	output \
 	small_bfd \
+	"" \
 	""
 
 elif "true"; then
@@ -24,6 +25,7 @@ elif "true"; then
 	    input_examples/short.fasta \
 	    output \
 	    ${db} \
+	    "" \
 	    ""
 	sleep 1
     done
@@ -43,6 +45,7 @@ elif "true"; then
 	    input_examples/short.fasta \
 	    output_strong_$NumThreads \
 	    small_bfd \
+	    "" \
 	    "--ignore_unique"
 	sleep 1
     done
@@ -70,6 +73,7 @@ else
 	    input_examples/short.fasta \
 	    output_weak_$NumProcs \
 	    small_bfd \
+	    "" \
 	    "--ignore_unique --weak_scale"
 	sleep 1
     done

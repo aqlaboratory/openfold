@@ -7,7 +7,7 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 9 ] ; then
+if [ $# -ne 11 ] ; then
     cat << EOF >&2
 usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
@@ -18,6 +18,8 @@ The NumThreads is the number of threads for each task
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
 The Mode is one from {uniref90, pdb70, mgnify, small_bfd, bfd}
+The StepName is a step job name
+The DoStaging is whether an input database is staged
 The ScriptArgs is the arguments passsed to the preproc. script
 
 example: $0 2:00:00 4 input.fasta alignment mode 0
@@ -34,6 +36,8 @@ NumThreads="$1" && shift
 InputFile="$1" && shift
 OutputDir="$1" && shift
 Mode="$1" && shift
+StepName="$1" && shift
+DoStaging="$1" && shift
 ScriptArgs="$1" && shift
 
 # Check NumNodes
@@ -126,7 +130,7 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $ToolTimeLimit $NumNodes $NumProcs $NumThreads $Mode "$ScriptArgs" 2>&1 | tee "$LogDir/output"
+$LogDir/$WORKER $InputFile $OutputDir $ToolTimeLimit $NumNodes $NumProcs $NumThreads $Mode $DoStaging "$ScriptArgs" 2>&1 | tee "$LogDir/output"
 
 
 EOF
@@ -150,6 +154,10 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	# To use LLIO (node-temporary)
 	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
 	QsubArgs+=("--mpi max-proc-per-node=$NumProcs")
+
+	if [[ -n $StepName ]]; then
+	    QsubArgs+=("--step --sparam jnam=$StepName")
+	fi
     fi
 
 elif [[ ${IS_ABCI} == 1 ]]; then

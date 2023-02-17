@@ -11,7 +11,8 @@ NumNodes=$4
 NumProcs=$5
 NumThreads=$6
 Mode=$7
-ScriptArgs=$8
+DoStaging=$8
+ScriptArgs=$9
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
@@ -150,53 +151,55 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
     fi
 fi
 
-if [[ $DatabaseIsFile = 1 ]]; then
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-	echo "Executing LLIO transfer for the DB file"
-	set -x
-	time $LLIOTransfer \
-	     $Database
-	set +x
-
-    else
-	echo "Copying the DB file to local temp"
-	DatabaseLocal=$LOCALTMP/`basename $Database`
-	time $MpiExecEachNode cp $Database $DatabaseLocal
-	Database=$DatabaseLocal
-    fi
-
-else
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-	echo "Executing LLIO transfer for the DB directory"
-	if [[ $Mode = "bfd_deflate" ]]; then
+if [[ $DoStaging = 1 ]]; then
+    if [[ $DatabaseIsFile = 1 ]]; then
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+	    echo "Executing LLIO transfer for the DB file"
 	    set -x
 	    time $LLIOTransfer \
-		 $Database/*_cs219.ffdata \
-		 $Database/*_cs219.ffindex
+		 $Database
 	    set +x
 
 	else
-	    Exts=(ffdata ffindex)
-	    for Ext in ${Exts[@]}; do
-		set -x
-		time $LLIOTransfer \
-		     $Database/*.$Ext
-		set +x
-	    done
+	    echo "Copying the DB file to local temp"
+	    DatabaseLocal=$LOCALTMP/`basename $Database`
+	    time $MpiExecEachNode cp $Database $DatabaseLocal
+	    Database=$DatabaseLocal
 	fi
 
     else
-	echo "Copying the DB directory to local temp"
-	DatabaseLocal=$LOCALTMP/`basename $Database`
-	time $MpiExecEachNode mkdir -p $DatabaseLocal
-	if [[ $Mode = "bfd_deflate" ]]; then
-	    time $MpiExecEachNode cp -r $Database/*_cs219.ffdata $DatabaseLocal/
-	    time $MpiExecEachNode cp -r $Database/*_cs219.ffindex $DatabaseLocal/
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+	    echo "Executing LLIO transfer for the DB directory"
+	    if [[ $Mode = "bfd_deflate" ]]; then
+		set -x
+		time $LLIOTransfer \
+		     $Database/*_cs219.ffdata \
+		     $Database/*_cs219.ffindex
+		set +x
+
+	    else
+		Exts=(ffdata ffindex)
+		for Ext in ${Exts[@]}; do
+		    set -x
+		    time $LLIOTransfer \
+			 $Database/*.$Ext
+		    set +x
+		done
+	    fi
+
 	else
-	    time $MpiExecEachNode cp -r $Database/*.ffdata $DatabaseLocal/
-	    time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
+	    echo "Copying the DB directory to local temp"
+	    DatabaseLocal=$LOCALTMP/`basename $Database`
+	    time $MpiExecEachNode mkdir -p $DatabaseLocal
+	    if [[ $Mode = "bfd_deflate" ]]; then
+		time $MpiExecEachNode cp -r $Database/*_cs219.ffdata $DatabaseLocal/
+		time $MpiExecEachNode cp -r $Database/*_cs219.ffindex $DatabaseLocal/
+	    else
+		time $MpiExecEachNode cp -r $Database/*.ffdata $DatabaseLocal/
+		time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
+	    fi
+	    Database=$DatabaseLocal
 	fi
-	Database=$DatabaseLocal
     fi
 fi
 
