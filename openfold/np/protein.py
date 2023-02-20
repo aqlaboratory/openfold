@@ -62,7 +62,7 @@ class Protein:
     # Chain indices for multi-chain predictions
     chain_index: Optional[np.ndarray] = None
 
-    # Optional remark about the protein. Included as a comment in output PDB 
+    # Optional remark about the protein. Included as a comment in output PDB
     # files
     remark: Optional[str] = None
 
@@ -177,7 +177,7 @@ def from_proteinnet_string(proteinnet_str: str) -> Protein:
         tag.strip() for tag in re.split(tag_re, proteinnet_str) if len(tag) > 0
     ]
     groups = zip(tags[0::2], [l.split('\n') for l in tags[1::2]])
-   
+
     atoms = ['N', 'CA', 'C']
     aatype = None
     atom_positions = None
@@ -252,7 +252,7 @@ def add_pdb_headers(prot: Protein, pdb_str: str) -> str:
     """
     out_pdb_lines = []
     lines = pdb_str.split('\n')
-    
+
     remark = prot.remark
     if(remark is not None):
         out_pdb_lines.append(f"REMARK {remark}")
@@ -347,7 +347,7 @@ def to_pdb(prot: Protein) -> str:
                 0
             ]  # Protein supports only C, N, O, S, this works.
             charge = ""
-    
+
             chain_tag = "A"
             if(chain_index is not None):
                 chain_tag = chain_tags[chain_index[i]]
@@ -402,6 +402,10 @@ def to_modelcif(prot: Protein) -> str:
       ModelCIF string.
     """
 
+    restypes = residue_constants.restypes + ["X"]
+    res_1to3 = lambda r: residue_constants.restype_1to3.get(restypes[r], "UNK")
+    atom_types = residue_constants.atom_types
+
     atom_mask = prot.atom_mask
     aatype = prot.aatype
     atom_positions = prot.atom_positions
@@ -409,16 +413,14 @@ def to_modelcif(prot: Protein) -> str:
     b_factors = prot.b_factors
     chain_index = prot.chain_index
 
-    system = modelcif.System(title='Ligand example')
+    system = modelcif.System(title='OpenFold prediction')
 
-    # Describe the amino acid (polymer) sequences as Entity objects, for both
-    # template and model:
-    model_e = modelcif.Entity('AYVINDSCIA', description='Model subunit')
+    # sequence into entity
+    n = aatype.shape[0]
+    seq = [restypes[aatype[i]] for i in range(n)]
+    model_e = modelcif.Entity("".join(seq), description='Model subunit')
 
-    # Define the model assembly, as two AsymUnits. NonPolymerFromTemplate is a
-    # subclass of AsymUnit that additionally notes the Template from which it
-    # was derived. In this case we state that the ligand was simply copied from
-    # the template into the target (explicit=False):
+    # Define the model assembly
     asymA = modelcif.AsymUnit(model_e, details='Model subunit A', id='A')
     modeled_assembly = modelcif.Assembly((asymA,), name='Modeled assembly')
 
@@ -426,11 +428,55 @@ def to_modelcif(prot: Protein) -> str:
         asym_unit_map = {'A': asymA}
 
         def get_atoms(self):
-            for asym, seq_id, type_symbol, atom_id, x, y, z in atoms:
-                yield modelcif.model.Atom(
-                    asym_unit=self.asym_unit_map[asym], type_symbol=type_symbol,
-                    seq_id=seq_id, atom_id=atom_id, x=x, y=y, z=z,
-                    het=seq_id is None)
+
+            prev_chain_index = 0
+            chain_tags = string.ascii_uppercase
+            # Add all atom sites.
+            for i in range(n):
+                res_name_3 = res_1to3(aatype[i])
+                for atom_name, pos, mask, b_factor in zip(
+                        atom_types, atom_positions[i], atom_mask[i], b_factors[i]
+                ):
+                    if mask < 0.5:
+                        continue
+
+                    name = atom_name if len(atom_name) == 4 else f" {atom_name}"
+                    element = atom_name[0]  # Protein supports only C, N, O, S, this works.
+
+                    chain_tag = "A"
+                    if chain_index is not None:
+                        chain_tag = chain_tags[chain_index[i]]
+
+                    # TODO check that residue indices are ok
+                    # TODO how to set residue types? do they come from the entity sequence set above?
+                    yield modelcif.model.Atom(
+                        asym_unit=asymA, type_symbol=element,
+                        seq_id=residue_index[i], atom_id=name,
+                        x=pos[0], y=pos[1], z=pos[2],
+                        het=False, biso=b_factor, occupancy=1.00)
+
+                # TODO multiple chains
+                # should_terminate = (i == n - 1)
+                # if(chain_index is not None):
+                #     if(i != n - 1 and chain_index[i + 1] != prev_chain_index):
+                #         should_terminate = True
+                #         prev_chain_index = chain_index[i + 1]
+                #
+                # if(should_terminate):
+                #     # Close the chain.
+                #     chain_end = "TER"
+                #     chain_termination_line = (
+                #         f"{chain_end:<6}{atom_index:>5}      "
+                #         f"{res_1to3(aatype[i]):>3} "
+                #         f"{chain_tag:>1}{residue_index[i]:>4}"
+                #     )
+                #     pdb_lines.append(chain_termination_line)
+                #     atom_index += 1
+                #
+                #     if(i != n - 1):
+                #         # "prev" is a misnomer here. This happens at the beginning of
+                #         # each new chain.
+                #         pdb_lines.extend(get_pdb_headers(prot, prev_chain_index))
 
     # Add the model and modeling protocol to the file and write them out:
     model = MyModel(assembly=modeled_assembly, name='Best scoring model')
@@ -442,10 +488,10 @@ def to_modelcif(prot: Protein) -> str:
     # protocol.steps.append(modelcif.protocol.ModelingStep(
     #     input_data=aln, output_data=model))
     system.protocols.append(protocol)
-
-    with open('/Users/jose/output3.cif', 'w') as fh:
-        modelcif.dumper.write(fh, [system])
-
+    fh = io.StringIO()
+    modelcif.dumper.write(fh, [system])
+    modelcifstr = fh.getvalue()
+    return modelcifstr
 
 
 def ideal_atom_mask(prot: Protein) -> np.ndarray:
@@ -499,3 +545,12 @@ def from_prediction(
         parents=parents,
         parents_chain_index=parents_chain_index,
     )
+
+
+if __name__ == "__main__":
+    with open('/home/jose/Downloads/171l.pdb', 'r') as file:
+        pdbstr = file.read()
+
+    prot = from_pdb_string(pdbstr)
+    cifstr = to_modelcif(prot)
+    print(cifstr)
