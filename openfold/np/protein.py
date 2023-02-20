@@ -501,10 +501,6 @@ def to_modelcif(prot: Protein) -> str:
     model_group = modelcif.model.ModelGroup([model], name='All models')
     system.model_groups.append(model_group)
 
-    protocol = modelcif.protocol.Protocol()
-    # protocol.steps.append(modelcif.protocol.ModelingStep(
-    #     input_data=aln, output_data=model))
-    system.protocols.append(protocol)
     fh = io.StringIO()
     modelcif.dumper.write(fh, [system])
     modelcifstr = fh.getvalue()
@@ -567,7 +563,7 @@ def from_prediction(
 if __name__ == "__main__":
     pdb_file = '/home/jose/Downloads/171l.pdb'
     # pdb_file = '/home/jose/Downloads/2trx.pdb'
-    cif_file = '/home/jose/test1.cif'
+    cif_file = '/home/jose/test2.cif'
 
     with open(pdb_file, 'r') as file:
         pdbstr = file.read()
