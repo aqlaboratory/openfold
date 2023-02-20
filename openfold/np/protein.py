@@ -503,8 +503,7 @@ def to_modelcif(prot: Protein) -> str:
 
     fh = io.StringIO()
     modelcif.dumper.write(fh, [system])
-    modelcifstr = fh.getvalue()
-    return modelcifstr
+    return fh.getvalue()
 
 
 def ideal_atom_mask(prot: Protein) -> np.ndarray:
