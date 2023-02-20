@@ -23,6 +23,12 @@ import string
 from openfold.np import residue_constants
 from Bio.PDB import PDBParser
 import numpy as np
+import modelcif
+import modelcif.model
+import modelcif.dumper
+import modelcif.reference
+import modelcif.protocol
+import modelcif.alignment
 
 
 FeatureDict = Mapping[str, np.ndarray]
@@ -383,6 +389,63 @@ def to_pdb(prot: Protein) -> str:
     pdb_lines.append("END")
     pdb_lines.append("")
     return "\n".join(pdb_lines)
+
+
+def to_modelcif(prot: Protein) -> str:
+    """
+    Converts a `Protein` instance to a ModelCIF string.
+
+    Args:
+      prot: The protein to convert to PDB.
+
+    Returns:
+      ModelCIF string.
+    """
+
+    atom_mask = prot.atom_mask
+    aatype = prot.aatype
+    atom_positions = prot.atom_positions
+    residue_index = prot.residue_index.astype(np.int32)
+    b_factors = prot.b_factors
+    chain_index = prot.chain_index
+
+    system = modelcif.System(title='Ligand example')
+
+    # Describe the amino acid (polymer) sequences as Entity objects, for both
+    # template and model:
+    model_e = modelcif.Entity('AYVINDSCIA', description='Model subunit')
+
+    # Define the model assembly, as two AsymUnits. NonPolymerFromTemplate is a
+    # subclass of AsymUnit that additionally notes the Template from which it
+    # was derived. In this case we state that the ligand was simply copied from
+    # the template into the target (explicit=False):
+    asymA = modelcif.AsymUnit(model_e, details='Model subunit A', id='A')
+    modeled_assembly = modelcif.Assembly((asymA,), name='Modeled assembly')
+
+    class MyModel(modelcif.model.HomologyModel):
+        asym_unit_map = {'A': asymA}
+
+        def get_atoms(self):
+            for asym, seq_id, type_symbol, atom_id, x, y, z in atoms:
+                yield modelcif.model.Atom(
+                    asym_unit=self.asym_unit_map[asym], type_symbol=type_symbol,
+                    seq_id=seq_id, atom_id=atom_id, x=x, y=y, z=z,
+                    het=seq_id is None)
+
+    # Add the model and modeling protocol to the file and write them out:
+    model = MyModel(assembly=modeled_assembly, name='Best scoring model')
+
+    model_group = modelcif.model.ModelGroup([model], name='All models')
+    system.model_groups.append(model_group)
+
+    protocol = modelcif.protocol.Protocol()
+    # protocol.steps.append(modelcif.protocol.ModelingStep(
+    #     input_data=aln, output_data=model))
+    system.protocols.append(protocol)
+
+    with open('/Users/jose/output3.cif', 'w') as fh:
+        modelcif.dumper.write(fh, [system])
+
 
 
 def ideal_atom_mask(prot: Protein) -> np.ndarray:
