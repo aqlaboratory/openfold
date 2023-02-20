@@ -457,7 +457,7 @@ def to_modelcif(prot: Protein) -> str:
         asym_unit_map[chain_idx] = asym
     modeled_assembly = modelcif.Assembly(asym_unit_map.values(), name='Modeled assembly')
 
-    class MyModel(modelcif.model.HomologyModel):
+    class MyModel(modelcif.model.AbInitioModel):
         def get_atoms(self):
             # Add all atom sites.
             for i in range(n):
