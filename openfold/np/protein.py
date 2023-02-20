@@ -29,6 +29,7 @@ import modelcif.dumper
 import modelcif.reference
 import modelcif.protocol
 import modelcif.alignment
+import modelcif.qa_metric
 
 
 FeatureDict = Mapping[str, np.ndarray]
@@ -457,7 +458,12 @@ def to_modelcif(prot: Protein) -> str:
         asym_unit_map[chain_idx] = asym
     modeled_assembly = modelcif.Assembly(asym_unit_map.values(), name='Modeled assembly')
 
-    class MyModel(modelcif.model.AbInitioModel):
+    class _LocalPLDDT(modelcif.qa_metric.Local, modelcif.qa_metric.PLDDT):
+        name = "pLDDT"
+        software = None
+        description = "Predicted lddt"
+
+    class _MyModel(modelcif.model.AbInitioModel):
         def get_atoms(self):
             # Add all atom sites.
             for i in range(n):
@@ -473,8 +479,24 @@ def to_modelcif(prot: Protein) -> str:
                         x=pos[0], y=pos[1], z=pos[2],
                         het=False, biso=b_factor, occupancy=1.00)
 
+        def add_scores(self):
+            # TODO global scores
+            # self.qa_metrics.extend((_GlobalPLDDT(np.mean(scores_json["plddt"]))))
+            done_residues = {}
+            # local scores
+            for i in range(n):
+                for mask, b_factor in zip(atom_mask[i], b_factors[i]):
+                    if mask < 0.5:
+                        continue
+                    # add 1 per residue, not 1 per atom
+                    if residue_index[i] not in done_residues:
+                        self.qa_metrics.append(
+                            _LocalPLDDT(asym_unit_map[chain_index[i]].residue(residue_index[i]), b_factor))
+                    done_residues[residue_index[i]] = True
+
     # Add the model and modeling protocol to the file and write them out:
-    model = MyModel(assembly=modeled_assembly, name='Best scoring model')
+    model = _MyModel(assembly=modeled_assembly, name='Best scoring model')
+    model.add_scores()
 
     model_group = modelcif.model.ModelGroup([model], name='All models')
     system.model_groups.append(model_group)
@@ -545,7 +567,7 @@ def from_prediction(
 if __name__ == "__main__":
     pdb_file = '/home/jose/Downloads/171l.pdb'
     # pdb_file = '/home/jose/Downloads/2trx.pdb'
-    cif_file = '/home/jose/test.cif'
+    cif_file = '/home/jose/test1.cif'
 
     with open(pdb_file, 'r') as file:
         pdbstr = file.read()
