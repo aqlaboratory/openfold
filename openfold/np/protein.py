@@ -463,6 +463,11 @@ def to_modelcif(prot: Protein) -> str:
         software = None
         description = "Predicted lddt"
 
+    class _GlobalPLDDT(modelcif.qa_metric.Global, modelcif.qa_metric.PLDDT):
+        name = "pLDDT"
+        software = None
+        description = "Global pLDDT, mean of per-residue pLDDTs"
+
     class _MyModel(modelcif.model.AbInitioModel):
         def get_atoms(self):
             # Add all atom sites.
@@ -480,19 +485,27 @@ def to_modelcif(prot: Protein) -> str:
                         het=False, biso=b_factor, occupancy=1.00)
 
         def add_scores(self):
-            # TODO global scores
-            # self.qa_metrics.extend((_GlobalPLDDT(np.mean(scores_json["plddt"]))))
-            done_residues = {}
             # local scores
+            plldt_per_residue = {}
             for i in range(n):
                 for mask, b_factor in zip(atom_mask[i], b_factors[i]):
                     if mask < 0.5:
                         continue
                     # add 1 per residue, not 1 per atom
-                    if residue_index[i] not in done_residues:
-                        self.qa_metrics.append(
-                            _LocalPLDDT(asym_unit_map[chain_index[i]].residue(residue_index[i]), b_factor))
-                    done_residues[residue_index[i]] = True
+                    if chain_index[i] not in plldt_per_residue:
+                        # first time a chain index is seen: add the key and start the residue dict
+                        plldt_per_residue[chain_index[i]] = {residue_index[i]: b_factor}
+                    if residue_index[i] not in plldt_per_residue[chain_index[i]]:
+                        plldt_per_residue[chain_index[i]][residue_index[i]] = b_factor
+            plddts = []
+            for chain_idx in plldt_per_residue:
+                for residue_idx in plldt_per_residue[chain_idx]:
+                    plddt = plldt_per_residue[chain_idx][residue_idx]
+                    plddts.append(plddt)
+                    self.qa_metrics.append(
+                        _LocalPLDDT(asym_unit_map[chain_idx].residue(residue_idx), plddt))
+            # global score
+            self.qa_metrics.append((_GlobalPLDDT(np.mean(plddts))))
 
     # Add the model and modeling protocol to the file and write them out:
     model = _MyModel(assembly=modeled_assembly, name='Best scoring model')
@@ -560,14 +573,15 @@ def from_prediction(
 
 
 if __name__ == "__main__":
-    pdb_file = '/home/jose/Downloads/171l.pdb'
+    # pdb_file = '/Users/jose/Downloads/171l.pdb'
     # pdb_file = '/home/jose/Downloads/2trx.pdb'
-    cif_file = '/home/jose/test2.cif'
+    pdb_file = '/Users/jose/Downloads/1bwd.pdb'
+    cif_file = '/Users/jose/test2.cif'
 
     with open(pdb_file, 'r') as file:
         pdbstr = file.read()
 
-    prot = from_pdb_string(pdbstr, "A")
+    prot = from_pdb_string(pdbstr)
     cifstr = to_modelcif(prot)
     print(cifstr)
     with open(cif_file, 'w') as fw:
