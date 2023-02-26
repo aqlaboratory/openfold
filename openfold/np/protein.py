@@ -394,7 +394,9 @@ def to_pdb(prot: Protein) -> str:
 
 def to_modelcif(prot: Protein) -> str:
     """
-    Converts a `Protein` instance to a ModelCIF string.
+    Converts a `Protein` instance to a ModelCIF string. Chains with identical modelled coordinates
+    will be treated as the same polymer entity. But note that if chains differ in modelled regions,
+    no attempt is made at identifying them as a single polymer entity.
 
     Args:
       prot: The protein to convert to PDB.
@@ -430,13 +432,12 @@ def to_modelcif(prot: Protein) -> str:
         seq.append(restypes[aatype[i]])
         last_chain_idx = chain_index[i]
     # finally add the last chain
-    if last_chain_idx not in seqs:
-        seqs[last_chain_idx] = seq
+    seqs[last_chain_idx] = seq
 
     # now reduce sequences to unique ones (note this won't work if different asyms have different unmodelled regions)
     unique_seqs = {}
-    for chain_idx in seqs.keys():
-        seq = "".join(seqs[chain_idx])
+    for chain_idx, seq_list in seqs.items():
+        seq = "".join(seq_list)
         if seq in unique_seqs:
             unique_seqs[seq].append(chain_idx)
         else:
@@ -445,7 +446,7 @@ def to_modelcif(prot: Protein) -> str:
     # adding 1 entity per unique sequence
     entities_map = {}
     for key, value in unique_seqs.items():
-        model_e = modelcif.Entity("".join(key), description='Model subunit')
+        model_e = modelcif.Entity(key, description='Model subunit')
         for chain_idx in value:
             entities_map[chain_idx] = model_e
 
@@ -486,21 +487,21 @@ def to_modelcif(prot: Protein) -> str:
 
         def add_scores(self):
             # local scores
-            plldt_per_residue = {}
+            plddt_per_residue = {}
             for i in range(n):
                 for mask, b_factor in zip(atom_mask[i], b_factors[i]):
                     if mask < 0.5:
                         continue
                     # add 1 per residue, not 1 per atom
-                    if chain_index[i] not in plldt_per_residue:
+                    if chain_index[i] not in plddt_per_residue:
                         # first time a chain index is seen: add the key and start the residue dict
-                        plldt_per_residue[chain_index[i]] = {residue_index[i]: b_factor}
-                    if residue_index[i] not in plldt_per_residue[chain_index[i]]:
-                        plldt_per_residue[chain_index[i]][residue_index[i]] = b_factor
+                        plddt_per_residue[chain_index[i]] = {residue_index[i]: b_factor}
+                    if residue_index[i] not in plddt_per_residue[chain_index[i]]:
+                        plddt_per_residue[chain_index[i]][residue_index[i]] = b_factor
             plddts = []
-            for chain_idx in plldt_per_residue:
-                for residue_idx in plldt_per_residue[chain_idx]:
-                    plddt = plldt_per_residue[chain_idx][residue_idx]
+            for chain_idx in plddt_per_residue:
+                for residue_idx in plddt_per_residue[chain_idx]:
+                    plddt = plddt_per_residue[chain_idx][residue_idx]
                     plddts.append(plddt)
                     self.qa_metrics.append(
                         _LocalPLDDT(asym_unit_map[chain_idx].residue(residue_idx), plddt))
