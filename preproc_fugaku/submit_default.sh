@@ -45,8 +45,7 @@ elif "true"; then
 	    input_examples/short.fasta \
 	    output_strong_$NumThreads \
 	    small_bfd \
-	    "" \
-	    "--ignore_unique"
+	    "" 
 	sleep 1
     done
 
@@ -74,7 +73,7 @@ else
 	    output_weak_$NumProcs \
 	    small_bfd \
 	    "" \
-	    "--ignore_unique --weak_scale"
+	    "--weak_scale"
 	sleep 1
     done
 fi

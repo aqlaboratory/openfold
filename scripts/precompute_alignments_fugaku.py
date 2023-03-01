@@ -8,6 +8,7 @@ from multiprocessing import cpu_count
 from shutil import copyfile
 import tempfile
 import traceback
+from mpi4py import MPI
 
 import os
 os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
@@ -25,52 +26,37 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 
 def run_seq_group_alignments(seq_groups, alignment_runner, args):
     dirs = set(os.listdir(args.output_dir))
-    for seq, names in seq_groups:
-        first_name = names[0]
-        alignment_dir = os.path.join(args.output_dir, first_name)
+    for seq, name in seq_groups:
+        alignment_dir = os.path.join(args.output_dir, name)
 
         if not os.path.exists(alignment_dir):
             try:
                 os.makedirs(alignment_dir)
             except Exception as e:
-                logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
+                logging.warning(f"Failed to create directory for {name} with exception {e}...")
                 continue
 
         fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
         with os.fdopen(fd, 'w') as fp:
             fp.write(f'>query\n{seq}')
 
-        logging.info(f"Processing for {first_name} on {fasta_path}")
+        logging.info(f"Processing for {name} on {fasta_path}")
         try:
             generated = alignment_runner.run(
                 fasta_path,
                 alignment_dir,
-                input_label=first_name,
+                input_label=name,
                 ignore_if_exists=True,
                 max_memory=args.max_memory,
             )
-            logging.info(f"Processing for {first_name} done!")
+            logging.info(f"Processing for {name} done!")
         except:
             traceback.print_exc()
-            logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
+            logging.warning(f"Failed to run alignments for {name}. Skipping...")
             os.remove(fasta_path)
             continue
 
         os.remove(fasta_path)
-
-        for name in names[1:]:
-            cp_dir = os.path.join(args.output_dir, name)
-            if not os.path.exists(cp_dir):
-                os.makedirs(cp_dir, exist_ok=True)
-
-            # TODO: copy files created in this job only
-            for f in generated:
-                f_path = os.path.join(alignment_dir, f)
-                if not os.path.exists(f_path):
-                    logging.warning(f"Generated file doesn't exist ({f_path}). Skipping...")
-
-                logging.info(f"Copying result from {first_name} to {name}")
-                copyfile(f_path, os.path.join(cp_dir, f))
 
 
 def make_uniq_seq_groups(input_seqs, input_chains):
@@ -98,16 +84,15 @@ def make_uniq_seq_groups(input_seqs, input_chains):
 def make_uncompleted_seq_groups(input_seqs, input_chains, output_dir, alignment_runner):
     assert len(input_seqs) == len(input_chains)
     items = []
-    for seq, chains in zip(input_seqs, input_chains):
-        first_name = chains[0]
-        alignment_dir = os.path.join(output_dir, first_name)
+    for seq, chain in zip(input_seqs, input_chains):
+        alignment_dir = os.path.join(output_dir, chain)
         dry_run = alignment_runner.dry_run(
             alignment_dir,
-            input_label=first_name,
+            input_label=chain,
             ignore_if_exists=True
         )
         if dry_run:
-            items.append((seq, chains))
+            items.append((seq, chain))
 
     return [x[0] for x in items], [x[1] for x in items]
 
@@ -131,20 +116,18 @@ def main(args):
         uniclust30_deflate_a3m_hhm_path=args.uniclust30_deflate_a3m_hhm_path,
     )
 
+    comm = MPI.COMM_WORLD
+    mpi_rank = comm.Get_rank()
+    mpi_size = comm.Get_size()
+
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
     input_seqs, input_chains = parse_fasta(fasta_str)
     orig_total_count = len(input_seqs)
 
-    if not args.ignore_unique:
-        input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
-    else:
-        logging.warning(f"--ignore_unique is enabled. The process might be redundant")
-        input_chains = [[x] for x in input_chains]
-
     # input_seqs   = [AAA, BBB, ...]
-    # input_chains = [[A_1, A_2], [B_1], ...]
+    # input_chains = [A, B, ...]
 
     # Remove completed chains
     input_seqs, input_chains = make_uncompleted_seq_groups(
@@ -153,21 +136,6 @@ def main(args):
         args.output_dir,
         alignment_runner)
     uncompleted_total_count = len(input_seqs)
-
-    if "OMPI_COMM_WORLD_RANK" in os.environ:
-        # ABCI (OpenMPI)
-        mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
-        mpi_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
-
-    elif "PMIX_RANK" in os.environ:
-        # Fugaku (Fujitsu MPI)
-        mpi_rank = int(os.environ["PMIX_RANK"])
-        mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
-
-    else:
-        logging.warning("MPI rank/size environment variables not found")
-        mpi_rank = 0
-        mpi_size = 1
 
     if args.weak_scale:
         logging.warning(f"--weak_scale is enabled. The process might be redundant")
@@ -228,12 +196,6 @@ if __name__ == "__main__":
         "--use_small_bfd", type=bool, default=False,
     )
 
-    parser.add_argument(
-        "--ignore_unique",
-        dest="ignore_unique", action="store_const",
-        const=True, default=False,
-        help="Do not merge the same sequences (use only for testing)"
-    )
     parser.add_argument(
         "--weak_scale",
         dest="weak_scale", action="store_const",
