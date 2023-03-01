@@ -22,6 +22,8 @@ import logging
 import os
 import re
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
 
@@ -31,6 +33,9 @@ from openfold.data.tools import kalign
 from openfold.data.tools.utils import to_date, load_cif
 from openfold.np import residue_constants
 
+mp_mmcif_load = True
+max_mmcif_loaders = 8
+num_mmcif_loaders = min(max_mmcif_loaders, max(1, int(os.environ.get('OMP_NUM_THREADS', '1')) - 1))
 
 class NoChainsError(Error):
     """An error indicating that template mmCIF didn't have any chains."""
@@ -915,6 +920,11 @@ class TemplateSearchResult:
     warnings: Sequence[str]
 
 
+def _process_init_fn():
+    # disable logging to suppress cif parse info
+    import logging
+    logging.disable(logging.INFO)
+
 class TemplateHitFeaturizer:
     """A class for turning hhr hits to template features."""
     def __init__(
@@ -1047,25 +1057,54 @@ class TemplateHitFeaturizer:
             stk = self._shuffle_top_k_prefiltered
             idx[:stk] = np.random.permutation(idx[:stk])
 
-        for i in idx:
+        if mp_mmcif_load:
+            futures = dict()
+            ctx = mp.get_context('spawn')
+            executor = ProcessPoolExecutor(max_workers=num_mmcif_loaders,
+                                           mp_context=ctx,
+                                           initializer=_process_init_fn)
+
+        for enum, i in enumerate(idx):
             # We got all the templates we wanted, stop processing hits.
             if num_hits >= self.max_hits:
                 break
 
             hit = filtered[i]
 
-            result = _process_single_hit(
-                query_sequence=query_sequence,
-                query_pdb_code=query_pdb_code,
-                hit=hit,
-                mmcif_dir=self._mmcif_dir,
-                max_template_date=template_cutoff_date,
-                release_dates=self._release_dates,
-                obsolete_pdbs=self._obsolete_pdbs,
-                strict_error_check=self._strict_error_check,
-                kalign_binary_path=self._kalign_binary_path,
-                _zero_center_positions=self._zero_center_positions,
-            )
+            if mp_mmcif_load:
+                hit_rate = max(1, num_hits) / max(1, enum)
+                n_extra = int((self.max_hits - num_hits) / hit_rate)
+                for j in filter(lambda x: x not in futures,
+                                idx[enum : enum + n_extra]):
+                    futures[j] = executor.submit(
+                        # func
+                        _process_single_hit,
+                        # params
+                        query_sequence=query_sequence,
+                        query_pdb_code=query_pdb_code,
+                        hit=filtered[j],
+                        mmcif_dir=self._mmcif_dir,
+                        max_template_date=template_cutoff_date,
+                        release_dates=self._release_dates,
+                        obsolete_pdbs=self._obsolete_pdbs,
+                        strict_error_check=self._strict_error_check,
+                        kalign_binary_path=self._kalign_binary_path,
+                        _zero_center_positions=self._zero_center_positions,
+                    )
+                result = futures[i].result()
+            else:
+                result = _process_single_hit(
+                    query_sequence=query_sequence,
+                    query_pdb_code=query_pdb_code,
+                    hit=hit,
+                    mmcif_dir=self._mmcif_dir,
+                    max_template_date=template_cutoff_date,
+                    release_dates=self._release_dates,
+                    obsolete_pdbs=self._obsolete_pdbs,
+                    strict_error_check=self._strict_error_check,
+                    kalign_binary_path=self._kalign_binary_path,
+                    _zero_center_positions=self._zero_center_positions,
+                )
 
             if result.error:
                 errors.append(result.error)
@@ -1087,6 +1126,9 @@ class TemplateHitFeaturizer:
                 num_hits += 1
                 for k in template_features:
                     template_features[k].append(result.features[k])
+
+        if mp_mmcif_load:
+            executor.shutdown(cancel_futures=True)
 
         for name in template_features:
             if num_hits > 0:
