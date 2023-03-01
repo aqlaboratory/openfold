@@ -9,6 +9,9 @@ from shutil import copyfile
 import tempfile
 import traceback
 
+import os
+os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
+
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
 from openfold.data.parsers import parse_fasta
