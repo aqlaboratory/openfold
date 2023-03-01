@@ -70,10 +70,12 @@ mkdir kalign2
 pushd kalign2
 wget http://msa.sbc.su.se/downloads/kalign/current.tar.gz
 tar xf current.tar.gz
-patch -p1 < $OPENFOLDDIR/lib/kalign2.patch
-./configure --prefix=$PREFIX
+sed -i 's/=\ gcc/=\ @CC@/g' Makefile.in
+sed -i 's/-O9\ \ -Wall/@CFLAGS@/g' Makefile.in
+./configure
 make -j48
-make install
+mkdir -p $PREFIX/bin
+cp kalign $PREFIX/bin/
 popd
 
 # pip packages
