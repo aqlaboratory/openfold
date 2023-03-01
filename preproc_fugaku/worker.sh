@@ -129,10 +129,12 @@ if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
 
 	echo "Executing LLIO transfer for BFD files"
 	echo "Bfd=${Bfd}"
+	set +e
 	set -x
 	time $LLIOTransfer \
 	     $Bfd/*_cs219*
 	set +x
+	set -e
 
     else
 	BfdLocal=$LOCALTMP/`basename $Bfd`
@@ -155,10 +157,12 @@ if [[ $DoStaging = 1 ]]; then
     if [[ $DatabaseIsFile = 1 ]]; then
 	if [[ ${IS_FUGAKU} == 1 ]]; then
 	    echo "Executing LLIO transfer for the DB file"
+	    set +e
 	    set -x
 	    time $LLIOTransfer \
 		 $Database
 	    set +x
+	    set -e
 
 	else
 	    echo "Copying the DB file to local temp"
@@ -171,19 +175,23 @@ if [[ $DoStaging = 1 ]]; then
 	if [[ ${IS_FUGAKU} == 1 ]]; then
 	    echo "Executing LLIO transfer for the DB directory"
 	    if [[ $Mode = "bfd_deflate" ]]; then
+		set +e
 		set -x
 		time $LLIOTransfer \
 		     $Database/*_cs219.ffdata \
 		     $Database/*_cs219.ffindex
 		set +x
+		set -e
 
 	    else
 		Exts=(ffdata ffindex)
 		for Ext in ${Exts[@]}; do
+		    set +e
 		    set -x
 		    time $LLIOTransfer \
 			 $Database/*.$Ext
 		    set +x
+		    set -e
 		done
 	    fi
 
@@ -206,22 +214,26 @@ fi
 if [[ -n $BfdA3M ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for deflate BFD"
+	set +e
 	set -x
 	time $LLIOTransfer \
 	     $BfdA3M/*.ffdata \
 	     $BfdA3M/*.ffindex
 	set +x
+	set -e
     fi
 fi
 
 if [[ -n $Uniclust30A3M ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	echo "Executing LLIO transfer for deflate Uniclust30"
+	set +e
 	set -x
 	time $LLIOTransfer \
 	     $Uniclust30A3M/*.ffdata \
 	     $Uniclust30A3M/*.ffindex
 	set +x
+	set -e
     fi
 fi
 
