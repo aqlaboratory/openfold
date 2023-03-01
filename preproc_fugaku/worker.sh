@@ -100,60 +100,59 @@ else
     exit
 fi
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
-    echo "Executing LLIO transfer for OpenFold"
-
-    set -x
-    time $DirTransfer \
-	 $PREFIX/bin \
-	 $PREFIX/lib
-    time $LLIOTransfer \
-	 $OPENFOLDDIR/*.py
-    set +e # Allow errors as some files (such as scripts/setenv) might be already cached
-    time $DirTransfer \
-	 $OPENFOLDDIR/scripts \
-	 $OPENFOLDDIR/openfold \
-	 $OPENFOLDDIR/openfold.egg-info
-    set -e
-    set +x
-fi
-
-DatabaseArgs=""
-if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-
-	if [[ $Mode = "bfd" ]]; then
-	    echo "Mode must be bfd_deflate on Fugaku" >&2
-	    exit
-	fi
-
-	echo "Executing LLIO transfer for BFD files"
-	echo "Bfd=${Bfd}"
-	set +e
-	set -x
-	time $LLIOTransfer \
-	     $Bfd/*_cs219*
-	set +x
-	set -e
-
-    else
-	BfdLocal=$LOCALTMP/`basename $Bfd`
-
-	echo Bfd=$Bfd
-	echo BfdLocal=$BfdLocal
-	echo BfdCs219Data=$BfdCs219Data
-
-	echo "Executing prepare_bfd"
-	time $MpiExecEachNode \
-	     ./prepare_bfd.sh \
-	     $Bfd \
-	     $BfdLocal \
-	     $BfdCs219Data
-	Bfd=$BfdLocal
-    fi
-fi
-
 if [[ $DoStaging = 1 ]]; then
+    if [[ ${IS_FUGAKU} == 1 ]]; then
+	echo "Executing LLIO transfer for OpenFold"
+
+	set -x
+	time $DirTransfer \
+	     $PREFIX/bin \
+	     $PREFIX/lib
+	time $LLIOTransfer \
+	     $OPENFOLDDIR/*.py
+	set +e # Allow errors as some files (such as scripts/setenv) might be already cached
+	time $DirTransfer \
+	     $OPENFOLDDIR/scripts \
+	     $OPENFOLDDIR/openfold \
+	     $OPENFOLDDIR/openfold.egg-info
+	set -e
+	set +x
+    fi
+
+    if [[ $Mode = "bfd" || $Mode = "bfd_deflate" ]]; then
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+
+	    if [[ $Mode = "bfd" ]]; then
+		echo "Mode must be bfd_deflate on Fugaku" >&2
+		exit
+	    fi
+
+	    echo "Executing LLIO transfer for BFD files"
+	    echo "Bfd=${Bfd}"
+	    set +e
+	    set -x
+	    time $LLIOTransfer \
+		 $Bfd/*_cs219*
+	    set +x
+	    set -e
+
+	else
+	    BfdLocal=$LOCALTMP/`basename $Bfd`
+
+	    echo Bfd=$Bfd
+	    echo BfdLocal=$BfdLocal
+	    echo BfdCs219Data=$BfdCs219Data
+
+	    echo "Executing prepare_bfd"
+	    time $MpiExecEachNode \
+		 ./prepare_bfd.sh \
+		 $Bfd \
+		 $BfdLocal \
+		 $BfdCs219Data
+	    Bfd=$BfdLocal
+	fi
+    fi
+
     if [[ $DatabaseIsFile = 1 ]]; then
 	if [[ ${IS_FUGAKU} == 1 ]]; then
 	    echo "Executing LLIO transfer for the DB file"
@@ -209,35 +208,36 @@ if [[ $DoStaging = 1 ]]; then
 	    Database=$DatabaseLocal
 	fi
     fi
-fi
 
-if [[ -n $BfdA3M ]]; then
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-	echo "Executing LLIO transfer for deflate BFD"
-	set +e
-	set -x
-	time $LLIOTransfer \
-	     $BfdA3M/*.ffdata \
-	     $BfdA3M/*.ffindex
-	set +x
-	set -e
+    if [[ -n $BfdA3M ]]; then
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+	    echo "Executing LLIO transfer for deflate BFD"
+	    set +e
+	    set -x
+	    time $LLIOTransfer \
+		 $BfdA3M/*.ffdata \
+		 $BfdA3M/*.ffindex
+	    set +x
+	    set -e
+	fi
     fi
-fi
 
-if [[ -n $Uniclust30A3M ]]; then
-    if [[ ${IS_FUGAKU} == 1 ]]; then
-	echo "Executing LLIO transfer for deflate Uniclust30"
-	set +e
-	set -x
-	time $LLIOTransfer \
-	     $Uniclust30A3M/*.ffdata \
-	     $Uniclust30A3M/*.ffindex
-	set +x
-	set -e
+    if [[ -n $Uniclust30A3M ]]; then
+	if [[ ${IS_FUGAKU} == 1 ]]; then
+	    echo "Executing LLIO transfer for deflate Uniclust30"
+	    set +e
+	    set -x
+	    time $LLIOTransfer \
+		 $Uniclust30A3M/*.ffdata \
+		 $Uniclust30A3M/*.ffindex
+	    set +x
+	    set -e
+	fi
     fi
 fi
 
 echo "Setting DatabaseArgs"
+DatabaseArgs=""
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
 elif [[ $Mode = "pdb70" ]]; then

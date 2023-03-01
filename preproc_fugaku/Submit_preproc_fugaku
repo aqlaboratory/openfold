@@ -53,21 +53,6 @@ fi
 
 LocalTempSize=0Gi
 
-# if [[ $Mode = "uniref90" ]]; then
-#     LocalTempSize=64Gi # 62.4 GiB
-# elif [[ $Mode = "pdb70" ]]; then
-#     LocalTempSize=57Gi # 56.0 GiB
-# elif [[ $Mode = "mgnify" ]]; then
-#     LocalTempSize=65Gi # 63.9 GiB
-# elif [[ $Mode = "small_bfd" ]]; then
-#     LocalTempSize=18Gi # 16.9 GiB
-# elif [[ $Mode = "bfd" ]]; then
-#     LocalTempSize=17Gi # 15.7 GiB
-# else
-#     echo "Invalid Mode: $Mode" >&2
-#     exit
-# fi
-
 ### The directory where data is stored
 DataDir="$DATADIR"
 
