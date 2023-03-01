@@ -20,8 +20,11 @@ import logging
 import shutil
 import tempfile
 import time
+import pickle
+import os
 from typing import Optional
 
+from openfold.data import mmcif_parsing
 
 @contextlib.contextmanager
 def tmpdir_manager(base_dir: Optional[str] = None):
@@ -46,3 +49,20 @@ def to_date(s: str):
     return datetime.datetime(
         year=int(s[:4]), month=int(s[5:7]), day=int(s[8:10])
     )
+
+def load_cif(path: str, hit_pdb_code: str):
+    filename, ext = os.path.splitext(os.path.basename(path))
+
+    if ext == "cif" and os.path.isfile(path):
+        with open(path, "r") as cif_file:
+            cif_string = cif_file.read()
+
+            parsing_result = mmcif_parsing.parse(
+                file_id=hit_pdb_code, mmcif_string=cif_string
+            )
+    else:
+        pkl_path = os.path.join(os.path.dirname(path), filename + ".pkl")
+        with open(pkl_path, "rb") as pkl_file:
+            parsing_result = pickle.load(pkl_file)
+
+    return parsing_result

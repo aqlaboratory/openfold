@@ -19,6 +19,7 @@ from openfold.data import (
     templates,
 )
 from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
+from openfold.data.tools.utils import load_cif
 
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
@@ -88,7 +89,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self._structure_index = _structure_index
         self._alignment_index = _alignment_index
 
-        self.supported_exts = [".cif", ".core", ".pdb"]
+        self.supported_exts = [".cif", ".core", ".pdb", ".pkl"]
 
         valid_modes = ["train", "eval", "predict"]
         if(mode not in valid_modes):
@@ -130,12 +131,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
 
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index):
-        with open(path, 'r') as f:
-            mmcif_string = f.read()
-
-        mmcif_object = mmcif_parsing.parse(
-            file_id=file_id, mmcif_string=mmcif_string
-        )
+        mmcif_object = load_cif(path, file_id)
 
         # Crash if an error is encountered. Any parsing errors should have
         # been dealt with at the alignment stage.
@@ -194,7 +190,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     raise ValueError("Invalid file type")
 
             path += ext
-            if(ext == ".cif"):
+            if(ext == ".cif" or ext == ".pkl"):
                 data = self._parse_mmcif(
                     path, file_id, chain_id, alignment_dir, _alignment_index,
                 )
