@@ -9,6 +9,7 @@ from shutil import copyfile
 import tempfile
 import traceback
 from mpi4py import MPI
+import numpy as np
 
 import os
 os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
@@ -96,6 +97,35 @@ def make_uncompleted_seq_groups(input_seqs, input_chains, output_dir, alignment_
 
     return [x[0] for x in items], [x[1] for x in items]
 
+
+def split_chains(input_seqs, input_chains, mpi_rank, mpi_size):
+    return input_seqs[mpi_rank::mpi_size], input_chains[mpi_rank::mpi_size]
+
+
+def allgather_chains(input_seqs, input_chains, comm):
+    mpi_rank = comm.Get_rank()
+    mpi_size = comm.Get_size()
+
+    assert len(input_seqs) == len(input_chains)
+    my_count = np.array([len(input_seqs)], dtype=np.int32)
+    proc_counts = np.zeros([mpi_size], dtype=np.int32)
+    comm.Allgather(my_count, proc_counts)
+
+    send_seqs = np.array(input_seqs, dtype=str)
+    send_chains = np.array(input_chains, dtype=str)
+
+    recv_seqs = []
+    recv_chains = []
+    # TODO: optimize
+    for i, count in enumerate(proc_counts):
+        recv_seq_buf, recv_chain_buf = \
+            comm.bcast([send_seqs, send_chains] if mpi_rank == i else None, root=i)
+        recv_seqs.extend(  list(recv_seq_buf  ))
+        recv_chains.extend(list(recv_chain_buf))
+
+    return recv_seqs, recv_chains
+
+
 def main(args):
     # Build the alignment tool runner
     alignment_runner = AlignmentRunner(
@@ -119,6 +149,8 @@ def main(args):
     comm = MPI.COMM_WORLD
     mpi_rank = comm.Get_rank()
     mpi_size = comm.Get_size()
+    assert mpi_size > 0
+    assert mpi_rank >= 0 and mpi_rank < mpi_size
 
     input_file = args.input_file
     with open(input_file, 'r') as fp:
@@ -130,11 +162,15 @@ def main(args):
     # input_chains = [A, B, ...]
 
     # Remove completed chains
+    input_seqs, input_chains = split_chains(input_seqs, input_chains, mpi_rank, mpi_size)
     input_seqs, input_chains = make_uncompleted_seq_groups(
         input_seqs,
         input_chains,
         args.output_dir,
         alignment_runner)
+
+    input_seqs, input_chains = allgather_chains(input_seqs, input_chains, comm)
+
     uncompleted_total_count = len(input_seqs)
 
     if args.weak_scale:
@@ -145,11 +181,8 @@ def main(args):
         input_seqs = [input_seqs[0]]*mpi_size
         input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
 
-    assert mpi_size > 0
-    assert mpi_rank >= 0 and mpi_rank < mpi_size
     total_count = len(input_seqs)
-    input_seqs   =   input_seqs[mpi_rank::mpi_size]
-    input_chains = input_chains[mpi_rank::mpi_size]
+    input_seqs, input_chains = split_chains(input_seqs, input_chains, mpi_rank, mpi_size)
 
     logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
     logging.info(f"max memory: {args.max_memory}")
