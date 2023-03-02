@@ -28,6 +28,11 @@ from openfold.data.tools import jackhmmer, hhblits, hhsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
 
+PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
+MGNIFY_OUT_FILENAME    = "mgnify_hits.a3m"
+UNIREF90_OUT_FILENAME  = "uniref90_hits.a3m"
+BFD_OUT_FILENAME       = "bfd_uniclust_hits.a3m"
+SMALL_BFD_OUT_FILENAME = "small_bfd_hits.sto"
 
 FeatureDict = Mapping[str, np.ndarray]
 
@@ -275,7 +280,6 @@ class AlignmentRunner:
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
-        use_ok_files: Optional[bool] = False,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
         bfd_deflate_a3m_hhm_path: Optional[str] = None,
@@ -314,8 +318,6 @@ class AlignmentRunner:
                 Max number of uniref hits
             mgnify_max_hits:
                 Max number of mgnify hits
-            use_ok_files:
-                Write _OK files after preprocessing
             disable_write_permission:
                 Apply chmod 440 after preprocessing
             timeout:
@@ -426,16 +428,27 @@ class AlignmentRunner:
                 n_cpu=no_cpus,
             )
 
-        self.use_ok_files = use_ok_files
         self.disable_write_permission = disable_write_permission
         self.timeout = timeout
 
-    def is_not_processed_yet(
+    def is_uncomplted(
             self,
             ignore_if_exists: bool,
             path: str) -> bool:
-        return not (ignore_if_exists and \
-                    os.path.exists(path+("_ok" if self.use_ok_files else "")))
+        return not (ignore_if_exists and os.path.exists(path))
+
+    def write_safely(
+            self,
+            out_path: str,
+            content: Any) -> None:
+        temp_path = out_path+".temp"
+        with open(temp_path, "w") as f:
+            f.write(content)
+
+        os.rename(temp_path, out_path)
+
+        if self.disable_write_permission:
+            Path(out_path).chmod(0o440)
 
     def run(
         self,
@@ -456,26 +469,15 @@ class AlignmentRunner:
         else:
             preexec_fn = None
 
-        def touch_ok(path):
-            if self.use_ok_files:
-                p = Path(path+"_ok")
-                p.touch()
-                if self.disable_write_permission:
-                    p.chmod(0o440)
-
-            if self.disable_write_permission:
-                Path(path).chmod(0o440)
-
         generated = []
 
         if(self.jackhmmer_uniref90_runner is not None or \
            self.hhsearch_pdb70_runner is not None):
-            uniref90_out_filename = "uniref90_hits.a3m"
-            uniref90_out_path = os.path.join(output_dir, uniref90_out_filename)
+            uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
             uniref90_msa_as_a3m = None
 
         if(self.jackhmmer_uniref90_runner is not None and \
-           self.is_not_processed_yet(ignore_if_exists, uniref90_out_path)):
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path,
                 input_label,
@@ -486,16 +488,12 @@ class AlignmentRunner:
                 jackhmmer_uniref90_result["sto"],
                 max_sequences=self.uniref_max_hits
             )
-            with open(uniref90_out_path, "w") as f:
-                f.write(uniref90_msa_as_a3m)
-
-            touch_ok(uniref90_out_path)
-            generated.append(uniref90_out_filename)
+            self.write_safely(uniref90_out_path, uniref90_msa_as_a3m)
+            generated.append(UNIREF_OUT_FILENAME)
 
         if(self.hhsearch_pdb70_runner is not None):
-            pdb70_out_filename = "pdb70_hits.hhr"
-            pdb70_out_path = os.path.join(output_dir, pdb70_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, pdb70_out_path):
+            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
                 if uniref90_msa_as_a3m is None:
                     with open(uniref90_out_path, "r") as f:
                         uniref90_msa_as_a3m = f.read()
@@ -506,16 +504,12 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )
-                with open(pdb70_out_path, "w") as f:
-                    f.write(hhsearch_result)
-
-                touch_ok(pdb70_out_path)
-                generated.append(pdb70_out_filename)
+                self.write_safely(pdb70_out_path, hhsearch_result)
+                generated.append(PDB70_OUT_FILENAME)
 
         if(self.jackhmmer_mgnify_runner is not None):
-            mgnify_out_filename = "mgnify_hits.a3m"
-            mgnify_out_path = os.path.join(output_dir, mgnify_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, mgnify_out_path):
+            mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, mgnify_out_path):
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path,
                     input_label,
@@ -526,32 +520,24 @@ class AlignmentRunner:
                     jackhmmer_mgnify_result["sto"],
                     max_sequences=self.mgnify_max_hits
                 )
-                with open(mgnify_out_path, "w") as f:
-                    f.write(mgnify_msa_as_a3m)
-
-                touch_ok(mgnify_out_path)
-                generated.append(mgnify_out_filename)
+                self.write_safely(mgnify_out_path, mgnify_msa_as_a3m)
+                generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_filename = "small_bfd_hits.sto"
-            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, bfd_out_path):
+            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path,
                     input_label,
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
-                with open(bfd_out_path, "w") as f:
-                    f.write(jackhmmer_small_bfd_result["sto"])
-
-                touch_ok(bfd_out_path)
-                generated.append(bfd_out_filename)
+                self.write_safely(bfd_out_path, jackhmmer_small_bfd_result["sto"])
+                generated.append(SMALL_BFD_OUT_FILENAME)
 
         elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_filename = "bfd_uniclust_hits.a3m"
-            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, bfd_out_path):
+            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 hhblits_bfd_uniclust_result = (
                     self.hhblits_bfd_uniclust_runner.query(
                         fasta_path,
@@ -561,11 +547,8 @@ class AlignmentRunner:
                     )
                 )
                 if output_dir is not None:
-                    with open(bfd_out_path, "w") as f:
-                        f.write(hhblits_bfd_uniclust_result["a3m"])
-
-                    touch_ok(bfd_out_path)
-                    generated.append(bfd_out_filename)
+                    self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result["a3m"])
+                    generated.append(BFD_OUT_FILENAME)
 
         return generated
 
@@ -579,36 +562,31 @@ class AlignmentRunner:
 
         if(self.jackhmmer_uniref90_runner is not None or \
            self.hhsearch_pdb70_runner is not None):
-            uniref90_out_filename = "uniref90_hits.a3m"
-            uniref90_out_path = os.path.join(output_dir, uniref90_out_filename)
+            uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
             uniref90_msa_as_a3m = None
 
         if(self.jackhmmer_uniref90_runner is not None and \
-           self.is_not_processed_yet(ignore_if_exists, uniref90_out_path)):
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
             return True
 
         if(self.hhsearch_pdb70_runner is not None):
-            pdb70_out_filename = "pdb70_hits.hhr"
-            pdb70_out_path = os.path.join(output_dir, pdb70_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, pdb70_out_path):
+            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
                 return True
 
         if(self.jackhmmer_mgnify_runner is not None):
-            mgnify_out_filename = "mgnify_hits.a3m"
-            mgnify_out_path = os.path.join(output_dir, mgnify_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, mgnify_out_path):
+            mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, mgnify_out_path):
                 return True
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_filename = "small_bfd_hits.sto"
-            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, bfd_out_path):
+            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 return True
 
         elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_filename = "bfd_uniclust_hits.a3m"
-            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
-            if self.is_not_processed_yet(ignore_if_exists, bfd_out_path):
+            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 return True
 
         return False
