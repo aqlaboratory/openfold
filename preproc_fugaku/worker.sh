@@ -20,12 +20,14 @@ echo Mode=$Mode
 echo ScriptArgs=$ScriptArgs
 echo NumTotalThreads=$NumTotalThreads
 
-# DBs
+# Database path in $DataDir
 Uniref90=$DataDir/uniref90/uniref90.fasta
 Pdb70=$DataDir/pdb70
 Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
-
 SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
+Bfd=$DataDir/bfd
+Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
+BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
 if [[ $Mode = "bfd_deflate" ]]; then
     if [[ ${IS_FUGAKU} == 1 ]]; then
@@ -41,9 +43,6 @@ else
     BfdA3M=""
     Uniclust30A3M=""
 fi
-Bfd=$DataDir/bfd
-Uniclust30=$DataDir/uniclust30/uniclust30_2018_08
-BfdCs219Data=$Bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata
 
 # commands
 Script=../scripts/precompute_alignments_fugaku.py
