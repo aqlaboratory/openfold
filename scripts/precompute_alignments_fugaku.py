@@ -30,61 +30,87 @@ UNCOMPLETED_FLAG_AR_OP = MPI.LOR
 
 
 def run_seq_group_alignments(seqs, alignment_runner, args):
-    dirs = set(os.listdir(args.output_dir))
-    for seq, name in seqs:
-        alignment_dir = os.path.join(args.output_dir, name)
+    for seq, names in seqs:
+        if isinstance(names, str):
+            names = [names]
 
-        if not os.path.exists(alignment_dir):
-            try:
-                os.makedirs(alignment_dir)
-            except Exception as e:
-                logging.warning(f"Failed to create directory for {name} with exception {e}...")
-                continue
+        first_generated = None
+        for i_name, name in enumerate(names):
+            alignment_dir = os.path.join(args.output_dir, name)
 
-        fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
-        with os.fdopen(fd, 'w') as fp:
-            fp.write(f'>query\n{seq}')
+            if not os.path.exists(alignment_dir):
+                try:
+                    os.makedirs(alignment_dir)
+                except Exception as e:
+                    logging.warning(f"Failed to create directory for {name} with exception {e}...")
+                    continue
 
-        logging.info(f"Processing for {name} on {fasta_path}")
-        try:
-            generated = alignment_runner.run(
-                fasta_path,
-                alignment_dir,
-                input_label=name,
-                ignore_if_exists=True,
-                max_memory=args.max_memory,
-            )
-            logging.info(f"Processing for {name} done!")
-        except:
-            traceback.print_exc()
-            logging.warning(f"Failed to run alignments for {name}. Skipping...")
-            os.remove(fasta_path)
-            continue
+            if i_name == 0:
+                fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
+                with os.fdopen(fd, 'w') as fp:
+                    fp.write(f'>query\n{seq}')
 
-        os.remove(fasta_path)
+                logging.info(f"Processing for {name} on {fasta_path}")
+                try:
+                    generated = alignment_runner.run(
+                        fasta_path,
+                        alignment_dir,
+                        input_label=name,
+                        ignore_if_exists=True,
+                        max_memory=args.max_memory,
+                    )
+                    if i_name == 0:
+                        first_generated = generated
+
+                    logging.info(f"Processing for {name} done!")
+                except:
+                    traceback.print_exc()
+                    logging.warning(f"Failed to run alignments for {name}. Skipping...")
+                    os.remove(fasta_path)
+                    continue
+
+                os.remove(fasta_path)
+
+            else:
+                if first_generated is None:
+                    logging.warning(f"Failed to run alignments for {name}. Skipping...")
+                    continue
+
+                else:
+                    first_name = names[0]
+                    logging.info(f"Linking already generated alignment for {name} from {first_name}")
+                    for f in first_generated:
+                        os.symlink(
+                            os.path.join("..", first_name, f),
+                            os.path.join(alignment_dir, f))
 
 
-# TODO: remove
-def make_uniq_seqs(input_seqs, input_chains):
-    assert len(input_seqs) == len(input_chains)
+def get_unique_seqs(input_seq_chains):
+    """
+    Returns a set of unique sequences.
+
+    Args:
+        input_seq_chains:
+            A list of (seq., chain_name) tuples
+    Returns:
+        A list of (seq., [chain_name, ...]) tuples
+    """
+
+    input_chains = [x[1] for x in input_seq_chains]
     assert len(input_chains) == len(set(input_chains)) # Chain IDs must be unique
 
-    dic = {}
-    for seq, chain in zip(input_seqs, input_chains):
-        if seq not in dic.keys():
-            dic[seq] = []
+    s2c = {}
+    for seq, chain in input_seq_chains:
+        if seq not in s2c.keys():
+            s2c[seq] = []
 
-        dic[seq].append(chain)
+        s2c[seq].append(chain)
 
-    for k in dic.keys():
-        dic[k] = sorted(dic[k])
-
-    items = list(dic.items())
+    for seq in s2c.keys():
+        s2c[seq] = list(sorted(s2c[seq]))
 
     # items must be inter-process consistent as it is divided by processes
-    items = sorted(items, key=lambda x: x[1])
-
-    return [x[0] for x in items], [x[1] for x in items]
+    return list(sorted(s2c.items(), key=lambda x: x[0]))
 
 
 def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
@@ -93,7 +119,7 @@ def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
 
     Args:
         input_seq_chains:
-            list of (seq., chain_name) tuples. Must be identical among all ranks
+            A list of (seq., chain_name) tuples. Must be identical among all ranks
         output_dir:
             Path to the root output directory
         alignment_runner:
@@ -122,13 +148,13 @@ def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
 
     Args:
         input_seq_chains:
-            list of (seq., chain_name) tuples. Must be identical among all ranks
+            A list of (seq., chain_name) tuples. Must be identical among all ranks
         comm:
             mpi4py communicator
         alignment_runner:
             The alignment runner
     Returns:
-        list of (seq., chain_name) tuples
+        A list of (seq., chain_name) tuples
     """
     mpi_rank = comm.Get_rank()
     mpi_size = comm.Get_size()
@@ -184,6 +210,15 @@ def main(args):
 
     # Remove completed chains
     input_seq_chains = get_uncompleted_seqs(input_seq_chains, comm, alignment_runner)
+
+    # Remove duplicated seqs.
+    if args.unique:
+        if mpi_rank == 0:
+            logging.warning(
+                "The --unique option might be slow because all ranks compute unique sequences. "
+                "Consider removing duplicated sequences from the input file manually.")
+        input_seq_chains = get_unique_seqs(input_seq_chains)
+
     uncompleted_total_count = len(input_seq_chains)
 
     # Distribute uncompleted chains
@@ -248,6 +283,14 @@ if __name__ == "__main__":
     parser.add_argument(
         '--max_memory', type=int, default=None
     )
+    parser.add_argument(
+        "--unique",
+        dest="unique",
+        default=False,
+        const=True,
+        action="store_const",
+    )
+
 
     args = parser.parse_args()
 
