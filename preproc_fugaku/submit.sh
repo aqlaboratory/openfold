@@ -66,7 +66,7 @@ for Database in ${JackhmmerDatabases[@]}; do
     fi
 done
 
-# Jackhmmer a HHserach job
+# Submit a HHserach job
 if (( $Do_pdb70  == 1 )); then
     if (( $Do_uniref90  == 1 )); then
 	# Follow the corresponding uniref90 job
