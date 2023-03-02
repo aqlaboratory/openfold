@@ -30,12 +30,15 @@ UNCOMPLETED_FLAG_AR_OP = MPI.LOR
 
 
 def run_seq_group_alignments(seqs, alignment_runner, args):
+    completed_count = 0
+    total_count = 0
     for seq, names in seqs:
         if isinstance(names, str):
             names = [names]
 
         first_generated = None
         for i_name, name in enumerate(names):
+            total_count += 1
             alignment_dir = os.path.join(args.output_dir, name)
 
             if not os.path.exists(alignment_dir):
@@ -63,11 +66,11 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
                         first_generated = generated
 
                     logging.info(f"Processing for {name} done!")
+                    completed_count += 1
+
                 except:
                     traceback.print_exc()
                     logging.warning(f"Failed to run alignments for {name}. Skipping...")
-                    os.remove(fasta_path)
-                    continue
 
                 os.remove(fasta_path)
 
@@ -76,13 +79,17 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
                     logging.warning(f"Failed to run alignments for {name}. Skipping...")
                     continue
 
-                else:
-                    first_name = names[0]
-                    logging.info(f"Linking already generated alignment for {name} from {first_name}")
-                    for f in first_generated:
-                        os.symlink(
-                            os.path.join("..", first_name, f),
-                            os.path.join(alignment_dir, f))
+                first_name = names[0]
+                logging.info(f"Linking already generated alignment for {name} from {first_name}")
+                for f in first_generated:
+                    os.symlink(
+                        os.path.join("..", first_name, f),
+                        os.path.join(alignment_dir, f))
+
+                logging.info(f"Processing for {name} done!")
+                completed_count += 1
+
+    return completed_count, total_count
 
 
 def get_unique_seqs(input_seq_chains):
@@ -228,12 +235,24 @@ def main(args):
     logging.info(f"max memory: {args.max_memory}")
     logging.info(f"my chains: {input_seq_chains}")
 
-    run_seq_group_alignments(
+    completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
         alignment_runner,
         args)
 
-    logging.info("DONE!")
+    logging.info(f"DONE! rank={mpi_rank}, "
+                 f"my completed count={completed_count}, "
+                 f"my total count={total_count}")
+
+    completed_count = comm.allreduce(completed_count)
+    total_count = comm.allreduce(total_count)
+
+    if mpi_rank == 0:
+        if args.report_out_path is not None:
+            remaining = total_count-completed_count
+            assert remaining >= 0
+            with open(args.report_out_path, "w") as f:
+                f.write(str(remaining))
 
 
 if __name__ == "__main__":
@@ -282,6 +301,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--max_memory', type=int, default=None
+    )
+    parser.add_argument(
+        '--report_out_path', type=str, default=None
     )
     parser.add_argument(
         "--unique",

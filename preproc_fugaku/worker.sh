@@ -296,6 +296,8 @@ while (( $NumProcs > 0 )); do
     fi
     echo MpiExecTask=$MpiExecTask
 
+    ReportOutPath=`mktemp`
+
     $MpiExecTask \
 	$MpiArgs \
 	hostname
@@ -312,10 +314,22 @@ while (( $NumProcs > 0 )); do
 	--kalign_binary_path $BinDir/kalign \
 	--timeout $ToolTimeLimit \
 	--max_memory $MaxMem \
+	--report_out_path $ReportOutPath \
 	$DatabaseArgs \
 	$ScriptArgs
 
+    RemainingCount=`cat $ReportOutPath`
+    rm ${ReportOutPath}
+
+    echo "Remaining number of sequences: $RemainingCount"
+
     NumProcs=$(($NumProcs / 2))
+
+    NumTaskProcs=$(($NumProcs * $NumNodes))
+    if (( $NumTaskProcs > $RemainingCount )); then
+	NumProcs=$(( ($RemainingCount + $NumNodes - 1) / $NumNodes ))
+    fi
+
     if (( $NumProcs > 0 )); then
 	NumThreads=$(($NumTotalThreads / $NumProcs))
     else
