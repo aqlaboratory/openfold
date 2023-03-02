@@ -53,7 +53,7 @@ def to_date(s: str):
 def load_cif(path: str, hit_pdb_code: str):
     filename, ext = os.path.splitext(os.path.basename(path))
 
-    if ext == "cif" and os.path.isfile(path):
+    if ext == ".cif" and os.path.isfile(path):
         with open(path, "r") as cif_file:
             cif_string = cif_file.read()
 
