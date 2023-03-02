@@ -88,7 +88,20 @@ def make_uniq_seqs(input_seqs, input_chains):
 
 
 def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
-    masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    """
+    Returns flags each of which means the search for the corresponding input sequence is already completed.
+
+    Args:
+        input_seq_chains:
+            list of (seq., chain_name) tuples. Must be identical among all ranks
+        output_dir:
+            Path to the root output directory
+        alignment_runner:
+            The alignment runner
+    Returns:
+        A flag tensor, whose shape is equivalent to that of input_seq_chains
+    """
+    flags = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
     for i, (seq, chain) in enumerate(input_seq_chains):
         alignment_dir = os.path.join(output_dir, chain)
         dry_run = alignment_runner.dry_run(
@@ -97,9 +110,45 @@ def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
             ignore_if_exists=True
         )
         if dry_run:
-            masks[i] = 1
+            flags[i] = 1
 
-    return masks
+    return flags
+
+
+def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
+    """
+    Check whether search for each input sequence is already completed,
+    and returns equally-split uncompleted sequences.
+
+    Args:
+        input_seq_chains:
+            list of (seq., chain_name) tuples. Must be identical among all ranks
+        comm:
+            mpi4py communicator
+        alignment_runner:
+            The alignment runner
+    Returns:
+        list of (seq., chain_name) tuples
+    """
+    mpi_rank = comm.Get_rank()
+    mpi_size = comm.Get_size()
+
+    proc_begin = int(len(input_seq_chains)*mpi_rank/mpi_size)
+    proc_end   = int(len(input_seq_chains)*(mpi_rank+1)/mpi_size)
+    proc_uncompleted_flags = get_uncompleted_flags(
+        input_seq_chains[proc_begin:proc_end],
+        args.output_dir,
+        alignment_runner)
+    send_uncomplted_flags = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    recv_uncomplted_flags = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    send_uncomplted_flags[proc_begin:proc_end] = proc_uncompleted_flags
+    comm.Allreduce(
+        send_uncomplted_flags,
+        recv_uncomplted_flags,
+        op=UNCOMPLETED_FLAG_AR_OP,
+    )
+    return [x[0] for x in zip(input_seq_chains, recv_uncomplted_flags) \
+            if x[1] > 0]
 
 
 def main(args):
@@ -135,29 +184,13 @@ def main(args):
     orig_total_count = len(input_seq_chains)
 
     # Remove completed chains
-    proc_begin = int(len(input_seq_chains)*mpi_rank/mpi_size)
-    proc_end   = int(len(input_seq_chains)*(mpi_rank+1)/mpi_size)
-    proc_uncompleted_flags = get_uncompleted_flags(
-        input_seq_chains[proc_begin:proc_end],
-        args.output_dir,
-        alignment_runner)
-    send_uncomplted_masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
-    recv_uncomplted_masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
-    send_uncomplted_masks[proc_begin:proc_end] = proc_uncompleted_flags
-    comm.Allreduce(
-        send_uncomplted_masks,
-        recv_uncomplted_masks,
-        op=UNCOMPLETED_FLAG_AR_OP,
-    )
-    input_seq_chains = [x[0] for x in zip(input_seq_chains, recv_uncomplted_masks) \
-                        if x[1] > 0]
+    input_seq_chains = get_uncompleted_seqs(input_seq_chains, comm, alignment_runner)
     uncompleted_total_count = len(input_seq_chains)
-    total_count = len(input_seq_chains)
 
     # Distribute uncompleted chains
     input_seq_chains = input_seq_chains[mpi_rank::mpi_size]
 
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seq_chains)}")
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, my_count={len(input_seq_chains)}")
     logging.info(f"max memory: {args.max_memory}")
     logging.info(f"my chains: {input_seq_chains}")
 
