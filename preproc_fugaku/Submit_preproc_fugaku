@@ -115,7 +115,17 @@ WORKER=${WORKER}
 
 source ../scripts/setenv
 
-$LogDir/$WORKER $InputFile $OutputDir $ToolTimeLimit $NumNodes $NumProcs $NumThreads $Mode $DoStaging "$ScriptArgs" 2>&1 | tee "$LogDir/output"
+InputDir=$InputFile \
+    OutputDir=$OutputDir \
+    ToolTimeLimit=$ToolTimeLimit \
+    NumNodes=$NumNodes \
+    NumProcs=$NumProcs \
+    NumThreads=$NumThreads \
+    Mode=$Mode \
+    DoStaging=$DoStaging \
+    ScriptArgs="$ScriptArgs" \
+    $LogDir/$WORKER \
+    2>&1 | tee "$LogDir/output"
 
 
 EOF

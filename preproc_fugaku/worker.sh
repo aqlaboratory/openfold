@@ -4,15 +4,6 @@
 
 set -eu
 
-InputDir=$1
-OutputDir=$2
-ToolTimeLimit=$3
-NumNodes=$4
-NumProcs=$5
-NumThreads=$6
-Mode=$7
-DoStaging=$8
-ScriptArgs=$9
 DataDir=$DATADIR
 BinDir=$PREFIX/bin
 Log=log_`date +%Y%m%d_%H%M%S`
