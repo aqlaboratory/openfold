@@ -174,7 +174,7 @@ def mmcif_loop_to_dict(
 
 
 def parse(
-    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True
+    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True, with_raw_string: bool = True
 ) -> ParsingResult:
     """Entry point, parses an mmcif_string.
 
@@ -292,7 +292,7 @@ def parse(
             structure=first_model_structure,
             chain_to_seqres=author_chain_to_sequence,
             seqres_to_structure=seq_to_structure_mappings,
-            raw_string=parsed_info,
+            raw_string=parsed_info if with_raw_string else None,
         )
 
         return ParsingResult(mmcif_object=mmcif_object, errors=errors)
