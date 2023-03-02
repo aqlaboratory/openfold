@@ -25,9 +25,13 @@ from utils import add_data_args
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 
-def run_seq_group_alignments(seq_groups, alignment_runner, args):
+UNCOMPLETED_MASK_DTYPE = bool
+UNCOMPLETED_MASK_ALLREDUCE_OP = MPI.LOR
+
+
+def run_seq_group_alignments(seqs, alignment_runner, args):
     dirs = set(os.listdir(args.output_dir))
-    for seq, name in seq_groups:
+    for seq, name in seqs:
         alignment_dir = os.path.join(args.output_dir, name)
 
         if not os.path.exists(alignment_dir):
@@ -60,7 +64,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         os.remove(fasta_path)
 
 
-def make_uniq_seq_groups(input_seqs, input_chains):
+def make_uniq_seqs(input_seqs, input_chains):
     assert len(input_seqs) == len(input_chains)
     assert len(input_chains) == len(set(input_chains)) # Chain IDs must be unique
 
@@ -82,10 +86,10 @@ def make_uniq_seq_groups(input_seqs, input_chains):
     return [x[0] for x in items], [x[1] for x in items]
 
 
-def make_uncompleted_seq_groups(input_seqs, input_chains, output_dir, alignment_runner):
+def get_uncompleted_masks(input_seqs, input_chains, output_dir, alignment_runner):
     assert len(input_seqs) == len(input_chains)
-    items = []
-    for seq, chain in zip(input_seqs, input_chains):
+    masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
+    for i, (seq, chain) in enumerate(zip(input_seqs, input_chains)):
         alignment_dir = os.path.join(output_dir, chain)
         dry_run = alignment_runner.dry_run(
             alignment_dir,
@@ -93,37 +97,13 @@ def make_uncompleted_seq_groups(input_seqs, input_chains, output_dir, alignment_
             ignore_if_exists=True
         )
         if dry_run:
-            items.append((seq, chain))
+            masks[i] = 1
 
-    return [x[0] for x in items], [x[1] for x in items]
+    return masks
 
 
 def split_chains(input_seqs, input_chains, mpi_rank, mpi_size):
     return input_seqs[mpi_rank::mpi_size], input_chains[mpi_rank::mpi_size]
-
-
-def allgather_chains(input_seqs, input_chains, comm):
-    mpi_rank = comm.Get_rank()
-    mpi_size = comm.Get_size()
-
-    assert len(input_seqs) == len(input_chains)
-    my_count = np.array([len(input_seqs)], dtype=np.int32)
-    proc_counts = np.zeros([mpi_size], dtype=np.int32)
-    comm.Allgather(my_count, proc_counts)
-
-    send_seqs = np.array(input_seqs, dtype=str)
-    send_chains = np.array(input_chains, dtype=str)
-
-    recv_seqs = []
-    recv_chains = []
-    # TODO: optimize
-    for i, count in enumerate(proc_counts):
-        recv_seq_buf, recv_chain_buf = \
-            comm.bcast([send_seqs, send_chains] if mpi_rank == i else None, root=i)
-        recv_seqs.extend(  list(recv_seq_buf  ))
-        recv_chains.extend(list(recv_chain_buf))
-
-    return recv_seqs, recv_chains
 
 
 def main(args):
@@ -155,22 +135,32 @@ def main(args):
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
-    input_seqs, input_chains = parse_fasta(fasta_str)
+    input_seqs, input_chains = parse_fasta(fasta_str) # TODO: use tuple
     orig_total_count = len(input_seqs)
 
     # input_seqs   = [AAA, BBB, ...]
     # input_chains = [A, B, ...]
 
     # Remove completed chains
-    input_seqs, input_chains = split_chains(input_seqs, input_chains, mpi_rank, mpi_size)
-    input_seqs, input_chains = make_uncompleted_seq_groups(
-        input_seqs,
-        input_chains,
+    proc_begin = int(len(input_seqs)*mpi_rank/mpi_size)
+    proc_end   = int(len(input_seqs)*(mpi_rank+1)/mpi_size)
+    proc_uncompleted_masks = get_uncompleted_masks(
+        input_seqs[proc_begin:proc_end],
+        input_chains[proc_begin:proc_end],
         args.output_dir,
         alignment_runner)
-
-    input_seqs, input_chains = allgather_chains(input_seqs, input_chains, comm)
-
+    send_uncomplted_masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
+    recv_uncomplted_masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
+    send_uncomplted_masks[proc_begin:proc_end] = proc_uncompleted_masks
+    comm.Allreduce(
+        send_uncomplted_masks,
+        recv_uncomplted_masks,
+        op=UNCOMPLETED_MASK_ALLREDUCE_OP,
+    )
+    input_seq_chains = [x[0] for x in zip(zip(input_seqs, input_chains), recv_uncomplted_masks) \
+                        if x[1] > 0]
+    input_seqs   = [x[0] for x in input_seq_chains]
+    input_chains = [x[1] for x in input_seq_chains]
     uncompleted_total_count = len(input_seqs)
 
     if args.weak_scale:
