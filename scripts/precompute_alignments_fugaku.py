@@ -25,8 +25,8 @@ from utils import add_data_args
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 
-UNCOMPLETED_MASK_DTYPE = bool
-UNCOMPLETED_MASK_ALLREDUCE_OP = MPI.LOR
+UNCOMPLETED_FLAG_DTYPE = bool
+UNCOMPLETED_FLAG_AR_OP = MPI.LOR
 
 
 def run_seq_group_alignments(seqs, alignment_runner, args):
@@ -64,6 +64,7 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
         os.remove(fasta_path)
 
 
+# TODO: remove
 def make_uniq_seqs(input_seqs, input_chains):
     assert len(input_seqs) == len(input_chains)
     assert len(input_chains) == len(set(input_chains)) # Chain IDs must be unique
@@ -86,10 +87,9 @@ def make_uniq_seqs(input_seqs, input_chains):
     return [x[0] for x in items], [x[1] for x in items]
 
 
-def get_uncompleted_masks(input_seqs, input_chains, output_dir, alignment_runner):
-    assert len(input_seqs) == len(input_chains)
-    masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
-    for i, (seq, chain) in enumerate(zip(input_seqs, input_chains)):
+def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
+    masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    for i, (seq, chain) in enumerate(input_seq_chains):
         alignment_dir = os.path.join(output_dir, chain)
         dry_run = alignment_runner.dry_run(
             alignment_dir,
@@ -100,10 +100,6 @@ def get_uncompleted_masks(input_seqs, input_chains, output_dir, alignment_runner
             masks[i] = 1
 
     return masks
-
-
-def split_chains(input_seqs, input_chains, mpi_rank, mpi_size):
-    return input_seqs[mpi_rank::mpi_size], input_chains[mpi_rank::mpi_size]
 
 
 def main(args):
@@ -135,51 +131,38 @@ def main(args):
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
-    input_seqs, input_chains = parse_fasta(fasta_str) # TODO: use tuple
-    orig_total_count = len(input_seqs)
-
-    # input_seqs   = [AAA, BBB, ...]
-    # input_chains = [A, B, ...]
+    input_seq_chains = list(zip(*parse_fasta(fasta_str))) # [(AAAAA, name1), (BBBB, name2), ..]
+    orig_total_count = len(input_seq_chains)
 
     # Remove completed chains
-    proc_begin = int(len(input_seqs)*mpi_rank/mpi_size)
-    proc_end   = int(len(input_seqs)*(mpi_rank+1)/mpi_size)
-    proc_uncompleted_masks = get_uncompleted_masks(
-        input_seqs[proc_begin:proc_end],
-        input_chains[proc_begin:proc_end],
+    proc_begin = int(len(input_seq_chains)*mpi_rank/mpi_size)
+    proc_end   = int(len(input_seq_chains)*(mpi_rank+1)/mpi_size)
+    proc_uncompleted_flags = get_uncompleted_flags(
+        input_seq_chains[proc_begin:proc_end],
         args.output_dir,
         alignment_runner)
-    send_uncomplted_masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
-    recv_uncomplted_masks = np.zeros([len(input_seqs)], dtype=UNCOMPLETED_MASK_DTYPE)
-    send_uncomplted_masks[proc_begin:proc_end] = proc_uncompleted_masks
+    send_uncomplted_masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    recv_uncomplted_masks = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
+    send_uncomplted_masks[proc_begin:proc_end] = proc_uncompleted_flags
     comm.Allreduce(
         send_uncomplted_masks,
         recv_uncomplted_masks,
-        op=UNCOMPLETED_MASK_ALLREDUCE_OP,
+        op=UNCOMPLETED_FLAG_AR_OP,
     )
-    input_seq_chains = [x[0] for x in zip(zip(input_seqs, input_chains), recv_uncomplted_masks) \
+    input_seq_chains = [x[0] for x in zip(input_seq_chains, recv_uncomplted_masks) \
                         if x[1] > 0]
-    input_seqs   = [x[0] for x in input_seq_chains]
-    input_chains = [x[1] for x in input_seq_chains]
-    uncompleted_total_count = len(input_seqs)
+    uncompleted_total_count = len(input_seq_chains)
+    total_count = len(input_seq_chains)
 
-    if args.weak_scale:
-        logging.warning(f"--weak_scale is enabled. The process might be redundant")
-        assert len(input_seqs) == 1
-        assert len(input_chains) == 1
-        assert len(input_chains[0]) == 1
-        input_seqs = [input_seqs[0]]*mpi_size
-        input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
+    # Distribute uncompleted chains
+    input_seq_chains = input_seq_chains[mpi_rank::mpi_size]
 
-    total_count = len(input_seqs)
-    input_seqs, input_chains = split_chains(input_seqs, input_chains, mpi_rank, mpi_size)
-
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, total_count={total_count}, my_count={len(input_seq_chains)}")
     logging.info(f"max memory: {args.max_memory}")
-    logging.info(f"my chains: {input_chains}")
+    logging.info(f"my chains: {input_seq_chains}")
 
     run_seq_group_alignments(
-        zip(input_seqs, input_chains),
+        input_seq_chains,
         alignment_runner,
         args)
 
@@ -219,12 +202,6 @@ if __name__ == "__main__":
         "--use_small_bfd", type=bool, default=False,
     )
 
-    parser.add_argument(
-        "--weak_scale",
-        dest="weak_scale", action="store_const",
-        const=True, default=False,
-        help="Duplicate the single input sequence for every process (use only for testing)"
-    )
     parser.add_argument(
         "--bfd_deflate_a3m_hhm_path",
         type=str, default=None,
