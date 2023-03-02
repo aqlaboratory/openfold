@@ -284,10 +284,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--filter", type=bool, default=True,
     )
+
     parser.add_argument(
         "--use_small_bfd", type=bool, default=False,
+        help="Use the small BFD",
     )
-
     parser.add_argument(
         "--bfd_deflate_a3m_hhm_path",
         type=str, default=None,
@@ -297,13 +298,16 @@ if __name__ == "__main__":
         type=str, default=None,
     )
     parser.add_argument(
-        '--timeout', type=float, default=None
+        '--timeout', type=float, default=None,
+        help="Time limit for each search tool in seconds (default: None)",
     )
     parser.add_argument(
-        '--max_memory', type=int, default=None
+        '--max_memory', type=int, default=None,
+        help="The RLIMIT_AS memory limit for each search tool in bytes (default: None)",
     )
     parser.add_argument(
-        '--report_out_path', type=str, default=None
+        '--report_out_path', type=str, default=None,
+        help="Path to output the number of uncompleted seqs. (default: None)",
     )
     parser.add_argument(
         "--unique",
@@ -311,6 +315,8 @@ if __name__ == "__main__":
         default=False,
         const=True,
         action="store_const",
+        help="Find duplicated sequences and create symlinks to existing alignment files "
+        "instead of running search tools (default: False)",
     )
 
 
