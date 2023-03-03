@@ -58,3 +58,13 @@
 # 例: 1時間制限で、inputディレクトリ中の全てのfastaを前処理し、outputディレクトリに出力する場合
 ./Submit_preproc 1:0:0 input output
 ```
+
+## mmcifの変換 (任意)
+mmcifをpythonでパースする処理が遅いので、事前にパースしpickle化およびlz4圧縮しておくことができる。
+1. convert_mmcifディレクトリに移動
+2. run.shのInputDirとOutputDirを設定
+3. ジョブ投入
+```
+pjsub -g {グループID} run.sh
+```
+4. 学習および推論ディレクトリのparametersに記載されているmmcifのディレクトリを変換したものに置き換える
