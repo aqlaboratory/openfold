@@ -22,6 +22,7 @@ import tempfile
 import time
 import pickle
 import os
+import lz4
 from typing import Optional
 
 from openfold.data import mmcif_parsing
@@ -62,7 +63,14 @@ def load_cif(path: str, hit_pdb_code: str):
             )
     else:
         pkl_path = os.path.join(os.path.dirname(path), filename + ".pkl")
-        with open(pkl_path, "rb") as pkl_file:
-            parsing_result = pickle.load(pkl_file)
+
+        ### pickle
+        # with open(pkl_path, "rb") as pkl_file:
+        #     parsing_result = pickle.load(pkl_file)
+
+        ### pickle + lz4
+        with lz4.frame.LZ4FrameFile(pkl_path, 'rb') as pkl_file:
+            pkl = pkl_file.read()
+            parsing_result = pickle.loads(pkl)
 
     return parsing_result
