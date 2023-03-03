@@ -33,9 +33,9 @@ from openfold.data.tools import kalign
 from openfold.data.tools.utils import to_date, load_cif
 from openfold.np import residue_constants
 
-mp_mmcif_load = True
-max_mmcif_loaders = 8
-num_mmcif_loaders = min(max_mmcif_loaders, max(1, int(os.environ.get('OMP_NUM_THREADS', '1')) - 1))
+max_mmcif_loaders = int(os.environ.get('NUM_MMCIF_WORKERS', '16'))
+num_mmcif_loaders = min(max_mmcif_loaders, max(0, int(os.environ.get('OMP_NUM_THREADS', '1')) - 1))
+mp_mmcif_load = num_mmcif_loaders > 0
 
 class NoChainsError(Error):
     """An error indicating that template mmCIF didn't have any chains."""
