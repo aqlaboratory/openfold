@@ -1,4 +1,4 @@
-# 富士通研究所最適化版OpenFold前処理（MSA/テンプレート検索）スクリプト
+# 富士通最適化版 前処理（MSA/テンプレート検索）スクリプト
 
 ## 動作原理
 
@@ -15,18 +15,21 @@ TBD
 2. `$DATADIR`に[AlphaFold2のディレクトリ構造](https://github.com/deepmind/alphafold/tree/v2.3.1#genetic-databases)と同様にMGnify, PDB70, small BFD, Uniref90を配置する
 
 3. 入力する配列を1つのFASTAファイルに結合する
-    * pdb_mmcifや複数の.cifファイルを前処理する場合、[`data_dir_to_fasta.py`](..//scripts/data_dir_to_fasta.py)を使用する
+    * pdb_mmcifや複数の`.cif`ファイルを前処理する場合、[`data_dir_to_fasta.py`](..//scripts/data_dir_to_fasta.py)を使用する
 
 4. [`submit.sh`](submit.sh)の以下の環境変数をセットする
     * `$InputFile`: 3. のFASTAファイルのパス
     * `$OutputDir`: 前処理結果を出力するディレクトリのパス（ジョブ投入時に存在しない場合、ジョブ実行時に自動作成）
-    * `DoStaging`: Pythonモジュール、実行ファイル、データベースについてLLIO transfer（富岳）またはメモリステージング（それ以外）を行うかどうか。富岳では各SIO（87 GiB/ノード）が使用するデータベース全体を保持する必要があるため、十分なノード数（例えば>=12ノード以上）を使用する場合に有効にする
+    * `$DoStaging`: Pythonモジュール、実行ファイル、データベースについてLLIO transfer（富岳）またはメモリステージング（それ以外）を行うかどうか。富岳では各SIO（87 GiB/ノード）が使用するデータベース全体を保持する必要があるため、十分なノード数（例えば>=12ノード以上）を使用する場合に有効にする
     * `$NumNodes`: 各ジョブのノード数
     * `$JobTime_*`: 各ジョブの制限時間
     * `$Timeout_*`: 各ジョブ中の検索ツールの入力配列ごとの制限時間
     * `$NumProcs*`, `$NumThreads*`: 各検索ツールのノード内プロセス数、プロセス内スレッド数
 
 5. `submit.sh`を実行してジョブを投入する
+
+6. 一部のファイルの前処理が完了せずにジョブが終了する場合、`$NumNodes`等を調整して再度ジョブを投入する
+    * `$InputFile`の内容が同じ場合、前処理未完了の配列のみが自動で検出されて前処理が行われる
 
 ## トラブルシューティング
 
