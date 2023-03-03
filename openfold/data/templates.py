@@ -1072,17 +1072,35 @@ class TemplateHitFeaturizer:
             hit = filtered[i]
 
             if mp_mmcif_load:
-                hit_rate = max(1, num_hits) / max(1, enum)
-                n_extra = int((self.max_hits - num_hits) / hit_rate)
-                for j in filter(lambda x: x not in futures,
-                                idx[enum : enum + n_extra]):
-                    futures[j] = executor.submit(
-                        # func
-                        _process_single_hit,
-                        # params
+                try:
+                    hit_rate = max(1, num_hits) / max(1, enum)
+                    n_extra = int((self.max_hits - num_hits) / hit_rate)
+                    for j in filter(lambda x: x not in futures,
+                                    idx[enum : enum + n_extra]):
+                        futures[j] = executor.submit(
+                            # func
+                            _process_single_hit,
+                            # params
+                            query_sequence=query_sequence,
+                            query_pdb_code=query_pdb_code,
+                            hit=filtered[j],
+                            mmcif_dir=self._mmcif_dir,
+                            max_template_date=template_cutoff_date,
+                            release_dates=self._release_dates,
+                            obsolete_pdbs=self._obsolete_pdbs,
+                            strict_error_check=self._strict_error_check,
+                            kalign_binary_path=self._kalign_binary_path,
+                            _zero_center_positions=self._zero_center_positions,
+                        )
+                    result = futures[i].result()
+                    futures[i] = None
+                except Exception as e:
+                    logging.warning(f'catch exception {e} at multiprocessing \
+                                      mmcif load. fallback to single process load')
+                    result = _process_single_hit(
                         query_sequence=query_sequence,
                         query_pdb_code=query_pdb_code,
-                        hit=filtered[j],
+                        hit=hit,
                         mmcif_dir=self._mmcif_dir,
                         max_template_date=template_cutoff_date,
                         release_dates=self._release_dates,
@@ -1091,8 +1109,6 @@ class TemplateHitFeaturizer:
                         kalign_binary_path=self._kalign_binary_path,
                         _zero_center_positions=self._zero_center_positions,
                     )
-                result = futures[i].result()
-                futures[i] = None
             else:
                 result = _process_single_hit(
                     query_sequence=query_sequence,

@@ -34,3 +34,6 @@ export PL_TORCH_DISTRIBUTED_BACKEND=mpi
 
 # for multi-node training using PyTorch Lightning
 export NODE_RANK=$PMIX_RANK
+
+# number of workers for loading mmcif
+export NUM_MMCIF_WORKERS=8
