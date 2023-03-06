@@ -489,7 +489,7 @@ class AlignmentRunner:
                 max_sequences=self.uniref_max_hits
             )
             self.write_safely(uniref90_out_path, uniref90_msa_as_a3m)
-            generated.append(UNIREF_OUT_FILENAME)
+            generated.append(UNIREF90_OUT_FILENAME)
 
         if(self.hhsearch_pdb70_runner is not None):
             pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
