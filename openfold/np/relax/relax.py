@@ -57,7 +57,7 @@ class AmberRelaxation(object):
         self._use_gpu = use_gpu
 
     def process(
-        self, *, prot: protein.Protein
+        self, *, prot: protein.Protein, cif_output: bool
     ) -> Tuple[str, Dict[str, Any], np.ndarray]:
         """Runs Amber relax on a prediction, adds hydrogens, returns PDB string."""
         out = amber_minimize.run_pipeline(
@@ -78,6 +78,8 @@ class AmberRelaxation(object):
             "attempts": out["min_attempts"],
             "rmsd": rmsd,
         }
+        # TODO write all this as ModelCIF if param is true. Should be simply proteint.to_modelcif(prot)
+        #  and then add the other pieces, except that clean_protein() does quite some additional stuff...
         pdb_str = amber_minimize.clean_protein(prot)
         min_pdb = utils.overwrite_pdb_coordinates(pdb_str, min_pos)
         min_pdb = utils.overwrite_b_factors(min_pdb, prot.b_factors)

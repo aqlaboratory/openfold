@@ -106,7 +106,7 @@ def main(args):
         logger.info(f"Output written to {unrelaxed_output_path}...")
 
         logger.info(f"Running relaxation on {unrelaxed_output_path}...")
-        relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name)
+        relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name, False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
