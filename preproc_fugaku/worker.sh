@@ -19,6 +19,8 @@ echo NumThreads=$NumThreads
 echo Mode=$Mode
 echo ScriptArgs=$ScriptArgs
 echo NumTotalThreads=$NumTotalThreads
+echo DoStaging=$DoStaging
+echo LimitMaxMem=$LimitMaxMem
 
 # Database path in $DataDir
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -271,8 +273,10 @@ while (( $NumProcs > 0 )); do
     echo NumProcs=$NumProcs
     echo NumThreads=$NumThreads
 
-    MaxMem=$(($MAX_MEM / $NumProcs))
-    echo MaxMem=$MaxMem
+    MaxMemArg=""
+    if [[ $LimitMaxMem = 1 ]]; then
+	MaxMemArg="--max_memory $(($MAX_MEM / $NumProcs))"
+    fi
 
     export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
     export PARALLEL=$OMP_NUM_THREADS
@@ -303,9 +307,9 @@ while (( $NumProcs > 0 )); do
 	--hhsearch_binary_path $BinDir/hhsearch \
 	--kalign_binary_path $BinDir/kalign \
 	--timeout $ToolTimeLimit \
-	--max_memory $MaxMem \
 	--report_out_path $ReportOutPath \
 	$DatabaseArgs \
+	$MaxMemArg \
 	$ScriptArgs
 
     RemainingCount=`cat $ReportOutPath`

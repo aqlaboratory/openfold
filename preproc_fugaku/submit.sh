@@ -28,6 +28,10 @@ NumThreadsJackhmmer=4
 NumProcsHHsearch=4
 NumThreadsHHsearch=12
 
+# Limit max memory
+LimitMaxMemJackhmmer=1
+LimitMaxMemHHsearch=0
+
 # Time limit for each job in the pjsub time format
 JobTime_small_bfd=1:00:00
 JobTime_mgnify=1:00:00
@@ -62,6 +66,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 	    $Database \
 	    "${StepNameBase}_${Database}" \
 	    $DoStaging \
+	    $LimitMaxMemJackhmmer \
 	    ""
     fi
 done
@@ -87,5 +92,6 @@ if (( $Do_pdb70  == 1 )); then
 	pdb70 \
 	$StepName \
 	$DoStaging \
+	    $LimitMaxMemHHsearch \
 	""
 fi
