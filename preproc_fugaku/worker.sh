@@ -52,6 +52,7 @@ DirTransfer=./my_dir_transfer
 if [[ ${IS_FUGAKU} == 1 ]]; then
     MpiExecEachNode="STUB"
     MpiArgs=""
+    export LD_PRELOAD=/usr/lib/FJSVtcs/ple/lib64/libpmix.so # Required to use mpi4py
 else
     MpiExecEachNode="mpiexec -np $NumNodes -npernode 1"
     MpiArgs="--bind-to none"
