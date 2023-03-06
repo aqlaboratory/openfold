@@ -11,7 +11,14 @@ cd $WORKDIR
 
 rm -rf pytorch
 git clone -b fujitsu_v1.10.1_for_a64fx https://github.com/fujitsu/pytorch.git
-patch -p0 < $OPENFOLDDIR/lib/pytorch.patch
+
+# apply gather&scatter improve patch
+pushd pytorch
+git show 0c49800 --unified=0 > gather_scatter.patch
+sed -i "s|@@ -134|@@ -133|g" gather_scatter.patch
+patch -p1 < gather_scatter.patch
+popd
+
 pushd pytorch/scripts/fujitsu
 
 # set config
