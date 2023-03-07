@@ -461,7 +461,6 @@ class AlignmentRunner:
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
 
         if max_memory is not None:
-            logging.info(f"Setting max memory to {max_memory}")
             def preexec_fn():
                 resource.setrlimit(resource.RLIMIT_AS,
                                    (max_memory, resource.RLIM_INFINITY))

@@ -231,18 +231,21 @@ def main(args):
     # Distribute uncompleted chains
     input_seq_chains = input_seq_chains[mpi_rank::mpi_size]
 
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, my_count={len(input_seq_chains)}")
-    logging.info(f"max memory: {args.max_memory}")
-    logging.info(f"my chains: {input_seq_chains}")
+    host = os.environ["HOSTNAME"]
+    logging.info(f"host={host}, rank={mpi_rank}/{mpi_size}, "
+                 f"total_count={orig_total_count}, "
+                 f"total_uncompleted_count={uncompleted_total_count}, "
+                 f"my_count={len(input_seq_chains)}")
 
     completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
         alignment_runner,
         args)
 
-    logging.info(f"DONE! rank={mpi_rank}, "
-                 f"my completed count={completed_count}, "
-                 f"my total count={total_count}")
+    logging.info(f"DONE! "
+                 f"host={host}, rank={mpi_rank}/{mpi_size}, "
+                 f"my_completed_count={completed_count}, "
+                 f"my_count={total_count}")
 
     completed_count = comm.allreduce(completed_count)
     total_count = comm.allreduce(total_count)

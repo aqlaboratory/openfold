@@ -10,6 +10,7 @@ Log=log_`date +%Y%m%d_%H%M%S`
 
 NumTotalThreads=$(($NumProcs * $NumThreads))
 
+echo "---- worker.sh arguments -----"
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
 echo ToolTimeLimit=$ToolTimeLimit
@@ -21,6 +22,7 @@ echo ScriptArgs=$ScriptArgs
 echo NumTotalThreads=$NumTotalThreads
 echo DoStaging=$DoStaging
 echo LimitMaxMem=$LimitMaxMem
+echo "--- worker.sh arguments end ---"
 
 # Database path in $DataDir
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -60,8 +62,6 @@ else
     MpiArgs="--bind-to none"
 fi
 
-echo MpiExecEachNode=$MpiExecEachNode
-
 # Temp locations
 if [[ ${IS_FUGAKU} == 1 ]]; then
     LOCALTMP=$PJM_LOCALTMP # Shared SSD, 87 GiB/node
@@ -70,8 +70,6 @@ elif [[ ${IS_ABCI} == 1 ]]; then
     LOCALTMP=/dev/shm # Private memory, 384 GiB/node (V)
     # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
 fi
-
-echo LOCALTMP=$LOCALTMP
 
 if [[ $Mode = "uniref90" ]]; then
     Database=$Uniref90
@@ -229,7 +227,6 @@ if [[ $DoStaging = 1 ]]; then
     fi
 fi
 
-echo "Setting DatabaseArgs"
 DatabaseArgs=""
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
@@ -252,11 +249,7 @@ else
     exit
 fi
 
-echo "DatabaseArgs=$DatabaseArgs"
-
-echo "Creating output directory"
 mkdir -p $OutputDir
-
 
 if [[ $Mode = "bfd_deflate" ]]; then
     # TODO: Do not use hhblits in the home directory
@@ -268,34 +261,31 @@ if [[ $Mode = "bfd_deflate" ]]; then
     echo hhblits=`which hhblits`
 fi
 
-echo "Starting the script"
 
 while (( $NumProcs > 0 )); do
-    echo NumProcs=$NumProcs
-    echo NumThreads=$NumThreads
 
+    MaxMem=""
     MaxMemArg=""
     if [[ $LimitMaxMem = 1 ]]; then
-	MaxMemArg="--max_memory $(($MAX_MEM / $NumProcs))"
+	MaxMem=$(($MAX_MEM / $NumProcs))
+	MaxMemArg="--max_memory ${MaxMem}"
     fi
 
     export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
     export PARALLEL=$OMP_NUM_THREADS
 
     NumTaskProcs=$(($NumProcs * $NumNodes))
-    echo NumTaskProcs=$NumTaskProcs
     if [[ ${IS_FUGAKU} == 1 ]]; then
 	MpiExecTask="mpiexec -n $NumTaskProcs"
     else
 	MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
     fi
-    echo MpiExecTask=$MpiExecTask
+
+    echo ""
+    echo "Starting the script: NumProcs=${NumProcs}, NumTaskProcs=${NumTaskProcs}, NumThreads=${NumThreads}, MaxMem=${MaxMem}"
 
     ReportOutPath=`mktemp`
 
-    $MpiExecTask \
-	$MpiArgs \
-	hostname
     $MpiExecTask \
 	$MpiArgs \
 	-x PARALLEL \
@@ -330,9 +320,5 @@ while (( $NumProcs > 0 )); do
     else
 	NumThreads=0
     fi
-
-    echo ""
-    echo "---"
-    echo ""
 
 done
