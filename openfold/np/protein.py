@@ -571,19 +571,3 @@ def from_prediction(
         parents=parents,
         parents_chain_index=parents_chain_index,
     )
-
-
-if __name__ == "__main__":
-    # pdb_file = '/Users/jose/Downloads/171l.pdb'
-    # pdb_file = '/home/jose/Downloads/2trx.pdb'
-    pdb_file = '/Users/jose/Downloads/1bwd.pdb'
-    cif_file = '/Users/jose/test2.cif'
-
-    with open(pdb_file, 'r') as file:
-        pdbstr = file.read()
-
-    prot = from_pdb_string(pdbstr)
-    cifstr = to_modelcif(prot)
-    print(cifstr)
-    with open(cif_file, 'w') as fw:
-        fw.write(cifstr)
