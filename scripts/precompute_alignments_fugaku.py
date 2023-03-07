@@ -92,6 +92,36 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
     return completed_count, total_count
 
 
+def add_unique_suffix(input_chains):
+    """
+    Returns a list of chain names with additional suffix so that every name become unique.
+
+    Args:
+        input_chains:
+            A list of chain names
+    Returns:
+        A list of chain names
+    """
+
+    ret_chains = []
+    known_set = set()
+    input_set = set(input_chains)
+    for c in input_chains:
+       uc  = c
+       i = 0
+       while True:
+           if uc not in known_set and not (i > 0 and uc in input_set):
+               ret_chains.append(uc)
+               known_set.add(uc)
+               break
+
+           else:
+               uc = f"{c}_{i}"
+               i += 1
+
+    return ret_chains
+
+
 def get_unique_seqs(input_seq_chains):
     """
     Returns a set of unique sequences.
@@ -212,7 +242,10 @@ def main(args):
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
-    input_seq_chains = list(zip(*parse_fasta(fasta_str))) # [(AAAAA, name1), (BBBB, name2), ..]
+
+    input_seqs, input_chains = parse_fasta(fasta_str)
+    input_chains = add_unique_suffix(input_chains)
+    input_seq_chains = list(zip(input_seqs, input_chains)) # [(AAAAA, name1), (BBBB, name2), ..]
     orig_total_count = len(input_seq_chains)
 
     # Remove completed chains
@@ -231,18 +264,21 @@ def main(args):
     # Distribute uncompleted chains
     input_seq_chains = input_seq_chains[mpi_rank::mpi_size]
 
-    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, uncompleted_count={uncompleted_total_count}, my_count={len(input_seq_chains)}")
-    logging.info(f"max memory: {args.max_memory}")
-    logging.info(f"my chains: {input_seq_chains}")
+    host = os.environ["HOSTNAME"]
+    logging.info(f"host={host}, rank={mpi_rank}/{mpi_size}, "
+                 f"total_count={orig_total_count}, "
+                 f"total_uncompleted_count={uncompleted_total_count}, "
+                 f"my_count={len(input_seq_chains)}")
 
     completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
         alignment_runner,
         args)
 
-    logging.info(f"DONE! rank={mpi_rank}, "
-                 f"my completed count={completed_count}, "
-                 f"my total count={total_count}")
+    logging.info(f"DONE! "
+                 f"host={host}, rank={mpi_rank}/{mpi_size}, "
+                 f"my_completed_count={completed_count}, "
+                 f"my_count={total_count}")
 
     completed_count = comm.allreduce(completed_count)
     total_count = comm.allreduce(total_count)
