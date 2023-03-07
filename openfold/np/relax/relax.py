@@ -78,8 +78,6 @@ class AmberRelaxation(object):
             "attempts": out["min_attempts"],
             "rmsd": rmsd,
         }
-        # TODO write all this as ModelCIF if param is true. Should be simply proteint.to_modelcif(prot)
-        #  and then add the other pieces, except that clean_protein() does quite some additional stuff...
         pdb_str = amber_minimize.clean_protein(prot)
         min_pdb = utils.overwrite_pdb_coordinates(pdb_str, min_pos)
         min_pdb = utils.overwrite_b_factors(min_pdb, prot.b_factors)
@@ -91,5 +89,11 @@ class AmberRelaxation(object):
         ]
 
         min_pdb = protein.add_pdb_headers(prot, min_pdb)
+        output_str = min_pdb
+        if cif_output:
+            # TODO the model cif will be missing some metadata like headers (PARENTs and
+            #      REMARK with some details of the run, like num of recycles)
+            final_prot = protein.from_pdb_string(min_pdb)
+            output_str = protein.to_modelcif(final_prot)
 
-        return min_pdb, debug_data, violations
+        return output_str, debug_data, violations
