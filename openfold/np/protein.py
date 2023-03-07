@@ -82,8 +82,7 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
 
     Args:
       pdb_str: The contents of the pdb file
-      chain_id: If None, then the pdb file must contain a single chain (which
-        will be parsed). If chain_id is specified (e.g. A), then only that chain
+      chain_id: If None, then the whole pdb file is parsed. If chain_id is specified (e.g. A), then only that chain
         is parsed.
 
     Returns:
