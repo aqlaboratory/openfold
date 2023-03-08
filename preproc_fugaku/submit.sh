@@ -46,6 +46,7 @@ Timeout_pdb70=1800
 
 #----------- Configurations end -----------#
 
+SubmitScript=scripts/Submit_preproc_fugaku
 
 # Submit Jackhmmer jobs
 StepNameBase=openfold_preproc_`date +%Y%m%d%H%M%S`
@@ -55,7 +56,7 @@ for Database in ${JackhmmerDatabases[@]}; do
     TimeoutVar="Timeout_${Database}"
     DoVar="Do_${Database}"
     if (( $DoVar == 1 )); then
-	./Submit_preproc_fugaku \
+	$SubmitScript \
 	    ${!JobTimeVar} \
 	    ${!TimeoutVar} \
 	    $NumNodes \
@@ -81,7 +82,7 @@ if (( $Do_pdb70  == 1 )); then
 	StepName="${StepNameBase}_pdb70"
     fi
 
-    ./Submit_preproc_fugaku \
+    $SubmitScript \
 	$JobTime_pdb70 \
 	$Timeout_pdb70 \
 	$NumNodes \

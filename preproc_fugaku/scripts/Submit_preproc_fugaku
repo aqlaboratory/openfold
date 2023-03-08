@@ -67,7 +67,8 @@ WORKER="worker.sh"
 RSC_GRP=small
 
 ### Create log directory
-MyDir=`readlink -f "$0" | xargs dirname`
+MyDir=`readlink -f "$0" | xargs dirname` # scripts/
+MyDir=`dirname $MyDir` # preproc_fugaku
 MyName=`basename "$0"`
 Time=`date "+%y%m%d%H%M%S%3N"`
 HostName=`hostname | awk -F . '{ print $1; }'`
@@ -79,7 +80,7 @@ mkdir -p "$LogDir" || exit
 ###
 
 cp "$MyDir/$0" $LogDir
-cp ${MyDir}/${WORKER} ${LogDir}
+cp ${MyDir}/scripts/${WORKER} ${LogDir}
 
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 

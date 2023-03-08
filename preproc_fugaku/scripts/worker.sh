@@ -49,7 +49,7 @@ else
 fi
 
 # commands
-Script=../scripts/precompute_alignments_fugaku.py
+Script=scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=./my_dir_transfer
 
