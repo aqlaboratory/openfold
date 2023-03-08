@@ -14,8 +14,10 @@ export PJSUB_OPT=
 export OPENFOLD_MACHINE="fugaku"
 
 # The number of cores and memory size per node
-export NUM_CORES=48
-export MAX_MEM=34359738368 # 32 GiB
+export OPENFOLD_MAX_MEM=34359738368 # 32 GiB
+
+# Define only if PBS is used
+export OPENFOLD_PBS_RESOURCE=""
 
 # Path to the main temporary directory
 export TMPDIR=/worktmp
