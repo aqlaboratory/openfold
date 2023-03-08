@@ -51,7 +51,7 @@ fi
 # commands
 Script=scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
-DirTransfer=./my_dir_transfer
+DirTransfer=./scripts/my_dir_transfer
 
 if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     MpiExecEachNode="STUB"
