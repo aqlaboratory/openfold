@@ -11,6 +11,10 @@ TBD
     * `$OPENFOLDDIR`: OpenFoldリポジトリのパス
     * `$DATADIR`: 各種データベースを含むディレクトリのパス
     * `$PJSUB_OPT`: `pjsub`に渡されるオプション
+    * 以下の[`preproc_fugaku`](preproc_fugaku)用設定（デフォルト値は富岳のもの）
+	* `OPENFOLD_MAX_MEM`: ノードあたりの最大使用メモリサイズ
+	* `OPENFOLD_PBS_RESOURCE`: （PBSジョブスケジューラを用いる場合のみ）リソース名
+	* `TMPDIR`: テンポラリファイル用ディレクトリ
 
 2. `$DATADIR`に[AlphaFold2のディレクトリ構造](https://github.com/deepmind/alphafold/tree/v2.3.1#genetic-databases)と同様にMGnify, PDB70, small BFD, Uniref90を配置する
 
@@ -48,3 +52,6 @@ TBD
 
 ### `$OutputDir`に生成されるディレクトリ名が`$InputFile`の配列のラベル名と異なる
 現在の実装では同じラベル名の複数の配列が入力されることを許容していますが、出力パスの衝突を避けるために末尾に適当な文字列が追加されます。
+
+### PBS等の一般的なスパコン・クラスタ上でPDB70についての検索ジョブが失敗する
+PDB70を用いるテンプレート検索はUniref90のMSA検索結果を使用するため、Uniref90のジョブが先に完了している必要があります。しかし、現在の実装では富岳の`pjsub`によるステップジョブにのみ対応しているため、他のジョブスケジューラの場合は`Do_uniref90`と`Do_pdb70`を同時に有効にするとこれら2つのジョブが同時に実行され、検索処理が失敗する場合があります。先にUniref90のジョブが完了したことを確認したうえでPDB70のジョブを投入するか、ジョブスケジューラに実装されている方法でジョブの依存関係を設定してください。
