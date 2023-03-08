@@ -13,6 +13,7 @@ cd $WORKDIR
 
 rm -rf pytorch
 git clone -b fujitsu_v1.10.1_for_a64fx https://github.com/fujitsu/pytorch.git
+patch -p0 < $OPENFOLDDIR/lib/pytorch.patch
 pushd pytorch/scripts/fujitsu
 
 # set config

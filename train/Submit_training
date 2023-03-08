@@ -41,10 +41,17 @@ WORKER="worker.sh"
 #OPTFile="TF220-33_220301.tgz"
 ShareDir=/worktmp
 
-NNodex=`echo "$NodeShape" | awk -F'x' '{print $1}'`
-NNodey=`echo "$NodeShape" | awk -F'x' '{print $2}'`
-NNodez=`echo "$NodeShape" | awk -F'x' '{print $3}'`
-NumNodes=$(( NNodex * NNodey * NNodez ))
+case $NodeShape in
+    *x*x*)
+        NNodex=`echo "$NodeShape" | awk -F'x' '{print $1}'`
+        NNodey=`echo "$NodeShape" | awk -F'x' '{print $2}'`
+        NNodez=`echo "$NodeShape" | awk -F'x' '{print $3}'`
+        NumNodes=$(( NNodex * NNodey * NNodez ))
+	;;
+    *)
+        NumNodes=$NodeShape
+        ;;
+esac
 
 # Select Resource Group
 if  [ $NumNodes -eq 1 ] ; then
