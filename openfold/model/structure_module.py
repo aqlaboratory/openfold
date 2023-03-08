@@ -12,34 +12,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from functools import reduce
 import importlib
 import math
 import sys
+from functools import reduce
 from operator import mul
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-from typing import Optional, Tuple, Sequence
-
-from openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
+from openfold.model.primitives import (LayerNorm, Linear,
+                                       ipa_point_weights_init_)
 from openfold.np.residue_constants import (
-    restype_rigid_group_default_frame,
-    restype_atom14_to_rigid_group,
-    restype_atom14_mask,
-    restype_atom14_rigid_group_positions,
-)
+    restype_atom14_mask, restype_atom14_rigid_group_positions,
+    restype_atom14_to_rigid_group, restype_rigid_group_default_frame)
 from openfold.utils.feats import (
-    frames_and_literature_positions_to_atom14_pos,
-    torsion_angles_to_frames,
-)
+    frames_and_literature_positions_to_atom14_pos, torsion_angles_to_frames)
 from openfold.utils.precision_utils import is_fp16_enabled
-from openfold.utils.rigid_utils import Rotation, Rigid
-from openfold.utils.tensor_utils import (
-    dict_multimap,
-    permute_final_dims,
-    flatten_final_dims,
-)
+from openfold.utils.rigid_utils import Rigid, Rotation
+from openfold.utils.tensor_utils import (dict_multimap, flatten_final_dims,
+                                         permute_final_dims)
 
 attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
 
@@ -629,6 +621,9 @@ class StructureModule(nn.Module):
         self,
         evoformer_output_dict,
         aatype,
+        positions=None,
+        orientations=None,
+        time_embedding=None,
         mask=None,
         inplace_safe=False,
         _offload_inference=False,
@@ -672,16 +667,21 @@ class StructureModule(nn.Module):
         s = self.linear_in(s)
 
         # [*, N]
-        rigids = Rigid.identity(
-            s.shape[:-1], 
-            s.dtype, 
-            s.device, 
-            self.training,
-            fmt="quat",
-        )
+        if positions is None:
+            rigids = Rigid.identity(
+                s.shape[:-1], 
+                s.dtype, 
+                s.device, 
+                self.training,
+                fmt="quat",
+            )
+        else:
+            rigids = Rigid(Rotation(rot_mats=None, quats=orientations), positions)
         outputs = []
         for i in range(self.no_blocks):
             # [*, N, C_s]
+            if time_embedding is not None:
+                s = s + time_embedding
             s = s + self.ipa(
                 s, 
                 z, 
@@ -751,6 +751,7 @@ class StructureModule(nn.Module):
 
         outputs = dict_multimap(torch.stack, outputs)
         outputs["single"] = s
+        outputs["single_initial"] = s_initial
 
         return outputs
 
