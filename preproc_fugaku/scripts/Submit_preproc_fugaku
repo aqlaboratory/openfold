@@ -3,44 +3,23 @@ LANG=
 
 . ../scripts/setenv
 
-#set -ex
+set -eu
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 12 ] ; then
-    cat << EOF >&2
-usage: $0 TimeLimit NumNodes InputFile OutputDir Mode [submit-option]
-The TimeLimit is the maximum of execution time with the format hh:mm:ss.
-The ToolTimeLimit is the maximum of execution time in seconds for each tool.
-The NumNodes is the number of nodes
-The NumProcs is the number of processes for each node
-The NumThreads is the number of threads for each task
-The InputFile is the directory contains input fasta files
-The OutputDir is the directoy where alignment results are stored
-The Mode is one from {uniref90, pdb70, mgnify, small_bfd, bfd}
-The StepName is a step job name
-The DoStaging is whether an input database is staged
-The LimitMaxMem is whether memory limit is applied
-The ScriptArgs is the arguments passsed to the preproc. script
-
-example: $0 2:00:00 4 input.fasta alignment mode 0
-EOF
-    echo '$#'=$#
-    exit 1
-fi
-
-TimeLimit="$1" && shift
-ToolTimeLimit="$1" && shift
-NumNodes="$1" && shift
-NumProcs="$1" && shift
-NumThreads="$1" && shift
-InputFile="$1" && shift
-OutputDir="$1" && shift
-Mode="$1" && shift
-StepName="$1" && shift
-DoStaging="$1" && shift
-LimitMaxMem="$1" && shift
-ScriptArgs="$1" && shift
+# The following variables must be set
+echo TimeLimit=$TimeLimit
+echo ToolTimeLimit=$ToolTimeLimit
+echo NumNodes=$NumNodes
+echo NumProcs=$NumProcs
+echo NumThreads=$NumThreads
+echo InputFile=$InputFile
+echo OutputDir=$OutputDir
+echo Mode=$Mode
+echo StepName=$StepName
+echo DoStaging=$DoStaging
+echo LimitMaxMem=$LimitMaxMem
+echo ScriptArgs=$ScriptArgs
 
 # Check NumNodes
 if [[ ${IS_FUGAKU} == 1 ]]; then

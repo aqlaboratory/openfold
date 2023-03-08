@@ -56,19 +56,19 @@ for Database in ${JackhmmerDatabases[@]}; do
     TimeoutVar="Timeout_${Database}"
     DoVar="Do_${Database}"
     if (( $DoVar == 1 )); then
-	$SubmitScript \
-	    ${!JobTimeVar} \
-	    ${!TimeoutVar} \
-	    $NumNodes \
-	    $NumProcsJackhmmer \
-	    $NumThreadsJackhmmer \
-	    $InputFile \
-	    $OutputDir \
-	    $Database \
-	    "${StepNameBase}_${Database}" \
-	    $DoStaging \
-	    $LimitMaxMemJackhmmer \
-	    ""
+	TimeLimit=${!JobTimeVar} \
+		 ToolTimeLimit=${!TimeoutVar} \
+		 NumNodes=$NumNodes \
+		 NumProcs=$NumProcsJackhmmer \
+		 NumThreads=$NumThreadsJackhmmer \
+		 InputFile=$InputFile \
+		 OutputDir=$OutputDir \
+		 Mode=$Database \
+		 StepName="${StepNameBase}_${Database}" \
+		 DoStaging=$DoStaging \
+		 LimitMaxMem=$LimitMaxMemJackhmmer \
+		 ScriptArgs="" \
+		 $SubmitScript
     fi
 done
 
@@ -82,17 +82,17 @@ if (( $Do_pdb70  == 1 )); then
 	StepName="${StepNameBase}_pdb70"
     fi
 
-    $SubmitScript \
-	$JobTime_pdb70 \
-	$Timeout_pdb70 \
-	$NumNodes \
-	$NumProcsHHsearch \
-	$NumThreadsHHsearch \
-	$InputFile \
-	$OutputDir \
-	pdb70 \
-	$StepName \
-	$DoStaging \
-	$LimitMaxMemHHsearch \
-	""
+    TimeLimit=$JobTime_pdb70 \
+	     ToolTimeLimit=$Timeout_pdb70 \
+	     NumNodes=$NumNodes \
+	     NumProcs=$NumProcsHHsearch \
+	     NumThreads=$NumThreadsHHsearch \
+	     InputFile=$InputFile \
+	     OutputDir=$OutputDir \
+	     Mode=pdb70 \
+	     StepName=$StepName \
+	     DoStaging=$DoStaging \
+	     LimitMaxMem=$LimitMaxMemHHsearch \
+	     ScriptArgs="" \
+	     $SubmitScript
 fi
