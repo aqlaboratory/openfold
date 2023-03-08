@@ -1,12 +1,8 @@
-results.csv
-times.csv
-output*/*
+log/*
+output/*
 llio_transfer.*.list*
 
 # outputs
 *.a3m
 *.hhr
 *.sto
-*.a3m_ok
-*.hhr_ok
-*.sto_ok
