@@ -1,34 +1,24 @@
-if [[ -n `hostname | grep abci` ]]; then
-    export OPENFOLD_MACHINE="pbs"
-elif [[ -e ~/.is_fugaku ]]; then
-    export OPENFOLD_MACHINE="fugaku"
-fi
-
-if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-    module purge
-    module load lang/tcsds-1.2.35
-fi
+module purge
+module load lang/tcsds-1.2.35
 
 ############################################################
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
-if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-    export PREFIX=/vol0006/ra000018/data/u10130/openfold_install
-    export OPENFOLDDIR=/vol0006/ra000018/data/u10130/repo/openfold
-    export DATADIR=/vol0006/ra000018/data/OpenFold/data
-    export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
-    export NUM_CORES=48
-    export MAX_MEM=34359738368 # 32 GiB
-if [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
-    export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
-    export PREFIX=${OPENFOLDVENV}/tools_install
-    export OPENFOLDDIR=/home/acd13359ld/repo/openfold
-    export DATADIR=/groups/4/gcd50734/openfold
-    export PJSUB_OPT="-g gcd50734"
-    export NUM_CORES=40
-    export MAX_MEM=412316860416 # 384 GiB
-    export ABCI_RESOURCE=rt_F
-fi
+export PREFIX=
+export OPENFOLDDIR=
+export DATADIR=
+export PJSUB_OPT=
+
+# "fugaku": The Supercomuter Fugaku
+# "psb": A generic supercomuter that uses the PBS job scheduler
+export OPENFOLD_MACHINE="fugaku"
+
+# The number of cores and memory size per node
+export NUM_CORES=48
+export MAX_MEM=34359738368 # 32 GiB
+
+# Path to the main temporary directory
+export TMPDIR=/worktmp
 
 ############################################################
 
@@ -38,21 +28,8 @@ fi
 
 export WORKDIR=$OPENFOLDDIR/third_party
 
-if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-    export TMPDIR=/worktmp
-else
-    export TMPDIR=/tmp
-fi
 export TEST_TMPDIR=$TMPDIR     # for bazel
 export XDG_CACHE_HOME=$TMPDIR  # for cache
 
 export PATH=$PREFIX/bin:$PATH
 export LD_LIBRARY_PATH=/lib64:$PREFIX/lib:$LD_LIBRARY_PATH
-
-if [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
-    . /etc/bashrc
-    module purge
-    module load gcc/11.2.0 python/3.7/3.7.13 openmpi/4.0.5
-    python3 -m venv ${OPENFOLDVENV}
-    source ${OPENFOLDVENV}/bin/activate
-fi
