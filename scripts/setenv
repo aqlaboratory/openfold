@@ -17,17 +17,15 @@ if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     export OPENFOLDDIR=/vol0006/ra000018/data/u10130/repo/openfold
     export DATADIR=/vol0006/ra000018/data/OpenFold/data
     export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
-    export NUM_CORES=48
-    export MAX_MEM=34359738368 # 32 GiB
+    export OPENFOLD_MAX_MEM=34359738368 # 32 GiB
 if [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
     export PREFIX=${OPENFOLDVENV}/tools_install
     export OPENFOLDDIR=/home/acd13359ld/repo/openfold
     export DATADIR=/groups/4/gcd50734/openfold
     export PJSUB_OPT="-g gcd50734"
-    export NUM_CORES=40
-    export MAX_MEM=412316860416 # 384 GiB
-    export ABCI_RESOURCE=rt_F
+    export OPENFOLD_MAX_MEM=412316860416 # 384 GiB
+    export OPENFOLD_PBS_RESOURCE=rt_F
 fi
 
 ############################################################

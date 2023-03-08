@@ -267,7 +267,7 @@ while (( $NumProcs > 0 )); do
     MaxMem=""
     MaxMemArg=""
     if [[ $LimitMaxMem = 1 ]]; then
-	MaxMem=$(($MAX_MEM / $NumProcs))
+	MaxMem=$(($OPENFOLD_MAX_MEM / $NumProcs))
 	MaxMemArg="--max_memory ${MaxMem}"
     fi
 

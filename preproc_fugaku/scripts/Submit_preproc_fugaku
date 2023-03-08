@@ -144,7 +144,7 @@ elif [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     fi
     SubmitCommand=qsub
 
-    QsubArgs+=("-l ${ABCI_RESOURCE}=${NumNodes}")
+    QsubArgs+=("-l ${OPENFOLD_PBS_RESOURCE}=${NumNodes}")
     QsubArgs+=("-cwd")
 fi
 
