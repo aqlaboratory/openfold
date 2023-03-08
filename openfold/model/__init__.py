@@ -14,3 +14,7 @@ for _m in _modules:
 
 # Avoid needlessly cluttering the global namespace
 del _files, _modules
+
+if len(_modules) > 0:
+    del _m
+
