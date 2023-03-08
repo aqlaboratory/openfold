@@ -30,7 +30,7 @@ NumThreadsHHsearch=12
 
 # Limit max memory
 LimitMaxMemJackhmmer=1
-LimitMaxMemHHsearch=0
+LimitMaxMemHHsearch=1
 
 # Time limit for each job in the pjsub time format
 JobTime_small_bfd=1:00:00
@@ -92,6 +92,6 @@ if (( $Do_pdb70  == 1 )); then
 	pdb70 \
 	$StepName \
 	$DoStaging \
-	    $LimitMaxMemHHsearch \
+	$LimitMaxMemHHsearch \
 	""
 fi
