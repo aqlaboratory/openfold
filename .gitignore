@@ -7,16 +7,4 @@ train/log/
 inference/log/
 openfold/resources/stereo_chemical_props.txt
 *.out
-*.out.0.*
-*.out.1.*
 *.stats
-llio_transfer.*.list
-
-# oyama
-preproc/input/*.fasta
-preproc/log/*
-preproc/output/*
-preproc_fugaku/log/*
-preproc_fugaku/output/*
-preproc_fugaku/script.o*
-preproc_fugaku/script.e*

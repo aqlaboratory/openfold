@@ -96,8 +96,7 @@ env MPICC=`which mpifcc` pip3 install mpi4py
 
 # OpenFold
 pushd $OPENFOLDDIR
-# python3 setup.py install
-pip3 install -e .
+python3 setup.py install
 popd
 
 echo "Finished"

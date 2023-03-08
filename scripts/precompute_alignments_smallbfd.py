@@ -24,7 +24,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
     for seq, names in seq_groups:
         first_name = names[0]
         alignment_dir = os.path.join(args.output_dir, first_name)
-
+        
         try:
             os.makedirs(alignment_dir)
         except Exception as e:
@@ -37,13 +37,10 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
         try:
             alignment_runner.run(
-                fasta_path,
-                alignment_dir,
-                input_label=first_name,
+                fasta_path, alignment_dir
             )
-        except Exception as e:
+        except:
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
-            logging.warning(e)
             os.remove(fasta_path)
             os.rmdir(alignment_dir)
             continue
@@ -56,10 +53,10 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
                     f'{name} has already been processed. Skipping...'
                 )
                 continue
-
+            
             cp_dir = os.path.join(args.output_dir, name)
             os.makedirs(cp_dir, exist_ok=True)
-
+            
             for f in os.listdir(alignment_dir):
                 copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
 
@@ -69,7 +66,7 @@ def parse_and_align(files, alignment_runner, args):
         logging.info('Start processing protain {}'.format(f))
         path = os.path.join(args.input_dir, f)
         file_id = os.path.splitext(f)[0]
-        seq_group_dict = {}
+        seq_group_dict = {}  
         if(f.endswith('.cif')):
             with open(path, 'r') as fp:
                 mmcif_str = fp.read()
@@ -91,7 +88,7 @@ def parse_and_align(files, alignment_runner, args):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
             input_seqs, _ = parse_fasta(fasta_str)
-            if len(input_seqs) != 1:
+            if len(input_seqs) != 1: 
                 msg = f'More than one input_sequence found in {f}'
                 if(args.raise_errors):
                     raise ValueError(msg)
@@ -105,7 +102,7 @@ def parse_and_align(files, alignment_runner, args):
             core_prot = protein.from_proteinnet_string(core_str)
             aatype = core_prot.aatype
             seq = ''.join([
-                residue_constants.restypes_with_x[aatype[i]]
+                residue_constants.restypes_with_x[aatype[i]] 
                 for i in range(len(aatype))
             ])
             seq_group_dict[seq] = [file_id]
@@ -194,9 +191,9 @@ def main(args):
                     if(chain_name not in dirs):
                         l = seq_group_dict.setdefault(seq, [])
                         l.append(chain_name)
-
-        func = partial(run_seq_group_alignments,
-            alignment_runner=alignment_runner,
+       
+        func = partial(run_seq_group_alignments, 
+            alignment_runner=alignment_runner, 
             args=args
         )
 

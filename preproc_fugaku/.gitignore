@@ -1,8 +1,10 @@
 log/*
 output/*
 llio_transfer.*.list*
+script.o*
+script.e*
 
-# outputs
+# output MSA and templates
 *.a3m
 *.hhr
 *.sto
