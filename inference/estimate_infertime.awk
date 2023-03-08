@@ -1,3 +1,5 @@
+#!/bin/awk -f
+
 BEGIN{
     coeff_a = 0.0023
     coeff_b = 0.4875
