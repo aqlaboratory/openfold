@@ -13,7 +13,7 @@ export PJSUB_OPT=
 # "psb": A generic supercomuter that uses the PBS job scheduler
 export OPENFOLD_MACHINE="fugaku"
 
-# The number of cores and memory size per node
+# Per-node memory size
 export OPENFOLD_MAX_MEM=34359738368 # 32 GiB
 
 # Define only if PBS is used
