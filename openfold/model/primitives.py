@@ -483,7 +483,7 @@ class Attention(nn.Module):
         if is_fp16_enabled():
             use_memory_efficient_kernel = False
         
-        if(use_memory_efficient_kernel):
+        if(use_memory_efficient_kernel and k.is_cuda and q.is_cuda and v.is_cuda):
             if(len(biases) > 2):
                 raise ValueError(
                     "If use_memory_efficient_kernel is True, you may only "
