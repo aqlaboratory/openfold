@@ -1,12 +1,10 @@
-export IS_ABCI=0
-export IS_FUGAKU=0
 if [[ -n `hostname | grep abci` ]]; then
-    export IS_ABCI=1
+    export OPENFOLD_MACHINE="pbs"
 elif [[ -e ~/.is_fugaku ]]; then
-    export IS_FUGAKU=1
+    export OPENFOLD_MACHINE="fugaku"
 fi
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     module purge
     module load lang/tcsds-1.2.35
 fi
@@ -14,14 +12,14 @@ fi
 ############################################################
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     export PREFIX=/vol0006/ra000018/data/u10130/openfold_install
     export OPENFOLDDIR=/vol0006/ra000018/data/u10130/repo/openfold
     export DATADIR=/vol0006/ra000018/data/OpenFold/data
     export PJSUB_OPT="-g ra000018 -x PJM_LLIO_GFSCACHE=/vol0006"
     export NUM_CORES=48
     export MAX_MEM=34359738368 # 32 GiB
-elif [[ ${IS_ABCI} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     export OPENFOLDVENV=/home/acd13359ld/venv/openfold_fugaku
     export PREFIX=${OPENFOLDVENV}/tools_install
     export OPENFOLDDIR=/home/acd13359ld/repo/openfold
@@ -40,9 +38,9 @@ fi
 
 export WORKDIR=$OPENFOLDDIR/third_party
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     export TMPDIR=/worktmp
-elif [[ ${IS_ABCI} == 1 ]]; then
+else
     export TMPDIR=/tmp
 fi
 export TEST_TMPDIR=$TMPDIR     # for bazel
@@ -51,7 +49,7 @@ export XDG_CACHE_HOME=$TMPDIR  # for cache
 export PATH=$PREFIX/bin:$PATH
 export LD_LIBRARY_PATH=/lib64:$PREFIX/lib:$LD_LIBRARY_PATH
 
-if [[ ${IS_ABCI} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     . /etc/bashrc
     module purge
     module load gcc/11.2.0 python/3.7/3.7.13 openmpi/4.0.5

@@ -35,7 +35,7 @@ Script=scripts/precompute_alignments_fugaku.py
 LLIOTransfer=llio_transfer
 DirTransfer=./my_dir_transfer
 
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     MpiExecEachNode="STUB"
     MpiArgs=""
     export LD_PRELOAD=/usr/lib/FJSVtcs/ple/lib64/libpmix.so # Required to use mpi4py
@@ -45,9 +45,9 @@ else
 fi
 
 # Temp locations
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     LOCALTMP=$PJM_LOCALTMP # Shared SSD, 87 GiB/node
-elif [[ ${IS_ABCI} == 1 ]]; then
+elif [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     rm -rf /dev/shm/* 2>/dev/null || true
     LOCALTMP=/dev/shm # Private memory, 384 GiB/node (V)
     # LOCALTMP=$SGE_LOCALDIR # Private SSD, 1.6 TB
@@ -71,7 +71,7 @@ else
 fi
 
 if [[ $DoStaging = 1 ]]; then
-    if [[ ${IS_FUGAKU} == 1 ]]; then
+    if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
 	echo "Executing LLIO transfer for OpenFold"
 
 	set -x
@@ -90,7 +90,7 @@ if [[ $DoStaging = 1 ]]; then
     fi
 
     if [[ $DatabaseIsFile = 1 ]]; then
-	if [[ ${IS_FUGAKU} == 1 ]]; then
+	if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
 	    echo "Executing LLIO transfer for the DB file"
 	    set +e
 	    set -x
@@ -107,7 +107,7 @@ if [[ $DoStaging = 1 ]]; then
 	fi
 
     else
-	if [[ ${IS_FUGAKU} == 1 ]]; then
+	if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
 	    echo "Executing LLIO transfer for the DB directory"
 	    Exts=(ffdata ffindex)
 	    for Ext in ${Exts[@]}; do
@@ -159,7 +159,7 @@ while (( $NumProcs > 0 )); do
     export PARALLEL=$OMP_NUM_THREADS
 
     NumTaskProcs=$(($NumProcs * $NumNodes))
-    if [[ ${IS_FUGAKU} == 1 ]]; then
+    if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
 	MpiExecTask="mpiexec -n $NumTaskProcs"
     else
 	MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
