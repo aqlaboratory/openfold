@@ -25,7 +25,7 @@ import numpy as np
 
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
-from openfold.data.tools.utils import to_date
+from openfold.data.tools.utils import to_date 
 from openfold.np import residue_constants, protein
 
 PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
@@ -39,7 +39,7 @@ FeatureDict = Mapping[str, np.ndarray]
 def empty_template_feats(n_res) -> FeatureDict:
     return {
         "template_aatype": np.zeros((0, n_res)).astype(np.int64),
-        "template_all_atom_positions":
+        "template_all_atom_positions": 
             np.zeros((0, n_res, 37, 3)).astype(np.float32),
         "template_sum_probs": np.zeros((0, 1)).astype(np.float32),
         "template_all_atom_mask": np.zeros((0, n_res, 37)).astype(np.float32),
@@ -92,7 +92,7 @@ def unify_template_features(
                 assert(new_shape[1] == n_res)
                 new_shape[1] = sum(seq_lens)
                 new_array = np.zeros(new_shape, dtype=v.dtype)
-
+                
                 if(k == "template_aatype"):
                     new_array[..., residue_constants.HHBLITS_AA_TO_ID['-']] = 1
 
@@ -175,13 +175,13 @@ def make_mmcif_features(
 
 def _aatype_to_str_sequence(aatype):
     return ''.join([
-        residue_constants.restypes_with_x[aatype[i]]
+        residue_constants.restypes_with_x[aatype[i]] 
         for i in range(len(aatype))
     ])
 
 
 def make_protein_features(
-    protein_object: protein.Protein,
+    protein_object: protein.Protein, 
     description: str,
     _is_distillation: bool = False,
 ) -> FeatureDict:
@@ -301,15 +301,15 @@ class AlignmentRunner:
                 must also be provided
             bfd_database_path:
                 Path to BFD database. Depending on the value of use_small_bfd,
-                one of hhblits_binary_path or jackhmmer_binary_path must be
+                one of hhblits_binary_path or jackhmmer_binary_path must be 
                 provided.
             uniclust30_database_path:
-                Path to uniclust30. Searched alongside BFD if use_small_bfd is
+                Path to uniclust30. Searched alongside BFD if use_small_bfd is 
                 false.
             pdb70_database_path:
                 Path to pdb70 database.
             use_small_bfd:
-                Whether to search the BFD database alone with jackhmmer or
+                Whether to search the BFD database alone with jackhmmer or 
                 in conjunction with uniclust30 with hhblits.
             no_cpus:
                 The number of CPUs available for alignment. By default, all
@@ -355,13 +355,6 @@ class AlignmentRunner:
                     f"{name} DBs provided but {name} binary is None"
                 )
 
-        # if(not all([x is None for x in db_map["hhsearch"]["dbs"]])
-        #     and uniref90_database_path is None):
-        #     raise ValueError(
-        #         """uniref90_database_path must be specified in order to perform
-        #            template search"""
-        #     )
-
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
         self.use_small_bfd = use_small_bfd
@@ -370,7 +363,7 @@ class AlignmentRunner:
             no_cpus = cpu_count()
 
         self.jackhmmer_uniref90_runner = None
-        if(jackhmmer_binary_path is not None and
+        if(jackhmmer_binary_path is not None and 
             uniref90_database_path is not None
         ):
             self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
@@ -378,7 +371,7 @@ class AlignmentRunner:
                 database_path=uniref90_database_path,
                 n_cpu=no_cpus,
             )
-
+   
         self.jackhmmer_small_bfd_runner = None
         self.hhblits_bfd_uniclust_runner = None
         if(bfd_database_path is not None):
@@ -462,8 +455,9 @@ class AlignmentRunner:
 
         if max_memory is not None:
             def preexec_fn():
-                resource.setrlimit(resource.RLIMIT_AS,
-                                   (max_memory, resource.RLIM_INFINITY))
+                resource.setrlimit(
+                    resource.RLIMIT_AS,
+                    (max_memory, resource.RLIM_INFINITY))
 
         else:
             preexec_fn = None
@@ -484,7 +478,7 @@ class AlignmentRunner:
                 preexec_fn=preexec_fn,
             )[0]
             uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                jackhmmer_uniref90_result["sto"],
+                jackhmmer_uniref90_result["sto"], 
                 max_sequences=self.uniref_max_hits
             )
             self.write_safely(uniref90_out_path, uniref90_msa_as_a3m)
@@ -519,7 +513,7 @@ class AlignmentRunner:
                     jackhmmer_mgnify_result["sto"],
                     max_sequences=self.mgnify_max_hits
                 )
-                self.write_safely(mgnify_out_path, mgnify_msa_as_a3m)
+                self.write_safely(mgnify_out_path, mgnify_msa_as_am)
                 generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
@@ -604,7 +598,7 @@ class DataPipeline:
         alignment_dir: str,
         _alignment_index: Optional[Any] = None,
     ) -> Mapping[str, Any]:
-        msa_data = {}
+        msa_data = {} 
         if(_alignment_index is not None):
             fp = open(os.path.join(alignment_dir, _alignment_index["db"]), "rb")
 
@@ -628,11 +622,11 @@ class DataPipeline:
                     data = {"msa": msa, "deletion_matrix": deletion_matrix}
                 else:
                     continue
-
+               
                 msa_data[name] = data
-
+            
             fp.close()
-        else:
+        else: 
             for dirpath, dirs, files in os.walk(alignment_dir):
                 for f in files:
                     path = os.path.join(dirpath, f)
@@ -650,7 +644,7 @@ class DataPipeline:
                         data = {"msa": msa, "deletion_matrix": deletion_matrix}
                     else:
                         continue
-
+                
                     msa_data[f] = data
 
         return msa_data
@@ -699,7 +693,7 @@ class DataPipeline:
             if(input_sequence is None):
                 raise ValueError(
                     """
-                    If the alignment dir contains no MSAs, an input sequence
+                    If the alignment dir contains no MSAs, an input sequence 
                     must be provided.
                     """
                 )
@@ -736,7 +730,7 @@ class DataPipeline:
         alignment_dir: str,
         _alignment_index: Optional[str] = None,
     ) -> FeatureDict:
-        """Assembles features for a single sequence in a FASTA file"""
+        """Assembles features for a single sequence in a FASTA file""" 
         with open(fasta_path) as f:
             fasta_str = f.read()
         input_seqs, input_descs = parsers.parse_fasta(fasta_str)
@@ -762,10 +756,10 @@ class DataPipeline:
         )
 
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
-
+        
         return {
             **sequence_features,
-            **msa_features,
+            **msa_features, 
             **template_features
         }
 
@@ -799,7 +793,7 @@ class DataPipeline:
             self.template_featurizer,
             query_release_date=to_date(mmcif.header["release_date"])
         )
-
+        
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, _alignment_index)
 
         return {**mmcif_feats, **template_features, **msa_features}
@@ -830,11 +824,11 @@ class DataPipeline:
                 pdb_str = f.read()
 
         protein_object = protein.from_pdb_string(pdb_str, chain_id)
-        input_sequence = _aatype_to_str_sequence(protein_object.aatype)
+        input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
         description = os.path.splitext(os.path.basename(pdb_path))[0].upper()
         pdb_feats = make_pdb_features(
-            protein_object,
-            description,
+            protein_object, 
+            description, 
             is_distillation=is_distillation
         )
 
@@ -862,10 +856,10 @@ class DataPipeline:
             core_str = f.read()
 
         protein_object = protein.from_proteinnet_string(core_str)
-        input_sequence = _aatype_to_str_sequence(protein_object.aatype)
+        input_sequence = _aatype_to_str_sequence(protein_object.aatype) 
         description = os.path.splitext(os.path.basename(core_path))[0].upper()
         core_feats = make_protein_features(protein_object, description)
-
+        
         hits = self._parse_template_hits(alignment_dir, _alignment_index)
         template_features = make_template_features(
             input_sequence,
@@ -890,7 +884,7 @@ class DataPipeline:
             fasta_str = f.read()
 
         input_seqs, input_descs = parsers.parse_fasta(fasta_str)
-
+        
         # No whitespace allowed
         input_descs = [i.split()[0] for i in input_descs]
 
@@ -921,7 +915,7 @@ class DataPipeline:
                 alignment_dir, seq, None
             )
             msa_list.append(msas)
-            deletion_mat_list.append(deletion_mats)
+            deletion_mat_list.append(deletion_mats) 
 
         final_msa = []
         final_deletion_mat = []
@@ -932,7 +926,7 @@ class DataPipeline:
                 [prec * '-' + seq + post * '-' for seq in msa] for msa in msas
             ]
             deletion_mats = [
-                [prec * [0] + dml + post * [0] for dml in deletion_mat]
+                [prec * [0] + dml + post * [0] for dml in deletion_mat] 
                 for deletion_mat in deletion_mats
             ]
 
@@ -963,6 +957,6 @@ class DataPipeline:
 
         return {
             **sequence_features,
-            **msa_features,
+            **msa_features, 
             **template_features,
         }
