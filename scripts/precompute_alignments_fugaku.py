@@ -227,7 +227,7 @@ def main(args):
         pdb70_database_path=args.pdb70_database_path,
         use_small_bfd=args.use_small_bfd,
         no_cpus=args.cpus_per_task,
-        disable_write_permission=True,
+        disable_write_permission=args.disable_write_permission,
         timeout=args.timeout,
         bfd_deflate_a3m_hhm_path=args.bfd_deflate_a3m_hhm_path,
         uniclust30_deflate_a3m_hhm_path=args.uniclust30_deflate_a3m_hhm_path,
@@ -353,6 +353,14 @@ if __name__ == "__main__":
         action="store_const",
         help="Find duplicated sequences and create symlinks to existing alignment files "
         "instead of running search tools (default: False)",
+    )
+    parser.add_argument(
+        "--disable-write-permission",
+        dest="disable_write_permission",
+        default=False,
+        const=True,
+        action="store_const",
+        help="Set permission 440 to output MSA and template files",
     )
 
 
