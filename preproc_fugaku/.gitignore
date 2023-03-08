@@ -1,5 +1,6 @@
-log/*
-output/*
+log/
+output/
+output.*/
 llio_transfer.*.list*
 
 # outputs
