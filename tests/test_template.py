@@ -182,6 +182,7 @@ class Template(unittest.TestCase):
             torch.as_tensor(pair_act).cuda(),
             torch.as_tensor(pair_mask).cuda(),
             templ_dim=0,
+            inplace_safe=False
         )
         out_repro = out_repro["template_pair_embedding"]
         out_repro = out_repro.cpu()

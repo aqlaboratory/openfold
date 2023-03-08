@@ -130,6 +130,22 @@ def _is_after_cutoff(
         return False
 
 
+def _replace_obsolete_references(obsolete_mapping) -> Mapping[str, str]:
+    """Generates a new obsolete by tracing all cross-references and store the latest leaf to all referencing nodes"""
+    obsolete_new = {}
+    obsolete_keys = obsolete_mapping.keys()
+
+    def _new_target(k):
+        v = obsolete_mapping[k]
+        if v in obsolete_keys:
+            return _new_target(v)
+        return v
+    
+    for k in obsolete_keys:
+        obsolete_new[k] = _new_target(k)
+
+    return obsolete_new
+
 def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
     """Parses the data file from PDB that lists which PDB ids are obsolete."""
     with open(obsolete_file_path) as f:
@@ -143,7 +159,7 @@ def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
                 from_id = line[20:24].lower()
                 to_id = line[29:33].lower()
                 result[from_id] = to_id
-        return result
+        return _replace_obsolete_references(result)
 
 
 def generate_release_dates_cache(mmcif_dir: str, out_path: str):

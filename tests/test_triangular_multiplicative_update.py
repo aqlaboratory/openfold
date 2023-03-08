@@ -92,7 +92,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         out_repro = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
-            _inplace=True, _inplace_chunk_size=4,
+            inplace_safe=True, _inplace_chunk_size=4,
         ).cpu()
 
         self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
@@ -122,14 +122,14 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         out_stock = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
-            _inplace=False,
+            inplace_safe=False,
         ).cpu()
         
         # This has to come second because inference mode is in-place
         out_inplace = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
-            _inplace=True, _inplace_chunk_size=2,
+            inplace_safe=True, _inplace_chunk_size=2,
         ).cpu()
 
         self.assertTrue(torch.mean(torch.abs(out_stock - out_inplace)) < consts.eps)

@@ -661,7 +661,7 @@ def make_atom14_masks(protein):
 
 def make_atom14_masks_np(batch):
     batch = tree_map(
-        lambda n: torch.tensor(n, device=batch["aatype"].device), 
+        lambda n: torch.tensor(n, device="cpu"), 
         batch, 
         np.ndarray
     )
