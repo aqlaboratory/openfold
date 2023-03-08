@@ -22,7 +22,7 @@ echo LimitMaxMem=$LimitMaxMem
 echo ScriptArgs=$ScriptArgs
 
 # Check NumNodes
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     if [[ $Mode = "bfd" ]]; then
 	:
 	# if (( $NumNodes < 26 )); then
@@ -122,7 +122,7 @@ echo NumNodes: $NumNodes
 echo LogDir: $LogDir
 
 DoSubmitJob=0
-if [[ ${IS_FUGAKU} == 1 ]]; then
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
     if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
 	DoSubmitJob=1
 	SubmitCommand=pjsub
@@ -138,7 +138,7 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	fi
     fi
 
-elif [[ ${IS_ABCI} == 1 ]]; then
+elif [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
     if [[ -n `hostname | grep -e ^es1 -e ^es2` ]]; then
 	DoSubmitJob=1
     fi
