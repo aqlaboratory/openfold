@@ -17,7 +17,7 @@ The NumProcs is the number of processes for each node
 The NumThreads is the number of threads for each task
 The InputFile is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
-The Mode is one from {uniref90, pdb70, mgnify, small_bfd, bfd}
+The Mode is one from {uniref90, pdb70, mgnify, small_bfd}
 The StepName is a step job name
 The DoStaging is whether an input database is staged
 The LimitMaxMem is whether memory limit is applied
@@ -41,19 +41,6 @@ StepName="$1" && shift
 DoStaging="$1" && shift
 LimitMaxMem="$1" && shift
 ScriptArgs="$1" && shift
-
-# Check NumNodes
-if [[ ${IS_FUGAKU} == 1 ]]; then
-    if [[ $Mode = "bfd" ]]; then
-	:
-	# if (( $NumNodes < 26 )); then
-	#     echo "NumNodes must be >= 26 to use bfd." >&2
-	#     exit
-	# fi
-    fi
-fi
-
-LocalTempSize=0Gi
 
 ### The directory where data is stored
 DataDir="$DATADIR"
@@ -151,7 +138,6 @@ if [[ ${IS_FUGAKU} == 1 ]]; then
 	QsubArgs+=("--mpi rank-map-bynode")
 
 	# To use LLIO (node-temporary)
-	QsubArgs+=("--llio localtmp-size=$LocalTempSize")
 	QsubArgs+=("--mpi max-proc-per-node=$NumProcs")
 
 	if [[ -n $StepName ]]; then

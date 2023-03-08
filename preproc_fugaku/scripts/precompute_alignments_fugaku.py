@@ -223,14 +223,12 @@ def main(args):
         uniref90_database_path=args.uniref90_database_path,
         mgnify_database_path=args.mgnify_database_path,
         bfd_database_path=args.bfd_database_path,
-        uniclust30_database_path=args.uniclust30_database_path,
+        uniclust30_database_path=None,
         pdb70_database_path=args.pdb70_database_path,
-        use_small_bfd=args.use_small_bfd,
+        use_small_bfd=True,
         no_cpus=args.cpus_per_task,
         disable_write_permission=args.disable_write_permission,
         timeout=args.timeout,
-        bfd_deflate_a3m_hhm_path=args.bfd_deflate_a3m_hhm_path,
-        uniclust30_deflate_a3m_hhm_path=args.uniclust30_deflate_a3m_hhm_path,
     )
 
     comm = MPI.COMM_WORLD
@@ -321,18 +319,6 @@ if __name__ == "__main__":
         "--filter", type=bool, default=True,
     )
 
-    parser.add_argument(
-        "--use_small_bfd", type=bool, default=False,
-        help="Use the small BFD",
-    )
-    parser.add_argument(
-        "--bfd_deflate_a3m_hhm_path",
-        type=str, default=None,
-    )
-    parser.add_argument(
-        "--uniclust30_deflate_a3m_hhm_path",
-        type=str, default=None,
-    )
     parser.add_argument(
         '--timeout', type=float, default=None,
         help="Time limit for each search tool in seconds (default: None)",
