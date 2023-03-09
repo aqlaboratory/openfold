@@ -1,8 +1,7 @@
-MMCIFCache=/vol0006/ra000018/data/OpenFold/sample/training/mmcif_cache.json
-
-InputFasta=/vol0006/ra000018/data/u10271/OpenFold/openfold/inference/multi_test/input.fasta
-AlignmentDir=/home/u10271/ra000018/OpenFold/openfold/inference/multi_test/alignment
-OutputDir=/home/u10271/ra000018/OpenFold/openfold/inference/multi_test/output
+MMCIFCache=example/mmcif_cache.json
+InputFasta=example/input/short.fasta
+AlignmentDir=example/alignment
+OutputDir=$LOGDIR
 Timeout=3600
 
 PARAMS=(

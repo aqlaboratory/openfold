@@ -27,7 +27,7 @@ from openfold.data.tools import utils
 class OpenFoldInference:
     """Python wrapper of the OpenFold inference."""
 
-    def __init__(self, script_path: str, exec_path: str):
+    def __init__(self, script_path: str, exec_path: str = None):
         """Initializes the Python OpenFold wrapper.
 
         Args:

@@ -38,7 +38,6 @@ LocalDataDir="/worktmp"
 WORKER="worker.sh"
 
 ### Python environment
-#OPTFile="TF220-33_220301.tgz"
 ShareDir=/worktmp
 
 case $NodeShape in

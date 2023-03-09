@@ -8,7 +8,24 @@
 
 ### シングルノード版
 
-1. 
+1. `inference/parameters`の以下の必須項目を設定する
+    - `MMCIFCache`: 事前準備で作成したmmcifキャッシュのパス
+    - `InputFastaDir`: 入力シーケンスのfastaファイルが含まれるディレクトリのパス
+    - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス
+    - `OutputDir`: 出力ディレクトリのパス。`$LOGDIR`とした場合はログディレクトリとなる。
+
+1. 必要があれば`inference/parameters`の以下の項目を変更する
+    - `--jax_param_path`: 使用するAlphaFold2パラメータ
+    - `max_template_date`: 指定した日付以前のタンパク質構造をテンプレートとして使用する
+
+1. `Submit_inference`により推論のジョブ(1ノード)を投入する
+    - `Submit_inference $TimeLimit`
+    - `TimeLimit`: ジョブの時間制限
+    - 例
+      - 1時間の時間制限で実行する場合: `./Submit_inference 1:00:00`
+
+1. 実行結果は`log/ノード数/Submit_inference.*`に出力される
+    - プロセスの出力は`output/0/out.1.0`に書き出される
 
 ### マルチノード版
 
@@ -24,7 +41,7 @@
     - `MMCIFCache`: 事前準備で作成したmmcifキャッシュのパス
     - `InputFasta`: (フィルタ済みの) 入力シーケンスのfastaファイルのパス
     - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス
-    - `OutputDir`: 出力ディレクトリのパス
+    - `OutputDir`: 出力ディレクトリのパス。`$LOGDIR`とした場合はログディレクトリとなる。
     - `Timeout`: 入力シーケンスごとのタイムアウト時間 [秒]
 
 1. 必要があれば`inference/parameters_multi`の以下の項目を変更する
@@ -52,5 +69,3 @@
       - `find_ng.sh $LogDir > $NGList`により正常に推論できなかったシーケンス名のリストを生成する
     - 再度fastaファイルをフィルタし、`inference/parameters_multi`の`InputFasta`を変更
     - ジョブを投入
-
-

@@ -43,7 +43,7 @@ def run_inference(runner, name, seq, pred_dir, args):
 def run_seq_group_inference(seq_groups, args):
     dirs = set(os.listdir(args.output_dir))
     pred_dir = os.path.join(args.output_dir, 'predictions')
-    runner = OpenFoldInference('run_pretrained_openfold.py', os.environ.get('OPENFOLDDIR'))
+    runner = OpenFoldInference(os.path.join(os.environ.get('OPENFOLDDIR'), 'run_pretrained_openfold.py'))
 
     for seq, names in seq_groups:
         print("seq, names", seq, names)
