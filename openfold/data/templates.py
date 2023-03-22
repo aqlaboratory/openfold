@@ -1092,7 +1092,6 @@ class TemplateHitFeaturizer:
                         _zero_center_positions=self._zero_center_positions,
                     )
                 result = futures[i].result()
-                futures[i] = None
             else:
                 result = _process_single_hit(
                     query_sequence=query_sequence,
