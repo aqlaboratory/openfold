@@ -1,5 +1,5 @@
 SampleDir=/vol0003/share/hp210263/OpenFold/sample/training
-MMCIFDir=/vol0006/ra000018/data/OpenFold/data/pdb_rand1891/pickle_files_v2_lz4
+MMCIFDir=/vol0006/ra000018/data/OpenFold/data/pdb_rand1891/pickle_files_v3_lz4
 AlignmentDir=/vol0006/ra000018/data/u10271/alignment/alignment_rand1891
 ChainDataCacheFile=/vol0006/ra000018/data/a04305/apps/OpenFold/data/pdb_mmcif_rand1891/chain_data_cache.json
 MMCIFCacheFile=/vol0006/ra000018/data/a04305/apps/OpenFold/data/pdb_mmcif_rand1891/mmcif_cache.json
@@ -10,7 +10,7 @@ PARAMS=(
     $OPENFOLDDIR/train_openfold.py
     $MMCIFDir
     $AlignmentDir
-    $DataDir/pdb_mmcif/pickle_files_v2_lz4
+    $DataDir/pdb_mmcif/pickle_files_v3_lz4
     $LOGDIR
     2021-10-10
     --template_release_dates_cache_path $MMCIFCacheFile
