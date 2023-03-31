@@ -193,7 +193,7 @@ class EvoformerBlockCore(nn.Module):
         msa_trans_mask = msa_mask if _mask_trans else None
         pair_trans_mask = pair_mask if _mask_trans else None
       
-        if(_attn_chunk_size is None):
+        if(_attn_chunk_size is None ):
             _attn_chunk_size = chunk_size
 
         m, z = input_tensors
