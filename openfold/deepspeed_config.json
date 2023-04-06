@@ -1,0 +1,24 @@
+{
+  "fp16": {
+    "enabled": false,
+    "min_loss_scale": 1
+  },
+  "amp": {
+    "enabled": false,
+    "opt_level": "O2"
+  },
+  "bfloat16": {
+    "enabled": true
+  },
+  "zero_optimization": {
+    "stage": 2,
+    "cpu_offload": true,
+    "contiguous_gradients": true
+  },
+  "activation_checkpointing": {
+    "partition_activations": true,
+    "cpu_checkpointing": false,
+    "profile": false
+  },
+  "gradient_clipping": 0.1
+}

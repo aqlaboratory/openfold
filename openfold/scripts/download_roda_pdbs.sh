@@ -3,7 +3,7 @@
 #SBATCH -t 500 # timelimit in minutes
 #SBATCH -p project-gpu # Partition where the job will run
 #SBATCH --gres=gpu:0 # How many gpus to allocate
-#
+
 # Copyright 2021 AlQuraishi Laboratories
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,11 +36,7 @@ fi
 SERVER=snapshotrsync.rcsb.org                       # RCSB server name
 PORT=873                                           # port RCSB server is using
 
-#rsync -rlpt -v -z --delete --port=$PORT $SERVER::20220103/pub/pdb/data/structures/divided/mmCIF/ $OUT_DIR 2>&1 > /dev/null
-#rsync -rlpt --compress --info=progress2 --delete data.pdbj.org::ftp_data/structures/divided/mmCIF/ $OUT_DIR
-rsync -rlpt -v -z --delete snapshots.pdbj.org::20220103/pub/pdb/data/structures/divided/mmCIF/ $OUT_DIR
-
-
+rsync -rlpt -v -z --delete --port=$PORT $SERVER::20220103/pub/pdb/data/structures/divided/mmCIF/ $OUT_DIR 2>&1 > /dev/null
 
 for f in $(find $OUT_DIR -mindepth 2 -type f); do
     mv $f $OUT_DIR

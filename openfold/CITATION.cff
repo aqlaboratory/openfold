@@ -1,0 +1,91 @@
+cff-version: 1.2.0
+preferred-citation:
+    authors:
+    - family-names: "Ahdritz"
+      given-names: "Gustaf"
+      orcid: https://orcid.org/0000-0001-8283-5324
+    - family-names: "Bouatta"
+      given-names: "Nazim"
+      orcid: https://orcid.org/0000-0002-6524-874X
+    - family-names: "Kadyan"
+      given-names: "Sachin"
+      orcid: https://orcid.org/0000-0002-6079-7627
+    - family-names: "Xia"
+      given-names: "Qinghui"
+    - family-names: "Gerecke"
+      given-names: "William"
+      orcid: https://orcid.org/0000-0002-9777-6192
+    - family-names: "O'Donnell"
+      given-names: "Timothy J"
+      orcid: https://orcid.org/0000-0002-9949-069X
+    - family-names: "Berenberg"
+      given-names: "Daniel"
+      orcid: https://orcid.org/0000-0003-4631-0947
+    - family-names: "Fisk"
+      given-names: "Ian"
+    - family-names: "Zanichelli"
+      given-names: "Niccolò"
+      orcid: https://orcid.org/0000-0002-3093-3587
+    - family-names: "Zhang"
+      given-names: "Bo"
+      orcid: https://orcid.org/0000-0002-9714-2827
+    - family-names: "Nowaczynski"
+      given-names: "Arkadiusz"
+      orcid: https://orcid.org/0000-0002-3351-9584
+    - family-names: "Wang"
+      given-names: "Bei"
+      orcid: https://orcid.org/0000-0003-4942-9652
+    - family-names: "Stepniewska-Dziubinska"
+      given-names: "Marta M"
+      orcid: https://orcid.org/0000-0003-4942-9652
+    - family-names: "Zhang"
+      given-names: "Shang"
+      orcid: https://orcid.org/0000-0003-0759-2080
+    - family-names: "Ojewole"
+      given-names: "Adegoke"
+      orcid: https://orcid.org/0000-0003-2661-4388
+    - family-names: "Guney"
+      given-names: "Murat Efe"
+    - family-names: "Biderman"
+      given-names: "Stella"
+      orcid: https://orcid.org/0000-0001-8228-1042
+    - family-names: "Watkins"
+      given-names: "Andrew M"
+      orcid: https://orcid.org/0000-0003-1617-1720
+    - family-names: "Ra"
+      given-names: "Stephen"
+      orcid: https://orcid.org/0000-0002-2820-0050
+    - family-names: "Lorenzo"
+      given-names: "Pablo Ribalta"
+      orcid: https://orcid.org/0000-0002-3657-8053
+    - family-names: "Nivon"
+      given-names: "Lucas"
+    - family-names: "Weitzner"
+      given-names: "Brian"
+      orcid: https://orcid.org/0000-0002-1909-0961
+    - family-names: "Ban"
+      given-names: "Yih-En"
+      orcid: https://orcid.org/0000-0003-3698-3574
+    - family-names: "Ban"
+      given-names: "Yih-En Andrew"
+      orcid: https://orcid.org/0000-0003-3698-3574
+    - family-names: "Sorger"
+      given-names: "Peter K"
+      orcid: https://orcid.org/0000-0002-3364-1838
+    - family-names: "Mostaque"
+      given-names: "Emad"
+    - family-names: "Zhang"
+      given-names: "Zhao"
+      orcid: https://orcid.org/0000-0001-5921-0035
+    - family-names: "Bonneau"
+      given-names: "Richard"
+      orcid: https://orcid.org/0000-0003-4354-7906
+    - family-names: "AlQuraishi"
+      given-names: "Mohammed"
+      orcid: https://orcid.org/0000-0001-6817-1322
+    title: "OpenFold: Retraining AlphaFold2 yields new insights into its learning mechanisms and capacity for generalization"
+    type: article
+    doi: 10.1101/2022.11.20.517210
+doi: 10.1101/2022.11.20.517210
+date-released: 2021-11-12
+url: "https://doi.org/10.1101/2022.11.20.517210"
