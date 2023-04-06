@@ -1,16 +1,19 @@
-MMCIFCache=/vol0006/ra000018/data/OpenFold/sample/training/mmcif_cache.json
-SampleDir=/vol0003/share/hp210263/OpenFold/sample/inference
+MMCIFCache=example/mmcif_cache.json
+InputFastaDir=example/input
+AlignmentDir=example/alignment
+OutputDir=$LOGDIR
 
 PARAMS=(
     python3
     $OPENFOLDDIR/run_pretrained_openfold.py
-    $SampleDir/T1084/input
-    $DataDir/pdb_mmcif/pickle_files_v2_lz4
+    $InputFastaDir
+    $DataDir/pdb_mmcif/mmcif_files
+    # $DataDir/pdb_mmcif/pickle_files_v2_lz4
     --model_device cpu
     --jax_param_path $DataDir/params/params_model_1.npz
-    --output_dir $LOGDIR
+    --output_dir $OutputDir
     --kalign_binary_path $PREFIX/bin/kalign
-    --use_precomputed_alignments $SampleDir/T1084/alignment_smallbfd
+    --use_precomputed_alignments $AlignmentDir
     --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
     --max_template_date 2021-10-10
     --release_dates_path $MMCIFCache

@@ -1,3 +1,5 @@
+#!/bin/awk -f
+
 BEGIN{
     coeff_a = 0.0023
     coeff_b = 0.4875
@@ -34,9 +36,9 @@ END{
     }
 
     printf("Time estimation function: %f x^2 + %f x + %f\n", coeff_a, coeff_b, coeff_c)
-    printf("Total redundant seq: %d\n", n_redundant_seq)
-    printf("Total seq: %d\n", n_seq)
-    printf("Total unknown seq: %d\n", n_unk_seq)
-    printf("Total acc seq: %d\n", n_acc_seq)
-    printf("Estimated time: %f\n", acc_est_time)
+    printf("Number of seq: %d\n", n_redundant_seq)
+    printf("Number of unique seq: %d\n", n_seq)
+    printf("Number of unknown seq: %d\n", n_unk_seq)
+    printf("Number of time accumulated seq: %d\n", n_acc_seq)
+    printf("Estimated time [hours]: %f\n", acc_est_time/3600)
 }

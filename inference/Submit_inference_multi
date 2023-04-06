@@ -38,7 +38,6 @@ LocalDataDir="/worktmp"
 WORKER="worker.sh"
 
 ### Python environment
-#OPTFile="TF220-33_220301.tgz"
 ShareDir=/worktmp
 
 case $NodeShape in
@@ -56,18 +55,16 @@ esac
 # Select Resource Group
 if  [ $NumNodes -lt 385 ] ; then
     RSC_GRP=small
-elif  [ $NumNodes -lt 55297 ] ; then
+elif  [ $NumNodes -lt 12288 ] ; then
     RSC_GRP=large
 else
     RSC_GRP=huge
 fi
-#RSC_GRP=huge
 
 ### Create log directory
 MyDir=`readlink -f "$0" | xargs dirname`
 MyName=`basename "$0"`
 Time=`date "+%y%m%d%H%M%S%3N"`
-HostName=`hostname | awk -F . '{ print $1; }'`
 JobName="$MyName.$Time"
 
 BaseFile="$MyDir/BatchBase"
@@ -87,18 +84,9 @@ cp "$MyDir/llio_transfer_list_multi" ${LogDir}/
 
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 
-MapFile=${LogDir}/map_${NodeShape}.txt
-MapFile=$(readlink -f $MapFile)
-
-if [ "$PJM_ENVIRONMENT" = "INTERACT" ]; then
-    #for i in `seq 0 $(($PJM_NODE-1))`; do echo "($i)"; done > $MapFile
-    :
-else
-    #./mapper2.sh $NNodex $NNodey $NNodez $NBlkx $NBlky $NBlkz > $MapFile
-    #test $? -eq 0 || exit 1
-    :
-fi
-PJM_MAPFILE="" #"#PJM --mpi rank-map-hostfile=$MapFile"
+. $ParameterFile
+### make outptudir
+mkdir -p $OutputDir
 
 ### Generate qsub script
 ScriptFile="$LogDir/script"
@@ -113,7 +101,6 @@ cat << EOF > "$ScriptFile"
 #PJM --rsc-list "retention_state=0"
 #PJM -j
 #PJM -S
-${PJM_MAPFILE}
 
 hostname
 export OpenFoldDir="$OPENFOLDDIR"
@@ -143,11 +130,8 @@ ShareDir=${ShareDir}
 
 ###
 WORKER=${WORKER}
-OPTFile=${OPTFile}
 
 NumNodes=${NumNodes}
-
-MapFile=${MapFile}
 
 EOF
 

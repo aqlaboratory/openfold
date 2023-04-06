@@ -11,10 +11,6 @@ import random
 import sys
 import time
 
-# ignore UserWarning to supress numpy warning about the smallest subnormal value
-import warnings
-warnings.simplefilter('ignore', UserWarning)
-
 import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor

@@ -84,7 +84,7 @@ popd
 pip3 install -r $OPENFOLDDIR/scripts/install_fugaku_requirements.txt
 
 # patch pytorch-lightning
-pushd $(pip show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
+pushd $(pip3 show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
 patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
 popd
 

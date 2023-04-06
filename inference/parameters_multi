@@ -1,10 +1,8 @@
-MMCIFCache=/vol0006/ra000018/data/OpenFold/sample/training/mmcif_cache.json
-
-InputFasta=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/input/query.fasta
-AlignmentDir=/vol0003/share/hp210263/OpenFold/sample/inference/T1084/alignment_smallbfd
-InputFasta=/vol0006/ra000018/data/u10271/OpenFold/openfold/inference/multi_test/input.fasta
-AlignmentDir=/home/u10271/ra000018/OpenFold/openfold/inference/multi_test/alignment
-OutputDir=/home/u10271/ra000018/OpenFold/openfold/inference/multi_test/output
+MMCIFCache=example/mmcif_cache.json
+InputFasta=example/input/short.fasta
+AlignmentDir=example/alignment
+OutputDir=$LOGDIR
+Timeout=3600
 
 PARAMS=(
     python3
@@ -19,7 +17,7 @@ PARAMS=(
     --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
     --max_template_date 2021-10-10
     --release_dates_path $MMCIFCache
-    --timeout 3600
+    --timeout $Timeout
     --first_lower
 )
 

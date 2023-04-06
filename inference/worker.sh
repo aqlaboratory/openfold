@@ -25,6 +25,7 @@ LogDir=${LOGDIR}
 . "$ParameterFile"
 
 ulimit -s 16384
+ulimit -c 0
 
 if [ $RANK -eq "0" ]; then
     export DNNL_VERBOSE=$dnnlverbose

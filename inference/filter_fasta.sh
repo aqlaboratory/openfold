@@ -1,9 +1,11 @@
 #!/bin/bash
 
+#set -ex
+
 InputFasta=$1
 OutputFasta=$2
 AlignmentDir=$3
-PredictionDir=$4
+ProcessedDir=$4
 NGList=$5
 
 if [ ! -f $InputFasta ]; then
@@ -21,8 +23,9 @@ if [ ! -d $AlignmentDir ]; then
     exit 3
 fi
 
-if [ "$PredictionDir" != "" ] && [ ! -d $PredictionDir ]; then
-    echo "PredictionDir ($PredictionDir) does not exist"
+PredictionDir=${ProcessedDir}/predictions
+if [ "$ProcessedDir" != "" ] && [ ! -d $PredictionDir ]; then
+    echo "ProcessedDir/predictions ($PredictionDir) does not exist"
     exit 4
 fi
 
@@ -64,10 +67,12 @@ for ((i=0; i<$NumInput; i++)); do
 	continue
     fi
 
-    grepNG=`grep -E "^${NameLower}$" $NGList`
-    if [ "$grepNG" != "" ]; then
-	((NumNG++))
-	continue
+    if [ "$NGList" != "" ]; then
+        grepNG=`grep -E "^${NameLower}$" $NGList`
+        if [ "$grepNG" != "" ]; then
+        ((NumNG++))
+        continue
+        fi
     fi
 
     if [ ! -d $AlignmentDir/$NameLower ] ||\
@@ -79,7 +84,7 @@ for ((i=0; i<$NumInput; i++)); do
 	((NumNoAlignment++))
 	continue
     fi
-    if [ "$PredictionDir" != "" ]; then
+    if [ "$ProcessedDir" != "" ]; then
 	if [ `num_exist_output $PredictionDir $NameLower` -eq 2 ]; then
 	    #echo "already exist output:" $NameLower
 	    ((NumProcessed++))

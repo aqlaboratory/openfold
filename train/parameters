@@ -3,9 +3,9 @@ SampleDir=/vol0003/share/hp210263/OpenFold/sample/training
 PARAMS=(
     python3
     $OPENFOLDDIR/train_openfold.py
-    $DataDir/pdb_mmcif/pickle_files_v2_lz4
+    $DataDir/pdb_mmcif/pickle_files_v3_lz4
     $SampleDir/alignment_smallbfd_1
-    $DataDir/pdb_mmcif/pickle_files_v2_lz4
+    $DataDir/pdb_mmcif/pickle_files_v3_lz4
     $LOGDIR
     2021-10-10
     --template_release_dates_cache_path $SampleDir/mmcif_cache.json
@@ -34,6 +34,3 @@ export PL_TORCH_DISTRIBUTED_BACKEND=mpi
 
 # for multi-node training using PyTorch Lightning
 export NODE_RANK=$PMIX_RANK
-
-# number of workers for loading mmcif
-export NUM_MMCIF_WORKERS=8

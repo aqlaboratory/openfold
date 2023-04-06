@@ -35,7 +35,8 @@ if __name__ == '__main__':
             mmcif_string = f.read()
         mmcif = mmcif_parsing.parse(
             file_id=file_id, mmcif_string=mmcif_string,
-            with_raw_string=False
+            with_raw_string=False,
+            with_structure=False,
         )
 
         ### pickle

@@ -98,6 +98,7 @@ class MmcifObject:
     chain_to_seqres: Mapping[ChainId, SeqRes]
     seqres_to_structure: Mapping[ChainId, Mapping[int, ResidueAtPosition]]
     raw_string: Any
+    atom_coords: Optional[Mapping[ChainId, Any]]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -117,6 +118,14 @@ class ParsingResult:
 class ParseError(Exception):
     """An error indicating that an mmCIF file could not be parsed."""
 
+class DummyStructure:
+    """Dummy structure only contains first chain id"""
+
+    def __init__(self, chains):
+        first_chain = next(chains, None)
+        self.chain_list = [PDB.Chain.Chain(first_chain.id)] if first_chain is not None else []
+    def get_chains(self):
+        return iter(self.chain_list)
 
 def mmcif_loop_to_list(
     prefix: str, parsed_info: MmCIFDict
@@ -174,7 +183,8 @@ def mmcif_loop_to_dict(
 
 
 def parse(
-    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True, with_raw_string: bool = True
+    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True, with_raw_string: bool = True,
+    with_structure: bool = True
 ) -> ParsingResult:
     """Entry point, parses an mmcif_string.
 
@@ -286,12 +296,36 @@ def parse(
             seq = "".join(seq)
             author_chain_to_sequence[author_chain] = seq
 
+        if with_structure:
+            atom_coords = None
+            structure = first_model_structure
+        else:
+            atom_coords = dict()
+            for chain in first_model_structure.get_chains():
+                try:
+                    atom_coords[chain.id] = get_atom_coords(
+                        MmcifObject(file_id=file_id,
+                                    header=header,
+                                    structure=first_model_structure,
+                                    chain_to_seqres=author_chain_to_sequence,
+                                    seqres_to_structure=seq_to_structure_mappings,
+                                    raw_string=None,
+                                    atom_coords=None,
+                                    ),
+                        chain.id
+                        )
+                except Exception as e:
+                    print(f"error: {e}", flush=True)
+                    atom_coords[chain.id] = e
+            structure = DummyStructure(first_model_structure.get_chains())
+
         mmcif_object = MmcifObject(
             file_id=file_id,
             header=header,
-            structure=first_model_structure,
+            structure=structure,
             chain_to_seqres=author_chain_to_sequence,
             seqres_to_structure=seq_to_structure_mappings,
+            atom_coords=atom_coords,
             raw_string=parsed_info if with_raw_string else None,
         )
 
@@ -434,6 +468,11 @@ def get_atom_coords(
     chain_id: str, 
     _zero_center_positions: bool = False
 ) -> Tuple[np.ndarray, np.ndarray]:
+    if mmcif_object.atom_coords is not None:
+        coords = mmcif_object.atom_coords[chain_id]
+        if isinstance(coords, Exception):
+            raise coords
+        return coords
     # Locate the right chain
     chains = list(mmcif_object.structure.get_chains())
     relevant_chains = [c for c in chains if c.id == chain_id]
