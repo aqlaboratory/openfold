@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# A custom dir_transfer (/home/system/tool/dir_transfer) that
-# * ignores files with spaces as llio_transfer does not support them
-# * adds a random number at the end of list files to avoid conflict
-
 function usage() {
   echo $1
   cat <<EOT
@@ -18,7 +14,7 @@ Options:
   -l pathname
        Save a common file list in directory specified by pathname.  If no directory path is given, save in the current directory.
   -p
-       Deletes a distributed common file.
+       Deletes a distributed common file. 
 
 End code
      0   if OK.
@@ -55,9 +51,9 @@ else
 fi
 
 if [ -n "$DIR_FILELIST" ]; then
-    if [ ! -d $DIR_FILELIST ]; then
+    if [ ! -d $DIR_FILELIST ]; then 
 	out "No such directory: "$DIR_FILELIST
-	exit 1
+        exit 1
     fi
     FILEPATH=${DIR_FILELIST}/${FILENAME}
 else
@@ -69,9 +65,9 @@ shift $((OPTIND - 1))
 for transfer_dir in $@
 do
     if [ ! -d $DIR_FILELIST ]; then
-	out "No such transfer directory: "$DIR_FILELIST
+        out "No such transfer directory: "$DIR_FILELIST
     else
-	find ${transfer_dir}/ -type f -size +1c -print >> $FILEPATH
+        find ${transfer_dir}/ -type f -size +1c -print >> $FILEPATH
     fi
 done
 
@@ -93,3 +89,4 @@ if [ ${#tmp_array[*]} != 0 ]; then
 else
     exit 0
 fi
+
