@@ -206,7 +206,7 @@ class Template(unittest.TestCase):
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_compare(self):
-        def test_template_embedding(pair, batch, mask_2d):
+        def test_template_embedding(pair, batch, mask_2d, mc_mask_2d):
             config = compare_utils.get_alphafold_config()
             te = self.am_modules.TemplateEmbedding(
                 config.model.embeddings_and_evoformer.template,
@@ -214,7 +214,7 @@ class Template(unittest.TestCase):
             )
 
             if consts.is_multimer:
-                act = te(pair, batch, mask_2d, multichain_mask_2d=multichain_mask_2d, is_training=False)
+                act = te(pair, batch, mask_2d, multichain_mask_2d=mc_mask_2d, is_training=False)
             else:
                 act = te(pair, batch, mask_2d, is_training=False)
             return act
@@ -228,12 +228,12 @@ class Template(unittest.TestCase):
         batch = random_template_feats(n_templ, n_res)
         batch["template_all_atom_masks"] = batch["template_all_atom_mask"]
 
+        multichain_mask_2d = None
         if consts.is_multimer:
             asym_id = batch['asym_id'][0]
             multichain_mask_2d = (
                     asym_id[..., None] == asym_id[..., None, :]
             ).astype(np.float32)
-            batch["multichain_mask_2d"] = multichain_mask_2d
 
         pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
         # Fetch pretrained parameters (but only from one block)]
@@ -242,7 +242,7 @@ class Template(unittest.TestCase):
         )
 
         out_gt = f.apply(
-            params, jax.random.PRNGKey(42), pair_act, batch, pair_mask
+            params, jax.random.PRNGKey(42), pair_act, batch, pair_mask, multichain_mask_2d
         ).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
 
@@ -259,7 +259,9 @@ class Template(unittest.TestCase):
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
                 chunk_size=consts.chunk_size,
-                multichain_mask_2d=multichain_mask_2d,
+                multichain_mask_2d=torch.as_tensor(multichain_mask_2d).cuda(),
+                use_lma=False,
+                inplace_safe=False
             )
         else:
             out_repro = model.template_embedder(
@@ -267,7 +269,9 @@ class Template(unittest.TestCase):
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
-                chunk_size=consts.chunk_size
+                chunk_size=consts.chunk_size,
+                use_lma=False,
+                inplace_safe=False
             )
 
         out_repro = out_repro["template_pair_embedding"]

@@ -128,6 +128,22 @@ def _is_after_cutoff(
         return False
 
 
+def _replace_obsolete_references(obsolete_mapping) -> Mapping[str, str]:
+    """Generates a new obsolete by tracing all cross-references and store the latest leaf to all referencing nodes"""
+    obsolete_new = {}
+    obsolete_keys = obsolete_mapping.keys()
+
+    def _new_target(k):
+        v = obsolete_mapping[k]
+        if v in obsolete_keys:
+            return _new_target(v)
+        return v
+    
+    for k in obsolete_keys:
+        obsolete_new[k] = _new_target(k)
+
+    return obsolete_new
+
 def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
     """Parses the data file from PDB that lists which PDB ids are obsolete."""
     with open(obsolete_file_path) as f:
@@ -141,7 +157,7 @@ def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
                 from_id = line[20:24].lower()
                 to_id = line[29:33].lower()
                 result[from_id] = to_id
-        return result
+        return _replace_obsolete_references(result)
 
 
 def generate_release_dates_cache(mmcif_dir: str, out_path: str):
@@ -495,7 +511,7 @@ def _get_atom_positions(
     mmcif_object: mmcif_parsing.MmcifObject,
     auth_chain_id: str,
     max_ca_ca_distance: float,
-    _zero_center_positions: bool = True,
+    _zero_center_positions: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Gets atom positions and mask from a list of Biopython Residues."""
     coords_with_mask = mmcif_parsing.get_atom_coords(
@@ -912,6 +928,56 @@ def _process_single_hit(
         return SingleHitResult(features=None, error=error, warning=None)
 
 
+def get_custom_template_features(
+        mmcif_path: str,
+        query_sequence: str,
+        pdb_id: str,
+        chain_id: str,
+        kalign_binary_path: str):
+
+    with open(mmcif_path, "r") as mmcif_path:
+        cif_string = mmcif_path.read()
+
+    mmcif_parse_result = mmcif_parsing.parse(
+        file_id=pdb_id, mmcif_string=cif_string
+    )
+    template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
+
+
+    mapping = {x:x for x, _ in enumerate(query_sequence)}
+
+
+    features, warnings = _extract_template_features(
+        mmcif_object=mmcif_parse_result.mmcif_object,
+        pdb_id=pdb_id,
+        mapping=mapping,
+        template_sequence=template_sequence,
+        query_sequence=query_sequence,
+        template_chain_id=chain_id,
+        kalign_binary_path=kalign_binary_path,
+        _zero_center_positions=True
+    )
+    features["template_sum_probs"] = [1.0]
+
+    # TODO: clean up this logic
+    template_features = {}
+    for template_feature_name in TEMPLATE_FEATURES:
+        template_features[template_feature_name] = []
+
+    for k in template_features:
+        template_features[k].append(features[k])
+
+    for name in template_features:
+        template_features[name] = np.stack(
+            template_features[name], axis=0
+        ).astype(TEMPLATE_FEATURES[name])
+
+    return TemplateSearchResult(
+        features=template_features, errors=None, warnings=warnings
+    )
+
+
+
 @dataclasses.dataclass(frozen=True)
 class TemplateSearchResult:
     features: Mapping[str, Any]
@@ -1041,6 +1107,7 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
         filtered = list(
             sorted(filtered, key=lambda x: x.sum_probs, reverse=True)
         )
+
         idx = list(range(len(filtered)))
         if(self._shuffle_top_k_prefiltered):
             stk = self._shuffle_top_k_prefiltered

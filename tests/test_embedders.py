@@ -50,18 +50,18 @@ class TestInputEmbedder(unittest.TestCase):
         entity_id = asym_id
         sym_id = torch.zeros_like(entity_id)
 
-        batch = {"target_feat": tf, "residue_index": ri, "msa_feat": msa}
-
         if consts.is_multimer:
             ie = InputEmbedderMultimer(tf_dim, msa_dim, c_z, c_m,
                                        max_relative_idx=max_relative_idx,
                                        use_chain_relative=use_chain_relative,
                                        max_relative_chain=max_relative_chain)
-            batch.update({"asym_id": asym_id, "entity_id": entity_id, "sym_id": sym_id})
+            batch = {"target_feat": tf, "residue_index": ri, "msa_feat": msa,
+                     "asym_id": asym_id, "entity_id": entity_id, "sym_id": sym_id}
+            msa_emb, pair_emb = ie(batch)
         else:
             ie = InputEmbedder(tf_dim, msa_dim, c_z, c_m, relpos_k)
+            msa_emb, pair_emb = ie(tf=tf, ri=ri, msa=msa, inplace_safe=False)
 
-        msa_emb, pair_emb = ie(batch)
         self.assertTrue(msa_emb.shape == (b, n_clust, n_res, c_m))
         self.assertTrue(pair_emb.shape == (b, n_res, n_res, c_z))
 

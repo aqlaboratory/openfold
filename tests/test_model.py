@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 import pickle
 import torch
 import torch.nn as nn
@@ -54,7 +55,7 @@ class TestModel(unittest.TestCase):
         n_res = consts.n_res
         n_extra_seq = consts.n_extra
 
-        c = model_config(consts.model)
+        c = model_config(consts.model, train=True)
         c.model.evoformer_stack.no_blocks = 4  # no need to go overboard here
         c.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         # deepspeed for this test
@@ -68,6 +69,7 @@ class TestModel(unittest.TestCase):
         ).float()
         batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
         batch["residue_index"] = torch.arange(n_res)
+
         batch["msa_feat"] = torch.rand((n_seq, n_res, c.model.input_embedder.msa_dim))
         t_feats = random_template_feats(n_templ, n_res)
         batch.update({k: torch.tensor(v) for k, v in t_feats.items()})
@@ -95,11 +97,14 @@ class TestModel(unittest.TestCase):
             out = model(batch)
 
     @compare_utils.skip_unless_alphafold_installed()
+    @unittest.skipIf(consts.is_multimer, "Additional changes required for multimer.")
     def test_compare(self):
+        #TODO: Fix test data for multimer MSA features
         def run_alphafold(batch):
             config = compare_utils.get_alphafold_config()
 
             model = self.am_modules.AlphaFold(config.model)
+
             return model(
                 batch=batch,
                 is_training=False,
@@ -110,7 +115,8 @@ class TestModel(unittest.TestCase):
 
         params = compare_utils.fetch_alphafold_module_weights("")
 
-        with open("tests/test_data/sample_feats.pickle", "rb") as fp:
+        fpath = Path(__file__).parent.resolve() / "test_data/sample_feats.pickle"
+        with open(str(fpath), "rb") as fp:
             batch = pickle.load(fp)
 
         out_gt = f.apply(params, jax.random.PRNGKey(42), batch)
@@ -150,6 +156,4 @@ class TestModel(unittest.TestCase):
         out_repro = out_repro["sm"]["positions"][-1]
         out_repro = out_repro.squeeze(0)
 
-        print(torch.mean(torch.abs(out_gt - out_repro)))
-        print(torch.max(torch.abs(out_gt - out_repro)))
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 1e-3)

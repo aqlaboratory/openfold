@@ -15,6 +15,7 @@
 import os
 import torch
 import numpy as np
+from pathlib import Path
 import unittest
 import ml_collections as mlc
 
@@ -301,7 +302,8 @@ class TestLoss(unittest.TestCase):
     def test_find_structural_violations_compare(self):
         def run_fsv(batch, pos, config):
             cwd = os.getcwd()
-            os.chdir("tests/test_data")
+            fpath = Path(__file__).parent.resolve() / "test_data"
+            os.chdir(str(fpath))
 
             if consts.is_multimer:
                 atom14_pred_pos = self.am_rigid.Vec3Array.from_array(pos)
@@ -436,7 +438,7 @@ class TestLoss(unittest.TestCase):
             "true_msa": np.random.randint(0, 21, (n_res, n_seq)),
             "bert_mask": np.random.randint(0, 2, (n_res, n_seq)).astype(
                 np.float32
-            ),
+            )
         }
 
         out_gt = f.apply({}, None, value, batch)["loss"]
@@ -448,7 +450,9 @@ class TestLoss(unittest.TestCase):
         with torch.no_grad():
             out_repro = masked_msa_loss(
                 value["logits"],
-                **batch,
+                batch["true_msa"],
+                batch["bert_mask"],
+                consts.msa_logits
             )
         out_repro = tensor_tree_map(lambda t: t.cpu(), out_repro)
 
@@ -903,6 +907,9 @@ class TestLoss(unittest.TestCase):
             ),
         }
 
+        if consts.is_multimer:
+            batch["asym_id"] = random_asym_ids(n_res)
+
         def _build_extra_feats_np():
             b = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
             b = data_transforms.make_atom14_masks(b)
@@ -943,7 +950,7 @@ class TestLoss(unittest.TestCase):
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
-    @unittest.skipIf(not consts.is_multimer and "ptm" not in consts.model, "Not enabled for non-ptm models.")
+    @unittest.skipIf(consts.is_multimer or "ptm" not in consts.model, "Not enabled for non-ptm models.")
     def test_tm_loss_compare(self):
         config = compare_utils.get_alphafold_config()
         c_tm = config.model.heads.predicted_aligned_error

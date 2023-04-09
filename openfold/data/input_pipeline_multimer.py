@@ -46,7 +46,7 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
 
     pad_msa_clusters = mode_cfg.max_msa_clusters
     max_msa_clusters = pad_msa_clusters
-    max_extra_msa = common_cfg.max_extra_msa
+    max_extra_msa = mode_cfg.max_extra_msa
 
     msa_seed = None
     if(not common_cfg.resample_msa_in_recycling):

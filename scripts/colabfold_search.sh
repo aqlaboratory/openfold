@@ -1,6 +1,6 @@
+#!/bin/bash -e
 # Copied from colabfold.mmseqs.com
 
-#!/bin/bash -e
 MMSEQS="$1"
 QUERY="$2"
 DBBASE="$3"

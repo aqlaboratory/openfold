@@ -17,9 +17,11 @@ from functools import partial
 from typing import Dict, Text, Tuple
 
 import torch
+import jax.numpy as jnp
 
 from openfold.np import residue_constants as rc
 from openfold.utils import geometry, tensor_utils
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
 import numpy as np
 
 

@@ -18,7 +18,7 @@ import torch
 import torch.nn as nn
 
 from openfold.model.primitives import Linear, LayerNorm
-from openfold.utils.tensor_utils import chunk_layer
+from openfold.utils.chunk_utils import chunk_layer
 
 
 class PairTransition(nn.Module):
@@ -46,12 +46,16 @@ class PairTransition(nn.Module):
         self.linear_2 = Linear(self.n * self.c_z, c_z, init="final")
 
     def _transition(self, z, mask):
+        # [*, N_res, N_res, C_z]
+        z = self.layer_norm(z)
+        
         # [*, N_res, N_res, C_hidden]
         z = self.linear_1(z)
         z = self.relu(z)
 
         # [*, N_res, N_res, C_z]
-        z = self.linear_2(z) * mask
+        z = self.linear_2(z) 
+        z = z * mask
 
         return z
 
@@ -67,7 +71,6 @@ class PairTransition(nn.Module):
             chunk_size=chunk_size,
             no_batch_dims=len(z.shape[:-2]),
         )
-
 
     def forward(self, 
         z: torch.Tensor, 
@@ -87,9 +90,6 @@ class PairTransition(nn.Module):
 
         # [*, N_res, N_res, 1]
         mask = mask.unsqueeze(-1)
-
-        # [*, N_res, N_res, C_z]
-        z = self.layer_norm(z)
 
         if chunk_size is not None:
             z = self._chunk(z, mask, chunk_size)

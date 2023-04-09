@@ -59,14 +59,14 @@ class Param:
     stacked: bool = False
 
 
-def _process_translations_dict(d, top_layer=True):
+def process_translation_dict(d, top_layer=True):
     flat = {}
     for k, v in d.items():
         if type(v) == dict:
             prefix = _NPZ_KEY_PREFIX if top_layer else ""
             sub_flat = {
                 (prefix + "/".join([k, k_prime])): v_prime
-                for k_prime, v_prime in _process_translations_dict(
+                for k_prime, v_prime in process_translation_dict(
                     v, top_layer=False
                 ).items()
             }
@@ -129,7 +129,7 @@ def assign(translation_dict, orig_weights):
                 raise
 
 
-def get_translation_dict(model, version, is_multimer=False):
+def generate_translation_dict(model, version, is_multimer=False):
     #######################
     # Some templates
     #######################
@@ -277,7 +277,7 @@ def get_translation_dict(model, version, is_multimer=False):
         },
         "v_scalar_projection": {
             "weights": LinearWeightMultimer(
-                ipa.linear_k.weight,
+                ipa.linear_v.weight,
             ),
         },
         "q_point_projection": PointProjectionParams(
@@ -388,11 +388,6 @@ def get_translation_dict(model, version, is_multimer=False):
     ############################
     # translations dict overflow
     ############################
-    tps_blocks = model.template_embedder.template_pair_stack.blocks
-    tps_blocks_params = stacked(
-        [TemplatePairBlockParams(b) for b in tps_blocks]
-    )
-
     ems_blocks = model.extra_msa_stack.blocks
     ems_blocks_params = stacked([ExtraMSABlockParams(b) for b in ems_blocks])
 
@@ -416,32 +411,10 @@ def get_translation_dict(model, version, is_multimer=False):
                 "pair_activiations": LinearParams(
                     model.input_embedder.linear_relpos
                 ),
-                "template_embedding": {
-                    "single_template_embedding": {
-                        "embedding2d": LinearParams(
-                            model.template_embedder.template_pair_embedder.linear
-                        ),
-                        "template_pair_stack": {
-                            "__layer_stack_no_state": tps_blocks_params,
-                        },
-                        "output_layer_norm": LayerNormParams(
-                            model.template_embedder.template_pair_stack.layer_norm
-                        ),
-                    },
-                    "attention": AttentionParams(
-                        model.template_embedder.template_pointwise_att.mha
-                    ),
-                },
                 "extra_msa_activations": LinearParams(
                     model.extra_msa_embedder.linear
                 ),
                 "extra_msa_stack": ems_blocks_params,
-                "template_single_embedding": LinearParams(
-                    model.template_embedder.template_angle_embedder.linear_1
-                ),
-                "template_projection": LinearParams(
-                    model.template_embedder.template_angle_embedder.linear_2
-                ),
                 "evoformer_iteration": evo_blocks_params,
                 "single_activations": LinearParams(model.evoformer.linear),
             },
@@ -478,7 +451,6 @@ def get_translation_dict(model, version, is_multimer=False):
             },
         }
     else:
-        temp_embedder = model.template_embedder
         translations = {
             "evoformer": {
                 "preprocess_1d": LinearParams(model.input_embedder.linear_tf_m),
@@ -497,53 +469,6 @@ def get_translation_dict(model, version, is_multimer=False):
                         model.input_embedder.linear_relpos
                     ),
                 },
-                "template_embedding": {
-                    "single_template_embedding": {
-                        "query_embedding_norm": LayerNormParams(
-                            temp_embedder.template_pair_embedder.query_embedding_layer_norm
-                        ),
-                        "template_pair_embedding_0": LinearParams(
-                            temp_embedder.template_pair_embedder.dgram_linear
-                        ),
-                        "template_pair_embedding_1": LinearParamsMultimer(
-                            temp_embedder.template_pair_embedder.pseudo_beta_mask_linear
-                        ),
-                        "template_pair_embedding_2": LinearParams(
-                            temp_embedder.template_pair_embedder.aatype_linear_1
-                        ),
-                        "template_pair_embedding_3": LinearParams(
-                            temp_embedder.template_pair_embedder.aatype_linear_2
-                        ),
-                        "template_pair_embedding_4": LinearParamsMultimer(
-                            temp_embedder.template_pair_embedder.x_linear
-                        ),
-                        "template_pair_embedding_5": LinearParamsMultimer(
-                            temp_embedder.template_pair_embedder.y_linear
-                        ),
-                        "template_pair_embedding_6": LinearParamsMultimer(
-                            temp_embedder.template_pair_embedder.z_linear
-                        ),
-                        "template_pair_embedding_7": LinearParamsMultimer(
-                            temp_embedder.template_pair_embedder.backbone_mask_linear
-                        ),
-                        "template_pair_embedding_8": LinearParams(
-                            temp_embedder.template_pair_embedder.query_embedding_linear
-                        ),
-                        "template_embedding_iteration": tps_blocks_params,
-                        "output_layer_norm": LayerNormParams(
-                            model.template_embedder.template_pair_stack.layer_norm
-                        ),
-                    },
-                    "output_linear": LinearParams(
-                        temp_embedder.linear_t
-                    ),
-                },
-                "template_projection": LinearParams(
-                    temp_embedder.template_single_embedder.template_projector,
-                ),
-                "template_single_embedding": LinearParams(
-                    temp_embedder.template_single_embedder.template_single_embedder,
-                ),
                 "extra_msa_activations": LinearParams(
                     model.extra_msa_embedder.linear
                 ),
@@ -592,12 +517,88 @@ def get_translation_dict(model, version, is_multimer=False):
         "model_4_ptm",
         "model_5_ptm",
     ]
-    if version in no_templ:
-        evo_dict = translations["evoformer"]
-        keys = list(evo_dict.keys())
-        for k in keys:
-            if "template_" in k:
-                evo_dict.pop(k)
+
+    if version not in no_templ:
+        tps_blocks = model.template_embedder.template_pair_stack.blocks
+        tps_blocks_params = stacked(
+            [TemplatePairBlockParams(b) for b in tps_blocks]
+        )
+        if (not is_multimer):
+            template_param_dict = {
+                "template_embedding": {
+                    "single_template_embedding": {
+                        "embedding2d": LinearParams(
+                            model.template_embedder.template_pair_embedder.linear
+                        ),
+                        "template_pair_stack": {
+                            "__layer_stack_no_state": tps_blocks_params,
+                        },
+                        "output_layer_norm": LayerNormParams(
+                            model.template_embedder.template_pair_stack.layer_norm
+                        ),
+                    },
+                    "attention": AttentionParams(model.template_embedder.template_pointwise_att.mha),
+                },
+                "template_single_embedding": LinearParams(
+                    model.template_embedder.template_angle_embedder.linear_1
+                ),
+                "template_projection": LinearParams(
+                    model.template_embedder.template_angle_embedder.linear_2
+                ),
+            }
+        else:
+            temp_embedder = model.template_embedder
+            template_param_dict = {
+                "template_embedding": {
+                    "single_template_embedding": {
+                        "query_embedding_norm": LayerNormParams(
+                            temp_embedder.template_pair_embedder.query_embedding_layer_norm
+                        ),
+                        "template_pair_embedding_0": LinearParams(
+                            temp_embedder.template_pair_embedder.dgram_linear
+                        ),
+                        "template_pair_embedding_1": LinearParamsMultimer(
+                            temp_embedder.template_pair_embedder.pseudo_beta_mask_linear
+                        ),
+                        "template_pair_embedding_2": LinearParams(
+                            temp_embedder.template_pair_embedder.aatype_linear_1
+                        ),
+                        "template_pair_embedding_3": LinearParams(
+                            temp_embedder.template_pair_embedder.aatype_linear_2
+                        ),
+                        "template_pair_embedding_4": LinearParamsMultimer(
+                            temp_embedder.template_pair_embedder.x_linear
+                        ),
+                        "template_pair_embedding_5": LinearParamsMultimer(
+                            temp_embedder.template_pair_embedder.y_linear
+                        ),
+                        "template_pair_embedding_6": LinearParamsMultimer(
+                            temp_embedder.template_pair_embedder.z_linear
+                        ),
+                        "template_pair_embedding_7": LinearParamsMultimer(
+                            temp_embedder.template_pair_embedder.backbone_mask_linear
+                        ),
+                        "template_pair_embedding_8": LinearParams(
+                            temp_embedder.template_pair_embedder.query_embedding_linear
+                        ),
+                        "template_embedding_iteration": tps_blocks_params,
+                        "output_layer_norm": LayerNormParams(
+                            model.template_embedder.template_pair_stack.layer_norm
+                        ),
+                    },
+                    "output_linear": LinearParams(
+                        temp_embedder.linear_t
+                    ),
+                },
+                "template_projection": LinearParams(
+                    temp_embedder.template_single_embedder.template_projector,
+                ),
+                "template_single_embedding": LinearParams(
+                    temp_embedder.template_single_embedder.template_single_embedder,
+                ),
+            }
+
+        translations["evoformer"].update(template_param_dict)
 
     if "_ptm" in version:
         translations["predicted_aligned_error_head"] = {
@@ -609,15 +610,10 @@ def get_translation_dict(model, version, is_multimer=False):
 
 def import_jax_weights_(model, npz_path, version="model_1"):
     data = np.load(npz_path)
-    
-    translations = get_translation_dict(
-        model,
-        version,
-        is_multimer=("multimer" in version)
-    )
+    translations = generate_translation_dict(model, version, is_multimer=("multimer" in version))
 
     # Flatten keys and insert missing key prefixes
-    flat = _process_translations_dict(translations)
+    flat = process_translation_dict(translations)
 
     # Sanity check
     keys = list(data.keys())

@@ -22,7 +22,7 @@ from typing import Dict, Union
 
 from openfold.np import protein
 import openfold.np.residue_constants as rc
-from openfold.utils.geometry import rigid_matrix_vector, rotation_matrix
+from openfold.utils.geometry import rigid_matrix_vector, rotation_matrix, vector
 from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     batched_gather,
@@ -188,13 +188,16 @@ def torsion_angles_to_frames(
     aatype: torch.Tensor,
     rrgdf: torch.Tensor,
 ):
+
+    rigid_type = Rigid if isinstance(r, Rigid) else rigid_matrix_vector.Rigid3Array
+
     # [*, N, 8, 4, 4]
     default_4x4 = rrgdf[aatype, ...]
 
     # [*, N, 8] transformations, i.e.
     #   One [*, N, 8, 3, 3] rotation matrix and
     #   One [*, N, 8, 3]    translation matrix
-    default_r = r.from_tensor_4x4(default_4x4)
+    default_r = rigid_type.from_tensor_4x4(default_4x4)
 
     bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
     bb_rot[..., 1] = 1
@@ -221,11 +224,9 @@ def torsion_angles_to_frames(
     all_rots[..., 2, 1:] = alpha
 
     if isinstance(r, Rigid):
-        rigid_type = Rigid
         all_rots = Rigid(Rotation(rot_mats=all_rots), None)
         all_frames = default_r.compose(all_rots)
     else:
-        rigid_type = rigid_matrix_vector.Rigid3Array
         all_rots = rotation_matrix.Rot3Array.from_array(all_rots)
         all_frames = default_r.compose_rotation(all_rots)
 
@@ -290,5 +291,8 @@ def frames_and_literature_positions_to_atom14_pos(
     lit_positions = lit_positions[aatype, ...]
     pred_positions = t_atoms_to_global.apply(lit_positions)
     pred_positions = pred_positions * atom_mask
+
+    if isinstance(pred_positions, vector.Vec3Array):
+        return pred_positions.to_tensor()
 
     return pred_positions

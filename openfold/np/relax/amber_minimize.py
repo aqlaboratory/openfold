@@ -28,10 +28,18 @@ import openfold.utils.loss as loss
 from openfold.np.relax import cleanup, utils
 import ml_collections
 import numpy as np
-from simtk import openmm
-from simtk import unit
-from simtk.openmm import app as openmm_app
-from simtk.openmm.app.internal.pdbstructure import PdbStructure
+try:
+    # openmm >= 7.6
+    import openmm
+    from openmm import unit
+    from openmm import app as openmm_app
+    from openmm.app.internal.pdbstructure import PdbStructure
+except ImportError:
+    # openmm < 7.6 (requires DeepMind patch)
+    from simtk import openmm
+    from simtk import unit
+    from simtk.openmm import app as openmm_app
+    from simtk.openmm.app.internal.pdbstructure import PdbStructure
 
 ENERGY = unit.kilocalories_per_mole
 LENGTH = unit.angstroms
@@ -192,6 +200,11 @@ def clean_protein(prot: protein.Protein, checks: bool = True):
     pdb_string = _get_pdb_string(as_file.getTopology(), as_file.getPositions())
     if checks:
         _check_cleaned_atoms(pdb_string, prot_pdb_string)
+    
+    headers = protein.get_pdb_headers(prot)    
+    if(len(headers) > 0):
+        pdb_string = '\n'.join(['\n'.join(headers), pdb_string])
+    
     return pdb_string
 
 
@@ -511,6 +524,9 @@ def run_pipeline(
     _check_residues_are_well_defined(prot)
     pdb_string = clean_protein(prot, checks=checks)
 
+    # We keep the input around to restore metadata deleted by the relaxer
+    input_prot = prot
+
     exclude_residues = exclude_residues or []
     exclude_residues = set(exclude_residues)
     violations = np.inf
@@ -527,6 +543,11 @@ def run_pipeline(
             max_attempts=max_attempts,
             use_gpu=use_gpu,
         )
+        
+        headers = protein.get_pdb_headers(prot)    
+        if(len(headers) > 0):
+            ret["min_pdb"] = '\n'.join(['\n'.join(headers), ret["min_pdb"]])
+        
         prot = protein.from_pdb_string(ret["min_pdb"])
         if place_hydrogens_every_iteration:
             pdb_string = clean_protein(prot, checks=True)

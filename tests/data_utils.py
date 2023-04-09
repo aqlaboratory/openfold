@@ -30,7 +30,10 @@ def random_asym_ids(n_res, split_chains=True, min_chain_len=4):
     pieces = []
     asym_ids = []
     for idx in range(n_chain - 1):
-        piece = randint(min_chain_len, (n_res - sum(pieces) - n_chain + idx - min_chain_len))
+        n_stop = (n_res - sum(pieces) - n_chain + idx - min_chain_len)
+        if n_stop <= min_chain_len:
+            break
+        piece = randint(min_chain_len, n_stop)
         pieces.append(piece)
         asym_ids.extend(piece * [idx])
     asym_ids.extend((n_res - sum(pieces)) * [n_chain - 1])

@@ -99,7 +99,7 @@ class TestStructureModule(unittest.TestCase):
         z = torch.rand((batch_size, n, n, c_z))
         f = torch.randint(low=0, high=21, size=(batch_size, n)).long()
 
-        out = sm(s, z, f)
+        out = sm({"single": s, "pair": z}, f)
 
         if consts.is_multimer:
             self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 4, 4))
@@ -183,10 +183,13 @@ class TestStructureModule(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = model.structure_module(
-            torch.as_tensor(representations["single"]).cuda(),
-            torch.as_tensor(representations["pair"]).cuda(),
+            {
+                "single": torch.as_tensor(representations["single"]).cuda(),
+                "pair": torch.as_tensor(representations["pair"]).cuda(),
+            },
             torch.as_tensor(batch["aatype"]).cuda(),
             mask=torch.as_tensor(batch["seq_mask"]).cuda(),
+            inplace_safe=False,
         )
         out_repro = out_repro["positions"][-1].cpu()
 
@@ -286,7 +289,7 @@ class TestInvariantPointAttention(unittest.TestCase):
         if consts.is_multimer:
             rigids = self.am_rigid.Rigid3Array.from_array4x4(affines)
             transformations = Rigid3Array.from_tensor_4x4(
-                torch.as_tensor(affines).float()
+                torch.as_tensor(affines).float().cuda()
             )
             sample_affine = rigids
         else:
