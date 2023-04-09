@@ -1,12 +1,12 @@
-.DS_Store
-*.DS_Store
-**/.DS_Store
+.vscode/
 .idea/
-**/__pycache__
-*.pyc
-build/
-dist/
-*.egg-info/
-openfold/resources
-**/stereo_chemical_props.txt
-**/sample_feats.pickle
+__pycache__/
+*.egg-info
+build
+dist
+
+# files from script downloads
+data
+openfold/resources/
+tests/test_data/
+
