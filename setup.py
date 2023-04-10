@@ -1,3 +1,4 @@
+# Originally from Openfold https://github.com/aqlaboratory/openfold, modified.
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
 #
@@ -16,6 +17,7 @@ import os
 from setuptools import setup, Extension, find_packages
 import subprocess
 
+import torch
 from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension, CUDA_HOME
 
 from scripts.utils import get_nvidia_cc
@@ -37,7 +39,7 @@ extra_cuda_flags = [
 ]
 
 def get_cuda_bare_metal_version(cuda_dir):
-    if cuda_dir==None:
+    if cuda_dir==None or torch.version.cuda==None:
         print("CUDA is not found, cpu version is installed")
         return None, -1, 0
     else:
