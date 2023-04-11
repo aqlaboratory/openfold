@@ -57,9 +57,8 @@ def main(args):
 
         seq = mmcif_object.chain_to_seqres[chain_id]
 
-        if(args.max_seqlen > 0):
-            if(len(seq) > len(seq)):
-                continue
+        if(args.max_seqlen > 0 and len(seq) > args.max_seqlen):
+            continue
 
         fasta_file = '\n'.join([
             f">{pdb_id}_{chain_id}",

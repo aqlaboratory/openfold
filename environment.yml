@@ -27,4 +27,5 @@ dependencies:
       - typing-extensions==3.10.0.2
       - pytorch_lightning==1.5.10
       - wandb==0.12.21
+      - modelcif==0.7
       - git+https://github.com/NVIDIA/dllogger.git
