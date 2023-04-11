@@ -1,4 +1,5 @@
 #!/bin/bash
+
 CONDA_INSTALL_URL=${CONDA_INSTALL_URL:-"https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"}
 
 source scripts/vars.sh

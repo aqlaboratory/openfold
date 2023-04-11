@@ -1,0 +1,299 @@
+Global seed set to 6102022
+WARNING:root:Removing 129 alignment entries (6qwj_D, 7axq_B, 6rm0_A, 6wc4_C, 4wgv_B, 4gbo_A, 1h6w_A, 5lho_A, 4oz4_B, 1a2k_A, ...) with no corresponding entries in chain_data_cache (/bgfs02/PSIVANT/External/Openfold/Users/milen.ferev/chain_data_cache.json).
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+Global seed set to 6102022
+initializing deepspeed distributed: GLOBAL_RANK: 0, MEMBER: 1/4
+Global seed set to 6102022
+Global seed set to 6102022
+Global seed set to 6102022
+WARNING:root:Removing 129 alignment entries (6qwj_D, 7axq_B, 6rm0_A, 6wc4_C, 4wgv_B, 4gbo_A, 1h6w_A, 5lho_A, 4oz4_B, 1a2k_A, ...) with no corresponding entries in chain_data_cache (/bgfs02/PSIVANT/External/Openfold/Users/milen.ferev/chain_data_cache.json).
+WARNING:root:Removing 129 alignment entries (6qwj_D, 7axq_B, 6rm0_A, 6wc4_C, 4wgv_B, 4gbo_A, 1h6w_A, 5lho_A, 4oz4_B, 1a2k_A, ...) with no corresponding entries in chain_data_cache (/bgfs02/PSIVANT/External/Openfold/Users/milen.ferev/chain_data_cache.json).
+WARNING:root:Removing 129 alignment entries (6qwj_D, 7axq_B, 6rm0_A, 6wc4_C, 4wgv_B, 4gbo_A, 1h6w_A, 5lho_A, 4oz4_B, 1a2k_A, ...) with no corresponding entries in chain_data_cache (/bgfs02/PSIVANT/External/Openfold/Users/milen.ferev/chain_data_cache.json).
+Global seed set to 6102022
+initializing deepspeed distributed: GLOBAL_RANK: 1, MEMBER: 2/4
+Global seed set to 6102022
+initializing deepspeed distributed: GLOBAL_RANK: 2, MEMBER: 3/4
+Global seed set to 6102022
+initializing deepspeed distributed: GLOBAL_RANK: 3, MEMBER: 4/4
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/core/datamodule.py:470: LightningDeprecationWarning: DataModule.setup has already been called, so it will not be called again. In v1.6 this behavior will change to always call DataModule.setup.
+  f"DataModule.{name} has already been called, so it will not be called again. "
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+You have not specified an optimizer or scheduler within the DeepSpeed config. Using `configure_optimizers` to define optimizer and scheduler.
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+Emitting ninja build file /home/lucas.gascon/.cache/torch_extensions/py37_cu113/utils/build.ninja...
+Building extension module utils...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+[1/2] c++ -MMD -MF flatten_unflatten.o.d -DTORCH_EXTENSION_NAME=utils -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -isystem /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/include -isystem /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -isystem /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/include/TH -isystem /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/include/THC -isystem /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/include/python3.7m -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++14 -c /bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/deepspeed/ops/csrc/utils/flatten_unflatten.cpp -o flatten_unflatten.o 
+[2/2] c++ flatten_unflatten.o -shared -L/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/lib -lc10 -ltorch_cpu -ltorch -ltorch_python -o utils.so
+Set SLURM handle signals.
+Set SLURM handle signals.
+Set SLURM handle signals.
+Set SLURM handle signals.
+
+  | Name  | Type          | Params
+----------------------------------------
+0 | model | AlphaFold     | 93.2 M
+1 | loss  | AlphaFoldLoss | 0     
+----------------------------------------
+93.2 M    Trainable params
+0         Non-trainable params
+93.2 M    Total params
+372.916   Total estimated model params size (MB)
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+Loading extension module utils...
+Time to load utils op: 99.73410749435425 seconds
+Rank: 0 partition count [4] and sizes[(23307272, False)] 
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+No modifications detected for re-loaded extension module utils, skipping build step...
+Loading extension module utils...
+Time to load utils op: 0.0025742053985595703 seconds
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/data_loading.py:489: UserWarning: One of given dataloaders is None and it will be skipped.
+  rank_zero_warn("One of given dataloaders is None and it will be skipped.")
+Training: 0it [00:00, ?it/s]Training:   0%|          | 0/8250 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/8250 [00:00<?, ?it/s] Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+Loading extension module utils...
+Time to load utils op: 99.84491968154907 seconds
+Rank: 1 partition count [4] and sizes[(23307272, False)] 
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+No modifications detected for re-loaded extension module utils, skipping build step...
+Loading extension module utils...
+Time to load utils op: 0.004124164581298828 seconds
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+Loading extension module utils...
+Time to load utils op: 99.8855767250061 seconds
+Rank: 3 partition count [4] and sizes[(23307272, False)] 
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+No modifications detected for re-loaded extension module utils, skipping build step...
+Loading extension module utils...
+Time to load utils op: 0.0026161670684814453 seconds
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+Loading extension module utils...
+Time to load utils op: 99.8448555469513 seconds
+Rank: 2 partition count [4] and sizes[(23307272, False)] 
+Using /home/lucas.gascon/.cache/torch_extensions/py37_cu113 as PyTorch extensions root...
+No modifications detected for re-loaded extension module utils, skipping build step...
+Loading extension module utils...
+Time to load utils op: 0.007892370223999023 seconds
+/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/utils/data/dataloader.py:566: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  cpuset_checked))
+Traceback (most recent call last):
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 600, in <module>
+    main(args)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 381, in main
+    ckpt_path=ckpt_path,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1199, in _run
+    self._dispatch()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1279, in _dispatch
+    self.training_type_plugin.start_training(self)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 202, in start_training
+    self._results = trainer.run_stage()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 193, in advance
+    batch_output = self.batch_loop.run(batch, batch_idx)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 88, in advance
+    outputs = self.optimizer_loop.run(split_batch, optimizers, batch_idx)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 219, in advance
+    self.optimizer_idx,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 266, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 386, in _optimizer_step
+    using_lbfgs=is_lbfgs,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/core/lightning.py", line 1652, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/core/optimizer.py", line 164, in step
+    trainer.accelerator.optimizer_step(self._optimizer, self._optimizer_idx, closure, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 339, in optimizer_step
+    self.precision_plugin.optimizer_step(model, optimizer, opt_idx, closure, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/precision/deepspeed_precision.py", line 65, in optimizer_step
+    closure_result = closure()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 160, in __call__
+    self._result = self.closure(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 142, in closure
+    step_output = self._step_fn()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 435, in _training_step
+    training_step_output = self.trainer.accelerator.training_step(step_kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 219, in training_step
+    return self.training_type_plugin.training_step(*step_kwargs.values())
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/ddp.py", line 439, in training_step
+    return self.model(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/deepspeed/runtime/engine.py", line 1588, in forward
+    loss = self.module(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/deepspeed.py", line 73, in forward
+    return super().forward(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/overrides/base.py", line 81, in forward
+    output = self.module.training_step(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 102, in training_step
+    outputs = self(batch)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 65, in forward
+    return self.model(batch)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/model.py", line 515, in forward
+    _recycle=(num_iters > 1)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/model.py", line 373, in iteration
+    _mask_trans=self.config._mask_trans,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/evoformer.py", line 1006, in forward
+    m, z = b(m, z)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/evoformer.py", line 525, in forward
+    self.ckpt if torch.is_grad_enabled() else False,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/msa.py", line 284, in forward
+    flash_mask=mask,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/primitives.py", line 492, in forward
+    o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/utils/kernel/attention_core.py", line 50, in forward
+    attention_logits.shape[-1],
+RuntimeError: attn_softmax_inplace_forward_ not implemented on CPU
+WARNING:root:The exact sequence ATTAYCQLPNGALQGQNWDFFSATKENLIRLTIRQAGLPTIKFITEAGIIGKVGFNSAGVAVNYNALHLQGLRPTGVPSHIALRIALESTSPSQAYDRIVEQGGMAASAFIMVGNGHEAFGLEFSPTSIRKQVLDANGRMVHTNHCLLQHGKNEKELDPLPDSWNRHQRMEFLLDGFDGTKQAFAQLWADEDNYPFSICRAYEEGKSRGATLFNIIYDHARREATVRLGRP was not found in 2x1d_A. Realigning the template to the actual sequence.
+Traceback (most recent call last):
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 600, in <module>
+    main(args)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 381, in main
+    ckpt_path=ckpt_path,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1199, in _run
+    self._dispatch()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1279, in _dispatch
+    self.training_type_plugin.start_training(self)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 202, in start_training
+    self._results = trainer.run_stage()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 193, in advance
+    batch_output = self.batch_loop.run(batch, batch_idx)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 88, in advance
+    outputs = self.optimizer_loop.run(split_batch, optimizers, batch_idx)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 219, in advance
+    self.optimizer_idx,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 266, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 386, in _optimizer_step
+    using_lbfgs=is_lbfgs,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/core/lightning.py", line 1652, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/core/optimizer.py", line 164, in step
+    trainer.accelerator.optimizer_step(self._optimizer, self._optimizer_idx, closure, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 339, in optimizer_step
+    self.precision_plugin.optimizer_step(model, optimizer, opt_idx, closure, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/precision/deepspeed_precision.py", line 65, in optimizer_step
+    closure_result = closure()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 160, in __call__
+    self._result = self.closure(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 142, in closure
+    step_output = self._step_fn()
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 435, in _training_step
+    training_step_output = self.trainer.accelerator.training_step(step_kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 219, in training_step
+    return self.training_type_plugin.training_step(*step_kwargs.values())
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/ddp.py", line 439, in training_step
+    return self.model(*args, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/deepspeed/runtime/engine.py", line 1588, in forward
+    loss = self.module(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/deepspeed.py", line 73, in forward
+    return super().forward(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/pytorch_lightning/overrides/base.py", line 81, in forward
+    output = self.module.training_step(*inputs, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 102, in training_step
+    outputs = self(batch)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/train_openfold.py", line 65, in forward
+    return self.model(batch)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/model.py", line 515, in forward
+    _recycle=(num_iters > 1)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/model.py", line 373, in iteration
+    _mask_trans=self.config._mask_trans,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/evoformer.py", line 1006, in forward
+    m, z = b(m, z)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/evoformer.py", line 525, in forward
+    self.ckpt if torch.is_grad_enabled() else False,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/msa.py", line 284, in forward
+    flash_mask=mask,
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/lib/conda/envs/openfold_venv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/model/primitives.py", line 492, in forward
+    o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
+  File "/bgfs02/PSIVANT/External/Openfold/Users/lucas.gascon/openfold/openfold/utils/kernel/attention_core.py", line 50, in forward
+    attention_logits.shape[-1],
+RuntimeError: attn_softmax_inplace_forward_ not implemented on CPU
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 7031220.0 ON stxcompute184 CANCELLED AT 2023-04-11T15:54:43 ***
+slurmstepd: error: *** JOB 7031220 ON stxcompute184 CANCELLED AT 2023-04-11T15:54:43 ***

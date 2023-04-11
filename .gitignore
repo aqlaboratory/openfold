@@ -9,4 +9,6 @@ data
 openfold/resources/
 tests/test_data/
 
+lib/conda/
+
 flash-attention/
