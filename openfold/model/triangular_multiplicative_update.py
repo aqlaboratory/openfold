@@ -392,8 +392,13 @@ class TriangleMultiplicativeUpdate(nn.Module):
         b = mask
         b = b * self.sigmoid(self.linear_b_g(z))
         b = b * self.linear_b_p(z)
-        
-        if(is_fp16_enabled()): 
+
+        # Prevents overflow of torch.matmul in combine projections in
+        # reduced-precision modes
+        a = a / a.std()
+        b = b / b.std()
+
+        if(is_fp16_enabled()):
             with torch.cuda.amp.autocast(enabled=False):
                 x = self._combine_projections(a.float(), b.float())
         else:

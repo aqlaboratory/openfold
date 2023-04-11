@@ -524,9 +524,6 @@ def run_pipeline(
     _check_residues_are_well_defined(prot)
     pdb_string = clean_protein(prot, checks=checks)
 
-    # We keep the input around to restore metadata deleted by the relaxer
-    input_prot = prot
-
     exclude_residues = exclude_residues or []
     exclude_residues = set(exclude_residues)
     violations = np.inf
