@@ -12,3 +12,4 @@ tests/test_data/
 lib/conda/
 
 flash-attention/
+openfold/model/msa.py

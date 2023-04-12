@@ -81,7 +81,7 @@ class MSAAttention(nn.Module):
         self.mha = Attention(
             self.c_in, 
             self.c_in, 
-            self.c_in, 
+            self.c_in,
             self.c_hidden, 
             self.no_heads,
         )
@@ -89,6 +89,7 @@ class MSAAttention(nn.Module):
     @torch.jit.ignore
     def _chunk(self, 
         m: torch.Tensor,
+        s: torch.Tensor, #ADD MODULE when there is a s, it is something that I add
         biases: Optional[List[torch.Tensor]],
         chunk_size: int,
         use_memory_efficient_kernel: bool, 
@@ -108,7 +109,7 @@ class MSAAttention(nn.Module):
                 flash_mask=flash_mask,
             )
 
-        inputs = {"m": m}
+        inputs = {"m": m, "s": s}
         if(biases is not None):
             inputs["biases"] = biases
         else:
@@ -127,6 +128,7 @@ class MSAAttention(nn.Module):
 
     def _prep_inputs(self,
         m: torch.Tensor,
+        s: torch.Tensor,
         z: Optional[torch.Tensor],
         mask: Optional[torch.Tensor],
         inplace_safe: bool = False,
@@ -164,11 +166,12 @@ class MSAAttention(nn.Module):
             # [*, 1, no_heads, N_res, N_res]
             z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
 
-        return m, mask_bias, z
+        return m, s, mask_bias, z
 
     @torch.jit.ignore
     def _chunked_msa_attn(self,
         m: torch.Tensor,
+        s: torch.Tensor,
         z: Optional[torch.Tensor],
         mask: Optional[torch.Tensor],
         chunk_logits: int,
@@ -183,8 +186,8 @@ class MSAAttention(nn.Module):
         MSA_DIM = -4
 
         def _get_qkv(m, z):
-            m, mask_bias, z = self._prep_inputs(
-                m, z, mask, inplace_safe=inplace_safe
+            m, s, mask_bias, z = self._prep_inputs(
+                m, s, z, mask, inplace_safe=inplace_safe
             )
             m = self.layer_norm_m(m)
             q, k, v = self.mha._prep_qkv(m, m)
@@ -193,9 +196,9 @@ class MSAAttention(nn.Module):
         checkpoint_fn = get_checkpoint_fn()
 
         if(torch.is_grad_enabled() and checkpoint):
-            m, q, k, v, mask_bias, z = checkpoint_fn(_get_qkv, m, z)
+            m, s, q, k, v, mask_bias, z = checkpoint_fn(_get_qkv, m, s, z)
         else:
-            m, q, k, v, mask_bias, z = _get_qkv(m, z)
+            m, s, q, k, v, mask_bias, z = _get_qkv(m, s, z)
        
         o = _attention_chunked_trainable(
             query=q, 
@@ -217,6 +220,7 @@ class MSAAttention(nn.Module):
 
     def forward(self, 
         m: torch.Tensor, 
+        s: torch.Tensor, 
         z: Optional[torch.Tensor] = None, 
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
@@ -254,8 +258,8 @@ class MSAAttention(nn.Module):
             assert z is None
             biases = None
         else:    
-            m, mask_bias, z = self._prep_inputs(
-                m, z, mask, inplace_safe=inplace_safe
+            m, s, mask_bias, z = self._prep_inputs(
+                m, s, z, mask, inplace_safe=inplace_safe
             )
     
             biases = [mask_bias]
