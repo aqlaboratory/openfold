@@ -1,5 +1,5 @@
-from structure_module import InvariantPointAttention, BackboneUpdate
-from openfold.utils.rigid_utils import Rigid
+from openfold.model.structure_module import InvariantPointAttention, BackboneUpdate, AngleResnet
+from openfold.utils.rigid_utils import Rigid, Rotation
 from openfold.model.primitives import LayerNorm
 from typing import Optional, Tuple, Sequence
 from dropout import Dropout
@@ -10,23 +10,41 @@ from third_track_util_module import rbf, get_seqsep, init_lecun_normal, FeedForw
 
 #ADD MODULE
 
+class PairStr2Pair(nn.Module):
+    def __init__(self, c_z=128, c_head=4, c_hidden=32, c_rbf=36, p_drop=0.15):
+        super(PairStr2Pair, self).__init__()
+
+        self.drop_row = Dropout(broadcast_dim=1, p_drop=p_drop)
+        self.drop_col = Dropout(broadcast_dim=2, p_drop=p_drop)
+
+        self.row_attn = BiasedAxialAttention(c_z, c_rbf, c_head, c_hidden, p_drop=p_drop, is_row=True)
+        self.col_attn = BiasedAxialAttention(c_z, c_rbf, c_head, c_hidden, p_drop=p_drop, is_row=False)
+
+        self.ff = FeedForwardLayer(c_z, 2)
+        
+    def forward(self, z, rbf_feat):
+        z = z + self.drop_row(self.row_attn(z, rbf_feat))
+        z = z + self.drop_col(self.col_attn(z, rbf_feat))
+        z = z + self.ff(z)
+        return z
+
 class Str2Str(nn.Module):
-    def __init__(self, d_msa=256, d_z=128, d_state=16, 
-            rbf_sigma=1.0, p_drop=0.1
+    def __init__(self, c_m=256, c_z=128, c_s=16, 
+            rbf_scale=1.0, p_drop=0.1
     ):
         super(Str2Str, self).__init__()
         
         # initial node & z feature process
-        self.norm_m = nn.LayerNorm(d_msa)
-        self.norm_z = nn.LayerNorm(d_z)
-        self.norm_s = nn.LayerNorm(d_state)
+        self.norm_m = nn.LayerNorm(c_m)
+        self.norm_z = nn.LayerNorm(c_z)
+        self.norm_s = nn.LayerNorm(c_s)
     
-        self.embed_x = nn.Linear(d_msa+d_state, d_msa)
-        self.embed_e = nn.Linear(d_z+36+1, d_z)
+        self.embed_x = nn.Linear(c_m+c_s, c_m)
+        self.embed_e = nn.Linear(c_z+36+1, c_z)
         
-        self.norm_node = nn.LayerNorm(d_msa)
+        self.norm_node = nn.LayerNorm(c_m)
         
-        self.rbf_sigma = rbf_sigma
+        self.rbf_scale = rbf_scale
 
         self.ipa = InvariantPointAttention(
             self.c_s,
@@ -44,6 +62,14 @@ class Str2Str(nn.Module):
 
         self.bb_update = BackboneUpdate(self.c_s)
 
+        self.angle_resnet = AngleResnet(
+            self.c_s,
+            self.c_resnet,
+            self.no_resnet_blocks,
+            self.no_angles,
+            self.epsilon,
+        )
+
         self.reset_parameter()
 
     def reset_parameter(self):
@@ -59,7 +85,6 @@ class Str2Str(nn.Module):
     def forward(self, 
                 m, 
                 z: Optional[torch.Tensor], 
-                r: Rigid,
                 s: torch.Tensor, 
                 aatype, 
                 mask: torch.Tensor,
@@ -73,12 +98,14 @@ class Str2Str(nn.Module):
         z = self.norm_z(z)
         s = self.norm_s(s)
 
+        s_initial = s
+
         node = torch.cat((node, s), dim=-1)
         node = self.norm_node(self.embed_x(node))
         
-        neighbor = get_seqsep(aatype)
+        neighbor = get_seqsep(idx)
         cas = rigids[:,:,1].contiguous()
-        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
+        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_scale)
         z = torch.cat((z, rbf_feat, neighbor), dim=-1)
         z = self.norm_edge(self.embed_e(z))
 
@@ -108,22 +135,35 @@ class Str2Str(nn.Module):
             # [*, N]
             rigids = rigids.compose_q_update_vec(self.bb_update(s))
 
-        return rigids, s
+            # To hew as closely as possible to AlphaFold, we convert our
+            # quaternion-based transformations to rotation-matrix ones
+            # here
+            backb_to_global = Rigid(
+                Rotation(
+                    rot_mats=rigids.get_rots().get_rot_mats(), 
+                    quats=None
+                ),
+                rigids.get_trans(),
+            )
 
-class PairStr2Pair(nn.Module):
-    def __init__(self, d_pair=128, n_head=4, d_hidden=32, d_rbf=36, p_drop=0.15):
-        super(PairStr2Pair, self).__init__()
+            backb_to_global = backb_to_global.scale_translation(
+                self.trans_scale_factor
+            )
 
-        self.drop_row = Dropout(broadcast_dim=1, p_drop=p_drop)
-        self.drop_col = Dropout(broadcast_dim=2, p_drop=p_drop)
+            # [*, N, 7, 2]
+            unnormalized_angles, angles = self.angle_resnet(s, s_initial)
 
-        self.row_attn = BiasedAxialAttention(d_pair, d_rbf, n_head, d_hidden, p_drop=p_drop, is_row=True)
-        self.col_attn = BiasedAxialAttention(d_pair, d_rbf, n_head, d_hidden, p_drop=p_drop, is_row=False)
+            all_frames_to_global = self.torsion_angles_to_frames(
+                backb_to_global,
+                angles,
+                aatype,
+            )
 
-        self.ff = FeedForwardLayer(d_pair, 2)
-        
-    def forward(self, z, rbf_feat):
-        z = z + self.drop_row(self.row_attn(z, rbf_feat))
-        z = z + self.drop_col(self.col_attn(z, rbf_feat))
-        z = z + self.ff(z)
-        return z
+            pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
+                all_frames_to_global,
+                aatype,
+            )
+
+            rigids = rigids.stop_rot_gradient()
+
+        return pred_xyz, s

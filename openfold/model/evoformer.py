@@ -37,6 +37,14 @@ from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
 )
+#ADD MODULE
+from openfold.model.third_track import (
+    PairStr2Pair,
+    Str2Str,
+)
+from third_track_util_module import rbf
+from openfold.np.residue_constants import sequence_to_onehot
+
 from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn
 from openfold.utils.chunk_utils import chunk_layer, ChunkSizeTuner
 from openfold.utils.tensor_utils import add
@@ -147,6 +155,15 @@ class EvoformerBlockCore(nn.Module):
             c_hidden_opm,
         )
 
+        #ADD MODULE
+        self.pair_str_2_pair = PairStr2Pair(
+            c_z,
+        )
+        self.str_2_str = Str2Str(
+            c_m,
+            c_z,
+        )
+
         self.tri_mul_out = TriangleMultiplicationOutgoing(
             c_z,
             c_hidden_mul,
@@ -226,6 +243,13 @@ class EvoformerBlockCore(nn.Module):
 
         z = add(z, opm, inplace=inplace_safe)
         del opm
+
+        #ADD MODULE where to initialize rbf_feat?
+        cas = xyz[:,:,1].contiguous()
+        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
+        z = self.pair_str_2_pair(z, rbf_feat)
+        #ADD MODULE sequence to aatype to idx
+        xyz, s = self.str_2_str(m, z, s, idx)
 
         tmu_update = self.tri_mul_out(
             z,
@@ -361,7 +385,10 @@ class EvoformerBlock(nn.Module):
 
     def forward(self,
         m: Optional[torch.Tensor],
+        s: Optional[torch.Tensor],
         z: Optional[torch.Tensor],
+        #ADD MODULE
+        rbf_feat: Optional[torch.Tensor],
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
@@ -380,15 +407,18 @@ class EvoformerBlock(nn.Module):
             input_tensors = _offloadable_inputs
             del _offloadable_inputs
         else:
+            #ADD MODULE should I add s and rbf_feat in input_tensors
             input_tensors = [m, z]
-
+        
         m, z = input_tensors
 
         m = add(m, 
             self.msa_dropout_layer(
                 self.msa_att_row(
-                    m, 
+                    m,
+                    s=s,
                     z=z, 
+                    rbf_feat=rbf_feat,
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_memory_efficient_kernel=False,

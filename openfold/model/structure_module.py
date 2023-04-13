@@ -685,7 +685,7 @@ class StructureModule(nn.Module):
             s = s + self.ipa(
                 s, 
                 z, 
-                rigids, 
+                rigids,
                 mask, 
                 inplace_safe=inplace_safe,
                 _offload_inference=_offload_inference, 
