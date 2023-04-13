@@ -92,7 +92,7 @@ class MSAAttention(nn.Module):
         s: torch.Tensor, #ADD MODULE when there is a s, it is something that I add
         biases: Optional[List[torch.Tensor]],
         chunk_size: int,
-        use_memory_efficient_kernel: bool, 
+        use_memory_efficient_kernel: bool,
         use_lma: bool,
         use_flash: bool,
         flash_mask: Optional[torch.Tensor],
@@ -132,7 +132,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor],
         mask: Optional[torch.Tensor],
         inplace_safe: bool = False,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: 
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: 
         n_seq, n_res = m.shape[-3:-1]
         if mask is None:
             # [*, N_seq, N_res]
