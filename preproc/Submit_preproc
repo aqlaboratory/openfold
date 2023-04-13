@@ -5,12 +5,13 @@ LANG=
 
 echo "`date +%s.%N` #Submit at `date`"
 
-if [ $# -ne 5 ] ; then
+if [ $# -ne 4 ] && [ $# -ne 5 ] ; then
     cat << EOF >&2
-usage: $0 NumNodes TimeLimit InputDir OutputDir MMCIFFileList [submit-option]
+usage: $0 NumNodes TimeLimit InputDir OutputDir [InputFileList]
 The TimeLimit is the maximum of execution time with the format hh:mm:ss.
 The InputDir is the directory contains input fasta files
 The OutputDir is the directoy where alignment results are stored
+The InputFileList is the file contains input fasta filename, one per line, and only that input is preprocessed. [optional]
 
 example: $0 4 2:00:00 input alinment
 EOF
@@ -21,7 +22,7 @@ NumNodes="$1" && shift
 TimeLimit="$1" && shift
 InputDir="$1" && shift
 OutputDir="$1" && shift
-MMCIFFileList="$1" && shift
+InputFileList="$1" && shift
 
 . ../scripts/setenv
 
@@ -93,7 +94,7 @@ WORKER=${WORKER}
 NumNodes=$NumNodes
 InputDir=$InputDir
 OutputDir=$OutputDir
-MMCIFFileList=$MMCIFFileList
+InputFileList=$InputFileList
 
 source ../scripts/setenv
 

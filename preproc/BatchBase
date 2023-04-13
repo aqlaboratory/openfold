@@ -17,7 +17,7 @@ for (( offset=0; offset < $NumNodes; offset+=$NodesPerTask )); do
 	 --vcoordfile $LogDir/vcoord_$offset \
 	 -x GLOBAL_RANK_OFFSET=$offset \
 	 -x GLOBAL_SIZE=$NumNodes \
-    	 $LogDir/$WORKER $InputDir $OutputDir $MMCIFFileList &
+	 $LogDir/$WORKER $InputDir $OutputDir $InputFileList &
 done
 
 wait
