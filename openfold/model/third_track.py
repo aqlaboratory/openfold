@@ -84,8 +84,9 @@ class Str2Str(nn.Module):
     @torch.cuda.amp.autocast(enabled=False)
     def forward(self, 
                 m, 
-                z: Optional[torch.Tensor], 
-                s: torch.Tensor, 
+                z: torch.Tensor, 
+                state: torch.Tensor, 
+                rbf_feat: torch.Tensor, 
                 aatype, 
                 mask: torch.Tensor,
                 inplace_safe: bool = False,
@@ -96,31 +97,31 @@ class Str2Str(nn.Module):
         B, N, L = m.shape[:3]
         node = self.norm_m(m[:,0])
         z = self.norm_z(z)
-        s = self.norm_s(s)
+        state = self.norm_s(state)
 
-        s_initial = s
+        state_initial = state
 
-        node = torch.cat((node, s), dim=-1)
+        node = torch.cat((node, state), dim=-1)
         node = self.norm_node(self.embed_x(node))
         
-        neighbor = get_seqsep(idx)
-        cas = rigids[:,:,1].contiguous()
-        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_scale)
+        neighbor = get_seqsep(aatype)
+        # cas = xyz[:,:,1].contiguous()
+        # rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_scale)
         z = torch.cat((z, rbf_feat, neighbor), dim=-1)
         z = self.norm_edge(self.embed_e(z))
 
         rigids = Rigid.identity(
-            s.shape[:-1], 
-            s.dtype, 
-            s.device, 
+            state.shape[:-1], 
+            state.dtype, 
+            state.device, 
             self.training,
             fmt="quat",
         )
 
         for i in range(self.no_blocks):
             # [*, N, C_s]
-            s = s + self.ipa(
-                s, 
+            state = state + self.ipa(
+                state, 
                 z, 
                 rigids, 
                 mask, 
@@ -128,12 +129,12 @@ class Str2Str(nn.Module):
                 _offload_inference=_offload_inference, 
                 _z_reference_list=None,
             )
-            s = self.ipa_dropout(s)
-            s = self.layer_norm_ipa(s)
-            s = self.transition(s)
+            state = self.ipa_dropout(state)
+            state = self.layer_norm_ipa(state)
+            state = self.transition(state)
            
             # [*, N]
-            rigids = rigids.compose_q_update_vec(self.bb_update(s))
+            rigids = rigids.compose_q_update_vec(self.bb_update(state))
 
             # To hew as closely as possible to AlphaFold, we convert our
             # quaternion-based transformations to rotation-matrix ones
@@ -151,7 +152,7 @@ class Str2Str(nn.Module):
             )
 
             # [*, N, 7, 2]
-            unnormalized_angles, angles = self.angle_resnet(s, s_initial)
+            unnormalized_angles, angles = self.angle_resnet(state, state_initial)
 
             all_frames_to_global = self.torsion_angles_to_frames(
                 backb_to_global,
@@ -166,4 +167,4 @@ class Str2Str(nn.Module):
 
             rigids = rigids.stop_rot_gradient()
 
-        return pred_xyz, s
+        return pred_xyz, state

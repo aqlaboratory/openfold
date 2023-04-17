@@ -242,6 +242,7 @@ class AlphaFold(nn.Module):
 
         # m: [*, S_c, N, C_m]
         # z: [*, N, N, C_z]
+        #ADD MODULE ?
         m, z = self.input_embedder(
             feats["target_feat"],
             feats["residue_index"],
@@ -281,6 +282,9 @@ class AlphaFold(nn.Module):
         if(self.globals.offload_inference and inplace_safe):
             m = m.cpu()
             z = z.cpu()
+            #ADD MODULE
+            state = state.cpu()
+            rbf_feat = rbf_feat.cpu()
 
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]
@@ -378,9 +382,10 @@ class AlphaFold(nn.Module):
         # z: [*, N, N, C_z]
         # s: [*, N, C_s]          
         if(self.globals.offload_inference):
-            input_tensors = [m, z]
-            del m, z
-            m, z, s = self.evoformer._forward_offload(
+            #ADD MODULE
+            input_tensors = [m, z, state, rbf_feat]
+            del m, z, state, rbf_feat
+            m, z, state, rbf_feat, s = self.evoformer._forward_offload(
                 input_tensors,
                 msa_mask=msa_mask.to(dtype=input_tensors[0].dtype),
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
@@ -391,9 +396,13 @@ class AlphaFold(nn.Module):
     
             del input_tensors
         else:
-            m, z, s = self.evoformer(
+            #ADD MODULE
+            m, z, state, rbf_feat, s = self.evoformer(
                 m,
                 z,
+                #ADD MODULE
+                state, 
+                rbf_feat,
                 msa_mask=msa_mask.to(dtype=m.dtype),
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 chunk_size=self.globals.chunk_size,
@@ -406,6 +415,7 @@ class AlphaFold(nn.Module):
         outputs["msa"] = m[..., :n_seq, :, :]
         outputs["pair"] = z
         outputs["single"] = s
+        #ADD MODULE ?
 
         del z
 

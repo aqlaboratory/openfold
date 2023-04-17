@@ -195,6 +195,8 @@ class EvoformerBlockCore(nn.Module):
 
     def forward(self,
         input_tensors: Sequence[torch.Tensor],
+        #ADD MODULE
+        aatype: torch.Tensor,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
@@ -213,7 +215,8 @@ class EvoformerBlockCore(nn.Module):
         if(_attn_chunk_size is None ):
             _attn_chunk_size = chunk_size
 
-        m, z = input_tensors
+        #ADD MODULE
+        m, z, state, rbf_feat = input_tensors
         
         m = add(
             m,
@@ -224,32 +227,37 @@ class EvoformerBlockCore(nn.Module):
         ) 
 
         if(_offload_inference and inplace_safe):
-            del m, z
+            #ADD MODULE
+            del m, z, state, rbf_feat
             assert(sys.getrefcount(input_tensors[1]) == 2)
             input_tensors[1] = input_tensors[1].cpu()
             torch.cuda.empty_cache()
-            m, z = input_tensors 
+            #ADD MODULE
+            m, z, state, rbf_feat = input_tensors 
 
         opm = self.outer_product_mean(
             m, mask=msa_mask, chunk_size=chunk_size, inplace_safe=inplace_safe
         )
 
         if(_offload_inference and inplace_safe):
-            del m, z
+            #ADD MODULE
+            del m, z, state, rbf_feat
             assert(sys.getrefcount(input_tensors[0]) == 2)
             input_tensors[0] = input_tensors[0].cpu()
             input_tensors[1] = input_tensors[1].to(opm.device)
-            m, z = input_tensors
+            #ADD MODULE
+            input_tensors[2] = input_tensors[2].to(opm.device)
+            input_tensors[3] = input_tensors[3].to(opm.device)
+            m, z, state, rbf_feat = input_tensors
 
         z = add(z, opm, inplace=inplace_safe)
         del opm
 
-        #ADD MODULE where to initialize rbf_feat?
+        #ADD MODULE
         cas = xyz[:,:,1].contiguous()
         rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
         z = self.pair_str_2_pair(z, rbf_feat)
-        #ADD MODULE sequence to aatype to idx
-        xyz, s = self.str_2_str(m, z, s, idx)
+        xyz, state = self.str_2_str(m, z, state, rbf_feat, aatype)
 
         tmu_update = self.tri_mul_out(
             z,
@@ -324,14 +332,19 @@ class EvoformerBlockCore(nn.Module):
 
         if(_offload_inference and inplace_safe):
             device = z.device
-            del m, z
+            #ADD MODULE
+            del m, z, state, rbf_feat
             assert(sys.getrefcount(input_tensors[0]) == 2)
             assert(sys.getrefcount(input_tensors[1]) == 2)
             input_tensors[0] = input_tensors[0].to(device)
             input_tensors[1] = input_tensors[1].to(device)
-            m, z = input_tensors
+            #ADD MODULE
+            input_tensors[2] = input_tensors[2].to(device)
+            input_tensors[3] = input_tensors[3].to(device)
+            m, z, state, rbf_feat = input_tensors
 
-        return m, z
+        #ADD MODULE
+        return m, z, state, rbf_feat
 
 
 class EvoformerBlock(nn.Module):
@@ -385,9 +398,9 @@ class EvoformerBlock(nn.Module):
 
     def forward(self,
         m: Optional[torch.Tensor],
-        s: Optional[torch.Tensor],
         z: Optional[torch.Tensor],
         #ADD MODULE
+        state: Optional[torch.Tensor],
         rbf_feat: Optional[torch.Tensor],
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
@@ -407,17 +420,20 @@ class EvoformerBlock(nn.Module):
             input_tensors = _offloadable_inputs
             del _offloadable_inputs
         else:
-            #ADD MODULE should I add s and rbf_feat in input_tensors
-            input_tensors = [m, z]
+            #ADD MODULE
+            input_tensors = [m, z, state, rbf_feat]
         
-        m, z = input_tensors
+        #ADD MODULE
+        m, z, state, rbf_feat = input_tensors
 
         m = add(m, 
             self.msa_dropout_layer(
                 self.msa_att_row(
                     m,
-                    s=s,
+                    #ADD MODULE
+                    state=state,
                     z=z, 
+                    #ADD MODULE
                     rbf_feat=rbf_feat,
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
@@ -440,11 +456,13 @@ class EvoformerBlock(nn.Module):
         )
 
         if(not inplace_safe):
-            input_tensors = [m, input_tensors[1]]
+            #ADD MODULE
+            input_tensors = [m, input_tensors[1], input_tensors[2], input_tensors[3]]
         
-        del m, z
+        del m, z, state, rbf_feat
 
-        m, z = self.core(
+        #ADD MODULE
+        m, z, state, rbf_feat = self.core(
             input_tensors, 
             msa_mask=msa_mask, 
             pair_mask=pair_mask, 
@@ -456,7 +474,8 @@ class EvoformerBlock(nn.Module):
             _offload_inference=_offload_inference,
         )
 
-        return m, z
+        #ADD MODULE
+        return m, z, state, rbf_feat
 
 
 class ExtraMSABlock(nn.Module):
@@ -521,6 +540,9 @@ class ExtraMSABlock(nn.Module):
     def forward(self,
         m: Optional[torch.Tensor],
         z: Optional[torch.Tensor],
+        #ADD MODULE
+        state: Optional[torch.Tensor],
+        rbf_feat: Optional[torch.Tensor],
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
@@ -538,15 +560,20 @@ class ExtraMSABlock(nn.Module):
             input_tensors = _offloadable_inputs
             del _offloadable_inputs
         else:
-            input_tensors = [m, z]
+            #ADD MODULE
+            input_tensors = [m, z, state, rbf_feat]
 
-        m, z = input_tensors
+        #ADD MODULE
+        m, z, state, rbf_feat = input_tensors
 
         m = add(m, 
             self.msa_dropout_layer(
                 self.msa_att_row(
                     m.clone() if torch.is_grad_enabled() else m, 
                     z=z.clone() if torch.is_grad_enabled() else z, 
+                    #ADD MODULE
+                    state=state.clone() if torch.is_grad_enabled() else state, 
+                    rbf_feat=rbf_feat.clone() if torch.is_grad_enabled() else rbf_feat, 
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
@@ -559,9 +586,11 @@ class ExtraMSABlock(nn.Module):
         )
 
         if(not inplace_safe):
-            input_tensors = [m, z]
+            #ADD MODULE
+            input_tensors = [m, z, state, rbf_feat]
 
-        del m, z
+        #ADD MODULE
+        del m, z, state, rbf_feat
 
         def fn(input_tensors): 
             m = add(input_tensors[0], 
@@ -579,7 +608,8 @@ class ExtraMSABlock(nn.Module):
 
             del m
 
-            m, z = self.core(
+            #ADD MODULE
+            m, z, state, rbf_feat = self.core(
                 input_tensors, 
                 msa_mask=msa_mask, 
                 pair_mask=pair_mask, 
@@ -591,15 +621,19 @@ class ExtraMSABlock(nn.Module):
                 _offload_inference=_offload_inference,
             )
             
-            return m, z
+            #ADD MODULE
+            return m, z, state, rbf_feat
 
         if(torch.is_grad_enabled() and self.ckpt):
             checkpoint_fn = get_checkpoint_fn()
-            m, z = checkpoint_fn(fn, input_tensors)
+            #ADD MODULE
+            m, z, state, rbf_feat = checkpoint_fn(fn, input_tensors)
         else:
-            m, z = fn(input_tensors)
+            #ADD MODULE
+            m, z, state, rbf_feat = fn(input_tensors)
 
-        return m, z
+        #ADD MODULE
+        return m, z, state, rbf_feat
 
 
 class EvoformerStack(nn.Module):
@@ -703,6 +737,9 @@ class EvoformerStack(nn.Module):
     def _prep_blocks(self, 
         m: torch.Tensor, 
         z: torch.Tensor, 
+        #ADD MODULE
+        state: torch.Tensor,
+        rbf_feat: torch.Tensor,
         chunk_size: int,
         use_lma: bool,
         use_flash: bool,
@@ -737,7 +774,8 @@ class EvoformerStack(nn.Module):
             tuned_chunk_size = self.chunk_size_tuner.tune_chunk_size(
                 representative_fn=blocks[0],
                 # We don't want to write in-place during chunk tuning runs
-                args=(m.clone(), z.clone(),),
+                #ADD MODULE
+                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -766,6 +804,9 @@ class EvoformerStack(nn.Module):
             # this function
             m=input_tensors[0],
             z=input_tensors[1],
+            #ADD MODULE
+            state=input_tensors[2],
+            rbf_feat=input_tensors[3],
             chunk_size=chunk_size,
             use_lma=use_lma,
             use_flash=use_flash,
@@ -776,7 +817,8 @@ class EvoformerStack(nn.Module):
         )
 
         for b in blocks:
-            m, z = b(
+            #ADD MODULE
+            m, z, state, rbf_feat = b(
                 None, 
                 None, 
                 _offload_inference=True,
@@ -784,17 +826,27 @@ class EvoformerStack(nn.Module):
             )
             input_tensors[0] = m
             input_tensors[1] = z
-            del m, z
+            #ADD MODULE
+            input_tensors[2] = state
+            input_tensors[3] = rbf_feat
+            
+            #ADD MODULE
+            del m, z, state, rbf_feat
         
-        m, z = input_tensors
-        
+        #ADD MODULE
+        m, z, state, rbf_feat = input_tensors
+
         s = self.linear(m[..., 0, :, :])
         
-        return m, z, s
+        #ADD MODULE
+        return m, z, state, rbf_feat, s
 
     def forward(self,
         m: torch.Tensor,
         z: torch.Tensor,
+        #ADD MODULE
+        state: torch.Tensor,
+        rbf_feat: torch.Tensor,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
@@ -831,6 +883,9 @@ class EvoformerStack(nn.Module):
         blocks = self._prep_blocks(
             m=m,
             z=z,
+            #ADD MODULE
+            state=state,
+            rbf_feat=rbf_feat,
             chunk_size=chunk_size,
             use_lma=use_lma,
             use_flash=use_flash,
@@ -844,15 +899,18 @@ class EvoformerStack(nn.Module):
         if(not torch.is_grad_enabled()):
             blocks_per_ckpt = None
         
-        m, z = checkpoint_blocks(
+        #ADD MODULE
+        m, z, state, rbf_feat = checkpoint_blocks(
             blocks,
-            args=(m, z),
+            #ADD MODULE
+            args=(m, z, state, rbf_feat),
             blocks_per_ckpt=blocks_per_ckpt,
         )
 
         s = self.linear(m[..., 0, :, :])
 
-        return m, z, s
+        #ADD MODULE
+        return m, z, state, rbf_feat, s
 
 
 class ExtraMSAStack(nn.Module):
@@ -911,6 +969,9 @@ class ExtraMSAStack(nn.Module):
     def _prep_blocks(self, 
         m: torch.Tensor, 
         z: torch.Tensor, 
+        #ADD MODULE
+        state: torch.Tensor,
+        rbf_feat: torch.Tensor,
         chunk_size: int,
         use_lma: bool,
         msa_mask: Optional[torch.Tensor],
@@ -943,7 +1004,8 @@ class ExtraMSAStack(nn.Module):
                 # Tensors cloned to avoid getting written to in-place
                 # A corollary is that chunk size tuning should be disabled for
                 # large N, when z gets really big
-                args=(m.clone(), z.clone(),),
+                #ADD MODULE
+                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -971,6 +1033,9 @@ class ExtraMSAStack(nn.Module):
             # this function
             m=input_tensors[0],
             z=input_tensors[1],
+            #ADD MODULE
+            state=input_tensors[2],
+            rbf_feat=input_tensors[3],
             chunk_size=chunk_size,
             use_lma=use_lma,
             msa_mask=msa_mask,
@@ -980,7 +1045,8 @@ class ExtraMSAStack(nn.Module):
         )
 
         for b in blocks:
-            m, z = b(
+            #ADD MODULE
+            m, z, state, rbf_feat = b(
                 None, 
                 None, 
                 _offload_inference=True,
@@ -988,13 +1054,19 @@ class ExtraMSAStack(nn.Module):
             )
             input_tensors[0] = m
             input_tensors[1] = z
-            del m, z
+            #ADD MODULE
+            input_tensors[2] = state
+            input_tensors[3] = rbf_feat
+            del m, z, state, rbf_feat
 
         return input_tensors[1]
 
     def forward(self,
         m: torch.Tensor,
         z: torch.Tensor,
+        #ADD MODULE
+        state: torch.Tensor,
+        rbf_feat: torch.Tensor,
         msa_mask: Optional[torch.Tensor],
         pair_mask: Optional[torch.Tensor],
         chunk_size: int,
@@ -1021,6 +1093,9 @@ class ExtraMSAStack(nn.Module):
         blocks = self._prep_blocks(
             m=m,
             z=z,
+            #ADD MODULE
+            state=state,
+            rbf_feat=rbf_feat,
             chunk_size=chunk_size,
             use_lma=use_lma,
             msa_mask=msa_mask,
@@ -1031,8 +1106,10 @@ class ExtraMSAStack(nn.Module):
 
         for b in blocks:
             if(self.ckpt and torch.is_grad_enabled()):
-                m, z = checkpoint_fn(b, m, z)
+                #ADD MODULE
+                m, z, state, rbf_feat = checkpoint_fn(b, m, z, state, rbf_feat)
             else:
-                m, z = b(m, z)
+                #ADD MODULE
+                m, z, state, rbf_feat = b(m, z, state, rbf_feat)
 
         return z

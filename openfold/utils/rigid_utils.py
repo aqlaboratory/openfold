@@ -817,7 +817,7 @@ class Rigid:
         Designed to behave approximately like a single torch tensor with the 
         shape of the shared batch dimensions of its component parts.
     """
-    def __init__(self, 
+    def __init__(self,
         rots: Optional[Rotation],
         trans: Optional[torch.Tensor],
     ):
