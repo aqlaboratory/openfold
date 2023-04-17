@@ -189,7 +189,7 @@ def torsion_angles_to_frames(
     rrgdf: torch.Tensor,
 ):
 
-    rigid_type = Rigid if isinstance(r, Rigid) else rigid_matrix_vector.Rigid3Array
+    rigid_type = type(r)
 
     # [*, N, 8, 4, 4]
     default_4x4 = rrgdf[aatype, ...]
@@ -217,18 +217,14 @@ def torsion_angles_to_frames(
     # This follows the original code rather than the supplement, which uses
     # different indices.
 
-    all_rots = alpha.new_zeros(default_r.shape + (3, 3))
+    all_rots = alpha.new_zeros(default_r.shape + (4, 4))
     all_rots[..., 0, 0] = 1
     all_rots[..., 1, 1] = alpha[..., 1]
     all_rots[..., 1, 2] = -alpha[..., 0]
-    all_rots[..., 2, 1:] = alpha
+    all_rots[..., 2, 1:3] = alpha
 
-    if isinstance(r, Rigid):
-        all_rots = Rigid(Rotation(rot_mats=all_rots), None)
-        all_frames = default_r.compose(all_rots)
-    else:
-        all_rots = rotation_matrix.Rot3Array.from_array(all_rots)
-        all_frames = default_r.compose_rotation(all_rots)
+    all_rots = rigid_type.from_tensor_4x4(all_rots)
+    all_frames = default_r.compose(all_rots)
 
     chi2_frame_to_frame = all_frames[..., 5]
     chi3_frame_to_frame = all_frames[..., 6]
@@ -283,16 +279,11 @@ def frames_and_literature_positions_to_atom14_pos(
     )
 
     # [*, N, 14]
-    atom_mask = atom_mask[aatype, ...]
-    if isinstance(r, Rigid):
-        atom_mask = atom_mask.unsqueeze(-1)
+    atom_mask = atom_mask[aatype, ...].unsqueeze(-1)
 
     # [*, N, 14, 3]
     lit_positions = lit_positions[aatype, ...]
     pred_positions = t_atoms_to_global.apply(lit_positions)
     pred_positions = pred_positions * atom_mask
-
-    if isinstance(pred_positions, vector.Vec3Array):
-        return pred_positions.to_tensor()
 
     return pred_positions

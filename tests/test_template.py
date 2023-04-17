@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import torch
 import numpy as np
 import unittest
@@ -78,6 +79,7 @@ class TestTemplatePairStack(unittest.TestCase):
         n_templ = consts.n_templ
         n_res = consts.n_res
         tri_mul_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         blocks_per_ckpt = None
         chunk_size = 4
         inf = 1e7
@@ -92,6 +94,7 @@ class TestTemplatePairStack(unittest.TestCase):
             pair_transition_n=pt_inner_dim,
             dropout_rate=dropout,
             tri_mul_first=tri_mul_first,
+            fuse_projection_weights=fuse_projection_weights,
             blocks_per_ckpt=None,
             inf=inf,
             eps=eps,

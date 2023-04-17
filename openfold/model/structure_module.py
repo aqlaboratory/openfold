@@ -178,7 +178,7 @@ class PointProjection(nn.Module):
     def forward(self, 
         activations: torch.Tensor, 
         rigids: Union[Rigid, Rigid3Array],
-    ) -> Union[Vec3Array, Tuple[Vec3Array, Vec3Array], torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         # TODO: Needs to run in high precision during training
         points_local = self.linear(activations)
 
@@ -398,20 +398,14 @@ class InvariantPointAttention(nn.Module):
         a += (math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1)))
 
         # [*, N_res, N_res, H, P_q, 3]
-        if self.is_multimer:
-            pt_att = q_pts.unsqueeze(-3) - k_pts.unsqueeze(-4)
+        pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
 
-            # [*, N_res, N_res, H, P_q]
-            pt_att = sum([c ** 2 for c in pt_att])
+        if (inplace_safe):
+            pt_att *= pt_att
         else:
-            pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
+            pt_att = pt_att ** 2
 
-            if (inplace_safe):
-                pt_att *= pt_att
-            else:
-                pt_att = pt_att ** 2
-
-            pt_att = sum(torch.unbind(pt_att, dim=-1))
+        pt_att = sum(torch.unbind(pt_att, dim=-1))
 
         head_weights = self.softplus(self.head_weights).view(
             *((1,) * len(pt_att.shape[:-2]) + (-1, 1))
@@ -427,6 +421,7 @@ class InvariantPointAttention(nn.Module):
 
         # [*, N_res, N_res, H]
         pt_att = torch.sum(pt_att, dim=-1) * (-0.5)
+
         # [*, N_res, N_res]
         square_mask = mask.unsqueeze(-1) * mask.unsqueeze(-2)
         square_mask = self.inf * (square_mask - 1)
@@ -460,51 +455,35 @@ class InvariantPointAttention(nn.Module):
         # [*, N_res, H * C_hidden]
         o = flatten_final_dims(o, 2)
 
-        if self.is_multimer:
-            # As DeepMind explains, this manual matmul ensures that the operation
-            # happens in float32.
-            # [*, N_res, H, P_v]
-            o_pt = v_pts[..., None, :, :, :] * permute_final_dims(a, (1, 2, 0)).unsqueeze(-1)
-            o_pt = o_pt.sum(dim=-3)
-
-            # [*, N_res, H, P_v]
-            o_pt = r[..., None, None].apply_inverse_to_point(o_pt)
-
-            # [*, N_res, H * P_v, 3]
-            o_pt = o_pt.reshape(o_pt.shape[:-2] + (-1,))
-
-            # [*, N_res, H * P_v]
-            o_pt_norm = o_pt.norm(self.eps)
+        # [*, H, 3, N_res, P_v]
+        if (inplace_safe):
+            v_pts = permute_final_dims(v_pts, (1, 3, 0, 2))
+            o_pt = [
+                torch.matmul(a, v.to(a.dtype))
+                for v in torch.unbind(v_pts, dim=-3)
+            ]
+            o_pt = torch.stack(o_pt, dim=-3)
         else:
-            # [*, H, 3, N_res, P_v]
-            if (inplace_safe):
-                v_pts = permute_final_dims(v_pts, (1, 3, 0, 2))
-                o_pt = [
-                    torch.matmul(a, v.to(a.dtype))
-                    for v in torch.unbind(v_pts, dim=-3)
-                ]
-                o_pt = torch.stack(o_pt, dim=-3)
-            else:
-                o_pt = torch.sum(
-                    (
-                            a[..., None, :, :, None]
-                            * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
-                    ),
-                    dim=-2,
-                )
-
-            # [*, N_res, H, P_v, 3]
-            o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
-            o_pt = r[..., None, None].invert_apply(o_pt)
-
-            # [*, N_res, H * P_v]
-            o_pt_norm = flatten_final_dims(
-                torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 2
+            o_pt = torch.sum(
+                (
+                        a[..., None, :, :, None]
+                        * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
+                ),
+                dim=-2,
             )
 
-            # [*, N_res, H * P_v, 3]
-            o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
-            o_pt = torch.unbind(o_pt, dim=-1)
+        # [*, N_res, H, P_v, 3]
+        o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
+        o_pt = r[..., None, None].invert_apply(o_pt)
+
+        # [*, N_res, H * P_v]
+        o_pt_norm = flatten_final_dims(
+            torch.sqrt(torch.sum(o_pt ** 2, dim=-1) + self.eps), 2
+        )
+
+        # [*, N_res, H * P_v, 3]
+        o_pt = o_pt.reshape(*o_pt.shape[:-3], -1, 3)
+        o_pt = torch.unbind(o_pt, dim=-1)
 
         if (_offload_inference):
             z[0] = z[0].to(o_pt.device)

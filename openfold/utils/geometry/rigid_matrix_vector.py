@@ -67,13 +67,16 @@ class Rigid3Array:
         """Apply Rigid3Array transform to point."""
         return self.rotation.apply_to_point(point) + self.translation
 
-    def apply(self, point: torch.Tensor) -> vector.Vec3Array:
-        return self.apply_to_point(vector.Vec3Array.from_array(point))
+    def apply(self, point: torch.Tensor) -> torch.Tensor:
+        return self.apply_to_point(vector.Vec3Array.from_array(point)).to_tensor()
 
     def apply_inverse_to_point(self, point: vector.Vec3Array) -> vector.Vec3Array:
         """Apply inverse Rigid3Array transform to point."""
         new_point = point - self.translation
         return self.rotation.apply_inverse_to_point(new_point)
+
+    def invert_apply(self, point: torch.Tensor) -> torch.Tensor:
+        return self.apply_inverse_to_point(vector.Vec3Array.from_array(point)).to_tensor()
 
     def compose_rotation(self, other_rotation):
         rot = self.rotation @ other_rotation

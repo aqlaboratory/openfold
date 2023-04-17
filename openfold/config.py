@@ -1,3 +1,4 @@
+import re
 import copy
 import importlib
 import ml_collections as mlc
@@ -155,6 +156,18 @@ def model_config(
     elif "multimer" in name:
         c.globals.is_multimer = True
         c.loss.masked_msa.num_classes = 22
+
+        if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
+            c.model.evoformer.num_msa = 252
+            c.model.evoformer.num_extra_msa= 1152
+            c.model.evoformer.fuse_projection_weights = False
+            c.model.extra_msa.extra_msa_stack.fuse_projection_weights = False
+            c.model.template.template_pair_stack.fuse_projection_weights = False
+        elif name == 'model_4_multimer_v3':
+            c.model.evoformer.num_extra_msa = 1152
+        elif name == 'model_5_multimer_v3':
+            c.model.evoformer.num_extra_msa = 1152
+
         for k,v in multimer_model_config_update.items():
             c.model[k] = v
 
@@ -438,6 +451,7 @@ config = mlc.ConfigDict(
                     "pair_transition_n": 2,
                     "dropout_rate": 0.25,
                     "tri_mul_first": False,
+                    "fuse_projection_weights": False,
                     "blocks_per_ckpt": blocks_per_ckpt,
                     "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
@@ -487,6 +501,7 @@ config = mlc.ConfigDict(
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
                     "opm_first": False,
+                    "fuse_projection_weights": False,
                     "clear_cache_between_blocks": False,
                     "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
@@ -510,6 +525,7 @@ config = mlc.ConfigDict(
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
                 "opm_first": False,
+                "fuse_projection_weights": False,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "clear_cache_between_blocks": False,
                 "tune_chunk_size": tune_chunk_size,
@@ -671,6 +687,7 @@ multimer_model_config_update = {
             "pair_transition_n": 2,
             "dropout_rate": 0.25,
             "tri_mul_first": True,
+            "fuse_projection_weights": True,
             "blocks_per_ckpt": blocks_per_ckpt,
             "inf": 1e9,
         },
@@ -701,6 +718,7 @@ multimer_model_config_update = {
             "msa_dropout": 0.15,
             "pair_dropout": 0.25,
             "opm_first": True,
+            "fuse_projection_weights": True,
             "clear_cache_between_blocks": True,
             "inf": 1e9,
             "eps": eps,  # 1e-10,
@@ -723,6 +741,7 @@ multimer_model_config_update = {
         "msa_dropout": 0.15,
         "pair_dropout": 0.25,
         "opm_first": True,
+        "fuse_projection_weights": True,
         "blocks_per_ckpt": blocks_per_ckpt,
         "clear_cache_between_blocks": False,
         "inf": 1e9,

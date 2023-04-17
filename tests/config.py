@@ -2,7 +2,7 @@ import ml_collections as mlc
 
 consts = mlc.ConfigDict(
     {
-        "model": "model_1_multimer_v2",  # monomer:model_1_ptm, multimer: model_1_multimer_v2
+        "model": "model_1_multimer_v3",  # monomer:model_1_ptm, multimer: model_1_multimer_v3
         "is_multimer": True,  # monomer: False, multimer: True
         "chunk_size": 4,
         "batch_size": 2,

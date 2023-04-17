@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from enum import Enum
 from dataclasses import dataclass
 from functools import partial
@@ -191,31 +192,47 @@ def generate_translation_dict(model, version, is_multimer=False):
         "attention": AttentionGatedParams(tri_att.mha),
     }
 
-    TriMulOutParams = lambda tri_mul: {
-        "layer_norm_input": LayerNormParams(tri_mul.layer_norm_in),
-        "left_projection": LinearParams(tri_mul.linear_a_p),
-        "right_projection": LinearParams(tri_mul.linear_b_p),
-        "left_gate": LinearParams(tri_mul.linear_a_g),
-        "right_gate": LinearParams(tri_mul.linear_b_g),
-        "center_layer_norm": LayerNormParams(tri_mul.layer_norm_out),
-        "output_projection": LinearParams(tri_mul.linear_z),
-        "gating_linear": LinearParams(tri_mul.linear_g),
-    }
+    def TriMulOutParams(tri_mul, outgoing=True):
+        if re.fullmatch("^model_[1-5]_multimer_v3$", version):
+            d = {
+                "left_norm_input": LayerNormParams(tri_mul.layer_norm_in),
+                "projection": LinearParams(tri_mul.linear_ab_p),
+                "gate": LinearParams(tri_mul.linear_ab_g),
+                "center_norm": LayerNormParams(tri_mul.layer_norm_out),
+            }
+        else:
+            # see commit b88f8da on the Alphafold repo
+            # Alphafold swaps the pseudocode's a and b between the incoming/outcoming
+            # iterations of triangle multiplication, which is confusing and not
+            # reproduced in our implementation.
+            if outgoing:
+                left_projection = LinearParams(tri_mul.linear_a_p)
+                right_projection = LinearParams(tri_mul.linear_b_p)
+                left_gate = LinearParams(tri_mul.linear_a_g)
+                right_gate = LinearParams(tri_mul.linear_b_g)
+            else:
+                left_projection = LinearParams(tri_mul.linear_b_p)
+                right_projection = LinearParams(tri_mul.linear_a_p)
+                left_gate = LinearParams(tri_mul.linear_b_g)
+                right_gate = LinearParams(tri_mul.linear_a_g)
 
-    # see commit b88f8da on the Alphafold repo
-    # Alphafold swaps the pseudocode's a and b between the incoming/outcoming
-    # iterations of triangle multiplication, which is confusing and not
-    # reproduced in our implementation.
-    TriMulInParams = lambda tri_mul: {
-        "layer_norm_input": LayerNormParams(tri_mul.layer_norm_in),
-        "left_projection": LinearParams(tri_mul.linear_b_p),
-        "right_projection": LinearParams(tri_mul.linear_a_p),
-        "left_gate": LinearParams(tri_mul.linear_b_g),
-        "right_gate": LinearParams(tri_mul.linear_a_g),
-        "center_layer_norm": LayerNormParams(tri_mul.layer_norm_out),
-        "output_projection": LinearParams(tri_mul.linear_z),
-        "gating_linear": LinearParams(tri_mul.linear_g),
-    }
+            d = {
+                "layer_norm_input": LayerNormParams(tri_mul.layer_norm_in),
+                "left_projection": left_projection,
+                "right_projection": right_projection,
+                "left_gate": left_gate,
+                "right_gate": right_gate,
+                "center_layer_norm": LayerNormParams(tri_mul.layer_norm_out),
+            }
+
+        d.update({
+            "output_projection": LinearParams(tri_mul.linear_z),
+            "gating_linear": LinearParams(tri_mul.linear_g),
+        })
+
+        return d
+
+    TriMulInParams = partial(TriMulOutParams, outgoing=False)
 
     PairTransitionParams = lambda pt: {
         "input_layer_norm": LayerNormParams(pt.layer_norm),

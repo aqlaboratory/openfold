@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import torch
 import numpy as np
 import unittest
@@ -49,6 +50,7 @@ class TestEvoformerStack(unittest.TestCase):
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
         opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -67,6 +69,7 @@ class TestEvoformerStack(unittest.TestCase):
             msa_dropout,
             pair_stack_dropout,
             opm_first,
+            fuse_projection_weights,
             blocks_per_ckpt=None,
             inf=inf,
             eps=eps,
@@ -177,6 +180,7 @@ class TestExtraMSAStack(unittest.TestCase):
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
         opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -194,6 +198,7 @@ class TestExtraMSAStack(unittest.TestCase):
             msa_dropout,
             pair_stack_dropout,
             opm_first,
+            fuse_projection_weights,
             ckpt=False,
             inf=inf,
             eps=eps,

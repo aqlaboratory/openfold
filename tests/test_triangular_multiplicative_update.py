@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import torch
+import re
 import numpy as np
 import unittest
 from openfold.model.triangular_multiplicative_update import *
@@ -31,10 +32,16 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
         c_z = consts.c_z
         c = 11
 
-        tm = TriangleMultiplicationOutgoing(
-            c_z,
-            c,
-        )
+        if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model):
+            tm = FusedTriangleMultiplicationOutgoing(
+                c_z,
+                c,
+            )
+        else:
+            tm = TriangleMultiplicationOutgoing(
+                c_z,
+                c,
+            )
 
         n_res = consts.c_z
         batch_size = consts.batch_size
@@ -62,7 +69,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
                 config.model.global_config,
                 name=name,
             )
-            act = tri_mul(act=pair_act, mask=pair_mask)
+            act = tri_mul(pair_act, pair_mask)
             return act
 
         f = hk.transform(run_tri_mul)
@@ -89,6 +96,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
             if incoming
             else model.evoformer.blocks[0].pair_stack.tri_mul_out
         )
+
         out_repro = module(
             torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
             mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),

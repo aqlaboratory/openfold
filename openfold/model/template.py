@@ -33,6 +33,8 @@ from openfold.model.triangular_attention import (
 from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
+    FusedTriangleMultiplicationOutgoing,
+    FusedTriangleMultiplicationIncoming
 )
 from openfold.utils.checkpointing import checkpoint_blocks
 from openfold.utils.chunk_utils import (
@@ -155,6 +157,7 @@ class TemplatePairStackBlock(nn.Module):
         pair_transition_n: int,
         dropout_rate: float,
         tri_mul_first: bool,
+        fuse_projection_weights: bool,
         inf: float,
         **kwargs,
     ):
@@ -185,14 +188,24 @@ class TemplatePairStackBlock(nn.Module):
             inf=inf,
         )
 
-        self.tri_mul_out = TriangleMultiplicationOutgoing(
-            self.c_t,
-            self.c_hidden_tri_mul,
-        )
-        self.tri_mul_in = TriangleMultiplicationIncoming(
-            self.c_t,
-            self.c_hidden_tri_mul,
-        )
+        if fuse_projection_weights:
+            self.tri_mul_out = FusedTriangleMultiplicationOutgoing(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+            self.tri_mul_in = FusedTriangleMultiplicationIncoming(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+        else:
+            self.tri_mul_out = TriangleMultiplicationOutgoing(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+            self.tri_mul_in = TriangleMultiplicationIncoming(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
 
         self.pair_transition = PairTransition(
             self.c_t,
@@ -329,6 +342,7 @@ class TemplatePairStack(nn.Module):
         pair_transition_n,
         dropout_rate,
         tri_mul_first,
+        fuse_projection_weights,
         blocks_per_ckpt,
         tune_chunk_size: bool = False,
         inf=1e9,
@@ -366,6 +380,7 @@ class TemplatePairStack(nn.Module):
                 pair_transition_n=pair_transition_n,
                 dropout_rate=dropout_rate,
                 tri_mul_first=tri_mul_first,
+                fuse_projection_weights=fuse_projection_weights,
                 inf=inf,
             )
             self.blocks.append(block)
