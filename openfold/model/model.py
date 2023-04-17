@@ -396,6 +396,8 @@ class AlphaFold(nn.Module):
     
             del input_tensors
         else:
+            #ADD MODULE 
+            aatype = feats["aatype"]
             #ADD MODULE
             m, z, state, rbf_feat, s = self.evoformer(
                 m,
@@ -403,6 +405,7 @@ class AlphaFold(nn.Module):
                 #ADD MODULE
                 state, 
                 rbf_feat,
+                aatype,
                 msa_mask=msa_mask.to(dtype=m.dtype),
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 chunk_size=self.globals.chunk_size,
@@ -416,6 +419,8 @@ class AlphaFold(nn.Module):
         outputs["pair"] = z
         outputs["single"] = s
         #ADD MODULE ?
+        outputs["state"] = state
+        outputs["structure"] = rbf_feat
 
         del z
 

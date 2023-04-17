@@ -402,6 +402,7 @@ class EvoformerBlock(nn.Module):
         #ADD MODULE
         state: Optional[torch.Tensor],
         rbf_feat: Optional[torch.Tensor],
+        aatype,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
@@ -463,7 +464,9 @@ class EvoformerBlock(nn.Module):
 
         #ADD MODULE
         m, z, state, rbf_feat = self.core(
-            input_tensors, 
+            input_tensors,
+            #ADD MODULE 
+            aatype= aatype,
             msa_mask=msa_mask, 
             pair_mask=pair_mask, 
             chunk_size=chunk_size, 
@@ -543,6 +546,7 @@ class ExtraMSABlock(nn.Module):
         #ADD MODULE
         state: Optional[torch.Tensor],
         rbf_feat: Optional[torch.Tensor],
+        aatype,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
@@ -611,6 +615,8 @@ class ExtraMSABlock(nn.Module):
             #ADD MODULE
             m, z, state, rbf_feat = self.core(
                 input_tensors, 
+                #ADD MODULE
+                aatype=aatype,
                 msa_mask=msa_mask, 
                 pair_mask=pair_mask, 
                 chunk_size=chunk_size,
@@ -740,6 +746,7 @@ class EvoformerStack(nn.Module):
         #ADD MODULE
         state: torch.Tensor,
         rbf_feat: torch.Tensor,
+        aatype,
         chunk_size: int,
         use_lma: bool,
         use_flash: bool,
@@ -775,7 +782,7 @@ class EvoformerStack(nn.Module):
                 representative_fn=blocks[0],
                 # We don't want to write in-place during chunk tuning runs
                 #ADD MODULE
-                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),),
+                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),aatype.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -791,6 +798,8 @@ class EvoformerStack(nn.Module):
 
     def _forward_offload(self,
         input_tensors: Sequence[torch.Tensor],
+        #ADD MODULE
+        aatype,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
@@ -807,6 +816,7 @@ class EvoformerStack(nn.Module):
             #ADD MODULE
             state=input_tensors[2],
             rbf_feat=input_tensors[3],
+            aatype=aatype,
             chunk_size=chunk_size,
             use_lma=use_lma,
             use_flash=use_flash,
@@ -847,6 +857,7 @@ class EvoformerStack(nn.Module):
         #ADD MODULE
         state: torch.Tensor,
         rbf_feat: torch.Tensor,
+        aatype,
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
@@ -886,6 +897,7 @@ class EvoformerStack(nn.Module):
             #ADD MODULE
             state=state,
             rbf_feat=rbf_feat,
+            aatype=aatype,
             chunk_size=chunk_size,
             use_lma=use_lma,
             use_flash=use_flash,
@@ -903,7 +915,7 @@ class EvoformerStack(nn.Module):
         m, z, state, rbf_feat = checkpoint_blocks(
             blocks,
             #ADD MODULE
-            args=(m, z, state, rbf_feat),
+            args=(m, z, state, rbf_feat, aatype),
             blocks_per_ckpt=blocks_per_ckpt,
         )
 
@@ -972,6 +984,7 @@ class ExtraMSAStack(nn.Module):
         #ADD MODULE
         state: torch.Tensor,
         rbf_feat: torch.Tensor,
+        aatype,
         chunk_size: int,
         use_lma: bool,
         msa_mask: Optional[torch.Tensor],
@@ -1005,7 +1018,7 @@ class ExtraMSAStack(nn.Module):
                 # A corollary is that chunk size tuning should be disabled for
                 # large N, when z gets really big
                 #ADD MODULE
-                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),),
+                args=(m.clone(), z.clone(),state.clone(), rbf_feat.clone(),aatype.clone(),),
                 min_chunk_size=chunk_size,
             )
             blocks = [
@@ -1021,6 +1034,8 @@ class ExtraMSAStack(nn.Module):
 
     def _forward_offload(self,
         input_tensors: Sequence[torch.Tensor],
+        #ADD MODULE
+        aatype,
         chunk_size: int,
         use_lma: bool = False,
         msa_mask: Optional[torch.Tensor] = None,
@@ -1036,6 +1051,7 @@ class ExtraMSAStack(nn.Module):
             #ADD MODULE
             state=input_tensors[2],
             rbf_feat=input_tensors[3],
+            aatype=aatype,
             chunk_size=chunk_size,
             use_lma=use_lma,
             msa_mask=msa_mask,
@@ -1067,6 +1083,7 @@ class ExtraMSAStack(nn.Module):
         #ADD MODULE
         state: torch.Tensor,
         rbf_feat: torch.Tensor,
+        aatype,
         msa_mask: Optional[torch.Tensor],
         pair_mask: Optional[torch.Tensor],
         chunk_size: int,
@@ -1096,6 +1113,7 @@ class ExtraMSAStack(nn.Module):
             #ADD MODULE
             state=state,
             rbf_feat=rbf_feat,
+            aatype=aatype,
             chunk_size=chunk_size,
             use_lma=use_lma,
             msa_mask=msa_mask,
@@ -1107,9 +1125,9 @@ class ExtraMSAStack(nn.Module):
         for b in blocks:
             if(self.ckpt and torch.is_grad_enabled()):
                 #ADD MODULE
-                m, z, state, rbf_feat = checkpoint_fn(b, m, z, state, rbf_feat)
+                m, z, state, rbf_feat = checkpoint_fn(b, m, z, state, rbf_feat, aatype)
             else:
                 #ADD MODULE
-                m, z, state, rbf_feat = b(m, z, state, rbf_feat)
+                m, z, state, rbf_feat = b(m, z, state, rbf_feat, aatype)
 
         return z
