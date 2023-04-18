@@ -88,6 +88,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args, is_multimer):
                 uniref90_database_path=args.uniref90_database_path,
                 mgnify_database_path=args.mgnify_database_path,
                 bfd_database_path=args.bfd_database_path,
+                uniref30_database_path=args.uniref30_database_path,
                 uniclust30_database_path=args.uniclust30_database_path,
                 no_cpus=args.cpus,
             )
@@ -208,6 +209,7 @@ def main(args):
             uniref90_database_path=args.uniref90_database_path,
             mgnify_database_path=args.mgnify_database_path,
             bfd_database_path=args.bfd_database_path,
+            uniref30_database_path=args.uniref30_database_path,
             uniclust30_database_path=args.uniclust30_database_path,
             uniprot_database_path=args.uniprot_database_path,
             template_searcher=template_searcher,

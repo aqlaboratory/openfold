@@ -38,4 +38,7 @@ BASENAME=$(basename "${SOURCE_URL}")
 
 mkdir --parents "${ROOT_DIR}"
 aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}" -x 4 --check-certificate=false
-gunzip "${ROOT_DIR}/${BASENAME}"
+tar --extract --verbose --file="${ROOT_DIR}/${BASENAME}" \
+  --directory="${ROOT_DIR}"
+rm "${ROOT_DIR}/${BASENAME}"
+

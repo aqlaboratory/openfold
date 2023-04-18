@@ -18,6 +18,9 @@ def add_data_args(parser: argparse.ArgumentParser):
         '--pdb_seqres_database_path', type=str, default=None,
     )
     parser.add_argument(
+        '--uniref30_database_path', type=str, default=None,
+    )
+    parser.add_argument(
         '--uniclust30_database_path', type=str, default=None,
     )
     parser.add_argument(

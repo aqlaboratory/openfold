@@ -330,6 +330,7 @@ class AlignmentRunner:
         uniref90_database_path: Optional[str] = None,
         mgnify_database_path: Optional[str] = None,
         bfd_database_path: Optional[str] = None,
+        uniref30_database_path: Optional[str] = None,
         uniclust30_database_path: Optional[str] = None,
         uniprot_database_path: Optional[str] = None,
         template_searcher: Optional[TemplateSearcher] = None,
@@ -355,12 +356,15 @@ class AlignmentRunner:
                 Path to BFD database. Depending on the value of use_small_bfd,
                 one of hhblits_binary_path or jackhmmer_binary_path must be
                 provided.
+            uniref30_database_path:
+                Path to uniref30. Searched alongside BFD if use_small_bfd is
+                false.
             uniclust30_database_path:
                 Path to uniclust30. Searched alongside BFD if use_small_bfd is
                 false.
             use_small_bfd:
                 Whether to search the BFD database alone with jackhmmer or
-                in conjunction with uniclust30 with hhblits.
+                in conjunction with uniref30/uniclust30 with hhblits.
             no_cpus:
                 The number of CPUs available for alignment. By default, all
                 CPUs are used.
@@ -413,7 +417,7 @@ class AlignmentRunner:
             )
 
         self.jackhmmer_small_bfd_runner = None
-        self.hhblits_bfd_uniclust_runner = None
+        self.hhblits_bfd_unirefclust_runner = None
         if(bfd_database_path is not None):
             if use_small_bfd:
                 self.jackhmmer_small_bfd_runner = jackhmmer.Jackhmmer(
@@ -423,9 +427,11 @@ class AlignmentRunner:
                 )
             else:
                 dbs = [bfd_database_path]
-                if(uniclust30_database_path is not None):
+                if(uniref30_database_path is not None):
+                    dbs.append(uniref30_database_path)
+                if (uniclust30_database_path is not None):
                     dbs.append(uniclust30_database_path)
-                self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
+                self.hhblits_bfd_unirefclust_runner = hhblits.HHBlits(
                     binary_path=hhblits_binary_path,
                     databases=dbs,
                     n_cpu=no_cpus,
@@ -516,10 +522,17 @@ class AlignmentRunner:
                 msa_out_path=bfd_out_path,
                 msa_format="sto",
             )
-        elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_path = os.path.join(output_dir, "bfd_uniclust_hits.a3m")
-            hhblits_bfd_uniclust_result = run_msa_tool(
-                msa_runner=self.hhblits_bfd_uniclust_runner,
+        elif(self.hhblits_bfd_unirefclust_runner is not None):
+            uni_name = "uni"
+            for db_name in self.hhblits_bfd_unirefclust_runner.databases:
+                if "uniref" in db_name.lower():
+                    uni_name = f"{uni_name}ref"
+                elif "uniclust" in db_name.lower():
+                    uni_name = f"{uni_name}clust"
+
+            bfd_out_path = os.path.join(output_dir, f"bfd_{uni_name}_hits.a3m")
+            hhblits_bfd_unirefclust_result = run_msa_tool(
+                msa_runner=self.hhblits_bfd_unirefclust_runner,
                 fasta_path=fasta_path,
                 msa_out_path=bfd_out_path,
                 msa_format="a3m",
