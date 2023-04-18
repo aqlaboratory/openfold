@@ -105,8 +105,6 @@ class Str2Str(nn.Module):
         node = self.norm_node(self.embed_x(node))
         
         neighbor = get_seqsep(aatype)
-        # cas = xyz[:,:,1].contiguous()
-        # rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_scale)
         z = torch.cat((z, rbf_feat, neighbor), dim=-1)
         z = self.norm_edge(self.embed_e(z))
 

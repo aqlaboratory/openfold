@@ -18,6 +18,9 @@ import torch
 import torch.nn as nn
 from typing import Optional, List, Tuple
 
+#ADD MODULE
+from third_track_util_module import rbf
+
 from openfold.model.primitives import (
     Linear, 
     LayerNorm,
@@ -108,7 +111,7 @@ class MSAAttention(nn.Module):
                 flash_mask=flash_mask,
             )
 
-        inputs = {"m": m, "s": s}
+        inputs = {"m": m}
         if(biases is not None):
             inputs["biases"] = biases
         else:
@@ -130,7 +133,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor],
         #ADD MODULE
         state: Optional[torch.Tensor],
-        rbf_feat: Optional[torch.Tensor],
+        xyz: Optional[torch.Tensor],
         mask: Optional[torch.Tensor],
         inplace_safe: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: 
@@ -140,6 +143,10 @@ class MSAAttention(nn.Module):
             mask = m.new_ones(
                 m.shape[:-3] + (n_seq, n_res),
             )
+        
+        #ADD MODULE, add self.rbf_sigma as input somewhere
+        cas = xyz[:,:,1].contiguous()
+        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
 
         # [*, N_seq, 1, 1, N_res]
         mask_bias = (self.inf * (mask - 1))[..., :, None, None, :]
@@ -173,7 +180,7 @@ class MSAAttention(nn.Module):
             z = permute_final_dims(z, (2, 0, 1)).unsqueeze(-4)
 
         #ADD MODULE
-        return m, mask_bias, z, state, rbf_feat
+        return m, mask_bias, z, state, xyz
 
     @torch.jit.ignore
     def _chunked_msa_attn(self,
@@ -181,7 +188,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor],
         #ADD MODULE
         state: Optional[torch.Tensor],
-        rbf_feat: Optional[torch.Tensor],
+        xyz: Optional[torch.Tensor],
         mask: Optional[torch.Tensor],
         chunk_logits: int,
         checkpoint: bool,
@@ -196,8 +203,8 @@ class MSAAttention(nn.Module):
 
         def _get_qkv(m, z):
             #ADD MODULE
-            m, mask_bias, z, state, rbf_feat = self._prep_inputs(
-                m, z, state, rbf_feat, mask, inplace_safe=inplace_safe
+            m, mask_bias, z, state, xyz = self._prep_inputs(
+                m, z, state, xyz, mask, inplace_safe=inplace_safe
             )
             m = self.layer_norm_m(m)
             q, k, v = self.mha._prep_qkv(m, m)
@@ -233,7 +240,7 @@ class MSAAttention(nn.Module):
         z: Optional[torch.Tensor] = None, 
         #ADD MODULE
         state: Optional[torch.Tensor] = None, 
-        rbf_feat: Optional[torch.Tensor] = None,
+        xyz: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None, 
         chunk_size: Optional[int] = None,
         use_memory_efficient_kernel: bool = False,
@@ -258,13 +265,13 @@ class MSAAttention(nn.Module):
                 cost of slower execution. Chunking is not performed by default.
                 
         """
-        #ADD MODULE before any computation on m, we add the state
+        #ADD MODULE
         m[:,0] += state
 
         if(_chunk_logits is not None):
             return self._chunked_msa_attn(
                 #ADD MODULE
-                m=m, z=z, state=state, rbf_feat=rbf_feat, mask=mask, 
+                m=m, z=z, state=state, xyz=xyz, mask=mask, 
                 chunk_logits=_chunk_logits, 
                 checkpoint=_checkpoint_chunks,
                 inplace_safe=inplace_safe,
@@ -274,9 +281,9 @@ class MSAAttention(nn.Module):
             assert z is None
             biases = None
         else:    
-            m, mask_bias, z, state, rbf_feat = self._prep_inputs(
+            m, mask_bias, z, state, xyz = self._prep_inputs(
                 #ADD MODULE
-                m, z, state, rbf_feat, mask, inplace_safe=inplace_safe
+                m, z, state, xyz, mask, inplace_safe=inplace_safe
             )
     
             biases = [mask_bias]

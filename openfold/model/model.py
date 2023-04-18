@@ -284,7 +284,7 @@ class AlphaFold(nn.Module):
             z = z.cpu()
             #ADD MODULE
             state = state.cpu()
-            rbf_feat = rbf_feat.cpu()
+            xyz = xyz.cpu()
 
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]
@@ -383,9 +383,9 @@ class AlphaFold(nn.Module):
         # s: [*, N, C_s]          
         if(self.globals.offload_inference):
             #ADD MODULE
-            input_tensors = [m, z, state, rbf_feat]
-            del m, z, state, rbf_feat
-            m, z, state, rbf_feat, s = self.evoformer._forward_offload(
+            input_tensors = [m, z, state, xyz]
+            del m, z, state, xyz
+            m, z, state, xyz, s = self.evoformer._forward_offload(
                 input_tensors,
                 msa_mask=msa_mask.to(dtype=input_tensors[0].dtype),
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
@@ -399,12 +399,12 @@ class AlphaFold(nn.Module):
             #ADD MODULE 
             aatype = feats["aatype"]
             #ADD MODULE
-            m, z, state, rbf_feat, s = self.evoformer(
+            m, z, state, xyz, s = self.evoformer(
                 m,
                 z,
                 #ADD MODULE
                 state, 
-                rbf_feat,
+                xyz,
                 aatype,
                 msa_mask=msa_mask.to(dtype=m.dtype),
                 pair_mask=pair_mask.to(dtype=z.dtype),
@@ -420,7 +420,7 @@ class AlphaFold(nn.Module):
         outputs["single"] = s
         #ADD MODULE ?
         outputs["state"] = state
-        outputs["structure"] = rbf_feat
+        outputs["structure"] = xyz
 
         del z
 
