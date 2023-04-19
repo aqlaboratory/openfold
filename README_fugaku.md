@@ -25,17 +25,14 @@
 ./scripts/install_fugaku.sh
 ```
 
-## 推論の実行
-1. inferenceディレクトリに移動
-2. parametersファイルを設定 (デフォルトではsampleディレクトリのT1084を利用)
-3. ジョブ投入
-```
-./Submit_inference <TimeLimit>
+## 前処理と推論
+### 少数の配列の場合
+inferenceディレクトリのシングルノード版スクリプトで前処理と推論を同時に行う。詳細は[こちら](inference/README.md)
 
-# 例: 1時間制限で実行する場合
-# ./Submit_inference 1:0:0
-```
-4. logディレクトリに出力される結果を確認
+### 多数の配列の場合
+1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行う。詳細は[こちら](preproc_fugaku/README.md)
+2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
+
 
 ## 学習の実行
 1. trainディレクトリに移動
