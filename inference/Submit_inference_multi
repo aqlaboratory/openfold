@@ -84,10 +84,6 @@ cp "$MyDir/llio_transfer_list_multi" ${LogDir}/
 
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 
-. $ParameterFile
-### make outptudir
-mkdir -p $OutputDir
-
 ### Generate qsub script
 ScriptFile="$LogDir/script"
 

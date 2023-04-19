@@ -75,9 +75,6 @@ cp "$MyDir/parameters" "$ParameterFile"
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 
 LOGDIR=$LogDir
-. $ParameterFile
-### make outptudir
-mkdir -p $OutputDir
 
 ### Generate qsub script
 ScriptFile="$LogDir/script"

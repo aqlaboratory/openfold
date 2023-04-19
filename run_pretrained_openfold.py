@@ -76,6 +76,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                 uniclust30_database_path=args.uniclust30_database_path,
                 pdb70_database_path=args.pdb70_database_path,
                 no_cpus=args.cpus,
+                use_small_bfd=args.use_small_bfd,
             )
             alignment_runner.run(
                 tmp_fasta_path, local_alignment_dir
@@ -445,6 +446,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--multimer_ri_gap", type=int, default=200,
         help="""Residue index offset between multiple sequences, if provided"""
+    )
+    parser.add_argument(
+            "--use_small_bfd", action="store_true", default=False,
     )
     add_data_args(parser)
     args = parser.parse_args()
