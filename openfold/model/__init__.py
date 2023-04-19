@@ -12,5 +12,9 @@ _modules = [(m, importlib.import_module("." + m, __name__)) for m in __all__]
 for _m in _modules:
     globals()[_m[0]] = _m[1]
 
+if len(_modules) > 0:
+    del _m
+
 # Avoid needlessly cluttering the global namespace
-del _files, _m, _modules
+del _files, _modules
+

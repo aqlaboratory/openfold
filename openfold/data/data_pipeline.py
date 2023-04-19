@@ -1,3 +1,4 @@
+# Copyright 2023 Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
 #
@@ -17,6 +18,9 @@ import os
 import datetime
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, Any
+from pathlib import Path
+import resource
+import logging
 
 import numpy as np
 
@@ -25,6 +29,11 @@ from openfold.data.tools import jackhmmer, hhblits, hhsearch
 from openfold.data.tools.utils import to_date 
 from openfold.np import residue_constants, protein
 
+PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
+MGNIFY_OUT_FILENAME    = "mgnify_hits.a3m"
+UNIREF90_OUT_FILENAME  = "uniref90_hits.a3m"
+BFD_OUT_FILENAME       = "bfd_uniclust_hits.a3m"
+SMALL_BFD_OUT_FILENAME = "small_bfd_hits.sto"
 
 FeatureDict = Mapping[str, np.ndarray]
 
@@ -272,6 +281,8 @@ class AlignmentRunner:
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
+        disable_write_permission: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ):
         """
         Args:
@@ -306,6 +317,10 @@ class AlignmentRunner:
                 Max number of uniref hits
             mgnify_max_hits:
                 Max number of mgnify hits
+            disable_write_permission:
+                Apply chmod 440 after preprocessing
+            timeout:
+                Timeout in seconds for each tool
         """
         db_map = {
             "jackhmmer": {
@@ -337,13 +352,6 @@ class AlignmentRunner:
                     f"{name} DBs provided but {name} binary is None"
                 )
 
-        if(not all([x is None for x in db_map["hhsearch"]["dbs"]])
-            and uniref90_database_path is None):
-            raise ValueError(
-                """uniref90_database_path must be specified in order to perform
-                   template search"""
-            )
-
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
         self.use_small_bfd = use_small_bfd
@@ -370,10 +378,12 @@ class AlignmentRunner:
                     database_path=bfd_database_path,
                     n_cpu=no_cpus,
                 )
+
             else:
                 dbs = [bfd_database_path]
                 if(uniclust30_database_path is not None):
                     dbs.append(uniclust30_database_path)
+
                 self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
                     binary_path=hhblits_binary_path,
                     databases=dbs,
@@ -396,59 +406,168 @@ class AlignmentRunner:
                 n_cpu=no_cpus,
             )
 
+        self.disable_write_permission = disable_write_permission
+        self.timeout = timeout
+
+    def is_uncomplted(
+            self,
+            ignore_if_exists: bool,
+            path: str) -> bool:
+        return not (ignore_if_exists and os.path.exists(path))
+
+    def write_safely(
+            self,
+            out_path: str,
+            content: Any) -> None:
+        temp_path = out_path+".temp"
+        with open(temp_path, "w") as f:
+            f.write(content)
+
+        os.rename(temp_path, out_path)
+
+        if self.disable_write_permission:
+            Path(out_path).chmod(0o440)
+
     def run(
         self,
         fasta_path: str,
         output_dir: str,
+        input_label: str,
+        ignore_if_exists: bool=False,
+        max_memory: int=None,
     ):
-        """Runs alignment tools on a sequence"""
-        if(self.jackhmmer_uniref90_runner is not None):
+        """Runs alignment tools on a sequence and returns path(s) of generated files"""
+
+        if max_memory is not None:
+            def preexec_fn():
+                resource.setrlimit(
+                    resource.RLIMIT_AS,
+                    (max_memory, resource.RLIM_INFINITY))
+
+        else:
+            preexec_fn = None
+
+        generated = []
+
+        if(self.jackhmmer_uniref90_runner is not None or \
+           self.hhsearch_pdb70_runner is not None):
+            uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
+            uniref90_msa_as_a3m = None
+
+        if(self.jackhmmer_uniref90_runner is not None and \
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
-                fasta_path
+                fasta_path,
+                input_label,
+                timeout=self.timeout,
+                preexec_fn=preexec_fn,
             )[0]
             uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                 jackhmmer_uniref90_result["sto"], 
                 max_sequences=self.uniref_max_hits
             )
-            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
-            with open(uniref90_out_path, "w") as f:
-                f.write(uniref90_msa_as_a3m)
+            self.write_safely(uniref90_out_path, uniref90_msa_as_a3m)
+            generated.append(UNIREF90_OUT_FILENAME)
 
-            if(self.hhsearch_pdb70_runner is not None):
+        if(self.hhsearch_pdb70_runner is not None):
+            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
+                if uniref90_msa_as_a3m is None:
+                    with open(uniref90_out_path, "r") as f:
+                        uniref90_msa_as_a3m = f.read()
+
                 hhsearch_result = self.hhsearch_pdb70_runner.query(
-                    uniref90_msa_as_a3m
+                    uniref90_msa_as_a3m,
+                    input_label,
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
                 )
-                pdb70_out_path = os.path.join(output_dir, "pdb70_hits.hhr")
-                with open(pdb70_out_path, "w") as f:
-                    f.write(hhsearch_result)
+                self.write_safely(pdb70_out_path, hhsearch_result)
+                generated.append(PDB70_OUT_FILENAME)
 
         if(self.jackhmmer_mgnify_runner is not None):
-            jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
-                fasta_path
-            )[0]
-            mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                jackhmmer_mgnify_result["sto"], 
-                max_sequences=self.mgnify_max_hits
-            )
-            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
-            with open(mgnify_out_path, "w") as f:
-                f.write(mgnify_msa_as_a3m)
+            mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, mgnify_out_path):
+                jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
+                    fasta_path,
+                    input_label,
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
+                )[0]
+                mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                    jackhmmer_mgnify_result["sto"],
+                    max_sequences=self.mgnify_max_hits
+                )
+                self.write_safely(mgnify_out_path, mgnify_msa_as_am)
+                generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
-                fasta_path
-            )[0]
-            bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
-            with open(bfd_out_path, "w") as f:
-                f.write(jackhmmer_small_bfd_result["sto"])
+            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
+                jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
+                    fasta_path,
+                    input_label,
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
+                )[0]
+                self.write_safely(bfd_out_path, jackhmmer_small_bfd_result["sto"])
+                generated.append(SMALL_BFD_OUT_FILENAME)
+
         elif(self.hhblits_bfd_uniclust_runner is not None):
-            hhblits_bfd_uniclust_result = (
-                self.hhblits_bfd_uniclust_runner.query(fasta_path)
-            )
-            if output_dir is not None:
-                bfd_out_path = os.path.join(output_dir, "bfd_uniclust_hits.a3m")
-                with open(bfd_out_path, "w") as f:
-                    f.write(hhblits_bfd_uniclust_result["a3m"])
+            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
+                hhblits_bfd_uniclust_result = (
+                    self.hhblits_bfd_uniclust_runner.query(
+                        fasta_path,
+                        input_label,
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn,
+                    )
+                )
+                if output_dir is not None:
+                    self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result["a3m"])
+                    generated.append(BFD_OUT_FILENAME)
+
+        return generated
+
+
+    def dry_run(
+            self,
+            output_dir: str,
+            input_label: str,
+            ignore_if_exists: bool=False) -> bool:
+        """Returns whether any preprocessing processes are launched."""
+
+        if(self.jackhmmer_uniref90_runner is not None or \
+           self.hhsearch_pdb70_runner is not None):
+            uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
+            uniref90_msa_as_a3m = None
+
+        if(self.jackhmmer_uniref90_runner is not None and \
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
+            return True
+
+        if(self.hhsearch_pdb70_runner is not None):
+            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
+                return True
+
+        if(self.jackhmmer_mgnify_runner is not None):
+            mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, mgnify_out_path):
+                return True
+
+        if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
+            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
+                return True
+
+        elif(self.hhblits_bfd_uniclust_runner is not None):
+            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, bfd_out_path):
+                return True
+
+        return False
 
 
 class DataPipeline:

@@ -1,3 +1,4 @@
+# Copyright 2023 Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
 #
@@ -18,7 +19,7 @@ import glob
 import logging
 import os
 import subprocess
-from typing import Sequence
+from typing import Sequence, Callable
 
 from openfold.data.tools import utils
 
@@ -62,7 +63,12 @@ class HHSearch:
                     f"Could not find HHsearch database {database_path}"
                 )
 
-    def query(self, a3m: str) -> str:
+    def query(
+            self,
+            a3m: str,
+            input_label: str,
+            timeout: float=None,
+            preexec_fn: Callable=None) -> str:
         """Queries the database using HHsearch using a given a3m."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             input_path = os.path.join(query_tmp_dir, "query.a3m")
@@ -88,11 +94,16 @@ class HHSearch:
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                preexec_fn=preexec_fn,
             )
-            with utils.timing("HHsearch query"):
-                stdout, stderr = process.communicate()
-                retcode = process.wait()
+            with utils.timing(f"HHsearch query ({input_label})"):
+                stdout, stderr = process.communicate(timeout=timeout)
+                try:
+                    retcode = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired as e:
+                    raise e
+
 
             if retcode:
                 # Stderr is truncated to prevent proto size errors in Beam.

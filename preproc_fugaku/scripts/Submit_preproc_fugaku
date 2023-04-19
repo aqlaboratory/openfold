@@ -1,0 +1,180 @@
+#!/bin/bash
+#
+# Copyright 2023 Fujitsu Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+LANG=
+
+. ../scripts/setenv
+
+set -eu
+
+echo "`date +%s.%N` #Submit at `date`"
+
+# The following variables must be set
+echo TimeLimit=$TimeLimit
+echo ToolTimeLimit=$ToolTimeLimit
+echo NumNodes=$NumNodes
+echo NumProcs=$NumProcs
+echo NumThreads=$NumThreads
+echo InputFile=$InputFile
+echo OutputDir=$OutputDir
+echo Mode=$Mode
+echo StepName=$StepName
+echo DoStaging=$DoStaging
+echo LimitMaxMem=$LimitMaxMem
+echo ScriptArgs=$ScriptArgs
+
+# Check NumNodes
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
+    if [[ $Mode = "bfd" ]]; then
+	:
+	# if (( $NumNodes < 26 )); then
+	#     echo "NumNodes must be >= 26 to use bfd." >&2
+	#     exit
+	# fi
+    fi
+fi
+
+LocalTempSize=0Gi
+
+### The directory where data is stored
+DataDir="$DATADIR"
+
+echo DataDir is $DataDir
+
+### WORKER script
+WORKER="worker.sh"
+
+# Select Resource Group
+RSC_GRP=small
+
+### Create log directory
+MyDir=`readlink -f "$0" | xargs dirname` # scripts/
+MyDir=`dirname $MyDir` # preproc_fugaku
+MyName=`basename "$0"`
+Time=`date "+%y%m%d%H%M%S%3N"`
+HostName=`hostname | awk -F . '{ print $1; }'`
+JobName="$MyName.$Time"
+
+LogDir="$MyDir/log"/"$JobName"
+mkdir -p "$LogDir" || exit
+
+###
+
+cp "$MyDir/$0" $LogDir
+cp ${MyDir}/scripts/${WORKER} ${LogDir}
+
+git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
+
+### Generate qsub script
+ScriptFile="$LogDir/script"
+
+NodeShape=$NumNodes:torus
+
+cat << EOF > "$ScriptFile"
+#!/bin/bash
+#PJM -L rscgrp=${RSC_GRP}
+#PJM -L elapse=$TimeLimit
+#PJM -L node=${NodeShape}
+##:strict,freq=2200
+#PJM --rsc-list "retention_state=0"
+#PJM -j
+#PJM -S
+
+hostname
+export BaseDir="$MyDir"
+
+LogDir="$LogDir"
+if [ ! -d "\$LogDir" ] ; then
+    echo "\$LogDir: not a directory" >&2
+    exit 1
+fi
+
+printenv > "$LogDir/environ"
+
+### The directory where data is stored
+DataDir="$DataDir"
+
+###
+WORKER=${WORKER}
+
+source ../scripts/setenv
+
+InputDir=$InputFile \
+    OutputDir=$OutputDir \
+    ToolTimeLimit=$ToolTimeLimit \
+    NumNodes=$NumNodes \
+    NumProcs=$NumProcs \
+    NumThreads=$NumThreads \
+    Mode=$Mode \
+    DoStaging=$DoStaging \
+    LimitMaxMem=$LimitMaxMem \
+    ScriptArgs="$ScriptArgs" \
+    $LogDir/$WORKER \
+    2>&1 | tee "$LogDir/output"
+
+
+EOF
+
+#cat $BaseFile >> "$ScriptFile"
+
+echo ---------------
+echo Job information
+echo ---------------
+echo NumNodes: $NumNodes
+echo LogDir: $LogDir
+
+DoSubmitJob=0
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
+    if [[ `hostname` =~ fn01sv0[0-9] ]] ; then
+	DoSubmitJob=1
+	SubmitCommand=pjsub
+
+	QsubArgs+=("--mpi rank-map-bynode")
+
+	# To use LLIO (node-temporary)
+	QsubArgs+=("--mpi max-proc-per-node=$NumProcs")
+
+	if [[ -n $StepName ]]; then
+	    QsubArgs+=("--step --sparam jnam=$StepName")
+	fi
+    fi
+
+elif [[ ${OPENFOLD_MACHINE} == "pbs" ]]; then
+    if [[ -n `hostname | grep -e ^es1 -e ^es2` ]]; then
+	DoSubmitJob=1
+    fi
+    SubmitCommand=qsub
+
+    QsubArgs+=("-l ${OPENFOLD_PBS_RESOURCE}=${NumNodes}")
+    QsubArgs+=("-cwd")
+fi
+
+if [[ ${DoSubmitJob} == 1 ]]; then
+    # add group option
+    QsubArgs+=("$PJSUB_OPT")
+
+    QsubArgs+=("$ScriptFile")
+
+    ### Execute qsub command
+    echo "`date +%s.%N` #qsub"
+    echo "> pjsub ${QsubArgs[@]} $@"
+    ${SubmitCommand} ${QsubArgs[@]} "$@"
+
+else
+    # On compute node
+    bash $ScriptFile 2>&1 | tee ${LogDir}/stdout.txt
+fi
+# End of file

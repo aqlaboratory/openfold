@@ -7,6 +7,8 @@
 
 . scripts/setenv
 
+set -eu
+
 cd $WORKDIR
 
 # Bazel
@@ -90,6 +92,9 @@ popd
 pushd DeepSpeedCPU
 DS_BUILD_UTILS=1 pip3 install .
 popd
+
+# mpi4py
+env MPICC=`which mpifcc` pip3 install mpi4py
 
 # OpenFold
 pushd $OPENFOLDDIR

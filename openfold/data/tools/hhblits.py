@@ -1,3 +1,4 @@
+# Copyright 2023 Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
 #
@@ -18,7 +19,7 @@ import glob
 import logging
 import os
 import subprocess
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Mapping, Optional, Sequence, Callable
 
 from openfold.data.tools import utils
 
@@ -99,7 +100,12 @@ class HHBlits:
         self.p = p
         self.z = z
 
-    def query(self, input_fasta_path: str) -> Mapping[str, Any]:
+    def query(
+            self,
+            input_fasta_path: str,
+            input_label: str,
+            timeout: float=None,
+            preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database using HHblits."""
         with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
             a3m_path = os.path.join(query_tmp_dir, "output.a3m")
@@ -143,12 +149,17 @@ class HHBlits:
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                preexec_fn=preexec_fn,
             )
 
-            with utils.timing("HHblits query"):
-                stdout, stderr = process.communicate()
-                retcode = process.wait()
+            with utils.timing(f"HHblits query ({input_label})"):
+                stdout, stderr = process.communicate(timeout=timeout)
+                try:
+                    retcode = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired as e:
+                    raise e
+
 
             if retcode:
                 # Logs have a 15k character limit, so log HHblits error line by line.

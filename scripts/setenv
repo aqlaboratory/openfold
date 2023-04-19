@@ -9,6 +9,19 @@ export OPENFOLDDIR=
 export DATADIR=
 export PJSUB_OPT=
 
+# "fugaku": The Supercomuter Fugaku
+# "psb": A generic supercomuter that uses the PBS job scheduler
+export OPENFOLD_MACHINE="fugaku"
+
+# Per-node memory size
+export OPENFOLD_MAX_MEM=34359738368 # 32 GiB
+
+# Define only if PBS is used
+export OPENFOLD_PBS_RESOURCE=""
+
+# Path to the main temporary directory
+export TMPDIR=/worktmp
+
 ############################################################
 
 [ -z "$PREFIX" ] && echo "PREFIX is not defined" && exit 1
@@ -17,7 +30,6 @@ export PJSUB_OPT=
 
 export WORKDIR=$OPENFOLDDIR/third_party
 
-export TMPDIR=/worktmp
 export TEST_TMPDIR=$TMPDIR     # for bazel
 export XDG_CACHE_HOME=$TMPDIR  # for cache
 
