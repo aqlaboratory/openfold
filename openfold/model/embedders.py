@@ -20,6 +20,9 @@ from typing import Tuple, Optional
 from openfold.model.primitives import Linear, LayerNorm
 from openfold.utils.tensor_utils import add, one_hot
 
+#ADD MODULE 
+import numpy as np
+
 
 class InputEmbedder(nn.Module):
     """
@@ -136,7 +139,12 @@ class InputEmbedder(nn.Module):
         )
         msa_emb = self.linear_msa_m(msa) + tf_m
 
-        return msa_emb, pair_emb
+        #ADD MODULE
+        state = msa_emb[:,0]
+        # _, N_clust, N_res, msa_dim = msa.shape
+        # NTOTAL = 36
+        # xyz = torch.full((N_clust,N_res,NTOTAL,3),np.nan).float()
+        return msa_emb, pair_emb, state
 
 
 class RecyclingEmbedder(nn.Module):

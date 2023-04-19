@@ -114,11 +114,11 @@ class AlphaFold(nn.Module):
 
     def embed_templates(self, batch, z, pair_mask, templ_dim, inplace_safe): 
         if(self.template_config.offload_templates):
-            return embed_templates_offload(self, 
+            return embed_templates_offload(self,
                 batch, z, pair_mask, templ_dim, inplace_safe=inplace_safe,
             )
         elif(self.template_config.average_templates):
-            return embed_templates_average(self, 
+            return embed_templates_average(self,
                 batch, z, pair_mask, templ_dim, inplace_safe=inplace_safe,
             )
 
@@ -166,7 +166,7 @@ class AlphaFold(nn.Module):
 
         # [*, S_t, N, N, C_z]
         t = self.template_pair_stack(
-            t_pair, 
+            t_pair,
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=self.globals.chunk_size,
             use_lma=self.globals.use_lma,
@@ -177,7 +177,7 @@ class AlphaFold(nn.Module):
 
         # [*, N, N, C_z]
         t = self.template_pointwise_att(
-            t, 
+            t,
             z, 
             template_mask=batch["template_mask"].to(dtype=z.dtype),
             use_lma=self.globals.use_lma,
@@ -242,8 +242,8 @@ class AlphaFold(nn.Module):
 
         # m: [*, S_c, N, C_m]
         # z: [*, N, N, C_z]
-        #ADD MODULE ?
-        m, z = self.input_embedder(
+        #ADD MODULE
+        m, z, state = self.input_embedder(
             feats["target_feat"],
             feats["residue_index"],
             feats["msa_feat"],
@@ -274,8 +274,19 @@ class AlphaFold(nn.Module):
                 requires_grad=False,
             )
 
+            #ADD MODULE
+            xyz_prev = z.new_zeros(
+                (*batch_dims, n, residue_constants.atom_type_num, 3),
+                requires_grad=False,
+            )
+
         x_prev = pseudo_beta_fn(
             feats["aatype"], x_prev, None
+        ).to(dtype=z.dtype)
+
+        #ADD MODULE
+        xyz_prev = pseudo_beta_fn(
+            feats["aatype"], xyz_prev, None
         ).to(dtype=z.dtype)
 
         # The recycling embedder is memory-intensive, so we offload first
@@ -284,10 +295,12 @@ class AlphaFold(nn.Module):
             z = z.cpu()
             #ADD MODULE
             state = state.cpu()
-            xyz = xyz.cpu()
+            xyz_prev = xyz_prev.cpu()
 
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]
+
+        #ADD MODULE what about x_prev_emb?
         m_1_prev_emb, z_prev_emb = self.recycling_embedder(
             m_1_prev,
             z_prev,
@@ -308,7 +321,9 @@ class AlphaFold(nn.Module):
         # Deletions like these become significant for inference with large N,
         # where they free unused tensors and remove references to others such
         # that they can be offloaded later
-        del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb
+
+        #ADD MODULE
+        del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb, xyz_prev
 
         # Embed the templates + merge with MSA/pair embeddings
         if self.config.template.enabled: 
@@ -383,10 +398,12 @@ class AlphaFold(nn.Module):
         # s: [*, N, C_s]          
         if(self.globals.offload_inference):
             #ADD MODULE
-            input_tensors = [m, z, state, xyz]
-            del m, z, state, xyz
-            m, z, state, xyz, s = self.evoformer._forward_offload(
+            input_tensors = [m, z, state, xyz_prev]
+            del m, z, state, xyz_prev
+            m, z, state, xyz_prev, s = self.evoformer._forward_offload(
                 input_tensors,
+                #ADD MODULE
+                aatype=feats["aatype"],
                 msa_mask=msa_mask.to(dtype=input_tensors[0].dtype),
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
                 chunk_size=self.globals.chunk_size,
@@ -397,15 +414,13 @@ class AlphaFold(nn.Module):
             del input_tensors
         else:
             #ADD MODULE 
-            aatype = feats["aatype"]
-            #ADD MODULE
-            m, z, state, xyz, s = self.evoformer(
+            m, z, state, xyz_prev, s = self.evoformer(
                 m,
                 z,
                 #ADD MODULE
                 state, 
-                xyz,
-                aatype,
+                xyz=xyz_prev,
+                aatype=feats["aatype"],
                 msa_mask=msa_mask.to(dtype=m.dtype),
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 chunk_size=self.globals.chunk_size,
@@ -419,8 +434,6 @@ class AlphaFold(nn.Module):
         outputs["pair"] = z
         outputs["single"] = s
         #ADD MODULE ?
-        outputs["state"] = state
-        outputs["structure"] = xyz
 
         del z
 
