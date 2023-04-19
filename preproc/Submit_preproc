@@ -8,12 +8,12 @@ echo "`date +%s.%N` #Submit at `date`"
 if [ $# -ne 4 ] && [ $# -ne 5 ] ; then
     cat << EOF >&2
 usage: $0 NumNodes TimeLimit InputDir OutputDir [InputFileList]
-The TimeLimit is the maximum of execution time with the format hh:mm:ss.
-The InputDir is the directory contains input fasta files
-The OutputDir is the directoy where alignment results are stored
-The InputFileList is the file contains input fasta filename, one per line, and only that input is preprocessed. [optional]
+TimeLimit     : the maximum of execution time with the format hh:mm:ss.
+InputDir      : the directory contains input fasta files
+OutputDir     : the directoy where alignment results will be stored
+InputFileList : the file contains input fasta filename, one per line, and only that input is preprocessed. [optional]
 
-example: $0 4 2:00:00 input alinment
+example: $0 4 2:00:00 input_dir alinment_dir
 EOF
     exit 1
 fi
