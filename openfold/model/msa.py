@@ -457,9 +457,6 @@ class MSAColumnGlobalAttention(nn.Module):
         m = m.transpose(-2, -3)
         mask = mask.transpose(-1, -2)
 
-        # [*, N_res, N_seq, C_in]
-        #m = self.layer_norm_m(m)
-
         if chunk_size is not None:
             m = self._chunk(m, mask, chunk_size, use_lma=use_lma) 
         else:
