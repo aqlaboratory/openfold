@@ -139,12 +139,7 @@ class InputEmbedder(nn.Module):
         )
         msa_emb = self.linear_msa_m(msa) + tf_m
 
-        #ADD MODULE
-        state = msa_emb[:,0]
-        # _, N_clust, N_res, msa_dim = msa.shape
-        # NTOTAL = 36
-        # xyz = torch.full((N_clust,N_res,NTOTAL,3),np.nan).float()
-        return msa_emb, pair_emb, state
+        return msa_emb, pair_emb
 
 
 class RecyclingEmbedder(nn.Module):

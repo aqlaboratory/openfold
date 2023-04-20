@@ -243,12 +243,14 @@ class AlphaFold(nn.Module):
         # m: [*, S_c, N, C_m]
         # z: [*, N, N, C_z]
         #ADD MODULE
-        m, z, state = self.input_embedder(
+        m, z = self.input_embedder(
             feats["target_feat"],
             feats["residue_index"],
             feats["msa_feat"],
             inplace_safe=inplace_safe,
         )
+        #ADD MODULE
+        state = m[:,0]
 
         # Unpack the recycling embeddings. Removing them from the list allows 
         # them to be freed further down in this function, saving memory
@@ -323,7 +325,7 @@ class AlphaFold(nn.Module):
         # that they can be offloaded later
 
         #ADD MODULE
-        del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb, xyz_prev
+        del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
         if self.config.template.enabled: 
@@ -384,6 +386,10 @@ class AlphaFold(nn.Module):
                 # [*, N, N, C_z]
                 z = self.extra_msa_stack(
                     a, z,
+                    #ADD MODULE
+                    state=state, 
+                    xyz=xyz_prev, 
+                    aatype=feats['aatype'],
                     msa_mask=feats["extra_msa_mask"].to(dtype=m.dtype),
                     chunk_size=self.globals.chunk_size,
                     use_lma=self.globals.use_lma,

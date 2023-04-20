@@ -42,7 +42,7 @@ from openfold.model.third_track import (
     PairStr2Pair,
     Str2Str,
 )
-from third_track_util_module import rbf
+from openfold.model.third_track_util_module import rbf
 from openfold.np.residue_constants import sequence_to_onehot
 
 from openfold.utils.checkpointing import checkpoint_blocks, get_checkpoint_fn

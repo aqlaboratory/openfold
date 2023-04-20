@@ -72,13 +72,17 @@ class MSAAttention(nn.Module):
         self.inf = inf
 
         self.layer_norm_m = LayerNorm(self.c_in)
+        
+        #ADD MODULE 
+        self.linear_state = Linear(256, self.c_in)
 
         self.layer_norm_z = None
         self.linear_z = None
         if self.pair_bias:
             self.layer_norm_z = LayerNorm(self.c_z)
+            #ADD MODULE
             self.linear_z = Linear(
-                self.c_z, self.no_heads, bias=False, init="normal"
+                self.c_z + 36, self.no_heads, bias=False, init="normal"
             )
         
         self.mha = Attention(
@@ -145,8 +149,8 @@ class MSAAttention(nn.Module):
             )
         
         #ADD MODULE, add self.rbf_sigma as input somewhere
-        cas = xyz[:,:,1].contiguous()
-        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
+        cas = xyz.contiguous()
+        rbf_feat = rbf(torch.cdist(cas, cas), scale=1.0)
 
         # [*, N_seq, 1, 1, N_res]
         mask_bias = (self.inf * (mask - 1))[..., :, None, None, :]
@@ -266,7 +270,8 @@ class MSAAttention(nn.Module):
                 
         """
         #ADD MODULE
-        m[:,0] += state
+        state = self.linear_state(state)
+        m[..., 0, :, :] += state
 
         if(_chunk_logits is not None):
             return self._chunked_msa_attn(

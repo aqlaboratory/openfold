@@ -2,11 +2,23 @@ from openfold.model.structure_module import InvariantPointAttention, BackboneUpd
 from openfold.utils.rigid_utils import Rigid, Rotation
 from openfold.model.primitives import LayerNorm
 from typing import Optional, Tuple, Sequence
-from dropout import Dropout
+from openfold.model.dropout import Dropout
 import torch.nn as nn
 import torch
 
 from openfold.model.third_track_util_module import rbf, get_seqsep, init_lecun_normal, FeedForwardLayer, BiasedAxialAttention
+
+from openfold.utils.feats import (
+    frames_and_literature_positions_to_atom14_pos,
+    torsion_angles_to_frames,
+)
+
+from openfold.np.residue_constants import (
+    restype_rigid_group_default_frame,
+    restype_atom14_to_rigid_group,
+    restype_atom14_mask,
+    restype_atom14_rigid_group_positions,
+)
 
 #ADD MODULE
 
@@ -14,8 +26,9 @@ class PairStr2Pair(nn.Module):
     def __init__(self, c_z=128, c_head=4, c_hidden=32, c_rbf=36, p_drop=0.15):
         super(PairStr2Pair, self).__init__()
 
-        self.drop_row = Dropout(broadcast_dim=1, p_drop=p_drop)
-        self.drop_col = Dropout(broadcast_dim=2, p_drop=p_drop)
+        #Dropout(broadcast_dim=1, p_drop=p_drop)
+        self.drop_row = Dropout(batch_dim=1, r=p_drop)
+        self.drop_col = Dropout(batch_dim=2, r=p_drop)
 
         self.row_attn = BiasedAxialAttention(c_z, c_rbf, c_head, c_hidden, p_drop=p_drop, is_row=True)
         self.col_attn = BiasedAxialAttention(c_z, c_rbf, c_head, c_hidden, p_drop=p_drop, is_row=False)
@@ -29,7 +42,7 @@ class PairStr2Pair(nn.Module):
         return z
 
 class Str2Str(nn.Module):
-    def __init__(self, c_m=256, c_z=128, c_s=16, 
+    def __init__(self, c_m=64, c_z=128, c_s=16, 
             rbf_scale=1.0, p_drop=0.1
     ):
         super(Str2Str, self).__init__()
@@ -47,27 +60,27 @@ class Str2Str(nn.Module):
         self.rbf_scale = rbf_scale
 
         self.ipa = InvariantPointAttention(
-            self.c_s,
-            self.c_z,
-            self.c_ipa,
-            self.no_heads_ipa,
-            self.no_qk_points,
-            self.no_v_points,
-            inf=self.inf,
-            eps=self.epsilon,
+            c_s,
+            c_z,
+            c_hidden=16,
+            no_heads=12,
+            no_qk_points=4,
+            no_v_points=8,
+            inf=1e5,
+            eps=1e-12,
         )
 
-        self.ipa_dropout = nn.Dropout(self.dropout_rate)
-        self.layer_norm_ipa = LayerNorm(self.c_s)
+        self.ipa_dropout = nn.Dropout(p_drop)
+        self.layer_norm_ipa = LayerNorm(c_s)
 
-        self.bb_update = BackboneUpdate(self.c_s)
+        self.bb_update = BackboneUpdate(c_s)
 
         self.angle_resnet = AngleResnet(
-            self.c_s,
-            self.c_resnet,
-            self.no_resnet_blocks,
-            self.no_angles,
-            self.epsilon,
+            c_s,
+            c_hidden=128,
+            no_blocks=2,
+            no_angles=7,
+            epsilon=1e-12,
         )
 
         self.reset_parameter()
@@ -146,7 +159,7 @@ class Str2Str(nn.Module):
             )
 
             backb_to_global = backb_to_global.scale_translation(
-                self.trans_scale_factor
+                trans_scale_factor=10,
             )
 
             # [*, N, 7, 2]
@@ -166,3 +179,68 @@ class Str2Str(nn.Module):
             rigids = rigids.stop_rot_gradient()
 
         return pred_xyz, state
+    
+    def _init_residue_constants(self, float_dtype, device):
+        if not hasattr(self, "default_frames"):
+            self.register_buffer(
+                "default_frames",
+                torch.tensor(
+                    restype_rigid_group_default_frame,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
+                persistent=False,
+            )
+        if not hasattr(self, "group_idx"):
+            self.register_buffer(
+                "group_idx",
+                torch.tensor(
+                    restype_atom14_to_rigid_group,
+                    device=device,
+                    requires_grad=False,
+                ),
+                persistent=False,
+            )
+        if not hasattr(self, "atom_mask"):
+            self.register_buffer(
+                "atom_mask",
+                torch.tensor(
+                    restype_atom14_mask,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
+                persistent=False,
+            )
+        if not hasattr(self, "lit_positions"):
+            self.register_buffer(
+                "lit_positions",
+                torch.tensor(
+                    restype_atom14_rigid_group_positions,
+                    dtype=float_dtype,
+                    device=device,
+                    requires_grad=False,
+                ),
+                persistent=False,
+            )
+    
+    def torsion_angles_to_frames(self, r, alpha, f):
+        # Lazily initialize the residue constants on the correct device
+        self._init_residue_constants(alpha.dtype, alpha.device)
+        # Separated purely to make testing less annoying
+        return torsion_angles_to_frames(r, alpha, f, self.default_frames)
+
+    def frames_and_literature_positions_to_atom14_pos(
+        self, r, f  # [*, N, 8]  # [*, N]
+    ):
+        # Lazily initialize the residue constants on the correct device
+        self._init_residue_constants(r.get_rots().dtype, r.get_rots().device)
+        return frames_and_literature_positions_to_atom14_pos(
+            r,
+            f,
+            self.default_frames,
+            self.group_idx,
+            self.atom_mask,
+            self.lit_positions,
+        )
