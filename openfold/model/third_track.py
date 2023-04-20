@@ -6,7 +6,7 @@ from dropout import Dropout
 import torch.nn as nn
 import torch
 
-from third_track_util_module import rbf, get_seqsep, init_lecun_normal, FeedForwardLayer, BiasedAxialAttention
+from openfold.model.third_track_util_module import rbf, get_seqsep, init_lecun_normal, FeedForwardLayer, BiasedAxialAttention
 
 #ADD MODULE
 

@@ -462,7 +462,8 @@ class AlphaFold(nn.Module):
         # [*, N, 3]
         x_prev = outputs["final_atom_positions"]
 
-        return outputs, m_1_prev, z_prev, x_prev
+        #ADD MODULE
+        return outputs, m_1_prev, z_prev, x_prev, xyz_prev
 
     def forward(self, batch):
         """
@@ -516,8 +517,9 @@ class AlphaFold(nn.Module):
                         Pseudo-beta mask
         """
         # Initialize recycling embeddings
-        m_1_prev, z_prev, x_prev = None, None, None
-        prevs = [m_1_prev, z_prev, x_prev]
+        #ADD MODULE
+        m_1_prev, z_prev, x_prev, xyz_prev = None, None, None, None
+        prevs = [m_1_prev, z_prev, x_prev, xyz_prev]
 
         is_grad_enabled = torch.is_grad_enabled()
 
@@ -537,7 +539,7 @@ class AlphaFold(nn.Module):
                         torch.clear_autocast_cache()
 
                 # Run the next iteration of the model
-                outputs, m_1_prev, z_prev, x_prev = self.iteration(
+                outputs, m_1_prev, z_prev, x_prev, xyz_prev = self.iteration(
                     feats,
                     prevs,
                     _recycle=(num_iters > 1)
@@ -545,8 +547,9 @@ class AlphaFold(nn.Module):
 
                 if(not is_final_iter):
                     del outputs
-                    prevs = [m_1_prev, z_prev, x_prev]
-                    del m_1_prev, z_prev, x_prev
+                    #ADD MODULE
+                    prevs = [m_1_prev, z_prev, x_prev, xyz_prev]
+                    del m_1_prev, z_prev, x_prev, xyz_prev
 
         # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))

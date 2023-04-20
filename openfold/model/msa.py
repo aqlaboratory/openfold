@@ -19,7 +19,7 @@ import torch.nn as nn
 from typing import Optional, List, Tuple
 
 #ADD MODULE
-from third_track_util_module import rbf
+from openfold.model.third_track_util_module import rbf
 
 from openfold.model.primitives import (
     Linear, 
@@ -280,7 +280,7 @@ class MSAAttention(nn.Module):
         if(use_flash):
             assert z is None
             biases = None
-        else:    
+        else:
             m, mask_bias, z, state, xyz = self._prep_inputs(
                 #ADD MODULE
                 m, z, state, xyz, mask, inplace_safe=inplace_safe
