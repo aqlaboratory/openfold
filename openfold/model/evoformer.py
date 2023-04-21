@@ -619,7 +619,6 @@ class ExtraMSABlock(nn.Module):
                 input_tensors, 
                 #ADD MODULE
                 aatype=aatype,
-                xyz=xyz,
                 msa_mask=msa_mask, 
                 pair_mask=pair_mask, 
                 chunk_size=chunk_size,
