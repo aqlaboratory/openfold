@@ -326,7 +326,7 @@ class EvoformerBlockCore(nn.Module):
 
         #ADD MODULE
         cas = xyz[:,:,1].contiguous()
-        rbf_feat = rbf(torch.cdist(cas, cas), self.rbf_sigma)
+        rbf_feat = rbf(torch.cdist(cas, cas), scale = 1.0)
         z = self.pair_str_2_pair(z, rbf_feat)
         xyz, state = self.str_2_str(m, z, state, rbf_feat, aatype)
 
@@ -610,7 +610,8 @@ class ExtraMSABlock(nn.Module):
             )
 
             if(not inplace_safe):
-                input_tensors = [m, input_tensors[1]]
+                #ADD MODULE
+                input_tensors = [m, input_tensors[1], input_tensors[2],input_tensors[3]]
 
             del m
 
