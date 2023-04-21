@@ -258,6 +258,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
 
 def main(args):
+    
     if(args.seed is not None):
         seed_everything(args.seed) 
 
@@ -394,6 +395,7 @@ def bool_type(bool_str: str):
 
 
 if __name__ == "__main__":
+    
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "train_data_dir", type=str,
