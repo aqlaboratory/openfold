@@ -85,8 +85,8 @@ TEMPLATE_FEATURES = {
     "template_aatype": np.int64,
     "template_all_atom_mask": np.float32,
     "template_all_atom_positions": np.float32,
-    "template_domain_names": np.object,
-    "template_sequence": np.object,
+    "template_domain_names": object,
+    "template_sequence": object,
     "template_sum_probs": np.float32,
 }
 
