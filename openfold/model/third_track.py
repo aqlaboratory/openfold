@@ -108,7 +108,7 @@ class Str2Str(nn.Module):
                 ):
         # process msa & z features
         B, N, L = m.shape[:3]
-        node = self.norm_m(m[:,0])
+        node = self.norm_m(m[..., 0, :, :])
         z = self.norm_z(z)
         state = self.norm_s(state)
 
@@ -128,6 +128,10 @@ class Str2Str(nn.Module):
             self.training,
             fmt="quat",
         )
+        
+        if mask is None:
+            # [*, N]
+            mask = state.new_ones(state.shape[:-1])
 
         for i in range(self.no_blocks):
             # [*, N, C_s]

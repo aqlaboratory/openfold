@@ -328,7 +328,7 @@ class EvoformerBlockCore(nn.Module):
         cas = xyz[:,:,1].contiguous()
         rbf_feat = rbf(torch.cdist(cas, cas), scale = 1.0)
         z = self.pair_str_2_pair(z, rbf_feat)
-        xyz, state = self.str_2_str(m, z, state, rbf_feat, aatype)
+        xyz, state = self.str_2_str(m, z, state, rbf_feat, aatype, mask=None)
 
 
         if(_offload_inference and inplace_safe):
