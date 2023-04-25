@@ -57,7 +57,7 @@ class AmberRelaxation(object):
         self._use_gpu = use_gpu
 
     def process(
-        self, *, prot: protein.Protein, cif_output: bool
+        self, *, prot: protein.Protein, cif_output: bool = False
     ) -> Tuple[str, Dict[str, Any], np.ndarray]:
         """Runs Amber relax on a prediction, adds hydrogens, returns PDB string."""
         out = amber_minimize.run_pipeline(
