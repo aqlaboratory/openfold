@@ -100,7 +100,8 @@ class Str2Str(nn.Module):
                 z: torch.Tensor, 
                 state: torch.Tensor, 
                 rbf_feat: torch.Tensor, 
-                aatype, 
+                aatype,
+                rigids,
                 mask: torch.Tensor,
                 inplace_safe: bool = False,
                 _offload_inference: bool = False,
@@ -120,69 +121,60 @@ class Str2Str(nn.Module):
         neighbor = get_seqsep(aatype)
         z = torch.cat((z, rbf_feat, neighbor), dim=-1)
         z = self.norm_edge(self.embed_e(z))
-
-        rigids = Rigid.identity(
-            state.shape[:-1], 
-            state.dtype, 
-            state.device, 
-            self.training,
-            fmt="quat",
-        )
         
         if mask is None:
             # [*, N]
             mask = state.new_ones(state.shape[:-1])
 
-        for i in range(self.no_blocks):
-            # [*, N, C_s]
-            state = state + self.ipa(
-                state, 
-                z, 
-                rigids, 
-                mask, 
-                inplace_safe=inplace_safe,
-                _offload_inference=_offload_inference, 
-                _z_reference_list=None,
-            )
-            state = self.ipa_dropout(state)
-            state = self.layer_norm_ipa(state)
-            state = self.transition(state)
-           
-            # [*, N]
-            rigids = rigids.compose_q_update_vec(self.bb_update(state))
+        # [*, N, C_s]
+        state = state + self.ipa(
+            state, 
+            z, 
+            rigids, 
+            mask, 
+            inplace_safe=inplace_safe,
+            _offload_inference=_offload_inference, 
+            _z_reference_list=None,
+        )
+        state = self.ipa_dropout(state)
+        state = self.layer_norm_ipa(state)
+        state = self.transition(state)
+        
+        # [*, N]
+        rigids = rigids.compose_q_update_vec(self.bb_update(state))
 
-            # To hew as closely as possible to AlphaFold, we convert our
-            # quaternion-based transformations to rotation-matrix ones
-            # here
-            backb_to_global = Rigid(
-                Rotation(
-                    rot_mats=rigids.get_rots().get_rot_mats(), 
-                    quats=None
-                ),
-                rigids.get_trans(),
-            )
+        # To hew as closely as possible to AlphaFold, we convert our
+        # quaternion-based transformations to rotation-matrix ones
+        # here
+        backb_to_global = Rigid(
+            Rotation(
+                rot_mats=rigids.get_rots().get_rot_mats(), 
+                quats=None
+            ),
+            rigids.get_trans(),
+        )
 
-            backb_to_global = backb_to_global.scale_translation(
-                trans_scale_factor=10,
-            )
+        backb_to_global = backb_to_global.scale_translation(
+            trans_scale_factor=10,
+        )
 
-            # [*, N, 7, 2]
-            unnormalized_angles, angles = self.angle_resnet(state, state_initial)
+        # [*, N, 7, 2]
+        unnormalized_angles, angles = self.angle_resnet(state, state_initial)
 
-            all_frames_to_global = self.torsion_angles_to_frames(
-                backb_to_global,
-                angles,
-                aatype,
-            )
+        all_frames_to_global = self.torsion_angles_to_frames(
+            backb_to_global,
+            angles,
+            aatype,
+        )
 
-            pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
-                all_frames_to_global,
-                aatype,
-            )
+        pred_xyz = self.frames_and_literature_positions_to_atom14_pos(
+            all_frames_to_global,
+            aatype,
+        )
 
-            rigids = rigids.stop_rot_gradient()
+        rigids = rigids.stop_rot_gradient()
 
-        return pred_xyz, state
+        return pred_xyz, rigids, state
     
     def _init_residue_constants(self, float_dtype, device):
         if not hasattr(self, "default_frames"):

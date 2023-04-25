@@ -51,6 +51,9 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 
+#ADD MODULE 
+from openfold.utils.rigid_utils import Rigid
+
 
 class AlphaFold(nn.Module):
     """
@@ -281,6 +284,14 @@ class AlphaFold(nn.Module):
                 (*batch_dims, n, residue_constants.atom_type_num, 3),
                 requires_grad=False,
             )
+            
+            rigids_prev = Rigid.identity(
+            state.shape[:-1], 
+            state.dtype, 
+            state.device, 
+            self.training,
+            fmt="quat",
+            )
 
         x_prev = pseudo_beta_fn(
             feats["aatype"], x_prev, None
@@ -298,6 +309,7 @@ class AlphaFold(nn.Module):
             #ADD MODULE
             state = state.cpu()
             xyz_prev = xyz_prev.cpu()
+            rigids_prev = rigids_prev.cpu()
 
         # m_1_prev_emb: [*, N, C_m]
         # z_prev_emb: [*, N, N, C_z]
@@ -369,8 +381,8 @@ class AlphaFold(nn.Module):
                 # To allow the extra MSA stack (and later the evoformer) to
                 # offload its inputs, we remove all references to them here
                 #ADD MODULE
-                input_tensors = [a, z, state, xyz_prev]
-                del a, z, state, xyz_prev
+                input_tensors = [a, z, state, xyz_prev, rigids_prev]
+                del a, z, state, xyz_prev, rigids_prev
     
                 # [*, N, N, C_z]
                 z = self.extra_msa_stack._forward_offload(
@@ -388,9 +400,10 @@ class AlphaFold(nn.Module):
                 z = self.extra_msa_stack(
                     a, z,
                     #ADD MODULE
-                    state=state, 
-                    xyz=xyz_prev, 
-                    aatype=feats['aatype'],
+                    state=state,
+                    xyz=xyz_prev,
+                    rigids=rigids_prev, 
+                    aatype=feats['aatype'].to(dtype=m.dtype),
                     msa_mask=feats["extra_msa_mask"].to(dtype=m.dtype),
                     chunk_size=self.globals.chunk_size,
                     use_lma=self.globals.use_lma,
@@ -405,12 +418,12 @@ class AlphaFold(nn.Module):
         # s: [*, N, C_s]          
         if(self.globals.offload_inference):
             #ADD MODULE
-            input_tensors = [m, z, state, xyz_prev]
-            del m, z, state, xyz_prev
-            m, z, state, xyz_prev, s = self.evoformer._forward_offload(
+            input_tensors = [m, z, state, xyz_prev, rigids_prev]
+            del m, z, state, xyz_prev, rigids_prev
+            m, z, state, xyz_prev, rigids_prev, s = self.evoformer._forward_offload(
                 input_tensors,
                 #ADD MODULE
-                aatype=feats["aatype"],
+                aatype=feats["aatype"].to(dtype=m.dtype),
                 msa_mask=msa_mask.to(dtype=input_tensors[0].dtype),
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
                 chunk_size=self.globals.chunk_size,
@@ -421,13 +434,14 @@ class AlphaFold(nn.Module):
             del input_tensors
         else:
             #ADD MODULE 
-            m, z, state, xyz_prev, s = self.evoformer(
+            m, z, state, xyz_prev, rigids_prev, s = self.evoformer(
                 m,
                 z,
                 #ADD MODULE
                 state, 
                 xyz=xyz_prev,
-                aatype=feats["aatype"],
+                rigids=rigids_prev,
+                aatype=feats["aatype"].to(dtype=m.dtype),
                 msa_mask=msa_mask.to(dtype=m.dtype),
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 chunk_size=self.globals.chunk_size,
@@ -447,7 +461,7 @@ class AlphaFold(nn.Module):
         # Predict 3D structure
         outputs["sm"] = self.structure_module(
             outputs,
-            feats["aatype"],
+            feats["aatype"].to(dtype=m.dtype),
             mask=feats["seq_mask"].to(dtype=s.dtype),
             inplace_safe=inplace_safe,
             _offload_inference=self.globals.offload_inference,
@@ -470,7 +484,7 @@ class AlphaFold(nn.Module):
         x_prev = outputs["final_atom_positions"]
 
         #ADD MODULE
-        return outputs, m_1_prev, z_prev, x_prev, xyz_prev
+        return outputs, m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev
 
     def forward(self, batch):
         """
@@ -525,8 +539,8 @@ class AlphaFold(nn.Module):
         """
         # Initialize recycling embeddings
         #ADD MODULE
-        m_1_prev, z_prev, x_prev, xyz_prev = None, None, None, None
-        prevs = [m_1_prev, z_prev, x_prev, xyz_prev]
+        m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev = None, None, None, None, None
+        prevs = [m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev]
 
         is_grad_enabled = torch.is_grad_enabled()
 
@@ -546,7 +560,7 @@ class AlphaFold(nn.Module):
                         torch.clear_autocast_cache()
 
                 # Run the next iteration of the model
-                outputs, m_1_prev, z_prev, x_prev, xyz_prev = self.iteration(
+                outputs, m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev = self.iteration(
                     feats,
                     prevs,
                     _recycle=(num_iters > 1)
@@ -555,8 +569,8 @@ class AlphaFold(nn.Module):
                 if(not is_final_iter):
                     del outputs
                     #ADD MODULE
-                    prevs = [m_1_prev, z_prev, x_prev, xyz_prev]
-                    del m_1_prev, z_prev, x_prev, xyz_prev
+                    prevs = [m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev]
+                    del m_1_prev, z_prev, x_prev, xyz_prev, rigids_prev
 
         # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))
