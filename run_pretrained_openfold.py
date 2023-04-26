@@ -79,7 +79,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                 use_small_bfd=args.use_small_bfd,
             )
             alignment_runner.run(
-                tmp_fasta_path, local_alignment_dir
+                tmp_fasta_path, local_alignment_dir, input_label=tag
             )
 
         # Remove temporary FASTA file
