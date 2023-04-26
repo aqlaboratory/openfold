@@ -27,7 +27,7 @@ cd $CUR_DIR
 
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
-pushd lib/conda/envs/$ENV_NAME/lib/python3.7/site-packages/ \
+pushd lib/conda/envs/$ENV_NAME/lib/python3.9/site-packages/ \
     && patch -p0 < $OPENFOLD_DIR/lib/openmm.patch \
     && popd
 
