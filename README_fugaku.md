@@ -25,14 +25,13 @@
 ./scripts/install_fugaku.sh
 ```
 
-## 前処理と推論
+## 前処理と推論の実行
 ### 少数の配列の場合
-inferenceディレクトリのシングルノード版スクリプトで前処理と推論を同時に行う。詳細は[こちら](inference/README.md)
+inferenceディレクトリのシングルノード版スクリプトで前処理と推論を連続して行う。詳細は[こちら](inference/README.md)
 
 ### 多数の配列の場合
 1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行う。詳細は[こちら](preproc_fugaku/README.md)
 2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
-
 
 ## 学習の実行
 1. trainディレクトリに移動
@@ -46,18 +45,8 @@ inferenceディレクトリのシングルノード版スクリプトで前処�
 ```
 4. logディレクトリに出力される結果を確認
 
-## 前処理の実行
-1. preprocディレクトリに移動
-2. ジョブ投入
-```
-./Submit_preproc <TimeLimit> <InputDir> <OutputDir>
-
-# 例: 1時間制限で、inputディレクトリ中の全てのfastaを前処理し、outputディレクトリに出力する場合
-./Submit_preproc 1:0:0 input output
-```
-
-## mmcifの変換 (任意)
-mmcifをpythonでパースする処理が遅いので、事前にパースしpickle化およびlz4圧縮しておくことができる。
+## [任意] mmcifの変換
+mmcifを事前にパースしpickle化およびlz4圧縮しておくことで、特に複数ノード学習での速度低下を防ぐことができる。
 1. convert_mmcifディレクトリに移動
 2. run.shのInputDirとOutputDirを設定
 3. ジョブ投入
