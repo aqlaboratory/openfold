@@ -12,3 +12,5 @@ tests/test_data/
 lib/conda/
 
 flash-attention/
+
+ckpt_dir/

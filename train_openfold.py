@@ -377,6 +377,8 @@ def main(args):
     else:
         ckpt_path = args.resume_from_ckpt
 
+    #ADD MODULE
+    # ckpt_path = None
     trainer.fit(
         model_module, 
         datamodule=data_module,
