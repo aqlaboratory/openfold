@@ -29,6 +29,7 @@ PARAMS=(
     --bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta # for small_bfd
     #--bfd_database_path $DataDir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt # for bfd
     --use_small_bfd
+    --cpus 48
 )
 
 # for Torch Extensions
