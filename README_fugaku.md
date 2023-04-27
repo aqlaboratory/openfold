@@ -34,16 +34,7 @@ inferenceディレクトリのシングルノード版スクリプトで前処�
 2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
 
 ## 学習の実行
-1. trainディレクトリに移動
-2. parametersファイルを設定 (デフォルトではsampleディレクトリの101M_Aで事前学習)。データセットにPDBの1/100を使用する場合はparameters_rand1891をparametersに上書き
-3. ジョブ投入
-```
-./Submit_training <NodeShape> <TimeLimit>
-
-# 例: 2x2x2ノードで2時間制限で実行する場合
-# ./Submit_training 2x2x2 2:0:0
-```
-4. logディレクトリに出力される結果を確認
+1. trainingディレクトリのスクリプトで学習を行う。詳細は[こちら](train/README.md)
 
 ## [任意] mmcifの変換
 mmcifを事前にパースしpickle化およびlz4圧縮しておくことで、特に複数ノード学習での速度低下を防ぐことができる。
