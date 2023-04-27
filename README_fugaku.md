@@ -34,7 +34,7 @@ inferenceディレクトリのシングルノード版スクリプトで前処�
 2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
 
 ## 学習の実行
-1. trainingディレクトリのスクリプトで学習を行う。詳細は[こちら](train/README.md)
+1. trainディレクトリのスクリプトで学習を行う。詳細は[こちら](train/README.md)
 
 ## [任意] mmcifの変換
 mmcifを事前にパースしpickle化およびlz4圧縮しておくことで、特に複数ノード学習での速度低下を防ぐことができる。
