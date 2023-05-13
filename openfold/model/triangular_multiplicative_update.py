@@ -397,7 +397,7 @@ class TriangleMultiplicativeUpdate(nn.Module):
         # reduced-precision modes
         a_std = a.std()
         b_std = b.std()
-        if(a_std != 0. and b_std != 0):
+        if(a_std != 0. and b_std != 0.):
             a = a / a.std()
             b = b / b.std()
 
