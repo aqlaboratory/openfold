@@ -23,6 +23,7 @@ import subprocess
 from typing import Any, Callable, Mapping, Optional, Sequence
 from urllib import request
 
+from openfold.data import parsers
 from openfold.data.tools import utils
 
 
@@ -93,10 +94,13 @@ class Jackhmmer:
         self.streaming_callback = streaming_callback
 
     def _query_chunk(
-        self, input_fasta_path: str, database_path: str
+        self, 
+        input_fasta_path: str, 
+        database_path: str,
+        max_sequences: Optional[int] = None
     ) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
-        with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
+        with utils.tmpdir_manager() as query_tmp_dir:
             sto_path = os.path.join(query_tmp_dir, "output.sto")
 
             # The F1/F2/F3 are the expected proportion to pass each of the filtering
@@ -167,8 +171,11 @@ class Jackhmmer:
                 with open(tblout_path) as f:
                     tbl = f.read()
 
-            with open(sto_path) as f:
-                sto = f.read()
+            if(max_sequences is None):
+                with open(sto_path) as f:
+                    sto = f.read()
+            else:
+                sto = parsers.truncate_stockholm_msa(sto_path, max_sequences)
 
         raw_output = dict(
             sto=sto,
@@ -180,10 +187,16 @@ class Jackhmmer:
 
         return raw_output
 
-    def query(self, input_fasta_path: str) -> Sequence[Mapping[str, Any]]:
+    def query(self, 
+        input_fasta_path: str,
+        max_sequences: Optional[int] = None
+    ) -> Sequence[Mapping[str, Any]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            return [self._query_chunk(input_fasta_path, self.database_path)]
+            single_chunk_result = self._query_chunk(
+                input_fasta_path, self.database_path, max_sequences,
+            )
+            return [single_chunk_result]
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -217,12 +230,20 @@ class Jackhmmer:
                 # Run Jackhmmer with the chunk
                 future.result()
                 chunked_output.append(
-                    self._query_chunk(input_fasta_path, db_local_chunk(i))
+                    self._query_chunk(
+                        input_fasta_path, 
+                        db_local_chunk(i), 
+                        max_sequences
+                    )
                 )
 
                 # Remove the local copy of the chunk
                 os.remove(db_local_chunk(i))
                 future = next_future
+                # Do not set next_future for the last chunk so that this works
+                # even for databases with only 1 chunk
+                if(i < self.num_streamed_chunks):
+                    future = next_future
                 if self.streaming_callback:
                     self.streaming_callback(i)
         return chunked_output

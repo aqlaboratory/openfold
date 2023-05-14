@@ -13,20 +13,17 @@
 # limitations under the License.
 
 import torch
-import numpy as np
 import unittest
 
-from openfold.model.primitives import (
-    Attention,
-)
+from openfold.model.primitives import Attention
 from tests.config import consts
 
 
 class TestLMA(unittest.TestCase):
     def test_lma_vs_attention(self):
         batch_size = consts.batch_size
-        c_hidden = 32 
-        n = 2**12
+        c_hidden = 32
+        n = 2 ** 12
         no_heads = 4
 
         q = torch.rand(batch_size, n, c_hidden).cuda()
@@ -34,20 +31,17 @@ class TestLMA(unittest.TestCase):
 
         bias = [torch.rand(no_heads, 1, n)]
         bias = [b.cuda() for b in bias]
-        
-        gating_fill = torch.rand(c_hidden * no_heads, c_hidden)
-        o_fill = torch.rand(c_hidden, c_hidden * no_heads)
-        
+
         a = Attention(
             c_hidden, c_hidden, c_hidden, c_hidden, no_heads
         ).cuda()
-        
+
         with torch.no_grad():
             l = a(q, kv, biases=bias, use_lma=True)
             real = a(q, kv, biases=bias)
-        
+
         self.assertTrue(torch.max(torch.abs(l - real)) < consts.eps)
 
- 
+
 if __name__ == "__main__":
     unittest.main()

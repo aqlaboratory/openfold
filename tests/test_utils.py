@@ -23,7 +23,7 @@ from openfold.utils.rigid_utils import (
     quat_to_rot,
     rot_to_quat,
 )
-from openfold.utils.tensor_utils import chunk_layer, _chunk_slice
+from openfold.utils.chunk_utils import chunk_layer, _chunk_slice
 import tests.compare_utils as compare_utils
 from tests.config import consts
 

@@ -627,6 +627,8 @@ def compute_predicted_aligned_error(
 def compute_tm(
     logits: torch.Tensor,
     residue_weights: Optional[torch.Tensor] = None,
+    asym_id: Optional[torch.Tensor] = None,
+    interface: bool = False,
     max_bin: int = 31,
     no_bins: int = 64,
     eps: float = 1e-8,
@@ -649,14 +651,24 @@ def compute_tm(
     tm_per_bin = 1.0 / (1 + (bin_centers ** 2) / (d0 ** 2))
     predicted_tm_term = torch.sum(probs * tm_per_bin, dim=-1)
 
-    normed_residue_mask = residue_weights / (eps + residue_weights.sum())
+    n = residue_weights.shape[-1]
+    pair_mask = residue_weights.new_ones((n, n), dtype=torch.int32)
+    if interface:
+        pair_mask *= (asym_id[..., None] != asym_id[..., None, :])
+
+    predicted_tm_term *= pair_mask
+
+    pair_residue_weights = pair_mask * (
+        residue_weights[..., None, :] * residue_weights[..., :, None]
+    )
+    denom = eps + torch.sum(pair_residue_weights, dim=-1, keepdims=True)
+    normed_residue_mask = pair_residue_weights / denom
     per_alignment = torch.sum(predicted_tm_term * normed_residue_mask, dim=-1)
 
     weighted = per_alignment * residue_weights
-     
+
     argmax = (weighted == torch.max(weighted)).nonzero()[0]
     return per_alignment[tuple(argmax)]
-
 
 def tm_loss(
     logits,
@@ -709,7 +721,7 @@ def tm_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
-    # Average over the loss dimension
+    # Average over the batch dimension
     loss = torch.mean(loss)
 
     return loss
@@ -1488,7 +1500,7 @@ def experimentally_resolved_loss(
     return loss
 
 
-def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
+def masked_msa_loss(logits, true_msa, bert_mask, num_classes, eps=1e-8, **kwargs):
     """
     Computes BERT-style masked MSA loss. Implements subsection 1.9.9.
 
@@ -1500,7 +1512,7 @@ def masked_msa_loss(logits, true_msa, bert_mask, eps=1e-8, **kwargs):
         Masked MSA loss
     """
     errors = softmax_cross_entropy(
-        logits, torch.nn.functional.one_hot(true_msa, num_classes=23)
+        logits, torch.nn.functional.one_hot(true_msa, num_classes=num_classes)
     )
 
     # FP16-friendly averaging. Equivalent to:

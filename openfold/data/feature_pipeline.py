@@ -20,7 +20,7 @@ import ml_collections
 import numpy as np
 import torch
 
-from openfold.data import input_pipeline
+from openfold.data import input_pipeline, input_pipeline_multimer
 
 
 FeatureDict = Mapping[str, np.ndarray]
@@ -74,8 +74,10 @@ def np_example_to_features(
     np_example: FeatureDict,
     config: ml_collections.ConfigDict,
     mode: str,
+    is_multimer: bool = False
 ):
     np_example = dict(np_example)
+   
     num_res = int(np_example["seq_length"][0])
     cfg, feature_names = make_data_config(config, mode=mode, num_res=num_res)
 
@@ -88,11 +90,18 @@ def np_example_to_features(
         np_example=np_example, features=feature_names
     )
     with torch.no_grad():
-        features = input_pipeline.process_tensors_from_config(
-            tensor_dict,
-            cfg.common,
-            cfg[mode],
-        )
+        if(not is_multimer):
+            features = input_pipeline.process_tensors_from_config(
+                tensor_dict,
+                cfg.common,
+                cfg[mode],
+            )
+        else:
+            features = input_pipeline_multimer.process_tensors_from_config(
+                tensor_dict,
+                cfg.common,
+                cfg[mode],
+            )
 
     if mode == "train":
         p = torch.rand(1).item()
@@ -122,10 +131,15 @@ class FeaturePipeline:
     def process_features(
         self,
         raw_features: FeatureDict,
-        mode: str = "train", 
+        mode: str = "train",
+        is_multimer: bool = False,
     ) -> FeatureDict:
+        if(is_multimer and mode != "predict"):
+            raise ValueError("Multimer mode is not currently trainable")
+        
         return np_example_to_features(
             np_example=raw_features,
             config=self.config,
             mode=mode,
+            is_multimer=is_multimer,
         )
