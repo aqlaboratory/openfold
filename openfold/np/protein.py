@@ -74,7 +74,9 @@ class Protein:
     parents_chain_index: Optional[Sequence[int]] = None
 
 
-def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
+def from_pdb_string(
+    pdb_str: str, chain_id: Optional[str] = None, model_index=None
+) -> Protein:
     """Takes a PDB string and constructs a Protein object.
 
     WARNING: All non-standard residue types will be converted into UNK. All
@@ -92,11 +94,13 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("none", pdb_fh)
     models = list(structure.get_models())
-    if len(models) != 1:
-        raise ValueError(
-            f"Only single model PDBs are supported. Found {len(models)} models."
-        )
-    model = models[0]
+    if model_index is None:
+        if len(models) != 1:
+            raise ValueError(
+                f"Only single model PDBs are supported. Found {len(models)} models."
+            )
+        model_index = 0
+    model = models[model_index]
 
     atom_positions = []
     aatype = []
@@ -156,7 +160,7 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
                 chain_id += 1
 
     unique_chain_ids = np.unique(chain_ids)
-    chain_id_mapping = {cid: n for n, cid in enumerate(string.ascii_uppercase)}
+    chain_id_mapping = {cid: n for n, cid in enumerate(get_chain_tags())}
     chain_index = np.array([chain_id_mapping[cid] for cid in chain_ids])
 
     return Protein(
@@ -328,7 +332,7 @@ def to_pdb(prot: Protein) -> str:
     n = aatype.shape[0]
     atom_index = 1
     prev_chain_index = 0
-    chain_tags = string.ascii_uppercase
+    chain_tags = get_chain_tags()  # string.ascii_uppercase
     # Add all atom sites.
     for i in range(n):
         res_name_3 = res_1to3(aatype[i])
@@ -449,7 +453,7 @@ def to_modelcif(prot: Protein) -> str:
         for chain_idx in value:
             entities_map[chain_idx] = model_e
 
-    chain_tags = string.ascii_uppercase
+    chain_tags = get_chain_tags()  # string.ascii_uppercase
     asym_unit_map = {}
     for chain_idx in set(chain_index):
         # Define the model assembly
@@ -569,4 +573,12 @@ def from_prediction(
         remark=remark,
         parents=parents,
         parents_chain_index=parents_chain_index,
+    )
+
+
+def get_chain_tags():
+    return (
+        string.ascii_uppercase
+        + string.ascii_lowercase
+        + "".join([str(i) for i in range(10)])
     )
