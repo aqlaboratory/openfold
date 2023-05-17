@@ -410,7 +410,9 @@ residue_atoms = {
 # (The LDDT paper lists 7 amino acids as ambiguous, but the naming ambiguities
 # in LEU, VAL and ARG can be resolved by using the 3d constellations of
 # the 'ambiguous' atoms and their neighbours)
-# TODO: ^ interpret this
+# Because for LEU, VAL and ARG, no ambiguous exist when the prediction output is chi angle instead of the location of individual atoms.
+# For the rest, ASP and others, when you rotate the bond 180 degree, you get the same configuraiton due to symmetry.
+
 residue_atom_renaming_swaps = {
     "ASP": {"OD1": "OD2"},
     "GLU": {"OE1": "OE2"},
