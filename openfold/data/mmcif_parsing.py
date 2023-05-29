@@ -20,7 +20,7 @@ import io
 import json
 import logging
 import os
-from typing import Any, Mapping, Optional, Sequence, Tuple
+from typing import Any, Mapping, Optional, Sequence, Tuple, Dict, List
 
 from Bio import PDB
 from Bio.Data import SCOPData
@@ -90,6 +90,8 @@ class MmcifObject:
                                                           1: ResidueAtPosition,
                                                           ...}}
       raw_string: The raw string used to construct the MmcifObject.
+      pdb_assigned_chain_id_to_author_assigned_chain_id: a dictionary mapping from pdb assigned chain id names to author assigned chain id
+      author_assigned_chain_id_to_pdb_assigned_chain_id: a dictionary mapping from author assigned chain id names to pdb assigned chain id
     """
 
     file_id: str
@@ -98,7 +100,8 @@ class MmcifObject:
     chain_to_seqres: Mapping[ChainId, SeqRes]
     seqres_to_structure: Mapping[ChainId, Mapping[int, ResidueAtPosition]]
     raw_string: Any
-
+    pdb_assigned_chain_id_to_author_assigned_chain_id: Mapping[str,str]    
+    author_assigned_chain_id_to_pdb_assigned_chain_id: Mapping[str,str]    
 
 @dataclasses.dataclass(frozen=True)
 class ParsingResult:
@@ -174,7 +177,9 @@ def mmcif_loop_to_dict(
 
 
 def parse(
-    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True
+    *, file_id: str, mmcif_string: str, catch_all_errors: bool = True, 
+    handle_residue_id_duplication:bool = False,
+    quiet_parsing:bool = True,     
 ) -> ParsingResult:
     """Entry point, parses an mmcif_string.
 
@@ -184,14 +189,14 @@ def parse(
       mmcif_string: Contents of an mmCIF file.
       catch_all_errors: If True, all exceptions are caught and error messages are
         returned as part of the ParsingResult. If False exceptions will be allowed
-        to propagate.
-
+        to propagate            
     Returns:
       A ParsingResult.
     """
+
     errors = {}
     try:
-        parser = PDB.MMCIFParser(QUIET=True)
+        parser = PDB.MMCIFParser(QUIET=quiet_parsing)
         handle = io.StringIO(mmcif_string)
         full_structure = parser.get_structure("", handle)
         first_model_structure = _get_first_model(full_structure)
@@ -208,7 +213,9 @@ def parse(
 
         # Determine the protein chains, and their start numbers according to the
         # internal mmCIF numbering scheme (likely but not guaranteed to be 1).
-        valid_chains = _get_protein_chains(parsed_info=parsed_info)
+        valid_chains = _get_protein_chains(parsed_info=parsed_info, 
+            handle_residue_id_duplication=handle_residue_id_duplication)
+        
         if not valid_chains:
             return ParsingResult(
                 None, {(file_id, ""): "No protein chains found in this file."}
@@ -229,9 +236,11 @@ def parse(
                 # We only process the first model at the moment.
                 continue
 
-            mmcif_to_author_chain_id[atom.mmcif_chain_id] = atom.author_chain_id
-
             if atom.mmcif_chain_id in valid_chains:
+
+                #note: moved this into here (it was outside the check for atom.mmcif_chain_id being in valid_chains)
+                mmcif_to_author_chain_id[atom.mmcif_chain_id] = atom.author_chain_id
+
                 hetflag = " "
                 if atom.hetatm_atom == "HETATM":
                     # Water atoms are assigned a special hetflag of W in Biopython. We
@@ -286,13 +295,25 @@ def parse(
             seq = "".join(seq)
             author_chain_to_sequence[author_chain] = seq
 
+
+        author_assigned_chain_id_to_pdb_assigned_chain_id = {}
+        for pdb_chain_id, author_chain_id in mmcif_to_author_chain_id.items():
+            if author_chain_id in author_assigned_chain_id_to_pdb_assigned_chain_id:
+                raise Exception(f'{author_chain_id} was already in author_assigned_chain_id_to_pdb_assigned_chain_id! mmcif_to_author_chain_id={mmcif_to_author_chain_id} , author_chain_ids_to_pdb_chain_ids={author_assigned_chain_id_to_pdb_assigned_chain_id}')
+            author_assigned_chain_id_to_pdb_assigned_chain_id[author_chain_id] = pdb_chain_id
+           
+        chain_to_seqres=author_chain_to_sequence
+        seqres_to_structure=seq_to_structure_mappings
+
         mmcif_object = MmcifObject(
             file_id=file_id,
             header=header,
             structure=first_model_structure,
-            chain_to_seqres=author_chain_to_sequence,
-            seqres_to_structure=seq_to_structure_mappings,
+            chain_to_seqres=chain_to_seqres,
+            seqres_to_structure=seqres_to_structure,
             raw_string=parsed_info,
+            pdb_assigned_chain_id_to_author_assigned_chain_id=mmcif_to_author_chain_id,   
+            author_assigned_chain_id_to_pdb_assigned_chain_id=author_assigned_chain_id_to_pdb_assigned_chain_id,
         )
 
         return ParsingResult(mmcif_object=mmcif_object, errors=errors)
@@ -301,7 +322,6 @@ def parse(
         if not catch_all_errors:
             raise
         return ParsingResult(mmcif_object=None, errors=errors)
-
 
 def _get_first_model(structure: PdbStructure) -> PdbStructure:
     """Returns the first model in a Biopython structure."""
@@ -369,20 +389,71 @@ def _get_atom_site_list(parsed_info: MmCIFDict) -> Sequence[AtomSite]:
         )
     ]
 
+def _handle_residue_id_duplication(
+    entity_id:str,
+    residue_num:str,
+    data:List[Dict],
+    logic='keep_last'
+):
+    """
+    Considers residue disorder (for example, point mutation) and makes sure that only a single residue is added to the aa sequence, instead of both.
 
+    Sometimes the same residue index is mentioned twice, for example, in cases of point mutation
+    it would be wrong to treat it as if the protein actually contains those 2 residues!
+    an example case - pdb id 3nir
+    Also, see "How is disordered handled" here https://biopython.org/wiki/The_Biopython_Structural_Bioinformatics_FAQ
+    Taking the first residue for a defined index, because that seems to match the behavior in the code that extracts the coordinates.
+    (TODO: should we take the first? other logic?)     
+    """
+    #TODO: also add 'keep_first' and other strategies
+    assert logic in ['keep_last', 'keep_first']
+    prev_entity_id = -1
+    prev_residue_num = -1
+    
+    processed = []
+    for entry in data:
+        skip = False
+        if (entry[entity_id] == prev_entity_id) and (entry[residue_num] == prev_residue_num):
+            if logic == 'keep_last':
+                processed = processed[:-1] #drop last (which will be replaced with current)
+            elif logic == 'keep_first':
+                skip = True #skip this 
+            else:
+                assert False, 'should not reach here'
+
+        prev_entity_id = entry[entity_id]
+        prev_residue_num = entry[residue_num]
+
+        if skip:
+            continue
+
+        processed.append(entry)
+    return processed
 def _get_protein_chains(
-    *, parsed_info: Mapping[str, Any]
+    *, parsed_info: Mapping[str, Any],
+    handle_residue_id_duplication:bool = False,
 ) -> Mapping[ChainId, Sequence[Monomer]]:
     """Extracts polymer information for protein chains only.
 
     Args:
       parsed_info: _mmcif_dict produced by the Biopython parser.
+      handle_residue_id_duplication: handles residue id duplication.
+        Which happens, for example, in point mutation. see pdb id 3nir as an example case
+        See handle_residue_id_duplication doc string for more details
 
     Returns:
       A dict mapping mmcif chain id to a list of Monomers.
     """
     # Get polymer information for each entity in the structure.
     entity_poly_seqs = mmcif_loop_to_list("_entity_poly_seq.", parsed_info)
+
+    if handle_residue_id_duplication:
+        entity_poly_seqs = _handle_residue_id_duplication(
+            entity_id = '_entity_poly_seq.entity_id',
+            residue_num = '_entity_poly_seq.num',
+            data = entity_poly_seqs,
+            logic = 'keep_last',
+        )
 
     polymers = collections.defaultdict(list)
     for entity_poly_seq in entity_poly_seqs:
