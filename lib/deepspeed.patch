@@ -1,0 +1,1246 @@
+diff --git a/deepspeed/launcher/runner.py b/deepspeed/launcher/runner.py
+index 3d93363..323f44b 100755
+--- a/deepspeed/launcher/runner.py
++++ b/deepspeed/launcher/runner.py
+@@ -1,3 +1,4 @@
++# Copyright 2023 Fujitsu Limited
+ # Copyright 2020 The Microsoft DeepSpeed Team
+ """
+ DeepSpeed runner is the main front-end to launching multi-worker
+@@ -267,7 +268,10 @@ def main(args=None):
+     resource_pool = fetch_hostfile(args.hostfile)
+     if not resource_pool:
+         resource_pool = {}
+-        device_count = torch.cuda.device_count()
++        if torch.cuda.is_available():
++            device_count = torch.cuda.device_count()
++        else:
++            device_count = 1
+         if device_count == 0:
+             raise RuntimeError("Unable to proceed, no GPU resources available")
+         resource_pool['localhost'] = device_count
+diff --git a/deepspeed/runtime/activation_checkpointing/checkpointing.py b/deepspeed/runtime/activation_checkpointing/checkpointing.py
+index d203ae9..0106dde 100644
+--- a/deepspeed/runtime/activation_checkpointing/checkpointing.py
++++ b/deepspeed/runtime/activation_checkpointing/checkpointing.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright (c) Microsoft Corporation
+ Licensed under the MIT license.
+ 
+@@ -58,7 +59,9 @@ PROFILE_TIME = False
+ # Default name for the model parallel rng tracker.
+ _MODEL_PARALLEL_RNG_TRACKER_NAME = 'model-parallel-rng'
+ transport_stream = None
+-cuda_device = None
++cur_device = None
++
++DEVICE_TYPE = 'cuda'
+ 
+ 
+ def detach_variable(inputs, device=None):
+@@ -524,6 +527,8 @@ class CheckpointFunction(torch.autograd.Function):
+         global mp_rank, mp_size, mp_group
+         global contiguous_data_buffers, contiguous_size_buffers
+         global data_offsets, size_offsets
++        global DEVICE_TYPE
++
+         if mp_rank is None:
+             if mpu is not None:
+                 if hasattr(mpu, 'get_tensor_model_parallel_rank'):
+@@ -539,9 +544,9 @@ class CheckpointFunction(torch.autograd.Function):
+                 mp_size = 1
+                 mp_group = None
+ 
+-        global cuda_device, transport_stream, PARTITION_ACTIVATIONS, buffer_0, buffer_1, buffer_0_offset, buffer_1_offset
++        global cur_device, transport_stream, PARTITION_ACTIVATIONS, buffer_0, buffer_1, buffer_0_offset, buffer_1_offset
+ 
+-        if cuda_device is None:
++        if cur_device is None:
+             see_memory_usage("First Forward Beginning", force=False)
+             if dist.get_rank() == 0:
+                 logger.info(f"Activation Checkpointing Information")
+@@ -554,8 +559,12 @@ class CheckpointFunction(torch.autograd.Function):
+                 logger.info(f"----Synchronization {SYNCHRONIZE}")
+                 logger.info(f"----Profiling time in checkpointing {PROFILE_TIME}")
+ 
+-            cuda_device = torch.cuda.current_device()
+-            transport_stream = torch.cuda.Stream(device=cuda_device)
++            if DEVICE_TYPE == 'cpu':
++                cur_device = torch.device('cpu')
++                transport_stream = None
++            else:
++                cur_device = torch.cuda.current_device()
++                transport_stream = torch.cuda.Stream(device=cur_device)
+ 
+         if PARTITION_ACTIVATIONS:
+             inputs = partition_activations(args,
+@@ -567,22 +576,23 @@ class CheckpointFunction(torch.autograd.Function):
+                                     criterion_func=is_activation_to_checkpoint)
+ 
+         # just in case something funky is happening such as reuse of inputs
+-        inputs_cuda = copy_to_device(args,
+-                                     device=cuda_device,
+-                                     criterion_func=is_activation_to_checkpoint)
++        inputs_device = copy_to_device(args,
++                                       device=cur_device,
++                                       criterion_func=is_activation_to_checkpoint)
+ 
+         # Copy the rng states.
+         ctx.fwd_cpu_rng_state = torch.get_rng_state()
+-        ctx.fwd_cuda_rng_state = torch.cuda.get_rng_state()
+-        ctx.fwd_cuda_rng_state_tracker = get_cuda_rng_tracker().get_states()
++        if DEVICE_TYPE == 'cuda':
++            ctx.fwd_cuda_rng_state = torch.cuda.get_rng_state()
++            ctx.fwd_cuda_rng_state_tracker = get_cuda_rng_tracker().get_states()
+ 
+         see_memory_usage("Before running forward on the layer", force=False)
+         # ctx.save_for_backward(*args)
+         with torch.no_grad():
+-            outputs = run_function(*inputs_cuda)
++            outputs = run_function(*inputs_device)
+ 
+         see_memory_usage("After running forward on the layer", force=False)
+-        del inputs_cuda
++        del inputs_device
+ 
+         if PARTITION_ACTIVATIONS:
+             new_args = get_partitioned_activations_for_backward(
+@@ -651,17 +661,18 @@ class CheckpointFunction(torch.autograd.Function):
+             raise RuntimeError("Checkpointing is not compatible with .grad(), "
+                                "please use .backward() if possible")
+ 
+-        global cuda_device, transport_stream, PARTITION_ACTIVATIONS
++        global cur_device, transport_stream, PARTITION_ACTIVATIONS
++        global DEVICE_TYPE
+ 
+         if PARTITION_ACTIVATIONS:
+             # with torch.cuda.stream(transport_stream):
+             inputs = gather_partitioned_activations(
+                 ctx.saved_tensors,
+-                device=cuda_device if CPU_CHECKPOINT else None)
++                device=cur_device if CPU_CHECKPOINT else None)
+             detached_inputs = detach_variable(inputs)
+         elif CPU_CHECKPOINT:
+             inputs = move_to_device(ctx.saved_tensors,
+-                                    cuda_device,
++                                    cur_device,
+                                     is_activation_to_checkpoint)
+             detached_inputs = detach_variable(inputs)
+         else:
+@@ -675,13 +686,15 @@ class CheckpointFunction(torch.autograd.Function):
+ 
+         # Store the current states.
+         bwd_cpu_rng_state = torch.get_rng_state()
+-        bwd_cuda_rng_state = torch.cuda.get_rng_state()
+-        bwd_cuda_rng_state_tracker = get_cuda_rng_tracker().get_states()
++        if DEVICE_TYPE == 'cuda':
++            bwd_cuda_rng_state = torch.cuda.get_rng_state()
++            bwd_cuda_rng_state_tracker = get_cuda_rng_tracker().get_states()
+ 
+         # Set the states to what it used to be before the forward pass.
+         torch.set_rng_state(ctx.fwd_cpu_rng_state)
+-        _set_cuda_rng_state(ctx.fwd_cuda_rng_state)
+-        get_cuda_rng_tracker().set_states(ctx.fwd_cuda_rng_state_tracker)
++        if DEVICE_TYPE == 'cuda':
++            _set_cuda_rng_state(ctx.fwd_cuda_rng_state)
++            get_cuda_rng_tracker().set_states(ctx.fwd_cuda_rng_state_tracker)
+ 
+         # if PARTITION_ACTIVATIONS:
+         #     current_stream=torch.cuda.current_stream()
+@@ -695,8 +708,9 @@ class CheckpointFunction(torch.autograd.Function):
+         see_memory_usage("In backward checkpointing code after forward", force=False)
+         # Set the states back to what it was at the start of this function.
+         torch.set_rng_state(bwd_cpu_rng_state)
+-        _set_cuda_rng_state(bwd_cuda_rng_state)
+-        get_cuda_rng_tracker().set_states(bwd_cuda_rng_state_tracker)
++        if DEVICE_TYPE == 'cuda':
++            _set_cuda_rng_state(bwd_cuda_rng_state)
++            get_cuda_rng_tracker().set_states(bwd_cuda_rng_state_tracker)
+ 
+         if isinstance(outputs, torch.Tensor):
+             outputs = (outputs, )
+@@ -786,11 +800,11 @@ def reset():
+         size_offsets = []
+ 
+ 
+-def _configure_using_config_file(config, mpu=None):
++def _configure_using_config_file(deepspeed_config, mpu=None):
+     global num_layers, PARTITION_ACTIVATIONS, CONTIGUOUS_CHECKPOINTING, \
+-        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME
++        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME, DEVICE_TYPE
+ 
+-    config = DeepSpeedConfig(config, mpu=mpu).activation_checkpointing_config
++    config = DeepSpeedConfig(deepspeed_config, mpu=mpu).activation_checkpointing_config
+     if dist.get_rank() == 0:
+         logger.info(config.repr())
+     PARTITION_ACTIVATIONS = config.partition_activations
+@@ -800,13 +814,15 @@ def _configure_using_config_file(config, mpu=None):
+     SYNCHRONIZE = config.synchronize_checkpoint_boundary
+     PROFILE_TIME = config.profile
+ 
++    DEVICE_TYPE = DeepSpeedConfig(deepspeed_config, mpu=mpu).zero_config.device
++
+ 
+ def _configure_defaults():
+ 
+     global mpu, num_layers, deepspeed_checkpointing_enabled
+ 
+     global PARTITION_ACTIVATIONS, CONTIGUOUS_CHECKPOINTING, \
+-        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME
++        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME, DEVICE_TYPE
+ 
+     PARTITION_ACTIVATIONS = False
+     CONTIGUOUS_CHECKPOINTING = False
+@@ -814,6 +830,7 @@ def _configure_defaults():
+     CPU_CHECKPOINT = False
+     SYNCHRONIZE = False
+     PROFILE_TIME = False
++    DEVICE_TYPE = 'cuda'
+     deepspeed_checkpointing_enabled = True
+ 
+ 
+@@ -826,6 +843,7 @@ def configure(
+     checkpoint_in_cpu=None,
+     synchronize=None,
+     profile=None,
++    device=None,
+ ):
+     """Configure DeepSpeed Activation Checkpointing.
+ 
+@@ -865,7 +883,7 @@ def configure(
+     global mpu, num_layers, deepspeed_checkpointing_enabled
+ 
+     global PARTITION_ACTIVATIONS, CONTIGUOUS_CHECKPOINTING, \
+-        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME
++        CPU_CHECKPOINT, SYNCHRONIZE, PROFILE_TIME, DEVICE_TYPE
+ 
+     _configure_defaults()
+ 
+@@ -893,6 +911,9 @@ def configure(
+     if profile is not None:
+         PROFILE_TIME = profile
+ 
++    if device is not None:
++        DEVICE_TYPE = device
++
+     if CONTIGUOUS_CHECKPOINTING:
+         assert PARTITION_ACTIVATIONS, "Contiguous Checkpointing is only available with partitioned activations. Set partitioned activations to true in deepspeed config"
+     if CONTIGUOUS_CHECKPOINTING:
+diff --git a/deepspeed/runtime/dataloader.py b/deepspeed/runtime/dataloader.py
+index acd21d9..2a5c005 100644
+--- a/deepspeed/runtime/dataloader.py
++++ b/deepspeed/runtime/dataloader.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright 2019 The Microsoft DeepSpeed Team
+ '''
+ 
+@@ -42,7 +43,8 @@ class DeepSpeedDataLoader(object):
+                  data_sampler=None,
+                  data_parallel_world_size=None,
+                  data_parallel_rank=None,
+-                 dataloader_drop_last=False):
++                 dataloader_drop_last=False,
++                 zero_device='cuda'):
+         self.tput_timer = tput_timer
+         self.batch_size = batch_size
+ 
+@@ -59,7 +61,10 @@ class DeepSpeedDataLoader(object):
+             batch_size *= device_count
+ 
+         if num_local_io_workers is None:
+-            num_local_io_workers = 2 * device_count
++            if zero_device == 'cpu':
++                num_local_io_workers = 0
++            else:
++                num_local_io_workers = 2 * device_count
+ 
+         self.num_local_io_workers = num_local_io_workers
+         self.data_sampler = data_sampler
+diff --git a/deepspeed/runtime/engine.py b/deepspeed/runtime/engine.py
+index ffcfe72..30bbc8f 100755
+--- a/deepspeed/runtime/engine.py
++++ b/deepspeed/runtime/engine.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright 2019 The Microsoft DeepSpeed Team
+ '''
+ import os
+@@ -80,6 +81,7 @@ except ImportError:
+ 
+ def split_half_float_double_csr(tensors):
+     supported_types = [
++        "torch.FloatTensor",
+         "torch.cuda.HalfTensor",
+         "torch.cuda.FloatTensor",
+         "torch.cuda.DoubleTensor",
+@@ -560,6 +562,9 @@ class DeepSpeedEngine(Module):
+     def zero_round_robin_gradients(self):
+         return self._config.zero_config.round_robin_gradients
+ 
++    def zero_device(self):
++        return self._config.zero_config.device
++
+     def dump_state(self):
+         return self._config.dump_state
+ 
+@@ -641,14 +646,17 @@ class DeepSpeedEngine(Module):
+             args,
+             'device_rank') else self.local_rank
+         if device_rank >= 0:
+-            torch.cuda.set_device(device_rank)
+-            self.device = torch.device("cuda", device_rank)
++            if self.zero_device() == 'cpu':
++                self.device = torch.device("cpu")
++            else:
++                torch.cuda.set_device(device_rank)
++                self.device = torch.device("cuda", device_rank)
+             self.world_size = dist.get_world_size()
+             self.global_rank = dist.get_rank()
+         else:
+             self.world_size = 1
+             self.global_rank = 0
+-            self.device = torch.device("cuda")
++            self.device = torch.device(zero_device)
+ 
+     # Configure based on command line arguments
+     def _configure_with_arguments(self, args, mpu):
+@@ -1083,8 +1091,8 @@ class DeepSpeedEngine(Module):
+                 elastic_checkpoint=self.zero_elastic_checkpoint(),
+                 mpu=self.mpu,
+                 postscale_gradients=self.postscale_gradients(),
+-                gradient_predivide_factor=self.gradient_predivide_factor(),
+-                gradient_predivide=self.gradient_predivide)
++                gradient_predivide_factor=self.gradient_predivide_factor())
++            # gradient_predivide=self.gradient_predivide)
+         elif zero_stage <= ZERO_OPTIMIZATION_GRADIENTS:
+             overlap_comm = self.zero_overlap_comm()
+             contiguous_gradients = self.zero_contiguous_gradients()
+@@ -1130,7 +1138,8 @@ class DeepSpeedEngine(Module):
+                 round_robin_gradients=round_robin_gradients,
+                 has_moe_layers=self.has_moe_layers,
+                 fp16_master_weights_and_gradients=self.fp16_master_weights_and_gradients(
+-                ))
++                ),
++                engine_device=self.device)
+ 
+         elif zero_stage == ZERO_OPTIMIZATION_WEIGHTS:
+             assert not self.has_moe_layers, "MoE not supported with Stage 3"
+@@ -1160,7 +1169,8 @@ class DeepSpeedEngine(Module):
+                 postscale_gradients=self.postscale_gradients(),
+                 gradient_predivide_factor=self.gradient_predivide_factor(),
+                 gradient_accumulation_steps=self.gradient_accumulation_steps(),
+-                aio_config=self.aio_config())
++                aio_config=self.aio_config(),
++                engine_device=self.device)
+ 
+         else:
+             raise NotImplementedError("ZeRO stage {} not implemented".format(zero_stage))
+@@ -1256,7 +1266,8 @@ class DeepSpeedEngine(Module):
+                                    data_sampler=data_sampler,
+                                    data_parallel_world_size=data_parallel_world_size,
+                                    data_parallel_rank=data_parallel_rank,
+-                                   dataloader_drop_last=self.dataloader_drop_last())
++                                   dataloader_drop_last=self.dataloader_drop_last(),
++                                   zero_device=self.zero_device())
+ 
+     def train(self, mode=True):
+         r"""
+diff --git a/deepspeed/runtime/swap_tensor/utils.py b/deepspeed/runtime/swap_tensor/utils.py
+index 2a751e3..39f5bbd 100644
+--- a/deepspeed/runtime/swap_tensor/utils.py
++++ b/deepspeed/runtime/swap_tensor/utils.py
+@@ -1,4 +1,5 @@
+ """
++Copyright 2023 Fujitsu Limited
+ Copyright 2020 The Microsoft DeepSpeed Team
+ Licensed under the MIT license.
+ 
+@@ -182,8 +183,8 @@ class SwapBufferManager(object):
+         self.dtype = dtype
+         self.all_buffers = [
+             torch.zeros(num_elems,
+-                        device='cpu',
+-                        dtype=dtype).pin_memory() for _ in range(count)
++                        device='cpu')
++            # dtype=dtype).pin_memory() for _ in range(count)
+         ]
+         self.free_buffer_index = [i for i in range(count)]
+         self.used_buffer_index = {}
+diff --git a/deepspeed/runtime/utils.py b/deepspeed/runtime/utils.py
+index 550d2d2..34fd622 100755
+--- a/deepspeed/runtime/utils.py
++++ b/deepspeed/runtime/utils.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright 2019 The Microsoft DeepSpeed Team
+ 
+ Copyright NVIDIA/Megatron
+@@ -305,7 +306,7 @@ def get_global_norm(norm_list):
+     return sqrt(total_norm)
+ 
+ 
+-def clip_grad_norm_(parameters, max_norm, norm_type=2, mpu=None):
++def clip_grad_norm_(parameters, max_norm, norm_type=2, mpu=None, zero_device='cuda'):
+     """Clips gradient norm of an iterable of parameters.
+ 
+     This has been adapted from Nvidia megatron. We add norm averaging
+@@ -333,7 +334,12 @@ def clip_grad_norm_(parameters, max_norm, norm_type=2, mpu=None):
+     norm_type = float(norm_type)
+     if norm_type == inf:
+         total_norm = max(p.grad.data.abs().max() for p in parameters)
+-        total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++        if zero_device == 'cpu':
++            total_norm_cuda = torch.FloatTensor([float(total_norm)],
++                                                dtype=torch.float,
++                                                device=torch.device('cpu'))
++        else:
++            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+         # Take max across all GPUs.
+         if mpu is not None:
+             torch.distributed.all_reduce(total_norm_cuda,
+@@ -353,7 +359,12 @@ def clip_grad_norm_(parameters, max_norm, norm_type=2, mpu=None):
+                 total_norm += param_norm.item()**norm_type
+ 
+         # Sum across all model parallel GPUs.
+-        total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++        if zero_device == 'cpu':
++            total_norm_cuda = torch.FloatTensor([float(total_norm)],
++                                                dtype=torch.float,
++                                                device=torch.device('cpu'))
++        else:
++            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+         if mpu is not None:
+             torch.distributed.all_reduce(total_norm_cuda,
+                                          op=torch.distributed.ReduceOp.SUM,
+@@ -364,7 +375,12 @@ def clip_grad_norm_(parameters, max_norm, norm_type=2, mpu=None):
+     pg = groups.get_data_parallel_group()
+     scaled_norm = total_norm * 1.0 / float(dist.get_world_size(group=pg))
+ 
+-    scaled_norm_tensor = torch.cuda.FloatTensor([float(scaled_norm)])
++    if zero_device == 'cpu':
++        scaled_norm_tensor = torch.FloatTensor([float(scaled_norm)],
++                                               dtype=torch.float,
++                                               device=torch.device('cpu'))
++    else:
++        scaled_norm_tensor = torch.cuda.FloatTensor([float(scaled_norm)])
+     dist.all_reduce(scaled_norm_tensor, group=pg)
+     total_norm = scaled_norm_tensor.item()
+ 
+@@ -816,8 +832,9 @@ def see_memory_usage(message, force=False):
+         f'CPU Virtual Memory:  used = {used_GB} GB, percent = {vm_stats.percent}%')
+ 
+     # get the peak memory to report correct data, so reset the counter for the next call
+-    if hasattr(torch.cuda, "reset_peak_memory_stats"):  # pytorch 1.4+
+-        torch.cuda.reset_peak_memory_stats()
++    if torch.cuda.is_available():
++        if hasattr(torch.cuda, "reset_peak_memory_stats"):  # pytorch 1.4+
++            torch.cuda.reset_peak_memory_stats()
+ 
+ 
+ def call_to_str(base, *args, **kwargs):
+diff --git a/deepspeed/runtime/zero/config.py b/deepspeed/runtime/zero/config.py
+index a48dd4e..aea85f8 100755
+--- a/deepspeed/runtime/zero/config.py
++++ b/deepspeed/runtime/zero/config.py
+@@ -1,4 +1,5 @@
+ """
++Copyright 2023 Fujitsu Limited
+ Copyright (c) Microsoft Corporation
+ Licensed under the MIT license.
+ """
+@@ -41,6 +42,9 @@ class DeepSpeedZeroConfig(DeepSpeedConfigObject):
+         self.ignore_unused_parameters = None
+         self.round_robin_gradients = None
+ 
++        #Device Parameter
++        self.device = None
++
+         if ZERO_OPTIMIZATION in param_dict.keys():
+             zero_config_dict = param_dict[ZERO_OPTIMIZATION]
+             if type(zero_config_dict) is bool:
+@@ -190,3 +194,7 @@ class DeepSpeedZeroConfig(DeepSpeedConfigObject):
+             zero_config_dict,
+             ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS,
+             ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS_DEFAULT)
++
++        self.device = get_scalar_param(zero_config_dict,
++                                       ZERO_OPTIMIZATION_DEVICE,
++                                       ZERO_OPTIMIZATION_DEVICE_DEFAULT)
+diff --git a/deepspeed/runtime/zero/constants.py b/deepspeed/runtime/zero/constants.py
+index e3b2dfc..b450d9a 100755
+--- a/deepspeed/runtime/zero/constants.py
++++ b/deepspeed/runtime/zero/constants.py
+@@ -1,4 +1,5 @@
+ """
++Copyright 2023 Fujitsu Limited
+ Copyright (c) Microsoft Corporation
+ Licensed under the MIT license.
+ """
+@@ -31,7 +32,8 @@ ZeRO optimization should be enabled as:
+     "offload_param": {...},
+     "offload_optimizer": {...},
+     "ignore_unused_parameters": [true|false],
+-    "round_robin_gradients": [true|false]
++    "round_robin_gradients": [true|false],
++    "device": [cuda|cpu]
+     }
+ }
+ '''
+@@ -129,6 +131,10 @@ ZERO_OPTIMIZATION_LEGACY_STAGE1_DEFAULT = False
+ ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS = 'round_robin_gradients'
+ ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS_DEFAULT = False
+ 
++# device
++ZERO_OPTIMIZATION_DEVICE = 'device'
++ZERO_OPTIMIZATION_DEVICE_DEFAULT = 'cuda'
++
+ #yapf: disable
+ ZERO_OPTIMIZATION_DEFAULT = {
+     ZERO_OPTIMIZATION_STAGE:
+@@ -168,5 +174,7 @@ ZERO_OPTIMIZATION_DEFAULT = {
+     ZERO_OPTIMIZATION_LEGACY_STAGE1:
+     ZERO_OPTIMIZATION_LEGACY_STAGE1_DEFAULT,
+     ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS:
+-    ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS_DEFAULT
++    ZERO_OPTIMIZATION_ROUND_ROBIN_GRADIENTS_DEFAULT,
++    ZERO_OPTIMIZATION_DEVICE:
++    ZERO_OPTIMIZATION_DEVICE_DEFAULT
+ }
+diff --git a/deepspeed/runtime/zero/partition_parameters.py b/deepspeed/runtime/zero/partition_parameters.py
+index 2c02b96..5a3e680 100755
+--- a/deepspeed/runtime/zero/partition_parameters.py
++++ b/deepspeed/runtime/zero/partition_parameters.py
+@@ -1,4 +1,5 @@
+ """
++Copyright 2023 Fujitsu Limited
+ "Copyright 2020 The Microsoft DeepSpeed Team.
+ Licensed under the MIT license.
+ """
+@@ -352,6 +353,7 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+                  config=None,
+                  enabled=True,
+                  dtype=None,
++                 engine_device=torch.device('cuda'),
+                  mpu=None):
+         """A context to enable massive model construction for training with
+         ZeRO-3. Models are automatically partitioned (or, sharded) across the
+@@ -462,6 +464,7 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+                          mem_efficient_linear=mem_efficient_linear,
+                          ds_config=_ds_config,
+                          dtype=dtype)
++        logger.warning(f'ds_config: {_ds_config}')
+         if not torch.distributed.is_initialized():
+             init_distributed()
+             assert torch.distributed.is_initialized(), "Parameters cannot be scattered without initializing torch.distributed"
+@@ -469,6 +472,7 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+             self.ds_process_group = torch.distributed.group.WORLD
+         else:
+             self.ds_process_group = data_parallel_group
++        self.engine_device = engine_device
+ 
+         self.rank = torch.distributed.get_rank(group=self.ds_process_group)
+         self.world_size = torch.distributed.get_world_size(group=self.ds_process_group)
+@@ -754,6 +758,10 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+                         f"ID {param.ds_id} Initializing partition for the first time for nvme offload."
+                     )
+ 
++                elif self.engine_device == torch.device("cpu"):
++                    partitioned_tensor = torch.zeros(partition_size,
++                                                     dtype=param.dtype,
++                                                     device=torch.device("cpu"))
+                 else:
+                     partitioned_tensor = torch.zeros(
+                         partition_size,
+@@ -854,7 +862,8 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+             f'After allocate allgather param {debug_param2name_id_shape_status(param)} {aligned_param_size} {partition_size} ',
+             force=False)
+ 
+-        torch.cuda.synchronize()
++        if torch.cuda.is_available():
++            torch.cuda.synchronize()
+ 
+         print_rank_0(
+             f"{'--'* hierarchy}----allgather param with {debug_param2name_id_shape_status(param)} partition size={partition_size}"
+@@ -888,9 +897,14 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+         partition_size = sum([param.ds_tensor.ds_numel for param in param_list])
+ 
+         tensor_size = partition_size * self.world_size
+-        flat_tensor = torch.empty(tensor_size,
+-                                  dtype=param_list[0].dtype,
+-                                  device=self.local_device)
++        if self.engine_device == torch.device("cpu"):
++            flat_tensor = torch.empty(tensor_size,
++                                      dtype=param_list[0].dtype,
++                                      device=torch.device("cpu"))
++        else:
++            flat_tensor = torch.empty(tensor_size,
++                                      dtype=param_list[0].dtype,
++                                      device=self.local_device)
+         flat_tensor.requres_grad = False
+         partitions = []
+         for i in range(self.world_size):
+@@ -918,9 +932,14 @@ class Init(InsertPostInitMethodToModuleSubClasses):
+         for param in param_list:
+             param_partition_size = param.ds_tensor.ds_numel
+             param_size = param.ds_numel
+-            replicated_tensor = torch.empty(param.ds_shape,
+-                                            dtype=param.dtype,
+-                                            device=self.local_device)
++            if self.engine_device == torch.device("cpu"):
++                replicated_tensor = torch.empty(param.ds_shape,
++                                                dtype=param.dtype,
++                                                device=torch.device("cpu"))
++            else:
++                replicated_tensor = torch.empty(param.ds_shape,
++                                                dtype=param.dtype,
++                                                device=self.local_device)
+ 
+             for i in range(self.world_size):
+ 
+diff --git a/deepspeed/runtime/zero/stage1.py b/deepspeed/runtime/zero/stage1.py
+index 20a6c5a..7fbe301 100755
+--- a/deepspeed/runtime/zero/stage1.py
++++ b/deepspeed/runtime/zero/stage1.py
+@@ -1,3 +1,5 @@
++# Copyright 2023 Fujitsu Limited
++
+ import math
+ import torch
+ import torch.distributed as dist
+@@ -270,9 +272,10 @@ class FP16_DeepSpeedZeroOptimizer_Stage1(object):
+     def _initialize_optimizer_states(self):
+         for group_idx, group in enumerate(self.local_sub_partitions_of_fp32_groups):
+             for idx, sub_partition_param in enumerate(group):
+-                sub_partition_grad = torch.zeros(int(
+-                    self.sub_partition_sizes[group_idx]),
+-                                                 dtype=sub_partition_param.dtype).cuda()
++                sub_partition_grad = torch.zeros(
++                    int(self.sub_partition_sizes[group_idx]),
++                    # dtype=sub_partition_param.dtype).cuda()
++                    dtype=sub_partition_param.dtype).cpu()
+                 sub_partition_param.grad = sub_partition_grad
+ 
+         self.optimizer.step()
+@@ -619,6 +622,7 @@ class FP16_DeepSpeedZeroOptimizer_Stage1(object):
+                         for partition in single_comm_all_partitions:
+                             partition.mul_(1. / gradient_predivide_factor)
+ 
++                    # ProcessGroupGloo does not support reduce_scatter
+                     dist.reduce_scatter(output=single_comm_all_partitions[local_rank],
+                                         input_list=single_comm_all_partitions,
+                                         group=self.dp_process_group)
+diff --git a/deepspeed/runtime/zero/stage2.py b/deepspeed/runtime/zero/stage2.py
+index 405b756..f4f1759 100755
+--- a/deepspeed/runtime/zero/stage2.py
++++ b/deepspeed/runtime/zero/stage2.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright 2019 The Microsoft DeepSpeed Team
+ '''
+ 
+@@ -105,7 +106,8 @@ class FP16_DeepSpeedZeroOptimizer(object):
+                  partition_grads=True,
+                  round_robin_gradients=False,
+                  has_moe_layers=False,
+-                 fp16_master_weights_and_gradients=False):
++                 fp16_master_weights_and_gradients=False,
++                 engine_device=torch.device('cuda')):
+ 
+         if dist.get_rank() == 0:
+             logger.info(f"Reduce bucket size {reduce_bucket_size}")
+@@ -143,7 +145,10 @@ class FP16_DeepSpeedZeroOptimizer(object):
+ 
+         self.deepspeed_adam_offload = cpu_offload
+ 
+-        self.device = torch.cuda.current_device() if not self.cpu_offload else 'cpu'
++        if engine_device == torch.device('cpu'):
++            self.device = torch.device('cpu')
++        else:
++            self.device = torch.cuda.current_device() if not self.cpu_offload else 'cpu'
+ 
+         self.dp_process_group = dp_process_group
+ 
+@@ -290,8 +295,9 @@ class FP16_DeepSpeedZeroOptimizer(object):
+                 self.flatten_dense_tensors_aligned(
+                     self.round_robin_fp16_groups[i],
+                     self.nccl_start_alignment_factor *
+-                    dist.get_world_size(group=self.real_dp_process_group[i])).cuda(
+-                        torch.cuda.current_device()))
++                    dist.get_world_size(group=self.real_dp_process_group[i])))
++            # dist.get_world_size(group=self.real_dp_process_group[i])).cuda(
++            #     torch.cuda.current_device()))
+             see_memory_usage(f"After flattening and moving param group {i} to GPU",
+                              force=False)
+ 
+@@ -352,10 +358,13 @@ class FP16_DeepSpeedZeroOptimizer(object):
+         self.reduce_bucket_size = int(reduce_bucket_size)
+         self.allgather_bucket_size = int(allgather_bucket_size)
+ 
+-        self.reduction_event = torch.cuda.Event(enable_timing=False, blocking=False)
+-        self.reduction_stream = torch.cuda.Stream()
+-        self.cpu_computation_stream = torch.cuda.Stream()
+-        self.copy_grad_stream = torch.cuda.Stream()
++        # self.reduction_event = torch.cuda.Event(enable_timing=False, blocking=False)
++        # self.reduction_stream = torch.cuda.Stream()
++        # self.cpu_computation_stream = torch.cuda.Stream()
++        # self.copy_grad_stream = torch.cuda.Stream()
++        self.reduction_stream = []
++        self.cpu_computation_stream = []
++        self.copy_grad_stream = []
+         self.callback_queued = False
+ 
+         self.param_dict = {}
+@@ -567,10 +576,13 @@ class FP16_DeepSpeedZeroOptimizer(object):
+ 
+         # with PP we must create ipg buffer, since backward is handled outside zero
+         if pipeline_parallel and self.contiguous_gradients:
++            current_device = torch.device('cpu') if self.device == torch.device(
++                'cpu') else torch.cuda.current_device()
+             self.ipg_buffer = []
+             buf_0 = torch.empty(int(self.reduce_bucket_size),
+                                 dtype=self.dtype,
+-                                device=torch.cuda.current_device())
++                                device=current_device)
++            # device=torch.cuda.current_device())
+             self.ipg_buffer.append(buf_0)
+             self.ipg_index = 0
+ 
+@@ -633,28 +645,34 @@ class FP16_DeepSpeedZeroOptimizer(object):
+             self.params_already_reduced[i] = False
+ 
+         if self.overlap_comm:
+-            torch.cuda.synchronize()
++            # torch.cuda.synchronize()
+             # It is safe to clear previously reduced grads of other partitions
+             self._clear_previous_reduced_grads()
+ 
+         if self.cpu_offload is False:
+             for i, _ in enumerate(self.fp16_groups):
+ 
++                current_device = torch.device('cpu') if self.device == torch.device(
++                    'cpu') else torch.cuda.current_device()
+                 if not i in self.averaged_gradients or self.averaged_gradients[i] is None:
+                     self.averaged_gradients[i] = self.get_flat_partition(
+                         self.params_in_partition[i],
+                         self.first_offset[i],
+                         self.partition_size[i],
+                         dtype=self.dtype,
+-                        device=torch.cuda.current_device(),
++                        device=current_device,
++                        # device=torch.device('cpu'),
++                        # device=torch.cuda.current_device(),
+                         return_tensor_list=True)
+                 else:
+-                    avg_new = self.get_flat_partition(self.params_in_partition[i],
+-                                                      self.first_offset[i],
+-                                                      self.partition_size[i],
+-                                                      dtype=self.dtype,
+-                                                      device=torch.cuda.current_device(),
+-                                                      return_tensor_list=True)
++                    avg_new = self.get_flat_partition(
++                        self.params_in_partition[i],
++                        self.first_offset[i],
++                        self.partition_size[i],
++                        dtype=self.dtype,
++                        device=current_device,
++                        # device=torch.cuda.current_device(),
++                        return_tensor_list=True)
+ 
+                     for accumulated_grad, new_avg_grad in zip(self.averaged_gradients[i], avg_new):
+                         accumulated_grad.add_(new_avg_grad)
+@@ -859,7 +877,7 @@ class FP16_DeepSpeedZeroOptimizer(object):
+ 
+     def average_tensor(self, tensor):
+         if self.overlap_comm:
+-            torch.cuda.synchronize()
++            # torch.cuda.synchronize()
+             stream = self.reduction_stream
+         else:
+             stream = torch.cuda.current_stream()
+@@ -1115,7 +1133,10 @@ class FP16_DeepSpeedZeroOptimizer(object):
+                     """
+ 
+         # Sum across all model parallel GPUs.
+-        total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++        if self.device == torch.device("cpu"):
++            total_norm_cuda = torch.FloatTensor([float(total_norm)])
++        else:
++            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+ 
+         torch.distributed.all_reduce(total_norm_cuda,
+                                      op=torch.distributed.ReduceOp.SUM,
+@@ -1157,9 +1178,13 @@ class FP16_DeepSpeedZeroOptimizer(object):
+                     total_size += param_in_partition.numel()
+ 
+             see_memory_usage(f"before copying {total_size} gradients into partition")
++            current_device = torch.device('cpu') if self.device == torch.device(
++                'cpu') else torch.cuda.current_device()
+             self.grads_in_partition = torch.empty(int(total_size),
+                                                   dtype=self.dtype,
+-                                                  device=torch.cuda.current_device())
++                                                  device=current_device)
++            # device=torch.device('cpu'))
++            # device=torch.cuda.current_device())
+             see_memory_usage(f"after copying {total_size} gradients into partition")
+ 
+         # The allreduce buffer will be rewritten. Copy the gradients in partition to a new buffer
+@@ -1197,7 +1222,8 @@ class FP16_DeepSpeedZeroOptimizer(object):
+             #            stream = self.copy_grad_stream
+             stream = torch.cuda.current_stream()
+         else:
+-            stream = torch.cuda.current_stream()
++            # stream = torch.cuda.current_stream()
++            stream = []
+ 
+         with torch.cuda.stream(stream):
+             for _, param, param_id in self.params_in_ipg_bucket:
+@@ -1483,7 +1509,10 @@ class FP16_DeepSpeedZeroOptimizer(object):
+         norm_type = float(norm_type)
+         if norm_type == inf:
+             total_norm = max(g.data.abs().max() for g in gradients)
+-            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++            if self.device == torch.device("cpu"):
++                total_norm_cuda = torch.FloatTensor([float(total_norm)])
++            else:
++                total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+             torch.distributed.all_reduce(total_norm_cuda,
+                                          op=torch.distributed.ReduceOp.MAX,
+                                          group=self.dp_process_group)
+@@ -1504,7 +1533,10 @@ class FP16_DeepSpeedZeroOptimizer(object):
+                     param_norm = g.data.double().norm(2)
+                     total_norm += param_norm.item()**2
+             # Sum across all model parallel GPUs.
+-            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++            if self.device == torch.device("cpu"):
++                total_norm_cuda = torch.FloatTensor([float(total_norm)])
++            else:
++                total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+ 
+             torch.distributed.all_reduce(total_norm_cuda,
+                                          op=torch.distributed.ReduceOp.SUM,
+@@ -1762,9 +1794,11 @@ class FP16_DeepSpeedZeroOptimizer(object):
+             if self.is_moe_param_group[i]:
+                 scaled_norm = norm * 1.0 / float(
+                     dist.get_world_size(group=self.ep_process_group))
+-                scaled_norm_tensor = torch.tensor(scaled_norm,
+-                                                  device='cuda',
+-                                                  dtype=torch.float)
++                scaled_norm_tensor = torch.tensor(
++                    scaled_norm,
++                    device=self.device,
++                    # device='cuda',
++                    dtype=torch.float)
+                 dist.all_reduce(scaled_norm_tensor, group=self.ep_process_group)
+                 norm_groups[i] = scaled_norm_tensor.item()
+ 
+@@ -1807,7 +1841,8 @@ class FP16_DeepSpeedZeroOptimizer(object):
+         if partition_gradients:
+             overflow = self.local_overflow if self.cpu_offload else self.has_overflow_partitioned_grads_serial(
+             )
+-            overflow_gpu = torch.cuda.ByteTensor([overflow])
++            overflow_gpu = torch.ByteTensor([overflow])
++            # overflow_gpu = torch.cuda.ByteTensor([overflow])
+             '''This will capture overflow across all data parallel and expert parallel process
+             Since expert parallel process are a subset of data parallel process'''
+             torch.distributed.all_reduce(overflow_gpu,
+@@ -1865,16 +1900,22 @@ class FP16_DeepSpeedZeroOptimizer(object):
+ 
+         if self.contiguous_gradients:
+             self.ipg_buffer = []
++            current_device = torch.device('cpu') if self.device == torch.device(
++                'cpu') else torch.cuda.current_device()
+             buf_0 = torch.empty(int(self.reduce_bucket_size),
+                                 dtype=self.dtype,
+-                                device=torch.cuda.current_device())
++                                device=current_device)
++            # device=torch.device('cpu'))
++            # device=torch.cuda.current_device())
+             self.ipg_buffer.append(buf_0)
+ 
+             # Use double buffers to avoid data access conflict when overlap_comm is enabled.
+             if self.overlap_comm:
+                 buf_1 = torch.empty(int(self.reduce_bucket_size),
+                                     dtype=self.dtype,
+-                                    device=torch.cuda.current_device())
++                                    device=current_device)
++                # device=torch.device('cpu'))
++                # device=torch.cuda.current_device())
+                 self.ipg_buffer.append(buf_1)
+             self.ipg_index = 0
+ 
+diff --git a/deepspeed/runtime/zero/stage3.py b/deepspeed/runtime/zero/stage3.py
+index 0f19c49..5dbc44f 100755
+--- a/deepspeed/runtime/zero/stage3.py
++++ b/deepspeed/runtime/zero/stage3.py
+@@ -1,4 +1,5 @@
+ """
++Copyright 2023 Fujitsu Limited
+ "Copyright 2020 The Microsoft DeepSpeed Team.
+ Licensed under the MIT license.
+ """
+@@ -299,8 +300,8 @@ class PartitionedParameterCoordinator(object):
+ 
+         self.in_flight_handles = []
+         self.params_in_flight = []
+-        self.comm_stream = comm_stream if comm_stream is not None else torch.cuda.current_stream(
+-        )
++        self.comm_stream = comm_stream  #if comm_stream is not None else torch.cuda.current_stream()
++
+         self.prefetch_coordinator = PrefetchCoordinator()
+         self.hierarchy = 0
+ 
+@@ -537,8 +538,11 @@ class PartitionedParameterCoordinator(object):
+                 with torch.cuda.stream(self.comm_stream):
+                     handle.wait()
+             param.ds_status = ZeroParamStatus.AVAILABLE
+-        self.comm_stream.synchronize()
+-        torch.cuda.synchronize() if synchronize_streams else None
++
++        if self.comm_stream:
++            self.comm_stream.synchronize()
++        #torch.cuda.synchronize() if synchronize_streams else None
++
+         self.in_flight_handles = []
+         self.params_in_flight = []
+ 
+@@ -630,7 +634,8 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                  gradient_predivide_factor=1.0,
+                  gradient_accumulation_steps=1,
+                  elastic_checkpoint=False,
+-                 aio_config=None):
++                 aio_config=None,
++                 engine_device=torch.device('cuda')):
+ 
+         see_memory_usage("Stage 3 initialize beginning", force=False)
+ 
+@@ -661,7 +666,10 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+             group = None
+             if mpu:
+                 group = mpu.get_data_parallel_group()
+-            Init(module=module, data_parallel_group=group, dtype=self.dtype)
++            Init(module=module,
++                 data_parallel_group=group,
++                 dtype=self.dtype,
++                 engine_device=engine_device)
+ 
+         for m in module.modules():
+             _init_external_params(m)
+@@ -675,7 +683,10 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         _inject_parameters(module, ZeROOrderedDict)
+ 
+         if self.overlap_comm:
+-            self.gpu_sum = torch.zeros(1, dtype=torch.float).cuda()
++            if engine_device == torch.device('cpu'):
++                self.gpu_sum = torch.zeros(1, dtype=torch.float)
++            else:
++                self.gpu_sum = torch.zeros(1, dtype=torch.float).cuda()
+ 
+         ###################### offload optimizer setup ##################################
+         self.optimizer_swapper = None
+@@ -713,13 +724,23 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         self.deepspeed_adam_offload = (self.offload_optimizer
+                                        and type(init_optimizer) == DeepSpeedCPUAdam)
+ 
+-        self.device = torch.cuda.current_device(
+-        ) if not self.offload_optimizer else OFFLOAD_CPU_DEVICE
++        if engine_device == torch.device("cpu"):
++            self.device = torch.device("cpu")
++        else:
++            self.device = torch.cuda.current_device(
++            ) if not self.offload_optimizer else OFFLOAD_CPU_DEVICE
+         ############################################################################
+ 
+         see_memory_usage("Before Partitioned Parameter Coordinator", force=False)
+ 
+-        fetch_stream = torch.cuda.Stream() if self.overlap_comm else None
++        ##fetch_stream = torch.cuda.Stream() if self.overlap_comm else None
++        #fetch_stream = torch.cuda.Stream() if self.overlap_comm else torch.cuda.current_stream()
++        if self.device == torch.device('cpu'):
++            fetch_stream = None
++        else:
++            fetch_stream = torch.cuda.Stream(
++            ) if self.overlap_comm else torch.cuda.current_stream()
++
+         self.param_coordinator = PartitionedParameterCoordinator(
+             comm_stream=fetch_stream,
+             max_reuse_distance_in_numel=int(max_reuse_distance),
+@@ -832,12 +853,18 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+ 
+         self.reduce_bucket_size = int(reduce_bucket_size)
+ 
+-        self.reduction_event = torch.cuda.Event(enable_timing=False, blocking=False)
++        if self.device == torch.device('cpu'):
++            # self.reduction_event = None
++            self.reduction_stream = None
++            self.copy_grad_stream = None
++        else:
++            # self.reduction_event = torch.cuda.Event(enable_timing=False, blocking=False)
++            self.reduction_stream = torch.cuda.Stream(
++            ) if self.overlap_comm else torch.cuda.current_stream()
++            self.copy_grad_stream = torch.cuda.Stream()
+ 
+-        self.reduction_stream = torch.cuda.Stream(
+-        ) if self.overlap_comm else torch.cuda.current_stream()
+         self.callback_queued = False
+-        self.copy_grad_stream = torch.cuda.Stream()
++        self.copy_grad_stream = None
+ 
+         self.param_dict = {}
+ 
+@@ -887,13 +914,20 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+             self.accumulated_grads_in_cpu = {}
+             self.norm_for_param_grads = {}
+             self.local_overflow = False
++            current_device = torch.device('cpu') if self.device == torch.device(
++                'cpu') else torch.cuda.current_device()
+             self.temp_grad_buffer_for_gpu_offload = torch.zeros(
+                 largest_partitioned_param_numel,
+-                device=torch.cuda.current_device(),
++                device=current_device,
++                # device=torch.device("cpu"),
++                # device=torch.cuda.current_device(),
++                dtype=self.dtype)
++            self.temp_grad_gpu_buffer = torch.zeros(
++                largest_partitioned_param_numel,
++                device=current_device,
++                # device=torch.device("cpu"),
++                # device=torch.cuda.current_device(),
+                 dtype=self.dtype)
+-            self.temp_grad_gpu_buffer = torch.zeros(largest_partitioned_param_numel,
+-                                                    device=torch.cuda.current_device(),
+-                                                    dtype=self.dtype)
+         see_memory_usage(f"After CPU Offload initialization", force=False)
+ 
+         # stores if a partition has been reduced in this step
+@@ -1076,8 +1110,8 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                              force=False)
+                 self.param_groups_fp16_flat_cpu_memory.append(
+                     torch.empty(int(flat_buffer_size),
+-                                dtype=self.dtype,
+-                                pin_memory=True))
++                                dtype=self.dtype))
++                # pin_memory=True))
+             else:
+                 print_rank_0(
+                     f"No flat buffer size. Param group size was  {params_in_group}",
+@@ -1156,10 +1190,17 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                                      force=False)
+ 
+                     #create flat buffer in CPU and move to GPU
+-                    self.fp16_partitioned_groups_flat.append(
+-                        self.flatten_dense_tensors_aligned(
+-                            self.fp16_partitioned_groups[i],
+-                            1).cuda(torch.cuda.current_device()))
++                    if self.device == torch.device('cpu'):
++                        self.fp16_partitioned_groups_flat.append(
++                            self.flatten_dense_tensors_aligned(
++                                self.fp16_partitioned_groups[i],
++                                1))
++                    else:
++                        self.fp16_partitioned_groups_flat.append(
++                            self.flatten_dense_tensors_aligned(
++                                self.fp16_partitioned_groups[i],
++                                1).cuda(torch.cuda.current_device()))
++
+                     see_memory_usage(
+                         f"After flattening and moving param subgroup {i} to GPU",
+                         force=False)
+@@ -1761,7 +1802,7 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         self.report_ipg_memory_usage(f"In ipg_epilogue after reduce_ipg_grads", 0)
+ 
+         if self.overlap_comm:
+-            self.reduction_stream.synchronize()
++            self.reduction_stream.synchronize() if self.reduction_stream else None
+ 
+         with torch.cuda.stream(self.reduction_stream):
+             self.partition_previous_reduced_grads()
+@@ -2069,7 +2110,11 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                     total_norm += param_norm.item()**2
+ 
+         # Sum across all model parallel GPUs.
+-        total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++        if self.device == torch.device('cpu'):
++            total_norm_cuda = torch.FloatTensor([float(total_norm)],
++                                                device=torch.device('cpu'))
++        else:
++            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+ 
+         torch.distributed.all_reduce(total_norm_cuda,
+                                      op=torch.distributed.ReduceOp.SUM,
+@@ -2126,7 +2171,8 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+             offload_fp32_offsets = {}
+ 
+         with torch.cuda.stream(self.copy_grad_stream):
+-            self.reduction_stream.synchronize()
++            if self.reduction_stream:
++                self.reduction_stream.synchronize()
+             for param in self.previous_reduced_grads:
+ 
+                 [i,
+@@ -2136,8 +2182,9 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                 if self.offload_optimizer:
+                     param.partition_gradients(
+                         partition_buffers=self.temp_grad_gpu_buffer)
+-                    #with torch.cuda.stream(self.copy_grad_stream):
+-                    #    self.reduction_stream.synchronize()
++                    with torch.cuda.stream(self.copy_grad_stream):
++                        if self.reduction_stream:
++                            self.reduction_stream.synchronize()
+ 
+                     if self.gradient_accumulation_steps > 1:
+                         # The allreduce buffer will be rewritten. Copy the gradients in partition to a new buffer
+@@ -2192,7 +2239,8 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         self.previous_reduced_grads = []
+ 
+     def reduce_ipg_grads(self, extra_param=None):
+-        if self.overlap_comm:
++
++        if self.overlap_comm and self.reduction_stream:
+             self.reduction_stream.synchronize()
+ 
+         with torch.cuda.stream(self.reduction_stream):
+@@ -2463,7 +2511,11 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         norm_type = float(norm_type)
+         if norm_type == inf:
+             total_norm = max(g.data.abs().max() for g in gradients)
+-            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++            if self.device == torch.device("cpu"):
++                total_norm_cuda = torch.FloatTensor([float(total_norm)],
++                                                    device=torch.device('cpu'))
++            else:
++                total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+             torch.distributed.all_reduce(total_norm_cuda,
+                                          op=torch.distributed.ReduceOp.MAX,
+                                          group=self.dp_process_group)
+@@ -2481,7 +2533,11 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                     param_norm = g.data.double().norm(2)
+                     total_norm += param_norm.item()**2
+             # Sum across all model parallel GPUs.
+-            total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
++            if self.device == torch.device('cpu'):
++                total_norm_cuda = torch.FloatTensor([float(total_norm)],
++                                                    device=torch.device('cpu'))
++            else:
++                total_norm_cuda = torch.cuda.FloatTensor([float(total_norm)])
+ 
+             torch.distributed.all_reduce(total_norm_cuda,
+                                          op=torch.distributed.ReduceOp.SUM,
+@@ -2892,12 +2948,21 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         if partition_gradients:
+             if self.overlap_comm:
+                 self.local_overflow = self._has_inf_or_nan(self.gpu_sum)
+-                self.gpu_sum = torch.zeros(1, dtype=torch.float).cuda()
++                if self.device == torch.device('cpu'):
++                    self.gpu_sum = torch.zeros(1,
++                                               dtype=torch.float,
++                                               device=torch.device('cpu'))  #.cuda()
++                else:
++                    self.gpu_sum = torch.zeros(1, dtype=torch.float).cuda()
+ 
+             overflow = self.local_overflow if self.offload_optimizer else self.has_overflow_partitioned_grads_serial(
+             )
+             #overflow = self.has_overflow_partitioned_grads_serial()
+-            overflow_gpu = torch.cuda.ByteTensor([overflow])
++            #overflow_gpu = torch.cuda.ByteTensor([overflow])
++            overflow_gpu = torch.ByteTensor(
++                [overflow],
++                device=torch.device('cpu')) if self.device == torch.device(
++                    'cpu') else torch.cuda.ByteTensor([overflow])
+             torch.distributed.all_reduce(overflow_gpu,
+                                          op=torch.distributed.ReduceOp.MAX,
+                                          group=self.dp_process_group)
+@@ -2909,8 +2974,11 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+                     params.append(param)
+ 
+             overflow = self.has_overflow_serial(params, is_grad_list=partition_gradients)
+-            overflow_gpu = torch.cuda.ByteTensor([overflow])
+-
++            #overflow_gpu = torch.cuda.ByteTensor([overflow])
++            overflow_gpu = torch.ByteTensor(
++                [overflow],
++                device=torch.device('cpu')) if self.device == torch.device(
++                    'cpu') else torch.cuda.ByteTensor([overflow])
+         # Since each model parallel GPU carries only part of the model,
+         # make sure overflow flag is synced across all the model parallel GPUs
+         self._model_parallel_all_reduce(tensor=overflow_gpu,
+@@ -2960,16 +3028,22 @@ class FP16_DeepSpeedZeroOptimizer_Stage3(object):
+         see_memory_usage(f"Before backward", force=False)
+         if self.contiguous_gradients:
+             self.ipg_buffer = []
++            current_device = torch.device('cpu') if self.device == torch.device(
++                'cpu') else torch.cuda.current_device()
+             buf_0 = torch.empty(self.reduce_bucket_size,
+                                 dtype=self.dtype,
+-                                device=torch.cuda.current_device())
++                                device=current_device)
++            # device=torch.device('cpu')) #torch.cuda.current_device()
++
+             self.ipg_buffer.append(buf_0)
+ 
+             # Use double buffers to avoid data access conflict when overlap_comm is enabled.
+             if self.overlap_comm:
+                 buf_1 = torch.empty(self.reduce_bucket_size,
+                                     dtype=self.dtype,
+-                                    device=torch.cuda.current_device())
++                                    device=current_device)
++                # device=torch.device('cpu')) #torch.cuda.current_device()
++
+                 self.ipg_buffer.append(buf_1)
+             self.ipg_index = 0
+ 
+diff --git a/deepspeed/utils/timer.py b/deepspeed/utils/timer.py
+index 1bf5edc..baafa22 100755
+--- a/deepspeed/utils/timer.py
++++ b/deepspeed/utils/timer.py
+@@ -1,4 +1,5 @@
+ '''
++Copyright 2023 Fujitsu Limited
+ Copyright 2019 The Microsoft DeepSpeed Team
+ '''
+ 
+@@ -29,14 +30,16 @@ class SynchronizedWallClockTimer:
+         def start(self):
+             """Start the timer."""
+             assert not self.started_, 'timer has already been started'
+-            torch.cuda.synchronize()
++            if torch.cuda.is_available():
++                torch.cuda.synchronize()
+             self.start_time = time.time()
+             self.started_ = True
+ 
+         def stop(self, reset=True):
+             """Stop the timer."""
+             assert self.started_, 'timer is not started'
+-            torch.cuda.synchronize()
++            if torch.cuda.is_available():
++                torch.cuda.synchronize()
+             if reset:
+                 self.elapsed_ = (time.time() - self.start_time)
+             else:
+@@ -138,7 +141,8 @@ class ThroughputTimer():
+         self._init_timer()
+         self.started = True
+         if self.total_step_count >= self.start_step:
+-            torch.cuda.synchronize()
++            if torch.cuda.is_available():
++                torch.cuda.synchronize()
+             self.start_time = time.time()
+ 
+     def stop(self, report_speed=True):
+@@ -148,7 +152,8 @@ class ThroughputTimer():
+         self.total_step_count += 1
+         self.local_step_count += 1
+         if self.total_step_count > self.start_step:
+-            torch.cuda.synchronize()
++            if torch.cuda.is_available():
++                torch.cuda.synchronize()
+             self.end_time = time.time()
+             duration = self.end_time - self.start_time
+             self.total_elapsed_time += duration

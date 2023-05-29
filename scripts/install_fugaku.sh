@@ -4,11 +4,6 @@
 
 mkdir -p $WORKDIR
 
-if [ ! -d $WORKDIR/DeepSpeedCPU ]; then
-    echo "Please clone or copy DeepSpeedCPU to $WORKDIR"
-    exit 1
-fi
-
 ### pytorch
 pjsub $PJSUB_OPT --llio localtmp-size=80Gi --step --sparam "jnam=install_openfold" scripts/install_fugaku_pytorch.sh
 

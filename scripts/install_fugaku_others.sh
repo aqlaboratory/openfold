@@ -89,7 +89,10 @@ patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
 popd
 
 # DeepSpeed
-pushd DeepSpeedCPU
+git clone https://github.com/microsoft/DeepSpeed.git
+pushd DeepSpeed
+git checkout b4e5826a
+patch -p1 < $OPENFOLDDIR/lib/deepspeed.patch
 DS_BUILD_UTILS=1 pip3 install .
 popd
 
