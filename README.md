@@ -1,9 +1,8 @@
-# OpenFold for Fugaku
+# 「富岳」実装版OpenFold (Fugaku implementation for OpenFold)
 
 ## コードの準備 (/vol0006/ra000018/data/OpenFold/src/openfold_v1.0.0をコピーしてきた際は不要)
 1. OpenFoldをgit cloneもしくはコピーし、そのディレクトリに移動
-2. DeepSpeedCPUを`third_party`以下にgit cloneもしくはコピー
-3. stereo_chemical_props.txtを`openfold/openfold/resources/stereo_chemical_props.txt`に配置
+2. stereo_chemical_props.txtを`openfold/openfold/resources/stereo_chemical_props.txt`に配置
     - 共有ディレクトリの`misc/stereo_chemical_props.txt`に以下のURLからダウンロードしたものが置いてある
         - https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 
@@ -45,3 +44,13 @@ mmcifを事前にパースしpickle化およびlz4圧縮しておくことで、
 pjsub -g {グループID} run.sh
 ```
 4. 学習および推論ディレクトリのparametersに記載されているmmcifのディレクトリを変換したものに置き換える
+
+
+## Copyright notice
+
+This software includes AlphaFold and OpenFold that are distributed in the Apache License 2.0.
+However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a copy of which is downloaded to `openfold/resources/params` by the installation script. Note that the latter
+replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
+
+## Changes from OpenFold
+- TBD
