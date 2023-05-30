@@ -1,3 +1,4 @@
+# Copyright 2023 Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
 # 
