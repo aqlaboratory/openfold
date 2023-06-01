@@ -397,6 +397,10 @@ def pseudo_beta_fn(aatype, all_atom_positions, all_atom_mask):
 
 @curry1
 def make_pseudo_beta(protein, prefix=""):
+    return make_pseudo_beta_no_curry(protein, prefix=prefix)
+
+
+def make_pseudo_beta_no_curry(protein, prefix=""):
     """Create pseudo-beta (alpha for glycine) position and mask."""
     assert prefix in ["", "template_"]
     (
@@ -408,7 +412,6 @@ def make_pseudo_beta(protein, prefix=""):
         protein["template_all_atom_mask" if prefix else "all_atom_mask"],
     )
     return protein
-
 
 @curry1
 def add_constant_field(protein, key, value):
