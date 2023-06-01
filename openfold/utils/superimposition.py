@@ -41,7 +41,7 @@ def _superimpose_single(reference, coords):
     return coords.new_tensor(superimposed), coords.new_tensor(rmsd)
 
 
-def superimpose(reference, coords, mask):
+def superimpose(reference, coords, mask, verbose:bool = True):
     """
         Superimposes coordinates onto a reference by minimizing RMSD using SVD.
 
@@ -55,6 +55,11 @@ def superimpose(reference, coords, mask):
         Returns:
             A tuple of [*, N, 3] superimposed coords and [*] final RMSDs.
     """
+    if verbose:
+        print(f'superimpose::debug:: reference {reference.shape} coords {coords.shape} mask {mask.shape}')
+    if len(reference.shape)>2 and reference.shape[-2] in [14,37]:
+        print(f'superimpose warning, you are using shape {reference.shape} which might mean you did not flatten the residues and superimposing will happen separately per residue which is likely not your intention')
+    
     def select_unmasked_coords(coords, mask):
         return torch.masked_select(
             coords,

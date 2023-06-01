@@ -510,7 +510,7 @@ def get_atom_coords(
     relevant_chains = [c for c in chains if c.id == chain_id]
     if len(relevant_chains) != 1:
         raise MultipleChainsError(
-            f"Expected exactly one chain in structure with id {chain_id}."
+            f"Expected exactly one chain in structure with id {chain_id}, but instead got {len(relevant_chains)}."
         )
     chain = relevant_chains[0]
 
