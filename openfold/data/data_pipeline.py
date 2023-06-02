@@ -280,6 +280,7 @@ def run_msa_tool(
     else:
         result = msa_runner.query(fasta_path)[0]
 
+    assert msa_out_path.split('.')[-1] == msa_format
     with open(msa_out_path, "w") as f:
         f.write(result[msa_format])
 
@@ -320,6 +321,7 @@ def make_sequence_features_with_custom_template(
         **msa_features,
         **template_features.features
     }
+
 
 class AlignmentRunner:
     """Runs alignment tools and saves the results"""
@@ -372,6 +374,8 @@ class AlignmentRunner:
                 Max number of uniref hits
             mgnify_max_hits:
                 Max number of mgnify hits
+            uniprot_max_hits:
+                Max number of uniprot hits
         """
         db_map = {
             "jackhmmer": {
@@ -468,7 +472,7 @@ class AlignmentRunner:
     ):
         """Runs alignment tools on a sequence"""
         if(self.jackhmmer_uniref90_runner is not None):
-            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.a3m")
+            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.sto")
 
             jackhmmer_uniref90_result = run_msa_tool(
                 msa_runner=self.jackhmmer_uniref90_runner,
@@ -505,7 +509,7 @@ class AlignmentRunner:
                     )
 
         if(self.jackhmmer_mgnify_runner is not None):
-            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.a3m")
+            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.sto")
             jackhmmer_mgnify_result = run_msa_tool(
                 msa_runner=self.jackhmmer_mgnify_runner,
                 fasta_path=fasta_path,
@@ -719,16 +723,14 @@ class DataPipeline:
                     msa = parsers.parse_a3m(
                         read_msa(start, size)
                     )
-                    data = {"msa": msa, "deletion_matrix": msa.deletion_matrix}
                 # The "hmm_output" exception is a crude way to exclude
                 # multimer template hits.
                 elif(ext == ".sto" and not "hmm_output" == filename):
                     msa = parsers.parse_stockholm(read_msa(start, size))
-                    data = {"msa": msa, "deletion_matrix": msa.deletion_matrix}
                 else:
                     continue
 
-                msa_data[name] = data
+                msa_data[name] = msa
 
             fp.close()
         else:
@@ -739,17 +741,15 @@ class DataPipeline:
                 if(ext == ".a3m"):
                     with open(path, "r") as fp:
                         msa = parsers.parse_a3m(fp.read())
-                    data = {"msa": msa, "deletion_matrix": msa.deletion_matrix}
                 elif(ext == ".sto" and not "hmm_output" == filename):
                     with open(path, "r") as fp:
                         msa = parsers.parse_stockholm(
                             fp.read()
                         )
-                    data = {"msa": msa, "deletion_matrix": msa.deletion_matrix}
                 else:
                     continue
 
-                msa_data[f] = data
+                msa_data[f] = msa
 
         return msa_data
 
@@ -831,8 +831,6 @@ class DataPipeline:
                         hits = parsers.parse_hhr(fp.read())
                     all_hits[f] = hits
 
-        return
-
     def _get_msas(self,
         alignment_dir: str,
         input_sequence: Optional[str] = None,
@@ -849,16 +847,11 @@ class DataPipeline:
                 )
 
             deletion_matrix = [[0 for _ in input_sequence]]
-            msa_data["dummy"] = {
-                "msa": parsers.Msa(sequences=input_sequence, deletion_matrix=deletion_matrix, descriptions=None),
-                "deletion_matrix": deletion_matrix,
-            }
+            msa_data["dummy"] = parsers.Msa(sequences=input_sequence,
+                                            deletion_matrix=deletion_matrix,
+                                            descriptions=None)
 
-        msas, deletion_matrices = zip(*[
-            (v["msa"], v["deletion_matrix"]) for v in msa_data.values()
-        ])
-
-        return msas, deletion_matrices
+        return list(msa_data.values())
 
     def _process_msa_feats(
         self,
@@ -866,7 +859,7 @@ class DataPipeline:
         input_sequence: Optional[str] = None,
         alignment_index: Optional[str] = None
     ) -> Mapping[str, Any]:
-        msas, deletion_matrices = self._get_msas(
+        msas = self._get_msas(
             alignment_dir, input_sequence, alignment_index
         )
         msa_features = make_msa_features(
@@ -944,7 +937,6 @@ class DataPipeline:
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(
             alignment_dir,
-            input_sequence,
             alignment_index)
 
         template_features = make_template_features(
@@ -994,7 +986,6 @@ class DataPipeline:
 
         hits = self._parse_template_hits(
             alignment_dir,
-            input_sequence,
             alignment_index
         )
 
@@ -1080,11 +1071,11 @@ class DataPipeline:
             alignment_dir = os.path.join(
                 super_alignment_dir, desc
             )
-            msas, deletion_mats = self._get_msas(
+            msas = self._get_msas(
                 alignment_dir, seq, None
             )
-            msa_list.append(msas)
-            deletion_mat_list.append(deletion_mats)
+            msa_list.append([m.sequences for m in msas])
+            deletion_mat_list.append([m.deletion_matrix for m in msas])
 
         final_msa = []
         final_deletion_mat = []
@@ -1181,12 +1172,10 @@ class DataPipelineMultimer:
 
     def _all_seq_msa_features(self, fasta_path, alignment_dir):
         """Get MSA features for unclustered uniprot, for pairing."""
-        #TODO: Quick fix, change back to .sto after parsing fixed
-        uniprot_msa_path = os.path.join(alignment_dir, "uniprot_hits.a3m")
+        uniprot_msa_path = os.path.join(alignment_dir, "uniprot_hits.sto")
         with open(uniprot_msa_path, "r") as fp:
             uniprot_msa_string = fp.read()
-        msa = parsers.parse_a3m(uniprot_msa_string)
-        #msa = parsers.parse_stockholm(uniprot_msa_string)
+        msa = parsers.parse_stockholm(uniprot_msa_string)
         all_seq_features = make_msa_features([msa])
         valid_feats = msa_pairing.MSA_FEATURES + (
             'msa_species_identifiers',

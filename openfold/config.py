@@ -155,21 +155,38 @@ def model_config(
         c.loss.tm.weight = 0.1
     elif "multimer" in name:
         c.globals.is_multimer = True
+        c.globals.bfloat16 = True
+        c.globals.bfloat16_output = False
         c.loss.masked_msa.num_classes = 22
-
-        if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
-            c.model.evoformer.num_msa = 252
-            c.model.evoformer.num_extra_msa= 1152
-            c.model.evoformer.fuse_projection_weights = False
-            c.model.extra_msa.extra_msa_stack.fuse_projection_weights = False
-            c.model.template.template_pair_stack.fuse_projection_weights = False
-        elif name == 'model_4_multimer_v3':
-            c.model.evoformer.num_extra_msa = 1152
-        elif name == 'model_5_multimer_v3':
-            c.model.evoformer.num_extra_msa = 1152
+        c.data.common.max_recycling_iters = 20
 
         for k,v in multimer_model_config_update.items():
             c.model[k] = v
+
+        # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
+        if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
+            #c.model.input_embedder.num_msa = 252
+            #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
+            c.data.train.max_msa_clusters = 252
+            c.data.predict.max_msa_clusters = 252
+            c.data.train.max_extra_msa = 1152
+            c.data.predict.max_extra_msa = 1152
+            c.model.evoformer_stack.fuse_projection_weights = False
+            c.model.extra_msa.extra_msa_stack.fuse_projection_weights = False
+            c.model.template.template_pair_stack.fuse_projection_weights = False
+        elif name == 'model_4_multimer_v3':
+            #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
+            c.data.train.max_extra_msa = 1152
+            c.data.predict.max_extra_msa = 1152
+        elif name == 'model_5_multimer_v3':
+            #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
+            c.data.train.max_extra_msa = 1152
+            c.data.predict.max_extra_msa = 1152
+        else:
+            c.data.train.max_msa_clusters = 508
+            c.data.predict.max_msa_clusters = 508
+            c.data.train.max_extra_msa = 2048
+            c.data.predict.max_extra_msa = 2048
 
         c.data.common.unsupervised_features.extend([
             "msa_mask",
@@ -646,6 +663,12 @@ config = mlc.ConfigDict(
             "eps": eps,
         },
         "ema": {"decay": 0.999},
+        # A negative value indicates that no early stopping will occur, i.e.
+        # the model will always run `max_recycling_iters` number of recycling
+        # iterations. A positive value will enable early stopping if the
+        # difference in pairwise distances is less than the tolerance between
+        # recycling steps.
+        "recycle_early_stop_tolerance": -1
     }
 )
 
@@ -653,6 +676,7 @@ multimer_model_config_update = {
     "input_embedder": {
         "tf_dim": 21,
         "msa_dim": 49,
+        #"num_msa": 508,
         "c_z": c_z,
         "c_m": c_m,
         "relpos_k": 32,
@@ -703,6 +727,7 @@ multimer_model_config_update = {
         "extra_msa_embedder": {
             "c_in": 25,
             "c_out": c_e,
+            #"num_extra_msa": 2048
         },
         "extra_msa_stack": {
             "c_m": c_e,
@@ -788,5 +813,5 @@ multimer_model_config_update = {
             "c_out": 37,
         },
     },
-
+    "recycle_early_stop_tolerance": 0.5
 }

@@ -40,7 +40,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
             alignment_runner.run(
                 fasta_path, alignment_dir
             )
-        except:
+        except Exception as e:
+            logging.warning(e)
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
             os.remove(fasta_path)
             os.rmdir(alignment_dir)

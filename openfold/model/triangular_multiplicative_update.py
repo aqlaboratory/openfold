@@ -509,7 +509,6 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         mask = mask.unsqueeze(-1)
 
         def compute_projection_helper(pair, mask):
-            pair = self.layer_norm_in(pair)
             p = self.linear_ab_g(pair)
             p.sigmoid_()
             p *= self.linear_ab_p(pair)
@@ -519,16 +518,21 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
 
         def compute_projection(pair, mask):
             p = compute_projection_helper(pair, mask)
-            a = p[..., :self.c_hidden]
-            b = p[..., self.c_hidden:]
+            if self._outgoing:
+                left = p[..., :self.c_hidden]
+                right = p[..., self.c_hidden:]
+            else:
+                left = p[..., self.c_hidden:]
+                right = p[..., :self.c_hidden]
 
-            return a, b
+            return left, right
 
-        a, b = compute_projection(z, mask)
+        z_norm_in = self.layer_norm_in(z)
+        a, b = compute_projection(z_norm_in, mask)
         x = self._combine_projections(a, b, _inplace_chunk_size=_inplace_chunk_size)
         x = self.layer_norm_out(x)
         x = self.linear_z(x)
-        g = self.linear_g(z)
+        g = self.linear_g(z_norm_in)
         g.sigmoid_()
         x *= g
         if (with_add):
@@ -573,8 +577,12 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         ab = ab * self.sigmoid(self.linear_ab_g(z))
         ab = ab * self.linear_ab_p(z)
 
-        a = ab[..., :self.c_hidden]
-        b = ab[..., self.c_hidden:]
+        if self._outgoing:
+            a = ab[..., :self.c_hidden]
+            b = ab[..., self.c_hidden:]
+        else:
+            b = ab[..., :self.c_hidden]
+            a = ab[..., self.c_hidden:]
 
         # Prevents overflow of torch.matmul in combine projections in
         # reduced-precision modes

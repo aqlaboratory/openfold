@@ -525,16 +525,14 @@ class EvoformerBlock(MSABlock):
             _attn_chunk_size=_attn_chunk_size
         )
 
-        m = input_tensors[0]
         if (_offload_inference and inplace_safe):
             # m: GPU, z: GPU
             device = z.device
-            del m, z
             assert (sys.getrefcount(input_tensors[0]) == 2)
-            assert (sys.getrefcount(input_tensors[1]) == 2)
             input_tensors[0] = input_tensors[0].to(device)
-            input_tensors[1] = input_tensors[1].to(device)
-            m, z = input_tensors
+            m, _ = input_tensors
+        else:
+            m = input_tensors[0]
 
         return m, z
 
@@ -713,12 +711,10 @@ class ExtraMSABlock(MSABlock):
             if (_offload_inference and inplace_safe):
                 # m: GPU, z: GPU
                 device = z.device
-                del m, z
+                del m
                 assert (sys.getrefcount(input_tensors[0]) == 2)
-                assert (sys.getrefcount(input_tensors[1]) == 2)
                 input_tensors[0] = input_tensors[0].to(device)
-                input_tensors[1] = input_tensors[1].to(device)
-                m, z = input_tensors
+                m, _ = input_tensors
 
             return m, z
 

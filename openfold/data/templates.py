@@ -902,7 +902,7 @@ def _process_single_hit(
             % (
                 hit_pdb_code,
                 hit_chain_id,
-                hit.sum_probs,
+                hit.sum_probs if hit.sum_probs else 0.,
                 hit.index,
                 str(e),
                 parsing_result.errors,
@@ -919,7 +919,7 @@ def _process_single_hit(
             % (
                 hit_pdb_code,
                 hit_chain_id,
-                hit.sum_probs,
+                hit.sum_probs if hit.sum_probs else 0.,
                 hit.index,
                 str(e),
                 parsing_result.errors,

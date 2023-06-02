@@ -25,6 +25,7 @@ from openfold.utils.feats import (
     dgram_from_positions,
     atom14_to_atom37,
 )
+from openfold.utils.tensor_utils import masked_mean
 from openfold.model.embedders import (
     InputEmbedder,
     InputEmbedderMultimer,
@@ -165,6 +166,38 @@ class AlphaFold(nn.Module):
 
         return template_embeds
 
+    def tolerance_reached(self, prev_pos, next_pos, mask, no_batch_dims, eps=1e-8) -> bool:
+        """
+        Early stopping criteria based on criteria used in
+        AF2Complex: https://www.nature.com/articles/s41467-022-29394-2
+        Args:
+          prev_pos: Previous atom positions in atom37/14 representation
+          next_pos: Current atom positions in atom37/14 representation
+          mask: 1-D sequence mask
+          eps: Epsilon used in square root calculation
+        Returns:
+          Whether to stop recycling early based on the desired tolerance.
+        """
+        def distances(points):
+            """Compute all pairwise distances for a set of points."""
+            d = points[..., None, :] - points[..., None, :, :]
+            return torch.sqrt(torch.sum(d ** 2, dim=-1))
+
+        if self.config.recycle_early_stop_tolerance < 0:
+            return False
+
+        if no_batch_dims == 0:
+            prev_pos = prev_pos.unsqueeze(dim=0)
+            next_pos = next_pos.unsqueeze(dim=0)
+            mask = mask.unsqueeze(dim=0)
+
+        ca_idx = residue_constants.atom_order['CA']
+        sq_diff = (distances(prev_pos[..., ca_idx, :]) - distances(next_pos[..., ca_idx, :])) ** 2
+        mask = mask[..., None] * mask[..., None, :]
+        sq_diff = masked_mean(mask=mask, value=sq_diff, dim=list(range(len(mask.shape))))
+        diff = torch.sqrt(sq_diff + eps)
+        return diff <= self.config.recycle_early_stop_tolerance
+
     def iteration(self, feats, prevs, _recycle=True):
         # Primary output dictionary
         outputs = {}
@@ -263,7 +296,7 @@ class AlphaFold(nn.Module):
         # Deletions like these become significant for inference with large N,
         # where they free unused tensors and remove references to others such
         # that they can be offloaded later
-        del m_1_prev, z_prev, x_prev, m_1_prev_emb, z_prev_emb
+        del m_1_prev, z_prev, m_1_prev_emb, z_prev_emb
 
         # Embed the templates + merge with MSA/pair embeddings
         if self.config.template.enabled: 
@@ -406,10 +439,16 @@ class AlphaFold(nn.Module):
         # [*, N, N, C_z]
         z_prev = outputs["pair"]
 
+        early_stop = False
+        if self.globals.is_multimer:
+            early_stop = self.tolerance_reached(x_prev, outputs["final_atom_positions"], seq_mask, no_batch_dims)
+
+        del x_prev
+
         # [*, N, 3]
         x_prev = outputs["final_atom_positions"]
 
-        return outputs, m_1_prev, z_prev, x_prev
+        return outputs, m_1_prev, z_prev, x_prev, early_stop
 
     def _disable_activation_checkpointing(self):
         self.template_embedder.template_pair_stack.blocks_per_ckpt = None
@@ -488,13 +527,14 @@ class AlphaFold(nn.Module):
 
         # Main recycling loop
         num_iters = batch["aatype"].shape[-1]
+        early_stop = False
         for cycle_no in range(num_iters): 
             # Select the features for the current recycling cycle
             fetch_cur_batch = lambda t: t[..., cycle_no]
             feats = tensor_tree_map(fetch_cur_batch, batch)
 
             # Enable grad iff we're training and it's the final recycling layer
-            is_final_iter = cycle_no == (num_iters - 1)
+            is_final_iter = cycle_no == (num_iters - 1) or early_stop
             with torch.set_grad_enabled(is_grad_enabled and is_final_iter):
                 if is_final_iter:
                     # Sidestep AMP bug (PyTorch issue #65766)
@@ -502,16 +542,18 @@ class AlphaFold(nn.Module):
                         torch.clear_autocast_cache()
 
                 # Run the next iteration of the model
-                outputs, m_1_prev, z_prev, x_prev = self.iteration(
+                outputs, m_1_prev, z_prev, x_prev, early_stop = self.iteration(
                     feats,
                     prevs,
                     _recycle=(num_iters > 1)
                 )
 
-                if(not is_final_iter):
+                if not is_final_iter:
                     del outputs
                     prevs = [m_1_prev, z_prev, x_prev]
                     del m_1_prev, z_prev, x_prev
+                else:
+                    break
 
         # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))
