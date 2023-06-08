@@ -41,25 +41,14 @@ bash scripts/download_alphafold_dbs.sh <データディレクトリ>
 
 ## 推論
 ### 対象配列が少数である場合
-inferenceディレクトリのシングルノード版スクリプトで前処理と推論を連続して行う。詳細は[こちら](inference/README.md)
+inferenceディレクトリのシングルノード版スクリプトで前処理と推論を連続して行います。詳細は[こちら](inference/README.md)
 
 ### 対象配列が多数である場合
-1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行う。詳細は[こちら](preproc_fugaku/README.md)
-2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
+1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行います。詳細は[こちら](preproc_fugaku/README.md)
+2. inferenceディレクトリのスクリプトで推論を行います。詳細は[こちら](inference/README.md)
 
 ## 学習
-1. trainディレクトリのスクリプトで学習を行う。詳細は[こちら](train/README.md)
-
-## [任意] mmcifの変換
-mmcifを事前にパースしpickle化およびlz4圧縮しておくことで、特に複数ノード学習での速度低下を防ぐことができる。
-1. convert_mmcifディレクトリに移動
-2. run.shのInputDirとOutputDirを設定
-3. ジョブ投入
-```
-pjsub -g {グループID} run.sh
-```
-4. 学習および推論ディレクトリのparametersに記載されているmmcifのディレクトリを変換したものに置き換える
-
+trainディレクトリのスクリプトで学習を行います。詳細は[こちら](train/README.md)
 
 ## Copyright notice
 
