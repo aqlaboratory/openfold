@@ -14,8 +14,13 @@ wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-
 ```
 
 ## データセットの取得
-[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードする。
-DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用する。
+[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードしてください。
+DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用します。
+本プログラムの前処理はsmall_bfdの利用を前提としているため、
+`scripts/download_alphafold_dbs.sh`でダウンロードする際は以下のように第2引数に`reduced_dbs`の指定が必要です。
+```
+bash scripts/download_alphafold_dbs.sh data/ reduced_dbs
+```
 
 ## 初期設定
 `scripts/setenv`の以下の環境変数を設定する
