@@ -14,19 +14,15 @@ wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-
 ```
 
 ## データセットの取得
-学習済みモデル、推論や学習に必要なデータセットをダウンロードする
-```
-bash scripts/download_data.sh <データディレクトリ>
-bash scripts/download_alphafold_dbs.sh <データディレクトリ>
-```
-
+[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードする
+DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用する
 
 ## 初期設定
 `scripts/setenv`の以下の環境変数を設定する
 
 - `PREFIX`: インストールディレクトリ (必須)
 - `OPENFOLDDIR`: このREADME.mdがあるディレクトリ (必須) 
-- `DATADIR`: データディレクトリ (必須)
+- `DATADIR`: データセットのディレクトリ (必須)
 - `PJSUB_OPT`: ジョブ投入時の追加オプション (任意)
     - シングルアカウントの場合は`-g <グループID>`を指定する
     - 必要におうじて`-x PJM_LLIO_GFSCACHE=<ボリューム>`を指定する
