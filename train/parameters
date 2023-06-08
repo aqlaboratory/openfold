@@ -16,8 +16,8 @@
 AlignmentDir=example/alignments_smallbfd
 
 # mmcif_cache.json and chain_data_cache.json
-MMCIFCache=$SampleDir/mmcif_cache.json
-ChainDataCache=$SampleDir/chain_data_cache.json
+MMCIFCache=
+ChainDataCache=
 
 # mmcif files and obsolete.dat
 MMCIFDir=$DataDir/pdb_mmcif/mmcif_files
