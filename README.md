@@ -39,15 +39,15 @@ bash scripts/download_alphafold_dbs.sh <データディレクトリ>
 ジョブの出力は`install_openfold.*_0.out`と`install_openfold.*_1.out`に書き込まれます。ジョブの終了後、それらのファイルの最後に`Finished`が出力されていることを確認してください。
 
 
-## 前処理と推論の実行
-### 少数の配列の場合
+## 推論
+### 対象配列が少数である場合
 inferenceディレクトリのシングルノード版スクリプトで前処理と推論を連続して行う。詳細は[こちら](inference/README.md)
 
-### 多数の配列の場合
+### 対象配列が多数である場合
 1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行う。詳細は[こちら](preproc_fugaku/README.md)
 2. inferenceディレクトリのスクリプトで推論を行う。詳細は[こちら](inference/README.md)
 
-## 学習の実行
+## 学習
 1. trainディレクトリのスクリプトで学習を行う。詳細は[こちら](train/README.md)
 
 ## [任意] mmcifの変換
