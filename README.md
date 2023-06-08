@@ -1,34 +1,43 @@
 # 「富岳」実装版OpenFold (Fugaku implementation for OpenFold)
 
-## ソースコードおよび必要ファイルの取得
+## ソースコードと必要ファイルの取得
 
 「富岳」実装版OpenFoldのソースコードをクローン
 ```shell
 git clone <TBD>
 cd openfold
 ```
-stereo_chemical_props.txtを`openfold/resources/`にダウンロード
+
+`openfold/resources/`ディレクトリに`stereo_chemical_props.txt`をダウンロード
 ```shell
 wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 ```
 
-## 初期設定
-`scripts/setenv`を編集し、以下の変数に値を設定
+## データセットの取得
+学習済みモデル、推論や学習に必要なデータセットをダウンロード
+```
+bash scripts/download_data.sh <データディレクトリ>
+bash scripts/download_alphafold_dbs.sh <データディレクトリ>
+```
 
-- PREFIX: インストール先ディレクトリ (必須)
-    - ビルド済み実行環境を使う場合は `/vol0006/ra000018/data/OpenFold/local`
-- OPENFOLDDIR: このREADMEがあるディレクトリ (必須) 
-- DATADIR: データディレクトリ (必須)
-    - 現在はこのディレクトリ `/vol0006/ra000018/data/OpenFold/data`
-- PJSUB_OPT: pjsub時の追加オプション (任意)
-    - シングルアカウントの場合は`-g $(グループID)`を指定する
-    - 場合によっては`-x PJM_LLIO_GFSCACHE=/vol0006`が必要
+
+## 初期設定
+`scripts/setenv`の以下の環境変数を設定する
+
+- `PREFIX`: インストールディレクトリ (必須)
+- `OPENFOLDDIR`: このREADME.mdがあるディレクトリ (必須) 
+- `DATADIR`: データディレクトリ (必須)
+- `PJSUB_OPT`: pjsub時の追加オプション (任意)
+    - シングルアカウントの場合は`-g <グループID>`を指定する
+    - 必要におうじて`-x PJM_LLIO_GFSCACHE=<ボリューム>`を指定する
 
 ## インストール (PREFIXにビルド済み実行環境を指定した場合は不要)
-- インストール用バッチジョブを投入するスクリプトを実行
+インストール用バッチジョブを投入するスクリプトを実行
 ```
 ./scripts/install_fugaku.sh
 ```
+ジョブの出力は`install_openfold.*_0.out`と`install_openfold.*_1.out`に書き込まれる。それらのファイルの最後に`Finished`が出力されていることを確認する。
+
 
 ## 前処理と推論の実行
 ### 少数の配列の場合
