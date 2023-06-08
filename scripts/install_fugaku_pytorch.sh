@@ -23,6 +23,7 @@
 
 set -eu
 
+mkdir -p $WORKDIR
 cd $WORKDIR
 
 rm -rf pytorch

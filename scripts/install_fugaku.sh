@@ -16,8 +16,6 @@
 
 . scripts/setenv
 
-mkdir -p $WORKDIR
-
 ### pytorch
 pjsub $PJSUB_OPT --llio localtmp-size=80Gi --step --sparam "jnam=install_openfold" scripts/install_fugaku_pytorch.sh
 
