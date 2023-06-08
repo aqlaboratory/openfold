@@ -26,8 +26,6 @@ pjsub -g <グループID> run.sh
     - `./Submit_training <NodeShape> <TimeLimit>`
       - `NodeShape` : ジョブを実行するノードの3次元形状
       - `TimeLimit` : ジョブの最長実行時間
-    - 例
-      - 2x2x2ノードで1時間の時間制限で実行する場合: `./Submit_training 2x2x2 1:00:00`
-
-1. 実行結果は`log/<ノード数>/Submit_training.*`に出力される
-    - 各プロセスの出力は`output/0/out.1.*`に書き出される
+    - 例: 2x2x2ノードで1時間の時間制限で実行する場合: `./Submit_training 2x2x2 1:00:00`
+    - 実行結果は`log/<ノード数>/Submit_training.*`に出力される
+      - 各プロセスの出力は`output/0/out.1.*`に書き出される
