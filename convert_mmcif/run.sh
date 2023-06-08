@@ -22,17 +22,16 @@
 # limitations under the License.
 
 
-## set input directory which contains .cif files
-InputDir=
+source ../scripts/setenv
+
 ## set output directory where converted .pkl files stored
 OutputDir=
 
+## set input directory which contains .cif files
+InputDir=$DATADIR/pdb_mmcif/mmcif_files
 
-
-[ -z "$InputDir" ] && echo "InputDir is not defined" && exit 1
-[ -z "$OutputDir" ] && echo "OutputDir is not defined" && exit 1
-
-source ../scripts/setenv
+[ -d "$InputDir" ] && echo "InputDir($InputDir) is not exist" && exit 1
+[ -d "$OutputDir" ] && echo "OutputDir($OutputDir) is not exist" && exit 1
 
 MyName=run
 Time=`date "+%y%m%d%H%M%S%3N"`
