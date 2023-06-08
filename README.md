@@ -1,10 +1,16 @@
 # 「富岳」実装版OpenFold (Fugaku implementation for OpenFold)
 
-## コードの準備 (/vol0006/ra000018/data/OpenFold/src/openfold_v1.0.0をコピーしてきた際は不要)
-1. OpenFoldをgit cloneもしくはコピーし、そのディレクトリに移動
-2. stereo_chemical_props.txtを`openfold/openfold/resources/stereo_chemical_props.txt`に配置
-    - 共有ディレクトリの`misc/stereo_chemical_props.txt`に以下のURLからダウンロードしたものが置いてある
-        - https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
+## ソースコードおよび必要ファイルの取得
+
+「富岳」実装版OpenFoldのソースコードをクローン
+```shell
+git clone <TBD>
+cd openfold
+```
+stereo_chemical_props.txtを`openfold/resources/`にダウンロード
+```shell
+wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
+```
 
 ## 初期設定
 `scripts/setenv`を編集し、以下の変数に値を設定
