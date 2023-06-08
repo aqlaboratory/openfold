@@ -2,17 +2,17 @@
 
 ## 準備
 1. 前処理を実行する
-2. [README](../README.md)を参考にmmcif_cacheとchain_data_cacheを作成する
+2. [README_org.md](../README_org.md#training)を参考にmmcif_cacheとchain_data_cacheを作成する
 
 ### mmcifの変換 (任意)
 事前にmmcifをパースしpickle化およびlz4圧縮します。特に複数ノードによる学習での速度低下を防ぐことができます。
-1. convert_mmcifディレクトリに移動
-2. run.shのInputDirとOutputDirを設定
-3. ジョブ投入
+1. convert_mmcifディレクトリに移動する
+2. run.shのInputDirとOutputDirを設定する
+3. ジョブを投入する
 ```
 pjsub -g <グループID> run.sh
 ```
-4. 学習や推論ディレクトリのparametersに記載されているmmcifのディレクトリを変換したものに置き換える
+4. `train`や`inference`ディレクトリのparametersファイルを編集し、mmcifディレクトリを変換後のmmcifディレクトリに置き換える
 
 ## 使用方法
 
