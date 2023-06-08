@@ -14,8 +14,8 @@ wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-
 ```
 
 ## データセットの取得
-[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードする
-DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用する
+[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードする。
+DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用する。
 
 ## 初期設定
 `scripts/setenv`の以下の環境変数を設定する
@@ -49,8 +49,7 @@ trainディレクトリのスクリプトで学習を行います。詳細は[�
 ## Copyright notice
 
 This software includes AlphaFold and OpenFold that are distributed in the Apache License 2.0.
-However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a copy of which is downloaded to `openfold/resources/params` by the installation script. Note that the latter
-replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
+However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a copy of which is downloaded to `openfold/resources/params` by the installation script. Note that the latter replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
 
 ## Changes from OpenFold
 - TBD
