@@ -1,8 +1,8 @@
 # 富士通最適化版 推論 (inference/relaxation) スクリプト
 
 ## 事前準備
-1. 前処理を実行する
-2. [README](../README.md)を参考にmmcifキャッシュを作成する
+1. [README_org.md](../README_org.md#training)を参考にmmcif_cacheとchain_data_cacheを作成する
+2. [前処理ディレクトリ](../preproc_fugaku)のスクリプトを使用し前処理を行う
 
 ## 使用方法
 
