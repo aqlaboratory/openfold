@@ -56,5 +56,10 @@ trainディレクトリのスクリプトで学習を行います。詳細は[�
 This software includes AlphaFold and OpenFold that are distributed in the Apache License 2.0.
 However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a copy of which is downloaded to `openfold/resources/params` by the installation script. Note that the latter replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
 
-## Changes from OpenFold
-- TBD
+## Changes from the original OpenFold
+- Add code to preprocess multiple sequences using multiple nodes in Fugaku
+- Add code to infer multiple sequences using multiple nodes in Fugaku
+- Add code to train a model using multiple nodes in Fugaku
+- Port the memory-efficient attention module to CPUs
+- Improve processing efficiency of batch matrix multiplications (BMMs) by making the input tensors to BMMs contiguous
+- Speed up reading of mmcif data by pickling and lz4 compression beforehand
