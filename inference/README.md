@@ -2,7 +2,7 @@
 
 ## 事前準備
 1. [README_org.md](../README_org.md#training)を参考にmmcif_cacheとchain_data_cacheを作成する
-2. [前処理ディレクトリ](../preproc_fugaku)のスクリプトを使用し前処理を行う
+2. [前処理ディレクトリ](../preproc_fugaku)のスクリプトを使用し前処理を行う (マルチノード版の場合は必須)
 
 ## 使用方法
 
@@ -11,7 +11,7 @@
 1. `inference/parameters`の以下の必須項目を設定する
     - `MMCIFCache`: 事前準備で作成したmmcifキャッシュのパス
     - `InputFastaDir`: 入力シーケンスのfastaファイルが含まれるディレクトリのパス
-    - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス
+    - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス。このスクリプトで前処理も行う場合には指定しない。
     - `OutputDir`: 出力ディレクトリのパス。`$LOGDIR`とした場合はログディレクトリとなる。
 
 1. 必要があれば`inference/parameters`の以下の項目を変更する
@@ -19,8 +19,8 @@
     - `max_template_date`: 指定した日付以前のタンパク質構造をテンプレートとして使用する
 
 1. `Submit_inference`により推論のジョブ(1ノード)を投入する
-    - `Submit_inference $TimeLimit`
-    - `TimeLimit`: ジョブの時間制限
+    - `./Submit_inference $TimeLimit`
+      - `TimeLimit`: ジョブの時間制限
     - 例
       - 1時間の時間制限で実行する場合: `./Submit_inference 1:00:00`
 
@@ -53,7 +53,7 @@
     - 制限時間: 任意の時間。`estimate_time.awk`を用いて処理時間を推定し、(ノード数)×(制限時間)がおよそ推定処理時間となるように設定してもよい。
 
 1. `Submit_inference_multi`により推論のジョブを投入する
-    - `Submit_inference_multi {$NumNodes|$NodeShape} $TimeLimit`
+    - `./Submit_inference_multi {$NumNodes|$NodeShape} $TimeLimit`
     - `NumNodes`: ノード数
     - `NodeShape`: 3次元ノード形状 (XxYxZ)
     - `TimeLimit`: ジョブの時間制限

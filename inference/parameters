@@ -19,17 +19,20 @@ InputFastaDir=example/input
 AlignmentDir=example/alignment
 OutputDir=$LOGDIR
 
+if [ "$AlignmentDir" != "" ]; then
+    PreComputedAlignmentsOpt="--use_precomputed_alignments $AlignmentDir"
+fi
+
 PARAMS=(
     python3
     $OPENFOLDDIR/run_pretrained_openfold.py
     $InputFastaDir
     $DataDir/pdb_mmcif/mmcif_files
-    # $DataDir/pdb_mmcif/pickle_files_v2_lz4
     --model_device cpu
     --jax_param_path $DataDir/params/params_model_1.npz
     --output_dir $OutputDir
     --kalign_binary_path $PREFIX/bin/kalign
-    --use_precomputed_alignments $AlignmentDir
+    ${PreComputedAlignmentsOpt}
     --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
     --max_template_date 2021-10-10
     --release_dates_path $MMCIFCache
