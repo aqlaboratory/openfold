@@ -35,18 +35,23 @@ sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$ParamFile"
 sed -i -e 's|$DataDir|'"$DataDir|" "$ParamFile"
 
 ### llio_transfer
-TransferFile="$LogDir/llio_transfer_list_multi"
-if [ -e $TransferFile ]; then
-  ### Create llio_transfer_list file
-  sed -i -e 's|$PREFIX|'"$Prefix|" "$TransferFile"
-  sed -i -e 's|$OPENFOLDDIR|'"$OpenFoldDir|" "$TransferFile"
-  sed -i -e '1i '"$LogDir/$WORKER" "$TransferFile"
-  sed -i -e '1i '"$ParamFile" "$TransferFile"
-  sed -i -e '1i '"$DataDir/params/params_model_1.npz" "$TransferFile"
-  echo "`date +%s.%N` #llio_transfer start at `date`"
+echo "`date +%s.%N` #execute llio transfer at `date`"
+LLIOTransfer=llio_transfer
+DirTransfer=$OpenFoldDir/preproc_fugaku/scripts/my_dir_transfer
 
-  cat $LogDir/llio_transfer_list_multi | xargs -L 100 llio_transfer
-fi
+echo Prefix is ${Prefix}
+echo OpenFoldDir is ${OpenFoldDir}
+
+time $DirTransfer \
+     ${Prefix}/bin \
+     ${Prefix}/lib
+time $LLIOTransfer \
+     ${OpenFoldDir}/*.py
+time $DirTransfer \
+     ${OpenFoldDir}/scripts \
+     ${OpenFoldDir}/openfold \
+     ${OpenFoldDir}/openfold.egg-info
+
 
 ### Train 
 # PARAMS[@] are defined in the file "parameters".

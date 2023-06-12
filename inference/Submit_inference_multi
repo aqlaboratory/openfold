@@ -95,8 +95,6 @@ cp ${MyDir}/${WORKER} ${LogDir}
 ParameterFile="$LogDir/parameters"
 cp "$MyDir/parameters_multi" "$ParameterFile"
 
-cp "$MyDir/llio_transfer_list_multi" ${LogDir}/
-
 git rev-parse HEAD 2>&1 > "$LogDir/git_hash"
 
 ### Generate qsub script
