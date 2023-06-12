@@ -3,7 +3,7 @@ index 3d93363..323f44b 100755
 --- a/deepspeed/launcher/runner.py
 +++ b/deepspeed/launcher/runner.py
 @@ -1,3 +1,4 @@
-+# Copyright 2023 Fujitsu Limited
++# Copyright 2023 RIKEN & Fujitsu Limited
  # Copyright 2020 The Microsoft DeepSpeed Team
  """
  DeepSpeed runner is the main front-end to launching multi-worker
@@ -25,7 +25,7 @@ index d203ae9..0106dde 100644
 +++ b/deepspeed/runtime/activation_checkpointing/checkpointing.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright (c) Microsoft Corporation
  Licensed under the MIT license.
  
@@ -234,7 +234,7 @@ index acd21d9..2a5c005 100644
 +++ b/deepspeed/runtime/dataloader.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2019 The Microsoft DeepSpeed Team
  '''
  
@@ -266,7 +266,7 @@ index ffcfe72..30bbc8f 100755
 +++ b/deepspeed/runtime/engine.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2019 The Microsoft DeepSpeed Team
  '''
  import os
@@ -356,7 +356,7 @@ index 2a751e3..39f5bbd 100644
 +++ b/deepspeed/runtime/swap_tensor/utils.py
 @@ -1,4 +1,5 @@
  """
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2020 The Microsoft DeepSpeed Team
  Licensed under the MIT license.
  
@@ -377,7 +377,7 @@ index 550d2d2..34fd622 100755
 +++ b/deepspeed/runtime/utils.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2019 The Microsoft DeepSpeed Team
  
  Copyright NVIDIA/Megatron
@@ -450,7 +450,7 @@ index a48dd4e..aea85f8 100755
 +++ b/deepspeed/runtime/zero/config.py
 @@ -1,4 +1,5 @@
  """
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright (c) Microsoft Corporation
  Licensed under the MIT license.
  """
@@ -478,7 +478,7 @@ index e3b2dfc..b450d9a 100755
 +++ b/deepspeed/runtime/zero/constants.py
 @@ -1,4 +1,5 @@
  """
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright (c) Microsoft Corporation
  Licensed under the MIT license.
  """
@@ -518,7 +518,7 @@ index 2c02b96..5a3e680 100755
 +++ b/deepspeed/runtime/zero/partition_parameters.py
 @@ -1,4 +1,5 @@
  """
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  "Copyright 2020 The Microsoft DeepSpeed Team.
  Licensed under the MIT license.
  """
@@ -608,7 +608,7 @@ index 20a6c5a..7fbe301 100755
 --- a/deepspeed/runtime/zero/stage1.py
 +++ b/deepspeed/runtime/zero/stage1.py
 @@ -1,3 +1,5 @@
-+# Copyright 2023 Fujitsu Limited
++# Copyright 2023 RIKEN & Fujitsu Limited
 +
  import math
  import torch
@@ -641,7 +641,7 @@ index 405b756..f4f1759 100755
 +++ b/deepspeed/runtime/zero/stage2.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2019 The Microsoft DeepSpeed Team
  '''
  
@@ -881,7 +881,7 @@ index 0f19c49..5dbc44f 100755
 +++ b/deepspeed/runtime/zero/stage3.py
 @@ -1,4 +1,5 @@
  """
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  "Copyright 2020 The Microsoft DeepSpeed Team.
  Licensed under the MIT license.
  """
@@ -1201,7 +1201,7 @@ index 1bf5edc..baafa22 100755
 +++ b/deepspeed/utils/timer.py
 @@ -1,4 +1,5 @@
  '''
-+Copyright 2023 Fujitsu Limited
++Copyright 2023 RIKEN & Fujitsu Limited
  Copyright 2019 The Microsoft DeepSpeed Team
  '''
  
