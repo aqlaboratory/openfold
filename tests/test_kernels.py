@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Copyright 2023 RIKEN & Fujitsu Limited
+
 import torch
 import unittest
 

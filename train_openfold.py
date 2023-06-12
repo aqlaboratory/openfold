@@ -1,3 +1,5 @@
+# Copyright 2023 RIKEN & Fujitsu Limited
+
 import argparse
 import logging
 import os
