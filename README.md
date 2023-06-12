@@ -52,6 +52,7 @@ inferenceディレクトリのシングルノード版スクリプトで前処�
 trainディレクトリのスクリプトで学習を行います。詳細は[こちら](train/README.md)
 
 ## Copyright notice
+Copyright 2023 RIKEN & Fujitsu Limited
 
 This software includes AlphaFold and OpenFold that are distributed in the Apache License 2.0.
 However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a copy of which is downloaded to `openfold/resources/params` by the installation script. Note that the latter replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
