@@ -7,7 +7,7 @@
     * `$OPENFOLDDIR`: OpenFoldリポジトリのパス
     * `$DATADIR`: 各種データベースを含むディレクトリのパス
     * `$PJSUB_OPT`: `pjsub`に渡されるオプション
-    * 以下の[`preproc_fugaku`](preproc_fugaku)用設定（デフォルト値は富岳のもの）
+    * 以下の[`preproc_fugaku`](.)用設定（デフォルト値は富岳のもの）
 	* `OPENFOLD_MAX_MEM`: ノードあたりの最大使用メモリサイズ
 	* `OPENFOLD_PBS_RESOURCE`: （PBSジョブスケジューラを用いる場合のみ）リソース名
 	* `TMPDIR`: テンポラリファイル用ディレクトリ
