@@ -435,7 +435,7 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         # reduced-precision modes
         a_std = a.std()
         b_std = b.std()
-        if(a_std != 0. and b_std != 0.):
+        if(is_fp16_enabled() and a_std != 0. and b_std != 0.):
             a = a / a.std()
             b = b / b.std()
 
@@ -589,8 +589,11 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
 
         # Prevents overflow of torch.matmul in combine projections in
         # reduced-precision modes
-        a = a / a.std()
-        b = b / b.std()
+        a_std = a.std()
+        b_std = b.std()
+        if (is_fp16_enabled() and a_std != 0. and b_std != 0.):
+            a = a / a.std()
+            b = b / b.std()
 
         if (is_fp16_enabled()):
             with torch.cuda.amp.autocast(enabled=False):

@@ -617,7 +617,7 @@ def generate_translation_dict(model, version, is_multimer=False):
 
         translations["evoformer"].update(template_param_dict)
 
-    if "_ptm" in version:
+    if is_multimer or "_ptm" in version:
         translations["predicted_aligned_error_head"] = {
             "logits": LinearParams(model.aux_heads.tm.linear)
         }

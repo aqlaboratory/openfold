@@ -20,6 +20,7 @@ import unittest
 import ml_collections as mlc
 
 from openfold.data import data_transforms
+from openfold.np import residue_constants
 from openfold.utils.rigid_utils import (
     Rotation,
     Rigid,
@@ -42,6 +43,8 @@ from openfold.utils.loss import (
     sidechain_loss,
     tm_loss,
     compute_plddt,
+    compute_tm,
+    chain_center_of_mass_loss
 )
 from openfold.utils.tensor_utils import (
     tree_map,
@@ -233,11 +236,24 @@ class TestLoss(unittest.TestCase):
 
         pred_pos = np.random.rand(n_res, 14, 3).astype(np.float32)
         atom_exists = np.random.randint(0, 2, (n_res, 14)).astype(np.float32)
-        atom_radius = np.random.rand(n_res, 14).astype(np.float32)
         res_ind = np.arange(
             n_res,
         )
-        asym_id = random_asym_ids(n_res)
+        residx_atom14_to_atom37 = np.random.randint(0, 37, (n_res, 14)).astype(np.int64)
+
+        atomtype_radius = [
+            residue_constants.van_der_waals_radius[name[0]]
+            for name in residue_constants.atom_types
+        ]
+        atomtype_radius = np.array(atomtype_radius).astype(np.float32)
+        atom_radius = (
+                atom_exists
+                * atomtype_radius[residx_atom14_to_atom37]
+        )
+
+        asym_id = None
+        if consts.is_multimer:
+            asym_id = random_asym_ids(n_res)
 
         out_gt = f.apply(
             {},
@@ -256,6 +272,7 @@ class TestLoss(unittest.TestCase):
             torch.tensor(atom_exists).cuda(),
             torch.tensor(atom_radius).cuda(),
             torch.tensor(res_ind).cuda(),
+            torch.tensor(asym_id).cuda() if asym_id is not None else None,
         )
         out_repro = tensor_tree_map(lambda x: x.cpu(), out_repro)
 
@@ -278,6 +295,36 @@ class TestLoss(unittest.TestCase):
         self.assertTrue(
             torch.max(torch.abs(out_gt - out_repro)) < consts.eps
         )
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_compute_ptm_compare(self):
+        n_res = consts.n_res
+        max_bin = 31
+        no_bins = 64
+
+        logits = np.random.rand(n_res, n_res, no_bins)
+        boundaries = np.linspace(0, max_bin, num=(no_bins - 1))
+
+        ptm_gt = alphafold.common.confidence.predicted_tm_score(logits, boundaries)
+        ptm_gt = torch.tensor(ptm_gt)
+        logits_t = torch.tensor(logits)
+        ptm_repro = compute_tm(logits_t, no_bins=no_bins, max_bin=max_bin)
+
+        self.assertTrue(
+            torch.max(torch.abs(ptm_gt - ptm_repro)) < consts.eps
+        )
+
+        if consts.is_multimer:
+            asym_id = random_asym_ids(n_res)
+            iptm_gt = alphafold.common.confidence.predicted_tm_score(logits, boundaries,
+                                                                     asym_id=asym_id, interface=True)
+            iptm_gt = torch.tensor(iptm_gt)
+            iptm_repro = compute_tm(logits_t, no_bins=no_bins, max_bin=max_bin,
+                                    asym_id=torch.tensor(asym_id), interface=True)
+
+            self.assertTrue(
+                torch.max(torch.abs(iptm_gt - iptm_repro)) < consts.eps
+            )
 
     def test_find_structural_violations(self):
         n = consts.n_res
@@ -335,8 +382,10 @@ class TestLoss(unittest.TestCase):
             "residx_atom14_to_atom37": np.random.randint(
                 0, 37, (n_res, 14)
             ).astype(np.int64),
-            "asym_id": random_asym_ids(n_res)
         }
+
+        if consts.is_multimer:
+            batch["asym_id"] = random_asym_ids(n_res)
 
         pred_pos = np.random.rand(n_res, 14, 3)
 
@@ -633,6 +682,40 @@ class TestLoss(unittest.TestCase):
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
+    def test_violation_loss(self):
+        config = compare_utils.get_alphafold_config()
+        c_viol = config.model.heads.structure_module
+        n_res = consts.n_res
+
+        batch = {
+            "seq_mask": np.random.randint(0, 2, (n_res,)).astype(np.float32),
+            "residue_index": np.arange(n_res),
+            "aatype": np.random.randint(0, 21, (n_res,)),
+        }
+
+        if consts.is_multimer:
+            batch["asym_id"] = random_asym_ids(n_res)
+
+        batch = tree_map(lambda n: torch.tensor(n).cuda(), batch, np.ndarray)
+
+        atom14_pred_pos = np.random.rand(n_res, 14, 3).astype(np.float32)
+        atom14_pred_pos = torch.tensor(atom14_pred_pos).cuda()
+
+        batch = data_transforms.make_atom14_masks(batch)
+
+        loss_sum_clash = violation_loss(
+            find_structural_violations(batch, atom14_pred_pos, **c_viol),
+            average_clashes=False, **batch
+        )
+        loss_sum_clash = loss_sum_clash.cpu()
+
+        loss_avg_clash = violation_loss(
+            find_structural_violations(batch, atom14_pred_pos, **c_viol),
+            average_clashes=True, **batch
+        )
+        loss_avg_clash = loss_avg_clash.cpu()
+
+    @compare_utils.skip_unless_alphafold_installed()
     def test_violation_loss_compare(self):
         config = compare_utils.get_alphafold_config()
         c_viol = config.model.heads.structure_module
@@ -680,9 +763,11 @@ class TestLoss(unittest.TestCase):
         batch = {
             "seq_mask": np.random.randint(0, 2, (n_res,)).astype(np.float32),
             "residue_index": np.arange(n_res),
-            "aatype": np.random.randint(0, 21, (n_res,)),
-            "asym_id": random_asym_ids(n_res)
+            "aatype": np.random.randint(0, 21, (n_res,))
         }
+
+        if consts.is_multimer:
+            batch["asym_id"] = random_asym_ids(n_res)
 
         atom14_pred_pos = np.random.rand(n_res, 14, 3).astype(np.float32)
 
@@ -801,8 +886,7 @@ class TestLoss(unittest.TestCase):
             "backbone_affine_mask": np.random.randint(0, 2, (n_res,)).astype(
                 np.float32
             ),
-            "use_clamped_fape": np.array(0.0),
-            "asym_id": random_asym_ids(n_res)
+            "use_clamped_fape": np.array(0.0)
         }
 
         value = {
@@ -813,6 +897,9 @@ class TestLoss(unittest.TestCase):
                 )
             ),
         }
+
+        if consts.is_multimer:
+            batch["asym_id"] = random_asym_ids(n_res)
 
         out_gt = f.apply({}, None, batch, value)
         out_gt = torch.tensor(np.array(out_gt.block_until_ready()))
@@ -826,8 +913,18 @@ class TestLoss(unittest.TestCase):
         )
         batch["backbone_rigid_mask"] = batch["backbone_affine_mask"]
         
-        out_repro = backbone_loss(traj=value["traj"], **{**batch, **c_sm})
-        out_repro = out_repro.cpu()
+        if consts.is_multimer:
+            intra_chain_mask = (batch["asym_id"][..., None]
+                                == batch["asym_id"][..., None, :]).to(dtype=value["traj"].dtype)
+            intra_chain_out = backbone_loss(traj=value["traj"], pair_mask=intra_chain_mask,
+                                            **{**batch, **c_sm.intra_chain_fape})
+            interface_out = backbone_loss(traj=value["traj"], pair_mask=1. - intra_chain_mask,
+                                          **{**batch, **c_sm.interface_fape})
+            out_repro = intra_chain_out + interface_out
+            out_repro = out_repro.cpu()
+        else:
+            out_repro = backbone_loss(traj=value["traj"], **{**batch, **c_sm})
+            out_repro = out_repro.cpu()
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
@@ -869,14 +966,14 @@ class TestLoss(unittest.TestCase):
             v["sidechains"] = {}
             v["sidechains"][
                 "frames"
-            ] = alphafold.model.r3.rigids_from_tensor4x4(
+            ] = self.am_rigid.rigids_from_tensor4x4(
                 value["sidechains"]["frames"]
             )
-            v["sidechains"]["atom_pos"] = alphafold.model.r3.vecs_from_tensor(
+            v["sidechains"]["atom_pos"] = self.am_rigid.vecs_from_tensor(
                 value["sidechains"]["atom_pos"]
             )
             v.update(
-                alphafold.model.folding.compute_renamed_ground_truth(
+                self.am_fold.compute_renamed_ground_truth(
                     batch,
                     atom14_pred_positions,
                 )
@@ -906,9 +1003,6 @@ class TestLoss(unittest.TestCase):
                 np.float32
             ),
         }
-
-        if consts.is_multimer:
-            batch["asym_id"] = random_asym_ids(n_res)
 
         def _build_extra_feats_np():
             b = tree_map(lambda n: torch.tensor(n), batch, np.ndarray)
@@ -950,7 +1044,7 @@ class TestLoss(unittest.TestCase):
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
-    @unittest.skipIf(consts.is_multimer or "ptm" not in consts.model, "Not enabled for non-ptm models.")
+    @unittest.skipIf(not consts.is_multimer and "ptm" not in consts.model, "Not enabled for non-ptm models.")
     def test_tm_loss_compare(self):
         config = compare_utils.get_alphafold_config()
         c_tm = config.model.heads.predicted_aligned_error
@@ -1016,6 +1110,33 @@ class TestLoss(unittest.TestCase):
         out_repro = out_repro.cpu()
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+
+    @compare_utils.skip_unless_alphafold_installed()
+    def test_chain_center_of_mass_loss(self):
+        batch_size = consts.batch_size
+        n_res = consts.n_res
+
+        batch = {
+            "all_atom_positions": np.random.rand(batch_size, n_res, 37, 3).astype(np.float32) * 10.0,
+            "all_atom_mask": np.random.randint(0, 2, (batch_size, n_res, 37)).astype(np.float32),
+            "asym_id": np.stack([random_asym_ids(n_res) for _ in range(batch_size)])
+        }
+
+        config = {
+            "weight": 0.05,
+            "clamp_distance": -4.0,
+        }
+
+        final_atom_positions = torch.rand(batch_size, n_res, 37, 3).cuda()
+
+        to_tensor = lambda t: torch.tensor(t).cuda()
+        batch = tree_map(to_tensor, batch, np.ndarray)
+
+        out_repro = chain_center_of_mass_loss(
+            all_atom_pred_pos=final_atom_positions,
+            **{**batch, **config},
+        )
+        out_repro = out_repro.cpu()
 
 
 if __name__ == "__main__":

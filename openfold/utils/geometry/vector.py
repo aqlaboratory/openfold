@@ -193,7 +193,7 @@ def square_euclidean_distance(
     difference = vec1 - vec2
     distance = difference.dot(difference)
     if epsilon:
-        distance = torch.maximum(distance, epsilon)
+        distance = torch.clamp(distance, min=epsilon)
     return distance
 
 

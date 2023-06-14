@@ -555,6 +555,9 @@ class AlphaFold(nn.Module):
                 else:
                     break
 
+        if "asym_id" in batch:
+            outputs["asym_id"] = feats["asym_id"]
+
         # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))
 

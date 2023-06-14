@@ -6,7 +6,7 @@ consts = mlc.ConfigDict(
         "is_multimer": True,  # monomer: False, multimer: True
         "chunk_size": 4,
         "batch_size": 2,
-        "n_res": 11,
+        "n_res": 22,
         "n_seq": 13,
         "n_templ": 3,
         "n_extra": 17,

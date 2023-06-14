@@ -648,6 +648,7 @@ config = mlc.ConfigDict(
             "violation": {
                 "violation_tolerance_factor": 12.0,
                 "clash_overlap_tolerance": 1.5,
+                "average_clashes": False,
                 "eps": eps,  # 1e-6,
                 "weight": 0.0,
             },
@@ -659,6 +660,12 @@ config = mlc.ConfigDict(
                 "eps": eps,  # 1e-8,
                 "weight": 0.,
                 "enabled": tm_enabled,
+            },
+            "chain_center_of_mass": {
+                "clamp_distance": -4.0,
+                "weight": 0.,
+                "eps": eps,
+                "enabled": False,
             },
             "eps": eps,
         },
@@ -802,7 +809,9 @@ multimer_model_config_update = {
         "tm": {
             "c_z": c_z,
             "no_bins": aux_distogram_bins,
-            "enabled": tm_enabled,
+            "ptm_weight": 0.2,
+            "iptm_weight": 0.8,
+            "enabled": True,
         },
         "masked_msa": {
             "c_m": c_m,
@@ -812,6 +821,82 @@ multimer_model_config_update = {
             "c_s": c_s,
             "c_out": 37,
         },
+    },
+    "loss": {
+        "distogram": {
+            "min_bin": 2.3125,
+            "max_bin": 21.6875,
+            "no_bins": 64,
+            "eps": eps,  # 1e-6,
+            "weight": 0.3,
+        },
+        "experimentally_resolved": {
+            "eps": eps,  # 1e-8,
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "weight": 0.0,
+        },
+        "fape": {
+            "intra_chain_backbone": {
+                "clamp_distance": 10.0,
+                "loss_unit_distance": 10.0,
+                "weight": 0.5,
+            },
+            "interface": {
+                "clamp_distance": 30.0,
+                "loss_unit_distance": 20.0,
+                "weight": 0.5,
+            },
+            "sidechain": {
+                "clamp_distance": 10.0,
+                "length_scale": 10.0,
+                "weight": 0.5,
+            },
+            "eps": 1e-4,
+            "weight": 1.0,
+        },
+        "plddt_loss": {
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "cutoff": 15.0,
+            "no_bins": 50,
+            "eps": eps,  # 1e-10,
+            "weight": 0.01,
+        },
+        "masked_msa": {
+            "num_classes": 23,
+            "eps": eps,  # 1e-8,
+            "weight": 2.0,
+        },
+        "supervised_chi": {
+            "chi_weight": 0.5,
+            "angle_norm_weight": 0.01,
+            "eps": eps,  # 1e-6,
+            "weight": 1.0,
+        },
+        "violation": {
+            "violation_tolerance_factor": 12.0,
+            "clash_overlap_tolerance": 1.5,
+            "average_clashes": True,
+            "eps": eps,  # 1e-6,
+            "weight": 0.03, # Not finetuning
+        },
+        "tm": {
+            "max_bin": 31,
+            "no_bins": 64,
+            "min_resolution": 0.1,
+            "max_resolution": 3.0,
+            "eps": eps,  # 1e-8,
+            "weight": 0.1,
+            "enabled": True,
+        },
+        "chain_center_of_mass": {
+            "clamp_distance": -4.0,
+            "weight": 0.05,
+            "eps": eps,
+            "enabled": True,
+        },
+        "eps": eps,
     },
     "recycle_early_stop_tolerance": 0.5
 }
