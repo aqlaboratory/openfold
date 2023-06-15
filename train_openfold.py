@@ -1,5 +1,3 @@
-# Copyright 2023 RIKEN & Fujitsu Limited
-
 import argparse
 import logging
 import os
@@ -51,8 +49,6 @@ from scripts.zero_to_fp32 import (
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
-# change logging level for debug
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -76,7 +72,7 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{loss_name}", 
                 indiv_loss, 
-                on_step=train, on_epoch=(not train), logger=True, prog_bar=(loss_name == 'loss'), sync_dist=True,
+                on_step=train, on_epoch=(not train), logger=True,
             )
 
             if(train):

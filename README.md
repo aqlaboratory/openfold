@@ -48,9 +48,6 @@ inferenceディレクトリのシングルノード版スクリプトで前処�
 1. preproc_fugakuディレクトリのマルチノード版スクリプトで前処理を行います。詳細は[こちら](preproc_fugaku/README.md)
 2. inferenceディレクトリのスクリプトで推論を行います。詳細は[こちら](inference/README.md)
 
-## 学習
-trainディレクトリのスクリプトで学習を行います。詳細は[こちら](train/README.md)
-
 ## Copyright notice
 Copyright 2023 RIKEN & Fujitsu Limited
 
@@ -60,7 +57,6 @@ However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a co
 ## Changes from the original OpenFold
 - Add code to preprocess multiple sequences using multiple nodes in Fugaku
 - Add code to infer multiple sequences using multiple nodes in Fugaku
-- Add code to train a model using multiple nodes in Fugaku
 - Port the memory-efficient attention module to CPUs
 - Improve processing efficiency of batch matrix multiplications (BMMs) by making the input tensors to BMMs contiguous
 - Speed up reading of mmcif data by pickling and lz4 compression beforehand
