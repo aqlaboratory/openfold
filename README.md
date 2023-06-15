@@ -1,11 +1,11 @@
-# 「富岳」実装版OpenFold (Fugaku implementation for OpenFold)
+# 「富岳」実装版OpenFold (OpenFold for Fugaku)
 
 ## ソースコードと必要ファイルの取得
 
 「富岳」実装版OpenFoldのソースコードをクローンする
 ```shell
-git clone <TBD>
-cd openfold
+git clone https://github.com/RIKEN-RCCS/OpenFold-for-Fugaku.git
+cd OpenFold-for-Fugaku
 ```
 
 `openfold/resources/`ディレクトリに`stereo_chemical_props.txt`をダウンロードする
