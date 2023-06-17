@@ -36,6 +36,11 @@ FeatureDict = Mapping[str, np.ndarray]
 ModelOutput = Mapping[str, Any]  # Is a nested dict.
 PICO_TO_ANGSTROM = 0.01
 
+PDB_CHAIN_IDS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+PDB_MAX_CHAINS = len(PDB_CHAIN_IDS)
+assert(PDB_MAX_CHAINS == 62)
+
+
 @dataclasses.dataclass(frozen=True)
 class Protein:
     """Protein structure representation."""
@@ -73,6 +78,13 @@ class Protein:
     # Chain corresponding to each parent
     parents_chain_index: Optional[Sequence[int]] = None
 
+    def __post_init__(self):
+        if(len(np.unique(self.chain_index)) > PDB_MAX_CHAINS):
+            raise ValueError(
+                f"Cannot build an instance with more than {PDB_MAX_CHAINS} "
+                "chains because these cannot be written to PDB format"
+            )
+
 
 def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
     """Takes a PDB string and constructs a Protein object.
@@ -108,6 +120,7 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
     for chain in model:
         if(chain_id is not None and chain.id != chain_id):
             continue
+
         for res in chain:
             if res.id[2] != " ":
                 raise ValueError(
@@ -132,6 +145,7 @@ def from_pdb_string(pdb_str: str, chain_id: Optional[str] = None) -> Protein:
             if np.sum(mask) < 0.5:
                 # If no known atom positions are reported for the residue then skip it.
                 continue
+
             aatype.append(restype_idx)
             atom_positions.append(pos)
             atom_mask.append(mask)
@@ -221,6 +235,14 @@ def from_proteinnet_string(proteinnet_str: str) -> Protein:
         aatype=aatype,
         residue_index=np.arange(len(aatype)),
         b_factors=None,
+    )
+
+
+def _chain_end(atom_index, end_resname, chain_name, residue_index) -> str:
+    chain_end = 'TER'
+    return(
+        f'{chain_end:<6}{atom_index:>5}      {end_resname:>3} '
+        f'{chain_name:>1}{residue_index:>4}'
     )
 
 
@@ -316,21 +338,46 @@ def to_pdb(prot: Protein) -> str:
     atom_positions = prot.atom_positions
     residue_index = prot.residue_index.astype(np.int32)
     b_factors = prot.b_factors
-    chain_index = prot.chain_index
+    chain_index = prot.chain_index.astype(np.int32)
 
     if np.any(aatype > residue_constants.restype_num):
         raise ValueError("Invalid aatypes.")
 
+    # Construct a mapping from chain integer indices to chain ID strings.
+    chain_ids = {}
+    for i in np.unique(chain_index): # np.unique gives sorted output.
+        if i >= PDB_MAX_CHAINS:
+            raise ValueError(
+                f"The PDB format supports at most {PDB_MAX_CHAINS} chains."
+            )
+        chain_ids[i] = PDB_CHAIN_IDS[i]
+
     headers = get_pdb_headers(prot)
-    if(len(headers) > 0):
+    if (len(headers) > 0):
         pdb_lines.extend(headers)
 
+    pdb_lines.append("MODEL     1")
     n = aatype.shape[0]
     atom_index = 1
+    last_chain_index = chain_index[0]
     prev_chain_index = 0
     chain_tags = string.ascii_uppercase
+
     # Add all atom sites.
-    for i in range(n):
+    for i in range(aatype.shape[0]):
+        # Close the previous chain if in a multichain PDB.
+        if last_chain_index != chain_index[i]:
+            pdb_lines.append(
+                _chain_end(
+                    atom_index, 
+                    res_1to3(aatype[i - 1]), 
+                    chain_ids[chain_index[i - 1]], 
+                    residue_index[i - 1]
+                )
+            )
+            last_chain_index = chain_index[i]
+            atom_index += 1 # Atom index increases at the TER symbol.
+
         res_name_3 = res_1to3(aatype[i])
         for atom_name, pos, mask, b_factor in zip(
             atom_types, atom_positions[i], atom_mask[i], b_factors[i]
@@ -355,6 +402,8 @@ def to_pdb(prot: Protein) -> str:
             # PDB is a columnar format, every space matters here!
             atom_line = (
                 f"{record_type:<6}{atom_index:>5} {name:<4}{alt_loc:>1}"
+                #TODO: check this refactor, chose main branch version
+                #f"{res_name_3:>3} {chain_ids[chain_index[i]]:>1}"
                 f"{res_name_3:>3} {chain_tag:>1}"
                 f"{residue_index[i]:>4}{insertion_code:>1}   "
                 f"{pos[0]:>8.3f}{pos[1]:>8.3f}{pos[2]:>8.3f}"
@@ -386,9 +435,12 @@ def to_pdb(prot: Protein) -> str:
                 # each new chain.
                 pdb_lines.extend(get_pdb_headers(prot, prev_chain_index))
 
+    pdb_lines.append("ENDMDL")
     pdb_lines.append("END")
-    pdb_lines.append("")
-    return "\n".join(pdb_lines)
+
+    # Pad all lines to 80 characters
+    pdb_lines = [line.ljust(80) for line in pdb_lines]
+    return '\n'.join(pdb_lines) + '\n' # Add terminating newline.
 
 
 def to_modelcif(prot: Protein) -> str:
@@ -539,7 +591,7 @@ def from_prediction(
     features: FeatureDict,
     result: ModelOutput,
     b_factors: Optional[np.ndarray] = None,
-    chain_index: Optional[np.ndarray] = None,
+    remove_leading_feature_dimension: bool = True,
     remark: Optional[str] = None,
     parents: Optional[Sequence[str]] = None,
     parents_chain_index: Optional[Sequence[int]] = None
@@ -550,20 +602,32 @@ def from_prediction(
       features: Dictionary holding model inputs.
       result: Dictionary holding model outputs.
       b_factors: (Optional) B-factors to use for the protein.
+      remove_leading_feature_dimension: Whether to remove the leading dimension 
+        of the `features` values
       chain_index: (Optional) Chain indices for multi-chain predictions
       remark: (Optional) Remark about the prediction
       parents: (Optional) List of template names
     Returns:
       A protein instance.
     """
+    def _maybe_remove_leading_dim(arr: np.ndarray) -> np.ndarray:
+        return arr[0] if remove_leading_feature_dimension else arr
+
+    if 'asym_id' in features:
+        chain_index = _maybe_remove_leading_dim(features["asym_id"]) - 1
+    else:
+        chain_index = np.zeros_like(
+            _maybe_remove_leading_dim(features["aatype"])
+        )
+
     if b_factors is None:
         b_factors = np.zeros_like(result["final_atom_mask"])
 
     return Protein(
-        aatype=features["aatype"],
+        aatype=_maybe_remove_leading_dim(features["aatype"]),
         atom_positions=result["final_atom_positions"],
         atom_mask=result["final_atom_mask"],
-        residue_index=features["residue_index"] + 1,
+        residue_index=_maybe_remove_leading_dim(features["residue_index"]) + 1,
         b_factors=b_factors,
         chain_index=chain_index,
         remark=remark,

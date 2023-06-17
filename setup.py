@@ -75,6 +75,8 @@ for major, minor in list(compute_capabilities):
 
 extra_cuda_flags += cc_flag
 
+cc_flag = ['-gencode', 'arch=compute_70,code=sm_70']
+
 if bare_metal_major != -1:
     modules = [CUDAExtension(
         name="attn_core_inplace_cuda",

@@ -46,26 +46,26 @@ def import_alphafold():
 
 
 def get_alphafold_config():
-    config = alphafold.model.config.model_config("model_1_ptm")  # noqa
+    config = alphafold.model.config.model_config(consts.model)  # noqa
     config.model.global_config.deterministic = True
     return config
 
 
-_param_path = "openfold/resources/params/params_model_1_ptm.npz"
+_param_path = f"openfold/resources/params/params_{consts.model}.npz"
 _model = None
 
 
 def get_global_pretrained_openfold():
     global _model
     if _model is None:
-        _model = AlphaFold(model_config("model_1_ptm"))
+        _model = AlphaFold(model_config(consts.model))
         _model = _model.eval()
         if not os.path.exists(_param_path):
             raise FileNotFoundError(
                 """Cannot load pretrained parameters. Make sure to run the 
                 installation script before running tests."""
             )
-        import_jax_weights_(_model, _param_path, version="model_1_ptm")
+        import_jax_weights_(_model, _param_path, version=consts.model)
         _model = _model.cuda()
 
     return _model

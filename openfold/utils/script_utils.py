@@ -219,7 +219,7 @@ def prep_output(out, batch, feature_dict, feature_processor, config_preset, mult
         features=batch,
         result=out,
         b_factors=plddt_b_factors,
-        chain_index=chain_index,
+        remove_leading_feature_dimension=not "multimer" in config_preset,
         remark=remark,
         parents=template_domain_names,
         parents_chain_index=template_chain_index,

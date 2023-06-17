@@ -33,6 +33,8 @@ from openfold.model.triangular_attention import (
 from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationOutgoing,
     TriangleMultiplicationIncoming,
+    FusedTriangleMultiplicationOutgoing,
+    FusedTriangleMultiplicationIncoming
 )
 from openfold.utils.checkpointing import checkpoint_blocks
 from openfold.utils.chunk_utils import (
@@ -154,6 +156,8 @@ class TemplatePairStackBlock(nn.Module):
         no_heads: int,
         pair_transition_n: int,
         dropout_rate: float,
+        tri_mul_first: bool,
+        fuse_projection_weights: bool,
         inf: float,
         **kwargs,
     ):
@@ -166,6 +170,7 @@ class TemplatePairStackBlock(nn.Module):
         self.pair_transition_n = pair_transition_n
         self.dropout_rate = dropout_rate
         self.inf = inf
+        self.tri_mul_first = tri_mul_first
 
         self.dropout_row = DropoutRowwise(self.dropout_rate)
         self.dropout_col = DropoutColumnwise(self.dropout_rate)
@@ -183,19 +188,87 @@ class TemplatePairStackBlock(nn.Module):
             inf=inf,
         )
 
-        self.tri_mul_out = TriangleMultiplicationOutgoing(
-            self.c_t,
-            self.c_hidden_tri_mul,
-        )
-        self.tri_mul_in = TriangleMultiplicationIncoming(
-            self.c_t,
-            self.c_hidden_tri_mul,
-        )
+        if fuse_projection_weights:
+            self.tri_mul_out = FusedTriangleMultiplicationOutgoing(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+            self.tri_mul_in = FusedTriangleMultiplicationIncoming(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+        else:
+            self.tri_mul_out = TriangleMultiplicationOutgoing(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
+            self.tri_mul_in = TriangleMultiplicationIncoming(
+                self.c_t,
+                self.c_hidden_tri_mul,
+            )
 
         self.pair_transition = PairTransition(
             self.c_t,
             self.pair_transition_n,
         )
+
+    def tri_att_start_end(self, single, _attn_chunk_size, single_mask, use_lma, inplace_safe):
+        single = add(single,
+                     self.dropout_row(
+                         self.tri_att_start(
+                             single,
+                             chunk_size=_attn_chunk_size,
+                             mask=single_mask,
+                             use_lma=use_lma,
+                             inplace_safe=inplace_safe,
+                         )
+                     ),
+                     inplace_safe,
+                     )
+
+        single = add(single,
+                     self.dropout_col(
+                         self.tri_att_end(
+                             single,
+                             chunk_size=_attn_chunk_size,
+                             mask=single_mask,
+                             use_lma=use_lma,
+                             inplace_safe=inplace_safe,
+                         )
+                     ),
+                     inplace_safe,
+                     )
+
+        return single
+
+    def tri_mul_out_in(self, single, single_mask, inplace_safe):
+        tmu_update = self.tri_mul_out(
+            single,
+            mask=single_mask,
+            inplace_safe=inplace_safe,
+            _add_with_inplace=True,
+        )
+        if (not inplace_safe):
+            single = single + self.dropout_row(tmu_update)
+        else:
+            single = tmu_update
+
+        del tmu_update
+
+        tmu_update = self.tri_mul_in(
+            single,
+            mask=single_mask,
+            inplace_safe=inplace_safe,
+            _add_with_inplace=True,
+        )
+        if (not inplace_safe):
+            single = single + self.dropout_row(tmu_update)
+        else:
+            single = tmu_update
+
+        del tmu_update
+
+        return single
 
     def forward(self, 
         z: torch.Tensor, 
@@ -219,72 +292,37 @@ class TemplatePairStackBlock(nn.Module):
         for i in range(len(single_templates)):
             single = single_templates[i]
             single_mask = single_templates_masks[i]
-            
-            single = add(single,
-                self.dropout_row(
-                    self.tri_att_start(
-                        single,
-                        chunk_size=_attn_chunk_size,
-                        mask=single_mask,
-                        use_lma=use_lma,
-                        inplace_safe=inplace_safe,
-                    )
-                ),
-                inplace_safe,
-            )
 
-            single = add(single,
-                self.dropout_col(
-                    self.tri_att_end(
-                        single,
-                        chunk_size=_attn_chunk_size,
-                        mask=single_mask,
-                        use_lma=use_lma,
-                        inplace_safe=inplace_safe,
-                    )
-                ),
-                inplace_safe,
-            )
-
-            tmu_update = self.tri_mul_out(
-                single,
-                mask=single_mask,
-                inplace_safe=inplace_safe,
-                _add_with_inplace=True,
-            )
-            if(not inplace_safe):
-                single = single + self.dropout_row(tmu_update)
+            if self.tri_mul_first:
+                single = self.tri_att_start_end(single=self.tri_mul_out_in(single=single,
+                                                                           single_mask=single_mask,
+                                                                           inplace_safe=inplace_safe),
+                                                _attn_chunk_size=_attn_chunk_size,
+                                                single_mask=single_mask,
+                                                use_lma=use_lma,
+                                                inplace_safe=inplace_safe)
             else:
-                single = tmu_update
-            
-            del tmu_update
+                single = self.tri_mul_out_in(single=self.tri_att_start_end(single=single,
+                                                                           _attn_chunk_size=_attn_chunk_size,
+                                                                           single_mask=single_mask,
+                                                                           use_lma=use_lma,
+                                                                           inplace_safe=inplace_safe),
+                                             single_mask=single_mask,
+                                             inplace_safe=inplace_safe)
 
-            tmu_update = self.tri_mul_in(
-                single,
-                mask=single_mask,
-                inplace_safe=inplace_safe,
-                _add_with_inplace=True,
-            )
-            if(not inplace_safe):
-                single = single + self.dropout_row(tmu_update)
-            else:
-                single = tmu_update
-            
-            del tmu_update
-      
             single = add(single,
-                self.pair_transition(
-                    single,
-                    mask=single_mask if _mask_trans else None,
-                    chunk_size=chunk_size,
-                ),
-                inplace_safe,
-            )
+                         self.pair_transition(
+                             single,
+                             mask=single_mask if _mask_trans else None,
+                             chunk_size=chunk_size,
+                         ),
+                         inplace_safe,
+                         )
 
-            if(not inplace_safe):
+            if (not inplace_safe):
                 single_templates[i] = single
 
-        if(not inplace_safe):
+        if (not inplace_safe):
             z = torch.cat(single_templates, dim=-4)
 
         return z
@@ -303,6 +341,8 @@ class TemplatePairStack(nn.Module):
         no_heads,
         pair_transition_n,
         dropout_rate,
+        tri_mul_first,
+        fuse_projection_weights,
         blocks_per_ckpt,
         tune_chunk_size: bool = False,
         inf=1e9,
@@ -339,6 +379,8 @@ class TemplatePairStack(nn.Module):
                 no_heads=no_heads,
                 pair_transition_n=pair_transition_n,
                 dropout_rate=dropout_rate,
+                tri_mul_first=tri_mul_first,
+                fuse_projection_weights=fuse_projection_weights,
                 inf=inf,
             )
             self.blocks.append(block)
@@ -512,7 +554,7 @@ def embed_templates_offload(
         # [*, N, C_m]
         a = model.template_angle_embedder(template_angle_feat)
  
-        ret["template_angle_embedding"] = a 
+        ret["template_single_embedding"] = a
 
     ret.update({"template_pair_embedding": t})
 
@@ -623,7 +665,7 @@ def embed_templates_average(
         # [*, N, C_m]
         a = model.template_angle_embedder(template_angle_feat)
  
-        ret["template_angle_embedding"] = a 
+        ret["template_single_embedding"] = a
 
     ret.update({"template_pair_embedding": out_tensor})
 
