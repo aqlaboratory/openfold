@@ -1353,7 +1353,10 @@ def violation_loss(
         + l_clash
     )
 
-    return loss
+    # Average over the batch dimension
+    mean = torch.mean(loss)
+
+    return mean
 
 
 def compute_renamed_ground_truth(
@@ -1476,7 +1479,7 @@ def experimentally_resolved_loss(
 ) -> torch.Tensor:
     errors = sigmoid_cross_entropy(logits, all_atom_mask)
     loss = torch.sum(errors * atom37_atom_exists, dim=-1)
-    loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)))
+    loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)).unsqueeze(-1))
     loss = torch.sum(loss, dim=-1)
     
     loss = loss * (

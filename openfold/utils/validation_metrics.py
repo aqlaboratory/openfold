@@ -29,7 +29,7 @@ def drmsd(structure_1, structure_2, mask=None):
     if(mask is not None):
         drmsd = drmsd * (mask[..., None] * mask[..., None, :])
     drmsd = torch.sum(drmsd, dim=(-1, -2))
-    n = d1.shape[-1] if mask is None else torch.sum(mask, dim=-1)
+    n = d1.shape[-1] if mask is None else torch.min(torch.sum(mask, dim=-1))
     drmsd = drmsd * (1 / (n * (n - 1))) if n > 1 else (drmsd * 0.)
     drmsd = torch.sqrt(drmsd)
 
