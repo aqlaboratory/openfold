@@ -15,8 +15,53 @@
 from random import randint
 import numpy as np
 from scipy.spatial.transform import Rotation
-
+import pickle,os
 from tests.config import consts
+import gzip
+
+def process_label(all_atom_positions: np.ndarray, operation) -> np.ndarray:
+    """
+    Adapted from unifold
+    https://github.com/dptech-corp/Uni-Fold/blob/b1c89a2cebd4e4ee4c47b4e443f92beeb9138fbb/unifold/dataset.py#L55-L61
+    """
+    if operation == "I":
+        return all_atom_positions
+    rot, trans = operation
+    rot = np.array(rot).reshape(3, 3)
+    trans = np.array(trans).reshape(3)
+    return all_atom_positions @ rot.T + trans
+
+def load_single_label(
+    label_id,label_dir,
+    symmetry_operation=None,
+):
+    """
+    Adapted from unifold
+    https://github.com/dptech-corp/Uni-Fold/blob/b1c89a2cebd4e4ee4c47b4e443f92beeb9138fbb/unifold/dataset.py#L101-L116
+    
+    args:
+    label: is the dictionary of numpy arrays. created by loading the label pickle file
+    """
+    label_path = os.path.join(label_dir,f"{label_id}.label.pkl.gz")
+    label = pickle.load(gzip.open(label_path,"rb"))
+    if symmetry_operation is not None:
+        label["all_atom_positions"] = process_label(
+            label["all_atom_positions"], symmetry_operation
+        )
+    label = {
+        k: v
+        for k, v in label.items()
+        if k in ["aatype", "all_atom_positions", "all_atom_mask", "resolution"]
+    }
+    return label
+
+def load_labels(label_dir,label_ids:list):
+    symmetry_operations = ["I" for _ in label_ids] # for now suppose there are NO symmetry operations
+    all_chain_labels = [
+        load_single_label(l, label_dir, o)
+        for l, o in zip(label_ids, symmetry_operations)
+    ]
+
 
 
 def random_asym_ids(n_res, split_chains=True, min_chain_len=4):
