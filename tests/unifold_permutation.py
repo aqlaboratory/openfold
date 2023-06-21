@@ -139,7 +139,7 @@ def multi_chain_perm_align(out, batch, labels, shuffle_times=2):
         anchor_residue_idx = per_asym_residue_index[int(cur_asym_id)]
         print(f"anchor_residue_idx:{anchor_residue_idx},anchor_gt_idx:{anchor_gt_idx}\n")
 
-        anchor_true_pos = true_ca_poses[anchor_gt_idx][anchor_residue_idx]
+        anchor_true_pos = true_ca_poses[anchor_gt_idx][anchor_residue_idx[:,0]] # somehow need to only use the first column in anchor_residue_idx
         asym_mask = asym_mask[:,0] # somehow need to adjust the asym_mask shape
         anchor_pred_pos = pred_ca_pos[asym_mask]
         print(f"true_ca_masks:\n")
