@@ -120,13 +120,9 @@ def multi_chain_perm_align(out, batch, labels, shuffle_times=2):
     for cur_asym_id in unique_asym_ids:
         asym_mask = (batch["asym_id"] == cur_asym_id).bool()
         per_asym_residue_index[int(cur_asym_id)] = batch["residue_index"][asym_mask]
-    # anchor_gt_asym, anchor_pred_asym = get_anchor_candidates(
-    #     batch, per_asym_residue_index, true_ca_masks
-    # )
+
     anchor_gt_asym, anchor_pred_asym=get_least_asym_entity_or_longest_length(batch)
     print(f"anchor_gt_asym is {anchor_gt_asym}")
-    import sys
-    sys.exit()
     anchor_gt_idx = int(anchor_gt_asym) - 1
 
     best_rmsd = 1e9
@@ -244,9 +240,9 @@ def greedy_align(
             continue
         i = int(cur_asym_id - 1)
         asym_mask = batch["asym_id"] == cur_asym_id
-        num_sym = batch["num_sym"][asym_mask][0]
+        entity_id = batch["entity_id"][asym_mask][0]
         # don't need to align
-        if (num_sym) == 1:
+        if (entity_id) == 1:
             align.append((i, i))
             assert used[i] == False
             used[i] = True
