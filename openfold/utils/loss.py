@@ -1722,7 +1722,7 @@ def get_optimal_transform(
         #
         # sometimes using fake test inputs generates NaN in the predicted atom positions
         # #
-        src_atoms = torch.nan_to_num(src_atoms,nan=0.0)
+        src_atoms = torch.nan_to_num(src_atoms,nan=0.0,posinf=1.0,neginf=1.0)
 
     if mask is not None:
         assert mask.dtype == torch.bool
@@ -1836,7 +1836,7 @@ def greedy_align(
         cur_asym_list = entity_2_asym_list[int(cur_entity_ids)]
         cur_residue_index = per_asym_residue_index[int(cur_asym_id)]
         
-        cur_pred_pos = pred_ca_pos[asym_mask] # only need the first 1 column of asym_mask
+        cur_pred_pos = pred_ca_pos[asym_mask]
         cur_pred_mask = pred_ca_mask[asym_mask]
         for next_asym_id in cur_asym_list:
             if next_asym_id == 0:
