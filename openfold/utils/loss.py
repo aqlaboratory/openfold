@@ -37,6 +37,7 @@ from openfold.utils.tensor_utils import (
 import random
 from openfold.np import residue_constants as rc
 import logging 
+from scipy import spatial as sp_spatial
 logger = logging.getLogger(__name__)
 
 def softmax_cross_entropy(logits, labels):
@@ -1676,47 +1677,21 @@ def chain_center_of_mass_loss(
 # #
 def kabsch_rotation(P, Q):
     """
-    Using the Kabsch algorithm with two sets of paired point P and Q, centered
-    around the centroid. Each vector set is represented as an NxD
-    matrix, where D is the the dimension of the space.
-    The algorithm works in three steps:
-    - a centroid translation of P and Q (assumed done before this function
-      call)
-    - the computation of a covariance matrix C
-    - computation of the optimal rotation matrix U
-    For more info see http://en.wikipedia.org/wiki/Kabsch_algorithm
-    Parameters
-    ----------
-    P : array
-        (N,D) matrix, where N is points and D is dimension.
-    Q : array
-        (N,D) matrix, where N is points and D is dimension.
-    Returns
-    -------
-    U : matrix
-        Rotation matrix (D,D)
+    Use scipy.spatial package to calculate best rotation that minimises
+    the RMSD betwee P and Q
+
+    Args:
+    P: [N * 3] Nres is the number of atoms and each row corresponds to the atom's x,y,z coordinates
+    Q: [N * 3] the same dimension as P
+
+    return:
+    A 3*3 rotation matrix 
     """
-
-    # Computation of the covariance matrix
-    P,Q = P.to('cpu'),Q.to('cpu') # move to cpu memory just in case it takes up too much gpu mem 
-    C = P.transpose(-1, -2) @ Q
-
-    # Computation of the optimal rotation matrix
-    # This can be done using singular value decomposition (SVD)
-    # Getting the sign of the det(V)*(W) to decide
-    # whether we need to correct our rotation matrix to ensure a
-    # right-handed coordinate system.
-    # And finally calculating the optimal rotation matrix U
-    # see http://en.wikipedia.org/wiki/Kabsch_algorithm
-    V, _, W = torch.linalg.svd(C.to('cpu'))
-    d = (torch.linalg.det(V) * torch.linalg.det(W)) < 0.0
-
-    if d:
-        V[:, -1] = -V[:, -1]
-
-    # Create Rotation matrix U
-    U = V @ W
-    return U
+    assert P.shape == torch.size([Q.shape[0],Q.shape[1]])
+    rotation,_ = sp_spatial.transform.Rotation.align_vectors(P.numpy(),Q.numpy())
+    rotation = torch.tensor(rotation,dtype=torch.float64)
+    assert rotation.shape == torch.size([3,3])
+    return rotation
 
 def get_optimal_transform(
     src_atoms: torch.Tensor,
