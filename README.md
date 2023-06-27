@@ -1,6 +1,11 @@
 # Permutation code README
 
 ## Overview:
+
+NB: before running the test codes,please download the procrustes package first:
+from https://github.com/theochem/procrustes
+
+
 The only file that has been changed is:
 [```openfold/utils/loss.py```](https://github.com/dingquanyu/openfold/blob/permutation/openfold/utils/loss.py), in which the forward function is modified in 
 original ```AlphaFoldLoss``` class; create a child class called ```AlphaFoldMultimerLoss``` that not only inherited all the loss calculations but also 
