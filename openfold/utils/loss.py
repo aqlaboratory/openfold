@@ -2083,6 +2083,8 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         # then permutate ground truth chains before calculating the loss
         permutated_labels = self.multi_chain_perm_align(out,features,labels)
         logger.info("finished multi-chain permutation")
+        # features.update(permutated_labels)
+        # self.loss(out,features)
         return permutated_labels
         ## TODO next need to check how the ground truth label is used
         #  in loss calculation. 
