@@ -92,9 +92,15 @@ class TestPermutation(unittest.TestCase):
         add_recycling_dims = lambda t: (
             t.unsqueeze(-1).expand(*t.shape, c.data.common.max_recycling_iters)
         )
+        add_batch_size_dimension = lambda t: (
+            t.unsqueeze(0)
+        )
         batch = tensor_tree_map(add_recycling_dims, batch)
-
+        batch = tensor_tree_map(add_batch_size_dimension, batch)
+        for k,v in batch.items():
+            print(f"{k}:{v.shape}")
         with torch.no_grad():
             out = model(batch)
-            permutated_labels = multimer_loss(out,(batch,example_label))
-            print(f"permuated_labels is {type(permutated_labels)} and keys are:\n {permutated_labels.keys()}")
+            print(f"finished foward on batch with batch_size dim")
+            # permutated_labels = multimer_loss(out,(batch,example_label))
+            # print(f"permuated_labels is {type(permutated_labels)} and keys are:\n {permutated_labels.keys()}")
