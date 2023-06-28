@@ -694,10 +694,10 @@ def compute_tm(
     predicted_tm_term = torch.sum(probs * tm_per_bin, dim=-1)
 
     n = residue_weights.shape[-1]
-    pair_mask = residue_weights.new_ones((n, n), dtype=torch.int32)
+    pair_mask = residue_weights.new_ones((1,n, n), dtype=torch.int32)
     if interface:
         pair_mask *= (asym_id[..., None] != asym_id[..., None, :]).to(dtype=pair_mask.dtype)
-
+    
     predicted_tm_term *= pair_mask
 
     pair_residue_weights = pair_mask * (
