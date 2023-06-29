@@ -163,6 +163,9 @@ def model_config(
         for k,v in multimer_model_config_update.items():
             c.model[k] = v
 
+        for k,v in multimer_model_config_update['loss'].items():
+            c.loss[k] = v
+
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
         if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
             #c.model.input_embedder.num_msa = 252
