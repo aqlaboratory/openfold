@@ -1855,15 +1855,17 @@ def greedy_align(
                 continue
             j = int(next_asym_id - 1)
             if not used[j]:  # possible candidate
-                cropped_pos = true_ca_poses[j]
-                mask = true_ca_masks[j][cur_residue_index]
-                rmsd = compute_rmsd(
-                    cropped_pos, cur_pred_pos, (cur_pred_mask.to('cuda:0') * mask.to('cuda:0')).bool()
-                )
-                print(f"rmsd is {rmsd}")
-                if rmsd < best_rmsd:   
-                    best_rmsd = rmsd
-                    best_idx = j
+                while best_idx is None:
+                    cropped_pos = true_ca_poses[j]
+                    mask = true_ca_masks[j][cur_residue_index]
+                    rmsd = compute_rmsd(
+                        cropped_pos, cur_pred_pos, (cur_pred_mask.to('cuda:0') * mask.to('cuda:0')).bool()
+                    )
+                    
+                    if (rmsd is not None) and (rmsd < best_rmsd):   
+                        best_rmsd = rmsd
+                        best_idx = j
+            print(f"now best_idx is {best_idx} and rmsd is {rmsd} and j is {j}")
         assert best_idx is not None
         used[best_idx] = True
         align.append((i, best_idx))
@@ -2117,7 +2119,10 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         move_to_gpu = lambda t: (t.to('cuda:0'))
         features = tensor_tree_map(move_to_gpu,features)
         print(f"after moving features:",torch.cuda.memory_allocated(0))
+        print(f"features is {type(features)} and out is {type(out)}")
         # out = tensor_tree_map(move_to_gpu,out)
+        for k,v in out.items():
+            out[k] = v.to('cuda')
         self.loss(out,features)
         return permutated_labels
         ## TODO next need to check how the ground truth label is used
