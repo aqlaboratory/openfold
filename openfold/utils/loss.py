@@ -541,9 +541,8 @@ def lddt_loss(
         cutoff=cutoff, 
         eps=eps
     )
-
+    score = torch.nan_to_num(score,nan=torch.nanmean(score))
     score = score.detach()
-
     bin_index = torch.floor(score * no_bins).long()
     bin_index = torch.clamp(bin_index, max=(no_bins - 1))
     lddt_ca_one_hot = torch.nn.functional.one_hot(
