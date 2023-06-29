@@ -27,12 +27,19 @@ from tests.config import consts
 import logging
 logger = logging.getLogger(__name__)
 import os
+import io, contextlib
 from tests.data_utils import (
     random_template_feats,
     random_extra_msa_feats,
+    random_affines_vector, random_affines_4x4
 )
-class TestPermutation(unittest.TestCase):
-    def setUp(self):
+from openfold.utils.rigid_utils import (
+    Rotation,
+    Rigid,
+)
+
+class TestPermutation:
+    def __init__(self):
         """
         Firstly setup model configs and model as in
         test_model.py
@@ -42,7 +49,14 @@ class TestPermutation(unittest.TestCase):
         self.test_data_dir = os.path.join(os.getcwd(),"tests/test_data")
         self.label_ids = ['label_1','label_1','label_2','label_2','label_2']
         self.asym_id = [1]*9+[2]*9+[3]*13+[4]*13 + [5]*13
+
+    def affine_vector_to_4x4(self,affine):
+        r = Rigid.from_tensor_7(affine)
+        return r.to_tensor_4x4()
+    
     def test_dry_run(self):
+        os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+        os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
         n_seq = consts.n_seq
         n_templ = consts.n_templ
         n_res = len(self.asym_id)
@@ -54,7 +68,7 @@ class TestPermutation(unittest.TestCase):
         # deepspeed for this test
 
         model = AlphaFold(c)
-        multimer_loss = AlphaFoldMultimerLoss(c)
+        multimer_loss = AlphaFoldMultimerLoss(c.loss)
         example_label = [pickle.load(open(os.path.join(self.test_data_dir,f"{i}.pkl"),'rb')) 
                          for i in self.label_ids]
         batch = {}
@@ -64,6 +78,16 @@ class TestPermutation(unittest.TestCase):
         ).float()
         batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
         batch["residue_index"] = torch.arange(n_res)
+
+        backbone_dict ={
+            "backbone_affine_tensor": torch.tensor(random_affines_vector((n_res,))),
+            "backbone_affine_mask": torch.from_numpy(np.random.randint(0, 2, (n_res,)).astype(
+                np.float32
+            )),
+            "use_clamped_fape": torch.from_numpy(np.array(0.0)),
+        }
+        batch['backbone_rigid_tensor'] = self.affine_vector_to_4x4(backbone_dict['backbone_affine_tensor'])
+        batch['backbone_rigid_mask'] = backbone_dict['backbone_affine_mask']
 
         batch["msa_feat"] = torch.rand((n_seq, n_res, c.model.input_embedder.msa_dim))
         t_feats = random_template_feats(n_templ, n_res)
@@ -97,10 +121,13 @@ class TestPermutation(unittest.TestCase):
         )
         batch = tensor_tree_map(add_recycling_dims, batch)
         batch = tensor_tree_map(add_batch_size_dimension, batch)
-        for k,v in batch.items():
-            print(f"{k}:{v.shape}")
+     
         with torch.no_grad():
             out = model(batch)
             print(f"finished foward on batch with batch_size dim")
-            # permutated_labels = multimer_loss(out,(batch,example_label))
+            permutated_labels = multimer_loss(out,(batch,example_label))
             # print(f"permuated_labels is {type(permutated_labels)} and keys are:\n {permutated_labels.keys()}")
+
+if __name__ == "__main__":
+    test = TestPermutation()
+    test.test_dry_run()
