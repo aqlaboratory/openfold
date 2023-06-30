@@ -38,8 +38,8 @@ from openfold.utils.rigid_utils import (
     Rigid,
 )
 
-class TestPermutation:
-    def __init__(self):
+class TestPermutation(unittest.TestCase):
+    def setUp(self):
         """
         Firstly setup model configs and model as in
         test_model.py
@@ -137,9 +137,5 @@ class TestPermutation:
         with torch.no_grad():
             out = model(batch)
             print(f"finished foward on batch with batch_size dim")
-            permutated_labels = multimer_loss(out,(batch,example_label))
+            multimer_loss(out,(batch,example_label))
             # print(f"permuated_labels is {type(permutated_labels)} and keys are:\n {permutated_labels.keys()}")
-
-if __name__ == "__main__":
-    test = TestPermutation()
-    test.test_dry_run()
