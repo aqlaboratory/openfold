@@ -92,8 +92,8 @@ class TestPermutation:
         batch['backbone_rigid_mask'] = backbone_dict['backbone_affine_mask']
         
         true_msa_dict ={
-            "true_msa": torch.tensor(np.random.randint(0, 21, (n_res, n_seq))),
-            "bert_mask": torch.tensor(np.random.randint(0, 2, (n_res, n_seq)).astype(
+            "true_msa": torch.tensor(np.random.randint(0, 21, (n_seq,n_res))),
+            "bert_mask": torch.tensor(np.random.randint(0, 2, (n_seq,n_res)).astype(
                 np.float32)
             )
         }
