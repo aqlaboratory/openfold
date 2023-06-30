@@ -16,7 +16,7 @@ original ```AlphaFoldLoss``` class;
 create a child class called ```AlphaFoldMultimerLoss``` that not only inherited all the loss calculations but also 
 has multi-chain permutation codes; 
 
-some loss calculations have to be modified e.g. in ```fape``` loss, ```tm``` loss calculations, an extra validation was added to check if the input tensor belongs to tensor_7 or tensor_4*4
+some loss calculations have to be modified e.g. in ```fape``` loss, ```tm``` loss calculations, an extra validation was added to check if the input tensor belongs to tensor_7 or tensor_4*4 for example : https://github.com/dingquanyu/openfold/blob/02b008dc4b8c2e9e680826444c605297eeb9ffb4/openfold/utils/loss.py#L190-L193
 
 [```openfold/config.py```](https://github.com/dingquanyu/openfold/blob/permutation/openfold/config.py) has seen a couple of modifications as well. Some namings were wrong and previous script forgot to update  config.loss with multimer_model_config_update
 
