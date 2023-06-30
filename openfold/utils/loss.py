@@ -1606,7 +1606,6 @@ def masked_msa_loss(logits, true_msa, bert_mask, num_classes, eps=1e-8, **kwargs
     Returns:
         Masked MSA loss
     """
-    print(f"line 1609 logits shape: {logits.shape} and num_classes: {num_classes}")
     errors = softmax_cross_entropy(
         logits, torch.nn.functional.one_hot(true_msa, num_classes=num_classes)
     )
@@ -1997,7 +1996,6 @@ class AlphaFoldLoss(nn.Module):
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss
             losses[loss_name] = loss.detach().clone()
-
         losses["unscaled_loss"] = cum_loss.detach().clone()
 
         # Scale the loss by the square root of the minimum of the crop size and
