@@ -1,0 +1,44 @@
+# STOCKHOLM 1.0
+
+#=GS UniRef90_Q9NIG6/58-95          DE [subseq from] Merozoite surface protein 3 (Fragment) n=1 Tax=Plasmodium falciparum TaxID=5833 RepID=Q9NIG6_PLAFA
+#=GS UniRef90_A0A024VYN0/90-127     DE [subseq from] Merozoite surface protein 3 n=52 Tax=Plasmodium falciparum TaxID=5833 RepID=A0A024VYN0_PLAFA
+#=GS UniRef90_UPI0019011389/487-495 DE [subseq from] potassium voltage-gated channel subfamily C member 1-like n=1 Tax=Salvelinus namaycush TaxID=8040 RepID=UPI0019011389
+#=GS UniRef90_O15863/57-94          DE [subseq from] Merozoite surface protein 3 (Fragment) n=10 Tax=Plasmodium falciparum TaxID=5833 RepID=O15863_PLAFA
+#=GS UniRef90_A0A6J8EZW5/149-173    DE [subseq from] Secreted protein n=1 Tax=Mytilus coruscus TaxID=42192 RepID=A0A6J8EZW5_MYTCO
+#=GS UniRef90_A0A8C3V826/99-123     DE [subseq from] Translation initiation factor IF-2 n=1 Tax=Catharus ustulatus TaxID=91951 RepID=A0A8C3V826_CATUS
+#=GS UniRef90_A0A8C3V826/170-202    DE [subseq from] Translation initiation factor IF-2 n=1 Tax=Catharus ustulatus TaxID=91951 RepID=A0A8C3V826_CATUS
+#=GS UniRef90_O15854/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) n=2 Tax=Plasmodium falciparum TaxID=5833 RepID=O15854_PLAFA
+#=GS UniRef90_A0A401U021/46-73      DE [subseq from] CG2 omega repeat (Fragment) n=1 Tax=Chiloscyllium punctatum TaxID=137246 RepID=A0A401U021_CHIPU
+#=GS UniRef90_UPI001F20CBA7/9-40    DE [subseq from] hypothetical protein n=1 Tax=Niallia circulans TaxID=1397 RepID=UPI001F20CBA7
+#=GS UniRef90_UPI001F20CBA7/36-61   DE [subseq from] hypothetical protein n=1 Tax=Niallia circulans TaxID=1397 RepID=UPI001F20CBA7
+#=GS UniRef90_UPI001F20CBA7/64-88   DE [subseq from] hypothetical protein n=1 Tax=Niallia circulans TaxID=1397 RepID=UPI001F20CBA7
+#=GS UniRef90_A0A1D8H334/1-33       DE [subseq from] Merozoite surface protein-3 (Fragment) n=1 Tax=Plasmodium falciparum TaxID=5833 RepID=A0A1D8H334_PLAFA
+#=GS UniRef90_A0A3M0JR79/4-33       DE [subseq from] Protein Wnt n=22 Tax=Neognathae TaxID=8825 RepID=A0A3M0JR79_HIRRU
+#=GS UniRef90_A0A3M0JR79/40-67      DE [subseq from] Protein Wnt n=22 Tax=Neognathae TaxID=8825 RepID=A0A3M0JR79_HIRRU
+#=GS UniRef90_A0A3M0JR79/67-98      DE [subseq from] Protein Wnt n=22 Tax=Neognathae TaxID=8825 RepID=A0A3M0JR79_HIRRU
+#=GS UniRef90_A0A3M0JR79/95-124     DE [subseq from] Protein Wnt n=22 Tax=Neognathae TaxID=8825 RepID=A0A3M0JR79_HIRRU
+#=GS UniRef90_A0A159SN41/45-78      DE [subseq from] Merozoite surface protein 3 (Fragment) n=2 Tax=Plasmodium falciparum TaxID=5833 RepID=A0A159SN41_PLAFA
+#=GS UniRef90_A0A159SLY0/58-95      DE [subseq from] Merozoite surface protein 3 (Fragment) n=2 Tax=Plasmodium falciparum TaxID=5833 RepID=A0A159SLY0_PLAFA
+
+1PSM_A                                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+UniRef90_Q9NIG6/58-95                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+UniRef90_A0A024VYN0/90-127             EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+UniRef90_UPI0019011389/487-495         ------------------------KDARQVIKD-----
+UniRef90_O15863/57-94                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+UniRef90_A0A6J8EZW5/149-173            -------QACKDLGQACKDLEQACKDIGQACK------
+UniRef90_A0A8C3V826/99-123             -AVRDAPNAVRDAPNAVRDAPNAVRD------------
+UniRef90_A0A8C3V826/170-202            --VRDAPKAVRDAPNAVRDAPNAVRDAPNAVRDAP---
+UniRef90_O15854/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+UniRef90_A0A401U021/46-73              --------GNKDSDNGTKDSDNGTKDSDNGTKESDN--
+UniRef90_UPI001F20CBA7/9-40            --RKDVEMARKDVEVARKDVEVARKDVEVASKDA----
+UniRef90_UPI001F20CBA7/36-61           --------ASKDAEVASKDAEVASKDAEVASKDV----
+UniRef90_UPI001F20CBA7/64-88           --------ASKDVEVASKDVEVASKDVEVARKD-----
+UniRef90_A0A1D8H334/1-33               -----AKKASEDAEKAANDAENASKEAEEASKEAVNLK
+UniRef90_A0A3M0JR79/4-33               ---RSAEQISEDAEQISEDAEQISKVAEQISEV-----
+UniRef90_A0A3M0JR79/40-67              ----DAEQISEDAEQISEDAEQISKVAEQISK------
+UniRef90_A0A3M0JR79/67-98              ---KVAEQISEDAEQISEDAEQISKDAEQISKDAE---
+UniRef90_A0A3M0JR79/95-124             ---KDAEQISEDAGQISEDAEQISEDAEQISSL-----
+UniRef90_A0A159SN41/45-78              ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+UniRef90_A0A159SLY0/58-95              EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+#=GC RF                                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

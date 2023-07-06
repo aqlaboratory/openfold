@@ -1,0 +1,962 @@
+# STOCKHOLM 1.0
+
+#=GS UniRef90_A0A7D9JQC9/15-103     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/44-112     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/178-256    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/263-351    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/829-912    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/911-987    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1490-1555  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1537-1621  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1612-1697  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1759-1843  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1827-1906  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/1930-2004  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/2130-2213  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_A0A7D9JQC9/2177-2262  DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JQC9_PARCT
+#=GS UniRef90_Q82S91/25-117         DE [subseq from] Metal-binding protein SmbP n=3 Tax=Nitrosomonas TaxID=914 RepID=SMBP_NITEU
+#=GS UniRef90_A0A7D9JM27/627-712    DE [subseq from] Reverse transcriptase domain-containing protein n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JM27_PARCT
+#=GS UniRef90_A0A6S7HYF2/695-774    DE [subseq from] Reverse transcriptase domain-containing protein n=5 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HYF2_PARCT
+#=GS UniRef90_A0A6S7HYF2/951-1036   DE [subseq from] Reverse transcriptase domain-containing protein n=5 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HYF2_PARCT
+#=GS UniRef90_A0A6S7HYF2/1319-1384  DE [subseq from] Reverse transcriptase domain-containing protein n=5 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HYF2_PARCT
+#=GS UniRef90_A0A6S7HYF2/1387-1463  DE [subseq from] Reverse transcriptase domain-containing protein n=5 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HYF2_PARCT
+#=GS UniRef90_A0A6S7HYF2/1435-1500  DE [subseq from] Reverse transcriptase domain-containing protein n=5 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HYF2_PARCT
+#=GS UniRef90_A0A6S7IWK6/9-69       DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/72-158     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/132-215    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/208-293    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/301-384    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/725-804    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_A0A6S7IWK6/773-858    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7IWK6_PARCT
+#=GS UniRef90_Q0AJF7/26-118         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas eutropha (strain DSM 101675 / C91 / Nm57) TaxID=335283 RepID=Q0AJF7_NITEC
+#=GS UniRef90_A0A1I7HIW0/28-117     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas eutropha TaxID=916 RepID=A0A1I7HIW0_9PROT
+#=GS UniRef90_Q0AJF6/26-114         DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas eutropha TaxID=916 RepID=Q0AJF6_NITEC
+#=GS UniRef90_A0A1H5UYG6/30-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas ureae TaxID=44577 RepID=A0A1H5UYG6_9PROT
+#=GS UniRef90_A0A1H5UYG6/117-205    DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas ureae TaxID=44577 RepID=A0A1H5UYG6_9PROT
+#=GS UniRef90_A0A7D9LFD0/1229-1312  DE [subseq from] Gastrula zinc finger (Fragment) n=4 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LFD0_PARCT
+#=GS UniRef90_UPI00136EF280/27-117  DE [subseq from] metal-binding protein n=1 Tax=Nitrosomonas sp. HPC101 TaxID=1658667 RepID=UPI00136EF280
+#=GS UniRef90_A0A7D9M0I9/116-181    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A7D9M0I9/197-278    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A7D9M0I9/240-326    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A7D9M0I9/287-345    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A7D9M0I9/668-733    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A7D9M0I9/732-798    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M0I9_PARCT
+#=GS UniRef90_A0A8C5MHU6/6-43       DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/27-64      DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/54-91      DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/73-113     DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/125-188    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/236-274    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/258-323    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A8C5MHU6/293-375    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MHU6_9ANUR
+#=GS UniRef90_A0A2W4R244/23-107     DE [subseq from] Small metal-binding protein n=1 Tax=Candidatus Methylumidiphilus alinenensis TaxID=2202197 RepID=A0A2W4R244_9GAMM
+#=GS UniRef90_A0A2W4R244/112-195    DE [subseq from] Small metal-binding protein n=1 Tax=Candidatus Methylumidiphilus alinenensis TaxID=2202197 RepID=A0A2W4R244_9GAMM
+#=GS UniRef90_A0A4Y1YKM4/26-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas stercoris TaxID=1444684 RepID=A0A4Y1YKM4_9PROT
+#=GS UniRef90_A0A2E9WYL6/27-111     DE [subseq from] Metal-binding protein SmbP n=5 Tax=root TaxID=1 RepID=A0A2E9WYL6_9BACT
+#=GS UniRef90_A0A2E9WYL6/110-191    DE [subseq from] Metal-binding protein SmbP n=5 Tax=root TaxID=1 RepID=A0A2E9WYL6_9BACT
+#=GS UniRef90_A0A2D9A5C7/27-111     DE [subseq from] Secreted protein n=1 Tax=Gemmatimonadetes bacterium TaxID=2026742 RepID=A0A2D9A5C7_9BACT
+#=GS UniRef90_A0A2D9A5C7/110-195    DE [subseq from] Secreted protein n=1 Tax=Gemmatimonadetes bacterium TaxID=2026742 RepID=A0A2D9A5C7_9BACT
+#=GS UniRef90_A0A8C5Q9Q8/308-360    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5Q9Q8_9ANUR
+#=GS UniRef90_A0A8C5Q9Q8/394-478    DE [subseq from] Repetitive proline-rich cell wall protein 2 n=1 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5Q9Q8_9ANUR
+#=GS UniRef90_A0A8H8T1W9/345-425    DE [subseq from] CHAT domain protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H8T1W9_9AGAM
+#=GS UniRef90_A0A8H8T1W9/525-605    DE [subseq from] CHAT domain protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H8T1W9_9AGAM
+#=GS UniRef90_A0A8I1TRS2/29-115     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosospira sp. TaxID=38080 RepID=A0A8I1TRS2_9PROT
+#=GS UniRef90_A0A8I1TRS2/119-205    DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosospira sp. TaxID=38080 RepID=A0A8I1TRS2_9PROT
+#=GS UniRef90_A0A6S7KAS9/64-126     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7KAS9_PARCT
+#=GS UniRef90_A0A6S7KAS9/300-372    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7KAS9_PARCT
+#=GS UniRef90_A0A6S7KAS9/364-430    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7KAS9_PARCT
+#=GS UniRef90_A0A6S7KAS9/418-481    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7KAS9_PARCT
+#=GS UniRef90_A0A1H3J8A1/26-113     DE [subseq from] Small metal-binding protein n=2 Tax=unclassified Nitrosomonas TaxID=2609265 RepID=A0A1H3J8A1_9PROT
+#=GS UniRef90_A0A1I4QI56/24-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas nitrosa TaxID=52442 RepID=A0A1I4QI56_9PROT
+#=GS UniRef90_A0A7D9LSV0/7-91       DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A7D9LSV0/65-151     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A7D9LSV0/163-236    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A7D9LSV0/273-355    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A7D9LSV0/374-459    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A7D9LSV0/519-603    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9LSV0_PARCT
+#=GS UniRef90_A0A1I4QHT0/27-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas nitrosa TaxID=52442 RepID=A0A1I4QHT0_9PROT
+#=GS UniRef90_A0A7D9M6B1/12-74      DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M6B1_PARCT
+#=GS UniRef90_A0A7D9M6B1/77-143     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M6B1_PARCT
+#=GS UniRef90_A0A7D9M6B1/147-228    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M6B1_PARCT
+#=GS UniRef90_A0A7D9M6B1/176-256    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9M6B1_PARCT
+#=GS UniRef90_A0A3G8MB83/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystis rosea TaxID=173366 RepID=A0A3G8MB83_9HYPH
+#=GS UniRef90_A0A6B8KEJ1/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystis heyeri TaxID=391905 RepID=A0A6B8KEJ1_9HYPH
+#=GS UniRef90_A0A256WXR7/30-112     DE [subseq from] Metal-binding protein SmbP n=3 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A256WXR7_9BACT
+#=GS UniRef90_A0A1W1HZT2/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira japonica TaxID=1325564 RepID=A0A1W1HZT2_9BACT
+#=GS UniRef90_A0A849RWR7/29-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A849RWR7_9BACT
+#=GS UniRef90_A0A1H3PCD3/28-110     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm33 TaxID=133724 RepID=A0A1H3PCD3_9PROT
+#=GS UniRef90_A0A7Y4SED5/24-102     DE [subseq from] Metal-binding protein SmbP n=3 Tax=Nitrospirae TaxID=40117 RepID=A0A7Y4SED5_9BACT
+#=GS UniRef90_A0A1G1H0M3/24-103     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospirae TaxID=40117 RepID=A0A1G1H0M3_9BACT
+#=GS UniRef90_A0A8H7IBD9/163-244    DE [subseq from] Aromatic di-alanine and TPR containing protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7IBD9_9AGAM
+#=GS UniRef90_A0A8H7IBD9/388-468    DE [subseq from] Aromatic di-alanine and TPR containing protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7IBD9_9AGAM
+#=GS UniRef90_A0A533ZS76/34-115     DE [subseq from] Metal-binding protein SmbP n=2 Tax=unclassified Nitrospirae TaxID=1298915 RepID=A0A533ZS76_9BACT
+#=GS UniRef90_UPI001268BFF7/30-116  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylomarinum vadi TaxID=438855 RepID=UPI001268BFF7
+#=GS UniRef90_UPI001268BFF7/77-160  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylomarinum vadi TaxID=438855 RepID=UPI001268BFF7
+#=GS UniRef90_A0A521KUZ3/35-116     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A521KUZ3_9BACT
+#=GS UniRef90_A0A431PPB2/28-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Hyphomicrobiales bacterium TaxID=1909294 RepID=A0A431PPB2_9HYPH
+#=GS UniRef90_A0A521JXT2/33-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A521JXT2_9BACT
+#=GS UniRef90_A0A679HTW1/27-106     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. KM1 TaxID=1936990 RepID=A0A679HTW1_9BACT
+#=GS UniRef90_A0A4P5WH29/33-112     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A4P5WH29_9BACT
+#=GS UniRef90_A0A0F7KFA4/32-116     DE [subseq from] Metal-binding protein SmbP n=3 Tax=Nitrosomonas TaxID=914 RepID=A0A0F7KFA4_9PROT
+#=GS UniRef90_A0A1I4K5Y6/27-110     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas communis TaxID=44574 RepID=A0A1I4K5Y6_9PROT
+#=GS UniRef90_UPI0001F87143/28-110  DE [subseq from] hypothetical protein n=2 Tax=unclassified Methylocystis TaxID=2625913 RepID=UPI0001F87143
+#=GS UniRef90_A0A533B8K5/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A533B8K5_9BACT
+#=GS UniRef90_A0A0K2GGB0/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira moscoviensis TaxID=42253 RepID=A0A0K2GGB0_NITMO
+#=GS UniRef90_UPI00136F29EC/29-114  DE [subseq from] metal-binding protein SmbP n=1 Tax=Nitrosomonas oligotropha TaxID=42354 RepID=UPI00136F29EC
+#=GS UniRef90_A0A3M2DAK2/33-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A3M2DAK2_9BACT
+#=GS UniRef90_A0A8D5AAB6/21-107     DE [subseq from] Small metal-binding protein n=4 Tax=Methylomonas TaxID=416 RepID=A0A8D5AAB6_9GAMM
+#=GS UniRef90_UPI0018944675/23-109  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylobacter sp. BlB1 TaxID=2785914 RepID=UPI0018944675
+#=GS UniRef90_A0A3N5HZ46/33-112     DE [subseq from] Metal-binding protein SmbP n=3 Tax=Nitrospiraceae TaxID=189779 RepID=A0A3N5HZ46_9BACT
+#=GS UniRef90_A0A1I2DBF3/24-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm166 TaxID=1881054 RepID=A0A1I2DBF3_9PROT
+#=GS UniRef90_A0A532DAN5/33-112     DE [subseq from] Metal-binding protein SmbP n=3 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A532DAN5_9BACT
+#=GS UniRef90_A0A1G1IIT2/26-107     DE [subseq from] Metal-binding protein SmbP n=2 Tax=unclassified Nitrospirae TaxID=1298915 RepID=A0A1G1IIT2_9BACT
+#=GS UniRef90_A0A2T5HX29/29-114     DE [subseq from] Small metal-binding protein n=3 Tax=Proteobacteria TaxID=1224 RepID=A0A2T5HX29_9PROT
+#=GS UniRef90_A0A3M2AUD2/50-134     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A3M2AUD2_9BACT
+#=GS UniRef90_A0A1I2AWD9/31-111     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm166 TaxID=1881054 RepID=A0A1I2AWD9_9PROT
+#=GS UniRef90_A0A7V1Y6K2/33-113     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7V1Y6K2_9BACT
+#=GS UniRef90_A0A538RJS9/32-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A538RJS9_9BACT
+#=GS UniRef90_A0A2P7NWD0/31-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. APG5 TaxID=2116706 RepID=A0A2P7NWD0_9PROT
+#=GS UniRef90_A0A5C7UXU0/28-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. TaxID=42353 RepID=A0A5C7UXU0_9PROT
+#=GS UniRef90_F8GLG7/29-114         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. (strain Is79A3) TaxID=261292 RepID=F8GLG7_NITSI
+#=GS UniRef90_A0A7D9L1C7/8-82       DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9L1C7_PARCT
+#=GS UniRef90_A0A7D9L1C7/46-126     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9L1C7_PARCT
+#=GS UniRef90_A0A7D9L1C7/93-176     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9L1C7_PARCT
+#=GS UniRef90_A0A7D9L1C7/140-220    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9L1C7_PARCT
+#=GS UniRef90_A0A1H8PIF9/29-114     DE [subseq from] Small metal-binding protein n=2 Tax=Proteobacteria TaxID=1224 RepID=A0A1H8PIF9_9PROT
+#=GS UniRef90_A0A2V3VIS4/28-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm84 TaxID=200124 RepID=A0A2V3VIS4_9PROT
+#=GS UniRef90_A0A1F2RX14/33-114     DE [subseq from] Small metal-binding protein n=1 Tax=Acidobacteria bacterium RIFCSPLOWO2_12_FULL_54_10 TaxID=1797186 RepID=A0A1F2RX14_9BACT
+#=GS UniRef90_F9ZFI8/31-115         DE [subseq from] Small metal-binding protein n=6 Tax=Nitrosomonas TaxID=914 RepID=F9ZFI8_9PROT
+#=GS UniRef90_A0A849RL80/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A849RL80_9BACT
+#=GS UniRef90_A0A136JVQ0/34-115     DE [subseq from] Metal-binding protein SmbP n=2 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A136JVQ0_9BACT
+#=GS UniRef90_A0A3C1YV40/34-115     DE [subseq from] Metal-binding protein SmbP n=5 Tax=Nitrospira TaxID=203693 RepID=A0A3C1YV40_9BACT
+#=GS UniRef90_UPI001967FC62/22-106  DE [subseq from] hypothetical protein n=1 Tax=Methylococcus sp. EFPC2 TaxID=2812648 RepID=UPI001967FC62
+#=GS UniRef90_A0A1Q2SN16/27-116     DE [subseq from] Hypothetical conserved protein n=1 Tax=Candidatus Nitrosoglobus terrae TaxID=1630141 RepID=A0A1Q2SN16_9GAMM
+#=GS UniRef90_A0A177QAN9/32-111     DE [subseq from] Metal-binding protein SmbP n=4 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A177QAN9_9BACT
+#=GS UniRef90_A0A7V9APN9/33-116     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirales bacterium TaxID=2358460 RepID=A0A7V9APN9_9BACT
+#=GS UniRef90_A0A533BLE3/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A533BLE3_9BACT
+#=GS UniRef90_A0A524J2C7/31-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Anaerolineales bacterium TaxID=2073117 RepID=A0A524J2C7_9CHLR
+#=GS UniRef90_A0A1G5SCP3/27-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas mobilis TaxID=51642 RepID=A0A1G5SCP3_9PROT
+#=GS UniRef90_A0A5C7VH40/24-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. TaxID=42353 RepID=A0A5C7VH40_9PROT
+#=GS UniRef90_A0A356R4Z7/31-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospiraceae bacterium TaxID=2026770 RepID=A0A356R4Z7_9BACT
+#=GS UniRef90_A0A330L9E9/33-112     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Nitrospira TaxID=203693 RepID=A0A330L9E9_9BACT
+#=GS UniRef90_UPI00045E9C51/22-108  DE [subseq from] hypothetical protein n=1 Tax=Methylomicrobium lacus TaxID=136992 RepID=UPI00045E9C51
+#=GS UniRef90_UPI0003FE299E/25-110  DE [subseq from] hypothetical protein n=1 Tax=Methylocaldum szegediense TaxID=73780 RepID=UPI0003FE299E
+#=GS UniRef90_A0A1H3PCQ0/25-111     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas halophila TaxID=44576 RepID=A0A1H3PCQ0_9PROT
+#=GS UniRef90_A0A538RQ79/33-112     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A538RQ79_9BACT
+#=GS UniRef90_A0A2S6GQ68/24-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter tundripaludum TaxID=173365 RepID=A0A2S6GQ68_9GAMM
+#=GS UniRef90_H8GMN0/22-108         DE [subseq from] Small metal-binding protein n=2 Tax=Methylomicrobium TaxID=39773 RepID=H8GMN0_METAL
+#=GS UniRef90_A0A522AW92/27-108     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A522AW92_9BACT
+#=GS UniRef90_UPI0013722C12/27-110  DE [subseq from] metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. JL21 TaxID=153949 RepID=UPI0013722C12
+#=GS UniRef90_A0A7Y4SG51/33-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospiraceae bacterium TaxID=2026770 RepID=A0A7Y4SG51_9BACT
+#=GS UniRef90_A0A1W9JL46/24-109     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Proteobacteria TaxID=1224 RepID=A0A1W9JL46_9PROT
+#=GS UniRef90_UPI0013EA0DE5/27-111  DE [subseq from] hypothetical protein n=2 Tax=unclassified Methylocystis TaxID=2625913 RepID=UPI0013EA0DE5
+#=GS UniRef90_A0A533XN52/28-110     DE [subseq from] Metal-binding protein SmbP n=5 Tax=unclassified Nitrospirae TaxID=1298915 RepID=A0A533XN52_9BACT
+#=GS UniRef90_A0A2P5NRK2/29-115     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystis sp. TaxID=1911079 RepID=A0A2P5NRK2_9HYPH
+#=GS UniRef90_A0A1W9HWD6/33-111     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Nitrospira TaxID=203693 RepID=A0A1W9HWD6_9BACT
+#=GS UniRef90_A0A177MDK3/23-109     DE [subseq from] Metal-binding protein SmbP n=7 Tax=Methylomonas TaxID=416 RepID=A0A177MDK3_METMH
+#=GS UniRef90_A0A2E6UPB5/25-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonadaceae bacterium TaxID=2026767 RepID=A0A2E6UPB5_9PROT
+#=GS UniRef90_A0A7S8IYN4/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira kreftii TaxID=2652173 RepID=A0A7S8IYN4_9BACT
+#=GS UniRef90_J7Q8M2/28-110         DE [subseq from] Small metal-binding protein n=13 Tax=Methylocystaceae TaxID=31993 RepID=J7Q8M2_METSZ
+#=GS UniRef90_A0A395CTH0/28-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A395CTH0_9HYPH
+#=GS UniRef90_A0A6N9DVA4/29-110     DE [subseq from] Metal-binding protein SmbP n=5 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A6N9DVA4_9BACT
+#=GS UniRef90_A0A5C7V0V9/27-114     DE [subseq from] Metal-binding protein SmbP n=2 Tax=unclassified Nitrosomonas TaxID=2609265 RepID=A0A5C7V0V9_9PROT
+#=GS UniRef90_F9ZFC2/32-117         DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas TaxID=914 RepID=F9ZFC2_9PROT
+#=GS UniRef90_A0A177MNU9/24-109     DE [subseq from] Metal-binding protein SmbP n=8 Tax=Methylomonas TaxID=416 RepID=A0A177MNU9_METMH
+#=GS UniRef90_A0A286P3B0/6-91       DE [subseq from] Small metal-binding protein n=3 Tax=Methylocaldum TaxID=73778 RepID=A0A286P3B0_9GAMM
+#=GS UniRef90_A0A7C5F3L8/22-101     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C5F3L8_9BACT
+#=GS UniRef90_A0A525VKT8/3-81       DE [subseq from] Metal-binding protein n=1 Tax=Nitrospira sp. CG24A TaxID=1985133 RepID=A0A525VKT8_9BACT
+#=GS UniRef90_UPI001FED7AE5/67-149  DE [subseq from] hypothetical protein n=1 Tax=Methylocystis sp. H4A TaxID=2785788 RepID=UPI001FED7AE5
+#=GS UniRef90_UPI00112D1080/24-109  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylomonas koyamae TaxID=702114 RepID=UPI00112D1080
+#=GS UniRef90_UPI0001F86800/29-109  DE [subseq from] hypothetical protein n=1 Tax=unclassified Methylocystis TaxID=2625913 RepID=UPI0001F86800
+#=GS UniRef90_A0A533YUG7/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A533YUG7_9BACT
+#=GS UniRef90_A0A1W9GK01/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. SG-bin1 TaxID=1827376 RepID=A0A1W9GK01_9BACT
+#=GS UniRef90_A0A7S6S7A6/29-113     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Gammaproteobacteria bacterium TaxID=1913989 RepID=A0A7S6S7A6_9GAMM
+#=GS UniRef90_A0A8D4V4F1/24-109     DE [subseq from] Metal-binding protein SmbP n=5 Tax=Methylomonas TaxID=416 RepID=A0A8D4V4F1_9GAMM
+#=GS UniRef90_A0A7X3YSY8/29-110     DE [subseq from] Metal-binding protein SmbP n=4 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A7X3YSY8_9BACT
+#=GS UniRef90_A0A1W9H7J2/29-115     DE [subseq from] Small metal-binding protein n=1 Tax=Proteobacteria bacterium SG_bin4 TaxID=1827381 RepID=A0A1W9H7J2_9PROT
+#=GS UniRef90_A0A7S8FFE3/32-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira kreftii TaxID=2652173 RepID=A0A7S8FFE3_9BACT
+#=GS UniRef90_A0A7D9DMB2/183-262    DE [subseq from] Zonadhesin n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9DMB2_PARCT
+#=GS UniRef90_A0A177PF07/24-109     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Methylomonas TaxID=416 RepID=A0A177PF07_9GAMM
+#=GS UniRef90_A0A1H3PD27/30-115     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm33 TaxID=133724 RepID=A0A1H3PD27_9PROT
+#=GS UniRef90_A0A1W9GVL8/26-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Proteobacteria bacterium SG_bin4 TaxID=1827381 RepID=A0A1W9GVL8_9PROT
+#=GS UniRef90_A0A1H3DV17/28-115     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas halophila TaxID=44576 RepID=A0A1H3DV17_9PROT
+#=GS UniRef90_A0A0S4KVU2/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira inopinata TaxID=1715989 RepID=A0A0S4KVU2_9BACT
+#=GS UniRef90_A0A849V4F2/23-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methyloglobulus sp. TaxID=2518622 RepID=A0A849V4F2_9GAMM
+#=GS UniRef90_A0A1I4WZF2/27-112     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas communis TaxID=44574 RepID=A0A1I4WZF2_9PROT
+#=GS UniRef90_A0A0S4LA30/31-109     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira nitrificans TaxID=1742973 RepID=A0A0S4LA30_9BACT
+#=GS UniRef90_A0A4P5SPL1/55-138     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A4P5SPL1_9HYPH
+#=GS UniRef90_A0A522WTH9/25-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A522WTH9_9GAMM
+#=GS UniRef90_L8WKN2/2-82           DE [subseq from] Mucin-like protein 1 n=1 Tax=Thanatephorus cucumeris (strain AG1-IA) TaxID=983506 RepID=L8WKN2_THACA
+#=GS UniRef90_L8WKN2/227-307        DE [subseq from] Mucin-like protein 1 n=1 Tax=Thanatephorus cucumeris (strain AG1-IA) TaxID=983506 RepID=L8WKN2_THACA
+#=GS UniRef90_UPI00041D362B/29-111  DE [subseq from] hypothetical protein n=1 Tax=Methylocapsa acidiphila TaxID=133552 RepID=UPI00041D362B
+#=GS UniRef90_A0A523GSW8/26-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Betaproteobacteria bacterium TaxID=1891241 RepID=A0A523GSW8_9PROT
+#=GS UniRef90_F8GJW3/26-114         DE [subseq from] Small metal-binding protein n=2 Tax=unclassified Nitrosomonas TaxID=2609265 RepID=F8GJW3_NITSI
+#=GS UniRef90_A0A2P7NV83/31-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. APG5 TaxID=2116706 RepID=A0A2P7NV83_9PROT
+#=GS UniRef90_A0A0S4LTJ0/33-113     DE [subseq from] Metal-binding protein SmbP n=5 Tax=Nitrospira TaxID=203693 RepID=A0A0S4LTJ0_9BACT
+#=GS UniRef90_A0A7Y4ZDD9/26-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methyloglobulus sp. TaxID=2518622 RepID=A0A7Y4ZDD9_9GAMM
+#=GS UniRef90_A0A8D4VQ53/25-109     DE [subseq from] Small metal-binding protein n=1 Tax=Methylogaea oryzae TaxID=1295382 RepID=A0A8D4VQ53_9GAMM
+#=GS UniRef90_A0A4P7F8W8/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Beijerinckiaceae bacterium TaxID=1978229 RepID=A0A4P7F8W8_9HYPH
+#=GS UniRef90_A0A1W9G6J6/33-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. SG-bin2 TaxID=1827377 RepID=A0A1W9G6J6_9BACT
+#=GS UniRef90_A0A533Y7T2/31-118     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A533Y7T2_9BACT
+#=GS UniRef90_A0A7Y8LDY0/31-112     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7Y8LDY0_9BACT
+#=GS UniRef90_A0A532EXT5/31-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532EXT5_9BACT
+#=GS UniRef90_A0A1R4HCF5/23-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Crenothrix polyspora TaxID=360316 RepID=A0A1R4HCF5_9GAMM
+#=GS UniRef90_A0A532DKU1/33-112     DE [subseq from] Metal-binding protein SmbP n=3 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A532DKU1_9BACT
+#=GS UniRef90_A0A1W6MR52/28-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystis bryophila TaxID=655015 RepID=A0A1W6MR52_9HYPH
+#=GS UniRef90_A0A4P5TID8/42-125     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A4P5TID8_9HYPH
+#=GS UniRef90_A0A521WUH1/27-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A521WUH1_9GAMM
+#=GS UniRef90_A0A7S8J1S2/46-123     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospira TaxID=203693 RepID=A0A7S8J1S2_9BACT
+#=GS UniRef90_A0A532DGQ9/46-124     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532DGQ9_9BACT
+#=GS UniRef90_A0A7Y4Z8L6/23-113     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methyloglobulus sp. TaxID=2518622 RepID=A0A7Y4Z8L6_9GAMM
+#=GS UniRef90_A0A7Y8HNW6/24-102     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Nitrospirae TaxID=40117 RepID=A0A7Y8HNW6_9BACT
+#=GS UniRef90_A0A533XKG2/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A533XKG2_9BACT
+#=GS UniRef90_A0A7Y4RRA3/27-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A7Y4RRA3_9GAMM
+#=GS UniRef90_A0A532DY66/5-89       DE [subseq from] Metal-binding protein SmbP (Fragment) n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532DY66_9BACT
+#=GS UniRef90_A0A1I4B8L4/26-114     DE [subseq from] Small metal-binding protein n=3 Tax=Nitrosomonas TaxID=914 RepID=A0A1I4B8L4_9PROT
+#=GS UniRef90_A0A2P7NTP5/26-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. APG5 TaxID=2116706 RepID=A0A2P7NTP5_9PROT
+#=GS UniRef90_A0A6B8M4X9/27-114     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystis parvus TaxID=134 RepID=A0A6B8M4X9_9HYPH
+#=GS UniRef90_A0A8T3RIK4/55-139     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Gammaproteobacteria bacterium TaxID=1913989 RepID=A0A8T3RIK4_9GAMM
+#=GS UniRef90_A0A1H9Y6H8/26-114     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas marina TaxID=917 RepID=A0A1H9Y6H8_9PROT
+#=GS UniRef90_G3J1D2/27-111         DE [subseq from] Small metal-binding protein n=4 Tax=Methylobacter TaxID=429 RepID=G3J1D2_METTV
+#=GS UniRef90_H8GI62/26-112         DE [subseq from] Metal-binding protein SmbP n=2 Tax=Methylomicrobium TaxID=39773 RepID=H8GI62_METAL
+#=GS UniRef90_F8GFS1/26-114         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. (strain Is79A3) TaxID=261292 RepID=F8GFS1_NITSI
+#=GS UniRef90_UPI001FC89D6B/28-114  DE [subseq from] metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. PY1 TaxID=1803906 RepID=UPI001FC89D6B
+#=GS UniRef90_A0A1W9H8F1/32-111     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Nitrospira TaxID=203693 RepID=A0A1W9H8F1_9BACT
+#=GS UniRef90_A0A1H8SYW1/26-114     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Proteobacteria TaxID=1224 RepID=A0A1H8SYW1_9PROT
+#=GS UniRef90_A0A1I3BCS1/27-111     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosospira sp. Nsp14 TaxID=1855333 RepID=A0A1I3BCS1_9PROT
+#=GS UniRef90_A0A1H3PB69/29-120     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm33 TaxID=133724 RepID=A0A1H3PB69_9PROT
+#=GS UniRef90_A0A532EYP1/37-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532EYP1_9BACT
+#=GS UniRef90_V5E161/23-110         DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methyloglobulus morosus KoM1 TaxID=1116472 RepID=V5E161_9GAMM
+#=GS UniRef90_A0A2T4TZF8/27-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Methylomirabilis limnetica TaxID=2033718 RepID=A0A2T4TZF8_9BACT
+#=GS UniRef90_UPI0005678E7F/29-111  DE [subseq from] hypothetical protein n=1 Tax=Methylocapsa aurea TaxID=663610 RepID=UPI0005678E7F
+#=GS UniRef90_A0A3S0G169/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Hyphomicrobiales bacterium TaxID=1909294 RepID=A0A3S0G169_9HYPH
+#=GS UniRef90_A0A1W9G7P9/32-110     DE [subseq from] Metal-binding protein SmbP n=2 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A1W9G7P9_9BACT
+#=GS UniRef90_A0A8T7BKK8/26-114     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Gammaproteobacteria bacterium TaxID=1913989 RepID=A0A8T7BKK8_9GAMM
+#=GS UniRef90_F9ZDP8/26-114         DE [subseq from] Small metal-binding protein n=4 Tax=Nitrosomonas TaxID=914 RepID=F9ZDP8_9PROT
+#=GS UniRef90_UPI001893B337/27-111  DE [subseq from] metal-binding protein SmbP n=2 Tax=Methylobacter TaxID=429 RepID=UPI001893B337
+#=GS UniRef90_UPI001FC831CC/24-112  DE [subseq from] metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. PY1 TaxID=1803906 RepID=UPI001FC831CC
+#=GS UniRef90_A0A7C5F6W1/32-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C5F6W1_9BACT
+#=GS UniRef90_A0A5R8QM29/28-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystis sp. B8 TaxID=544938 RepID=A0A5R8QM29_9HYPH
+#=GS UniRef90_A0A1H2E2U7/32-116     DE [subseq from] Small metal-binding protein n=5 Tax=Nitrosomonas ureae TaxID=44577 RepID=A0A1H2E2U7_9PROT
+#=GS UniRef90_UPI001F049486/43-131  DE [subseq from] metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. HPC101 TaxID=1658667 RepID=UPI001F049486
+#=GS UniRef90_UPI000F8D67FC/23-110  DE [subseq from] hypothetical protein n=1 Tax=Candidatus Methylobacter oryzae TaxID=2497749 RepID=UPI000F8D67FC
+#=GS UniRef90_A0A1H9PPD2/26-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm51 TaxID=133720 RepID=A0A1H9PPD2_9PROT
+#=GS UniRef90_A0A8H7H9U2/294-375    DE [subseq from] TPR-like protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7H9U2_9AGAM
+#=GS UniRef90_A0A8H7H9U2/384-466    DE [subseq from] TPR-like protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7H9U2_9AGAM
+#=GS UniRef90_A0A8H7H9U2/476-553    DE [subseq from] TPR-like protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7H9U2_9AGAM
+#=GS UniRef90_A0A2V3VNQ0/27-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm84 TaxID=200124 RepID=A0A2V3VNQ0_9PROT
+#=GS UniRef90_UPI000F8D3569/27-109  DE [subseq from] hypothetical protein n=1 Tax=Candidatus Methylobacter oryzae TaxID=2497749 RepID=UPI000F8D3569
+#=GS UniRef90_UPI00189520AB/25-110  DE [subseq from] metal-binding protein SmbP n=2 Tax=Methylococcaceae TaxID=403 RepID=UPI00189520AB
+#=GS UniRef90_Q2Y713/26-110         DE [subseq from] Small metal-binding protein n=7 Tax=Nitrosomonadales TaxID=32003 RepID=Q2Y713_NITMU
+#=GS UniRef90_A0A524MN79/27-109     DE [subseq from] Metal-binding protein SmbP (Fragment) n=1 Tax=Nitrosomonadales bacterium TaxID=2026761 RepID=A0A524MN79_9PROT
+#=GS UniRef90_A0A2N1XRC9/25-109     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Gammaproteobacteria bacterium HGW-Gammaproteobacteria-3 TaxID=2013799 RepID=A0A2N1XRC9_9GAMM
+#=GS UniRef90_A0A7C5F3N3/29-108     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C5F3N3_9BACT
+#=GS UniRef90_A0A1N6IH72/28-115     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas cryotolerans ATCC 49181 TaxID=1131553 RepID=A0A1N6IH72_9PROT
+#=GS UniRef90_A0A4P5SUI5/28-110     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A4P5SUI5_9HYPH
+#=GS UniRef90_A0A7D9DAD9/890-975    DE [subseq from] Titin n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9DAD9_PARCT
+#=GS UniRef90_A0A1W9J486/32-110     DE [subseq from] Metal-binding protein SmbP n=3 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A1W9J486_9BACT
+#=GS UniRef90_A0A1Q7P9N7/27-108     DE [subseq from] DUF4398 domain-containing protein n=6 Tax=unclassified Nitrospirae TaxID=1298915 RepID=A0A1Q7P9N7_9BACT
+#=GS UniRef90_A0A1I4HE15/28-113     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas aestuarii TaxID=52441 RepID=A0A1I4HE15_9PROT
+#=GS UniRef90_A0A3G8MB95/28-111     DE [subseq from] Metal-binding protein SmbP n=5 Tax=Methylocystaceae TaxID=31993 RepID=A0A3G8MB95_9HYPH
+#=GS UniRef90_A0A8J8FJH9/37-123     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomarinum sp. TaxID=2685872 RepID=A0A8J8FJH9_9GAMM
+#=GS UniRef90_UPI0005EAF9B9/22-106  DE [subseq from] hypothetical protein n=1 Tax=Methyloterricola oryzae TaxID=1495050 RepID=UPI0005EAF9B9
+#=GS UniRef90_A0A521X4H7/26-112     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A521X4H7_9GAMM
+#=GS UniRef90_A0A3G8ME76/28-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystis rosea TaxID=173366 RepID=A0A3G8ME76_9HYPH
+#=GS UniRef90_UPI001FEFD14C/24-106  DE [subseq from] hypothetical protein n=1 Tax=Methylocystis sp. B8 TaxID=544938 RepID=UPI001FEFD14C
+#=GS UniRef90_A0A7W1UEI8/16-94      DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirales bacterium TaxID=2358460 RepID=A0A7W1UEI8_9BACT
+#=GS UniRef90_A0A177Q8A4/2-67       DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospira sp. SCGC AG-212-E16 TaxID=1799664 RepID=A0A177Q8A4_9BACT
+#=GS UniRef90_A0A532CYL8/46-123     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532CYL8_9BACT
+#=GS UniRef90_A0A2U1RZK3/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=candidate division NC10 bacterium TaxID=2072417 RepID=A0A2U1RZK3_9BACT
+#=GS UniRef90_A0A2T5JTZ2/23-111     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosospira sp. Nsp2 TaxID=136548 RepID=A0A2T5JTZ2_9PROT
+#=GS UniRef90_UPI00045EB9A4/26-113  DE [subseq from] hypothetical protein n=1 Tax=Methylomicrobium lacus TaxID=136992 RepID=UPI00045EB9A4
+#=GS UniRef90_D5BZU8/27-116         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosococcus halophilus (strain Nc4) TaxID=472759 RepID=D5BZU8_NITHN
+#=GS UniRef90_UPI001FAB9FA1/102-166 DE [subseq from] hypothetical protein n=1 Tax=Methylobacter sp. S3L5C TaxID=2839024 RepID=UPI001FAB9FA1
+#=GS UniRef90_UPI001FAB9FA1/128-213 DE [subseq from] hypothetical protein n=1 Tax=Methylobacter sp. S3L5C TaxID=2839024 RepID=UPI001FAB9FA1
+#=GS UniRef90_A0A6S7K259/373-458    DE [subseq from] Zonadhesin (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7K259_PARCT
+#=GS UniRef90_A0A5R8QJG3/28-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystis sp. B8 TaxID=544938 RepID=A0A5R8QJG3_9HYPH
+#=GS UniRef90_A0A532DVT4/40-119     DE [subseq from] OMP_b-brl domain-containing protein n=2 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532DVT4_9BACT
+#=GS UniRef90_UPI0003F87FCB/28-110  DE [subseq from] hypothetical protein n=1 Tax=Methylocaldum szegediense TaxID=73780 RepID=UPI0003F87FCB
+#=GS UniRef90_A0A0F7K9X3/27-115     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas communis TaxID=44574 RepID=A0A0F7K9X3_9PROT
+#=GS UniRef90_A0A1H3Q4R2/26-105     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm33 TaxID=133724 RepID=A0A1H3Q4R2_9PROT
+#=GS UniRef90_A0A532ENL7/24-100     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532ENL7_9BACT
+#=GS UniRef90_UPI0004757F57/28-110  DE [subseq from] hypothetical protein n=1 Tax=Methylocystis rosea TaxID=173366 RepID=UPI0004757F57
+#=GS UniRef90_A0A395CTP0/28-110     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A395CTP0_9HYPH
+#=GS UniRef90_A0A8J8FIM8/18-103     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylomarinum sp. TaxID=2685872 RepID=A0A8J8FIM8_9GAMM
+#=GS UniRef90_J7QR39/27-109         DE [subseq from] Metal-binding protein SmbP n=5 Tax=Methylocystis TaxID=133 RepID=J7QR39_METSZ
+#=GS UniRef90_A0A1I4SWH7/27-112     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas nitrosa TaxID=52442 RepID=A0A1I4SWH7_9PROT
+#=GS UniRef90_A0A0F7KH48/27-112     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrosomonas TaxID=914 RepID=A0A0F7KH48_9PROT
+#=GS UniRef90_A0A257NAG5/30-117     DE [subseq from] Metal-binding protein smbP (Modular protein) n=1 Tax=Methylococcaceae bacterium NSP1-2 TaxID=1917481 RepID=A0A257NAG5_9GAMM
+#=GS UniRef90_A0A354BJ18/40-119     DE [subseq from] OMP_b-brl domain-containing protein n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A354BJ18_9BACT
+#=GS UniRef90_A0A849U9E6/27-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A849U9E6_9GAMM
+#=GS UniRef90_UPI00035E91D7/23-112  DE [subseq from] hypothetical protein n=1 Tax=Methylosarcina fibrata TaxID=105972 RepID=UPI00035E91D7
+#=GS UniRef90_A0A1H7RL92/31-111     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosovibrio tenuis TaxID=1233 RepID=A0A1H7RL92_9PROT
+#=GS UniRef90_A0A7C5F981/46-122     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C5F981_9BACT
+#=GS UniRef90_UPI00030CFEDE/6-95    DE [subseq from] hypothetical protein n=1 Tax=Nitrosococcus watsonii TaxID=473531 RepID=UPI00030CFEDE
+#=GS UniRef90_UPI00030CFEDE/54-107  DE [subseq from] hypothetical protein n=1 Tax=Nitrosococcus watsonii TaxID=473531 RepID=UPI00030CFEDE
+#=GS UniRef90_A0A0S4LD86/46-122     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira nitrosa TaxID=1742972 RepID=A0A0S4LD86_9BACT
+#=GS UniRef90_A0A250L346/30-112     DE [subseq from] Small metal-binding protein n=4 Tax=Methylocaldum TaxID=73778 RepID=A0A250L346_9GAMM
+#=GS UniRef90_A0A522WVU5/23-108     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A522WVU5_9GAMM
+#=GS UniRef90_A0A532CH90/4-73       DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532CH90_9BACT
+#=GS UniRef90_G3IW43/23-111         DE [subseq from] Small metal-binding protein n=3 Tax=Methylobacter tundripaludum TaxID=173365 RepID=G3IW43_METTV
+#=GS UniRef90_A0A0F3IG21/25-112     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocucumis oryzae TaxID=1632867 RepID=A0A0F3IG21_9GAMM
+#=GS UniRef90_A0A7Y8LDG0/40-119     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7Y8LDG0_9BACT
+#=GS UniRef90_A0A292PQE7/8-82       DE [subseq from] TPR-like protein (Fragment) n=1 Tax=Tuber aestivum TaxID=59557 RepID=A0A292PQE7_9PEZI
+#=GS UniRef90_A0A292PQE7/54-128     DE [subseq from] TPR-like protein (Fragment) n=1 Tax=Tuber aestivum TaxID=59557 RepID=A0A292PQE7_9PEZI
+#=GS UniRef90_A0A5R8QBB9/28-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylocystis sp. B8 TaxID=544938 RepID=A0A5R8QBB9_9HYPH
+#=GS UniRef90_A0A7D9MBK6/3-88       DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9MBK6_PARCT
+#=GS UniRef90_A0A7D9MBK6/30-113     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9MBK6_PARCT
+#=GS UniRef90_A0A7D9MBK6/97-162     DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9MBK6_PARCT
+#=GS UniRef90_A0A7D9MBK6/124-208    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9MBK6_PARCT
+#=GS UniRef90_A0A7D9MBK6/171-231    DE [subseq from] S-antigen protein (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9MBK6_PARCT
+#=GS UniRef90_A0A418RNJ1/23-109     DE [subseq from] Small metal-binding protein n=1 Tax=Methylococcales bacterium TaxID=2304002 RepID=A0A418RNJ1_9GAMM
+#=GS UniRef90_A0A8T8PSE6/23-108     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylomonas paludis TaxID=1173101 RepID=A0A8T8PSE6_9GAMM
+#=GS UniRef90_A0A849RGU4/23-99      DE [subseq from] Metal-binding protein SmbP (Fragment) n=1 Tax=Methyloglobulus sp. TaxID=2518622 RepID=A0A849RGU4_9GAMM
+#=GS UniRef90_A0A2V7QL42/42-123     DE [subseq from] Small metal-binding protein n=1 Tax=Gemmatimonadetes bacterium TaxID=2026742 RepID=A0A2V7QL42_9BACT
+#=GS UniRef90_A0A6S7J135/118-196    DE [subseq from] Reverse transcriptase domain-containing protein n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7J135_PARCT
+#=GS UniRef90_A0A6S7J135/144-227    DE [subseq from] Reverse transcriptase domain-containing protein n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7J135_PARCT
+#=GS UniRef90_A0A6S7J135/241-318    DE [subseq from] Reverse transcriptase domain-containing protein n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7J135_PARCT
+#=GS UniRef90_A0A4Y7SE09/131-211    DE [subseq from] CHAT domain-containing protein n=1 Tax=Coprinellus micaceus TaxID=71717 RepID=A0A4Y7SE09_9AGAR
+#=GS UniRef90_A0A4Y7SE09/221-290    DE [subseq from] CHAT domain-containing protein n=1 Tax=Coprinellus micaceus TaxID=71717 RepID=A0A4Y7SE09_9AGAR
+#=GS UniRef90_A0A4Y7SE09/266-336    DE [subseq from] CHAT domain-containing protein n=1 Tax=Coprinellus micaceus TaxID=71717 RepID=A0A4Y7SE09_9AGAR
+#=GS UniRef90_A0A1H3GL05/28-115     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm33 TaxID=133724 RepID=A0A1H3GL05_9PROT
+#=GS UniRef90_UPI0003704952/23-112  DE [subseq from] hypothetical protein n=1 Tax=Methylosarcina fibrata TaxID=105972 RepID=UPI0003704952
+#=GS UniRef90_A0A1W9GN89/43-119     DE [subseq from] Small metal-binding protein n=3 Tax=Nitrospira TaxID=203693 RepID=A0A1W9GN89_9BACT
+#=GS UniRef90_A0A0S4LEU0/46-122     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrospira nitrificans TaxID=1742973 RepID=A0A0S4LEU0_9BACT
+#=GS UniRef90_A0A1Y2ZV51/30-117     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Crenothrix sp. D3 TaxID=1880899 RepID=A0A1Y2ZV51_9GAMM
+#=GS UniRef90_A0A4P7C5B9/26-116     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosococcus wardiae TaxID=1814290 RepID=A0A4P7C5B9_9GAMM
+#=GS UniRef90_A0A2U1RJV3/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=candidate division NC10 bacterium TaxID=2072417 RepID=A0A2U1RJV3_9BACT
+#=GS UniRef90_A0A564ZH18/28-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Methylomirabilis lanthanidiphila TaxID=2211376 RepID=A0A564ZH18_9BACT
+#=GS UniRef90_A0A1H9JWU5/28-113     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm51 TaxID=133720 RepID=A0A1H9JWU5_9PROT
+#=GS UniRef90_A0A2M7YZB6/2-59       DE [subseq from] Metal-binding protein SmbP (Fragment) n=1 Tax=Nitrospirae bacterium CG_4_9_14_3_um_filter_51_5 TaxID=1974062 RepID=A0A2M7YZB6_9BACT
+#=GS UniRef90_A0A2T5JTZ0/48-129     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosospira sp. Nsp2 TaxID=136548 RepID=A0A2T5JTZ0_9PROT
+#=GS UniRef90_H8GN34/23-112         DE [subseq from] Small metal-binding protein n=1 Tax=Methylomicrobium album BG8 TaxID=686340 RepID=H8GN34_METAL
+#=GS UniRef90_UPI00041F861C/8-94    DE [subseq from] hypothetical protein n=1 Tax=Methylocaldum szegediense TaxID=73780 RepID=UPI00041F861C
+#=GS UniRef90_A0A532CSA0/40-119     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532CSA0_9BACT
+#=GS UniRef90_A0A8D9RWI7/63-153     DE [subseq from] Metal-binding protein SmbP n=4 Tax=Nitrosococcus oceani TaxID=1229 RepID=A0A8D9RWI7_9GAMM
+#=GS UniRef90_A0A679F465/28-114     DE [subseq from] Small metal-binding protein n=2 Tax=unclassified Methylosinus TaxID=2624500 RepID=A0A679F465_9HYPH
+#=GS UniRef90_A0A532CWK2/80-155     DE [subseq from] Small metal-binding protein n=3 Tax=unclassified Nitrospira TaxID=2652172 RepID=A0A532CWK2_9BACT
+#=GS UniRef90_A0A1W9GQU4/45-123     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. SG-bin1 TaxID=1827376 RepID=A0A1W9GQU4_9BACT
+#=GS UniRef90_H8GK72/24-109         DE [subseq from] Metal-binding protein SmbP n=2 Tax=Methylomicrobium TaxID=39773 RepID=H8GK72_METAL
+#=GS UniRef90_A0A2P5N093/27-104     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylomonas sp. TaxID=418 RepID=A0A2P5N093_METSP
+#=GS UniRef90_A0A3A2IZV4/23-109     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylococcales bacterium TaxID=2304002 RepID=A0A3A2IZV4_9GAMM
+#=GS UniRef90_A0A7T0JK12/23-109     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylomonas sp. LL1 TaxID=2785785 RepID=A0A7T0JK12_9GAMM
+#=GS UniRef90_A0A7C7BWL7/35-126     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospirales bacterium TaxID=2358460 RepID=A0A7C7BWL7_9BACT
+#=GS UniRef90_A0A2P5LGP7/24-109     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A2P5LGP7_9GAMM
+#=GS UniRef90_A0A2V7R448/108-189    DE [subseq from] DUF4398 domain-containing protein n=1 Tax=Gemmatimonadetes bacterium TaxID=2026742 RepID=A0A2V7R448_9BACT
+#=GS UniRef90_A0A357ECX5/37-115     DE [subseq from] Metal-binding protein SmbP (Fragment) n=3 Tax=Nitrospira TaxID=203693 RepID=A0A357ECX5_9BACT
+#=GS UniRef90_F8GLT9/27-107         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. (strain Is79A3) TaxID=261292 RepID=F8GLT9_NITSI
+#=GS UniRef90_A0A257N3A2/23-110     DE [subseq from] Metal-binding protein smbP (Modular protein) n=3 Tax=unclassified Methylococcaceae TaxID=51352 RepID=A0A257N3A2_9GAMM
+#=GS UniRef90_UPI001C0DB761/52-138  DE [subseq from] hypothetical protein n=1 Tax=Methylosinus sp. KRF6 TaxID=2846853 RepID=UPI001C0DB761
+#=GS UniRef90_UPI00045EA5E9/23-112  DE [subseq from] hypothetical protein n=1 Tax=Methylomicrobium lacus TaxID=136992 RepID=UPI00045EA5E9
+#=GS UniRef90_D5MGY4/28-110         DE [subseq from] Metal-binding protein SmbP n=2 Tax=Candidatus Methylomirabilis TaxID=1170227 RepID=D5MGY4_9BACT
+#=GS UniRef90_A0A532CWK6/32-110     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532CWK6_9BACT
+#=GS UniRef90_G3IS07/28-113         DE [subseq from] Small metal-binding protein n=3 Tax=Methylobacter tundripaludum TaxID=173365 RepID=G3IS07_METTV
+#=GS UniRef90_A0A1R4HFC5/24-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Crenothrix polyspora TaxID=360316 RepID=A0A1R4HFC5_9GAMM
+#=GS UniRef90_A0A354BQ57/46-122     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Nitrospira sp. TaxID=70125 RepID=A0A354BQ57_9BACT
+#=GS UniRef90_UPI001FAC27CC/23-109  DE [subseq from] hypothetical protein n=1 Tax=Methylobacter sp. S3L5C TaxID=2839024 RepID=UPI001FAC27CC
+#=GS UniRef90_A0A8S0Y9R9/27-113     DE [subseq from] Uncharacterized protein n=1 Tax=Candidatus Methylobacter favarea TaxID=2707345 RepID=A0A8S0Y9R9_9GAMM
+#=GS UniRef90_A0A2E8GBR3/41-132     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospiraceae bacterium TaxID=2026770 RepID=A0A2E8GBR3_9BACT
+#=GS UniRef90_A0A533ZV21/27-108     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A533ZV21_9BACT
+#=GS UniRef90_UPI001923788B/23-112  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylomicrobium sp. RS1 TaxID=2802053 RepID=UPI001923788B
+#=GS UniRef90_A0A1W9GAS3/174-253    DE [subseq from] PRC domain-containing protein n=1 Tax=Nitrospira sp. SG-bin1 TaxID=1827376 RepID=A0A1W9GAS3_9BACT
+#=GS UniRef90_A0A2S5QB13/29-104     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A2S5QB13_9GAMM
+#=GS UniRef90_A0A1Z4BZI9/25-111     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Methylovulum psychrotolerans TaxID=1704499 RepID=A0A1Z4BZI9_9GAMM
+#=GS UniRef90_F8GJW1/37-126         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. (strain Is79A3) TaxID=261292 RepID=F8GJW1_NITSI
+#=GS UniRef90_A0A4V2W0M2/22-107     DE [subseq from] Small metal-binding protein n=2 Tax=Methylomonas TaxID=416 RepID=A0A4V2W0M2_METMH
+#=GS UniRef90_A0A6S7JAF2/117-198    DE [subseq from] Neuroblast differentiation-associated AHNAK-like (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7JAF2_PARCT
+#=GS UniRef90_UPI0019216E3F/23-112  DE [subseq from] metal-binding protein SmbP n=1 Tax=Methylomicrobium sp. RS1 TaxID=2802053 RepID=UPI0019216E3F
+#=GS UniRef90_A0A2S5QTL1/24-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A2S5QTL1_9GAMM
+#=GS UniRef90_A0A7D9EQZ0/234-324    DE [subseq from] Cardiomyopathy-associated protein 5 (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9EQZ0_PARCT
+#=GS UniRef90_UPI00041E662F/46-130  DE [subseq from] hypothetical protein n=1 Tax=Methylocaldum szegediense TaxID=73780 RepID=UPI00041E662F
+#=GS UniRef90_F8GF55/40-123         DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. (strain Is79A3) TaxID=261292 RepID=F8GF55_NITSI
+#=GS UniRef90_A0A532ENP2/38-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospira sp. TaxID=70125 RepID=A0A532ENP2_9BACT
+#=GS UniRef90_A0A8D4VN95/25-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylogaea oryzae TaxID=1295382 RepID=A0A8D4VN95_9GAMM
+#=GS UniRef90_A0A250KQW1/46-130     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocaldum marinum TaxID=1432792 RepID=A0A250KQW1_9GAMM
+#=GS UniRef90_A0A418RH91/23-109     DE [subseq from] Small metal-binding protein n=1 Tax=Methylococcales bacterium TaxID=2304002 RepID=A0A418RH91_9GAMM
+#=GS UniRef90_G4SZG8/24-110         DE [subseq from] Metal-binding protein smbP (Modular protein) n=3 Tax=Methylococcaceae TaxID=403 RepID=G4SZG8_META2
+#=GS UniRef90_UPI00045E8364/24-109  DE [subseq from] hypothetical protein n=1 Tax=Methylomicrobium lacus TaxID=136992 RepID=UPI00045E8364
+#=GS UniRef90_A0A1G5SCW3/40-126     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas TaxID=914 RepID=A0A1G5SCW3_9PROT
+#=GS UniRef90_F9ZVF8/23-110         DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylomonas methanica (strain MC09) TaxID=857087 RepID=F9ZVF8_METMM
+#=GS UniRef90_A0A1Z4C0N1/29-103     DE [subseq from] Small metal-binding protein n=3 Tax=Methylovulum psychrotolerans TaxID=1704499 RepID=A0A1Z4C0N1_9GAMM
+#=GS UniRef90_A0A3G8MAP8/36-117     DE [subseq from] DUF4398 domain-containing protein n=2 Tax=Methylocystis rosea TaxID=173366 RepID=A0A3G8MAP8_9HYPH
+#=GS UniRef90_A0A1E4GAC2/26-111     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonadales bacterium SCN 54-20 TaxID=1660164 RepID=A0A1E4GAC2_9PROT
+#=GS UniRef90_A0A257MVY8/23-110     DE [subseq from] Metal-binding protein smbP (Modular protein) n=1 Tax=Methylococcaceae bacterium NSP1-2 TaxID=1917481 RepID=A0A257MVY8_9GAMM
+#=GS UniRef90_A0A351UY59/24-110     DE [subseq from] Metal-binding protein SmbP n=2 Tax=Gammaproteobacteria TaxID=1236 RepID=A0A351UY59_9GAMM
+#=GS UniRef90_A0A6S7HVM6/483-566    DE [subseq from] Neuroblast differentiation-associated AHNAK-like n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7HVM6_PARCT
+#=GS UniRef90_A0A0S4LLA9/45-123     DE [subseq from] Small metal-binding protein n=1 Tax=Candidatus Nitrospira nitrosa TaxID=1742972 RepID=A0A0S4LLA9_9BACT
+#=GS UniRef90_A0A7G1QB68/22-99      DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Nitrosacidococcus tergens TaxID=553981 RepID=A0A7G1QB68_9GAMM
+#=GS UniRef90_A0A4V2W0Q2/23-111     DE [subseq from] Small metal-binding protein n=2 Tax=Methylomonas TaxID=416 RepID=A0A4V2W0Q2_METMH
+#=GS UniRef90_UPI001FAD091D/23-99   DE [subseq from] hypothetical protein n=1 Tax=Methylobacter sp. S3L5C TaxID=2839024 RepID=UPI001FAD091D
+#=GS UniRef90_UPI00045E98A9/23-112  DE [subseq from] hypothetical protein n=1 Tax=Methylomicrobium lacus TaxID=136992 RepID=UPI00045E98A9
+#=GS UniRef90_A0A6S7KEB7/38-117     DE [subseq from] DNA-directed RNA polymerase II subunit RPB1-like (Fragment) n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7KEB7_PARCT
+#=GS UniRef90_A0A8D5AQG3/29-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomagnum ishizawai TaxID=1760988 RepID=A0A8D5AQG3_9GAMM
+#=GS UniRef90_A0A2P7NSR3/27-109     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. APG5 TaxID=2116706 RepID=A0A2P7NSR3_9PROT
+#=GS UniRef90_A0A8T4C2I6/27-110     DE [subseq from] Uncharacterized protein n=1 Tax=Candidatus Woesearchaeota archaeon TaxID=2026803 RepID=A0A8T4C2I6_9ARCH
+#=GS UniRef90_A0A838SBJ8/7-53       DE [subseq from] Cobalt transporter n=1 Tax=Nitrospirales bacterium TaxID=2358460 RepID=A0A838SBJ8_9BACT
+#=GS UniRef90_A0A1Y6D9Z6/29-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomagnum ishizawai TaxID=1760988 RepID=A0A1Y6D9Z6_9GAMM
+#=GS UniRef90_UPI00098B57EA/81-167  DE [subseq from] hypothetical protein n=1 Tax=unclassified Methylocaldum TaxID=2622260 RepID=UPI00098B57EA
+#=GS UniRef90_A0A521WW55/29-104     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A521WW55_9GAMM
+#=GS UniRef90_A0A7X6DQN1/98-137     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Candidatus Manganitrophus noduliformans TaxID=2606439 RepID=A0A7X6DQN1_9BACT
+#=GS UniRef90_A0A8D5AJQ6/29-111     DE [subseq from] Small metal-binding protein n=2 Tax=Methylogaea oryzae TaxID=1295382 RepID=A0A8D5AJQ6_9GAMM
+#=GS UniRef90_A0A6S7K258/441-519    DE [subseq from] Zonadhesin n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7K258_PARCT
+#=GS UniRef90_A0A522VC67/51-128     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A522VC67_9GAMM
+#=GS UniRef90_A0A1I2GSP7/37-122     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm166 TaxID=1881054 RepID=A0A1I2GSP7_9PROT
+#=GS UniRef90_UPI00136AC195/27-107  DE [subseq from] hypothetical protein n=1 Tax=Nitrosomonas sp. JL21 TaxID=153949 RepID=UPI00136AC195
+#=GS UniRef90_A0A256X1H0/45-123     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. UW-LDO-01 TaxID=2004993 RepID=A0A256X1H0_9BACT
+#=GS UniRef90_UPI00098A61BA/48-132  DE [subseq from] hypothetical protein n=1 Tax=unclassified Methylocaldum TaxID=2622260 RepID=UPI00098A61BA
+#=GS UniRef90_A0A7S8IZQ6/174-255    DE [subseq from] PRC domain-containing protein n=1 Tax=Candidatus Nitrospira kreftii TaxID=2652173 RepID=A0A7S8IZQ6_9BACT
+#=GS UniRef90_UPI001E314BBF/24-99   DE [subseq from] hypothetical protein n=1 Tax=Methylobacter sp. BlB1 TaxID=2785914 RepID=UPI001E314BBF
+#=GS UniRef90_UPI001581AF10/8-61    DE [subseq from] hypothetical protein n=1 Tax=Methylocystis silviterrae TaxID=2743612 RepID=UPI001581AF10
+#=GS UniRef90_A0A523H8Y5/2-54       DE [subseq from] Metal-binding protein SmbP (Fragment) n=1 Tax=Betaproteobacteria bacterium TaxID=1891241 RepID=A0A523H8Y5_9PROT
+#=GS UniRef90_A0A7C3Q3Z3/21-64      DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C3Q3Z3_9BACT
+#=GS UniRef90_A0A7C3Q3Z3/75-114     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A7C3Q3Z3_9BACT
+#=GS UniRef90_UPI001F28DE93/29-117  DE [subseq from] hypothetical protein n=1 Tax=Methylotetracoccus oryzae TaxID=1919059 RepID=UPI001F28DE93
+#=GS UniRef90_UPI0018DEFF2C/32-111  DE [subseq from] hypothetical protein n=1 Tax=Methylococcus sp. BF19-07 TaxID=2743472 RepID=UPI0018DEFF2C
+#=GS UniRef90_Q609Z2/32-111         DE [subseq from] Small metal-binding protein n=4 Tax=Methylococcus TaxID=413 RepID=Q609Z2_METCA
+#=GS UniRef90_A0A177PMS5/28-111     DE [subseq from] Small metal-binding protein n=3 Tax=unclassified Methylosinus TaxID=2624500 RepID=A0A177PMS5_9HYPH
+#=GS UniRef90_A0A177NAX9/30-107     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomonas lenta TaxID=980561 RepID=A0A177NAX9_9GAMM
+#=GS UniRef90_A0A177NAX9/76-158     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomonas lenta TaxID=980561 RepID=A0A177NAX9_9GAMM
+#=GS UniRef90_UPI0013596219/53-139  DE [subseq from] hypothetical protein n=1 Tax=Methylosinus sp. Ce-a6 TaxID=2172005 RepID=UPI0013596219
+#=GS UniRef90_A0A1H9JXD7/38-122     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas sp. Nm51 TaxID=133720 RepID=A0A1H9JXD7_9PROT
+#=GS UniRef90_UPI00136CB5DC/27-111  DE [subseq from] hypothetical protein n=1 Tax=Nitrosomonas oligotropha TaxID=42354 RepID=UPI00136CB5DC
+#=GS UniRef90_UPI0003B426A1/31-112  DE [subseq from] hypothetical protein n=1 Tax=Methylohalobius crimeensis TaxID=244365 RepID=UPI0003B426A1
+#=GS UniRef90_UPI0003B426A1/124-204 DE [subseq from] hypothetical protein n=1 Tax=Methylohalobius crimeensis TaxID=244365 RepID=UPI0003B426A1
+#=GS UniRef90_UPI0003B426A1/166-253 DE [subseq from] hypothetical protein n=1 Tax=Methylohalobius crimeensis TaxID=244365 RepID=UPI0003B426A1
+#=GS UniRef90_A0A0S4LNV7/47-125     DE [subseq from] Metal-binding protein SmbP (Modular protein) n=1 Tax=Candidatus Nitrospira nitrosa TaxID=1742972 RepID=A0A0S4LNV7_9BACT
+#=GS UniRef90_A0A292PR76/151-221    DE [subseq from] CHAT domain-containing protein n=1 Tax=Tuber aestivum TaxID=59557 RepID=A0A292PR76_9PEZI
+#=GS UniRef90_A0A7W1Z1B2/1-65       DE [subseq from] Cold-shock protein n=1 Tax=Nitrospirales bacterium TaxID=2358460 RepID=A0A7W1Z1B2_9BACT
+#=GS UniRef90_A0A849R8A9/29-104     DE [subseq from] Small metal-binding protein n=1 Tax=Methyloglobulus sp. TaxID=2518622 RepID=A0A849R8A9_9GAMM
+#=GS UniRef90_A0A250KTD7/28-112     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocaldum marinum TaxID=1432792 RepID=A0A250KTD7_9GAMM
+#=GS UniRef90_UPI001232A502/30-111  DE [subseq from] hypothetical protein n=1 Tax=Methylomonas rhizoryzae TaxID=2608981 RepID=UPI001232A502
+#=GS UniRef90_UPI001232A502/77-159  DE [subseq from] hypothetical protein n=1 Tax=Methylomonas rhizoryzae TaxID=2608981 RepID=UPI001232A502
+#=GS UniRef90_A0A1H3A6S1/12-54      DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas communis TaxID=44574 RepID=A0A1H3A6S1_9PROT
+#=GS UniRef90_A0A1R4HBX1/29-107     DE [subseq from] Small metal-binding protein n=1 Tax=Crenothrix polyspora TaxID=360316 RepID=A0A1R4HBX1_9GAMM
+#=GS UniRef90_A0A849S2E2/24-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A849S2E2_9GAMM
+#=GS UniRef90_A0A2S5N2P4/25-108     DE [subseq from] DUF4398 domain-containing protein n=1 Tax=Methylocystis sp. TaxID=1911079 RepID=A0A2S5N2P4_9HYPH
+#=GS UniRef90_UPI00037D0439/26-102  DE [subseq from] hypothetical protein n=2 Tax=Methylobacter TaxID=429 RepID=UPI00037D0439
+#=GS UniRef90_A0A521RTL8/33-107     DE [subseq from] Signal peptide protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A521RTL8_9BACT
+#=GS UniRef90_A0A521RTL8/94-136     DE [subseq from] Signal peptide protein n=1 Tax=Nitrospirae bacterium TaxID=2026887 RepID=A0A521RTL8_9BACT
+#=GS UniRef90_A0A4P7F7D1/28-108     DE [subseq from] Small metal-binding protein n=1 Tax=Beijerinckiaceae bacterium TaxID=1978229 RepID=A0A4P7F7D1_9HYPH
+#=GS UniRef90_A0A351KUR8/27-111     DE [subseq from] Small metal-binding protein n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A351KUR8_9GAMM
+#=GS UniRef90_A0A395CU52/29-109     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A395CU52_9HYPH
+#=GS UniRef90_UPI00196860DB/24-99   DE [subseq from] hypothetical protein n=1 Tax=Methylococcus sp. EFPC2 TaxID=2812648 RepID=UPI00196860DB
+#=GS UniRef90_G3IVZ7/29-104         DE [subseq from] Small metal-binding protein n=3 Tax=Methylobacter tundripaludum TaxID=173365 RepID=G3IVZ7_METTV
+#=GS UniRef90_UPI0004DEEBFC/29-112  DE [subseq from] hypothetical protein n=1 Tax=Methylomarinum vadi TaxID=438855 RepID=UPI0004DEEBFC
+#=GS UniRef90_A0A7G1QB67/21-101     DE [subseq from] Small metal-binding protein n=1 Tax=Candidatus Nitrosacidococcus tergens TaxID=553981 RepID=A0A7G1QB67_9GAMM
+#=GS UniRef90_A0A1G0F8M6/29-109     DE [subseq from] Small metal-binding protein n=1 Tax=Gammaproteobacteria bacterium RBG_16_57_12 TaxID=1798266 RepID=A0A1G0F8M6_9GAMM
+#=GS UniRef90_V5C490/29-104         DE [subseq from] Small metal-binding protein n=1 Tax=Methyloglobulus morosus KoM1 TaxID=1116472 RepID=V5C490_9GAMM
+#=GS UniRef90_A0A5C9DEQ7/27-110     DE [subseq from] DUF4398 domain-containing protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A5C9DEQ7_9HYPH
+#=GS UniRef90_A0A5C9D0N3/27-107     DE [subseq from] DUF4398 domain-containing protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A5C9D0N3_9HYPH
+#=GS UniRef90_UPI0003FE6BF2/28-112  DE [subseq from] hypothetical protein n=1 Tax=Methylocaldum szegediense TaxID=73780 RepID=UPI0003FE6BF2
+#=GS UniRef90_UPI000CDF078D/27-112  DE [subseq from] hypothetical protein n=1 Tax=Nitrosomonas ureae TaxID=44577 RepID=UPI000CDF078D
+#=GS UniRef90_A0A522DUL0/26-102     DE [subseq from] Small metal-binding protein n=1 Tax=Methylovulum sp. TaxID=1916980 RepID=A0A522DUL0_9GAMM
+#=GS UniRef90_UPI0003F70682/26-101  DE [subseq from] hypothetical protein n=1 Tax=Methylobacter luteus TaxID=415 RepID=UPI0003F70682
+#=GS UniRef90_A0A4V0X303/46-132     DE [subseq from] Small metal-binding protein n=1 Tax=Methylocystaceae bacterium TaxID=2052174 RepID=A0A4V0X303_9HYPH
+#=GS UniRef90_A0A521WV30/24-109     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A521WV30_9GAMM
+#=GS UniRef90_A0A256X0T4/47-126     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrospira sp. UW-LDO-01 TaxID=2004993 RepID=A0A256X0T4_9BACT
+#=GS UniRef90_A0A6S7GAU6/300-368    DE [subseq from] Neuroblast differentiation-associated AHNAK-like n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A6S7GAU6_PARCT
+#=GS UniRef90_UPI00098B9BA3/28-112  DE [subseq from] hypothetical protein n=1 Tax=unclassified Methylocaldum TaxID=2622260 RepID=UPI00098B9BA3
+#=GS UniRef90_A0A8T3PTV3/31-111     DE [subseq from] Uncharacterized protein n=1 Tax=Gammaproteobacteria bacterium TaxID=1913989 RepID=A0A8T3PTV3_9GAMM
+#=GS UniRef90_A0A1R4HJU6/29-107     DE [subseq from] Small metal-binding protein n=1 Tax=Crenothrix polyspora TaxID=360316 RepID=A0A1R4HJU6_9GAMM
+#=GS UniRef90_A0A5C9CXT1/28-116     DE [subseq from] Small metal-binding protein n=3 Tax=Methylocystaceae TaxID=31993 RepID=A0A5C9CXT1_9HYPH
+#=GS UniRef90_A0A2P5L391/30-105     DE [subseq from] Small metal-binding protein n=1 Tax=Methylobacter sp. TaxID=2051955 RepID=A0A2P5L391_9GAMM
+#=GS UniRef90_A0A1H5XIH7/24-108     DE [subseq from] Small metal-binding protein n=1 Tax=Nitrosomonas ureae TaxID=44577 RepID=A0A1H5XIH7_9PROT
+#=GS UniRef90_A0A1W1I8X4/62-131     DE [subseq from] DUF305 domain-containing protein n=1 Tax=Nitrospira japonica TaxID=1325564 RepID=A0A1W1I8X4_9BACT
+#=GS UniRef90_A0A0S3AMD1/27-111     DE [subseq from] Small metal-binding protein n=2 Tax=Nitrosomonas ureae TaxID=44577 RepID=A0A0S3AMD1_9PROT
+#=GS UniRef90_A0A1H8T961/41-124     DE [subseq from] Small metal-binding protein n=3 Tax=Nitrosomonas oligotropha TaxID=42354 RepID=A0A1H8T961_9PROT
+#=GS UniRef90_UPI000F8E1798/28-113  DE [subseq from] metal-binding protein SmbP n=1 Tax=Candidatus Methylobacter oryzae TaxID=2497749 RepID=UPI000F8E1798
+#=GS UniRef90_A0A8H7M2D7/170-247    DE [subseq from] TPR_REGION domain-containing protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7M2D7_9AGAM
+#=GS UniRef90_A0A8H7M2D7/274-355    DE [subseq from] TPR_REGION domain-containing protein n=1 Tax=Rhizoctonia solani TaxID=456999 RepID=A0A8H7M2D7_9AGAM
+#=GS UniRef90_A0A7S6MQG9/40-123     DE [subseq from] Small metal-binding protein n=1 Tax=Gammaproteobacteria bacterium TaxID=1913989 RepID=A0A7S6MQG9_9GAMM
+#=GS UniRef90_A0A7D9JT30/35-113     DE [subseq from] Titin n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JT30_PARCT
+#=GS UniRef90_A0A7D9JT30/424-500    DE [subseq from] Titin n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9JT30_PARCT
+#=GS UniRef90_A0A5C7V6I9/28-105     DE [subseq from] Metal-binding protein SmbP n=1 Tax=Nitrosomonas sp. TaxID=42353 RepID=A0A5C7V6I9_9PROT
+#=GS UniRef90_G3IZW5/29-104         DE [subseq from] Small metal-binding protein n=2 Tax=Proteobacteria TaxID=1224 RepID=G3IZW5_METTV
+#=GS UniRef90_A0A8D5AMM6/39-125     DE [subseq from] Small metal-binding protein n=1 Tax=Methylomagnum ishizawai TaxID=1760988 RepID=A0A8D5AMM6_9GAMM
+#=GS UniRef90_UPI000F8E8CCD/29-105  DE [subseq from] hypothetical protein n=1 Tax=Candidatus Methylobacter oryzae TaxID=2497749 RepID=UPI000F8E8CCD
+#=GS UniRef90_UPI00136B96B1/25-111  DE [subseq from] hypothetical protein n=1 Tax=Nitrosomonas sp. JL21 TaxID=153949 RepID=UPI00136B96B1
+#=GS UniRef90_A0A849UCD1/28-103     DE [subseq from] Small metal-binding protein n=1 Tax=Methylococcaceae bacterium TaxID=1933926 RepID=A0A849UCD1_9GAMM
+#=GS UniRef90_UPI0018C279D4/20-81   DE [subseq from] hypothetical protein n=1 Tax=unclassified Methylocystis TaxID=2625913 RepID=UPI0018C279D4
+#=GS UniRef90_F9ZHK8/24-108         DE [subseq from] Small metal-binding protein n=4 Tax=Nitrosomonas TaxID=914 RepID=F9ZHK8_9PROT
+
+3U8V_A                                 SGHTAHVDEAVKHAEEAVAHG--KE--G--HTDQLLE-HAKESLTH-A--K-------AA-------S-------E----A----G-------G--N-------T----H----VGH-------GIKHLEDAIK--H-G-E---E--G---------H----V--G----VATK--HAQEAIEHLRASEHKSH
+UniRef90_A0A7D9JQC9/15-103             ---VPHIEDNVPHSEDSVPHS--KD--SVPQSEDSVP-HSEDSVPH-S--E-------DS-------V-------PH--SE----D-------S--V-------P----H----SED-------SVPHSEDSVR--H-P-A---D--SV-------PH----P--G----DNVP--HSEDSVPHLE-------
+UniRef90_A0A7D9JQC9/44-112             ----PHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVRHPA--D-------SV-------P-------H----P----G-------D--N-------V---PH----SED-------SVPHLEDSVP--H-S-E---D--S---------------------------------------------
+UniRef90_A0A7D9JQC9/178-256            -----HSEDSVPHCEDSVPHS--ED--SVPHSEDNVP-HSEDSVPH-S--E-------DS-------VP-----HS----E----D-------S--V-------P----H----FGD-------SVPHIEDNVP--H-S-E---D--S------------------------VP--HSKDSVPHS--------
+UniRef90_A0A7D9JQC9/263-351            -SHVPHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-A--D-------VP-------H-------S----E----D-------S--V-------P----H----SED-------RVPQTEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HTEDSVPHSE-------
+UniRef90_A0A7D9JQC9/829-912            ----PHSEDSVHHSEDSVPHS--ED--SVPHSEDSVP-HIEDNVPH-A--D-------VP-------H-------S----K----D-------C--V-------P----H----IED-------NVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSIP--HSEDSVPH---------
+UniRef90_A0A7D9JQC9/911-987            ----PHSEDSVPHSEDSVPHA--DV--P--HSEDCVP-HSEDSVPH-Y--E-------DS------------------------------------V-------P----H----SED-------SVSHSEDSLP--H-S-E---E--SV-------PH----S--E----DSVP--HSEDSVPH---------
+UniRef90_A0A7D9JQC9/1490-1555          ----PHSDDKVPHSEEKVPHP--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----D----S-------D--F-------P----H----SED-------SVPHSEDSVP--H-S-E---D------------------------------------------------
+UniRef90_A0A7D9JQC9/1537-1621          ----PHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--D-------VP-------H-------S----E----D-------S--V-------P----H----SGD-------SVPHTEDNVP--H-F-E---D--SV-------PH----S--E----DSVP--HFEDSVPHS--------
+UniRef90_A0A7D9JQC9/1612-1697          ----PHFEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HYEESVPH-S--E-------DSV-----PH-------S----A----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVPH---------
+UniRef90_A0A7D9JQC9/1759-1843          ----PHSEDSVPHSEDSVPHS--DV--P--HSEDSVP-HTEDSVPH-S--K-------DN-------VP-----HS----E----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----TAVP--HSEDSVPHS--------
+UniRef90_A0A7D9JQC9/1827-1906          ----PHSETAVPHSEDSVPHS--ED--SFPHSEDSVP-HSEDSVPH-S--E-------DSV-----PH-------S----A----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--------------------------SVP--HSEDSVPHS--------
+UniRef90_A0A7D9JQC9/1930-2004          ---------AVPHSEDSVPHS--ED--NVPHSEDSLP-HSEESVPH-S--E-------DC-------V-------TH--SE----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--------------------------SVP--HSEDSVPHS--------
+UniRef90_A0A7D9JQC9/2130-2213          ----PHSEDCVTHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----L----S-------D--V-------P----H----SED-------SVLHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSKDSVPH---------
+UniRef90_A0A7D9JQC9/2177-2262          ----PHSEDSVLHSEDSVPHS--ED--SVPHSEDSVP-HSKDSVPH-S--E-------DNV-----PR-------S----E----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--NV-------PH----S--E----DSVP--HSEDRVPH---------
+UniRef90_Q82S91/25-117                 SGHTAHVDEAVKHAEEAVAHG--KE--G--HTDQLLE-HAKESLTH-A--K-------AA-------S-------E----A----G-------G--N-------T----H----VGH-------GIKHLEDAIK--H-G-E---E--G---------H----V--G----VATK--HAQEAIEHLRASEHKSH
+UniRef90_A0A7D9JM27/627-712            ----PHSEDKVLHSEDSVPHS--ED--SVPHTEDSVP-HSEDSVPH-S--K-------DS-------V-------P----H----S-------G--N-------SV--PH----SQD-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--NSAESVPH---------
+UniRef90_A0A6S7HYF2/695-774            ---------SVPHSEDSVPHS--AD--SVPHSEDSVP-HSEDNVHH-S--Q-------DS-------V-------P----R----S-------D--V-------P----H----SED-------RVPHSEDSVP--H-S-E---D--S---------V----P--H----SDVP--HSEDSVPHSED------
+UniRef90_A0A6S7HYF2/951-1036           ---VPHSEDSVPHSEDSVPHS--ED--SVPHTDDSVP-HSEDNVPH-S--D-------DS-------V-------S----H----S-------E--NS-----VP----H----TED-------RFPHSEDSVP--H-S-D---V--P---------H----C--E----DSVL--HSEDSVPHS--------
+UniRef90_A0A6S7HYF2/1319-1384          ----PHSEDSVPHSEDSVPHS--DV--P--HTEDSVP-HSEDNVPH-S--E-------DS-------VP-----HS----E----D-------S--V-------P----H----SEH-------SVPHFEDSVS--H-S-E---D------------------------------------------------
+UniRef90_A0A6S7HYF2/1387-1463          ----PHTEDSVPHSEDSVPHS--DV--P--HSEDSVL-HSEESVPH-S--D-------DS------------------------------------V-------P----H----YED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVPH---------
+UniRef90_A0A6S7HYF2/1435-1500          -----HSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----H----S-------D--V-------P----H----TEE-------SVPHSEDSVP--H-T-E---D--S---------------------------------------------
+UniRef90_A0A6S7IWK6/9-69               ----PHSDDSVPHSEDSVPHY--ED--SVPHSEDSVP-HSDDSVPH-S--E-------D----------------------------------S--V-------P----H----SEH-------SVPHSEDSVP--H-S-E---D------------------------------------------------
+UniRef90_A0A6S7IWK6/72-158             ----PHSEDSVPHSEDSVPHS--ED--GVPHSEDGVP-HSEDSVPH-S--G-------TA-------D-------S----V----P-------H--SEY---SVP----H----SEY-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVP----------
+UniRef90_A0A6S7IWK6/132-215            ------SEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------PH--SE----D-------S--V-------P----H----SED-------SVPHSEDSVA--H-S-E---D--SV-------PH----S--E----DSVP--HCEDSVPH---------
+UniRef90_A0A6S7IWK6/208-293            ------------HCEDSVPHT--ED--SVPHTDDSVP-HSEESVPH-S--E-------ES-------V-------P----HS--ED-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SVPHSEDSVPH----S--E----DSVP--HSEDSVSHT--------
+UniRef90_A0A6S7IWK6/301-384            -----HSVDSVPHSENSVPHS--ED--SVPHSEDSIP-HSEDSVPH-S--D-------VP-------H-------S----E----G-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----ESVP--HSEESVPHS--------
+UniRef90_A0A6S7IWK6/725-804            ----PHSEDSVPHSEDSVPHS--ED--SVPHSEDSVL-HSKDSVPH-S--D-------VP-------H-------S----E----D-------S--V-------P----H----SED-------SVPHSENSVP--H-S-E---D--------------------------SVP--HSEDSVPHSED------
+UniRef90_A0A6S7IWK6/773-858            -----HSEDSVPHSENSVPHS--ED--SVPHSEDSVP-HSEDSVSH-S--E-------DS-------V-------P----L----SE-----DS--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--S---------V----PLSE----DSVP--HSEDSVPHS--------
+UniRef90_Q0AJF7/26-118                 -SHTAHLDEALKHAEEAVVHG--KE--G--HVNELLE-HAKESLMH-A--K-------AA-------R-------A----A----G------EG--N-------T----H----TDH-------GIKHMEDAIK--H-A-E---E--G---------H----V--D----VATK--HAQEAVDHLRASELSEH
+UniRef90_A0A1I7HIW0/28-117             ----THLDEALEHAEEAVVHG--KE--G--HVKELLE-HAKESLIH-A--K-------AA-------R-------A----A----G------EG--N-------T----H----TDH-------GIKHMEDAIK--H-A-E---E--G---------H----V--D----VATK--HAQEAVDHMRASEPSEH
+UniRef90_Q0AJF6/26-114                 -SHTVHLDEALMHADEAVVYG--KE--G--HTDELLE-HAKESLAH-A--K-------AA-------G-------E----S----G------EA--N-------A----H----VLH-------GIKYLEDAIK--H-A-E---E--G---------H----V--D----VATK--SVRKAIEHLRASE----
+UniRef90_A0A1H5UYG6/30-114             ------TSEAMKHAKEAQTHG--KA--G--HAKELLT-HAEESLKH-A--K-------KALP---ELS-------D----A----T-------Q--R-------V----H----VTE-------SIRHLDQAIA--H-A-K---E--N---------H----A--E----EATK--HVDEAITHLRE------
+UniRef90_A0A1H5UYG6/117-205            ---NAHIVEAIEHAKEAQTHG--KA--G--HAKELLT-HAEESLKH-A--K-------IALP---ELS-------D----G----S-------Q--R-------V----H----TTE-------SIRHLEQAIA--H-A-K---E--N---------H----A--E----EATK--HVDEAIDHLKKS-----
+UniRef90_A0A7D9LFD0/1229-1312          ----PHSEDSVPHSEDSVPHS--ED--NVPHTEDSVP-HSEDSVPH-S--E-------DS-------V-------P----H----S-------H--V-------P----H----SEE-------SVLHSEDSVP--H-S-E---E--SV-------PH----S--E----DSVP--HSEDSFPH---------
+UniRef90_UPI00136EF280/27-117          --RTVHVDEALKHADEAVVQG--KE--G--HVKELLE-HARESLEH-A--K-------QA-------AN----AAE----G----G-------S--T-------E----H----IVH-------GIKHLEDGIK--H-G-E---E--G---------H----V--D----VATR--HVEEAIEHLRAFEH---
+UniRef90_A0A7D9M0I9/116-181            ----PHSEDSVPHSEDSVPHS--ED--S--VPDSDVP-HSEESVPH-S--E-------DSV-----PH-------S----E----D-------S--V-------T----H----SED-------SVSHSEDSVP--H-S-E---D------------------------------------------------
+UniRef90_A0A7D9M0I9/197-278            ---VPHSDDSVPHSEDSVPHS--ED--SAPHSDDSVP-HSEDSVPH-S--E-------DS------------------------------------V-------P----H----SED-------SVPHTDDSVP--H-S-E---D--S---------V----P--D----SDVP--HSEESVPHSEGS-----
+UniRef90_A0A7D9M0I9/240-326            ----PHSEDSVPHTDDSVPHS--ED--S--VPDSDVP-HSEESVPH-S--E-------GS-------V-------P----Q----SE-----ES--V-------P----H----PED-------SVSHSEDSVT--H-S-E---D--N---------V----P--D----SDVP--HSEESVPHSEGSV----
+UniRef90_A0A7D9M0I9/287-345            ----PHPEDSVSHSEDSVTHS--ED--N--VPDSDVP-HSEESVPH-S--E-------GS-------V-------P----Q---------------------------------SEE-------SVPHPEDSVP--H-S-E---Y------------------------------------------------
+UniRef90_A0A7D9M0I9/668-733            ----PHSDDKVPHSEDTVPHS--EEEVP--HSEDRIP-HSEDSVPD-S--E-------DSV-----PR-------S----A----D-------S--V-------P----H----PEE-------SVPHFEDSVP--H-S------------------------------------------------------
+UniRef90_A0A7D9M0I9/732-798            -----HSVDSVPHSEDSVAHS--ED--SGPHPEDSVP-HLKDSVPH-S--A-------DSV-----PH-------S----E----D-------S--V-------P----H----TED-------GVPYSEDKVP--H-S-E---D------------------------------------------------
+UniRef90_A0A8C5MHU6/6-43               -------------------------------------------------------------------------------------------------------------H----IGQ-------PIKHIEQPIK--HIG-Q---P-IK---------H----I--G----QPIK--HIEQPIKHIE-------
+UniRef90_A0A8C5MHU6/27-64              -------------------------------------------------------------------------------------------------------------H----IGQ-------PIKHIEQPIK--H-I-E---QPIK---------H----I--G----QPIK--HIGQPIKHIE-------
+UniRef90_A0A8C5MHU6/54-91              --------------------------------------------------------------------------------------------------------K----H----IGQ-------PIKHIEQPIK--H-I-E---A--AN-------KH----I--G----QPIK--HIEQPIKHI--------
+UniRef90_A0A8C5MHU6/73-113             ---------------------------------------------------------------------------------------------A--N-------K----H----IGQ-------PIKHIEQPIK--HIG-Q---P-IK---------H----I--G----QPIK--HIEQPIKHIE-------
+UniRef90_A0A8C5MHU6/125-188            -----HIGQPIKHIEQPIKHI--EQPIK--HIGQPIK-HIEQPIKH-I--E-------QP-------I-------K----H----I-------G--QP-----IK----H----IGQ-------PIKHIEQPIK--H--------------------------------------------------------
+UniRef90_A0A8C5MHU6/236-274            --------------------------------------------------------------------------------------------------------K----H----IGQ-------PIKHIEQPIK--H-I-E---QPIK---------H----I--G----QPIK--HIEQPIKHIE-------
+UniRef90_A0A8C5MHU6/258-323            ------------------------------HIGQPIK-HIEQPIKH-I--E-------QP-------I-------K----H----I-------G--QP-----IK----H----IGQ-------PIKHIEQPIK--H-I-E---QPIK---------H----I--G----QPIK--HIEQPIKHIE-------
+UniRef90_A0A8C5MHU6/293-375            -----HIEQPIKHIEQPIKHI--GQPIK--HIEQPIK-HIEQPIKH-I--E-------QP------------------------------------I-------K----H----IGQ-------PIKHIEQPIK--HIG-Q---P-IK---------H----I--G----QPIK--HIEQPIKHIESSN----
+UniRef90_A0A2W4R244/23-107             ---SVHNPQAVEHTKQAIIHG--EA--G--HAALLVE-HAKAGLTH-A--Q-------AS-------Q-------Q----A----E-------P--S-------V----H----TEQ-------AISHLNAAIE--A-G-E---K--G---------H----A--D----TGTT--HAKEALKHLEAA-----
+UniRef90_A0A2W4R244/112-195            ----SHVAQAEEHAKAAITQG--EA--G--NASALLE-HAQVALTH-A--Q-------AA-------E-------K----E----S-------P--S-------V----H----VQE-------AINHLNAAIE--S-G-K---N--N---------N----A--K----DGTI--HAKKALEHLEMT-----
+UniRef90_A0A4Y1YKM4/26-110             ----GHLDEALEHAQEAVLHG--EE--G--HADVLAQ-HAKEAVEH-A--K-------AA-------R-------A----A----G------EG--N-------T----H----TDH-------FIAHAEDAIK--H-A-E---E--G---------H----T--D----VATK--HIKEAVEHLKAS-----
+UniRef90_A0A2E9WYL6/27-111             ---DAHLAQAVVHAQQAAAHG--GM--G--HASVLVE-HANQALTH-A--N-------MA-------P-----------------A-------D--N-------P----H----TVA-------AIASLTDAVT--H-G-N---M--D---------H----A--P----VATG--MANTGLTSLQVAVH---
+UniRef90_A0A2E9WYL6/110-191            ----VHVHQVMDHNMQAVTHG--DM--G--HAPVLVT-HAEVALTH-A--R-------AA-------A-------E----I----S-------D--S-------P----H----IVM-------AIEALESAIL--H-G-G---M--G---------H----A--E----VATE--SAKTAQSHLK-------
+UniRef90_A0A2D9A5C7/27-111             ---DAHLAQAVTHAQQAAAHG--GM--G--HASVLVE-HANQALTH-A--N-------MA-------P-------D-----------------D--N-------P----H----TVA-------AXASLTDAVT--H-G-N---M--D---------H----A--P----VATG--MANTGLASLQVAVH---
+UniRef90_A0A2D9A5C7/110-195            ----VHVHQVMDHNMQAVTHG--DM--G--HAPVLVT-HAEVALTH-A--R-------AA-------A-------E----I----S-------D--S-------P----H----IVM-------AIEALESAIL--H-G-G---M--G---------H----A--E----VATE--SAKTAQSHLKMXGH---
+UniRef90_A0A8C5Q9Q8/308-360            ------------------------------------K-HIEQPIKH-I--G-------Q----------------------------------P--I-------K----H----IGH-------PIKHIEQPIK--H-I-E---QPIK---------H----I--G----QPIK--YIGQPIKHIE-------
+UniRef90_A0A8C5Q9Q8/394-478            ------IERPIKHIEQPIKHI--EQPIK--HIGQPIK-HIEQPIKY-I--G-------QL-------I-------K----Y----I-------G--HP-----IK----H----IEH-------PIKHIEHPIK--H-I-E---QPIK---------H----I--G----QPIK--HIEQPIKHI--------
+UniRef90_A0A8H8T1W9/345-425            -GEAADLDRSLEHDSRALALT--PD--G--HPDLPGR-HASLGVSY-S--D-------RY-------R-------R----L----G-------E--A-------T----D----LDR-------SLEHRSRALA--L-T-P---D--G---------H----P--D----LPRR--HASLGV-----------
+UniRef90_A0A8H8T1W9/525-605            -GEAADLDRSLEHLSRALALT--PD--G--HPDLPDR-HASLGVSY-S--D-------RY-------R-------R----L----G-------E--A-------A----D----LDR-------SLEHLSRALA--L-T-P---D--G---------H----P--D----LPDR--HASLGV-----------
+UniRef90_A0A8I1TRS2/29-115             ----KHTSEAIEHAIAAEKEG--KS--G--KAKELLG-HAEESLKH-A--K-------AALP---EVS-------D----S----D-------Q--R-------V----H----VTE-------SIRHLDLAIA--S-A-K---E--N---------D----A--K----EATK--HVDEAIVHLKK------
+UniRef90_A0A8I1TRS2/119-205            ----KHIVEAIEHAKEAQAEG--KK--G--NAKGLAM-HAEASLKH-A--K-------MVLP---ELK-------D----G----D-------Q--R-------V----N----ITE-------SIRHLNQAIA--H-A-K---E--N---------H----A--E----VATK--HVDEALVNLKK------
+UniRef90_A0A6S7KAS9/64-126             ---VAHSEDSVPHSEDSVAHS--ED--SVPLSEDSVP-HCEDSVPH-C--K-------DS-------V------------------------------------P----H----CEN-------SVPHTEDSVP--H-S-E---E--S---------------------------------------------
+UniRef90_A0A6S7KAS9/300-372            --------DSVPHSEDSVPHS--ED--SVPHSEDSVP-HSDDSVPH-S--V-------DS-------V-------P----L----S-------D--V-------P----H----SEN-------SVPHSEDSVP--H-S-E---D--S------------------------VP--HSEDSVPH---------
+UniRef90_A0A6S7KAS9/364-430            ----PHSEDSVPHCEDSVPNS--DV--P--HAEDSVP-HSEDNVPH-S--E-------DS-------V-------PH--SE----D-------S--V-------P----H----SQD-------SVRHFEDSVR--H-S-E---D--S---------------------------------------------
+UniRef90_A0A6S7KAS9/418-481            ----RHFEDSVRHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------------------------D-------S--V-------L----H----SED-------SVPHSEDSVP--H-S-E---D--S---------------------------------------------
+UniRef90_A0A1H3J8A1/26-113             ---AGHKAEALEHAEEAVKHG--KM--G--HAKDVLE-HSKESLEH-A--K-------AA-------S-------A----S----G-------A--D-------A----H----MDE-------ASKHLEEGIK--H-A-E---M--G---------H----A--D----VATK--HVEEAISHMRQSGSK--
+UniRef90_A0A1I4QI56/24-114             -GDEGHTAEALEHAEEAVKHG--KM--G--HAKELLE-HAKESLVH-A--Q-------AA-------K-------K----E----G-------A--D-------A----H----MDE-------AIKHLEEGIK--H-A-E---M--G---------H----A--D----EGTK--HTEEAISHMREAGPKS-
+UniRef90_A0A7D9LSV0/7-91               --NVAHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----Q----S-------E--DS-----VP----R----SED-------SVSHSEDSVP--H-S-E---D--SI-------PH----S--E----DSVP--HTEDS------------
+UniRef90_A0A7D9LSV0/65-151             ----SHSEDSVPHSEDSIPHS--ED--SVPHTEDSVP-HSEDSVPH-S--E-------DSV-----PH-------S----E----D-------G--V-------S----H----SED-------SVPHSEDSAP--H-S-E---D--SV-------PH----S--E----DSVR--HSEDSVPHS--------
+UniRef90_A0A7D9LSV0/163-236            ----PHSQDSVPHSEDSVPHS--ED--SVPHSEDCVP-HSEDSVPH-F--E-------DS-------------------------D-------S--V-------P----H----SGD-------GVPHSEDSVP--H-S-E---N--S------------------------VP--HSEDSVPH---------
+UniRef90_A0A7D9LSV0/273-355            -------EDSVPHTEDSVPHS--ED--SVPHTEDIVP-YSEDSFPH-S--D-------VP-------H-------S----E----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-Y-E---D--SV-------PH----S--E----DSVP--HSEDSVPHSE-------
+UniRef90_A0A7D9LSV0/374-459            -----HTEDIVNHSEDSFPHS--ED--SVPHTEDIVP-HSEDSVPH-S--D-------VP-------H-------S----E----D-------T--V-------P----Y----SED-------SVPHTEDIVS--H-S-E---D--SV-------PH----S--E----DSVP--HSEESVPHSEE------
+UniRef90_A0A7D9LSV0/519-603            -----HSEDTVPHSEDSVPHS--ED--SVPHSEDSVP-HSEESVPH-S--V-------DS-------VP-----HS----E----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-F-E---E--SV-------PH----S--E----DSVP--HSEDGVSH---------
+UniRef90_A0A1I4QHT0/27-110             ----QHKAEAIEHAEEAVKHG--KM--G--HAKELLQ-HAKESLVH-A--K-------AA-------S-------E----A----G-------A--D-------A----H----MDQ-------AIKDLEEAIK--H-A-E---M--D---------H----A--E----EATK--YTEGALQHMEQS-----
+UniRef90_A0A7D9M6B1/12-74              -------EDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--D-------VA-------H-------S----E----D-------S--V-------L----H----SED-------SVPHSEDRVP--H-S-E---D------------------------------------------------
+UniRef90_A0A7D9M6B1/77-143             ----PHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-S--G-------TA-------F-------L----TL--RT-------A--V-------P----H----SED-------SVPHSEDSVP--H-S-E----------------------------------------------------
+UniRef90_A0A7D9M6B1/147-228            ----PHSEDSVPHSEDSVPHS--DV--P--HSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----H----S-------E--D-------S---------VPH------SDVPHSEDSVL--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVPH---------
+UniRef90_A0A7D9M6B1/176-256            -------EDSVPHSEDSVPHS--ED--S--VPHSDVP-HSEDSVLH-S--E-------DS------------------------------------V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PY----F--E----DSVP--HSEDSVPHCEDSAHH--
+UniRef90_A0A3G8MB83/28-110             ----DHIAEAIKHTKEAIDHG--KQ--G--HASVLVT-HAEAALTH-A--E-------AG-------E-------K----A----K-------A--N-------P----H----TAE-------GIKHLKEAID--H-G-K---Q--G---------H----A--D----VATT--HAEAALEHLQQ------
+UniRef90_A0A6B8KEJ1/28-110             ----DHVAEAITHTKEAISTG--KA--G--HADQLVA-HAKAALTH-A--E-------AA-------E-------K----A----K-------A--N-------P----H----VAE-------GITHLKAAVE--H-G-E---M--G---------H----A--D----IGTT--HAEEALKHLEM------
+UniRef90_A0A256WXR7/30-112             ---NKHVSETLEHAKEAVSHG--KQ--G--HADALAK-HDAEALTH-A--R-------MA-------Q-------K----D----M-------K--N-------P----H----LDE-------GAKHLEEAVS--H-G-K---Q--G---------H----A--D----VATE--HAEQAVTHLN-------
+UniRef90_A0A1W1HZT2/28-110             ---NKHVSEAVEHAKEAVEHG--KQ--G--HADALTK-HAEGALKH-A--Q-------AA-------Q-------K----D----T-------K--N-------P----H----LDE-------GVKHLQEAVE--H-G-K---A--G---------H----A--D----VATK--HAEGAVTHLS-------
+UniRef90_A0A849RWR7/29-111             ---NQHVNETMVHAKEAVEHG--KQ--G--HADVLVN-HGAEALKH-A--R-------MA-------Q-------K----D----T-------K--N-------P----H----LDE-------GIKHLDEAVA--H-G-K---Q--G---------H----A--D----VATQ--HAEQAVTHLN-------
+UniRef90_A0A1H3PCD3/28-110             -----EKMEATKHVEEAIKHG--KM--G--HAKDLSE-HAKVSLEH-A--K-------AA-------K-------Q----L----G-------A--D-------A----H----MDM-------AIDHLEQAIK--H-A-D---M--G---------H----A--D----VGTK--HAEEALSHMHES-----
+UniRef90_A0A7Y4SED5/24-102             ----KHVGEALEHAKEAVAHG--KQ--G--HADAIVQ-HAQEALKH-A--G-------A---------------------A----G-------K--N-------P----H----VDE-------GVKHLKEAVE--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A1G1H0M3/24-103             ----KHVSEAVEHAKEAVAHG--KQ--G--HADALVQ-HAEGALKH-A--E-------AA-------G-------V-----------------K--N-------P----H----LDE-------GIKELKDAVA--H-G-K---A--G---------H----A--D----VATK--HAEGAVTHLS-------
+UniRef90_A0A8H7IBD9/163-244            -GDMADLENSIEHKSRALTLT--PD--G--HPDLPDR-HAALGVSH-T--D-------RY-------R-------R----M----G-------D--T-------A----D----LEN-------AVEHFSRALA--L-T-P---D--G---------H----P--G----LSDR--HAALGVS----------
+UniRef90_A0A8H7IBD9/388-468            -GDMADLENAVEHFSRALALT--PD--G--HPDLPDR-HAALGVSY-T--D-------RY-------R-------R----M----G-------D--M-------A----D----LEN-------SIEHKTRAIE--M-T-S---D--S---------H----P--G----LPGR--HAALGV-----------
+UniRef90_A0A533ZS76/34-115             ----PHVAEALDHAKEAVAHG--KQ--G--HADVLVK-HAQEGLKH-A--E-------AA-------Q-------K----D----M-------K--N-------P----H----LAE-------GVKGLKEAVE--H-G-K---A--G---------H----A--D----VATK--AAESAVMHLS-------
+UniRef90_UPI001268BFF7/30-116          ----PHSIQALEHAVAAETHG--KM--G--HSKEFHH-HAKEAIKH-T--T-------AS-------E-------K----A----HT-----DA--H-------M----H----VTE-------AIKHLKETVK--H-G-E---M--G---------H----S--L----IA-I--HAKEALKHAEISEK---
+UniRef90_UPI001268BFF7/77-160          ----MHVTEAIKHLKETVKHG--EM--G--HS-LIAI-HAKEALKH-A--E-------IS-------E-------K----A----HA-----DA--H-------H----H----MTE-------AAKHLHESVK--H-N-E---A--G---------H----R--D----LVAD--HTQQAIEHIKS------
+UniRef90_A0A521KUZ3/35-116             ----GHAAEAVEHAKEAVAHG--KQ--G--HADALVK-HAEGALKH-A--E-------AA-------Q-------K----E----K-------A--N-------P----H----LAE-------GIKQLKEAVE--H-G-K---A--G---------H----V--D----VATK--AAEAAVTHLS-------
+UniRef90_A0A431PPB2/28-111             ----DHLGEAITHTKQAIEHG--KM--G--HADVLVT-HAEEALKH-A--K-------AA-------E-------K----E----K-------A--N-------P----H----VKE-------GITHLDQAIE--H-G-K---M--K---------H----A--D----VATK--HAEEALTHLEAA-----
+UniRef90_A0A521JXT2/33-114             ----GHAAEAVEHAKEAVEHG--KQ--G--HADALVK-HAEGALKH-A--E-------AA-------Q-------K----E----K-------A--N-------P----H----LAE-------GIKQLKDAVE--H-G-K---A--G---------H----A--D----VATK--AAENAVQHLS-------
+UniRef90_A0A679HTW1/27-106             ----KHVAEAVEHAKEAVEHG--KQ--G--HADALVK-HAEGSLKH-A--E-------AA-------G-------V-----------------K--N-------P----H----LDE-------GVKHLKEAIE--H-G-K---A--G---------H----A--D----VATK--HAEGAVTHLS-------
+UniRef90_A0A4P5WH29/33-112             ----KHVSEAVEHAKEAVSHG--KQ--G--HADALVQ-HAEEALKH-A--E-------AA-------G-------L----K---------------S-------P----H----LDE-------GIKHLKEAVS--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A0F7KFA4/32-116             ----KHKADATRHLEEAIKHG--KM--G--HPKELSK-HAKESLEH-A--K-------KA-------K-------E----S----G-------A--D-------E----H----MDQ-------AIEHLEESIK--H-A-D---M--G---------H----A--E----EGTK--HAEEASSHLRESK----
+UniRef90_A0A1I4K5Y6/27-110             ----KERSEATQHLEEAIKHG--KM--G--HPKELSE-HAKESLEH-A--K-------KA-------K-------E----L----G-------A--D-------A----H----MDK-------AIEHLEEAIK--H-A-D---M--G---------H----A--E----EGTK--HAKEALSHMHES-----
+UniRef90_UPI0001F87143/28-110          -----HLAEAISHTKEAIEHG--KM--G--HADVLVT-HAEAALTH-A--K-------AA-------E-------A----E----K-------A--N-------P----H----TKE-------GITHLDAAID--H-G-K---Q--K---------H----A--D----VATK--HAEEALTHLEAA-----
+UniRef90_A0A533B8K5/33-112             ----KHVAEAVEHAKEAAAHG--KQ--G--HADALVK-HAEESLKH-A--Q-------AA-------G-------I-----------------K--N-------P----H----LDE-------GVKHLKEAIE--H-G-K---A--G---------H----A--D----VGTQ--HAEGALTHLS-------
+UniRef90_A0A0K2GGB0/33-112             ----KHVSEAVEHAKEAVSHG--KA--G--HADALVK-HAEGALKH-A--E-------AA-------G-------M-----------------K--N-------P----H----LDE-------GVKHLKEAVE--H-G-K---A--G---------H----A--D----VATK--HAEGAVTHLS-------
+UniRef90_UPI00136F29EC/29-114          ----QHATEAIKHAEDAQIHG--KA--G--HSKALLD-HAQESLTH-A--K-------AA-------E-------KE--SA----G-------A--H-------Q----H----ITE-------SIKHLEEAIA--H-A-K---Q--D---------H----A--E----EATK--HTAEALKHLRHS-----
+UniRef90_A0A3M2DAK2/33-114             ----PHVAEAIAHAKGAVKHG--SM--G--HADALVE-HAEEALMH-A--K-------AA-------Q-------K----E----M-------N--N-------P----H----LNE-------GVHELMEAIA--H-G-K---E--G---------H----A--E----VATK--HAKSAIMHLE-------
+UniRef90_A0A8D5AAB6/21-107             ----EHAAEALKHSEHAVTHG--QS--G--HAEQLVE-HAGKALDH-A--K-------QA-------E-------G---VA----S-------GSAK-------T----H----VSA-------GIKSLEESIA--H-G-K---Q--N---------H----A--D----VATK--HAEEAVGHFKAS-----
+UniRef90_UPI0018944675/23-109          ----PHADEALKHANAAVTHG--KA--G--HASVLVE-HAEEALKH-A--Q-------KS-------A-------E----V----SK----GEA--K-------N----H----IDE-------GVKSLESAIE--H-G-K---Q--G---------H----T--E----VATE--AAEEAVKHLKAG-----
+UniRef90_A0A3N5HZ46/33-112             ----KHVSEALEHAKEAVAHG--KQ--G--HADALVQ-HAEEGLKH-A--M-------AG-------D-------M-----------------K--N-------P----H----LAE-------GITHLKEAVS--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A1I2DBF3/24-114             -GTNQHTTEAIKHAEEAKTHG--EA--G--HAKVLLE-HAQQSLTH-A--K-------AA-------E-------KE-LKS----E-------A--R-------Q----H----MTE-------SIKHLDEAIA--H-A-K---Q--D---------H----A--D----VAAK--HVEEALKHMRDSE----
+UniRef90_A0A532DAN5/33-112             ----KHVDEAVAHAKEAVSHG--KA--G--HADAVVQ-HGEEALKH-A--M-------AA-------G-------M-----------------K--N-------P----H----LDE-------GITHLKEAIT--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A1G1IIT2/26-107             ----KHVDEAIHHAKEAVEHG--KQ--G--HADVALK-HAEGALEH-A--K-------GA-------Q-------K----E----V-------K--S-------P----H----LDE-------GVKHLEEAVS--H-G-K---Q--G---------H----A--D----AIVK--HADTAVMHLS-------
+UniRef90_A0A2T5HX29/29-114             ----QHTTEAIKHAEDAQIHG--KA--G--HSKALLD-HAQESLTH-A--K-------AA-------E-------KE--SA----E-------A--H-------Q----H----ITE-------SIKHLEEAIA--H-A-K---Q--D---------H----A--E----EATK--HTAEALKHLRHS-----
+UniRef90_A0A3M2AUD2/50-134             -GGNQHVQEAIEHAEEAVEHG--EQ--G--HAGAVVT-HANVALQH-A--R-------MA-------Q-------K----E----M-------H--N-------P----H----LDE-------GVRELEQAVA--H-G-K---E--G---------H----A--S----VATK--HAKSAVMHLK-------
+UniRef90_A0A1I2AWD9/31-111             --------EALKHIDEAIKHG--KM--G--HAKELLK-HAKESREH-A--K-------AA-------L-------A----A----G-------A--D-------A----H----MDQ-------AVQHLDEAIK--H-A-E---M--D---------H----A--D----EATK--HAEEAHSHMHESG----
+UniRef90_A0A7V1Y6K2/33-113             ----PHVAEAVQHAKEAASHG--KQ--G--HADALVQ-HAEGALKH-A--Q-------EA-------Q-------K----D----V-------K--D-------P----H----LDE-------GVKHLKEAVS--H-G-K---A--G---------H----A--D----VGTK--HAEEAAMHL--------
+UniRef90_A0A538RJS9/32-110             ----GNVRDAIMHAKEAVDHG--KQ--G--HAEVLVT-HAEQSLNH-A--E-------M---------------------G----G-------K--N-------P----H----LDE-------GIKHLKEAIE--H-G-K---A--G---------H----A--D----VATE--HAETALMHLT-------
+UniRef90_A0A2P7NWD0/31-115             --------KAMEHIDEAIKHG--KM--G--HAKELLE-HAKESRND-A--K-------AA-------L-------A----A----G-------A--D-------A----H----MEQ-------AVKHLDEAIK--H-A-E---M--G---------H----A--D----EATK--HAEEAHSHMHESGGRTH
+UniRef90_A0A5C7UXU0/28-115             ----PHTAEAIKHAESAQTHG--KS--G--HTKVLLE-HAQESLAH-A--K-------EA-------E-------K----E----L-------T--E-------TQ-KQH----MAE-------SIKHLDESIA--H-A-K---Q--D---------H----A--D----IATK--HVTEALQHMREAA----
+UniRef90_F8GLG7/29-114                 ---NQHAAEAIKHAEAAKTHG--EA--G--HAKVLLE-HAQESLTH-A--K-------AA-------E-------KE--YA----E-------A--H-------Q----H----MTE-------SIKHLEEAIT--H-A-K---Q--G---------H----A--D----VATK--HTAEALKHMQH------
+UniRef90_A0A7D9L1C7/8-82               --------GSVPHSEDSVPHS--DD--SVPHTEDSVA-HTEDSVPH-S--E----------------------------------D-------N--F-------P----H----FED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVPH---------
+UniRef90_A0A7D9L1C7/46-126             ----PHFEDSVPHSEDSVPHS--ED--SVPHSEDSVP-HSEDSVPH-C--E-------DS-------V-------P----N----S-------D--V-------P----H----AED-------SVPHSEDNVP--H-S-E---D--SV-------PH----S--E----DSVP--HSQDS------------
+UniRef90_A0A7D9L1C7/93-176             ----PHAEDSVPHSEDNVPHS--ED--SVPHSEDSVP-HSQDSVPL-S--E-------DS-------V-------P----L----S-------D--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PH----F--E----DSVL--HTEDSVPH---------
+UniRef90_A0A7D9L1C7/140-220            ----PHSEDSVPHSEDSVPHS--ED--SVPHFEDSVL-HTEDSVPH-S--E-------DS-------A------------------------------------P----H----TEN-------SVRHSEDSVP--H-S-E---D--SV-------PH----S--E----ESVP--HSEDSVPHCE-------
+UniRef90_A0A1H8PIF9/29-114             ----QHTTEAIKHAEDAQIHG--KA--G--HSKALLD-HAQESLTH-A--K-------AA-------E-------KE--SA----E-------A--H-------Q----H----ITE-------SIKHLEEAIA--H-A-K---Q--D---------H----A--E----EATK--HTAEALKHLRHS-----
+UniRef90_A0A2V3VIS4/28-114             ----QHAAEAIKHAETAQIHG--KA--G--HAKALLE-HSQESLTH-A--K-------AA-------E-------QE--LA----G-------A-HR-------Q----H----MAE-------SIKHLDEAIA--H-A-K---Q--D---------H----A--D----IATQ--HVAEALKHMRDA-----
+UniRef90_A0A1F2RX14/33-114             ----DHAEEALKHAKEAVTHG--NA--G--HGDILLQ-HAQEALKH-A--E-------AA-------Q-------K----A----A-------P--N-------A----H----LAE-------GIKALKEVAE--H-Q-K---A--G---------H----L--D----VATK--SAETAVTHLS-------
+UniRef90_F9ZFI8/31-115                 --------KAMEHIDEAIKHG--KM--G--HAKELLE-HAKESRDQ-A--N-------AA-------L-------A----A----G-------A--D-------A----H----MDQ-------AVKHLDEAIK--H-A-E---M--G---------H----A--D----EATK--HAEEAHSHMHQSGGRAH
+UniRef90_A0A849RL80/33-112             ----KHVAEAVEHAKEAAAHG--KQ--G--HADALVK-HAEGALHH-A--E-------AA-------G-------V-----------------K--N-------P----H----LDE-------GIKHLKEAVE--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A136JVQ0/34-115             ----KHQAEAVEHAKEAVAHG--KQ--G--HADALVK-HAEAALKH-A--E-------GA-------M-------A----E----T-------K--N-------P----H----VGE-------AIKGLKDGIE--H-G-K---A--G---------H----A--D----VATK--AVENALPHLS-------
+UniRef90_A0A3C1YV40/34-115             ----KHQAEAVEHAKEAVAHG--KQ--G--HADALVK-HAEAALKH-A--E-------GA-------M-------A----E----T-------K--N-------P----H----VGE-------AIKGLKDGIE--H-G-K---A--G---------H----A--D----VATK--AVENALPHLS-------
+UniRef90_UPI001967FC62/22-106          --ETEHTTQSLEHAKAAITHG--EA--G--HAPVLVE-HAQTSLTH-A--E-------AA-------E-------K----A----E-------H--N-------P----H----TAE-------AITHLKQAIE--H-G-K---L--G---------H----A--D----VGTT--HAKEAVKHLEL------
+UniRef90_A0A1Q2SN16/27-116             ----GHIDEAIKHAEDAATHG--KA--G--HAKVLVE-HDKAALKH-A--E-------AA-------D-------K----K----A-------K--G-------TE-KQH----LDE-------AITHLKEGVK--Q-G-E---A--G---------H----A--D----VATQ--HTNEGITHLKAAEDK--
+UniRef90_A0A177QAN9/32-111             ----SNVREAIDHAKQAVAHG--KE--G--HAEELVK-HAETSLQF-A--K-------M---------------------G----G-------R--G-------S----H----LSE-------GIDHLNEAIE--H-G-K---A--G---------H----A--D----VGTE--HVEAALQHLLS------
+UniRef90_A0A7V9APN9/33-116             ---NKHVSEAVEHAKEAIEHG--KK--G--HADVLVK-HAELALKH-A--E-------LA-------Q------KD----M----K-------D--N-------G----H----VAE-------GVKGLKDAIE--H-G-K---A--G---------H----A--D----IATK--SAEGALMHLS-------
+UniRef90_A0A533BLE3/33-112             ----KHVGEAVEHAKEAVEHG--KQ--G--HADVLVH-HAEEALKH-A--G-------AA-------G-------V-----------------K--S-------P----H----LDE-------GVKHLKEAIE--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_A0A524J2C7/31-115             -GGNPHVAEAIAHAEGAVEHG--GM--G--HADAVVE-HAQEALTH-A--Q-------AA-------Q-------K----E----V-------K--N-------P----H----LDE-------GVHELMESID--H-G-K---K--G---------H----A--E----VATK--HAKSAVMHLK-------
+UniRef90_A0A1G5SCP3/27-114             ----VHTSEAMEHAGKAQAHG--ED--G--HAKELTK-HAKESLEH-A--K-------HA-------Q-------K----A----H-------ADAH-------H----H----MDE-------AVKHLEEGIK--H-G-E---M--G---------H----A--D----VATK--HIEDAIKHMRESAH---
+UniRef90_A0A5C7VH40/24-114             -GDAAHTSAAMEHAGEAKAHG--EM--G--HAKELLK-HAKESLAH-A--K-------AA-------G-------KE--HA----D-------A--H-------K----H----MDE-------AIKHLEEAIK--H-A-E---M--D---------H----A--G----EAAK--HTEEAMKHMRESGH---
+UniRef90_A0A356R4Z7/31-115             -GANPHVAEAIAHAEGAADHG--GQ--G--HADALVE-HAQEALTH-A--Q-------AA-------Q-------K----D----V-------K--N-------P----H----LDE-------GVHELMEAVE--H-G-K---A--G---------H----A--E----VGTK--HAKSAVMHLK-------
+UniRef90_A0A330L9E9/33-112             ----KHVAEAVEHAKEAAAHG--KQ--G--HADALVK-HAEGALHH-A--E-------AA-------G-------I-----------------K--N-------P----H----LDE-------GVKHLKEAVE--H-G-K---A--G---------H----A--D----VATQ--HAEGAVTHLS-------
+UniRef90_UPI00045E9C51/22-108          ----EHAAEALKHAGHAVTHG--QA--G--HAPQLVE-HAEKALKH-A--Q-------SA-------E-------S----A---AS-------GEAK-------T----H----VVA-------GIKALEESIA--H-G-K---Q--N---------H----A--E----VATK--HAEEAVTHLQAG-----
+UniRef90_UPI0003FE299E/25-110          ---DAHTDQAIEHAAQALAHG--QD--N--HAPQATQ-HAEEALTH-A--K-------AA-------E-------K----Y----HD-----EA--T-------K----H----VKE-------AIDHLNQAIE--H-G-K---Q--G---------H----A--D----IAAQ--HSDEALKHLKL------
+UniRef90_A0A1H3PCQ0/25-111             --DTEHRLEALAHAEEAVKHG--EM--G--HANELLM-HAEDSLKH-A--R-------DA-------M-------Q----E----D-------G--D-------A----H----MKK-------AIVELEEAIK--H-A-K---M--D---------H----A--D----VATQ--HARKAMKHLRESG----
+UniRef90_A0A538RQ79/33-112             ----KHAAEALEHAKEAVAHG--KQ--G--HADVLVQ-HAEEALKH-A--G-------AA-------G-------V-----------------K--S-------P----H----LDE-------GIKHLKEAVA--Q-G-K---A--G---------H----A--D----VATQ--HAEEGVTHLS-------
+UniRef90_A0A2S6GQ68/24-111             -----HASEALKHANAAVEHG--KA--G--HTPLLLE-HAKAALED-A--L-------AA-------SI----VAK----S----V-------A--K-------N----H----LDA-------GAKELQEAID--Q-G-T---L--G---------H----V--G----VATS--HAEAAVEHIKAGNN---
+UniRef90_H8GMN0/22-108                 ----EHAAEALKHAEHALSHG--KA--G--HAPQLVD-HAENALKH-A-QK-------AE-------S-------V----A----S-------GEAK-------T----H----VTA-------GIKALEEAIA--H-G-K---Q--D---------H----A--E----VAAQ--HAEEAVSHLKAG-----
+UniRef90_A0A522AW92/27-108             ----SHAAEAVEHAQEAVDHG--KQ--G--HADVLVK-HASAALTH-A--E-------AS-------Q-------K----E----K-------A--N-------P----H----MAE-------GIKGLKEGIE--H-G-K---A--G---------H----A--D----VATK--AIDGALMHMK-------
+UniRef90_UPI0013722C12/27-110          ----EHLNSAISHAEDAEIHG--RA--G--HTDALLE-HAQESLTH-A--Q-------AA-------Y-------K----T----SP-----EN--N-------Q----H----LAA-------SIKLLEEAIS--Q-A-K---Q--D---------H----A--E----VATG--QVREALSHMR-------
+UniRef90_A0A7Y4SG51/33-111             ----SNVMDAVAHAKEAVDHG--KQ--G--HADALVA-HAEKSLQY-A--E------------------------R----G----G-------K--G-------S----H----VAE-------GMKHLKEAIE--H-G-K---A--G---------H----A--D----VGTQ--HAEAALQHLS-------
+UniRef90_A0A1W9JL46/24-109             -----HAAAALEHANQAVTHG--KA--G--HSPILVE-HADAALTH-A--K-------KG-------A-------E----V----A------KGESK-------T----H----LDA-------GVKSLESAIE--H-G-K---M--G---------H----A--D----VATK--AAEEAVDHIKAG-----
+UniRef90_UPI0013EA0DE5/27-111          ----SHLSEAIAHTKQAIEHG--KM--G--HPDVLAT-HAEQALKH-A--E-------AA-------E-------K----E----K-------A--N-------P----H----IKQ-------GITHLEKAIE--T-G-K---E--K---------K----A--E----AATK--HAEEALTHLEAAE----
+UniRef90_A0A533XN52/28-110             ----SHAAEAVEHTEEAISHG--KQ--G--HADVLLK-HAETALKH-A--E-------AA-------Q-------K----E----K-------A--N-------M----H----MEE-------GIKHLKGAIA--E-G-K---K--G---------D----A--A----GGVK--HAEEALMHIKE------
+UniRef90_A0A2P5NRK2/29-115             ----HHLSEAVTHTKQAIEHG--KM--G--HPDVLAT-HAEEALKH-A--K-------AA-------E-------A----E----K-------A--N-------P----H----TKE-------GITHLNAAIE--Q-G-K---E--K---------H----A--E----SATK--HAEEALTHLEAAEKK--
+UniRef90_A0A1W9HWD6/33-111             -----NVLDSIAHAKEAVEHG--KQ--G--HADAVAA-HAEKSRNH-A--E------------------------R----G----G-------K--N-------P----H----LGE-------GIKHLTEAIE--H-G-K---A--G---------H----A--D----VATQ--HAEAALTHLNE------
+UniRef90_A0A177MDK3/23-109             ----EHASESLKHAEHAVTHG--KA--G--HAPQLVE-HAEKALAH-V-DK-------AE-------S-------A----A----S-------G--DA-----KA----H----ISA-------GKKSLEETIA--H-G-K---Q--N---------H----A--E----VATK--HAEEAVSHFKAG-----
+UniRef90_A0A2E6UPB5/25-111             --H--HAAEALEHAGMAQAHG--ED--G--HAKVMVQ-HASEALKH-A--K-------EA-------IK-----MH----A----D-------S--N-------D----H----MNE-------GIKHLKEAIV--H-G-K---K--G---------H----A--G----VAAK--HIQEANVHIRQSI----
+UniRef90_A0A7S8IYN4/33-112             ----KHVSEAVEHAQGAVSHG--KE--G--HADACVQ-HAEEALKH-A--T-------AA-------G-------M-----------------K--N-------P----H----LEE-------GVKHLTEAVK--H-G-K---A--G---------H----A--E----ACTE--HAEGGVMHLA-------
+UniRef90_J7Q8M2/28-110                 -----HLAEAVTHTKQAISEG--KQ--G--KAEALTV-HAEEGLKH-A--K-------AA-------E-------A----Q----K-------P--N-------E----H----TKQ-------GISHLEMAID--H-G-K---Q--K---------H----A--D----IATK--HAEEALTHLEAA-----
+UniRef90_A0A395CTH0/28-111             ----SHVAQAIEHTKQAIDEG--KK--G--NASSLTE-HATVALEH-A--Q-------DA-------Q-------K----E----K-------P--N-------K----H----VKA-------GVKHLKEAIK--H-G-K---K--D---------H----A--K----VATK--HAEEALTHLEQA-----
+UniRef90_A0A6N9DVA4/29-110             ----PHVAEAITHAEEAAKHG--GM--G--HADAVVS-HAQEALNH-A--E-------MA-------Q-------K----E----V-------T--N-------P----H----LDE-------GVSELKEAIA--H-G-G---Q--G---------H----A--E----VATK--HAKSAVMHLK-------
+UniRef90_A0A5C7V0V9/27-114             ----GHTSEAMEHAGKAQAHG--EK--G--HAKEALQ-HAKDSLTH-A--K-------AA-------G-------KE--HA----D-------A--H-------K----H----MDE-------AIKHLEEAIK--H-A-E---M--G---------H----G--S----ESAK--HSEEAMKHMRESGH---
+UniRef90_F9ZFC2/32-117                 ---SRHTTEAIKHAETARIHG--KS--G--HTKTLLE-YAQESLTH-A--K-------AA-------E-------N----E----LT-----IS--H-------Q----R----ITE-------SIQHLEQAIA--L-A-N---Q--D---------D----S--D----AATK--HITEALEHMRL------
+UniRef90_A0A177MNU9/24-109             -----HAAAALEHANQAVTHG--KA--G--HSPILVE-HAEAALTH-A--K-------KG-------A-------E----V----A------KGESK-------T----H----LDA-------GVKSLESAIE--H-G-K---M--G---------H----A--D----VATK--AAEEAVGHIKAG-----
+UniRef90_A0A286P3B0/6-91               ---DAHTDQAIEHAAQALAHG--QD--K--HAPQATQ-HAEEALTH-A--K-------AA-------E-------K----Y----HD-----EA--T-------K----H----VKE-------AIDHLNQAVE--H-G-K---M--G---------H----A--D----IAAQ--HSEEALKHLKL------
+UniRef90_A0A7C5F3L8/22-101             ----KHVAEAVEHAKGAASHG--KE--G--HADACVE-HASEALKH-A--T-------AA-------G-------V-----------------K--N-------P----H----LDE-------GVKHLTEAVK--H-G-K---A--G---------H----A--D----ACTE--HAEGAATHLA-------
+UniRef90_A0A525VKT8/3-81               -----NVREAIDHAKQAMAHG--KE--G--HAEELVK-HAETSLQF-A--K-------M---------------------G----G-------R--G-------L----H----LSE-------GIDHLNEAIE--H-G-K---A--G---------H----A--D----VGTE--HVEAALQHLLS------
+UniRef90_UPI001FED7AE5/67-149          -----HLAEAITHTKQAISEG--KQ--G--KAEALTM-HAEEGLKH-A--K-------AA-------E-------A----Q----K-------P--N-------E----H----TKQ-------GISHLEMAID--H-G-K---Q--K---------H----P--D----VATK--HAEEALTHLEAA-----
+UniRef90_UPI00112D1080/24-109          -----HAATALEHANQAVTHG--KA--G--HASVLVE-HAEAALPH-A--K-------KG-------A-------E----V----A------KGEAK-------T----H----LDA-------GVKSLESAIE--H-G-K---M--G---------H----A--D----VATK--AAEEAVEHIKAG-----
+UniRef90_UPI0001F86800/29-109          ----NHVAEAITHTREAINDG--LD--G--KASSLVE-HARDALEH-A--N-------AA-------E-------K----E----K-------S--N-------R----F----VRA-------GIVHLKQAIK--H-G-E---K--G---------H----A--K----IATR--HAKEALAKL--------
+UniRef90_A0A533YUG7/28-110             ----SHAAEAVEHTEEAISHG--KQ--G--HADVLVK-HAETALMH-A--E-------AA-------Q-------K----E----K-------A--N-------M----H----MEE-------GIKHLKGAVA--E-G-K---K--G---------D----A--A----GGVK--HAEEALMHIKE------
+UniRef90_A0A1W9GK01/33-112             ----KHVAEAVEHAKGAASHG--KE--G--HADACVE-HASEALKH-A--Q-------AA-------G-------M-----------------K--N-------P----H----LAE-------GVKHLTEAVK--H-G-K---A--G---------H----A--D----ACTE--HADGAATHLA-------
+UniRef90_A0A7S6S7A6/29-113             ----QHAAEAIKHAEDAQIHG--KA--G--HSNALLD-HAQESLVH-A--K-------AA-------E-------KE--FA----E-------A--H-------Q----H----MTE-------SIKHLEEAIA--H-A-K---Q--D---------H----A--E----EATK--HAAEALKHMKH------
+UniRef90_A0A8D4V4F1/24-109             -----HAATALEHANQAVTHG--KA--G--HASVLVE-HAEAALPH-A--K-------KG-------A-------E----V----A------KGEAK-------T----H----MEA-------GVKSLESAVE--H-G-K---M--G---------H----A--D----VATK--AAEEAVEHIKAG-----
+UniRef90_A0A7X3YSY8/29-110             ----PHVAEAIAHAEEAAKHG--GM--G--HADAVVG-HAQEALSH-A--E-------MA-------Q-------K----E----V-------K--N-------P----H----LDE-------GVSELKEAIA--H-G-G---Q--G---------H----A--E----VATK--HAKSAVMHLK-------
+UniRef90_A0A1W9H7J2/29-115             ---TSTITEAIDQAETAQIHG--KA--G--HTSTLLE-YAQESLTH-A--Q-------AA-------E-------K----KL--TN-------K--S-------P----H----LDE-------SIKHLNAAIE--N-A-K---Q--D---------Q----P--E----TATR--HMEKAIEHMRLS-----
+UniRef90_A0A7S8FFE3/32-110             ----GNVRDAVTHAKEAVDHG--KQ--G--HADALVT-HAEKSRNH-A--E------------------------R----G----G-------K--N-------P----H----LNE-------AINHLNEAVE--H-G-K---A--G---------H----A--D----VATE--HAETALTHLN-------
+UniRef90_A0A7D9DMB2/183-262            ----RHAEDKVPHAEDKVLHAEDKV--P--HADDKVP-HADDNVPH-A--E-------DK------------------------------------V-------P----H----AED-------KVPHAEDKVR--H-A-Q---DMFP---------H----V--E----DTVP--HAEEKVPHA--------
+UniRef90_A0A177PF07/24-109             -----HAATALEHANQAVVHG--KA--G--HASVLVE-HAEAALPH-A--K-------KG-------E-------E----V----AK----GEA--K-------T----H----LSA-------GVKSLESAIE--H-G-K---L--G---------H----T--D----MATK--AAEEAVEHIKAG-----
+UniRef90_A0A1H3PD27/30-115             ---TDHRAEAIQHAEKAIKQG--KM--G--CAEELLI-HAKESMEH-A--Q-------AA-------S-------N----S----G-------A--D-------S----H----MKQ-------AVKHLEGAIR--H-A-E---M--H---------R----A--G----AATN--HTKTAMSLMQESE----
+UniRef90_A0A1W9GVL8/26-114             ---AGHTSEAMEHAGKAQAHG--EM--G--HAKESLE-HAKDSLAH-A--K-------AA-------R-------DD--HA----A-------S--H-------K----H----MDE-------AIKHLEEAIK--H-A-D---M--G---------H----G--P----EAAK--HSEEAMKHMRQSGH---
+UniRef90_A0A1H3DV17/28-115             ----GHTSEAMEHAGKAHAHG--ED--G--HAKELLK-HAKKSLDH-A--K-------HA-------S-------KE--HA----E-------A--H-------Q----H----MDE-------AIKHLEEAIK--H-A-E---M--G---------H----A--D----VATG--HMDEAIKHMQKSGH---
+UniRef90_A0A0S4KVU2/33-112             ----KHVEEAVEHAKGAGSHG--KE--G--HADACTQ-HAEEALKH-A--Q-------AA-------G-------M-----------------K--N-------P----H----LDE-------GVKHLKEAVQ--H-G-K---A--G---------H----A--D----ACMD--HAQGAVTHLA-------
+UniRef90_A0A849V4F2/23-111             ----PHLDEAIKHATAAAEHG--KA--G--HASVLVE-HATPALEH-A--M-------AG-------A-------L---VA----RG-----VA--K-------S----H----TDN-------AVVDLEEAIK--H-G-K---E--GD-------KH----V--G----VATT--YAETALEHLKAA-----
+UniRef90_A0A1I4WZF2/27-112             ----CHVAEAMGHAGKAQVYA--EM--G--HTKEALQ-YAKESLIH-A--K-------EA-------K------NE----Y----G------ED--N-------K----H----IGQ-------AIKSLEEVIK--H-A-S---M--S---------H----P--K----IAAK--HADDALSHMRDS-----
+UniRef90_A0A0S4LA30/31-109             ----GNVKDAVAHAKEAVDHG--KQ--G--HADALVT-HAEKSRNY-A--E------------------------R----G----G-------K--N-------P----H----LNE-------AITHLNEAIE--H-G-K---A--G---------H----A--D----VATQ--HAETALTHLT-------
+UniRef90_A0A4P5SPL1/55-138             ----PHLQEATTHTNEAIEHG--KA--G--HAKVLVT-HAKEALKH-A--E-------EA-------E-------K----A----V-------D--N-------P----H----TKE-------AITHLKAAIL--H-G-K---K--G---------H----A--K----EATG--HAQEALTHLQSA-----
+UniRef90_A0A522WTH9/25-110             ------SSEALEHANAAVVHG--KA--G--HTPLLLE-HAKAALED-T--L-------AA-------SI----IAK----G----V-------A--K-------N----H----LDA-------GAKELQEAID--Q-G-T---L--G---------H----V--G----VATT--HAEAAVEHIKAGS----
+UniRef90_L8WKN2/2-82                   -GDMADLENSIEHKSRALTLT--PD--G--HPDLPDR-HAALGVSH-T--D-------RY-------R-------R----M----G-------D--T-------A----D----LEN-------AVEHFSRALA--L-T-P---D--G---------H----P--G----LSDR--HAALGV-----------
+UniRef90_L8WKN2/227-307                -GDMADLENAVEHFSRALALT--PD--G--HPDLPDR-HAALGVSY-S--D-------RY-------R-------R----M----G-------D--M-------A----D----LEN-------SIEHKTRAIE--M-T-S---D--S---------H----P--G----LPGR--HAALGV-----------
+UniRef90_UPI00041D362B/29-111          ----NHIAEAIKHTQVAIDHG--KQ--G--HAAILAE-HAEVALGH-A--E-------AG-------E-------K----E----K-------A--N-------P----H----TEA-------AIKDLKDAID--H-G-K---Q--G---------H----A--E----IATK--SAESALDHLNQ------
+UniRef90_A0A523GSW8/26-111             -----HTAQAMEHAGMAQAHG--ED--G--HAKVLLQ-HAKVALNH-A--K-------KA-------E-------K----A----HA-----DA--H-------K----H----MTE-------GVKHLKEAIE--H-A-K---M--G---------H----A--D----VATK--HMKEAIVHIRQSS----
+UniRef90_F8GJW3/26-114                 ---AGHTSEAMEHAGKAQAHG--EM--G--HAKDALQ-HAKDSLAH-A--K-------AA-------R-------DD--HA----A-------A--H-------K----H----MDE-------AIKHLEEAIK--H-A-E---M--G---------H----A--E----ESAK--HSEEAMKHMRQSGH---
+UniRef90_A0A2P7NV83/31-115             ---NYHTAEAIKHAETAQIHG--KA--G--HVKTLLE-YAQQSLIH-A--K-------AA-------E-------NE--LA----G-------S--H-------Q----R----ITD-------SIKHLEEAIA--H-A-R---Q--E---------D----S--E----AATR--HTSQALEYMR-------
+UniRef90_A0A0S4LTJ0/33-113             ---NPHVSEAVEHARGAASHG--KE--G--HADACVQ-HAEEALKH-A--M-------AA-------G-------V-----------------K--N-------P----H----LDE-------GVKHLTEAVK--H-G-K---A--G---------H----A--E----ACTE--HANGGATHLA-------
+UniRef90_A0A7Y4ZDD9/26-111             ----HHTAQALEHSAMAAAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------A--H-------V----H----MTE-------AVKHLKEAIE--H-A-K---K--G---------H----A--D----VATT--HTEEAMKHMRQS-----
+UniRef90_A0A8D4VQ53/25-109             ---ASHAAQALEHANAAVTHG--EA--K--HADVLTQ-HAEEALKH-A--E-------AG-------Q-------K----E----K-------A--N-------P----H----LEQ-------GITHLKAAIE--H-G-K---M--G---------H----A--D----VATG--HAKDAVTHLKAA-----
+UniRef90_A0A4P7F8W8/28-110             ----DHIAEAITHTKQAIEHG--KQ--G--HADVLVT-HAEAALTH-A--E-------AG-------E-------T----V----K-------A--N-------P----H----TEE-------GIKHLKESIA--E-G-K---K--G---------N----A--P----SATT--HAEAALTHLEQ------
+UniRef90_A0A1W9G6J6/33-112             ----KHVDEAVEHARGAASHG--KE--G--HADACVQ-HAEEALKH-A--Q-------GA-------G-------V-----------------K--N-------A----H----LDE-------GVKHLQEAVK--H-G-K---A--G---------H----A--D----ACKD--HAEGGATHLA-------
+UniRef90_A0A533Y7T2/31-118             -GSDKHVAEAIEHAKEAVEHG--KQ--G--HADVLVK-HAEGALKH-A--E-------MA-------Q-------K----DM-KDM-------K--N-------P----H----LEE-------GVKGLKEAVE--H-G-K---A--G---------H----A--D----VATK--AAEGAIMHLS-------
+UniRef90_A0A7Y8LDY0/31-112             ---TGNVSEAIDHAKQAVAHG--KE--G--HADELVK-HAETALEF-A--K-------M---------------------G----G-------R--G-------L----E----LSE-------GIHHLKEAIE--H-G-K---A--G---------H----A--D----VGLE--HVETALKHLSES-----
+UniRef90_A0A532EXT5/31-110             ----KHVGEALAHAKEAVAHG--KQ--G--HADALVQ-HCEEGLKH-A--M-------AG-------D-------M-----------------K--N-------P----H----LAE-------GVTHLKECGA--H-G-K---A--G---------H----A--D----VGTQ--HAEGAVTHLS-------
+UniRef90_A0A1R4HCF5/23-110             ----PHTDAALEHANAAVTHG--KA--G--HADVLVE-HAFPPLEH-A--M-------SA-------A------LV----A----K-------GVTK-------T----H----VDA-------AVTELEAAVE--H-G-K---M--G---------H----A--D----VATQ--HAESAVTHLNAAN----
+UniRef90_A0A532DKU1/33-112             ----KHVAEAVEHARGAASHG--KE--G--HADACVE-HASEALKH-A--T-------AA-------G-------L-----------------K--N-------P----H----LME-------GIKHLTEAVK--H-G-K---A--G---------H----A--D----ACTE--HADGGATHLA-------
+UniRef90_A0A1W6MR52/28-111             -----HLAEAITHTQQAIETG--KQ--G--QADALVT-HAEAALTH-A--N-------AA-------E-------K----E----K-------A--N-------P----H----IKQ-------GITHLNAAIA--E-G-K---K--K---------D----A--A----AATK--HAEEALTHLQAAQ----
+UniRef90_A0A4P5TID8/42-125             ----YHLDQAISHTQEAIIHG--QA--G--HANSLTH-HAREALMN-A--Q-------AQ-------Y-------A----G----Y-------Q--N-------S----H----VAE-------AATHLKAAIK--H-G-D---R--G---------H----A--H----MGAT--HASEALTHLNAA-----
+UniRef90_A0A521WUH1/27-110             --------SALEHANAAVTHG--KA--G--HTPVLVE-HAKAALED-T--L-------AA-------S-------I----A----AK----GVS--K-------N----H----LDA-------GAKELQEAID--H-G-T---M--G---------H----V--G----QATA--HAEAAVEHIKASS----
+UniRef90_A0A7S8J1S2/46-123             -----NIKDAIMHATEAVEHG--KQ--G--HAEKLVT-HAEASLQH-A--V-------R---------------------G----G-------E--D-------P----H----LGE-------AMTHLKEAIE--H-G-K---A--G---------H----T--D----VAAK--HAETAVTHLS-------
+UniRef90_A0A532DGQ9/46-124             -----NLKDALEHAKEAVEHG--KQ--G--HAEALLE-HAEAALQH-A--L-------NG--------------------G----K-------D--H-------P----H----VGE-------GITHLKEVIE--H-G-K---A--S---------H----T--D----VATK--HAEIAVMHLS-------
+UniRef90_A0A7Y4Z8L6/23-113             ----PHLDQAIEHTTAAIEHG--KA--G--HASVLVE-HATPALEH-A--L-------AG-------A-------V---VA----RG-----VA--K-------S----H----TDN-------AVTDLEQAIK--H-G-K---E--GN-------DH----V--G----VATT--YAETALEHLKAANK---
+UniRef90_A0A7Y8HNW6/24-102             -----NLKDALEHAKEAVDHG--KQ--G--HAEALLA-HAEAALQH-A--L-------KG-------G-----------------K-------D--H-------P----H----VNE-------GIAHLKEAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVMHLS-------
+UniRef90_A0A533XKG2/28-110             ----NHVKEAIEHDKEAIEHG--KA--G--HADVLTK-HAEKALKH-A--E-------AA-------E-------K----E----K-------S--S-------A----H----TQE-------GIKHLEGAVA--S-G-K---K--G---------D----A--A----GGTK--HAEEALMHLQE------
+UniRef90_A0A7Y4RRA3/27-111             -----HTAQALEHSAMATAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------A--H-------V----H----MTE-------AVKHLKEAID--H-A-K---K--G---------H----A--D----VGTQ--HTEEAMKHMRQS-----
+UniRef90_A0A532DY66/5-89               -GGNPHAAEAVQHAKEAVEHG--KK--G--HADVLLK-HAEGALKH-A--E-------AA-------E-------K----E----T-------K--N-------M----H----VTE-------GIKGLKEGIA--Q-G-K---A--G---------H----A--D----AAAQ--AIENAIPHLS-------
+UniRef90_A0A1I4B8L4/26-114             ---AGHTSETMEHAGQALAHG--ED--G--HASELVK-HAEKSLHH-A--K-------AA-------E-------K----A----HA-----DA--H-------K----H----MTE-------AIKHIEESIK--H-G-K---M--G---------H----A--D----EGAK--HMKEAMQHIRESAH---
+UniRef90_A0A2P7NTP5/26-114             ---AGHTSDAMEHAGESKAHG--EM--G--HAKEALS-HAKESLAH-A--K-------EA-------R-------DD--HA----A-------S--H-------K----H----MDE-------AIKHLDEAIK--H-A-E---M--G---------H----G--Q----ESAK--HTQEAIKHMRESGH---
+UniRef90_A0A6B8M4X9/27-114             ---SHHLAEAVKHTKEAIDHG--KQ--G--HADVLVT-HAEMALKH-A--E-------QA-------E-------A----E----K-------A--N-------P----H----TKE-------GITHLQAAID--T-G-K---K--Q---------D----A--P----GATK--HAEEALTHLEAAEKK--
+UniRef90_A0A8T3RIK4/55-139             ---SPHTMEALKHAEQAVVHG--KQ--G--HADVLVE-HAEEALKQ-A--I-------MA-------Q-------K----E----F-------S--S-------Y----K----LQN-------AATHLQEAIT--E-G-K---K--G---------D----A--K----VATT--HAEEAVKVLKSD-----
+UniRef90_A0A1H9Y6H8/26-114             ---AGHTSEAMEHAGQALAHG--ED--G--HAKVLVE-HAEKALQH-A--K-------EA-------E-------E----AH--AA-------A--H-------K----H----MTE-------AIKHMEESIK--H-G-K---M--G---------H----A--D----EGAK--HMKEAIMHMRKSGH---
+UniRef90_G3J1D2/27-111                 -----HTAQALEHSAMATAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------A--H-------V----H----MTE-------AVKHLKEAIE--H-A-K---K--G---------H----A--D----VGTQ--HTEEAMTHMRQS-----
+UniRef90_H8GI62/26-112                 -----HAAAALDHAQQAVTHG--KA--G--HASVLVE-HATEALKH-A--R-------AA-------S-------E----V----AK----GES--K-------T----H----IDA-------GVKSLESAIE--H-G-K---M--GA-------EH----E--S----QATK--AAEEAVEHLKQ------
+UniRef90_F8GFS1/26-114                 ---AGHTSEAMEHAGKAQAHG--EM--G--HAKDALQ-HAKDSLAH-A--K-------AS-------R-------DD--HA----A-------S--H-------Q----H----MDE-------AIKHLEEAIK--H-A-D---M--G---------H----G--P----ESAK--HTEEAMKHMRQSGH---
+UniRef90_UPI001FC89D6B/28-114          ----PHVAEAIEHAESAQTHG--KA--G--HAKELQT-HAEESLKH-A--K-------AA-------E-------S----GL--SG------AS--K-------Q----H----VAE-------SVTHLNEAIA--H-A-K---Q--N---------H----A--D----EATK--HVSEALVHLKES-----
+UniRef90_A0A1W9H8F1/32-111             ----KHLAEAVEHARGAASHG--KE--G--HADACVQ-HAEEALKH-A--T-------AA--------------------G----G-------K--N-------P----H----LLE-------GVKHLTEAVK--H-G-K---A--G---------H----A--E----ACTE--HADGGATHLA-------
+UniRef90_A0A1H8SYW1/26-114             ---AGHTSEAMEHAGKAQAHG--EM--G--HAKESLS-HAKESLAH-A--K-------AA-------R-------DD--HA----A-------S--H-------K----H----MDE-------AIQHLEEAIK--H-A-D---M--G---------H----G--A----ESAK--HSEEAMKHMRQSGH---
+UniRef90_A0A1I3BCS1/27-111             -----HTVEAVEHAAMAKAHG--ED--G--HAKVLLK-HAEESLKH-A--K-------AS-------E-------K----QH--EE-------Q--R-------K----H----MAE-------SVKHLQEAID--H-A-K---A--D---------H----A--D----VATK--HVEEALKHMRKS-----
+UniRef90_A0A1H3PB69/29-120             -----YAFEALEHAEEAEKHG--KM--G--HSKELLE-HAKKSLEH-A--Q-------AA-------SKE---YAE----A----Q-------K--NE----AHK----N----MDE-------AIGHLNEAVK--H-A-E---M--N---------H----A--D----VATK--HTEQAIQLIRKSRH---
+UniRef90_A0A532EYP1/37-114             ------LRDALDHAKEAVDHG--KQ--G--QAEALLE-HAEAALQH-A--L-------KG--------------------G----T-------D--H-------P----H----VNE-------GVAHLKEAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVMHLS-------
+UniRef90_V5E161/23-110                 ----PHLDQAIEHATAAVEHG--KA--G--HASVLVE-HAVPALEH-A--M-------AG-------AL----VAK----G----T-------A--K-------S----H----TDN-------AVTDLEEAIK--H-G-K---M--D---------H----A--D----IATT--YAETALEHLKAAD----
+UniRef90_A0A2T4TZF8/27-110             ---KSHLVEATEHTQAAVEHG--KA--G--HADVLAT-HATEALKH-A--E-------AA-------E-------K----A----K-------A--N-------P----H----TAA-------AIKELKGAVE--H-G-K---A--N---------H----A--D----IATK--AAEGALGHLKA------
+UniRef90_UPI0005678E7F/29-111          ----DHIAEAITHTKEAIDHG--KQ--G--HANILAD-HAQIALKH-A--E-------AG-------E-------K----E----K-------A--N-------P----H----TAA-------AIKDLNGAIE--H-G-K---A--G---------H----A--D----VATK--SAESALTHLNQ------
+UniRef90_A0A3S0G169/28-110             -----HLAEAISHTKEAIDHG--KQ--G--HADVLVT-HAEAALKH-A--E-------AA-------E-------K----A----K-------A--N-------P----H----TKE-------GITHLKASIS--E-G-K---K--K---------N----A--E----GATS--HAEEALTHLEAA-----
+UniRef90_A0A1W9G7P9/32-110             ----GNVSLAIDHVKQAVAHG--KE--G--HVDELVK-HAETALDF-A--K-------M---------------------G----G-------K--S-------L----E----VSE-------GIQHLKEAIA--H-G-K---A--G---------H----A--D----VGVE--HLEVALKHLS-------
+UniRef90_A0A8T7BKK8/26-114             ---AGHTSEAMVHAGMAQAHG--ED--G--HAEMALE-HARESLEH-A--K-------MA-------E-------QE--HA----E-------A--H-------Q----H----LTQ-------AVSHLNQAVE--H-A-E---M--G---------H----G--D----VAAK--HTEQAIEHMRMSGH---
+UniRef90_F9ZDP8/26-114                 ---AGHTSEAMEHAGKAQAHG--EM--G--HAKESLS-HAKESLAH-A--K-------EA-------G-------KE--HA----E-------A--H-------K----H----MDE-------AIKHLEEAIK--H-A-E---M--G---------H----G--Q----ESAK--HAEEAMKHMRQSGH---
+UniRef90_UPI001893B337/27-111          -----HTAQALEHSGMATAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------S--H-------K----H----MTE-------AIDHLKQAID--H-A-K---K--D---------H----A--D----VATK--HAEEAMVHMRKS-----
+UniRef90_UPI001FC831CC/24-112          ---AGHTSEAMEHAGESKAHG--EM--G--HAKEALQ-HAKDSLAH-A--K-------DA-------S-------KE--HA----E-------A--Q-------K----H----MDE-------AVKHLDEAIK--H-A-E---M--G---------H----G--E----ESAK--HTSEAIKHIRESGH---
+UniRef90_A0A7C5F6W1/32-110             ----GNVRDAVAHAKEAVDHG--KQ--G--HADALVT-HAEKSRNH-A--E------------------------R----G----G-------R--D-------P----H----LKE-------AITHLNEAIE--H-G-K---A--G---------H----A--D----AATE--HAETALTHLN-------
+UniRef90_A0A5R8QM29/28-111             -----HLAEAISHTKEAIDEG--KE--G--HADKLVT-HAKAALKH-A--E-------AA-------E-------K----A----K-------K--N-------E----H----TKE-------GITHLKASIV--E-G-K---K--K---------D----A--S----AATG--HAEEALTHLEAAQ----
+UniRef90_A0A1H2E2U7/32-116             ---NHHITETIKLAETARIHG--KA--G--HTKTLLE-YAQESLTH-A--R-------AA-------E-------N----E----LT-----IS--H-------Q----R----ITE-------SIKHLEKAIA--L-A-N---Q--N---------D----S--E----VATK--HIIQALEYMR-------
+UniRef90_UPI001F049486/43-131          ---AGHTSEAMEHAGKSQAHG--EM--G--HAKEALQ-HAKDSLKH-A--E-------EA-------R-------DD--HA----A-------S--H-------K----H----MDE-------AIKHLEEAIQ--H-A-E---M--G---------H----G--G----ESAK--HSEEAIEHMRHSGH---
+UniRef90_UPI000F8D67FC/23-110          ----HHIDVALEHATAATIYG--KN--G--HTSVLLE-HAKIALEH-V--L-------AA-------S------LK----A----Q-------GVSK-------S----H----LES-------AAEDLEEAIS--Q-S-E---S--G---------H----V--G----TATR--HARAAVGHIKNSE----
+UniRef90_A0A1H9PPD2/26-114             ---AGHTSEAMEHAGQALAHG--ED--G--HPKVLVK-HAEKALHH-A--Q-------AA-------E-------K----AH--AA-------A--H-------E----H----MSE-------AIKHIEESIK--H-G-K---M--G---------H----A--D----EGAK--HMREAIKHMRESGH---
+UniRef90_A0A8H7H9U2/294-375            -GDIADLEKATEHLSRALALT--PD--G--HPDLPAR-HGNLGVSY-A--N-------RY-------Q-------R----M----G-------D--I-------A----D----LEK-------ATKHLSRALA--L-T-P---D--G---------H----P--D----LPAR--HGNLGVS----------
+UniRef90_A0A8H7H9U2/384-466            -GDIADLEKATKHLSRALALT--PD--G--HPDLPAR-HGNLGVSY-A--N-------QY-------Q-------R----M----G-------D--I-------A----D----LEK-------ATKHLSRALA--L-T-P---D--G---------H----P--G----LPHR--HADLGVSY---------
+UniRef90_A0A8H7H9U2/476-553            ---ITDLEKAVEHSSRALALT--PD--G--HPDLPDR-HGKLVLSY-G--E-------RY-------R-------R----M----G-------D--I-------T----D----LEK-------AIEHSSRALA--L-T-P---D--G---------H----P--D----LPDR--HANLG------------
+UniRef90_A0A2V3VNQ0/27-114             ----GHTSEAMEHAGKSQAHG--EM--G--HAKEALQ-HAKDSMAH-A--K-------EA-------G-------KG--HA----D-------A--H-------K----H----MDE-------AVKHLEEAIK--H-A-E---M--G---------H----G--A----ESAK--HSEEAIKHMRKSGH---
+UniRef90_UPI000F8D3569/27-109          --------SALEHAKQAVTHG--KA--G--HTSTLVE-HAKAALED-S--L-------TA-------AI----VAK----G----V-------A--K-------N----H----IEA-------GSKELQESID--H-G-T---L--G---------H----V--G----KATA--HAEAAVEHLKAA-----
+UniRef90_UPI00189520AB/25-110          ----HHTAQALEHSAMATAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------A--H-------K----H----MTE-------AVDHLKQSIE--H-A-K---K--G---------H----A--D----VGTK--HAEEAMVHMRKS-----
+UniRef90_Q2Y713/26-110                 -----HAAQAIEHAAMAKAHG--ED--G--HAKVLLK-HAEESLTH-A--Q-------AA-------E-------KQ--HA----E-------Q--H-------K----H----MTD-------SIKELKQAIE--H-A-K---A--G---------H----A--D----VATK--HVDEALMHMRKS-----
+UniRef90_A0A524MN79/27-109             --HTA---HAIEHAAMAKAHG--ED--G--HAEVLLQ-HATEALKH-A--K-------KA-------E-------KD--HA----D-------A--H-------V----H----MTE-------GVKHLNEAIE--H-A-K---M--G---------H----A--D----VATK--HTEEALVHIR-------
+UniRef90_A0A2N1XRC9/25-109             -----HTAQALEHSAMATAHG--QD--G--HADQLLK-HAEEGLKH-A--E-------AA-------E-------KE--HA----E-------A--H-------K----H----MTE-------AVAHLKQSIE--H-A-K---Q--G---------H----A--D----VGTK--HAEEAMVHMRQS-----
+UniRef90_A0A7C5F3N3/29-108             ---AGHVRDAVTHAKAAVSHG--KE--G--HADVCAE-HAETALKN-A--Q-------GA-------K-------V----K---------------S-------P----H----LDE-------GIKHLKEAVE--H-G-K---A--G---------H----A--A----ACTE--HAEGAATHL--------
+UniRef90_A0A1N6IH72/28-115             ----GHTSQAMEHAGMAQAHG--ED--G--HAEALRK-HAEKSLKH-A--E-------AA-------E-------K----A----HA-----EA--H-------K----H----MTE-------SVKHLKEAIN--H-A-K---M--G---------H----A--D----VATK--HTEEALQHMRESAH---
+UniRef90_A0A4P5SUI5/28-110             -----HLSEAITHTKEAIEHG--KA--G--HADILVT-HAKEGLKH-A--E-------AA-------E-------K----E----K-------T--N-------P----H----TKE-------GITHLKASID--E-G-A---K--K---------D----A--K----AATG--HAEEALTHLEAA-----
+UniRef90_A0A7D9DAD9/890-975            -----HSEDKVPHTEDKVPHAEDKV--P--HTEDSVP-HSEDSVPH-S--D-------DS-------V-------P----H----S-------E--N-------S----V----PHS-------DVPHSEDSVP--H-S-E---D--SV-------PH----S--G----DSVP--HIEDNVPHSED------
+UniRef90_A0A1W9J486/32-110             ----GNVSQAIDHAKQAVAHG--KE--G--HVDELVK-HAETALDF-A--E-------M---------------------G----G-------K--G-------V----E----VRE-------GIHHLKEAIA--H-G-K---A--G---------H----A--D----VGIE--HLEAALKHLS-------
+UniRef90_A0A1Q7P9N7/27-108             ----KHVAEAVEHAQAAVAQG--KQ--G--YPDALVT-EAREALKH-A--E-------LA-------K-------K----E----A-------A--S-------P----Y----LEQ-------GIRALKQAID--Q-G-K---A--G---------R----T--D----AATK--AVEDALENLS-------
+UniRef90_A0A1I4HE15/28-113             ----KHTSEAMEHAGQALAHG--ED--G--HAKILKE-HAEQSLKH-A--L-------EA-------E-------N----A----H-------A--N-------SH--HH----MKE-------GIRHLKEAIK--H-A-D---M--D---------H----P--A----EGAK--HMKEAIEHMQTS-----
+UniRef90_A0A3G8MB95/28-111             -----HLAEAISHTKEAIDHG--KQ--G--HADVLVT-HAEAALKH-A--E-------AA-------E-------K----A----K-------K--N-------E----H----TKE-------GITHLKASIT--E-G-N---K--K---------D----A--K----AATG--HAEEALTHLEAAQ----
+UniRef90_A0A8J8FJH9/37-123             ----PHSEQALEHAKVAAVHG--KA--G--HASVLTE-HAAVALEH-A--Q-------AA-------E-------Q----V---LG-------GEAK-------A----H----MTE-------GVAHLMEGVK--H-G-S---M--D---------H----A--D----VATE--HVNEAITHLKAS-----
+UniRef90_UPI0005EAF9B9/22-106          --ETEHTNATLEHATAAVTHG--EM--G--HAPILVE-HAEAALTH-A--E-------AA-------Q-------K----A----E-------A--N-------P----H----MAE-------AITHLKAAIE--A-G-K---A--G---------D----A--K----GATE--HAKMAVEHIKM------
+UniRef90_A0A521X4H7/26-112             -----HAAAALEHTSAAVIYG--KN--G--HTAILLE-HAKAALDH-T--L-------AA-------S------LK----A----K-------GVSI-------N----H----LES-------AVMELQEAID--L-S-E---S--G---------H----V--G----TATK--HAQAALRHIKNSN----
+UniRef90_A0A3G8ME76/28-111             -----HLTEAISYTEEAIDHG--KR--G--HADVLVT-HAEAALKH-A--E-------AA-------E-------K----A----M-------N--N-------P----H----IKE-------GIMQLKASIV--E-G-K---K--E---------N----A--T----TAIG--HAIEALTHLEAAQ----
+UniRef90_UPI001FEFD14C/24-106          -----HLAEAISHTKQAIASG--QQ--G--RFDVLIT-SAEAALKH-A--K-------AA-------E-------K----A----K-------S--N-------T----H----AEE-------GITHLEAAIA--E-G-N---K--K---------N----S--T----TATQ--HSEEALKSLEAA-----
+UniRef90_A0A7W1UEI8/16-94              ---------SLTHAQEAVDHG--GM--G--HADVVVT-HAEASLQH-A--Q-------AA-------K-------N----D----M-------N--N-------P----H----LDA-------AITELGEAIT--H-G-K---A--G---------H----A--D----VATG--HAKSAVVHLKEI-----
+UniRef90_A0A177Q8A4/2-67               ------------------FHG--KD--G--DAEALLE-HAEDALQH-A--L-------KG--------------------G----T-------D--N-------P----H----VEE-------GISHLKEAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVMHLS-------
+UniRef90_A0A532CYL8/46-123             -----NVKDAINHAAEAVEHG--QQ--G--HAEKLVT-HAEASLQH-V--V------------------------R----G----G-------E--N-------P----H----LAE-------AMTNLKAAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVTHLS-------
+UniRef90_A0A2U1RZK3/28-110             ----SHMIEATEHTQAAVGYG--KA--G--HADVLVQ-HATAALMH-A--E-------AA-------Q-------K----E----K-------P--E-------A----H----KAA-------AIKGLKEAIE--H-G-K---A--G---------H----A--D----VATK--AADGALTHLNA------
+UniRef90_A0A2T5JTZ2/23-111             -AHEDHTAQAIEHAAMAKAHG--ED--G--HAKVLLK-HAEDSLKH-A--K-------AS-------E-------K----QH--EE-------Q--R-------R----H----MAE-------SVKHLQEAIT--H-A-K---A--E---------H----A--D----VATN--HVEEALKHMRKS-----
+UniRef90_UPI00045EB9A4/26-113          -----HAAAALEHANQAVMHG--EA--G--HASMLVD-HATEALKH-A--H-------AA-------S-------D----I----AK----GEA--K-------T----H----IDA-------SIKSLEVAIE--H-G-K---KGAG---------H----E--P----IATK--AAEEAVDHLKAA-----
+UniRef90_D5BZU8/27-116                 -----HGAKALEHAGMAAAHG--ED--G--HASVLSK-HAKEALKH-A--E-------KA-------E-------KQ--HA----S-------A--H-------E----H----MSA-------GVKHLKEGIK--H-G-D---M--G---------H----A--E----EATK--HINEAIKHMEAAQKAEH
+UniRef90_UPI001FAB9FA1/102-166         ---------------------------A--KPAEVTE-KAAEKSTA-V--E-------PA---------------E----K----P-------A--K-------T----H----SVQ-------SLEHAKSAAI--H-G-N---A--G---------H----A--S----VLAE--HAKTALEHAQSAE----
+UniRef90_UPI001FAB9FA1/128-213         -----HSVQSLEHAKSAAIHG--NA--G--HASVLAE-HAKTALEH-A--Q-------SA-------E-------K----I---LE-------G--NP-----KI----H----MTE-------AVTHLNDAIK--H-A-E---M--D---------R----A--D----VATE--HINQAITHITAS-----
+UniRef90_A0A6S7K259/373-458            ----LHTKEKVPHAEDKIPHAEDKV--P--HTDDKVP-HTMEKVPY-A--E-------DK-------V-------P----E----A-------E----------D----K----VPH------DKVPHTEDKVP--H-V-E---D-KG--------PH----T--E----DTVP--HAEDKVPHTK-------
+UniRef90_A0A5R8QJG3/28-111             -----HLAEAISHTKEAIDEG--KQ--G--HADKLVT-HAVAALKH-A--E-------AA-------E-------K----A----K-------K--N-------E----H----TKQ-------GITHLKASIA--E-G-K---K--K---------D----A--T----AATG--HADEALTHLEAAQ----
+UniRef90_A0A532DVT4/40-119             ----PHVSEAVEHAKGAASHG--KQ--G--HADACVQ-RAEEALKH-A--Q-------AA-------G-------V-----------------K--N-------P----H----VDM-------GVIHLMEAVQ--H-G-K---A--G---------H----A--D----ACTE--HAEGASTHLA-------
+UniRef90_UPI0003F87FCB/28-110          -----HKAEAMKHAQAAADSG--KQ--G--NAKGVAE-HAEAAKTH-A--A-------AA-------N-------Q----E----N-------P--N-------P----H----LDA-------AIKSLDSAIE--H-G-N---M--G---------H----A--D----VAGK--AAEEAITHLNAV-----
+UniRef90_A0A0F7K9X3/27-115             ---AGHTSEAMEHAGEAKAHG--EM--G--HAKESLK-HAKESLDH-A--K-------KA-------R-------DD--HA----A-------S--Q-------K----H----MDE-------AIKHLEEGIK--S-A-E---G--D---------Q----A--K----EAAK--HTDEAIKHMRQSGH---
+UniRef90_A0A1H3Q4R2/26-105             ---TDHRAEAIQQAEEAIKYG--KM--G--HAEELLT-HAKVSMEY-A--Q-------AA-------T-------N----S----G-------A--D-------D----Q----MKQ-------AVGHLVKAIG--H-A-E---M--D---------R----A--G----AATS--HTQTAMS----------
+UniRef90_A0A532ENL7/24-100             -------TDALDHATEAVDHS--KQ--G--HIAELVA-HAEAALQH-A--L-------NG-------G-----------------K-------D--R-------P----H----VDE-------GIAHLKAAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVMHLS-------
+UniRef90_UPI0004757F57/28-110          -----HLAEAISNTKQAIASG--QQ--G--RFDVLIT-SAEAALKH-A--K-------AA-------E-------K----A----K-------S--N-------T----R----TEE-------GITHLEAAIA--E-G-N---K--K---------N----S--T----AATQ--HAEEALKSLEAA-----
+UniRef90_A0A395CTP0/28-110             ----DHVAEAITHTKQAISEG--KA--G--KAAGVVT-HAEIALTH-A--R-------AG-------E-------K----A----K-------A--N-------P----H----TEE-------GIKHLEEAIA--T-G-K---K--G---------D----A--K----AATT--HAEAALTHLEQ------
+UniRef90_A0A8J8FIM8/18-103             ----HHAAQALEHAAVSGVHG--EM--G--HAKDLTQ-HAKAALKH-A--K-------AS-------E-------KE--HA----E-------A--H-------E----H----MTQ-------GVKHLNEAIK--H-G-K---M--D---------H----A--K----VATK--HINEAMTHIKAS-----
+UniRef90_J7QR39/27-109                 ----NHVAEAITHTRQAVDAG--LE--G--KAEGVVE-HGKEALTH-A--Q-------AA-------Q-------K----E----K-------S--N-------R----F----VRA-------GIVHLKQAIK--F-G-E---K--G---------D----A--K----GGVK--HAKEALAKLDH------
+UniRef90_A0A1I4SWH7/27-112             ----CHVAEAMGYAGKAQVYG--EL--E--HAKEALQ-YAKESLVH-A--K-------EA------RN-------E----Y----G------KD--N-------K----H----MDQ-------TIKYLEEAIK--H-A-S---M--N---------N----P--K----IAAK--YAENALRHMRDS-----
+UniRef90_A0A0F7KH48/27-112             ----CHVAEAMGHAGKAQAYA--EM--G--NTKEALQ-YAKESLAH-A--K-------EA-------K------NE----Y----G------ED--N-------K----H----MDQ-------AIKSLEEVIK--Q-A-S---L--N---------Y----P--K----ITAK--HAEDALSHMRDS-----
+UniRef90_A0A257NAG5/30-117             ----EHVNAALEHANAAVVHG--KA--G--HAPILVE-HAKSALNH-T--L-------AA-------S-------I----V----A------KGVPK-------T----H----IDA-------AADSLQKAID--E-G-E---L--G---------K----V--E----PATK--SAEEAVTHLEASK----
+UniRef90_A0A354BJ18/40-119             ----PHVSEAVEHAKGAASHG--QQ--G--HADACVQ-RAEEALKH-A--R-------AA-------G-------V-----------------K--N-------P----H----VDM-------GVIHLMEAVQ--H-G-K---A--G---------H----A--D----ACTE--HADGASAHLA-------
+UniRef90_A0A849U9E6/27-111             -----HTALALQHAASASAHG--QD--G--HADQALK-HAEEALKH-A--E-------AA-------E-------KD--HA----E-------A--H-------A----H----TSA-------AVKHLKEAVD--H-A-K---Q--G---------H----A--D----VAAN--HTEEASAHLRQS-----
+UniRef90_UPI00035E91D7/23-112          ----EHADAALKHTQMAIQQG--KA--G--HNSALTT-HAKEALTH-A--K-------KA-------A-------E----V----AE----GEA--K-------T----H----MEA-------GVKSLESAIE--H-G-KMKGK--E---------H----G--K----AATK--AAEEAAEHIKAG-----
+UniRef90_A0A1H7RL92/31-111             ---------ALEHAAKAQAHG--DD--G--RTKEMLE-HAEESLRH-A--R-------AS-------E-------KR--HA----E-------Q--R-------E----H----MAE-------AVKHLEKSID--H-G-K---A--G---------Q----G--R----VANK--HVYDALVEIRKS-----
+UniRef90_A0A7C5F981/46-122             ------VKDALQHATEAVEHG--KQ--G--HAEKLVT-HAEASLEQ-A-------------------M-------R----G----G-------T--D-------P----H----SAE-------AITNLKQAIE--H-A-K---A--G---------H----A--D----VATK--HAESAVTHLS-------
+UniRef90_UPI00030CFEDE/6-95            ----DHLGKALEHAGMAVASG--KD--G--QAEAITE-HAEKALEH-A--K-------AA-------E------KE----A----K-------G--EE-----KE----H----LDV-------AIEHLELGIK--E-S-K---E--G---------N----A--D----SATQ--HINEGIKHLEAAAKA--
+UniRef90_UPI00030CFEDE/54-107          ----EHLDVAIEHLELGIKES--KE--G--NADSATQ-HINEGIKH-L--E-------AA-------A-------K----AE-HGG-------G--M-------D----H----EQH-------G--------------------------------------------------------------------
+UniRef90_A0A0S4LD86/46-122             ------VKDILKHAMEAVDHG--KQ--G--HTEKLVT-SAEASLQQ-A--V------------------------T----G----G-------R--D-------P----H----VAE-------AIANLKAAIE--Q-G-K---A--G---------H----P--D----VATK--HAEAAVAHLS-------
+UniRef90_A0A250L346/30-112             -----HKAEAMKHAQAAVDSG--QK--G--DAIGVAQ-HAETAKTH-A--T-------AA-------N-------Q----A----N-------P--N-------P----H----LDA-------AIKSLDSAIE--H-G-N---M--G---------H----A--E----IAGK--AAEEAMTHLNAV-----
+UniRef90_A0A522WVU5/23-108             -----HSVAALEQANAAVVYG--EA--G--HTSHLLE-HAKTALDH-L--L-------AA-------S-------I----T----A------KGVSK-------K----Y----LED-------AVTELQEAID--H-G-D---M--G---------H----V--G----AATK--HAKAAVRDIKAG-----
+UniRef90_A0A532CH90/4-73               -------------ATEAADHG--RQ--G--HVGALLT-SAEAALQS-A--M------------------------K----A----G-------E--A-------P----H----VDA-------GIKELKQAIE--H-G-K---A--G---------H----A--D----VATK--HAEQAVTHLS-------
+UniRef90_G3IW43/23-111                 ----KHASEALEHANAAVVQG--KA--G--KSEKLVE-HAKLALEQ-T--L-------AA-------S-------I----V----A------KGIPK-------N----H----LDE-------AAKELQEAID--H-G-N---L--D---------H----A--D----VATK--HAEAAIEHINKAET---
+UniRef90_A0A0F3IG21/25-112             ----EHVDEALNHVNQAAEHG--KA--G--HAKILVE-HAKLAEDH-I--L-------AA-------S------IE----A----K-------GAVK-------G----H----LDA-------ATKSIQDAVD--H-G-E---L--G---------H----T--D----VALK--SVEQTAEHLNASK----
+UniRef90_A0A7Y8LDG0/40-119             ----QHREEAITLAQEAADHG--KQ--G--HVGAFLT-SAEAALQS-A--L------------------------K----A----G-------E--A-------P----H----VDA-------GIGELKQAIE--H-G-K---A--G---------H----A--D----VATK--HAEQAITHLAE------
+UniRef90_A0A292PQE7/8-82               --NLGDLRDAIKHSEEALAAT--PE--S--HHDRAGR-HSNLGAML-Y--V-------RF-------R-------R----V----G-------D--L-------C----D----LDS-------AIKHIEEGLA--A-T-S---Q--G---------H----A--D----RATM--H----------------
+UniRef90_A0A292PQE7/54-128             ---LCDLDSAIKHIEEGLAAT--SQ--G--HADRATM-HNNLGTML-S--A-------RF-------R-------R----I----G-------D--V-------S----D----LQN-------AITHSEEALA--A-T-P---Q--D---------H----P--D----RARR--HG---------------
+UniRef90_A0A5R8QBB9/28-111             -----HLAEAITHTKQAIDEG--KQ--G--KADKLVT-HAEAALKH-A--E-------AA-------E-------K----A----K-------K--N-------E----H----TKE-------GITHLKASIA--E-G-K---K--K---------D----A--A----AATG--HAEEALTHLEAAQ----
+UniRef90_A0A7D9MBK6/3-88               -----HSEDSVPHSEDSVPHS--ED--NVPHSEDNVP-HSEDSIPH-S--E-------AS-------V-------P----H----SE-----ES--V-------P----H----PED-------SVPHSEDSVP--H-S-E---D--S---------V----P--D----SDVP--HSEHSVPHSEN------
+UniRef90_A0A7D9MBK6/30-113             ----PHSEDSIPHSEASVPHS--EE--SVPHPEDSVP-HSEDSVPH-S--E-------DS-------V-------P----D----S-------D--V-------P----H----SEH-------SVPHSENSVP--H-S-E---DRVP---------H----Y--E----DSVP--HSEDSVPH---------
+UniRef90_A0A7D9MBK6/97-162             ---VPHYEDSVPHSEDSVPHS--DV--P--HSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----HC--ED-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E----------------------------------------------------
+UniRef90_A0A7D9MBK6/124-208            ----PHSEDSVPHSEDSVPHC--ED--SVPHSEDSVP-HSEDSVPH-S--E-------DS-------V-------P----E----S-------G--V-------P----H----TED-------CVPHSEDNVP--H-S-E---D--GV-------PH----S--E----DSVP--HSEDSVPHS--------
+UniRef90_A0A7D9MBK6/171-231            ----PHTEDCVPHSEDNVPHS--ED--GVPHSEDSVP-HSEDSVPH-S--E-------DS------------------------------------V-------P----H----SED-------SVPHSEDSVP--H-S-E---D------------------------------------------------
+UniRef90_A0A418RNJ1/23-109             ----QHTDGALSHANSALAQG--KE--G--NTSTLVA-HARMALDE-A--L-------EA-------SL----IAK----S----V-------T--K-------N----H----IDA-------AVNLLQKAID--N-G-N---L--G---------H----V--G----QATK--ATEEAIAHLKAV-----
+UniRef90_A0A8T8PSE6/23-108             ----PHADAALEATNKAVLHG--KS--G--HVSLLVE-YAQTALEQ-A--KQ----GAAV-------A-------K----D----E-------A--K-------I----H----MDA-------AVKSLDETIQ--H-G-K---T--G---------H----V--A----IATK--SAEAAVTHLQE------
+UniRef90_A0A849RGU4/23-99              ----PHLDEAIKHATAAVEHG--KA--G--HASVLVE-HATPALEH-T--M-------AG-------AL----VAK----G----V-------A--K-------S----H----TDN-------AVTDLEEAVK--H-G-N---M--G---------H----A--E----IATT--YA---------------
+UniRef90_A0A2V7QL42/42-123             -----HLTEAVKQTQAAIDAG--NS--G--QKDLVVE-HAREALTH-A--E-------AA-------E-------K----E----H-------P--S-------P----K----LQA-------AIKNLRQAVK--Q-G-R---S--G---------K----V--E----VAKK--AAQAALQKLQA------
+UniRef90_A0A6S7J135/118-196            ----PHSEDSVPPCEDSVPHS--DV--P--HSDDSVP-HSEDSVPH-S--E-------DS-------V-------P----H----Y-------E--D-------S----V----PDS-------DVPHSEDSVP--H-Y-E---Y--SV-------PH----S--E----DSVP--HSENS------------
+UniRef90_A0A6S7J135/144-227            ----PHSEDSVPHSEDSVPHY--ED--S--VPDSDVP-HSEDSVPH-Y--E-------YS-------VP-----HS----E----D-------S--V-------P----H----SEN-------SVPHSEDRVP--H-Y-E---D--S---------V----A--H----SDVP--HSEDSVPHYE-------
+UniRef90_A0A6S7J135/241-318            -------EDSVHHSEDSVPHT--ED--SVPHSEESVP-HSEDSVPH-S--E-------DS------------------------------------V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--SV-------PH----S--E----DSVP--HSEDSVPHTE-------
+UniRef90_A0A4Y7SE09/131-211            -GSIPDIDEAIRLNREVLEHR--PE--G--HPDHVEC-LRGLAVSL-H--E-------RS-------T-------K----T----G-------S--I-------P----D----IDE-------AIRLKREVLK--H-R-P---E--G---------H----P--D----HAMS--LRELAV-----------
+UniRef90_A0A4Y7SE09/221-290            -GSIPDIDEAIRLNREVLEHH--PE--G--HPDHVEC-LRSASVSL-L--V-------RS-------T-------K----T----G-------S--I-------P----D----IDE-------AIRLMREVLE--H-R-P---E--G---------H----P------------------------------
+UniRef90_A0A4Y7SE09/266-336            -GSIPDIDEAIRLMREVLEHR--PE--G--HPDHVGS-LRGLAVSL-Y--E-------RS-------T-------K----T----G-------S--I-------P----D----IDE-------AIRLMREVLE--H-R-P---E--G---------H----L--D---------------------------
+UniRef90_A0A1H3GL05/28-115             ----GHTSEAMEHAGEAKAHG--EM--G--HAKDSLK-HAKDSLEH-A--K-------AA-------R-------DD--HA----A-------S--H-------K----H----MDE-------AIKHLEAGIK--S-A-E---A--N---------Q----S--K----EAAE--HTDEAIKHMRQSGH---
+UniRef90_UPI0003704952/23-112          ----EHADMALKHTKMAIEHG--KK--G--HAPMLVE-HANEALTH-A--K-------KA-------A-------E----V----AK----DDS--K-------T----H----MDA-------AVRSLESSIE--H-G-K---T--AG------KEH----L--D----AAVQ--SAEEAAGHIEAG-----
+UniRef90_A0A1W9GN89/43-119             -------HEAITLATEAADHG--RQ--G--HVSALLT-SAEAALQS-A--L------------------------K----A----G-------E--A-------P----H----VDA-------GIKELKQAIE--H-G-K---A--G---------H----A--D----VVTK--HAEQAVTHLSE------
+UniRef90_A0A0S4LEU0/46-122             ------VKDALNHAMEAVEHS--KQ--G--HAEKLVT-HAEASLQ-------------LA-------L-------R----G----G-------T--D-------R----H----LAE-------AMTNLKEAIQ--H-G-K---A--G---------H----A--D----AATK--YAESAVTHLS-------
+UniRef90_A0A1Y2ZV51/30-117             ----EHVNTALEHAHAAVVHG--KA--G--HAPILVE-HAKLALNH-T--L-------SA-------S-------L---VA----K-------GVPK-------T----H----IDA-------AADSLQKSID--E-G-E---L--G---------H----A--P----AATK--AAEAGVEHLNASK----
+UniRef90_A0A4P7C5B9/26-116             ----DHIGKALEHAGMAEAHG--KD--G--HGEVLAK-HAEEALKH-A--K-------KA------EE-------E----A----E-------G--E-------TK--QH----VSE-------AIKHLEAGIE--A-G-N---K--G---------E----A--D----SATQ--HIKEGIKHLEAAAEAK-
+UniRef90_A0A2U1RJV3/28-110             ----THMVEATEHTQAAVDHG--KA--G--HANVVVE-HATAALAH-T--E-------AA-------Q-------K----E----K-------A--D-------P----H----KEA-------AIKGLKEAIE--H-G-K---A--G---------H----A--D----VAGK--AAAGALEHLKA------
+UniRef90_A0A564ZH18/28-110             ----SHQVQAIERTRAAIAVG--KE--G--HKDALVE-LATQALQH-A--E-------AA-------E-------K----A----K-------A--N------------H----MAA-------AVKGLMETIE--H-G-K---A--G---------H----A--D----LAIK--AAEGALEHLNAA-----
+UniRef90_A0A1H9JWU5/28-113             ----KHTAEAMEHAGQALAHG--ED--G--HAEVLKK-HAQRSLKH-A--M-------DA-------E-------E----A----H-------A--N-------SY--HH----VKE-------GVKHIEEAIK--K-A-D---M--D---------Q----P--A----EGAE--HMRKAIKHLDTS-----
+UniRef90_A0A2M7YZB6/2-59               ----------------------------------LVE-HAQEALTH-A--Q-------AA-------Q-------K----D----V-------K--N-------P----H----LDE-------GVHELMEAVE--H-G-K---K--G---------H----A--D----VGTK--HAKSAVMHLK-------
+UniRef90_A0A2T5JTZ0/48-129             --------SALEHAARAKAHG--DD--G--RMKKLLE-HAEESLRH-A--R-------AS-------E-------KR--HA----A-------Q--R-------A----Q----MAQ-------AVKNLEQAIE--N-G-K---A--G---------R----D--R----VANK--HMGEALVRIRKS-----
+UniRef90_H8GN34/23-112                 ----EHADAALKHTNMAIQYG--KA--E--HNAILTT-HAKEALTH-A--K-------AA-------A-------E----V----A------SGESK-------T----H----MDA-------AVKSLEAAIE--H-G-RMKGK--E---------H----A--K----AATK--AAEEAAQHIKAG-----
+UniRef90_UPI00041F861C/8-94            -GTEAHVEEAIKHAKAAVDSG--KK--G--DAEGVAK-HAGAAKPH-V--E-------AA-------I-------Q----Q----N-------P--N-------E----H----LTA-------AMKSLDSAIE--H-S-R---M--G---------H----A--D----MAGQ--AAEEAVSHLKKA-----
+UniRef90_A0A532CSA0/40-119             ----QHRQDAVTLATEAADHG--QQ--G--HVGALLT-SAEAALQS-A--L------------------------K----A----G-------E--A-------P----H----VDA-------GIKELKQAIE--H-G-K---A--G---------H----A--D----VAKK--HAEQAVTHLSE------
+UniRef90_A0A8D9RWI7/63-153             ----DHIGIALEHAGMAVASG--KD--G--QAEAITE-HAEKALEH-A--K-------AA-------E------KE----A----T-------G--EE-----KE----H----LGV-------AIEHLELGVK--E-G-K---E--G---------N----A--D----SATQ--HINEGIKHLEAAAKSK-
+UniRef90_A0A679F465/28-114             ----EHLTQTIRETTEAIQEG--RS--G--YSASLVE-HATNALDH-A--K-------AA-------Q-------R----A----K-------A--N-------P----H----VET-------GIRHLQKAIRTAR-G-T---H--G---------G----P--GA--AVAVR--HAEAALTQFQA------
+UniRef90_A0A532CWK2/80-155             --------DALDHATEVVDHS--KQ--G--HIAELVA-QAEAALQH-A--L-------NG--------------------G----M-------D--R-------P----H----VDE-------GIAHLKAAIE--H-G-K---A--G---------H----A--D----VATK--HAETAVMHLS-------
+UniRef90_A0A1W9GQU4/45-123             ----QHRQDAVKLAKEAADHG--KQ--G--HVGALLT-AADAALQH-A--Q-------KT-------A-------K----D----G-----------------------H----VDA-------GIAELNQAIE--H-G-R---A--G---------H----A--D----VATK--HAEQAATHLS-------
+UniRef90_H8GK72/24-109                 -----HAAAALEHAKAAVEHG--KA--G--HANVLVE-HANAALEH-A--L-------AG-------AI-----VD----R----G------EQ--K-------A----H----LEE-------GASHLEEAIN--H-G-N---L--G---------H----A--K----EATE--HAEAAVTHLTAA-----
+UniRef90_A0A2P5N093/27-104             -----HAAVALEHSRMAVAHG--QD--G--HADQLLK-HAQTA----E--K-------EH-------A-------E-----------------A--H-------A----H----MTE-------AVQHLKESID--H-A-Q---K--G---------H----V--D----VATQ--HAETAMVHMRES-----
+UniRef90_A0A3A2IZV4/23-109             ----EHTEKALVHADAAVVHG--KA--G--HAPILVT-HAKKALDH-T--L-------AG-------SI----VAK----G----A-------S--K-------N----H----LDA-------ASASLQKAID--E-G-N---L--G---------H----V--D----DATK--SAEEAVEHIKAG-----
+UniRef90_A0A7T0JK12/23-109             ----PHADAALTHAKEAVEHG--KA--G--HSVVLVE-HAETALDH-A--Q-------KA-------A-------E----A----A------KG--DA-----KH----H----MHE-------AVTSLKEAIE--H-G-K---L--E---------H----A--D----KATH--SAEDAVEHLKAG-----
+UniRef90_A0A7C7BWL7/35-126             ----GHLNAAISHANGAVMHG--GE--G--HAGEVSK-HAGEAIAH-A--E-------GAI-----HS-------M----P----S-------G--N-------P----H----GAEAVSHLKEAVTHLKAAVK--H-G-D---Q--G---------H----A--D----QATS--HAQEGVSHLDG------
+UniRef90_A0A2P5LGP7/24-109             -----HAAAALEHAQAAAAKG--KE--G--NSDTLVE-HAGMALEH-A--L-------AGA----IVS-------K----G----K-------A--K-------N----H----LEA-------ASKELEEAID--H-G-N---L--K---------H----A--D----KATE--HTQAAIEHIKAS-----
+UniRef90_A0A2V7R448/108-189            -----HLTEAVKQTQAAIDAG--NS--G--QKDLVVE-HAREALSH-A--E-------AA-------E-------K----E----R-------P--S-------P----K----LEA-------AIRNLKQAVK--Q-G-K---S--G---------K----V--E----VAKK--AAQAALQKLQA------
+UniRef90_A0A357ECX5/37-115             ----QHRQEAIKLAKEAADHS--KQ--G--HMGPFLT-SAEAAMQH-A--L------------------------K----A----G-------K--D-------A----H----VDA-------AIAELKHAVE--H-G-S---A--G---------H----T--D----VATK--HAEQAVTHLS-------
+UniRef90_F8GLT9/27-107                 ----SHLDEAIQHAEAAVTS---AD--G--K--ALAK-HAQEAKTH-A--K-------AA-------K-------N---DK----T-------D--A-------K----H----VDE-------GIKCLDAAIK--E-G-N---E--G---------N----L--D----AAKK--EATDAVNHFKQ------
+UniRef90_A0A257N3A2/23-110             ----EHLDQALEHANAALAEG--QA--G--KASSLVT-HAKAALDH-S--L-------AA-------S-------I----V----A-------K--S-------V----P----KGHI----DAASESLQDAID--H-G-T---L--N---------H----V--E----PATK--SAEEGVTHLKAAK----
+UniRef90_UPI001C0DB761/52-138          ----EHLTQTIRETTEAIQEG--RS--G--YSTSLVE-HATNALDH-A--R-------AA-------Q-------K----A----K-------A--D-------P----H----IKT-------GIRHLQKAIR--T-A-K---G--T---------H----S--GPRTAVAVR--HAEAALTHFQS------
+UniRef90_UPI00045EA5E9/23-112          ----EHADAALNHTKMAIEQG--KA--G--HGPVLVE-HATEALKH-A--N-------AA-------A-------G---VA----T-------GESK-------T----H----MDA-------AVKSLESAIE--H-G-K--MQ--GA-------EH----V--D----AATK--AAEEAEEHIKAG-----
+UniRef90_D5MGY4/28-110                 ----SHMVEATEHTQAAAEHG--KA--G--HADVAAT-HATAALQH-A--E-------AA-------Q-------K----E----K-------A--D-------P----H----KEA-------AIKGLKEAVE--H-G-K---A--G---------H----A--D----VAGK--AAAGALEHLKA------
+UniRef90_A0A532CWK6/32-110             ----GNVSHAIDHAKQAVAHG--KA--G--HVEELVK-HAETALDF-A--E-------M---------------------G----G-------K--G-------I----E----VRE-------GIHHLKEAIA--H-S-K---A--G---------H----A--D----VGVE--HLEAALKHLS-------
+UniRef90_G3IS07/28-113                 -----HTKAALEHASAAVDAG--KA--G--KSETLVE-HAKLAMEH-T--L-------AA-------A-------I----T----A-------K--S-------I----P----KGHL----DAAAKELQDTID--H-G-N---L--G---------H----A--D----VATT--HAEAAVEHIKAA-----
+UniRef90_A0A1R4HFC5/24-111             -----HTAAALEHANAAVAEG--KA--G--KAENLVK-HAFPALEH-A--M-------SA-------AL----VVK----G----I-------A--K-------T----H----LDG-------ATSELEAAVE--H-G-K---L--G---------H----A--E----VATQ--HAEAAVAHLTASTE---
+UniRef90_A0A354BQ57/46-122             ------IKDAIKHATEAVHHG--KQ--G--HAEKLVT-AA-EALL-----E-------LA-------L-------K----G----G-------K--D-------P----H----VAE-------AIAKLKEAID--H-G-K---A--G---------H----A--D----VATN--LTESAVTHLS-------
+UniRef90_UPI001FAC27CC/23-109          ----EHLDAALEHANAAVAEG--KA--G--KAPSLVT-HAKAALDH-S--L-------AA-------SL----VTK----S----V-------Q--K-------N----H----IDA-------ASDSLQEAID--H-G-N---L--N---------H----A--Q----PATK--SAEEAVTHLKAA-----
+UniRef90_A0A8S0Y9R9/27-113             ----KHSAQALQHANMAVEQG--KA--G--KAPSLVE-HAKAGLEH-T--V-------AA-------A------IT----A----K-------GVPL-------T----H----INA-------ASDSLTQAID--H-G-N---L--G---------H----T--E----MATK--AAEQAVEHIKAA-----
+UniRef90_A0A2E8GBR3/41-132             ----GHLNAAISHAKGAVMHG--GE--G--HAGEVSK-HAAESIAH-A--K-------GA-------I-------H----SM--PS-------K--NPHGAEAIS----H----IKE-------AVTHLQAAVK--H-G-D---Q--G---------H----A--D----QATS--HANEGVNHLGG------
+UniRef90_A0A533ZV21/27-108             ---------AISHTKEAIEKG--KA--G--KADELRK-HAETALKY-A--E-------KA-------E-------K----K----E-------H--E-------A----H----VEE-------GIKHLKMAVE--E-A-K---K--G---------N----A--V----EGTK--HAEEALRHLEAEEGK--
+UniRef90_UPI001923788B/23-112          ----EHADEALKHTNMAIQYG--KA--E--HNAILTT-HAKEALIH-A--K-------AA-------A-------R---VA----S-------GESK-------T----H----MDA-------AVKSLEASIE--H-G-KMKGK--D---------H----A--K----AATK--AAEEAAAHIKAG-----
+UniRef90_A0A1W9GAS3/174-253            ------VREALTHALEAESAG--KQ--G--KPDALVT-HAKKSLDA-A--K-------RA-------Q-------R----S----G-------H--N-------E----R----LNE-------GVYALGEAIE--H-G-E---Q--R---------Q----T--T----DATE--HMMHAIMKLS-------
+UniRef90_A0A2S5QB13/29-104             ----SHIEEAIKHAEAAT-KA--SD--G--K--SVAE-HAEAAKIH-A--K-------TA------------------------------------N-------E----H----LVA-------GIKSLDDAID--H-G-K---Q--G---------H----A--D----IAKK--SAEEALAHLKAA-----
+UniRef90_A0A1Z4BZI9/25-111             -----HAAEALSHAKAAVEHG--KA--G--HPPVLVE-HAKLALEH-T--L-------AG-------S-------L---VA----H-------GKAK-------N----H----LDA-------AAQSLQDAID--Q-G-G---L--D---------Q----T--A----PATK--SAEEAVEHIKASS----
+UniRef90_F8GJW1/37-126                 ---TSSIDEAIKHAEMAKAHG--DD--A----KEILK-HAEISLKY-A--KDTVVEVIEK-------I-------N----I----S-------G--M-------E----R----IDA-------SIKHLEEAIK--H-A-K---L--G---------H----A--D----VASK--HIDAALNEMHAY-----
+UniRef90_A0A4V2W0M2/22-107             ----EHADAALEHANAALAEG--KR--G--NDATLAE-HAIQAVKH-A--E-------QA-------A-------Q---VA----N-------GPAK-------A----H----IES-------GVKHLHEAIK--H-A-K---A--G---------H----G--V----KADQ--HLVTAIEHINS------
+UniRef90_A0A6S7JAF2/117-198            ----PHADDKVPHAERKVPHAAVKV--P--HAEDKVP-HAEDKVTH-AYDK-------VP-------N-------A----E----N-------K--V-------P----H----ADY-------KVPHAEDKVP--H-A-E---D--KV-------TH----A--K----DNVP--HTED-------------
+UniRef90_UPI0019216E3F/23-112          ----EHAEAALKHTNMAIQQG--KA--G--HNQELAK-HAKEALPH-A-IK-------AA-------E-------V----A----E-------GESK-------T----H----IQA-------AIQSLKSAIE--H-G-KMRGK--E---------H----G--K----TATK--AASEAAEHLKAG-----
+UniRef90_A0A2S5QTL1/24-111             -----HSTEALEHAKAAVEHG--KM--G--HAPVLVE-HAKLALEH-T--L-------AG-------SL----VAK----G----A-------S--K-------N----H----LDA-------ASKSLQDAID--Q-G-G---L--D---------Q----T--E----PATK--SAEEAVGHIQASKA---
+UniRef90_A0A7D9EQZ0/234-324            ---VAHAEDKVPHAEDKVAHA--EDKVP--HVENKVP-HAENKVPH-A--E-------DK------RP-------H----A----E-------D--N------VL----H----AED-------KILHDEDNVP--H-A-E---D------------K----V--P----LAVD--KVPLAVEYVPHAENK--
+UniRef90_UPI00041E662F/46-130          ----QHIKEAWKHAEAAALAG--EK--G--DAKSASE-HAKLAKTY-V--E-------AA------LT-------Q----S----T-------F--D-------E----H----LNA-------ALKSLDSAIE--H-G-D---S--G---------E----A--E----PARQ--AAQETIEHLRAA-----
+UniRef90_F8GF55/40-123                 ------MTETIKHAEMAKAHG--SD--A----KQILQ-HAERSLKY-A--K-------EA-------E-------KE-AIA----K-------G--N-------TKGADH----INA-------SIKHLDHAIE--H-A-K---M--G---------H----A--D----VASK--HITDALSEM--------
+UniRef90_A0A532ENP2/38-114             -------QDAITLATEAADHG--QQ--G--HVGALLT-SAEAALQS-A--L------------------------K----A----G-------E--A-------P----H----VDA-------GVRELKQAIE--H-A-K---A--G---------H----A--D----VARK--HAEQAVTHLSE------
+UniRef90_A0A8D4VN95/25-111             --YSAHLARALEVAGTAISHG--EA--R--HPSLSAE-HAEEAIKH-A--Q-------AA-------N-------Q----H----H-------P--N-------P----H----LEE-------AVNHLKTAIE--H-S-K---M--H---------H----S--D----VAAE--HAKQAVAHLKAAQ----
+UniRef90_A0A250KQW1/46-130             ----RHIKEAWKHAEAAALAG--EK--G--NAKGAGE-HAKLAKTY-V--E-------AA------LT-------Q----S----T-------S--D-------E----H----LSA-------ALKSLDSAIE--H-S-E---A--G---------E----A--E----PARQ--AAQEAIEHLRAA-----
+UniRef90_A0A418RH91/23-109             ----QHADAALKHATEASTHG--KA--G--HANVLVD-HAKLALDE-A--A-------SA-------SL----VSK----S----I-------A--K-------N----H----IDE-------AGELLQKAVN--E-G-N---L--N---------H----A--P----AATK--LVDEAIAHLKAI-----
+UniRef90_G4SZG8/24-110                 -----HSAVALEHAHAAVEHG--KL--G--HAPILVE-HAEAALEH-A--L-------KA-------M-------E---SA----E-------GEEK-------A----H----LEA-------AIKVLEYSIE--H-G-K---M--D---------H----A--D----IATP--PAEEAVEHIQKST----
+UniRef90_UPI00045E8364/24-109          -----HAAAALEHAQAAVEHG--KA--G--HPKVLVE-HASAALEH-A--L-------AG-------AI-----VD----K----G------LQ--K-------E----H----LEA-------GAAELEEAIT--H-G-N---L--G---------H----A--P----EATQ--HAEAAVTHFKAA-----
+UniRef90_A0A1G5SCW3/40-126             ------MTEAIKHAEMAKAHG--ND--A----KEILK-HAEMSLQY-A--H-------AA-------DVKAISKIN----V----S-------G--V-------E----H----INA-------SIKHLEEAVK--H-A-K---M--G---------H----A--D----IASK--HINAALDEMHAY-----
+UniRef90_F9ZVF8/23-110                 ----PHADAAIKHAKEAVEHG--KL--G--HSVVLVE-HAETALEH-A--K-------KA-------Q-------E----A----A-------K--SED---DKH----H----MHE-------AVESLQQGIE--H-G-K---L--E---------H----A--D----KATH--AVEDALTHLEAG-----
+UniRef90_A0A1Z4C0N1/29-103             ----SHIAEAIKHAE-AAAKA--TD--G--KT--ITE-HAETAKTH-A--S-------AA-------S-------E---------------------------------H----LTA-------GIKSLNDAVD--H-G-K---M--G---------H----A--E----LAKK--SAEEAVSHLKD------
+UniRef90_A0A3G8MAP8/36-117             ---ESHIAQAIHHAREAVVAG--RE--G--KPSTLVR-HATEALHH-A--K-------AQ-------Q-------Q----E----R-------P--N-------A----Q----VKE-------AIARLEEGIR--F-G-E---K--R---------R----R-------SATR--IVYRALQQLE-------
+UniRef90_A0A1E4GAC2/26-111             -----HTAQAIEHAAMAKAYS--ED--G--HAKVLRK-HAEESLVH-A--Q-------EA-------E-------KK--HA----E-------Q--H-------M----H----MTD-------SIKELKQAIE--H-A-K---A--G---------H----T--D----IANK--HIDAALMHMRKST----
+UniRef90_A0A257MVY8/23-110             ----EHLTEALEHANTAAVHG--EA--G--DTAILIE-HAKAALEQ-V--L-------EA-------SI----VAK----G----V-------A--K-------N----H----LDA-------AAKELQESIE--L-A-N---L--G---------H----I--G----SATM--HAKAAVKHIKISN----
+UniRef90_A0A351UY59/24-110             -----HSAVALEHANAAVEHG--KM--G--HASILVE-HAEAALDH-T-LK-------AL-------E-------S----A----E-------GEEK-------A----H----LEA-------AVKVLEYSIE--H-G-K---M--D---------H----A--D----IATP--PAEEAVEHIHQST----
+UniRef90_A0A6S7HVM6/483-566            ------TREKIPHAEDKVPHAEDKV--P--HAEDKVP-HAEDKVPH-A--E-------KM-------F-------L----R----G-------M--V-------P----H----AED-------KVPQAEDKIP--H-A-E---D--K---------V----P--Q----AEDKIPHAEEMVLTLR-------
+UniRef90_A0A0S4LLA9/45-123             ----QHRQDAINLAKEAADHS--KQ--G--HVGPFLT-SADAALQH-A--L-------KA-------------------------R-------K--D-------A----H----VDA-------GIAELKHAVE--H-G-S---A--G---------H----T--D----VATK--HVEQAVTHLS-------
+UniRef90_A0A7G1QB68/22-99              ----GHVADAVEHAKAAAG-----A--A--NSEEVTA-HATEAMTH-A--K-------A---------------------G----G-------G--N-------P----H----TVA-------GIKSLQDAID--H-A-K---A--G---------H----T--D----AAKK--AAAEAATHLEAA-----
+UniRef90_A0A4V2W0Q2/23-111             ----PHADAAITHAKEAVEHG--KA--G--HSVVLVE-HAETALEH-A--N-------KA-------V-------E----A----A-------K--D-------TDAKHH----MHE-------AVTSLKEGIE--H-G-K---L--E---------H----A--D----KATH--SVEDAIKHIEAGN----
+UniRef90_UPI001FAD091D/23-99           ---ESHITEALKHAEAAVS-A--AD--G--KT--IAE-HAEVAKTH-A--K-------VA-------D-------E---------------------------------H----LDA-------GIKSLNDAID--H-G-K---M--K---------H----T--D----LAKK--SAEEAVTHLKAA-----
+UniRef90_UPI00045E98A9/23-112          ----EHADAALEHTNMAIQYG--KA--E--HNPILVT-HAKEALTH-A--K-------VA-------V-------E----L----AT----GES--K-------T----H----LEA-------AVKSLETAID--H-G-KMKGK--E---------H----V--K----LAVK--AAEAASAHIKAA-----
+UniRef90_A0A6S7KEB7/38-117             ----PHSEDSVPHSEDSVPHS--ED--SVPHSEDSVP-PSEDSVPH-S--D-------VP-------H-------S----E----D-------S--V-------P----H----SED-------SVPHSEDSVP--H-S-E---D--------------------------SVP--HSEDSVPHFED------
+UniRef90_A0A8D5AQG3/29-111             -----HKAEALKHAEAAVASS--KT--G--DAKAVGE-HAAMAKVH-T--E-------AA-------E-------K----E----H-------P--N-------A----H----FEA-------ALKSLDGAIE--H-S-K---M--G---------H----A--D----IAGK--SAEEAVTHLNAA-----
+UniRef90_A0A2P7NSR3/27-109             ----SHLQQAIKHSE-AAASS--AD--G--KT--IAK-QAQEAKIH-A--E-------AA-------K-------N---DK----I-------D--A-------K----H----VDE-------GIKFLEDAVK--K-G-N---D--G---------N----I--D----AARE--AATDAVDHLKQAE----
+UniRef90_A0A8T4C2I6/27-110             ----SHKDEALKHAQAAVESA--GK--G--DAKGVAE-HAGAAKEH-A--A-------AA-------Q-------K----Q----T-------P--S-------A----H----YEA-------AVKSLDGAVE--H-G-K---M--G---------H----A--D----IAGK--SAEEAVTHLKAA-----
+UniRef90_A0A838SBJ8/7-53               --------------------------------------------------D-------AA-------K-------Q----E----G-------G--N-------A----H----VGE-------GISHLGEAVD--H-G-K---Q--G---------H----G--E----VAGE--HRQEALKHLQQ------
+UniRef90_A0A1Y6D9Z6/29-111             -----HKAEALKHAEAAAESG--KK--G--DAPAVVT-HAEAAKPH-V--E-------AA-------E-------K----E----K-------A--S-------P----H----FEA-------ADKSLDSAIE--H-G-K---M--G---------H----A--D----LAGK--AAEEAVTHLKAA-----
+UniRef90_UPI00098B57EA/81-167          -GMESHVKEAMKHAKAAADSG--KK--G--DAAGVGK-HAEAAKPH-V--E-------AA-------M-------Q----Q----N-------P--N-------E----H----LTA-------AMKSLDSAIQ--H-S-Q---M--G---------H----A--D----MAGQ--AAEEAVTHLKQA-----
+UniRef90_A0A521WW55/29-104             ----NHMEQALKHAE-ASAKA--SD--G--K--SIAE-HAETALKH-A--K-------VS-------D-------E---------------------------------H----LDA-------GIKSLDEAIE--H-G-K---Q--G---------H----S--D----LAKK--AAEEAVTHLKAA-----
+UniRef90_A0A7X6DQN1/98-137             ----THVKEALTHAKEAVSHG--EA--G--HNDVMMD-HAKEAMMH-A--K-------EG-------N-----------------------------------------------------------------------------------------------------------------------------
+UniRef90_A0A8D5AJQ6/29-111             -----HKAEALSHAQACVESA--KQ--G--DAKAAAE-HAKSAKAH-A--E-------AA-------E-------K----E----K-------A--N-------A----H----LPA-------AIRELNSAIE--H-G-Q---Q--G---------H----A--A----QTGE--AAQGAIAHLKAA-----
+UniRef90_A0A6S7K258/441-519            ----PHTDDKVPHAEDKVPHT--EEKVP--HTEDKAP-HSEDKVPH-A--K-------NK-------V------------------------------------P----H----AGD-------KVPHAEDKVP--H-A-E---D--KV-------PH----T--E----DKVP--HAEDKVPH---------
+UniRef90_A0A522VC67/51-128             ------TMLTLQHTSAAVDSG--KA--L--DAAGVVA-HASEALKH-A--Q-------AV-------S-------------------------S--N-------P----H----MAT-------AITHLNAAIE--H-G-N---M--G---------H----A--A----VAAT--HAQEALNHVKM------
+UniRef90_A0A1I2GSP7/37-122             ------MTEAIKHAEIAQAH----K--A--HAEHIRQ-HAKMSLEY-V--K-------KA-------E------IE----AI-EYGN----TKG--R-------V----H----ITE-------SIRHLVEAIS--H-A-K---I--G---------H----T--D----IASE--HITDALEEMRQ------
+UniRef90_UPI00136AC195/27-107          ----THLNEAIKHTEQALQST---------EVKLIAQ-HMEEAKTH-S--E-------AA------QS-------E----Q----A-------A--D-------S----H----LNE-------GIKKLDEAVK--E-S-K---L--G---------A----A--E----LAKK--AAQEALTHLKQ------
+UniRef90_A0A256X1H0/45-123             ----QHRQEAATLAKEAADHS--KL--G--HVGPFLT-SAEAALQH-A--L------------------------K----A----G-------K--D-------A----H----VDA-------AIAELKHAVE--H-G-S---A--G---------H----T--D----VATK--HVEQAVTHLS-------
+UniRef90_UPI00098A61BA/48-132          ----RHIKEAWKHSEAAVLAG--EK--G--DAKGVGE-HAKLAKTY-V--E-------AA------LT-------Q----S----T-------F--D-------E----H----LTA-------ALKSLDSAIE--H-S-D---A--D---------Q----A--E----MARQ--AAQEAIDHLRAA-----
+UniRef90_A0A7S8IZQ6/174-255            ---TNDVREAIHHAMEAKSAG--TQ--G--KADALVK-HAKTSLDL-A--K-------QA-------Q-------R----H----G-------H--N-------E----R----LNE-------GVYALGDAIE--H-G-Q---Q--K---------Q----T--T----DATE--HMMHAIMKL--------
+UniRef90_UPI001E314BBF/24-99           ----NHIKEALKHAEAA-AKA--SD--A--KT--AAQ-HAEQSKTH-A--K-------TA-------D-------E---------------------------------H----LDA-------GIKSLESVIE--H-G-K---M--G---------H----D--D----MAKK--AAEEAVTHLKAA-----
+UniRef90_UPI001581AF10/8-61            ----------------------------------LAT-HAEAALAH-A--E-------AG-------E-------K----A----K-------A--N-------P----H----TAE-------GIKHLKEASD--H-D-K---Q--G---------H----A--D----VATK--HEEAAQ-----------
+UniRef90_A0A523H8Y5/2-54               --------------------------------------------KH-A--K-------QA-------E-------KE--RA----D-------E--H-------Q----H----MTE-------GVKHLKEAIK--H-A-K---M--G---------H----A--D----VATK--HTEEALVHIRKS-----
+UniRef90_A0A7C3Q3Z3/21-64              ----MHAQSMLNEAEQMMNHG--DQ--G--HMDVMIS-HAEAMIKH-T--K-------EA-------I-------E----A----I-------P---------------------------------------------------------------------------------------------------
+UniRef90_A0A7C3Q3Z3/75-114             ----EHMKEAIDHAEEAIGRG--QS--G--NLEMAMA-HANKAMAH-A--R-------QG-------N-----------------------------------------------------------------------------------------------------------------------------
+UniRef90_UPI001F28DE93/29-117          -GAEDHKAEAMKQAQAALDSG--KQ--G--NAAAVAE-HAAAAKIH-A--E-------AA-------Q-------Q----E----R-------P--N-------P----H----LDA-------AIKNLDAAIA--E-G-R---K--G---------N----A--S----SAEE--AAFGAVTHLKAAEK---
+UniRef90_UPI0018DEFF2C/32-111          -----HKAEALKHAEAAVAAG--N-------AAGVAE-HAEAAKTH-A--A-------AA-------N-------A----E----K-------K--S-------P----H----YDA-------AITSLNSAIE--H-G-K---M--G---------H----A--D----IAKK--SAEEAVTHLKAA-----
+UniRef90_Q609Z2/32-111                 -----HKAEALKHAEAAVAAG--N-------AAGVAE-HAEAAKTH-A--A-------AA-------N-------A----E----K-------K--S-------P----H----YDA-------AITSLNSAIE--H-G-K---M--G---------H----A--D----IAKK--SAEEAVTHLKAA-----
+UniRef90_A0A177PMS5/28-111             -----RLDQAIYHVNEAITHG--GK--L--HDAGLLSYHADLALEK-A--E-------GL-------Q-------K----F----K-------P--N-------P----H----MAE-------AIVHIKAAIE--E-G-Q---A--N---------H----T--E----AATK--QAKEALSHLEEA-----
+UniRef90_A0A177NAX9/30-107             -----HSVTALEHAVTAEAHN--KL--G--HTNDVKN-HIDQAIKH-A--T-------ES-------E-------KA--HA----T-------A--H-------T----H----VTE-------AVKHLQETTK--Q-K-D---M--Q---------H----TMSG----VY-----TQVAL-----------
+UniRef90_A0A177NAX9/76-158             ----THVTEAVKHLQETTKQK--DM--Q--HTMSG-V-YTQVALTQ-A--E-------NS-------E-------KA--HA----D-------A--H-------K----H----ITE-------ALKHLKEAEK--H-N-T---A--G---------H----K--D----LVTE--HLNQSIEHIE-------
+UniRef90_UPI0013596219/53-139          ----EHLTQTIGETKEAIQEG--RS--G--YPASLVE-HATNALDH-A--R-------AA-------Q-------R----A----K-------A--D-------P----N----LET-------GIKHLRRAIR--T-A-Q---G--T---------HSQRRT--A----AAVR--HAETALTHFQS------
+UniRef90_A0A1H9JXD7/38-122             ------MLEAIEHAKTAKSH----K--A--HADHILE-HAKESLEY-V--K-------KA-------E-------I----A----AIEQNNTEG--R-------V----H----ITE-------SIQQLVETIN--H-A-K---E--G---------H----T--L----IATE--HLTGALQAMR-------
+UniRef90_UPI00136CB5DC/27-111          ----SHLDQAIQHAEAAIK-A--AD--G--KT--VAQ-HAEEAKTH-A--S-------ASKT--EKTS-------A----K----N-------A--A-------V----H----IDA-------GIKSLDEAIK--Q-G-K---S--G---------A----T--D----LAKK--AAEEAVTHLKQ------
+UniRef90_UPI0003B426A1/31-112          --------LALEHAGASVAHA--ED--G--QVPNALE-DAQEALEN-S--Q-------AS-------V-------K----A----HE-----EA--H-------E----H----ISK-------AIEHLEKAVE--K-K-E---T--G---------N----I--A----EIRE--HVHRAMEHIHSA-----
+UniRef90_UPI0003B426A1/124-204         ---------ALSQAAMAWAHG--ED--E--NAQRIAR-DASEALEY-A--R-------QS-------A-------K----L----H-------DKIH-------A----H----MSK-------VVEHLQKAVT--A-L-Q---A--N---------D----G--N----AGRE--HAHRALEHLELA-----
+UniRef90_UPI0003B426A1/166-253         ----AHMSKVVEHLQKAVTAL--QA--N--DGNAGRE-HAHRALEH-L--E-------LA-------S-------S---VA----R-------S--N-------AG-TMH----SML-------ALEHTGAAKA--H-W-M---A--G---------K----M--D----LATS--HTNEALEHLKAS-----
+UniRef90_A0A0S4LNV7/47-125             ----QHRQEAVQLAKEAADHG--KS--G--QVGLFLS-SAEAALQH-A-------------------F-------K----A----G-------K--D-------A----H----VDA-------GIVELKQALE--Q-E-R---A--G---------H----A--D----AATQ--HAEQAVIHLS-------
+UniRef90_A0A292PR76/151-221            ------LQKAIWHGEEALAAT--PQ--D--HPDQVIR-HNNLGLWF-S--T-------RF-------D-------R----L----G-------N-------------------------------LSDLQKAIK--H-G-E---E--A---------L----A--A----IPHD--HPDRACSH---------
+UniRef90_A0A7W1Z1B2/1-65               ------------------------Q--G--HADVVAT-HAEASLQH-A--Q-------AA-------K-------N----D----M-------T--N-------P----H----LDA-------ATAELGEAIT--H-G-K---S--G---------H----A--D----VATG--HAKSAVMHLKE------
+UniRef90_A0A849R8A9/29-104             ----KHMVEAIKHAEAAVNAG---------NGKAIAE-HAETAKIH-A--K-------TA-------D-------E---------------------------------H----LDA-------GIKSLEGAIE--H-G-K---L--G---------H----D--D----LAKR--NAEEALTHLNAA-----
+UniRef90_A0A250KTD7/28-112             --YAKHVREARQHVTLAVTEG--EK--G--DAEALVQ-HARTGLDH-V--G-------MA-------Q-------K----E----K-------S--L-------P----D----LEK-------AAESLQDAIS--Q-G-Q---A--G---------N----T--D----KATE--RAKESVEYLDA------
+UniRef90_UPI001232A502/30-111          ----PHAVMALEHAVTAQAHN--EL--G--HGNDVKS-HLSEALKH-A--G-------ES-------EK-----QH----A----D-------A--H-------A----H----TTE-------AIKHLKETVK--H-D-E---M--A---------H----T--Q----SG-V--YATETLRSA--------
+UniRef90_UPI001232A502/77-159          ----AHTTEAIKHLKETVKHD--EM--A--HTQSG-V-YATETLRS-A--E-------SA-------E-------Q----AH--AS-------A--H-------A----H----MSE-------VVKHLKEAET--H-N-N---A--G---------H----K--D----KTAE--HLQEAVKHIE-------
+UniRef90_A0A1H3A6S1/12-54              ----GYAFEALEHAKEAEKHG--KM--G--HSKELLE-HAKKSLEH-A--Q-------AA-------S-------K----G----Y-----------------------------------------------------------------------------------------------------------
+UniRef90_A0A1R4HBX1/29-107             ----SHMAEALKHAEAAVTSA--DG--K--AVGAVVE-HAKAAKTH-A--D-------TA-------K-------E---------------------------------H----LDA-------GVTSLNDAID--H-G-K---M--K---------H----A--D----LAKK--SAEEAVTHLKAA-----
+UniRef90_A0A849S2E2/24-111             -----HAVAALEHANSALEHG--KA--G--HNSVLVE-HAKTALDH-S--L-------AA-------S-------L----V----TK----SIV--K-------N----H----IDA-------AADLLQKAVD--E-G-N---L--D---------H----T--A----SASK--AVEDAIVHLKAANK---
+UniRef90_A0A2S5N2P4/25-108             -AHDGHLAEAISHTREAVSAG--RA--G--KPSSLVL-HATEALHH-A--S-------AA-------Q-------A----E----K-------P--N-------P----E----VKE-------AIARLKEAIE--F-G-K---K--K---------R----R-------AATT--IAYRALQQLE-------
+UniRef90_UPI00037D0439/26-102          ----NHLQEAIKHVMMA-AKA--KD--G--K--SVAQ-HAEEAQKH-A--K-------IA-------D-------E---------------------------------H----LDA-------GLKSLEEAID--H-G-N---Q--G---------H----D--D----MAQK--AAKEAEEHLKASQ----
+UniRef90_A0A521RTL8/33-107             ----AHCAAMVEAGESGMDHG--GQ--G--HTDTAVK-HFKQM------------------------S-------K---------D-------G--Q-------E----C----LNH-------GQEAVKSAAK--G-SPT---E--M---------H----G--G----GAMK--HVQEAVTHAN-------
+UniRef90_A0A521RTL8/94-136             -GAMKHVQEAVTHANAAVEHG--QA--G--HGDVMMG-HAKEALMH-A--K-------EG-------N-----------------------------------------------------------------------------------------------------------------------------
+UniRef90_A0A4P7F7D1/28-108             ----NHVAEAVEHIKEAINLG--QQ--G--QSTSFAD-QAQLALDH-A--K-------AA-------E-------Q----E----K-------P--N-------T----H----TES-------AIAKLTGAVD--Y-I-K---A--G---------H----E--D----AALT--SAESALTYL--------
+UniRef90_A0A351KUR8/27-111             -----HKAEATQHAIAAEESA--KK--G--DTAAAAE-HATVAKTH-A--E-------AA-------K-------A----E----K-------A--N-------P----H----LDA-------GIKNLDETIV--H-A-K---A--G---------H----G--P----MAQE--SANAAVAHLSAAEK---
+UniRef90_A0A395CU52/29-109             ------LEKAIYHIQEAITQG--KL--N--DAGLLAY-HADLALEK-A--E-------AV-------E-------K----F----K-------P--D-------P----H----TAD-------AIVHIKAAIE--E-G-R---Q--N---------H----A--K----SATA--HAEEALKHLQE------
+UniRef90_UPI00196860DB/24-99           ----NHVAEALKHAEAAA-----KA--T--DEKAIAE-HAETASSH-A--K-------IS-------D-------E---------------------------------H----LDA-------GIKSLEYAVK--H-G-K---L--G---------E----V--D----AAKK--SAGEAVEHLKAA-----
+UniRef90_G3IVZ7/29-104                 ----SHMEQALKHAE-AAAKA--DD--G--KT--IAE-HAEAAKTH-A--K-------TA-------D-------E---------------------------------H----LDA-------GIKSLNDAID--H-G-K---M--K---------H----P--E----AAKK--AAEEALTHLKAA-----
+UniRef90_UPI0004DEEBFC/29-112          -----HGAYALEHAAVAASHA--EK--G--HLDLILE-HSKEALHH-A--K-------AA-------S-------Q----E----H-------H--DR-----HM----H----MEK-------AVTKLNEAID--H-A-N---K--K---------H----S--D----LASK--AAHKAVEHIHK------
+UniRef90_A0A7G1QB67/21-101             ---SGHLSDAVEHAKAA--SG---A--A--NSEEVTA-HATEAMKH-A--T-------AA-------D-------Q----S---------------N-------P----H----VQA-------GVKGLQGAID--H-A-K---A--G---------H----T--D----MAKK--SAAEAVTHLEEAE----
+UniRef90_A0A1G0F8M6/29-109             -----HKAEALKQAVEAVESG--KK--G--DAAGIGE-HATAAKTH-A--E-------AA-------D-------K----E----K-------T--T-------A----H----LKE-------AIKSLNSAIE--Q-S-K---S--G---------K----A--D----VASK--AAAEAVTHLM-------
+UniRef90_V5C490/29-104                 ----SHMAEALKHAEAAVK-A--DD--G--KT--IAE-HAEVAKTH-A--K-------TA-------D-------E---------------------------------H----LDA-------GIASLNDAID--H-G-K---M--K---------H----A--D----LAKK--SAEEAVTHLKAA-----
+UniRef90_A0A5C9DEQ7/27-110             ---ESHIAQAISHAREAVSAG--RE--G--KPSALVL-HATEALHY-A--A-------DA-------Q-------R----E----Q-------P--N-------P----H----LKK-------AISRLKEGIK--F-G-K---K--K---------R----R-------AATT--IVYRALQELERA-----
+UniRef90_A0A5C9D0N3/27-107             ---ESHIAQAISHAREAVAAG--RA--G--KPSALVL-HATEAMHH-A--T-------AA-------Q-------Q----E----Q-------P--N-------A----E----VKE-------AIARLKEGIR--F-G-K---K--K---------R----R-------AATT--IVYRALQQL--------
+UniRef90_UPI0003FE6BF2/28-112          --YVKHIQEARHHVTMAVAEG--EK--S--DATALVQ-HAQTGLDH-I--R-------AA-------Q-------K----R----K-------S--L-------P----D----LDK-------AAQSLEDAIS--Q-G-Q---A--G---------D----V--E----KATA--RAKESVGYLDA------
+UniRef90_UPI000CDF078D/27-112          ---ESHLDQAIKHAEAAVSA---AD--G--K--AIAK-HAGEAKTH-A--N-------AS------KS-------E----KTSVKN-------V--G-------S----H----LDA-------GIKSLDEAIK--Q-G-N---L--G---------A----T--D----LAKK--AAEQAVTHLKQ------
+UniRef90_A0A522DUL0/26-102             ----SHMAEALKHAEAAAS-A--S------DAKAVAE-HAEAAKTH-A--K-------VA-------D-------E---------------------------------H----LDA-------GIKSLETAIE--H-G-K---L--G---------H----A--D----VAKV--AAEEAVTHLKAAE----
+UniRef90_UPI0003F70682/26-101          ----NHMNEALKHAEAA-AKL--SD--G----KGVAQ-HAEQAKKH-A--K-------TA-------D-------E---------------------------------H----LDA-------GIKSLENAIE--H-G-N---M--G---------H----G--D----MAQK--AAEEAVTHIKAA-----
+UniRef90_A0A4V0X303/46-132             ----LHTERAINHVKLAVKAG--EA--G--RNNSLLV-HSRAALAD-I--K-------TA-------N-------R---DN----D-------D--N-------P----H----AKE-------AISHLTKAIV--E-G-R---K--S---------H----N--S----KALA--HAREALSHLESAIH---
+UniRef90_A0A521WV30/24-109             -----HAYTAIEHASAALAQG--KA--D--KAPALVQ-HAEQALEH-A--K-------MA------ES-------V----A----Q-------GHSK-------T----Q----MQS-------AVKSLEKAIS--Q-G-K---T--G---------D----A--K----SATE--STQEALGFLQAG-----
+UniRef90_A0A256X0T4/47-126             ----QHRQEAVQLAKEAADHG--KQ--G--DVGLFLS-SAEAALQH-A-------------------F-------K----A----G-------K--D-------S----R----VEA-------GITELKQALE--Q-E-R---A--G---------H----A--D----AAIQ--HAEQAVTHLSA------
+UniRef90_A0A6S7GAU6/300-368            ---VPHADDKVPHAEEKVPHA--EDKVP--HDENKVT-HVEEKVSH-A--E-------AK-------V------PH----A----K-------D--N------VP----H----AED-------KVRHAEDKVP--H-A-E---D------------------------------------------------
+UniRef90_UPI00098B9BA3/28-112          --HIKHVREARQHVTMAVTEG--EK--G--DAKALVQ-HAQVGLDH-V--R-------MA-------Q-------K----E----K-------P--L-------A----D----LDK-------AATSLEGAIS--Q-G-Q---A--G---------D----V--K----KATE--QAKESVEYLDA------
+UniRef90_A0A8T3PTV3/31-111             -------AKALKLAQEAVAAG--KQ--G--QLEALVA-KAEEAKTQ-A--N-------IA-------Q-------K----N----F-------T--S-------F----N----LQS-------AAKYLDEAVI--E-G-K---K--G---------G----T--E----AATA--KAQAAVEVLGSS-----
+UniRef90_A0A1R4HJU6/29-107             ----SHMAEALKHAEAAAKSA--DG--K--AVDTVVK-HAQAAKEH-A--D-------AA-------K-------E---------------------------------H----LDA-------GITSLNDAID--H-G-K---M--K---------H----A--D----LAKK--SADEAVMHLKAA-----
+UniRef90_A0A5C9CXT1/28-116             ---ASHLEQAIAETKEAIHEG--KQ--D--LPASLVE-HAVNALDH-A--N-------AA-------Q-------K----E----K-------P--S-------E----H----IKT-------GVTHLKRAIK--T-A-K---H--T---------HSSRRV--A----RAVK--HAETALTHFEAA-----
+UniRef90_A0A2P5L391/30-105             ----THTEQALKHAEAAV-----KA--A--DSKAIAE-HAEAANIH-A--K-------TA-------M-------E---------------------------------H----LSA-------GSKSLDDVIA--H-A-K---Q--G---------H----A--D----PAKK--SAQEAVTHLKAA-----
+UniRef90_A0A1H5XIH7/24-108             ---ASHLDHAIQHAETA-AKS--AD--G--KT--VAK-HAMEAKKH-A--N-------AA-------K-------N----D----K-------D--RQI---DLN----H----LGE-------GIKSLDEAVN--E-G-K---D--G---------E----A--D----AAKK--AASDAIEHFKQ------
+UniRef90_A0A1W1I8X4/62-131             ----RQLSEAVAHARKAEVAG--NE--G--NIPEMLR-HTNMSLEQ-A--K-------AA-------Q-------V----A----G-------A--N-------P----D----LDD-------GIANLKETIM--V-G-K---R--D---------Q----I--A----PS---------------------
+UniRef90_A0A0S3AMD1/27-111             ----SHLDQAIKHAEAAVSA---AD--G--K--AIAK-HAGEAKTH-A--N-------AS------KS-------EKTSVK----N-------A--G-------S----H----LDA-------GIKSLDEAIK--Q-G-N---L--G---------A----T--D----LAKK--AAGQAVTHLKQ------
+UniRef90_A0A1H8T961/41-124             -------IQAIKHAERARTH----K--A--HAEHILQ-NAEKSLEY-A--K-------KA------EA-------E----AI--EG-------G--N-------D----KGRRPITE-------SIRHLVEAIN--H-A-K---M--G---------H----T--D----IASE--HITDALEQMH-------
+UniRef90_UPI000F8E1798/28-113          -----HAYTAIEHTSAALAQG--KA--G--KAPELVQ-HAQQALEH-A--K-------KA-------E-------E----V----AL----GHS--K-------T----Q----MQS-------AIKALEKTIS--Q-G-N---S--G---------D----A--K----SASV--SAEEALGFLQAG-----
+UniRef90_A0A8H7M2D7/170-247            -GEAADLDKSLEHFSRALALT--PD--G--HPDLPRR-HADLGVSY-T--H-------RY-------R-------R----L----G-------E--A-------A----D----LDR-------SLEHLSRALA--L-T-P---D--G---------H----P--D----LPRR--HAD--------------
+UniRef90_A0A8H7M2D7/274-355            -GEAADLDRSLEHFSQALALT--PD--G--HPDLPRR-HADLGVSY-S--D-------RY-------R-------R----L----G-------E--A-------A----D----LDR-------SLEHRSRALA--L-T-P---D--G---------H----P--D----LPDR--HADLGVS----------
+UniRef90_A0A7S6MQG9/40-123             -------AEAIKHAEMAKTH----K--A--HAEHIHK-HAEKSLEY-V--K-------KAEADAIENE-------D----T----K-------G--R-------V----H----ITE-------SIRHLVEAIN--H-A-R---V--G---------H----A--D----IASE--HVTDALEEMR-------
+UniRef90_A0A7D9JT30/35-113             -----QAEDMVTHAENKVPHT--ED--NVPHTEDKVP-HAEDKVLT-Q--R-------RR-------S-------L----K----D-------K--V-------S----H----TEY-------KVPHTEDKVP--H-A-E---D--K--------------V--P----QAED--KVHQAVD----------
+UniRef90_A0A7D9JT30/424-500            ----PHIDDNFPHAEDKVPHG--KV--P--HTEDKVP-HAEDKVPH-TEGK-------VP-------H-------T----E----D-------K--G-------S----H----AED-------KVPHAEDKVP--H-A-E---D--------------------------KVR--HAEDKVPH---------
+UniRef90_A0A5C7V6I9/28-105             ----SHLELAIQYAEAA-LYA--KD--E--KT--LVG-HAQEAKVH-A--N-------TA-------K-------N-----------------E--N-------R----H----LQQ-------GLQCLDDAVS--E-A-Q---S--G---------K----M--N----AATK--AAKDALDHFKQ------
+UniRef90_G3IZW5/29-104                 ----SHMTEALKHAEAA---A--KA--D--DSKAIVE-HAEAAKAH-A--K-------TA-------D-------E---------------------------------H----LDA-------GITSLNDAID--H-G-K---L--K---------H----T--D----LAKK--SAEEAVTHLKAA-----
+UniRef90_A0A8D5AMM6/39-125             -GKQQHTQEALKHAKQAAKSG--KK--G--DVSVIVQ-HAQLAKTE-V--E-------AA------LG-------Q----S----P-------D--N-------A----H----LKA-------ALDSLNQAIR--Q-G-E---Y--G---------G----G--E----EARA--AAHEAVTHLKA------
+UniRef90_UPI000F8E8CCD/29-105          ----NHVAQAQKHAKAA---A--KA--S--DAKEIVQ-HAEQARIH-A--K-------TA-------D-------E---------------------------------H----LDA-------GITSLDNAIS--Q-G-K---Q--G---------N----A--D----MAKK--AAEEAVTHLKASE----
+UniRef90_UPI00136B96B1/25-111          -GTGSYMDEAMKHTEAVMS-S--TD------KKAIVQ-HVTEAITH-A--N-------AA-------K-------N----D---QQ-------H--NV----DAN----Y----IDE-------GLRSLDEAVK--E-G-N---N--G---------E----V--E----AAQE--AARKAYEHFKR------
+UniRef90_A0A849UCD1/28-103             ---ESHTALALKHAEVA-AKA--TD--G--KT--IAE-HAETARTH-A--K-------VS-------E-------E---------------------------------H----VAN-------GIKKLDEAIE--Q-G-K---L--G---------H----T--E----PAKK--AAEEAVTHLKK------
+UniRef90_UPI0018C279D4/20-81           -AHESHLAQAISHTREAVSAG--RE--G--KPSSLVL-HATEALHH-A--S-------AA-------Q-------A----E----R-------P--N-------A----Q----VKE-------AIARLKEAI------------------------------------------------------------
+UniRef90_F9ZHK8/24-108                 ---ASHLDQAIQHSEA-AAKS--AD--G----KDVAK-HATEAKKH-A--N-------AA-------K-------N----D----K-------D--RQI---DAK----H----LDE-------GIKSLDEAVK--E-G-K---D--G---------E----A--N----AAKK--AAADAIEHFKQ------
+#=GC RF                                xxxxxxxxxxxxxxxxxxxxx..xx..x..xxxxxxx.xxxxxxxx.x..x.......xx.......x.......x....x....x.......x..x.......x....x....xxx.......xxxxxxxxxx..x.x.x...x..x.........x....x..x....xxxx..xxxxxxxxxxxxxxxxx
+//
