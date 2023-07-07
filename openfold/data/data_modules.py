@@ -151,7 +151,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             chain: i for i, chain in enumerate(self._chain_ids)
         }
 
-        template_featurizer = templates.TemplateHitFeaturizer(
+        # changed template_featurizer to hmmsearch for now just to run the test
+        template_featurizer = templates.HmmsearchHitFeaturizer(
             mmcif_dir=template_mmcif_dir,
             max_template_date=max_template_date,
             max_hits=max_template_hits,
