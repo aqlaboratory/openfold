@@ -21,7 +21,7 @@ import numpy as np
 from functools import partial
 import unittest
 from openfold.config import model_config
-from openfold.data.data_modules import OpenFoldMultimerDataModule
+from openfold.data.data_modules import OpenFoldMultimerDataModule,OpenFoldDataModule
 import logging
 logger = logging.getLogger(__name__)
 import os
@@ -40,12 +40,12 @@ class TestMultimerDataModule(unittest.TestCase):
         self.data_module = OpenFoldMultimerDataModule(
         config=self.config.data, 
         batch_seed=42,
-        train_epoch_len=10,
+        train_epoch_len=100,
         template_mmcif_dir = "/g/alphafold/AlphaFold_DBs/2.3.0/pdb_mmcif/mmcif_files/",
         template_release_dates_cache_path=os.path.join(os.getcwd(),"tests/test_data/mmcif_cache.json"),
         max_template_date="2500-01-01",
         train_data_dir=os.path.join(os.getcwd(),"tests/test_data/mmcifs"),
-        train_alignment_dir=os.path.join(os.getcwd(),"tests/test_data/original_alignments/train"),
+        train_alignment_dir=os.path.join(os.getcwd(),"tests/test_data/original_alignments/"),
         kalign_binary_path=shutil.which('kalign'),
         train_mmcif_data_cache_path=os.path.join(os.getcwd(),
                                                  "tests/test_data/train_mmcifs_cache.json"),
@@ -57,5 +57,4 @@ class TestMultimerDataModule(unittest.TestCase):
         self.data_module.prepare_data()
         self.data_module.setup()
         train_dataset = self.data_module.train_dataset
-        # feats = next(iter(train_dataset))
-        # print(f"feats keys: {feats.keys()}")
+        all_chain_features,ground_truth = train_dataset[0]
