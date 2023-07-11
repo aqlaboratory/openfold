@@ -504,12 +504,14 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
                     data = self._parse_mmcif(
                         path, mmcif_id, chain, alignment_dir, alignment_index,
                     )
-                    ground_truth.append(data)
+                    ground_truth_feats = self.feature_pipeline.process_features(data, self.mode)
+                    ground_truth.append(ground_truth_feats)
                 elif(ext == ".core"):
                     data = self.data_pipeline.process_core(
                         path, alignment_dir, alignment_index,
                     )
-                    ground_truth.append(data)
+                    ground_truth_feats = self.feature_pipeline.process_features(data, self.mode)
+                    ground_truth.append(ground_truth_feats)
                 elif(ext == ".pdb"):
                     structure_index = None
                     data = self.data_pipeline.process_pdb(
@@ -520,7 +522,8 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
                         alignment_index=alignment_index,
                         _structure_index=structure_index,
                     )
-                    ground_truth.append(data)
+                    ground_truth_feats = self.feature_pipeline.process_features(data, self.mode)
+                    ground_truth.append(ground_truth_feats)
                 else:
                     raise ValueError("Extension branch missing") 
         
