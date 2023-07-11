@@ -451,7 +451,6 @@ class AlignmentRunner:
 
         self._uniprot_msa_runner = None
         if(uniprot_database_path is not None):
-            print("will create self.jackhmmer_uniprot_runner")
             self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
                 database_path=uniprot_database_path
@@ -944,7 +943,6 @@ class DataPipeline:
             chain_id = chain.id
 
         mmcif_feats = make_mmcif_features(mmcif, chain_id)
-        print(f"mmcif_feats keys: {mmcif_feats.keys()}")
 
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hits(
