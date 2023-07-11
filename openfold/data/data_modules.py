@@ -180,7 +180,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         )
 
         if(not self._output_raw):
-            self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
+            self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
@@ -435,8 +435,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             monomer_data_pipeline=self.data_pipeline
         )
 
-        if(not self._output_raw):
-            self.feature_pipeline = feature_pipeline.FeaturePipeline(config) 
+        self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
@@ -477,12 +476,11 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             fasta_str+=f">{mmcif_id}_{c}\n{s}\n"
         with temp_fasta_file(fasta_str) as fasta_file:
             all_chain_features = self.multimer_data_pipeline.process_fasta(fasta_file,self.alignment_dir)
-        for k,v in all_chain_features.items():
-            all_chain_features[k] = torch.tensor(v)
 
-        move_to_cuda = lambda t: t.to('cuda')
-        ## move all_chain_features to gpu
-        all_chain_features = tensor_tree_map(move_to_cuda,all_chain_features)
+        # process all_chain_features 
+        all_chain_features = self.feature_pipeline.process_features(all_chain_features,
+                                                                    mode=self.mode,
+                                                                    is_multimer=True)
         
         alignment_index = None
         ground_truth=[]
