@@ -45,7 +45,7 @@ class TestMultimerDataModule(unittest.TestCase):
         template_release_dates_cache_path=os.path.join(os.getcwd(),"tests/test_data/mmcif_cache.json"),
         max_template_date="2500-01-01",
         train_data_dir=os.path.join(os.getcwd(),"tests/test_data/mmcifs"),
-        train_alignment_dir=os.path.join(os.getcwd(),"tests/test_data/original_alignments/"),
+        train_alignment_dir=os.path.join(os.getcwd(),"tests/test_data/alignments/"),
         kalign_binary_path=shutil.which('kalign'),
         train_mmcif_data_cache_path=os.path.join(os.getcwd(),
                                                  "tests/test_data/train_mmcifs_cache.json"),
