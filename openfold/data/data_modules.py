@@ -434,7 +434,6 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         self.multimer_data_pipeline = data_pipeline.DataPipelineMultimer(
             monomer_data_pipeline=self.data_pipeline
         )
-
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
@@ -470,18 +469,17 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         chains = self.mmcif_data_cache[mmcif_id]['chain_ids']
-        is_multimer = (len(chains)>1)
         seqs = self.mmcif_data_cache[mmcif_id]['seqs']
         fasta_str = ""
         for c,s in zip(chains,seqs):
             fasta_str+=f">{mmcif_id}_{c}\n{s}\n"
         with temp_fasta_file(fasta_str) as fasta_file:
             all_chain_features = self.multimer_data_pipeline.process_fasta(fasta_file,self.alignment_dir)
-
+            
         # process all_chain_features 
         all_chain_features = self.feature_pipeline.process_features(all_chain_features,
                                                                     mode=self.mode,
-                                                                    is_multimer=is_multimer)
+                                                                    is_multimer=True)
         
         alignment_index = None
         ground_truth=[]
