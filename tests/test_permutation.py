@@ -1,5 +1,5 @@
 # Copyright 2021 AlQuraishi Laboratory
-#
+# Dingquan Yu @ EMBL-Hamburg Kosinski group
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -27,14 +27,12 @@ from tests.config import consts
 import logging
 logger = logging.getLogger(__name__)
 import os
-import io, contextlib
 from tests.data_utils import (
     random_template_feats,
     random_extra_msa_feats,
-    random_affines_vector, random_affines_4x4
+    random_affines_vector
 )
 from openfold.utils.rigid_utils import (
-    Rotation,
     Rigid,
 )
 

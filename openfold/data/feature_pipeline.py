@@ -134,8 +134,8 @@ class FeaturePipeline:
         mode: str = "train",
         is_multimer: bool = False,
     ) -> FeatureDict:
-        if(is_multimer and mode != "predict"):
-            raise ValueError("Multimer mode is not currently trainable")
+        # if(is_multimer and mode != "predict"):
+        #     raise ValueError("Multimer mode is not currently trainable")
         
         return np_example_to_features(
             np_example=raw_features,

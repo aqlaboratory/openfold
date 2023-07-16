@@ -1,0 +1,918 @@
+# STOCKHOLM 1.0
+
+#=GS UniRef90_A0A2K5JW76/4-86       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Colobus angolensis palliatus TaxID=336983 RepID=A0A2K5JW76_COLAP
+#=GS UniRef90_A0A2I3GTN5/4-85       DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Catarrhini TaxID=9526 RepID=A0A2I3GTN5_NOMLE
+#=GS UniRef90_Q96F24/4-86           DE [subseq from] Nuclear receptor-binding factor 2 n=58 Tax=Simiiformes TaxID=314293 RepID=NRBF2_HUMAN
+#=GS UniRef90_G3T067/4-86           DE [subseq from] Nuclear receptor binding factor 2 n=9 Tax=Eutheria TaxID=9347 RepID=G3T067_LOXAF
+#=GS UniRef90_A0A2K5QEU9/4-85       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Cebus imitator TaxID=2715852 RepID=A0A2K5QEU9_CEBIM
+#=GS UniRef90_UPI0003F0BBCF/4-86    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Elephantulus edwardii TaxID=28737 RepID=UPI0003F0BBCF
+#=GS UniRef90_UPI001155F76F/4-86    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Suricata suricatta TaxID=37032 RepID=UPI001155F76F
+#=GS UniRef90_UPI000F7386B1/4-86    DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Cricetulus griseus TaxID=10029 RepID=UPI000F7386B1
+#=GS UniRef90_UPI0003C008E2/4-86    DE [subseq from] nuclear receptor-binding factor 2 isoform X3 n=1 Tax=Bos mutus TaxID=72004 RepID=UPI0003C008E2
+#=GS UniRef90_A0A2Y9RYS0/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=23 Tax=Boreoeutheria TaxID=1437010 RepID=A0A2Y9RYS0_PHYMC
+#=GS UniRef90_A0A8C5VLQ0/4-86       DE [subseq from] Nuclear receptor binding factor 2 n=28 Tax=Eutheria TaxID=9347 RepID=A0A8C5VLQ0_MICMU
+#=GS UniRef90_Q08DG0/4-86           DE [subseq from] Nuclear receptor binding factor 2 n=34 Tax=Boreoeutheria TaxID=1437010 RepID=Q08DG0_BOVIN
+#=GS UniRef90_A0A8B7BB58/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X3 n=4 Tax=Eutheria TaxID=9347 RepID=A0A8B7BB58_ORYAF
+#=GS UniRef90_G1SRZ9/4-86           DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Oryctolagus cuniculus TaxID=9986 RepID=G1SRZ9_RABIT
+#=GS UniRef90_A0A6I9IMV5/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=3 Tax=Camelidae TaxID=9835 RepID=A0A6I9IMV5_VICPA
+#=GS UniRef90_A0A2U3X219/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=16 Tax=Caniformia TaxID=379584 RepID=A0A2U3X219_ODORO
+#=GS UniRef90_A0A5F5XQ53/4-86       DE [subseq from] Nuclear receptor binding factor 2 n=13 Tax=Felidae TaxID=9681 RepID=A0A5F5XQ53_FELCA
+#=GS UniRef90_A0A1U7Q6H0/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=16 Tax=Boreoeutheria TaxID=1437010 RepID=A0A1U7Q6H0_MESAU
+#=GS UniRef90_A0A8B7BAM4/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=1 Tax=Orycteropus afer afer TaxID=1230840 RepID=A0A8B7BAM4_ORYAF
+#=GS UniRef90_A0A1U7TCX9/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=1 Tax=Carlito syrichta TaxID=1868482 RepID=A0A1U7TCX9_CARSF
+#=GS UniRef90_A0A250YEE0/4-86       DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Boreoeutheria TaxID=1437010 RepID=A0A250YEE0_CASCN
+#=GS UniRef90_UPI00122F5CD4/4-86    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Delphinidae TaxID=9726 RepID=UPI00122F5CD4
+#=GS UniRef90_UPI000FFB25D5/79-161  DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2 n=1 Tax=Tupaia chinensis TaxID=246437 RepID=UPI000FFB25D5
+#=GS UniRef90_A0A2K5P9J9/4-86       DE [subseq from] Nuclear receptor-binding factor 2 n=4 Tax=Simiiformes TaxID=314293 RepID=A0A2K5P9J9_CEBIM
+#=GS UniRef90_A0A2K6V5F5/4-85       DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Saimiri boliviensis boliviensis TaxID=39432 RepID=A0A2K6V5F5_SAIBB
+#=GS UniRef90_UPI00032AE10C/4-86    DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=2 Tax=Ochotona TaxID=9977 RepID=UPI00032AE10C
+#=GS UniRef90_Q8VCQ3/4-86           DE [subseq from] Nuclear receptor-binding factor 2 n=18 Tax=Tetrapoda TaxID=32523 RepID=NRBF2_MOUSE
+#=GS UniRef90_A0A8C6RE20/4-86       DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Nannospalax galili TaxID=1026970 RepID=A0A8C6RE20_NANGA
+#=GS UniRef90_A0A4U1FR66/36-117     DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Odontoceti TaxID=9722 RepID=A0A4U1FR66_MONMO
+#=GS UniRef90_A0A0P6IYN3/79-161     DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Heterocephalus glaber TaxID=10181 RepID=A0A0P6IYN3_HETGA
+#=GS UniRef90_A0A8C8RK41/83-165     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Pelusios castaneus TaxID=367368 RepID=A0A8C8RK41_9SAUR
+#=GS UniRef90_A0A452HQA9/84-166     DE [subseq from] Nuclear receptor binding factor 2 n=16 Tax=Durocryptodira TaxID=1579337 RepID=A0A452HQA9_9SAUR
+#=GS UniRef90_A0A8D0GRM9/15-97      DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Sphenodon punctatus TaxID=8508 RepID=A0A8D0GRM9_SPHPU
+#=GS UniRef90_U3IV07/172-254        DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Anas platyrhynchos platyrhynchos TaxID=8840 RepID=U3IV07_ANAPP
+#=GS UniRef90_A0A226NZ30/12-94      DE [subseq from] Nuclear receptor-binding factor 2 n=18 Tax=Neognathae TaxID=8825 RepID=A0A226NZ30_COLVI
+#=GS UniRef90_A0A091D1W8/117-199    DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Fukomys damarensis TaxID=885580 RepID=A0A091D1W8_FUKDA
+#=GS UniRef90_A0A8C0VG55/12-94      DE [subseq from] Nuclear receptor binding factor 2 n=204 Tax=Neognathae TaxID=8825 RepID=A0A8C0VG55_CYACU
+#=GS UniRef90_A0A6J0I4W9/12-94      DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=43 Tax=Neognathae TaxID=8825 RepID=A0A6J0I4W9_9PASS
+#=GS UniRef90_A0A6P3F542/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=2 Tax=Octodon degus TaxID=10160 RepID=A0A6P3F542_OCTDE
+#=GS UniRef90_A0A8C2U1A0/95-177     DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Galloanserae TaxID=1549675 RepID=A0A8C2U1A0_COTJA
+#=GS UniRef90_F1N9F2/149-231        DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Gallus gallus TaxID=9031 RepID=F1N9F2_CHICK
+#=GS UniRef90_G1LSM9/4-86           DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Ailuropoda melanoleuca TaxID=9646 RepID=G1LSM9_AILME
+#=GS UniRef90_A0A151MUL4/11-92      DE [subseq from] Nuclear receptor-binding factor 2 isoform B n=7 Tax=Crocodylia TaxID=1294634 RepID=A0A151MUL4_ALLMI
+#=GS UniRef90_A0A286XZG2/4-86       DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Hystricomorpha TaxID=33550 RepID=A0A286XZG2_CAVPO
+#=GS UniRef90_A0A669Q1D3/149-231    DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Phasianus colchicus TaxID=9054 RepID=A0A669Q1D3_PHACC
+#=GS UniRef90_F6RU44/4-85           DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Monotremata TaxID=9255 RepID=F6RU44_ORNAN
+#=GS UniRef90_A0A5J5MT71/25-107     DE [subseq from] Nuclear receptor-binding factor 2 n=14 Tax=Laurasiatheria TaxID=314145 RepID=A0A5J5MT71_MUNRE
+#=GS UniRef90_A0A6J0TK71/10-91      DE [subseq from] nuclear receptor-binding factor 2 n=3 Tax=Episquamata TaxID=1329912 RepID=A0A6J0TK71_9SAUR
+#=GS UniRef90_M3YI59/3-84           DE [subseq from] Nuclear receptor binding factor 2 n=12 Tax=Laurasiatheria TaxID=314145 RepID=M3YI59_MUSPF
+#=GS UniRef90_UPI00158FC3C2/10-91   DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Zootoca vivipara TaxID=8524 RepID=UPI00158FC3C2
+#=GS UniRef90_UPI001E87C9AE/10-91   DE [subseq from] nuclear receptor-binding factor 2 n=2 Tax=Gekkota TaxID=8560 RepID=UPI001E87C9AE
+#=GS UniRef90_G1NW41/8-86           DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Myotis TaxID=9434 RepID=G1NW41_MYOLU
+#=GS UniRef90_H0WSZ8/4-84           DE [subseq from] Nuclear receptor binding factor 2 n=7 Tax=Eutheria TaxID=9347 RepID=H0WSZ8_OTOGA
+#=GS UniRef90_A0A6B0S2U2/23-99      DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Bos TaxID=9903 RepID=A0A6B0S2U2_9CETA
+#=GS UniRef90_A0A8J6AKN6/97-173     DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Galemys pyrenaicus TaxID=202257 RepID=A0A8J6AKN6_GALPY
+#=GS UniRef90_A0A3Q7VG87/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=5 Tax=Ursus TaxID=9639 RepID=A0A3Q7VG87_URSAR
+#=GS UniRef90_A0A7J7FJP2/29-107     DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Diceros bicornis minor TaxID=77932 RepID=A0A7J7FJP2_DICBM
+#=GS UniRef90_UPI001CC7E9CD/4-85    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Dromiciops gliroides TaxID=33562 RepID=UPI001CC7E9CD
+#=GS UniRef90_A0A1S3W5C9/4-86       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=1 Tax=Erinaceus europaeus TaxID=9365 RepID=A0A1S3W5C9_ERIEU
+#=GS UniRef90_UPI000766F1DB/37-114  DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=1 Tax=Myotis davidii TaxID=225400 RepID=UPI000766F1DB
+#=GS UniRef90_H9GGA2/10-91          DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Iguania TaxID=8511 RepID=H9GGA2_ANOCA
+#=GS UniRef90_A0A8D2AWV4/15-92      DE [subseq from] Nuclear receptor binding factor 2 n=10 Tax=Sciuridae TaxID=55153 RepID=A0A8D2AWV4_SCIVU
+#=GS UniRef90_K7FKL8/6-86           DE [subseq from] Nuclear receptor binding factor 2 n=7 Tax=Cryptodira TaxID=8464 RepID=K7FKL8_PELSI
+#=GS UniRef90_UPI001C2EDB76/259-334 DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Peromyscus maniculatus bairdii TaxID=230844 RepID=UPI001C2EDB76
+#=GS UniRef90_L5M5K2/68-143         DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Myotis davidii TaxID=225400 RepID=L5M5K2_MYODS
+#=GS UniRef90_A0A6P8REB3/62-143     DE [subseq from] nuclear receptor-binding factor 2 n=5 Tax=Gymnophiona TaxID=8445 RepID=A0A6P8REB3_GEOSA
+#=GS UniRef90_A0A8C0VBJ0/173-253    DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Cyanistes caeruleus TaxID=156563 RepID=A0A8C0VBJ0_CYACU
+#=GS UniRef90_UPI001CF9C89E/4-85    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Protopterus annectens TaxID=7888 RepID=UPI001CF9C89E
+#=GS UniRef90_UPI000E1D046D/47-128  DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=2 Tax=Apteryx rowi TaxID=308060 RepID=UPI000E1D046D
+#=GS UniRef90_G3VQH6/4-86           DE [subseq from] Nuclear receptor binding factor 2 n=7 Tax=Metatheria TaxID=9263 RepID=G3VQH6_SARHA
+#=GS UniRef90_A0A452HQA0/32-111     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Gopherus agassizii TaxID=38772 RepID=A0A452HQA0_9SAUR
+#=GS UniRef90_A0A8D0DSK7/10-91      DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Salvator merianae TaxID=96440 RepID=A0A8D0DSK7_9SAUR
+#=GS UniRef90_A0A2I0MFN9/20-96      DE [subseq from] Nuclear receptor binding factor 2 n=7 Tax=Neognathae TaxID=8825 RepID=A0A2I0MFN9_COLLI
+#=GS UniRef90_UPI00159DBC71/5-86    DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Callithrix jacchus TaxID=9483 RepID=UPI00159DBC71
+#=GS UniRef90_A0A3Q0GJN3/40-115     DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Alligator sinensis TaxID=38654 RepID=A0A3Q0GJN3_ALLSI
+#=GS UniRef90_A0A674GU37/203-278    DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Estrildidae TaxID=37611 RepID=A0A674GU37_TAEGU
+#=GS UniRef90_A0A7K9V7Y5/1-76       DE [subseq from] NRBF2 factor (Fragment) n=10 Tax=Neognathae TaxID=8825 RepID=A0A7K9V7Y5_ANSSE
+#=GS UniRef90_A0A7L3IZ53/1-76       DE [subseq from] NRBF2 factor (Fragment) n=12 Tax=Neognathae TaxID=8825 RepID=A0A7L3IZ53_THACH
+#=GS UniRef90_A0A8C5JYR6/9-81       DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Jaculus jaculus TaxID=51337 RepID=A0A8C5JYR6_JACJA
+#=GS UniRef90_A0A674GB57/22-97      DE [subseq from] Nuclear receptor binding factor 2 n=92 Tax=Passeriformes TaxID=9126 RepID=A0A674GB57_TAEGU
+#=GS UniRef90_A0A1W7RF97/11-92      DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Crotalinae TaxID=8710 RepID=A0A1W7RF97_AGKCO
+#=GS UniRef90_F6XYI2/1-76           DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Didelphinae TaxID=126287 RepID=F6XYI2_MONDO
+#=GS UniRef90_A0A7K7V7Z7/1-76       DE [subseq from] NRBF2 factor (Fragment) n=19 Tax=Aves TaxID=8782 RepID=A0A7K7V7Z7_EUDEL
+#=GS UniRef90_A0A7K9K4K0/1-76       DE [subseq from] NRBF2 factor (Fragment) n=13 Tax=Passeriformes TaxID=9126 RepID=A0A7K9K4K0_9PASE
+#=GS UniRef90_A0A8D2LPR6/10-69      DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Varanus komodoensis TaxID=61221 RepID=A0A8D2LPR6_VARKO
+#=GS UniRef90_A0A8D2LPR6/94-137     DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Varanus komodoensis TaxID=61221 RepID=A0A8D2LPR6_VARKO
+#=GS UniRef90_A0A8C2LJJ6/5-87       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Cricetulus griseus TaxID=10029 RepID=A0A8C2LJJ6_CRIGR
+#=GS UniRef90_UPI0015B1310E/4-83    DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Anguilla anguilla TaxID=7936 RepID=UPI0015B1310E
+#=GS UniRef90_UPI001CC75923/122-202 DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Dromiciops gliroides TaxID=33562 RepID=UPI001CC75923
+#=GS UniRef90_A0A8C5MAC0/4-83       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Leptobrachium leishanense TaxID=445787 RepID=A0A8C5MAC0_9ANUR
+#=GS UniRef90_A0A8J6FCQ9/4-86       DE [subseq from] Nuclear receptor-binding factor 2 n=4 Tax=Hyloidea TaxID=8417 RepID=A0A8J6FCQ9_ELECQ
+#=GS UniRef90_V9KW39/4-86           DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Callorhinchus milii TaxID=7868 RepID=V9KW39_CALMI
+#=GS UniRef90_UPI001864AA8E/4-83    DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Megalops cyprinoides TaxID=118141 RepID=UPI001864AA8E
+#=GS UniRef90_A0A7J6ARJ7/5-83       DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Siluroidei TaxID=1489793 RepID=A0A7J6ARJ7_AMEME
+#=GS UniRef90_A0A8C4RGL4/4-82       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Polypteridae TaxID=8289 RepID=A0A8C4RGL4_ERPCA
+#=GS UniRef90_A0A8T2IX23/4-85       DE [subseq from] Uncharacterized protein n=1 Tax=Hymenochirus boettgeri TaxID=247094 RepID=A0A8T2IX23_9PIPI
+#=GS UniRef90_Q6DHJ4/5-83           DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Danio rerio TaxID=7955 RepID=Q6DHJ4_DANRE
+#=GS UniRef90_G3PRL8/5-86           DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Gasterosteus aculeatus TaxID=69293 RepID=G3PRL8_GASAC
+#=GS UniRef90_A0A3B4CRU1/5-83       DE [subseq from] Nuclear receptor-binding factor 2-like n=3 Tax=Serrasalmidae TaxID=42495 RepID=A0A3B4CRU1_PYGNA
+#=GS UniRef90_G3PRL4/5-86           DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Gasterosteidae TaxID=69291 RepID=G3PRL4_GASAC
+#=GS UniRef90_A0A401PW43/4-86       DE [subseq from] Nuclear receptor-binding factor 2 n=6 Tax=Galeoidea TaxID=119195 RepID=A0A401PW43_SCYTO
+#=GS UniRef90_A0A4U5VSN2/25-107     DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Collichthys lucidus TaxID=240159 RepID=A0A4U5VSN2_COLLU
+#=GS UniRef90_A0A315UPI2/26-106     DE [subseq from] Nuclear receptor binding factor 2b n=11 Tax=Poeciliinae TaxID=586240 RepID=A0A315UPI2_GAMAF
+#=GS UniRef90_UPI000E55F211/4-83    DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Urocitellus parryii TaxID=9999 RepID=UPI000E55F211
+#=GS UniRef90_A0A672PZM2/4-83       DE [subseq from] Nuclear receptor-binding factor 2-like n=18 Tax=Cyprinoidei TaxID=30727 RepID=A0A672PZM2_SINGR
+#=GS UniRef90_A0A3Q3GME5/26-107     DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Labridae TaxID=8247 RepID=A0A3Q3GME5_9LABR
+#=GS UniRef90_A0A7N6BIY1/26-107     DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Anabas testudineus TaxID=64144 RepID=A0A7N6BIY1_ANATE
+#=GS UniRef90_UPI001ED80CFE/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=4 Tax=Eupercaria TaxID=1489922 RepID=UPI001ED80CFE
+#=GS UniRef90_A0A3Q0R0P0/5-85       DE [subseq from] Nuclear receptor binding factor 2b n=3 Tax=Heroini TaxID=318529 RepID=A0A3Q0R0P0_AMPCI
+#=GS UniRef90_A0A667XDL8/5-85       DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Myripristis murdjan TaxID=586833 RepID=A0A667XDL8_9TELE
+#=GS UniRef90_A0A8C7JM62/5-81       DE [subseq from] Nuclear receptor-binding factor 2-like n=14 Tax=Salmoninae TaxID=504568 RepID=A0A8C7JM62_ONCKI
+#=GS UniRef90_A0A8T2P087/20-96      DE [subseq from] Uncharacterized protein n=2 Tax=Albula TaxID=54908 RepID=A0A8T2P087_9TELE
+#=GS UniRef90_A0A3Q2ZZL8/26-107     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Kryptolebias marmoratus TaxID=37003 RepID=A0A3Q2ZZL8_KRYMA
+#=GS UniRef90_UPI001FACF432/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Girardinichthys multiradiatus TaxID=208333 RepID=UPI001FACF432
+#=GS UniRef90_A0A8J0TDL7/4-93       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=3 Tax=Xenopus laevis TaxID=8355 RepID=A0A8J0TDL7_XENLA
+#=GS UniRef90_A0A3B3R5M1/4-83       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Mormyridae TaxID=31092 RepID=A0A3B3R5M1_9TELE
+#=GS UniRef90_A0A8C4AJL7/4-83       DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Denticeps clupeoides TaxID=299321 RepID=A0A8C4AJL7_9TELE
+#=GS UniRef90_UPI002013D1CF/4-82    DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2b n=1 Tax=Megalobrama amblycephala TaxID=75352 RepID=UPI002013D1CF
+#=GS UniRef90_A0A3P8YM01/13-91      DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Esox lucius TaxID=8010 RepID=A0A3P8YM01_ESOLU
+#=GS UniRef90_A0A6P3VJF5/4-83       DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Clupea harengus TaxID=7950 RepID=A0A6P3VJF5_CLUHA
+#=GS UniRef90_I3JJS6/26-106         DE [subseq from] Nuclear receptor binding factor 2 n=13 Tax=Pseudocrenilabrinae TaxID=318546 RepID=I3JJS6_ORENI
+#=GS UniRef90_UPI001BD4167E/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Cheilinus undulatus TaxID=241271 RepID=UPI001BD4167E
+#=GS UniRef90_A0A2I2YC64/1-64       DE [subseq from] NRBF2 factor n=7 Tax=Eutheria TaxID=9347 RepID=A0A2I2YC64_GORGO
+#=GS UniRef90_A0A4W6FGG8/27-107     DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Percomorphaceae TaxID=1489872 RepID=A0A4W6FGG8_LATCA
+#=GS UniRef90_F7EIP5/15-89          DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Xenopus tropicalis TaxID=8364 RepID=F7EIP5_XENTR
+#=GS UniRef90_A0A3B4UXJ4/26-107     DE [subseq from] Nuclear receptor binding factor 2 n=6 Tax=Percomorphaceae TaxID=1489872 RepID=A0A3B4UXJ4_SERDU
+#=GS UniRef90_UPI00202B3BF3/4-86    DE [subseq from] nuclear receptor-binding factor 2b isoform X1 n=4 Tax=Orectolobiformes TaxID=30503 RepID=UPI00202B3BF3
+#=GS UniRef90_UPI001F075112/5-83    DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Hypomesus transpacificus TaxID=137520 RepID=UPI001F075112
+#=GS UniRef90_A0A6J2VAY7/5-83       DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Chanos chanos TaxID=29144 RepID=A0A6J2VAY7_CHACN
+#=GS UniRef90_UPI001C40CDB0/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Solea senegalensis TaxID=28829 RepID=UPI001C40CDB0
+#=GS UniRef90_A0A8C9RHW1/14-92      DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Scleropages formosus TaxID=113540 RepID=A0A8C9RHW1_SCLFO
+#=GS UniRef90_A0A8C3AC87/5-86       DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Cyclopterus lumpus TaxID=8103 RepID=A0A8C3AC87_CYCLU
+#=GS UniRef90_A0A2I4CNW9/26-107     DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Austrofundulus limnaeus TaxID=52670 RepID=A0A2I4CNW9_9TELE
+#=GS UniRef90_UPI001B3AE871/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Toxotes jaculatrix TaxID=941984 RepID=UPI001B3AE871
+#=GS UniRef90_A0A8T0BHX8/5-83       DE [subseq from] Uncharacterized protein n=1 Tax=Silurus meridionalis TaxID=175797 RepID=A0A8T0BHX8_SILME
+#=GS UniRef90_UPI001C03D5CE/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Melanotaenia boesemani TaxID=1250792 RepID=UPI001C03D5CE
+#=GS UniRef90_UPI001C090D4D/4-83    DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2b n=2 Tax=Alosa TaxID=34772 RepID=UPI001C090D4D
+#=GS UniRef90_A0A3Q1FIV1/26-106     DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Pomacentridae TaxID=30863 RepID=A0A3Q1FIV1_9TELE
+#=GS UniRef90_A0A6A4RY39/28-108     DE [subseq from] Nuclear receptor binding factor 2b n=6 Tax=Carangaria TaxID=1489904 RepID=A0A6A4RY39_SCOMX
+#=GS UniRef90_A0A6P7KB26/26-107     DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Parambassis ranga TaxID=210632 RepID=A0A6P7KB26_9TELE
+#=GS UniRef90_UPI001A9FADCD/13-93   DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Ictidomys tridecemlineatus TaxID=43179 RepID=UPI001A9FADCD
+#=GS UniRef90_A0A5J5CKQ1/5-86       DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Etheostoma spectabile TaxID=54343 RepID=A0A5J5CKQ1_9PERO
+#=GS UniRef90_A0A3B4ACE6/5-82       DE [subseq from] Nuclear receptor binding factor 2b n=3 Tax=Oxudercinae TaxID=497678 RepID=A0A3B4ACE6_9GOBI
+#=GS UniRef90_A0A8C5GBN9/14-95      DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Gouania willdenowi TaxID=441366 RepID=A0A8C5GBN9_9TELE
+#=GS UniRef90_A0A553MQU5/4-83       DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Danionella translucida TaxID=623744 RepID=A0A553MQU5_9TELE
+#=GS UniRef90_A0A3Q2CN77/5-86       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Cyprinodon TaxID=28741 RepID=A0A3Q2CN77_CYPVA
+#=GS UniRef90_A0A8P4GG00/26-107     DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Eupercaria TaxID=1489922 RepID=A0A8P4GG00_DICLA
+#=GS UniRef90_UPI001471E4C8/26-107  DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Thalassophryne amazonica TaxID=390379 RepID=UPI001471E4C8
+#=GS UniRef90_UPI00148BD94D/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=2 Tax=Hippoglossus TaxID=8266 RepID=UPI00148BD94D
+#=GS UniRef90_A0A3S2PFS7/25-107     DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Oryzias TaxID=8089 RepID=A0A3S2PFS7_ORYJA
+#=GS UniRef90_A0A6F9C5P4/5-82       DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Coregonus TaxID=27772 RepID=A0A6F9C5P4_9TELE
+#=GS UniRef90_A0A6P7L7L3/26-103     DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Betta splendens TaxID=158456 RepID=A0A6P7L7L3_BETSP
+#=GS UniRef90_UPI001A98FEFB/2-80    DE [subseq from] nuclear receptor-binding factor 2b isoform X2 n=1 Tax=Xiphias gladius TaxID=8245 RepID=UPI001A98FEFB
+#=GS UniRef90_A0A4W4G3I5/5-83       DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Electrophorus electricus TaxID=8005 RepID=A0A4W4G3I5_ELEEL
+#=GS UniRef90_A0A3Q2NVP2/5-86       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Fundulus heteroclitus TaxID=8078 RepID=A0A3Q2NVP2_FUNHE
+#=GS UniRef90_A0A8C6WPD7/26-107     DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Neogobius melanostomus TaxID=47308 RepID=A0A8C6WPD7_9GOBI
+#=GS UniRef90_A0A673ATX3/26-105     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Sphaeramia orbicularis TaxID=375764 RepID=A0A673ATX3_9TELE
+#=GS UniRef90_A0A3Q2ZJJ1/59-140     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Hippocampus comes TaxID=109280 RepID=A0A3Q2ZJJ1_HIPCM
+#=GS UniRef90_A0A3B1J0U8/30-103     DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Astyanax mexicanus TaxID=7994 RepID=A0A3B1J0U8_ASTMX
+#=GS UniRef90_A0A672GUS0/18-95      DE [subseq from] Nuclear receptor binding factor 2b n=3 Tax=Salarias fasciatus TaxID=181472 RepID=A0A672GUS0_SALFA
+#=GS UniRef90_UPI001885AE02/26-107  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Syngnathus acus TaxID=161584 RepID=UPI001885AE02
+#=GS UniRef90_A0A2K5RHJ0/1-64       DE [subseq from] NRBF2 factor n=2 Tax=Cebus imitator TaxID=2715852 RepID=A0A2K5RHJ0_CEBIM
+#=GS UniRef90_A0A665X993/26-106     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Echeneis naucrates TaxID=173247 RepID=A0A665X993_ECHNA
+#=GS UniRef90_A0A8C8ULN5/35-109     DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Peromyscus maniculatus bairdii TaxID=230844 RepID=A0A8C8ULN5_PERMB
+#=GS UniRef90_A0A6P8TLT1/5-85       DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=4 Tax=Notothenioidei TaxID=8205 RepID=A0A6P8TLT1_GYMAC
+#=GS UniRef90_H3AWK6/9-86           DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Latimeria chalumnae TaxID=7897 RepID=H3AWK6_LATCH
+#=GS UniRef90_A0A7N8WN91/26-107     DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Mastacembelus armatus TaxID=205130 RepID=A0A7N8WN91_9TELE
+#=GS UniRef90_A0A5A9PV53/5-78       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Triplophysa tibetana TaxID=1572043 RepID=A0A5A9PV53_9TELE
+#=GS UniRef90_UPI001FB74286/5-83    DE [subseq from] nuclear receptor-binding factor 2b isoform X1 n=3 Tax=Mugil cephalus TaxID=48193 RepID=UPI001FB74286
+#=GS UniRef90_A0A3P8VRT0/4-86       DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Cynoglossus semilaevis TaxID=244447 RepID=A0A3P8VRT0_CYNSE
+#=GS UniRef90_A0A4Z2HAF5/5-85       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Liparis tanakae TaxID=230148 RepID=A0A4Z2HAF5_9TELE
+#=GS UniRef90_A0A3N0Y4A6/12-85      DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Cyprinoidei TaxID=30727 RepID=A0A3N0Y4A6_ANAGA
+#=GS UniRef90_A0A3Q3VLH2/5-85       DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Mola mola TaxID=94237 RepID=A0A3Q3VLH2_MOLML
+#=GS UniRef90_A0A401ST88/4-80       DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Chiloscyllium TaxID=34767 RepID=A0A401ST88_CHIPU
+#=GS UniRef90_V8NHV9/28-58          DE [subseq from] Nuclear receptor-binding factor 2 (Fragment) n=1 Tax=Ophiophagus hannah TaxID=8665 RepID=V8NHV9_OPHHA
+#=GS UniRef90_V8NHV9/79-131         DE [subseq from] Nuclear receptor-binding factor 2 (Fragment) n=1 Tax=Ophiophagus hannah TaxID=8665 RepID=V8NHV9_OPHHA
+#=GS UniRef90_A0A3P8T870/28-107     DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Amphiprion percula TaxID=161767 RepID=A0A3P8T870_AMPPE
+#=GS UniRef90_UPI0014023FAA/23-104  DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Petromyzon marinus TaxID=7757 RepID=UPI0014023FAA
+#=GS UniRef90_A0A484C372/5-86       DE [subseq from] Nuclear receptor binding factor 2b n=12 Tax=Eupercaria TaxID=1489922 RepID=A0A484C372_PERFV
+#=GS UniRef90_A0A1A7YQ69/26-106     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Iconisemion striatum TaxID=60296 RepID=A0A1A7YQ69_9TELE
+#=GS UniRef90_A0A2K6U686/4-73       DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Saimiri boliviensis boliviensis TaxID=39432 RepID=A0A2K6U686_SAIBB
+#=GS UniRef90_A0A3Q2VHH4/24-98      DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Pseudocrenilabrinae TaxID=318546 RepID=A0A3Q2VHH4_HAPBU
+#=GS UniRef90_H2RMT5/23-104         DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Takifugu rubripes TaxID=31033 RepID=H2RMT5_TAKRU
+#=GS UniRef90_A0A2K6UXU3/2-59       DE [subseq from] NRBF2 factor n=1 Tax=Saimiri boliviensis boliviensis TaxID=39432 RepID=A0A2K6UXU3_SAIBB
+#=GS UniRef90_A0A1A8UBP6/26-105     DE [subseq from] Nuclear receptor binding factor 2 n=6 Tax=Nothobranchius TaxID=28779 RepID=A0A1A8UBP6_NOTFU
+#=GS UniRef90_A0A8S4B4K9/5-83       DE [subseq from] (Atlantic silverside) hypothetical protein n=1 Tax=Menidia menidia TaxID=238744 RepID=A0A8S4B4K9_9TELE
+#=GS UniRef90_UPI0015FA9552/5-82    DE [subseq from] nuclear receptor-binding factor 2b isoform X2 n=2 Tax=Oncorhynchus keta TaxID=8018 RepID=UPI0015FA9552
+#=GS UniRef90_UPI001402202C/4-97    DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=2 Tax=Amblyraja radiata TaxID=386614 RepID=UPI001402202C
+#=GS UniRef90_A0A8U0QC81/16-87      DE [subseq from] nuclear receptor-binding factor 2b isoform X1 n=3 Tax=Salvelinus TaxID=8033 RepID=A0A8U0QC81_SALNM
+#=GS UniRef90_A0A3B3I280/4-75       DE [subseq from] Nuclear receptor binding factor 2 n=6 Tax=Oryzias TaxID=8089 RepID=A0A3B3I280_ORYLA
+#=GS UniRef90_A0A7F8QZ73/4-60       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Leptonychotes weddellii TaxID=9713 RepID=A0A7F8QZ73_LEPWE
+#=GS UniRef90_A0A8C4QXN7/1-83       DE [subseq from] Nuclear receptor binding factor 2b n=1 Tax=Eptatretus burgeri TaxID=7764 RepID=A0A8C4QXN7_EPTBU
+#=GS UniRef90_A0A8C5ACQ7/24-94      DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Gadus morhua TaxID=8049 RepID=A0A8C5ACQ7_GADMO
+#=GS UniRef90_UPI0018640125/5-82    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Megalops cyprinoides TaxID=118141 RepID=UPI0018640125
+#=GS UniRef90_A0A3P9N3T9/5-80       DE [subseq from] Nuclear receptor binding factor 2 n=4 Tax=Poecilia TaxID=8080 RepID=A0A3P9N3T9_POERE
+#=GS UniRef90_A0A8M1FAG1/4-53       DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Ursus maritimus TaxID=29073 RepID=A0A8M1FAG1_URSMA
+#=GS UniRef90_A0A2Y9NB19/26-76      DE [subseq from] nuclear receptor-binding factor 2-like n=4 Tax=Odontoceti TaxID=9722 RepID=A0A2Y9NB19_DELLE
+#=GS UniRef90_A0A2K5JW81/27-76      DE [subseq from] CE295 protein n=1 Tax=Colobus angolensis palliatus TaxID=336983 RepID=A0A2K5JW81_COLAP
+#=GS UniRef90_A0A8C2PEI4/72-95      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Capra hircus TaxID=9925 RepID=A0A8C2PEI4_CAPHI
+#=GS UniRef90_A0A8C2PEI4/139-178    DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Capra hircus TaxID=9925 RepID=A0A8C2PEI4_CAPHI
+#=GS UniRef90_A0A8I5YTK1/27-76      DE [subseq from] Nuclear receptor-binding factor 2 n=4 Tax=Boreoeutheria TaxID=1437010 RepID=A0A8I5YTK1_PONAB
+#=GS UniRef90_Q96F24-3/27-76        DE [subseq from] Isoform 3 of Nuclear receptor-binding factor 2 n=11 Tax=Boreoeutheria TaxID=1437010 RepID=Q96F24-3
+#=GS UniRef90_A0A2I3H0P7/36-85      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Nomascus leucogenys TaxID=61853 RepID=A0A2I3H0P7_NOMLE
+#=GS UniRef90_A0A8D2F3F5/4-57       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Theropithecus gelada TaxID=9565 RepID=A0A8D2F3F5_THEGE
+#=GS UniRef90_UPI0018856E7A/58-112  DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=2 Tax=Peromyscus leucopus TaxID=10041 RepID=UPI0018856E7A
+#=GS UniRef90_A0A2I2UKU3/27-76      DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Felidae TaxID=9681 RepID=A0A2I2UKU3_FELCA
+#=GS UniRef90_A0A3Q3J5M2/5-80       DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Monopterus albus TaxID=43700 RepID=A0A3Q3J5M2_MONAL
+#=GS UniRef90_A0A2K6FJI9/27-76      DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Euarchontoglires TaxID=314146 RepID=A0A2K6FJI9_PROCO
+#=GS UniRef90_A0A8T2NQD5/63-136     DE [subseq from] Uncharacterized protein n=1 Tax=Albula glossodonta TaxID=121402 RepID=A0A8T2NQD5_9TELE
+#=GS UniRef90_A0A6P3IW77/27-76      DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=15 Tax=Artiodactyla TaxID=91561 RepID=A0A6P3IW77_BISBI
+#=GS UniRef90_A0A2K5DL90/78-130     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Aotus nancymaae TaxID=37293 RepID=A0A2K5DL90_AOTNA
+#=GS UniRef90_A0A7J7TU50/28-76      DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Myotis TaxID=9434 RepID=A0A7J7TU50_MYOMY
+#=GS UniRef90_A0A5F9CEJ3/28-76      DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Oryctolagus cuniculus TaxID=9986 RepID=A0A5F9CEJ3_RABIT
+#=GS UniRef90_I3MXX5/4-46           DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Ictidomys tridecemlineatus TaxID=43179 RepID=I3MXX5_ICTTR
+#=GS UniRef90_I3MXX5/46-67          DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Ictidomys tridecemlineatus TaxID=43179 RepID=I3MXX5_ICTTR
+#=GS UniRef90_UPI0015D60647/112-174 DE [subseq from] nuclear receptor-binding factor 2 isoform X3 n=2 Tax=Cygnus atratus TaxID=8868 RepID=UPI0015D60647
+#=GS UniRef90_A0A8D0TK51/27-76      DE [subseq from] Nuclear receptor-binding factor 2 n=61 Tax=Eutheria TaxID=9347 RepID=A0A8D0TK51_PIG
+#=GS UniRef90_A0A1S3FA10/27-76      DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=2 Tax=Dipodomys TaxID=10016 RepID=A0A1S3FA10_DIPOR
+#=GS UniRef90_A0A5F5PTK8/80-128     DE [subseq from] Nuclear receptor binding factor 2 n=11 Tax=Eutheria TaxID=9347 RepID=A0A5F5PTK8_HORSE
+#=GS UniRef90_A0A6I9J4F7/27-76      DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Chrysochloris asiatica TaxID=185453 RepID=A0A6I9J4F7_CHRAS
+#=GS UniRef90_UPI00062AA686/28-76   DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Dasypus novemcinctus TaxID=9361 RepID=UPI00062AA686
+#=GS UniRef90_UPI000642BF5A/25-73   DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Condylura cristata TaxID=143302 RepID=UPI000642BF5A
+#=GS UniRef90_UPI000CCC3FBF/66-116  DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=4 Tax=Vespertilionidae TaxID=9431 RepID=UPI000CCC3FBF
+#=GS UniRef90_UPI00122EF45D/28-76   DE [subseq from] nuclear receptor-binding factor 2-like isoform X2 n=1 Tax=Globicephala melas TaxID=9731 RepID=UPI00122EF45D
+#=GS UniRef90_A0A2K6MN31/4-67       DE [subseq from] Nuclear receptor binding factor 2 n=6 Tax=Colobinae TaxID=9569 RepID=A0A2K6MN31_RHIBE
+#=GS UniRef90_UPI00064B9B6B/27-76   DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=2 Tax=Ochotona TaxID=9977 RepID=UPI00064B9B6B
+#=GS UniRef90_A0A3L8SMH6/12-95      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Chloebia gouldiae TaxID=44316 RepID=A0A3L8SMH6_CHLGU
+#=GS UniRef90_UPI00189AC3F9/26-114  DE [subseq from] nuclear receptor-binding factor 2b n=1 Tax=Nematolebias whitei TaxID=451745 RepID=UPI00189AC3F9
+#=GS UniRef90_G1LSN2/82-131         DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Ailuropoda melanoleuca TaxID=9646 RepID=G1LSN2_AILME
+#=GS UniRef90_A0A8N7TBX1/29-105     DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Danio rerio TaxID=7955 RepID=A0A8N7TBX1_DANRE
+#=GS UniRef90_UPI000661E7E5/28-76   DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Cavia porcellus TaxID=10141 RepID=UPI000661E7E5
+#=GS UniRef90_A0A1S2ZCV3/28-76      DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=2 Tax=Laurasiatheria TaxID=314145 RepID=A0A1S2ZCV3_ERIEU
+#=GS UniRef90_UPI0001CBBCB3/4-83    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Saccoglossus kowalevskii TaxID=10224 RepID=UPI0001CBBCB3
+#=GS UniRef90_A0A7J6C5C9/1-77       DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Cyprinidae TaxID=7953 RepID=A0A7J6C5C9_9TELE
+#=GS UniRef90_A0A6J2WCV9/4-79       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Chanos chanos TaxID=29144 RepID=A0A6J2WCV9_CHACN
+#=GS UniRef90_A0A498LW14/4-80       DE [subseq from] Nuclear receptor-binding factor 2-like protein n=2 Tax=Labeo rohita TaxID=84645 RepID=A0A498LW14_LABRO
+#=GS UniRef90_A0A2I3TDH1/1-55       DE [subseq from] NRBF2 n=3 Tax=Homininae TaxID=207598 RepID=A0A2I3TDH1_PANTR
+#=GS UniRef90_UPI001EE57F1F/1-78    DE [subseq from] nuclear receptor-binding factor 2-like n=2 Tax=Haliotis TaxID=6452 RepID=UPI001EE57F1F
+#=GS UniRef90_A0A6P4YXC8/7-81       DE [subseq from] nuclear receptor-binding factor 2-like n=3 Tax=Branchiostoma TaxID=7737 RepID=A0A6P4YXC8_BRABE
+#=GS UniRef90_UPI001C8ADC38/5-79    DE [subseq from] nuclear receptor binding factor 2a n=1 Tax=Puntigrus tetrazona TaxID=1606681 RepID=UPI001C8ADC38
+#=GS UniRef90_W5MIU2/4-57           DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Lepisosteus oculatus TaxID=7918 RepID=W5MIU2_LEPOC
+#=GS UniRef90_A0A8C5YMJ3/4-44       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Marmota marmota marmota TaxID=9994 RepID=A0A8C5YMJ3_MARMA
+#=GS UniRef90_UPI001863E8F6/4-79    DE [subseq from] nuclear receptor binding factor 2a n=1 Tax=Colossoma macropomum TaxID=42526 RepID=UPI001863E8F6
+#=GS UniRef90_A0A2B4SVX0/1392-1472  DE [subseq from] Hemicentin-1 n=4 Tax=Stylophora pistillata TaxID=50429 RepID=A0A2B4SVX0_STYPI
+#=GS UniRef90_A0A670Z0P5/63-118     DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Pseudonaja textilis TaxID=8673 RepID=A0A670Z0P5_PSETE
+#=GS UniRef90_A0A803TLZ7/75-122     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Anolis carolinensis TaxID=28377 RepID=A0A803TLZ7_ANOCA
+#=GS UniRef90_UPI000F54C924/1-80    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Pocillopora damicornis TaxID=46731 RepID=UPI000F54C924
+#=GS UniRef90_UPI000C30C308/26-82   DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Amphiprion ocellaris TaxID=80972 RepID=UPI000C30C308
+#=GS UniRef90_A0A8C9NYK4/4-47       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Spermophilus dauricus TaxID=99837 RepID=A0A8C9NYK4_SPEDA
+#=GS UniRef90_A0A812D6F8/12-93      DE [subseq from] NRBF2 n=1 Tax=Sepia pharaonis TaxID=158019 RepID=A0A812D6F8_SEPPH
+#=GS UniRef90_UPI0013765088/59-114  DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=1 Tax=Thamnophis elegans TaxID=35005 RepID=UPI0013765088
+#=GS UniRef90_A0A8B9H543/11-79      DE [subseq from] Nuclear receptor-binding factor 2 n=4 Tax=Astyanax mexicanus TaxID=7994 RepID=A0A8B9H543_ASTMX
+#=GS UniRef90_A7RH16/1-82           DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Nematostella vectensis TaxID=45351 RepID=A7RH16_NEMVE
+#=GS UniRef90_A0A3B4CAW1/4-79       DE [subseq from] Nuclear receptor-binding factor 2-like n=1 Tax=Pygocentrus nattereri TaxID=42514 RepID=A0A3B4CAW1_PYGNA
+#=GS UniRef90_A0A1S3HAX3/2-80       DE [subseq from] nuclear receptor-binding factor 2 n=2 Tax=Lingula unguis TaxID=7574 RepID=A0A1S3HAX3_LINUN
+#=GS UniRef90_E0CZ57/4-39           DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Mus TaxID=862507 RepID=E0CZ57_MOUSE
+#=GS UniRef90_UPI001CF5E006/1-79    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Acropora millepora TaxID=45264 RepID=UPI001CF5E006
+#=GS UniRef90_A0A803JM51/62-114     DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Xenopus tropicalis TaxID=8364 RepID=A0A803JM51_XENTR
+#=GS UniRef90_A0A6P8IKQ0/1-83       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Actinia tenebrosa TaxID=6105 RepID=A0A6P8IKQ0_ACTTE
+#=GS UniRef90_R7UKE3/5-74           DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Capitella teleta TaxID=283909 RepID=R7UKE3_CAPTE
+#=GS UniRef90_A0A8B8BAT2/4-80       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Crassostrea virginica TaxID=6565 RepID=A0A8B8BAT2_CRAVI
+#=GS UniRef90_K1QPV9/21-96          DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Crassostrea gigas TaxID=29159 RepID=K1QPV9_CRAGI
+#=GS UniRef90_UPI000A2A5955/1-78    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Exaiptasia diaphana TaxID=2652724 RepID=UPI000A2A5955
+#=GS UniRef90_A0A8C2PEE3/23-63      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Capra hircus TaxID=9925 RepID=A0A8C2PEE3_CAPHI
+#=GS UniRef90_UPI000BA81164/8-76    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Limulus polyphemus TaxID=6850 RepID=UPI000BA81164
+#=GS UniRef90_UPI000C6DD3E5/1-74    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Centruroides sculpturatus TaxID=218467 RepID=UPI000C6DD3E5
+#=GS UniRef90_UPI002013EBAC/19-91   DE [subseq from] nuclear receptor binding factor 2a isoform X1 n=3 Tax=Megalobrama amblycephala TaxID=75352 RepID=UPI002013EBAC
+#=GS UniRef90_A0A5A9NR61/4-83       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Triplophysa tibetana TaxID=1572043 RepID=A0A5A9NR61_9TELE
+#=GS UniRef90_A0A7N4Q0S4/4-51       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Sarcophilus harrisii TaxID=9305 RepID=A0A7N4Q0S4_SARHA
+#=GS UniRef90_A0A663N6G3/1-42       DE [subseq from] Nuclear receptor binding factor 2 n=3 Tax=Aves TaxID=8782 RepID=A0A663N6G3_ATHCN
+#=GS UniRef90_UPI0014552E01/14-90   DE [subseq from] nuclear receptor-binding factor 2-like n=2 Tax=Asterias rubens TaxID=7604 RepID=UPI0014552E01
+#=GS UniRef90_UPI001069C1DB/1-78    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Dendronephthya gigantea TaxID=151771 RepID=UPI001069C1DB
+#=GS UniRef90_A0A2K6TWL9/27-62      DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Cebidae TaxID=9498 RepID=A0A2K6TWL9_SAIBB
+#=GS UniRef90_UPI0018F6BCB9/20-66   DE [subseq from] nuclear receptor-binding factor 2b isoform X3 n=1 Tax=Scyliorhinus canicula TaxID=7830 RepID=UPI0018F6BCB9
+#=GS UniRef90_UPI001B887A9F/1-71    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Gigantopelta aegis TaxID=1735272 RepID=UPI001B887A9F
+#=GS UniRef90_A0A8C3KZ17/1-42       DE [subseq from] Nuclear receptor binding factor 2 n=6 Tax=Galliformes TaxID=8976 RepID=A0A8C3KZ17_CHRPC
+#=GS UniRef90_A0A8J1T6B0/5-85       DE [subseq from] Hypothetical protein n=1 Tax=Owenia fusiformis TaxID=6347 RepID=A0A8J1T6B0_OWEFU
+#=GS UniRef90_A0A8C9PZR7/4-39       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Spermophilus dauricus TaxID=99837 RepID=A0A8C9PZR7_SPEDA
+#=GS UniRef90_A0A6I9PRM4/80-142     DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Notothenia coriiceps TaxID=8208 RepID=A0A6I9PRM4_9TELE
+#=GS UniRef90_A0A556TIK3/90-144     DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Bagarius yarrelli TaxID=175774 RepID=A0A556TIK3_BAGYA
+#=GS UniRef90_UPI001B7F7653/19-66   DE [subseq from] nuclear receptor-binding factor 2b isoform X2 n=1 Tax=Carcharodon carcharias TaxID=13397 RepID=UPI001B7F7653
+#=GS UniRef90_UPI000778A40C/1-41    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Python bivittatus TaxID=176946 RepID=UPI000778A40C
+#=GS UniRef90_A0A1W4WYU5/5-74       DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=3 Tax=Agrilus planipennis TaxID=224129 RepID=A0A1W4WYU5_AGRPL
+#=GS UniRef90_A0A4X2KH29/4-49       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Vombatus ursinus TaxID=29139 RepID=A0A4X2KH29_VOMUR
+#=GS UniRef90_A0A6P8YJ06/3-71       DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Thrips palmi TaxID=161013 RepID=A0A6P8YJ06_THRPL
+#=GS UniRef90_UPI000359B1FC/19-89   DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Aplysia californica TaxID=6500 RepID=UPI000359B1FC
+#=GS UniRef90_A0A8C2R3I9/17-66      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Capra hircus TaxID=9925 RepID=A0A8C2R3I9_CAPHI
+#=GS UniRef90_UPI001457EFF8/1-78    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Pecten maximus TaxID=6579 RepID=UPI001457EFF8
+#=GS UniRef90_UPI001F04C98E/1-71    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Xenia sp. Carnegie-2017 TaxID=2897299 RepID=UPI001F04C98E
+#=GS UniRef90_UPI001D0845A6/3-81    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Chrysoperla carnea TaxID=189513 RepID=UPI001D0845A6
+#=GS UniRef90_A0A210PP46/32-107     DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Mizuhopecten yessoensis TaxID=6573 RepID=A0A210PP46_MIZYE
+#=GS UniRef90_A0A6J8DED2/1-74       DE [subseq from] NRBF2 n=2 Tax=Mytilus TaxID=6548 RepID=A0A6J8DED2_MYTCO
+#=GS UniRef90_A0A444UHI2/11-53      DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Acipenseroidei TaxID=186622 RepID=A0A444UHI2_ACIRT
+#=GS UniRef90_UPI00174EFECA/24-62   DE [subseq from] nuclear receptor-binding factor 2 isoform X3 n=1 Tax=Pipistrellus kuhlii TaxID=59472 RepID=UPI00174EFECA
+#=GS UniRef90_A0A671FJE8/4-46       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Rhinolophus ferrumequinum TaxID=59479 RepID=A0A671FJE8_RHIFE
+#=GS UniRef90_V3ZPS6/1-80           DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Lottia gigantea TaxID=225164 RepID=V3ZPS6_LOTGI
+#=GS UniRef90_UPI00067B401A/5-75    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Amyelois transitella TaxID=680683 RepID=UPI00067B401A
+#=GS UniRef90_A0A8C9BUM9/4-39       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Phocoena sinus TaxID=42100 RepID=A0A8C9BUM9_PHOSS
+#=GS UniRef90_A0A2G9SM59/1-48       DE [subseq from] Nuclear receptor-binding factor 2 (Fragment) n=3 Tax=Ranoidea TaxID=2777416 RepID=A0A2G9SM59_LITCT
+#=GS UniRef90_T1HXE1/5-76           DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Rhodnius prolixus TaxID=13249 RepID=T1HXE1_RHOPR
+#=GS UniRef90_G5AXR1/1-42           DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Heterocephalus glaber TaxID=10181 RepID=G5AXR1_HETGA
+#=GS UniRef90_UPI0006B0D271/9-73    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Limulus polyphemus TaxID=6850 RepID=UPI0006B0D271
+#=GS UniRef90_A0A7D9IBA5/1-69       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Paramuricea clavata TaxID=317549 RepID=A0A7D9IBA5_PARCT
+#=GS UniRef90_A0A8S4RTN4/4-77       DE [subseq from] Jg16357 protein n=2 Tax=Pararge aegeria TaxID=116150 RepID=A0A8S4RTN4_9NEOP
+#=GS UniRef90_UPI000E6E4119/3-73    DE [subseq from] nuclear receptor-binding factor 2-like n=2 Tax=Ctenocephalides felis TaxID=7515 RepID=UPI000E6E4119
+#=GS UniRef90_A0A6J1STM4/3-71       DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Frankliniella occidentalis TaxID=133901 RepID=A0A6J1STM4_FRAOC
+#=GS UniRef90_A0A437BXE9/4-75       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Chilo suppressalis TaxID=168631 RepID=A0A437BXE9_CHISP
+#=GS UniRef90_A0A3Q1BI82/5-42       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Amphiprion ocellaris TaxID=80972 RepID=A0A3Q1BI82_AMPOC
+#=GS UniRef90_UPI000D733645/2-73    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=1 Tax=Pomacea canaliculata TaxID=400727 RepID=UPI000D733645
+#=GS UniRef90_A0A4P6DBK1/5-75       DE [subseq from] Putative nuclear receptor-binding factor 2-like isoform x1 rhodnius neglectus n=1 Tax=Rhodnius prolixus TaxID=13249 RepID=A0A4P6DBK1_RHOPR
+#=GS UniRef90_A0A8C9MKA6/12-45      DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Serinus canaria TaxID=9135 RepID=A0A8C9MKA6_SERCA
+#=GS UniRef90_A0A8K0KY86/5-71       DE [subseq from] NRBF2_MIT domain-containing protein (Fragment) n=1 Tax=Ladona fulva TaxID=123851 RepID=A0A8K0KY86_LADFU
+#=GS UniRef90_A0A821S6Z4/4-76       DE [subseq from] Hypothetical protein n=4 Tax=Pieris TaxID=51679 RepID=A0A821S6Z4_9NEOP
+#=GS UniRef90_A0A8C5RTK3/1-42       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Elapidae TaxID=8602 RepID=A0A8C5RTK3_LATLA
+#=GS UniRef90_A0A194RQX4/4-77       DE [subseq from] Nuclear receptor-binding factor 2 n=5 Tax=Papilio TaxID=7145 RepID=A0A194RQX4_PAPMA
+#=GS UniRef90_UPI0010A09357/2-35    DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Grammomys surdaster TaxID=491861 RepID=UPI0010A09357
+#=GS UniRef90_UPI0009E628D4/3-66    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Orbicella faveolata TaxID=48498 RepID=UPI0009E628D4
+#=GS UniRef90_A0A8J9Y5V4/4-77       DE [subseq from] Genome assembly, chromosome: 14 (Fragment) n=1 Tax=Brenthis ino TaxID=405034 RepID=A0A8J9Y5V4_9NEOP
+#=GS UniRef90_A0A2A4JC73/4-78       DE [subseq from] NRBF2_MIT domain-containing protein n=3 Tax=Heliothinae TaxID=95178 RepID=A0A2A4JC73_HELVI
+#=GS UniRef90_A0A8D8RT52/11-85      DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Cacopsylla melanoneura TaxID=428564 RepID=A0A8D8RT52_9HEMI
+#=GS UniRef90_UPI0005F4230E/27-72   DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=1 Tax=Colobus angolensis palliatus TaxID=336983 RepID=UPI0005F4230E
+#=GS UniRef90_D6WB19/4-69           DE [subseq from] Nuclear receptor-binding factor 2-like Protein n=1 Tax=Tribolium castaneum TaxID=7070 RepID=D6WB19_TRICA
+#=GS UniRef90_UPI0018E515EB/4-78    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Zerene cesonia TaxID=33412 RepID=UPI0018E515EB
+#=GS UniRef90_A0A069DPM2/1-72       DE [subseq from] Putative nuclear receptor-binding factor 2-like isoform x1 (Fragment) n=3 Tax=Triatominae TaxID=70999 RepID=A0A069DPM2_9HEMI
+#=GS UniRef90_UPI000E6D8EC2/4-77    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Hyposmocoma kahamanoa TaxID=1477025 RepID=UPI000E6D8EC2
+#=GS UniRef90_A0A3S1A1G4/19-84      DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Elysia chlorotica TaxID=188477 RepID=A0A3S1A1G4_ELYCH
+#=GS UniRef90_A0A8C9EKH3/2-34       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Pavo cristatus TaxID=9049 RepID=A0A8C9EKH3_PAVCR
+#=GS UniRef90_UPI001E27A7C8/18-89   DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Colias crocea TaxID=72248 RepID=UPI001E27A7C8
+#=GS UniRef90_A0A1A6FV35/10-44      DE [subseq from] Nuclear receptor-binding factor 2 n=15 Tax=Muroidea TaxID=337687 RepID=A0A1A6FV35_NEOLE
+#=GS UniRef90_UPI001F5FDF1A/5-71    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=5 Tax=Schistocerca TaxID=7008 RepID=UPI001F5FDF1A
+#=GS UniRef90_A0A8B8I123/5-75       DE [subseq from] nuclear receptor-binding factor 2 n=3 Tax=Vanessa TaxID=42274 RepID=A0A8B8I123_9NEOP
+#=GS UniRef90_UPI001E2796CB/27-101  DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Harmonia axyridis TaxID=115357 RepID=UPI001E2796CB
+#=GS UniRef90_A0A6J1W8C1/4-74       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Galleria mellonella TaxID=7137 RepID=A0A6J1W8C1_GALME
+#=GS UniRef90_UPI00195597EF/19-88   DE [subseq from] nuclear receptor binding factor 2a n=1 Tax=Pimephales promelas TaxID=90988 RepID=UPI00195597EF
+#=GS UniRef90_A0A1E1WVD5/4-74       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Pectinophora gossypiella TaxID=13191 RepID=A0A1E1WVD5_PECGO
+#=GS UniRef90_A0A3L7IPM7/1-42       DE [subseq from] NRBF2 n=1 Tax=Cricetulus griseus TaxID=10029 RepID=A0A3L7IPM7_CRIGR
+#=GS UniRef90_UPI000C140991/4-78    DE [subseq from] nuclear receptor-binding factor 2-like isoform X2 n=1 Tax=Spodoptera litura TaxID=69820 RepID=UPI000C140991
+#=GS UniRef90_A0A663DTU4/79-118     DE [subseq from] Nuclear receptor binding factor 2 n=5 Tax=Neognathae TaxID=8825 RepID=A0A663DTU4_AQUCH
+#=GS UniRef90_A0A0B6Y4J7/15-59      DE [subseq from] NRBF2_MIT domain-containing protein (Fragment) n=1 Tax=Arion vulgaris TaxID=1028688 RepID=A0A0B6Y4J7_9EUPU
+#=GS UniRef90_A0A2M3ZDR3/5-77       DE [subseq from] NRBF2_MIT domain-containing protein n=6 Tax=Nyssorhynchus TaxID=44543 RepID=A0A2M3ZDR3_9DIPT
+#=GS UniRef90_A0A835GR48/4-78       DE [subseq from] NRBF2_MIT domain-containing protein n=3 Tax=Spodoptera TaxID=7106 RepID=A0A835GR48_SPOEX
+#=GS UniRef90_UPI0020107C55/4-72    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Leguminivora glycinivorella TaxID=1035111 RepID=UPI0020107C55
+#=GS UniRef90_A0A2R9AP87/34-73      DE [subseq from] Nuclear receptor binding SET domain protein 1 n=2 Tax=Pan TaxID=9596 RepID=A0A2R9AP87_PANPA
+#=GS UniRef90_G1NGH1/21-66          DE [subseq from] Nuclear receptor-binding factor 2 n=3 Tax=Galloanserae TaxID=1549675 RepID=G1NGH1_MELGA
+#=GS UniRef90_UPI001C3AB207/4-71    DE [subseq from] (yellow mealworm) hypothetical protein n=1 Tax=Tenebrio molitor TaxID=7067 RepID=UPI001C3AB207
+#=GS UniRef90_A0A653CJC9/7-70       DE [subseq from] NRBF2_MIT domain-containing protein (Fragment) n=1 Tax=Callosobruchus maculatus TaxID=64391 RepID=A0A653CJC9_CALMS
+#=GS UniRef90_UPI0009075C73/32-75   DE [subseq from] nuclear receptor-binding factor 2 isoform X3 n=4 Tax=Crocodylia TaxID=1294634 RepID=UPI0009075C73
+#=GS UniRef90_A0A8R2ALB5/4-74       DE [subseq from] Uncharacterized protein n=2 Tax=Bombyx TaxID=7090 RepID=A0A8R2ALB5_BOMMO
+#=GS UniRef90_A0A8S3XRH0/4-75       DE [subseq from] (apollo) hypothetical protein n=1 Tax=Parnassius apollo TaxID=110799 RepID=A0A8S3XRH0_PARAO
+#=GS UniRef90_UPI000874C7A0/11-87   DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Anoplophora glabripennis TaxID=217634 RepID=UPI000874C7A0
+#=GS UniRef90_A0A6P7G501/7-82       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Diabrotica virgifera virgifera TaxID=50390 RepID=A0A6P7G501_DIAVI
+#=GS UniRef90_A0A7J6YN49/4-73       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Abscondita terminalis TaxID=2069292 RepID=A0A7J6YN49_9COLE
+#=GS UniRef90_T1IIW5/4-80           DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Strigamia maritima TaxID=126957 RepID=T1IIW5_STRMM
+#=GS UniRef90_A0A8S3YT08/15-85      DE [subseq from] Hypothetical protein n=1 Tax=Candidula unifasciata TaxID=100452 RepID=A0A8S3YT08_9EUPU
+#=GS UniRef90_A0A0L7L8A3/4-76       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Operophtera brumata TaxID=104452 RepID=A0A0L7L8A3_9NEOP
+#=GS UniRef90_A0A212FJM1/4-76       DE [subseq from] nuclear receptor-binding factor 2 n=2 Tax=Danaus TaxID=151542 RepID=A0A212FJM1_DANPL
+#=GS UniRef90_A0A8I6R9T7/5-78       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Cimex lectularius TaxID=79782 RepID=A0A8I6R9T7_CIMLE
+#=GS UniRef90_A0A663N2V2/7-46       DE [subseq from] Nuclear receptor binding factor 2 n=2 Tax=Neognathae TaxID=8825 RepID=A0A663N2V2_ATHCN
+#=GS UniRef90_UPI00103B4600/4-77    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Ostrinia furnacalis TaxID=93504 RepID=UPI00103B4600
+#=GS UniRef90_UPI001ED879E8/5-72    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Ischnura elegans TaxID=197161 RepID=UPI001ED879E8
+#=GS UniRef90_A0A1S3D8V1/11-88      DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Diaphorina citri TaxID=121845 RepID=A0A1S3D8V1_DIACI
+#=GS UniRef90_UPI0014256C1B/1-74    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Anneissia japonica TaxID=1529436 RepID=UPI0014256C1B
+#=GS UniRef90_A0A7E5VZW8/4-78       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Trichoplusia ni TaxID=7111 RepID=A0A7E5VZW8_TRINI
+#=GS UniRef90_A0A7J6YKS0/4-72       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Lamprigera yunnana TaxID=370605 RepID=A0A7J6YKS0_9COLE
+#=GS UniRef90_A0A0P5B9R7/5-77       DE [subseq from] Nuclear receptor-binding factor n=1 Tax=Daphnia magna TaxID=35525 RepID=A0A0P5B9R7_9CRUS
+#=GS UniRef90_UPI001C20229E/4-73    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Aricia agestis TaxID=91739 RepID=UPI001C20229E
+#=GS UniRef90_A0A3Q2X0W5/94-140     DE [subseq from] Nuclear receptor binding factor 2 n=1 Tax=Haplochromis burtoni TaxID=8153 RepID=A0A3Q2X0W5_HAPBU
+#=GS UniRef90_L9KGT7/231-265        DE [subseq from] High mobility group protein B1 n=1 Tax=Tupaia chinensis TaxID=246437 RepID=L9KGT7_TUPCH
+#=GS UniRef90_UPI00083C6964/4-71    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Nicrophorus vespilloides TaxID=110193 RepID=UPI00083C6964
+#=GS UniRef90_UPI000719E09D/7-76    DE [subseq from] uncharacterized protein LOC106806484 n=1 Tax=Priapulus caudatus TaxID=37621 RepID=UPI000719E09D
+#=GS UniRef90_A0A4C1Y749/4-78       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Eumeta variegata TaxID=1368026 RepID=A0A4C1Y749_EUMVA
+#=GS UniRef90_A0A8S4FVN0/4-75       DE [subseq from] (diamondback moth) hypothetical protein n=3 Tax=Plutella xylostella TaxID=51655 RepID=A0A8S4FVN0_PLUXY
+#=GS UniRef90_UPI001D088564/27-105  DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Coccinella septempunctata TaxID=41139 RepID=UPI001D088564
+#=GS UniRef90_A0A1Y1LWJ1/4-73       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Photinus pyralis TaxID=7054 RepID=A0A1Y1LWJ1_PHOPY
+#=GS UniRef90_UPI0018D8AA5B/15-89   DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Patiria miniata TaxID=46514 RepID=UPI0018D8AA5B
+#=GS UniRef90_A0A1B6CK25/3-74       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Clastoptera arizonana TaxID=38151 RepID=A0A1B6CK25_9HEMI
+#=GS UniRef90_UPI00188EBB89/4-76    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Manduca sexta TaxID=7130 RepID=UPI00188EBB89
+#=GS UniRef90_A0A0T6AZY0/5-70       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Oryctes borbonicus TaxID=1629725 RepID=A0A0T6AZY0_9SCAR
+#=GS UniRef90_A0A5E4QHH5/26-95      DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Leptidea sinapis TaxID=189913 RepID=A0A5E4QHH5_9NEOP
+#=GS UniRef90_A0A1B6MUV3/4-72       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Graphocephala atropunctata TaxID=36148 RepID=A0A1B6MUV3_9HEMI
+#=GS UniRef90_A0A1Y1LXR7/4-73       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Photinus pyralis TaxID=7054 RepID=A0A1Y1LXR7_PHOPY
+#=GS UniRef90_A0A8S1B809/5-75       DE [subseq from] Hypothetical protein n=1 Tax=Arctia plantaginis TaxID=874455 RepID=A0A8S1B809_ARCPL
+#=GS UniRef90_A0A8B7YEX4/15-90      DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Acanthaster planci TaxID=133434 RepID=A0A8B7YEX4_ACAPL
+#=GS UniRef90_A0A182HSU3/5-73       DE [subseq from] NRBF2_MIT domain-containing protein n=7 Tax=gambiae species complex TaxID=44542 RepID=A0A182HSU3_ANOAR
+#=GS UniRef90_A0A7R9IEP1/12-84      DE [subseq from] Hypothetical protein n=2 Tax=Timema TaxID=61471 RepID=A0A7R9IEP1_9NEOP
+#=GS UniRef90_A0A5E4QGB1/26-94      DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Leptidea sinapis TaxID=189913 RepID=A0A5E4QGB1_9NEOP
+#=GS UniRef90_A0A7R8ZBZ1/45-117     DE [subseq from] Hypothetical protein n=2 Tax=Timema TaxID=61471 RepID=A0A7R8ZBZ1_TIMDO
+#=GS UniRef90_Q174N3/6-79           DE [subseq from] AAEL006848-PA n=1 Tax=Aedes aegypti TaxID=7159 RepID=Q174N3_AEDAE
+#=GS UniRef90_T1II09/7-83           DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Strigamia maritima TaxID=126957 RepID=T1II09_STRMM
+#=GS UniRef90_A0A182QRN8/28-101     DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Anopheles farauti TaxID=69004 RepID=A0A182QRN8_9DIPT
+#=GS UniRef90_A0A146L608/4-82       DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Lygus hesperus TaxID=30085 RepID=A0A146L608_LYGHE
+#=GS UniRef90_UPI001C45B916/4-78    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Homarus americanus TaxID=6706 RepID=UPI001C45B916
+#=GS UniRef90_UPI0012EE3FD5/1-42    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Anarrhichthys ocellatus TaxID=433405 RepID=UPI0012EE3FD5
+#=GS UniRef90_UPI001CF72508/4-69    DE [subseq from] uncharacterized protein LOC123007295 n=1 Tax=Tribolium madens TaxID=41895 RepID=UPI001CF72508
+#=GS UniRef90_A0A1B0CJC9/6-75       DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Lutzomyia longipalpis TaxID=7200 RepID=A0A1B0CJC9_LUTLO
+#=GS UniRef90_A0A1L8DII6/5-73       DE [subseq from] Putative nuclear receptor-binding factor 2 n=1 Tax=Nyssomyia neivai TaxID=330878 RepID=A0A1L8DII6_9DIPT
+#=GS UniRef90_UPI0018A7BC3C/4-78    DE [subseq from] LOW QUALITY PROTEIN: nuclear receptor-binding factor 2-like n=3 Tax=Penaeus TaxID=133894 RepID=UPI0018A7BC3C
+#=GS UniRef90_A0A6A4J9K3/4-82       DE [subseq from] NRBF2_MIT domain-containing protein n=3 Tax=Apolygus lucorum TaxID=248454 RepID=A0A6A4J9K3_APOLU
+#=GS UniRef90_A0A6L5C7K8/10-79      DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Ephemera danica TaxID=1049336 RepID=A0A6L5C7K8_9INSE
+#=GS UniRef90_A0A7R8YQQ8/5-72       DE [subseq from] Hypothetical protein n=1 Tax=Hermetia illucens TaxID=343691 RepID=A0A7R8YQQ8_HERIL
+#=GS UniRef90_A0A8C2BXI4/18-72      DE [subseq from] Nuclear receptor binding factor 2b n=2 Tax=Cyprininae TaxID=2743694 RepID=A0A8C2BXI4_CYPCA
+#=GS UniRef90_A0A482VDF5/1-65       DE [subseq from] Nuclear receptor-binding factor 2 (Fragment) n=1 Tax=Asbolus verrucosus TaxID=1661398 RepID=A0A482VDF5_9CUCU
+#=GS UniRef90_UPI001C70CB15/4-78    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Penaeus japonicus TaxID=27405 RepID=UPI001C70CB15
+#=GS UniRef90_G3I8P0/1-30           DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Cricetulus griseus TaxID=10029 RepID=G3I8P0_CRIGR
+#=GS UniRef90_A0A182NRQ6/5-76       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Anopheles dirus TaxID=7168 RepID=A0A182NRQ6_9DIPT
+#=GS UniRef90_UPI0011C0D610/28-73   DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=1 Tax=Sparus aurata TaxID=8175 RepID=UPI0011C0D610
+#=GS UniRef90_UPI00187D92A6/17-89   DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Bradysia coprophila TaxID=38358 RepID=UPI00187D92A6
+#=GS UniRef90_A0A6I9XN69/15-49      DE [subseq from] nuclear receptor-binding factor 2 isoform X2 n=7 Tax=Colubridae TaxID=8578 RepID=A0A6I9XN69_9SAUR
+#=GS UniRef90_A0A3S3P3G9/6-75       DE [subseq from] Nuclear receptor-binding factor 2-like protein n=1 Tax=Dinothrombium tinctorium TaxID=1965070 RepID=A0A3S3P3G9_9ACAR
+#=GS UniRef90_A0A6P3WPF6/5-59       DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Dinoponera quadriceps TaxID=609295 RepID=A0A6P3WPF6_DINQU
+#=GS UniRef90_UPI000E33DD7D/19-69   DE [subseq from] nuclear receptor-binding factor 2 isoform X1 n=4 Tax=Myrmicinae TaxID=34695 RepID=UPI000E33DD7D
+#=GS UniRef90_A0A6B2EDE5/5-77       DE [subseq from] Putative nuclear receptor-binding factor 2 n=1 Tax=Phlebotomus kandelakii TaxID=1109342 RepID=A0A6B2EDE5_9DIPT
+#=GS UniRef90_A0A4W5KN38/1-37       DE [subseq from] Nuclear receptor binding factor 2b n=4 Tax=Salmoninae TaxID=504568 RepID=A0A4W5KN38_9TELE
+#=GS UniRef90_UPI0006236EF3/5-54    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Linepithema humile TaxID=83485 RepID=UPI0006236EF3
+#=GS UniRef90_A0A1B0DBN0/5-72       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Phlebotomus papatasi TaxID=29031 RepID=A0A1B0DBN0_PHLPP
+#=GS UniRef90_A0A1B6GK24/4-72       DE [subseq from] NRBF2_MIT domain-containing protein n=9 Tax=Proconiini TaxID=565685 RepID=A0A1B6GK24_9HEMI
+#=GS UniRef90_E9FZ10/4-79           DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Daphnia pulex TaxID=6669 RepID=E9FZ10_DAPPU
+#=GS UniRef90_UPI0006D513C3/4-73    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Halyomorpha halys TaxID=286706 RepID=UPI0006D513C3
+#=GS UniRef90_UPI001C572035/8-67    DE [subseq from] nuclear receptor binding factor 2a n=1 Tax=Cyprinus carpio TaxID=7962 RepID=UPI001C572035
+#=GS UniRef90_A0A7M7RDS8/14-85      DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Strongylocentrotus purpuratus TaxID=7668 RepID=A0A7M7RDS8_STRPU
+#=GS UniRef90_H2Z762/7-79           DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Ciona savignyi TaxID=51511 RepID=H2Z762_CIOSA
+#=GS UniRef90_UPI0007383FFA/5-43    DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Diachasma alloeum TaxID=454923 RepID=UPI0007383FFA
+#=GS UniRef90_A0A0J7NYR4/5-55       DE [subseq from] Nuclear receptor-binding factor 2-like protein n=5 Tax=Formicinae TaxID=7479 RepID=A0A0J7NYR4_LASNI
+#=GS UniRef90_A0A6G1PMH2/10-44      DE [subseq from] Nuclear receptor-binding factor 2 n=1 Tax=Channa argus TaxID=215402 RepID=A0A6G1PMH2_9TELE
+#=GS UniRef90_A0A834P8B0/5-50       DE [subseq from] NRBF2_MIT domain-containing protein n=5 Tax=Vespinae TaxID=7439 RepID=A0A834P8B0_VESPE
+#=GS UniRef90_UPI00096B184A/6-71    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Aethina tumida TaxID=116153 RepID=UPI00096B184A
+#=GS UniRef90_A0A7I8V6Y3/5-70       DE [subseq from] DgyrCDS302 n=1 Tax=Dimorphilus gyrociliatus TaxID=2664684 RepID=A0A7I8V6Y3_9ANNE
+#=GS UniRef90_A0A0K8TNI1/5-72       DE [subseq from] Putative nuclear receptor-binding factor 2 n=1 Tax=Tabanus bromius TaxID=304241 RepID=A0A0K8TNI1_TABBR
+#=GS UniRef90_UPI001BB1F16C/16-89   DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Lytechinus variegatus TaxID=7654 RepID=UPI001BB1F16C
+#=GS UniRef90_UPI0014437230/6-48    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Megalopta genalis TaxID=115081 RepID=UPI0014437230
+#=GS UniRef90_A0A158N9Z1/5-54       DE [subseq from] NRBF2_MIT domain-containing protein n=18 Tax=Myrmicinae TaxID=34695 RepID=A0A158N9Z1_ATTCE
+#=GS UniRef90_A0A2A3EUZ1/13-55      DE [subseq from] Nuclear receptor-binding factor n=4 Tax=Apis TaxID=7459 RepID=A0A2A3EUZ1_APICC
+#=GS UniRef90_A0A8T4DM36/114-137    DE [subseq from] Tetratricopeptide repeat protein (Fragment) n=1 Tax=Methanomicrobia archaeon TaxID=2268195 RepID=A0A8T4DM36_9EURY
+#=GS UniRef90_A0A7R9LR49/10-75      DE [subseq from] Hypothetical protein n=1 Tax=Medioppia subpectinata TaxID=1979941 RepID=A0A7R9LR49_9ACAR
+#=GS UniRef90_A0A2K5YN06/4-58       DE [subseq from] Nuclear receptor-binding factor 2 n=2 Tax=Cercopithecinae TaxID=9528 RepID=A0A2K5YN06_MANLE
+#=GS UniRef90_E0VJ76/5-66           DE [subseq from] Nuclear receptor-binding factor, putative n=1 Tax=Pediculus humanus subsp. corporis TaxID=121224 RepID=E0VJ76_PEDHC
+#=GS UniRef90_A0A8J5B8R2/1-72       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Bradysia odoriphaga TaxID=1564500 RepID=A0A8J5B8R2_9DIPT
+#=GS UniRef90_UPI00130469E0/6-55    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Nomia melanderi TaxID=2448451 RepID=UPI00130469E0
+#=GS UniRef90_A0A833SBT6/5-54       DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Frieseomelitta varia TaxID=561572 RepID=A0A833SBT6_9HYME
+#=GS UniRef90_A0A1W3JBY4/7-74       DE [subseq from] Uncharacterized LOC100175435 n=1 Tax=Ciona intestinalis TaxID=7719 RepID=A0A1W3JBY4_CIOIN
+#=GS UniRef90_UPI00143DCF85/16-92   DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Belonocnema kinseyi TaxID=2817044 RepID=UPI00143DCF85
+#=GS UniRef90_UPI00026589D1/10-80   DE [subseq from] nuclear receptor-binding factor 2 n=1 Tax=Galendromus occidentalis TaxID=34638 RepID=UPI00026589D1
+#=GS UniRef90_UPI001E675BEC/22-96   DE [subseq from] uncharacterized protein LOC123755023 isoform X1 n=2 Tax=Procambarus clarkii TaxID=6728 RepID=UPI001E675BEC
+#=GS UniRef90_A0A673FRS3/4-39       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Sinocyclocheilus rhinocerous TaxID=307959 RepID=A0A673FRS3_9TELE
+#=GS UniRef90_A0A7R9HSR0/22-90      DE [subseq from] Hypothetical protein n=2 Tax=Timema TaxID=61471 RepID=A0A7R9HSR0_9NEOP
+#=GS UniRef90_A0A0C9RRS5/5-43       DE [subseq from] NRBF2 protein n=1 Tax=Fopius arisanus TaxID=64838 RepID=A0A0C9RRS5_9HYME
+#=GS UniRef90_A0A7R9P8Z2/215-283    DE [subseq from] (California timema) hypothetical protein n=1 Tax=Timema californicum TaxID=61474 RepID=A0A7R9P8Z2_TIMCA
+#=GS UniRef90_A0A182SMK2/3-62       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Anopheles maculatus TaxID=74869 RepID=A0A182SMK2_9DIPT
+#=GS UniRef90_A0A7M7JWE6/33-106     DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Varroa destructor TaxID=109461 RepID=A0A7M7JWE6_VARDE
+#=GS UniRef90_UPI000615293F/6-54    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Megachile rotundata TaxID=143995 RepID=UPI000615293F
+#=GS UniRef90_UPI00083E4E81/5-55    DE [subseq from] nuclear receptor-binding factor 2-like isoform X1 n=2 Tax=Habropoda laboriosa TaxID=597456 RepID=UPI00083E4E81
+#=GS UniRef90_A0A673HW29/4-39       DE [subseq from] NRBF2_MIT domain-containing protein n=1 Tax=Sinocyclocheilus rhinocerous TaxID=307959 RepID=A0A673HW29_9TELE
+#=GS UniRef90_A0A182YRH1/3-62       DE [subseq from] NRBF2_MIT domain-containing protein n=2 Tax=Anopheles stephensi TaxID=30069 RepID=A0A182YRH1_ANOST
+#=GS UniRef90_A0A5B7EGD0/3-72       DE [subseq from] Nuclear receptor-binding factor 2 n=4 Tax=Portunus trituberculatus TaxID=210409 RepID=A0A5B7EGD0_PORTR
+#=GS UniRef90_A0A026VVL8/5-53       DE [subseq from] Nuclear receptor-binding factor n=1 Tax=Ooceraea biroi TaxID=2015173 RepID=A0A026VVL8_OOCBI
+#=GS UniRef90_UPI000C254E4D/4-78    DE [subseq from] nuclear receptor-binding factor 2-like n=1 Tax=Leptinotarsa decemlineata TaxID=7539 RepID=UPI000C254E4D
+
+query                                  GMEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A2K5JW76/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A2I3GTN5/4-85               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLK-
+UniRef90_Q96F24/4-86                   -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_G3T067/4-86                   -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2K5QEU9/4-85               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEALKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLK-
+UniRef90_UPI0003F0BBCF/4-86            -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AHLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI001155F76F/4-86            -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLRA
+UniRef90_UPI000F7386B1/4-86            -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI0003C008E2/4-86            -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2Y9RYS0/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8C5VLQ0/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_Q08DG0/4-86                   -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8B7BB58/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEALKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_G1SRZ9/4-86                   -MEG-PLNL-AHQQSRRADR-LLAGGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLRA
+UniRef90_A0A6I9IMV5/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----GYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2U3X219/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A5F5XQ53/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A1U7Q6H0/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8B7BAM4/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEALKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A1U7TCX9/4-86               -MEG-PLNL-AHQQSRRADR-FLAAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLRA
+UniRef90_A0A250YEE0/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEDAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLRA
+UniRef90_UPI00122F5CD4/4-86            -MEG-PLNL-AHQQSRRADR-LVAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SPELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI000FFB25D5/79-161          -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--F--LLIQER--WKRAK-REERWKA
+UniRef90_A0A2K5P9J9/4-86               -MEG-PLNL-AHQQSRRADR-LLAADKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-CEERLKA
+UniRef90_A0A2K6V5F5/4-85               -MEG-PLNL-AHQQGRRADR-LLAAGKYEEAI-SCHE--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHR--K-Q--L--LLIQER--WKRAQ-REQRLK-
+UniRef90_UPI00032AE10C/4-86            -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERLRA
+UniRef90_Q8VCQ3/4-86                   -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHR--KA--T----TYLSEAMKL----T-E------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8C6RE20/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLGLQRDSHV--K-Q--L--LLIQER--WERAK-REERLKA
+UniRef90_A0A4U1FR66/36-117             -MEG-PLNL-AHQ-SRRADR-LVAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERLKA
+UniRef90_A0A0P6IYN3/79-161             -MEG-PLNL-AHQQSRRADR-LLAVGKYEEAI-SCHK--KA--A----AYLCEAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8C8RK41/83-165             -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----AYLAEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A452HQA9/84-166             -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLAEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8D0GRM9/15-97              -MEG-PLNQ-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_U3IV07/172-254                -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A226NZ30/12-94              -MEG-PLNL-AHQQSRKADR-LLSAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A091D1W8/117-199            -MEG-PLNL-AHQQSRQADR-LLAAGKYEEAI-SCHK--KA--A----AYLCEAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERMKA
+UniRef90_A0A8C0VG55/12-94              -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----GYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A6J0I4W9/12-94              -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTDAMKL----T-R------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A6P3F542/4-86               -MEG-PLNL-AHQQSRCADR-LLAAGKYEEAI-SCHT--KA--A----AYLCEAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLRA
+UniRef90_A0A8C2U1A0/95-177             -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_F1N9F2/149-231                -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_G1LSM9/4-86                   -MEG-PLNL-AHQQSRRADR-LLAAGKFEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRESHA--K-Q--L--LVIQER--WTRAK-REERLKA
+UniRef90_A0A151MUL4/11-92              -MDG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHQ--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-H--I--LLIQER--WKRAK-REERLK-
+UniRef90_A0A286XZG2/4-86               -MEG-PLNQ-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----ACLCEAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A669Q1D3/149-231            -MEG-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----AYLTEAMKL----T-H------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_F6RU44/4-85                   -MEG-PLNL-AHQQSRKADR-YLAAGKFEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHL--K-Q--L--MLIEER--WKRAK-REERLR-
+UniRef90_A0A5J5MT71/25-107             --EN-PMDRGAHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A6J0TK71/10-91              -MEG-PLNL-AHQQSRKADR-LLAVGKYEEAI-ACHK--KA--A----AYLSEAMKL----T-Q------------SN-------Q------------AQL-SLELQRESHL--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_M3YI59/3-84                   --EG-IKCL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI00158FC3C2/10-91           -MEG-PLNL-AHQQSRKADR-LLTAGKYEEAI-SCHK--KA--A----AYLLEAMKL----T-Q------------SD-------Q------------AQL-SLELQRESHL--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_UPI001E87C9AE/10-91           -MEG-PLNL-AHQQSRKADR-LVAAGKYEEAI-ACHK--KA--S----AYLLEAMKL----T-Q------------SD-------Q------------AQL-SLELQRDSHL--K-Q--I--LLIQER--WKRAK-REERIK-
+UniRef90_G1NW41/8-86                   ------IGI-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_H0WSZ8/4-84                   ---G-CLDL-AHQQSRRADR-LLATGKYEEAI-SCHK--KA--A----AYLSEAMTL----T-Q------------SE-------Q------------AHL-SLELQRESHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A6B0S2U2/23-99              --------K-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8J6AKN6/97-173             --------K-AHQQSRRADR-LLASGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A3Q7VG87/4-86               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------ARL-SLGLQRESHA--K-Q--L--LLIQER--WTRAK-REQRLKA
+UniRef90_A0A7J7FJP2/29-107             ------LRN-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLVQER--WKRAK-REERLKA
+UniRef90_UPI001CC7E9CD/4-85            -MDG-PLNL-AHQQSRKADR-SLAAGKYEEAI-LCHQ--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKWE-
+UniRef90_A0A1S3W5C9/4-86               -MEG-PLNL-AHQQSRQADR-FLAVGRYEEAI-SCHR--KA--E----ACLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHT--K-Q--L--LLIQER--WKRAR-REGRLKA
+UniRef90_UPI000766F1DB/37-114          -------YR-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_H9GGA2/10-91                  -MEG-PLNL-AHQQSRKADR-SLAVGKYEEAI-SCHK--KA--A----AYLSDAMKL----T-Q------------SD-------Q------------AQL-SLQLQKESHL--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_A0A8D2AWV4/15-92              -------SF-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSDAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERSKA
+UniRef90_K7FKL8/6-86                   ---C-PLFL-AHQQSRKADR-LLAAGKYEEAI-SCHT--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHL--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI001C2EDB76/259-334         ----------AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_L5M5K2/68-143                 ----------AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A6P8REB3/62-143             -MES-PLNL-AHQQSRKADR-LLATGKYEEAI-TCHK--KA--A----AYLTEAMKL----T-H------------SE-------Q------------AQL-SLELQRDSHI--K-Q--Q--LLIQER--WKRAK-REERLR-
+UniRef90_A0A8C0VBJ0/173-253            ---G-VLVV-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----GYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_UPI001CF9C89E/4-85            -MES-PLNL-AHQQSRKAER-LLVAGKYEEAI-NCHK--KA--A----DYLNEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDNHI--K-Q--Q--QLIQER--WKRAR-REERLK-
+UniRef90_UPI000E1D046D/47-128          --NG-HSTL-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_G3VQH6/4-86                   -MDG-PLNQ-AHQQSRKADR-SLAAGKYEEAI-LCHQ--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------ALL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERWRA
+UniRef90_A0A452HQA0/32-111             -----ATSQ-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLAEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8D0DSK7/10-91              -MEG-PLNL-AHQQSRKADR-LLAAGKXEEAI-TCHK--KA--T----EYLLEAMKL----T-Q------------SD-------Q------------AQL-SLELQRESHL--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_A0A2I0MFN9/20-96              --------V-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_UPI00159DBC71/5-86            --EG-PLNP-AYQQTXXADH-SLAAGKYEEAI-SSYK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKTAQ-REERLKA
+UniRef90_A0A3Q0GJN3/40-115             --------A-AHQQSRKADR-LLAAGKYEEAI-SCHQ--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_A0A674GU37/203-278            ----------AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----GYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A7K9V7Y5/1-76               ----------AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A7L3IZ53/1-76               ----------AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----AYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A8C5JYR6/9-81               -------------NSRQADR-LLAAGKYEEAI-SCHR--KA--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A674GB57/22-97              ----------AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--A----GYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A1W7RF97/11-92              -MEA-PLNL-AHQQSRKADR-WLAVGKYEEAV-SCHR--KA--A----AYLLEAMKL----T-Q------------SD-------Q------------AQL-SLALQRESHL--K-Q--I--PLIQEQ--WKRAK-RDERLK-
+UniRef90_F6XYI2/1-76                   ----------AHQQSRKADR-SLAAGKYEEAI-SCHQ--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERWKA
+UniRef90_A0A7K7V7Z7/1-76               ----------AHQQSRKADR-SLAAGKYEEAI-SCHK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHL--K-Q--L--LLIQER--WKRAK-REEKLRA
+UniRef90_A0A7K9K4K0/1-76               ----------AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----GYLTDAMKL----T-H------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A8D2LPR6/10-69              -MEG-PLNL-AHQQSRKADR-LLAVGKYDEAI-SCHR--KA--A----AYLSEAMKL----T-Q------------SD-------Q------------ITF-H-SLQIDSQ--------------------------------
+UniRef90_A0A8D2LPR6/94-137             -------------------------------------------------ILSEC--L----L-H------------FI-------K------------AHL-SLELQRESHL--K-Q--I--LLIQER--WKRAR-REERLK-
+UniRef90_A0A8C2LJJ6/5-87               --GG-PLNF-AHQQSQRADH-LLAAGKYKEVI-SCHK--KA--KTGKDSYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELKWDSHM--K-Q--L--LLIQER--WKRAK-GEKR---
+UniRef90_UPI0015B1310E/4-83            -VES-PLNL-AHQQSRKADR-LLAVGKYEEAI-ACHG--KA--A----DLLKEAMKL----T-H------------CE-------Q------------AHL-SLELQRDSHV--K-Q--Q--RLIEER--WKRAK-REGR---
+UniRef90_UPI001CC75923/122-202         -----LLNL-AYQQSRKADRQSLAAGKYEEAI-LCHQ--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKKAK-REEKWKA
+UniRef90_A0A8C5MAC0/4-83               -MEC-PLNL-AHQQSRKADR-FLASGKYEEAI-ACHK--KA--A----AYLSEAKKL----T-P------------SE-------Q------------AQL-SLELQHDSHV--K-Q--Q--LLIQER--LKRAK-REEK---
+UniRef90_A0A8J6FCQ9/4-86               -MES-PLNL-AHQQSRKADR-FLATGKYEEAI-ACHR--KA--A----AYLLEAKRL----T-Q------------SE-------Q------------AQL-SLELQRESHI--K-Q--Q--LLIQER--LKRAK-REDKLRA
+UniRef90_V9KW39/4-86                   -MES-PLNL-AHQQSRKAER-MLAAGKYAEAI-ACHE--KA--A----DHLGEAMKL----T-Q------------SE-------Q------------ALL-SLKLQRDSHI--K-H--Q--LLIEER--WKRAK-REEKLRA
+UniRef90_UPI001864AA8E/4-83            -VES-PLNL-AHQQSRKADR-LLAAGKYEEAI-ACHG--KA--A----DLLQEAMKL----T-Q------------CE-------Q------------ARL-SLELQRDSHM--K-Q--Q--RLIEEK--WKRAR-REGK---
+UniRef90_A0A7J6ARJ7/5-83               --DS-PVNL-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEER--WKRAR-RENK---
+UniRef90_A0A8C4RGL4/4-82               -MES-PLNL-AHQQSRKADR-LVAVGRYEEAI-SCHG--KA--A----ELLSDAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHL--K-Q--Q--KLIEEK--WKRAK-REK----
+UniRef90_A0A8T2IX23/4-85               -MES-PLNL-AHQQNRKAER-FLATGKYEEAI-ACHK--KA--A----AYLSEAKKL----T-Q------------SE-------Q------------AQL-SLELQRESHI--K-R--Q--LLIQER--LKRAR-REEKHR-
+UniRef90_Q6DHJ4/5-83                   --DS-PLNL-AHQQCRKADR-LLAAGKFEDAI-SCHR--KA--A----DLLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEER--WKRAK-REDK---
+UniRef90_G3PRL8/5-86                   --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----DFLTDAMKT----T-E------------CE-------Q------------ARL-SLELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A3B4CRU1/5-83               --DS-PLNL-AHQQCRKADR-FLAAGKYEEAI-SCHR--KA--T----ELLKDAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEER--WKRAR-REGK---
+UniRef90_G3PRL4/5-86                   --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----DFLTDAMKT----T-E------------CE-------Q------------ARL-SLELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A401PW43/4-86               -MDS-PLNL-AHQQSRKAER-MLAAGRYAEAI-DCHG--KA--A----ERLGEAMKL----T-Q------------SE-------Q------------ALL-SLELQRDSHI--K-Q--Q--RLIHER--WKRAK-REEKLRA
+UniRef90_A0A4U5VSN2/25-107             -MES-PLNL-AHQQWRKADR-LLAAGKYEEAI-SCHR--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SIELQRDSHV--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A315UPI2/26-106             --DS-PLNL-AHQQCRKAER-LVSAGKYEEAI-SCHG--KA--A----DLLTEAMKL----T-E------------CE-------Q------------AHL-SMELQRDSHI--K-Q--Q--RLIQER--WKRET-RREATR-
+UniRef90_UPI000E55F211/4-83            -MEA-PLNL-DYQQSRRADH-LLAAGKYEEAL-SCHK--KA--A----TYLSDAMKL----X-S----------------------------------SYL-SLELQRDSHM--K-Q--S--LLIQEK--WKRAK-CEERSKA
+UniRef90_A0A672PZM2/4-83               -LDS-PLNL-AHQQCRKADR-LLAAGKFEDAI-SCHR--KA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEEQ--WKRAK-RDSK---
+UniRef90_A0A3Q3GME5/26-107             --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----DHLTEAMKK----T-E------------CE-------Q------------ARL-SLELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A7N6BIY1/26-107             --DS-PLNL-AHQQCRKAER-LLAAGKYEEAI-SCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------AHL-SMELQRDSHI--K-Q--Q--RLIQER--WRREA-RREAIKA
+UniRef90_UPI001ED80CFE/26-107          --DS-PLNL-AHQQCRKADR-LLAAGKYEDAI-SCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHM--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A3Q0R0P0/5-85               --DS-PLNL-AHQQCRNADR-LVAVGKYEEAI-SCHG--KA--A----DFLTEAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATK-
+UniRef90_A0A667XDL8/5-85               --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----DLLRDAMKL----T-E------------CE-------Q------------ARL-SMELQRDSHV--K-Q--Q--RLIQER--WKREA-RREATK-
+UniRef90_A0A8C7JM62/5-81               --DS-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHG--KA--A----ELLREAMKL----T-E------------CE-------Q------------AGL-SMALQRDSHV--K-Q--Q--RLIEEK--WKRTR-QE-----
+UniRef90_A0A8T2P087/20-96              -------EL-AHQQSRKADR-LLAVGKYEEAI-SCHG--KA--A----DLLKEAMKL----T-Q------------CE-------Q------------AHL-SLELQRDSHI--K-Q--Q--RLIEER--WKRAK-REGRPR-
+UniRef90_A0A3Q2ZZL8/26-107             --DS-PLNL-AHQQCRKAER-LVAAGKYEEAI-SCHG--KA--A----DLLTEAMKT----T-E------------CE-------Q------------AHL-SMELQRDSHI--K-Q--Q--QLIQER--WKREA-RREATKA
+UniRef90_UPI001FACF432/26-107          --DS-PLNL-AHQQCRKAER-LVAAGKYEEAI-SCHG--KA--A----DLLTEAMKS----T-E------------CE-------Q------------AHL-SMELQRDSHV--K-Q--Q--RLIQER--WKREI-RREATKA
+UniRef90_A0A8J0TDL7/4-93               -MES-PLNL-AHQQSRKADR-FLATGKYEEAI-ACHK--KA--A----AYLSEAKKL----T-Q------------SE-------QMLP-----IIPQAQL-SLELQRESHM--K-H--Q--LLIQER--LKRAR-REEKLSA
+UniRef90_A0A3B3R5M1/4-83               -LES-PLNL-AHQQSRKADR-LLVAGKYEEAI-LCHR--KA--T----DLLEEAMKL----T-K------------CE-------Q------------AQL-SLELQRDSHL--K-Q--Q--RLIEEK--WKRAR-REWK---
+UniRef90_A0A8C4AJL7/4-83               -VES-PLNL-AHQQCRKADR-LLAAGKYEDAI-SCHR--KA--A----ELLKEAMKS----T-D------------CE-------Q------------ARL-SLELQRDSHM--K-Q--Q--RLIEEK--WRRFR-REGK---
+UniRef90_UPI002013D1CF/4-82            -LDS-PLNL-AHQQCRKADR-LLAAGKFEDAI-SCHR--KA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRESHI--K-Q--Q--RLIEER--WKRAK-RET----
+UniRef90_A0A3P8YM01/13-91              --DS-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHG--TA--V----ELLRDAMKL----T-E------------CE-------Q------------ACL-SMELQRDSHV--K-Q--Q--RLIQEK--WKRAR-REGK---
+UniRef90_A0A6P3VJF5/4-83               -VES-PLNL-AHQQCRKADR-LLAAGKYEEAI-VCHR--KA--A----DLLKDAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEEK--WKRSR-REAK---
+UniRef90_I3JJS6/26-106                 --DS-PLNL-AHQQCRQADR-LVAAGKYEEAI-SCHR--KA--A----DFLTEAMKA----P-A------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREAVK-
+UniRef90_UPI001BD4167E/26-107          --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----EHLTDAMKK----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A2I2YC64/1-64               -----------------------AAGKYEEAL-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-GEARLKA
+UniRef90_A0A4W6FGG8/27-107             ---S-PLNL-AHQQCRKADR-LIAAGKYEEAI-SCHG--KA--A----ELLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_F7EIP5/15-89                  ----------AHQQSRKADR-FLATGKYEEAI-ACHK--KA--A----AYLSEAKKL----T-Q------------SE-------Q------------AQL-SLELQRESHI--K-H--Q--LLIQER--LKRAR-REEKLR-
+UniRef90_A0A3B4UXJ4/26-107             --DS-PLNL-AHQQCRKADR-LVAAGKYEEAI-SCHG--KA--A----DLLTDAMKK----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_UPI00202B3BF3/4-86            -MES-PLNL-AHQQSRKAER-MLAAGRYAEAI-DCHG--KA--A----DHLGEAMKL----T-E------------SE-------Q------------ALL-SLELQRDSHI--K-H--Q--HLIHER--WKRTR-KEEKLRA
+UniRef90_UPI001F075112/5-83            --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHG--KA--A----DMLRDAMML----T-E------------CE-------Q------------ARL-SMELQRDSHV--K-Q--Q--RLIEER--WKRAR-REAK---
+UniRef90_A0A6J2VAY7/5-83               --DS-PLNL-AHQHCRKADR-LLAAGKYEEAI-SCHR--RA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRESHV--K-Q--Q--RLIEEK--WKRAR-REGK---
+UniRef90_UPI001C40CDB0/26-107          --DS-PLNL-AHQQCRKADR-LVASGKYEEAI-SCHV--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A8C9RHW1/14-92              --DS-PLNL-AHQQSRKADR-LLVAGKYEEAI-ACHG--KA--A----GLLEEAITL----T-Q------------CE-------Q------------AQL-SLVLQRDSHI--K-Q--Q--RLIEEK--WKRAR-REGK---
+UniRef90_A0A8C3AC87/5-86               --DS-PLNL-AHQQGRKADR-WLVAGKYEEAI-SCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKRET-RREATKA
+UniRef90_A0A2I4CNW9/26-107             --DS-PLNL-AHQQCRKAER-LVAAGKYEEAI-SCHG--KA--A----DLLTEAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLIQER--WKREA-RREATKA
+UniRef90_UPI001B3AE871/26-107          --DS-PLNL-AHQQSRKADR-LVAAGKYEEAI-SCHG--KA--A----DLLTDTMKT----T-E------------CA-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREV-RREATKA
+UniRef90_A0A8T0BHX8/5-83               --DS-PVNL-AHQQCRKADR-LLAAGKYEEAI-SCHR--KA--A----ELLKEGMKL----T-E------------CE-------Q------------ARL-SLELQLNSHV--K-Q--Q--RLIEER--WRRAK-RENK---
+UniRef90_UPI001C03D5CE/26-107          --DS-PLNL-AHQQCRKAER-LVAAGKYEEAI-SCHG--KA--A----DLLTEAMKT----T-E------------YE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_UPI001C090D4D/4-83            -VES-PLNL-AHQQCRKADR-LLATGKYEDAI-VCHR--KA--A----DLLKDAMKL----T-D------------CE-------Q------------ARL-SLELQRDSHI--K-Q--Q--RLIEEK--WKRSR-REAK---
+UniRef90_A0A3Q1FIV1/26-106             --DS-PLNL-AHQQCRKADR-LVAAGKYKEAI-SCHG--KA--A----ELLTDAMKT----T-D------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLIQER--WKREA-RREATR-
+UniRef90_A0A6A4RY39/28-108             --DS-PLNL-AHQQCRKADR-LVAAGKYEEAL-SCHG--KA--A----DLLTDAMKT----T-E------------CQ-------Q------------ARL-SMELQRDSHV--K-Q--Q--RLIQER--WKREA-RREATK-
+UniRef90_A0A6P7KB26/26-107             --DS-PLNL-AHQQCRKADR-LVAAGKYEEAI-SCHE--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQQS--WKREA-RREATKA
+UniRef90_UPI001A9FADCD/13-93           -MEA-SLNL-APQ--XRADR-LXASGKYQEAI-SCHK--KA--T----AYLSDALKL----T-K------------SE-------Q------------AHL-SLQLKGDSHM--E-Q--L--LLIQER--WKRAK-CEELSKA
+UniRef90_A0A5J5CKQ1/5-86               --DS-PLNL-AHQQCRKADR-LLVAGKYEEAI-SCHG--KA--A----DLLTNAMKT----T-E------------CK-------Q------------ACL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A3B4ACE6/5-82               --DS-PLNL-AHQQCRKAER-LLAAGKYEEAI-LCHR--KA--A----DLLSDAMKT----T-Q------------VE-------Q------------ARL-SMELQRDTHI--K-Q--Q--RLIQER--WKRET-RRL----
+UniRef90_A0A8C5GBN9/14-95              --DS-PLNL-AHQQCRKAER-LVAAGKYEEAV-SCHR--KA--A----DLLTEAMKK----T-E------------YE-------Q------------ARL-SIELQRDSHI--K-Q--Q--QLIKER--WKREL-RHEAMKA
+UniRef90_A0A553MQU5/4-83               -LDS-PLNA-AHQQCRKADR-LLAAGKFEEAI-SCHR--KA--A----ELLKDAMKL----T-E------------CE-------Q------------ARL-SLKLQQDSHE--K-Q--Q--RLIEER--WKRTK-REDK---
+UniRef90_A0A3Q2CN77/5-86               --DS-PLNL-AHQQCRKAER-LVVAGKYEEAV-SCHG--KA--A----DLLTEAMKS----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREV-RREATKA
+UniRef90_A0A8P4GG00/26-107             --DS-PLNL-AHQQCRKADH-LLASGKYEEAI-FCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_UPI001471E4C8/26-107          --DS-PLNL-AHQQCRKAER-SLAAGKYEDAI-SCHG--KA--A----DLLTDAMKM----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RHEATKA
+UniRef90_UPI00148BD94D/26-107          --DS-SLNL-AHQQCRKADR-LVSAGKYEEAI-SCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A3S2PFS7/25-107             -MDS-PLNL-AHQQSRKAER-LVAAGKYEEAI-CCHR--RA--A----DLLTDAMKT----T-E------------SI-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLVQER--WKREL-RREASKA
+UniRef90_A0A6F9C5P4/5-82               --DS-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHG--KA--T----ELLREAMTL----T-E------------CE-------Q------------AGL-SMALQRDSHV--K-Q--Q--RLIEEK--WRRTR-QEG----
+UniRef90_A0A6P7L7L3/26-103             --DS-PLNL-AHQQCRKAER-LLAAGKYEEAI-SCHG--KA--A----DLLTDAMKN----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-H--Q--RLIQER--WKREV-RRE----
+UniRef90_UPI001A98FEFB/2-80            ------LHM-AHQQCRRADR-LVAAGKYEEAI-SCHR--KA--A----DLLTDAMKT----T-V------------CE-------Q------------AHL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A4W4G3I5/5-83               --DS-PVNL-AHQQCRKADR-LLASGRYEEAI-TCHR--KA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQWDSHL--K-Q--Q--QLIEER--WKWSR-REGK---
+UniRef90_A0A3Q2NVP2/5-86               --DS-PLNL-AHQQCRKAER-LVAAGKHEEAI-SCHG--KA--A----DLLTEAMKS----T-E------------CE-------Q------------ARL-SMELQRDNHI--K-Q--Q--QLIQER--WKREV-RREATKA
+UniRef90_A0A8C6WPD7/26-107             --DS-PLNL-AHQQCRKAER-LLAAGKYEEAI-LCHR--KA--A----DLLSDAMKG----T-E------------VE-------Q------------ARL-SMELQRDAHI--K-Q--Q--RLIQER--WKRET-RREATKA
+UniRef90_A0A673ATX3/26-105             --DS-PLNL-AHQQCRKADR-LLAAGKYKEAI-TCHG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHV--K-Q--Q--RLIQEQ--WKRET-RRMAT--
+UniRef90_A0A3Q2ZJJ1/59-140             --DS-PLNL-AHQQCRKADR-LLAAGKYEEAI-SCHA--KA--A----ELLTEAMKT----T-D------------CI-------Q------------ARV-SMELQRDRHI--K-Q--Q--RLIQER--WKKEA-RREATKA
+UniRef90_A0A3B1J0U8/30-103             --------R-AHQQCRKADR-FLAAGKYEEAI-SCHR--KA--A----ELLKDAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEER--WKRSR-REGK---
+UniRef90_A0A672GUS0/18-95              -------AK-AHQQSRKADR-LVSAGKYEEAI-SCHA--KA--A----DLLTEAMKT----T-E------------CE-------Q------------ARL-SLELQRDSHI--K-Q--Q--RLIQER--WKREV-RREATKA
+UniRef90_UPI001885AE02/26-107          --DS-PLNL-AHQQCRKADR-LFSAGKYEEAI-SCHG--KA--A----ELLTEAMKT----T-E------------CK-------Q------------ARV-SMELQRDRHI--K-Q--Q--HLIQER--WKKEA-RREATKA
+UniRef90_A0A2K5RHJ0/1-64               -----------------------AAGKYEEAI-SSYK--KA--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDRHK--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A665X993/26-106             --DS-PLNL-AHQQCRKADR-LVAAGKYEEAM-LCHG--KA--A----ELLTDAMKT----T-M------------CE-------R------------ARL-SIELQRDGHI--K-Q--Q--RLIQER--WKREA-RREATK-
+UniRef90_A0A8C8ULN5/35-109             ---G-PFHL-SHY-SRRADR-LLAAGKYEEAI-SCHK--KF--C----T-----LTF----S-S------------AS-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A6P8TLT1/5-85               --DS-PLNL-AHQQCRKADR-LLVAGKYEEAI-TCHE--KA--A----ELLTEAMKT----T-E------------CK-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--LKRET-RREATK-
+UniRef90_H3AWK6/9-86                   -------PM-AHQQNRKAER-LLAAGKYEEAI-ACHT--KA--A----ECLTEAMRL----T-K------------SE-------Q------------AQL-SLELQRESHI--K-Q--Q--RLIQEK--WKRAR-RDERQRA
+UniRef90_A0A7N8WN91/26-107             --DS-PLNL-AHQQCRKAER-LLAIEKYEEAI-YCHR--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SIELQRDSHV--K-Q--Q--HLIQER--WKREA-RREATKA
+UniRef90_A0A5A9PV53/5-78               --------Q-AHQQCRKADR-LLAAGKFEDAI-SCHR--RA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHV--K-Q--Q--RLIEER--WKRAR-RENK---
+UniRef90_UPI001FB74286/5-83            --NS-PLNL-AHQQCRKADR-LMAAGKYEEAI-SCHK--KA--S----DLLTDAMTT----T-V------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLIHEC--WKRET-RREA---
+UniRef90_A0A3P8VRT0/4-86               -VES-PLNM-AHQQCRKAER-LVTSGKYEEAI-ACHV--KA--A----DLLTDALKK----T-E------------CD-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A4Z2HAF5/5-85               --DS-PLNL-AHQQGRKADR-LLAAGKCEEAV-ACLG--KA--A----DLLTDAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATR-
+UniRef90_A0A3N0Y4A6/12-85              --------Q-AHQQCRKADR-LLAAGKFEDAI-SCHR--KA--A----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRESHI--K-Q--Q--RLIEER--WKRAK-REDK---
+UniRef90_A0A3Q3VLH2/5-85               --DS-PLNL-AHQQCRKADR-LLAAGKYKEAI-SCHG--KA--A----DLLTNAMKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RFIQER--LKRDA-HREATK-
+UniRef90_A0A401ST88/4-80               -MES-PLNL-AHQQSRKAER-MLAAGRYAEAI-DCHG--KA--A----DHLEKAMKL----T-E------------SE-------Q------------ALL-SLELQRDSHI--K-H--Q--RLIHER--WKKDE-K------
+UniRef90_V8NHV9/28-58                  -------RA-AHQQSRKADH-LLAVGKYEEAV-SCHR--KA--A----G----------------------------------------------------------------------------------------------
+UniRef90_V8NHV9/79-131                 -----------------------------------QR--KR--G----AYLLEAMKL----T-Q------------SD-------Q------------AQL-SLELQRESHL--K-Q--I--PLIQER--WKRTK-RDERLKA
+UniRef90_A0A3P8T870/28-107             -----AINH-AHQQCRKADR-LVAAGKYKEAI-SCHG--KA--A----ELLTDAMKT----T-D------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLIQER--WKREA-RREATKA
+UniRef90_UPI0014023FAA/23-104          -MDS-PLNM-AHLQARKAEK-FLVAGKYEDAI-ACHV--KA--A----GFLDEAMKL----T-D------------SE-------Q------------ALL-SMRLQQQDHL--T-Q--Q--RLVRER--WRRAQ-REQRLR-
+UniRef90_A0A484C372/5-86               --DS-PLNL-AHQQCRKADR-LLVAGKYEEAI-SCHG--KA--A----DLLTNAMKT----T-E------------CK-------Q------------ACL-SMELQRDTHI--K-Q--Q--RLIQER--LKREA-RREATKA
+UniRef90_A0A1A7YQ69/26-106             --DS-PLNQ-AHQQCRKAEH-LVAAEKYEEAI-SCHR--KA--A----DLLTEAMKT----T-E------------CD-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREV-RREATK-
+UniRef90_A0A2K6U686/4-73               -MKR-PLNL-AHQQSKGADP-LLTAGKYEEVI-SCHK--KA---------------L----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-TQA----
+UniRef90_A0A3Q2VHH4/24-98              ----------AHQQCRQADR-LVAAGKYEEAI-SCHG--KA--A----DFLTEAMKA----P-V------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREAVK-
+UniRef90_H2RMT5/23-104                 --DS-PLNL-AHQHCRKADR-LLAAGKYEEAI-LCHG--KA--A----DLLTEAMKT----S-K------------FD-------Q------------ACL-SMELQRDSHI--K-Q--Q--KLIQER--LKREA-RREATKA
+UniRef90_A0A2K6UXU3/2-59               -----------------------------EAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKGDQ-REERLKA
+UniRef90_A0A1A8UBP6/26-105             --DS-PLNL-AHRQCRKAEH-LVAAGKYEEAI-SCHG--KA--A----ELLAEAMRT----T-G------------CK-------Q------------ARL-SMELQRDSHI--K-Q--Q--HLIQER--WKREV-RRGAT--
+UniRef90_A0A8S4B4K9/5-83               --DS-PLNL-AHQQCRQAER-LVVAGNYKDAI-SCHG--KA--A----DLLTEAMQT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RRQA---
+UniRef90_UPI0015FA9552/5-82            --DS-PLNL-AHQQSRKADR-LLAAGKYEEAI-SCHG--KA--A----GVSSLCLRP----V-C------------LL-------Q------------AGL-SMALQRDSHV--K-Q--Q--RLIEEK--WKRTR-QES----
+UniRef90_UPI001402202C/4-97            -MES-PLNL-AHQQSRKAER-MLAAGKYAEAI-DCHG--KA--A----DHLGEAMKL----T-H------------SE-------QVCVKRGNAICSQALL-SLELQRDSHI--K-H--Q--LLIHER--WKRAK-REEKLR-
+UniRef90_A0A8U0QC81/16-87              ----------AHQQSRKADR-LLAAGKYEEAI-SCHG--KA--A----ELLREAMTL----T-E------------CE-------Q------------AGL-SMALQRDSHV--K-Q--Q--RLIEEK--WKRTR-QEG----
+UniRef90_A0A3B3I280/4-75               -MDS-PLNL-AHQQSRKAER-LVAAGKYEEAI-CCHR--RA--A----DLLTDAMKT----T-E------------SI-------Q------------ARL-SMELQRDSHI--K-Q--Q--QLIQEP--G------------
+UniRef90_A0A7F8QZ73/4-60               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------IT--SCMLER-----------------------------------
+UniRef90_A0A8C4QXN7/1-83               -MDS-PLNL-AHLQGRKAEK-FLAGGKYDDAI-ACHK--KA--A----EHLEEATRL----T-D------------TD-------Q------------ALL-SLRLQRESHV--T-Q--Q--RIVQEK--WCRAR-RETRLRA
+UniRef90_A0A8C5ACQ7/24-94              ----------AHQQSRKADR-LLAAGKFEEAI-ACHS--SA--A----DLLRDAMKL----T-E------------CE-------Q------------ARL-SMELQKDSHI--K-Q--Q--RLIQER--WKREA-RR-----
+UniRef90_UPI0018640125/5-82            --PN-PLNR-AHQWGRKAER-LLAAGEYEEAI-SCHG--EA--A----DLLMEAMNL----T-P------------CE-------Q------------AHL-SLELQRNSHI--T-Q--Q--RLIREQ--QKRAR-REA----
+UniRef90_A0A3P9N3T9/5-80               --DS-PLNL-AHQQCRKAEH-LVSAGKYEEAI-SCHG--KA--A---------AMKS----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKRET-RREATR-
+UniRef90_A0A8M1FAG1/4-53               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--S----AYLSEAMKL----T-Q------------SE-------Q------------G--------------------------------------------
+UniRef90_A0A2Y9NB19/26-76              ---------------------------------------PS--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERLKA
+UniRef90_A0A2K5JW81/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A8C2PEI4/72-95              -MEG-PLNL-AHQQSRRADR-LLAAGKX-------------------------------------------------------------------------------------------------------------------
+UniRef90_A0A8C2PEI4/139-178            --------------------------------------------------------V----T-K------------RL-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8I5YTK1/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_Q96F24-3/27-76                ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A2I3H0P7/36-85              ----------------------------------------L--T----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_A0A8D2F3F5/4-57               -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKN----G-A-------------S-------L------------FHI-SLK--------------------------------------
+UniRef90_UPI0018856E7A/58-112          ---------------------------------GQGK--TR--A----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2I2UKU3/27-76              ----------------------------------------Q--S----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A3Q3J5M2/5-80               --DS-PLNL-AHQQCRKADR-LLASGKYEEAI-VCHG--KA--A----GELC-----------D------------ID-------I------------ARL-SMELQRDSHF--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_A0A2K6FJI9/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A8T2NQD5/63-136             --------Q-AHQWSRKADR-LLAAGKYNEAV-SCHG--EA--A----DLLQEAMKL----T-Q------------CD-------Q------------ARL-SMELQKDNHV--K-Q--Q--WLIKER--QKWVC-RHER---
+UniRef90_A0A6P3IW77/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2K5DL90/78-130             -MEG-PLNL-AHQQSRPADG-LLAAGKYEEAI-SCHK--KP--A----AYLSEAMKL----T-Q------------SE-------Q------------QNT-D----------------------------------------
+UniRef90_A0A7J7TU50/28-76              -------------------------------------------P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A5F9CEJ3/28-76              -------------------------------------------P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLRA
+UniRef90_I3MXX5/4-46                   -MEA-PLNL-AHQQSRQADH-LLAAGKYEEAI-SCHK--KA--A----AYLSDAMK---------------------------------------------------------------------------------------
+UniRef90_I3MXX5/46-67                  -----------------------------------------------------------------------------------------------------------KDSHM--K-Q--L--LLIQER--WKRNT-DKD----
+UniRef90_UPI0015D60647/112-174         ------------------------QGNMKKQF-LVTK--KA--A----AYLTEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A8D0TK51/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRESHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A1S3FA10/27-76              ----------------------------------------Q--P----AYLCEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A5F5PTK8/80-128             -------------------------------------------L----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A6I9J4F7/27-76              ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERSKA
+UniRef90_UPI00062AA686/28-76           -------------------------------------------P----AYLSEAMTL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI000642BF5A/25-73           -------------------------------------------T----TYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_UPI000CCC3FBF/66-116          ---------------------------------------RK--Y----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI00122EF45D/28-76           -------------------------------------------P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SPELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A2K6MN31/4-67               -MEG-PLNL-AHQQN----H-LLAAGKYEEAI-SCHK--KA--A----AYLSEAMKL----T-Q------------SE--------------------------------------Q--L--LLIQER--WKRPQ-REERSKA
+UniRef90_UPI00064B9B6B/27-76           ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERLRA
+UniRef90_A0A3L8SMH6/12-95              -MEG-PLNL-LLCSIVMDHH-VQESDMSIEAVPSTME--TP--H----GYLTDAMKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_UPI00189AC3F9/26-114          --DS-PLNL-THQQCRKAER-LVAARKYEEAV-SCHG--TA--A----GMLYEPMCL----N-D------------CGFMCVWFLQ------------ARL-SMELQRDSHI--K-Q--Q--QLIQER--WRREA-RREATKA
+UniRef90_G1LSN2/82-131                 ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRESHA--K-Q--L--LVIQER--WTRAK-REERLKA
+UniRef90_A0A8N7TBX1/29-105             --DS-PLNR-AHHYGRRADQ-LVMKGKYEEAI-ECHQ--EA--A----ELLKEASSM----T-Q------------SQ-------Q------------VRL-SLELQRDRHL--Q-Q--Q--RLIQMS--CRQTQ-LK-----
+UniRef90_UPI000661E7E5/28-76           -------------------------------------------P----ACLCEAMKL----T-Q------------SE-------Q------------ARL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A1S2ZCV3/28-76              -------------------------------------------P----ACLSEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHT--K-Q--L--LLIQER--WKRAR-REGRLKA
+UniRef90_UPI0001CBBCB3/4-83            --EA-PLNL-AHQQDRKADR-YVTVGRFQEAI-ACHE--RA--A----EYIKKAMKV----T-D------------VQ-------Q------------ALT-SLELQYTNHK--K-Q--H--KVIMDK--QRRHE-LMLKI--
+UniRef90_A0A7J6C5C9/1-77               -MDS-PLNR-AHHFGRKADQ-LVAKEKFEEAI-LCHS--KA--A----ELLKEALSV----T-Q------------SE-------Q------------VRL-SLELQRDGHL--Q-Q--Q--RLIKMS--CKQTK-L------
+UniRef90_A0A6J2WCV9/4-79               -MDG-PLNR-AHQCGRKADR-LLAQEKYEEAM-ACHG--EA--A----DLLWKALQI----T-Q------------CE-------Q------------VQL-SLELQRVRHV--Q-Q--Q--RQIQES--LRRAR--------
+UniRef90_A0A498LW14/4-80               -MDS-PLNQ-AHHYGRKADQ-LVAKEKFEEAI-LCHS--KA--A----ELLTEASSM----T-Q------------SE-------Q------------VRL-SLELQRDRHL--Q-Q--Q--RLIRMS--CKQAK-L------
+UniRef90_A0A2I3TDH1/1-55               -----------------------AADKYEEAI-SCHK--KA--A----AYLYEAMKL----T-Q------------SE-------Q----------------------DSHM--K-Q--L--LLIQER--WKRPQ-HEERLKA
+UniRef90_UPI001EE57F1F/1-78            -MDS-PLNL-AHQQGRRADT-LVRSGKFDDAV-DCHK--RA--A----EYLLEAMQL----T-S------------SE-------H------------ALE-SLRLQHKHHL--H-Q--Q--ELILEN--RVRIE-RA-----
+UniRef90_A0A6P4YXC8/7-81               ---S-PLNL-AHQQGRHADR-LLTAGRYHDAI-VCHE--KA--A----DHLLRAMKM----T-S------------VP-------Q------------ALT-SLQLQYKFHF--K-Q--R--DIIREK--HRRAE-S------
+UniRef90_UPI001C8ADC38/5-79            --DS-PLNR-AHRFGRKADR-LVAKEFFEEAI-LCHK--KA--A----ELLKETLSI----T-Q------------SE-------Q------------VRL-SLELQRDRHL--Q-Q--Q--RLIEMS--HRHAR--------
+UniRef90_W5MIU2/4-57                   -VES-PLNL-AHQQSRKADR-LLAAGKHEEAI-TCHG--RA--A----DLLTEAMKL----T-Q------------CE-------Q------------TSV-AR---------------------------------------
+UniRef90_A0A8C5YMJ3/4-44               -MEA-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHK--KA--V----AYLSDK-----------------------------------------------------------------------------------------
+UniRef90_UPI001863E8F6/4-79            -MES-PLNR-AHLCGRKANR-LVAQENYEEAI-LCHG--EA--A----DLLKVALLM----T-Q------------NE-------Q------------VKL-SLELQRDRHL--Q-Q--Q--RLIGET--WKQGK--------
+UniRef90_A0A2B4SVX0/1392-1472          -MDY-PLNW-AHQQDRKAEA-LVNRRKFADAI-TCHQ--KA--L----EFLQEAIKM----T-Q------------VK-------Q------------ALV-SLQLQMNNHC--R-Q--Q--RILKEK--WKRCQ-IEQEK--
+UniRef90_A0A670Z0P5/63-118             ----------------------------------CHHFVSP--A----AYLQEAMKL----T-Q------------SD-------Q------------AQL-SLELQRESHL--K-Q--I--PLIQER--WKRTK-RDERLKA
+UniRef90_A0A803TLZ7/75-122             -------------------------------------------P----AYLSDAMKL----T-Q------------SD-------Q------------AQL-SLQLQKESHL--K-Q--I--LLIQER--WKRAK-REERLK-
+UniRef90_UPI000F54C924/1-80            -MDY-PLNW-AHQQDRKAEA-LVNHRKFADAI-ICHQ--KA--S----EFLQEAMKM----T-Q------------VK-------Q------------ALV-SLQLQINSHC--R-Q--Q--RVLREK--WKQCQ-IEQE---
+UniRef90_UPI000C30C308/26-82           --DS-PLNL-AHQQCRKADR-LVAAGKYKEAI-SCHG--KA--A----ELLTDAMKT----T-D------------CE-------Q------------DHL-MNENQQ-----------------------------------
+UniRef90_A0A8C9NYK4/4-47               -MEA-PLNL-AHQQSRRADH-LLAAGKYEEAI-SCHK--KA--V----AYLSDKKN-------K-------------------------------------------------------------------------------
+UniRef90_A0A812D6F8/12-93              -IES-PLNQ-AHQQARQADL-YVKSGKYEEAI-SCHK--RA--A----EYILNAMVK----A-T------------SN-------Q------------AKD-SLQLQHRHHF--R-Q--Q--DIIRQK--MKQSK-VEELKK-
+UniRef90_UPI0013765088/59-114          ---------------------------------SCHY--FVCFA----AYLLEAMKL----T-Q------------SD-------Q------------AQL-SLELQRKSHL--K-Q--I--PLIQER--WKRTQ-RDERLK-
+UniRef90_A0A8B9H543/11-79              ----------AHQCGRNANR-LVAQGYYEEAI-SCHG--EA--A----DLLKEALLL----T-H------------NE-------Q------------VKL-SLELQRARHV--Q-Q--Q--RLIKDT--WKRVK--------
+UniRef90_A7RH16/1-82                   -MNS-PLNS-AHLQERKAEA-LLNSFKFADAI-SCHQ--KA--A----EYIMEAMNM----T-K------------VA-------Q------------ALI-SLQLQYEDHI--R-Q--E--KVIKDK--WKHYNLHQEQL--
+UniRef90_A0A3B4CAW1/4-79               -MDS-PLNR-AHLCGRKANR-LVAQENYKEAI-LCHG--EA--A----DLLKVALLM----T-Q------------NE-------Q------------VKL-SLELQRGRHL--Q-Q--Q--RLIRDT--WKKGK--------
+UniRef90_A0A1S3HAX3/2-80               -MDS-PLNK-AHRQERKAEA-LLRSGKFDEAV-ECHQ--QA--A----EYLLKAQSL----T-R------------VE-------K------------ALE-SLQLQHDHHI--K-Q--K--AVIRAK--QRKAQ-LQK----
+UniRef90_E0CZ57/4-39                   -MEG-PLNL-AHQQSRRADR-LLAAGKYEEAI-SCHR--KA--T----T----------------------------------------------------------------------------------------------
+UniRef90_UPI001CF5E006/1-79            -MDS-PINW-AHQQERQAEA-LVSHRKFAEAI-VCHR--KA--L----EFLQEAMKM----T-E------------VK-------E------------ALI-SLQLQCNNHC--R-Q--E--RILKEK--WKLWE-IEQ----
+UniRef90_A0A803JM51/62-114             ----------------------------------CLF--YV--A----AYLSEAKKL----T-Q------------SE-------Q------------AQL-SLELQRESHI--K-H--Q--LLIQER--LKRAR-REEKLR-
+UniRef90_A0A6P8IKQ0/1-83               -MES-PLNS-AHLQERKAES-FLSCHEFSEAI-KCYQ--KA--A----EYLIEAMKL----T-Q------------VT-------Q------------ALA-SIQLQYENSL--R-Q--E--KVIKDK--WQRYEVQQERLR-
+UniRef90_R7UKE3/5-74                   --QS-PLNL-AHQEGRKAER-LLAATKYDRAI-ECHQ--KA--A----DLLSEALKS----T-S------------IP-------Q------------MRE-SLSLQRKQHL--Q-Q--K--KVIRYK---------------
+UniRef90_A0A8B8BAT2/4-80               -LES-PLNL-AHQQGRKADI-LLQGKKLEDAI-YCHR--RA--A----EYLLQALQL----S-Q------------SQ-------Y------------AQE-SIHLQHKFHL--K-Q--Q--EAIQEK--LNKIE-K------
+UniRef90_K1QPV9/21-96                  -LDS-PLNL-AHQQGRKADN-LLQSKKYEEAI-TCHR--RA--A----EHLLQALQL----S-P------------SQ-------Y------------AQE-SIHLQHKFHL--K-Q--Q--EAIQVK--IEKIE--------
+UniRef90_UPI000A2A5955/1-78            -MDS-PLNM-AHLQERRAES-FINSHQFSEAI-QCYQ--TA--A----EYLLQAMKM----T-Q------------VT-------Q------------AVV-SMQLQYESNL--R-Q--E--KIIKDK--WRRHE-LQ-----
+UniRef90_A0A8C2PEE3/23-63              -------------------------------------------------------XX----T-Q------------SE-------Q------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI000BA81164/8-76            --------Y-AHQQSRKADY-YLRSGKFEEAI-SCHQ--RA--A----DLLDDALKQ----T-S------------SD-------K------------ARE-SLVLQRDFHF--R-Q--K--AVVQYK--Q--NQ-Q------
+UniRef90_UPI000C6DD3E5/1-74            -MDT-PLNL-AHQQQRKADS-FLKLGKFDESV-ACHQ--KA--T----DLLKEALLQ----T-N------------SE-------K------------AKE-SLELQLNYHV--R-Q--Q--AVVRHR--QH--Q--------
+UniRef90_UPI002013EBAC/19-91           --------Q-AHHFGRKADQ-LLAKEKYEDAI-LCHS--EA--A----ELLKEALSM----T-Q------------NE-------Q------------VRL-SLELQRERHL--Q-Q--Q--RLIKMS--CKQAK-LKG----
+UniRef90_A0A5A9NR61/4-83               -MDS-PLNQ-AHYYSQKANR-LVAKEKYEEAI-LCHG--QA--A----ELLKEALST----T-Q------------SE-------Q------------VRL-SLAIQRHRLL--Q-Q--Q--QLIQVS--CTQGQ-LKEK---
+UniRef90_A0A7N4Q0S4/4-51               -MDG-HLNL-AHQQSRKAGR-SLAAGKYKEVI-LCHQ--KA--A----ANLTEVMKL----T-H------------SS-----------------------------------------------------------------
+UniRef90_A0A663N6G3/1-42               ------------------------------------------------------MKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_UPI0014552E01/14-90           --DS-PLNR-AHQMERQAER-MLLSGRYDQAV-ICYN--QA--A----ENLSEAMKH----T-Q------------DP-------S------------AIL-SLQLQLNNLL--K-Q--P--QIVRKR--QQWGN-RK-----
+UniRef90_UPI001069C1DB/1-78            -MDS-PLNR-AHQQERKAEK-LISNKKYMEAI-ACYE--IA--S----AYIMEAMEA----T-T------------AS-------Q------------ALI-SMQLQYEDHL--R-K--K--KLLQVK--IERIA-RA-----
+UniRef90_A0A2K6TWL9/27-62              -----------------------------------------------------------------------------Q-------P------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAQ-REERLKA
+UniRef90_UPI0018F6BCB9/20-66           -------------------------------------------------RLGEAMKL----T-Q------------SE-------Q------------ALL-SLELQRDSHI--K-Q--Q--CLIHER--WKRAK-REEKLRA
+UniRef90_UPI001B887A9F/1-71            -MES-PLNL-AHQQARKADM-MMKSGKFESAI-CCHR--RA--S----EHLLEAMLQ----T-H------------CQ-------H------------ALE-SLRLQHQHHL--R-Q--Q--DILQEK---------------
+UniRef90_A0A8C3KZ17/1-42               ------------------------------------------------------MKL----T-Q------------SE-------Q------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_A0A8J1T6B0/5-85               -MES-PLNL-AHLERRKAES-NINKGRYDLAI-ACHK--KA--A----EFLELALKT----T-S------------DN-------K------------ARE-SIELQCDHHC--R-Q--Q--QLLRDK--SNRLK-MAERL--
+UniRef90_A0A8C9PZR7/4-39               -MEA-PLNL-AHQQSRRADH-LLAAGKYEEAI-SCHK--KA--K----H----------------------------------------------------------------------------------------------
+UniRef90_A0A6I9PRM4/80-142             ----------AHQQCRKADR-LLVAGKYEEAI-SCHD--KA--A---------------------------------E-------L------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--LKRET-RREATK-
+UniRef90_A0A556TIK3/90-144             -----------------------------KGF-SLYR--QG--L----ELLKEAMKL----T-E------------CE-------Q------------ARL-SLELQRDSHL--K-Q--Q--RLIEER--WKRAR-RENK---
+UniRef90_UPI001B7F7653/19-66           ------------------------------------------------DHLGEAMKL----T-Q------------SE-------Q------------ALL-SLELQRDSHI--K-H--Q--RLIHER--WKRAK-REEKLRA
+UniRef90_UPI000778A40C/1-41            ------------------------------------------------------MKL----T-Q------------SD-------Q------------AQL-SLELQRDSHL--K-Q--I--LLIQER--WKRAR-REERLK-
+UniRef90_A0A1W4WYU5/5-74               -----SLNK-AHQQHRRADA-LLKYKKFEEAI-ECHE--KA--A----ELLEEAIKV----T-E------------NP-------H------------SIE-SLKLQKDYHL--R-Q--K--KIILMK--KE-----------
+UniRef90_A0A4X2KH29/4-49               -MDR-PLNL-AHQQSRKADL-SLASGKYEEAI-LCHQ--QV--T----EYLSEAMKA----R-N-------------------------------------------------------------------------------
+UniRef90_A0A6P8YJ06/3-71               --ES-PLNQ-AHREDRRAQQ-HLKGGRFNEAV-KCHQ--LA--A----KYIEDAMKV----T-S------------SP-------R------------ALE-SLVLQKEFHV--R-Q--L--EIVEL----------------
+UniRef90_UPI000359B1FC/19-89           -MES-PLNL-AHTFSRRADM-LTKNRKYEEAI-TCHR--KA--A----EYLLEAMQS----A-K------------SA-------T------------LQE-SMALQHKAYL--S-E--I--TRLQYK---------------
+UniRef90_A0A8C2R3I9/17-66              ----------------------------------------V--A----WALGHLCLR----T-P------------SR-------R------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI001457EFF8/1-78            -MDS-ALNS-AHQQGRKADM-MLKSGKAEEAI-FCHR--RA--A----EHLLQAMQL----S-T------------CM-------K------------AKD-SISLQHQFHL--R-Q--Q--DLLQER--LNKLQ-AL-----
+UniRef90_UPI001F04C98E/1-71            -MNS-PLNS-AHQQERKAEK-FINYERYEEAI-SCYE--NA--S----VYIIEAMKS----T-T------------CF-------Q------------ALL-SMQLQIEDHS--R-K--K--KLLQIK---------------
+UniRef90_UPI001D0845A6/3-81            --DA-PLNK-AHQEYRFAER-HLRYRRFDEAI-NSHQ--KA--A----AYLTEAMKI----T-T------------SA-------K------------AYE-SMQCQYDYHI--K-Q--Q--DIVK----MKKQE-YESYLK-
+UniRef90_A0A210PP46/32-107             -MDS-SLNS-AHQQGRKADM-LLKSRKPEEAI-FCHR--RA--A----EHLLQAMQL----T-T------------CM-------K------------AKD-SISLQHQFHL--R-Q--Q--DLLQER--LSKLQ--------
+UniRef90_A0A6J8DED2/1-74               -MDS-PLNQ-AHQQSRKADM-MLKCKKFEEAM-VCHR--RA--A----DYLLEALQT----T-N------------SE-------L------------AKE-SIYHQHQYHL--R-Q--Q--DNLQHK--LDR----------
+UniRef90_A0A444UHI2/11-53              -------------------------------------------------LLYEAMKL----T-Q------------SE-------Q------------AHL-SLELQRDSHI--R-Q--Q--RLIEEK--WKRAK-REG----
+UniRef90_UPI00174EFECA/24-62           -------------------------------------------------------------D-Q------------EI-------T------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_A0A671FJE8/4-46               -MKG-P--L-AHQQSRREDR-LLAVGIYKEAI-SCHK--KA--A----EYLSETTKR----P---------------------------------------------------------------------------------
+UniRef90_V3ZPS6/1-80                   -MES-PLNT-AHQHARKSEL-LIKNGKYPEAI-QCHT--EA--A----ECILQAMTL----T-G------------SN-------H------------ALE-SLKLQHGYHL--K-K--I--DQLEEQ--CLREE-RKES---
+UniRef90_UPI00067B401A/5-75            ---H-PLNL-AHQQHRRAEA-HLVNNKYDEAM-QCHQ--NA--A----ELLLDAMKS----T-T------------SS-------I------------ALE-SITLQRSYHL--K-Q--K--DLIKSK--KE-----------
+UniRef90_A0A8C9BUM9/4-39               -MEG-TLNL-AHQ-SRRADR-LVAAGKYEEAI-SCHK--KA--A----AS---------------------------------------------------------------------------------------------
+UniRef90_A0A2G9SM59/1-48               -------------------------------------------A----AYLLEAKKL----T-Q------------SE-------Q------------AQL-SLELQRESHL--K-Q--Q--LLIQER--LKRAK-REEKLR-
+UniRef90_T1HXE1/5-76                   ---S-PLYL-AHQNGRIADN-HLKLRKYDEAV-ECHQ--KA--S----ELLAQAMTL----T-K------------YT-------K------------ALE-SLQLQHDYHV--K-Q--T--DIIKAR--KLQ----------
+UniRef90_G5AXR1/1-42                   ------------------------------------------------------MKL----T-Q------------SK-------Q------------AGL-SLELQRDNHM--K-Q--L--LLIQER--RKRAK-RKERLKA
+UniRef90_UPI0006B0D271/9-73            -------TV-AHQQYRKAEH-FLKSGKFEEAI-SCHQ--RA--A----GLLQDALKQ----T-N------------SD-------K------------AKE-SLILQSEFHL--R-Q--E--AVVRY----------------
+UniRef90_A0A7D9IBA5/1-69               -MDS-PLNR-AHRQERKAEK-LISGKKYMEAL-ACYE--IS--S----GYMTEAMKT----T-T------------AS-------Q------------ALI-SMQLQYEDYL--R-K--Q--KLLR-----------------
+UniRef90_A0A8S4RTN4/4-77               ---H-PLNL-AHQQHRRGEA-YLKSKRYDEAI-HCHN--NA--A----ELLLEAIKS----T-T------------SP-------V------------AVE-SITLQHSYHL--K-Q--K--EFIKNK--KEHYM--------
+UniRef90_UPI000E6E4119/3-73            --DS-PLNL-AHKQHRKAEN-HIHYKRFDEAI-ECHK--KA--A----KYLDQALQL----T-T------------VE-------R------------AVE-SMSLQKAFHV--K-E--Q--AVILQK--K------------
+UniRef90_A0A6J1STM4/3-71               --DS-PLNL-AHREDRRAEQ-HLKFRRFDEAV-KCHE--LA--A----KYIENAMTI----T-S------------IP-------R------------ALE-SLTLQREFHL--R-Q--L--HIVEL----------------
+UniRef90_A0A437BXE9/4-75               ---H-PLNL-AHQQHRRADA-HLINNRYDEAM-QCHN--NA--A----ELLLDAMKS----T-T------------SS-------I------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQ----------
+UniRef90_A0A3Q1BI82/5-42               --DS-PLNL-AHQQCRKADR-LVAAGKYKEAI-SCHG--KA--A----GSFC-------------------------------------------------------------------------------------------
+UniRef90_UPI000D733645/2-73            -MNS-PLNR-AHQQARRSDS-LIRSGTFEEAI-ACQN--RA--A----EHLLEAMQE----T-T------------SP-------V------------VLE-SLQLQHAHHL--S-Q--A--TRLQKR--Q------------
+UniRef90_A0A4P6DBK1/5-75               ---S-PLYL-AHQNGRIADN-HLKLRKYDEAV-ECHQ--KA--S----ELLAQAMTL----T-K------------YT-------K------------ALE-SLQLQHDYHV--K-Q--T--DIIKAR--KL-----------
+UniRef90_A0A8C9MKA6/12-45              -------LK-AHQQSRKADR-LLAAGKYEEAI-SCHK--KA--C----SYPN-------------------------------------------------------------------------------------------
+UniRef90_A0A8K0KY86/5-71               -----SLNL-AHQQHRRAEA-HLRCRRFDEAI-QCHK--EA--S----RLLEEAMKL----T-T------------VT-------K------------ALE-SLKLQREYHI--Q-Q--E--SIIRM----------------
+UniRef90_A0A821S6Z4/4-76               ---H-PLNK-AHQQHRRAEA-LLKNNKYDDAM-QCHH--NA--A----ELLLDAMKS----T-S------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIQSK--KEQY---------
+UniRef90_A0A8C5RTK3/1-42               ------------------------------------------------------MKL----T-Q------------SD-------Q------------AQL-SLELQRESHL--K-Q--I--PLIQER--WKRTR-RDERLKA
+UniRef90_A0A194RQX4/4-77               ---H-PLNL-AHQQHRRADA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------A------------ALE-SISLQHSYHL--K-Q--K--DLIKSK--KEQYA--------
+UniRef90_UPI0010A09357/2-35            --------------------------------------------------------------------------------------------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REERLKA
+UniRef90_UPI0009E628D4/3-66            -------------------A-LVNHRKFEDAI-ICHQ--KA--S----EFLQEAMKM----T-Q------------VK-------Q------------ALV-SLQLQVNNHG--R-Q--Q--RILKEK--WKRCE-IEQQ---
+UniRef90_A0A8J9Y5V4/4-77               ---H-PLNL-AHQQHRRAET-HLKNNRYDEAI-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKNK--KEQYT--------
+UniRef90_A0A2A4JC73/4-78               ---H-PLNL-AHQQHRRAEA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKNK--KEQYE-R------
+UniRef90_A0A8D8RT52/11-85              --KG-PLNL-AHKHGRQAER-KLLQQKFDEAV-VEHE--KA--K----EYLLEALKL----T-N------------VT-------Q------------AVA-SLTLQAEYHK--K-Q--K--EFVL----LKKTQ-HE-----
+UniRef90_UPI0005F4230E/27-72           ----------------------------------------Q--P----AYLSEAMKL----T-Q------------SE-------Q------------AQL-LLEWQRN-------X--L--LLIQER--WKRPQ-REERSKA
+UniRef90_D6WB19/4-69                   ---S-PLNK-AHQLDRRAEA-LLKQKKFDESI-ECHQ--NA--M----KYLHDALNL----T-Q------------NP-------R------------SLE-SIQLQIDHHQ--K-Q--V--DSL------------------
+UniRef90_UPI0018E515EB/4-78            ---H-PLNL-AHQQHRRAEA-HFKNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-S------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIQSK--KEQYS-R------
+UniRef90_A0A069DPM2/1-72               -----PLYL-AHQNGRIADN-HLKLRKYDEAV-ECHR--KA--S----ELLAQAMTL----T-K------------YT-------K------------ALE-SLQLQHDYHV--K-Q--T--DIIKAR--KLQY---------
+UniRef90_UPI000E6D8EC2/4-77            ---H-PLNL-AHQQHRRAEA-HLKSNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-A------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYA--------
+UniRef90_A0A3S1A1G4/19-84              -MES-PLNL-AHTFSRKADM-FTKSRKYDDAI-VCHR--RA--A----EYLLQAMKI----T-K------------ST-------T------------LLD-SMALQHKTYL--A-Q--I--D--------------------
+UniRef90_A0A8C9EKH3/2-34               --------I-AHQQSRKADR-LLAAGKYEEAI-SCHR--KA--A----GEYN-------------------------------------------------------------------------------------------
+UniRef90_UPI001E27A7C8/18-89           ---H-PLNM-AHQQQRRAES-HLKHNRYEEAL-QCHH--NA--A----ELLLDAMKS----T-S------------ST-------V------------ALE-SISLQHSYHL--K-Q--K--DLIESK--KEQ----------
+UniRef90_A0A1A6FV35/10-44              -------------------------------------------------------------------------------------L------------AHL-SLELQRDSHM--K-Q--L--LLIQER--WKRAR-REERLKA
+UniRef90_UPI001F5FDF1A/5-71            -----ALNV-AHQQHRKADT-HLRYKRFDEAV-QCHQ--NA--A----SMLKEAMKL----T-S------------VT-------R------------ALE-SLHLQHDYHV--R-Q--Q--EIIRL----------------
+UniRef90_A0A8B8I123/5-75               -----PLNL-AHQQHRRAEA-HLKNNRYDEAI-QCHH--NA--A----ELLLDALKS----T-N------------SS-------V------------ALE-SITLQHNYHL--K-Q--K--DLIKNK--KEQ----------
+UniRef90_UPI001E2796CB/27-101          -MNS-ALNK-AHQQERKAEL-LLSKKKFEECI-ECHK--NA--I----SLFTEAMSK----T-T------------DK-------K------------VLL-SLQLQKKYNE--K-Q--I--GIVQMQ--KEKV---------
+UniRef90_A0A6J1W8C1/4-74               ---H-PLNL-AHQQHRRAET-HLVNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKIK--KE-----------
+UniRef90_UPI00195597EF/19-88           --------Q-AHHYGRKADQ-LVAKEKYEEAI-LCHS--EA--A----ELLNQA-SM----T-H------------TE-------P------------VRL-SLELQRDRHL--Q-Q--Q--RQIKMS--CKQAK-L------
+UniRef90_A0A1E1WVD5/4-74               ---H-PLNL-AHQQHRRAEA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--ALIKCK--KE-----------
+UniRef90_A0A3L7IPM7/1-42               ------------------------------------------------------MKL----T-Q------------SE-------Q------------AHL-SLELQGDSHI--K-Q--L--LLIQGR--RKRAK-HEEQLKA
+UniRef90_UPI000C140991/4-78            ---H-PLNL-AHQQHRRAEA-HLVNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------TLE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYD-R------
+UniRef90_A0A663DTU4/79-118             --------------------------------------------------------V----T-K------------KL-------L------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_A0A0B6Y4J7/15-59              -MES-PLNL-AHMFSRRADM-LTKSRKYEEAI-SCHH--KA--A----ECLLQAMKT----T---------------------------------------------------------------------------------
+UniRef90_A0A2M3ZDR3/5-77               -----HLNT-AHMYGRRADN-CVKSRRYDDAI-ESHR--KA--V----FHLEEAQKI----K-S------------SP-------K------------VHE-SLQLQQKYHQ--K-Q--V--ELVQIK--KRQY---E-----
+UniRef90_A0A835GR48/4-78               ---H-PLNL-AHQQHRRAEA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYE-R------
+UniRef90_UPI0020107C55/4-72            ---H-PLNL-AHQQHRRAEA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKIK---------------
+UniRef90_A0A2R9AP87/34-73              ------------------------------------------------------KKL----F-L------------SE-------Q------------AHF-SLELQRN--R--K-Q--R--LLIQDR--WKRAQ-REERLKA
+UniRef90_G1NGH1/21-66                  --------------------------------------------------MKKQFLV----T-E------------KL-------L------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKMKA
+UniRef90_UPI001C3AB207/4-71            ---S-PLNK-AHQLDRRAEA-LLKQKKFDETM-ECHN--NA--M----RYLYEALQL----T-E------------NP-------R------------SKE-SIQLQIDHHH--K-Q--V--EALKV----------------
+UniRef90_A0A653CJC9/7-70               -----SLNK-AHQQQRRAEA-LLRQRKYDECI-ECHR--QA--I----LQLTEASKM----T-E------------NP-------R------------SLE-SIRLQKLYHE--K-Q--I--DL-------------------
+UniRef90_UPI0009075C73/32-75           ---------------------------------------------------KKQFLV----T-K------------RQ-------L------------AQL-SLELQRDSHM--K-H--I--LLIQER--WKRAK-REERLK-
+UniRef90_A0A8R2ALB5/4-74               ---H-PLNL-AHQQHRRAEA-HLKNHRYDEAM-QCHQ--SA--A----ELLVDAMKL----T-T------------ST-------L------------ALE-AITLQHSYHL--K-Q--K--DLIKYK--KE-----------
+UniRef90_A0A8S3XRH0/4-75               ---H-PLNL-AHQQHRRAEA-HLINNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------A------------ALE-SISLQHSYHL--K-Q--K--DLIKSK--KDQ----------
+UniRef90_UPI000874C7A0/11-87           -----TLNR-AHQEQRKAEA-LLCHKKFDECI-ECHR--NA--I----DLLSQTCKL----T-E------------NI-------R------------ALE-SLNLQKEYHQ--K-Q--I--KFVN----LKRAQ-QEYYIK-
+UniRef90_A0A6P7G501/7-82               -----SLNK-AHQQQRRAEA-LLRQKKYEDCI-ECHR--QA--I----QLLEDSLNL----T-E------------NA-------R------------SLE-SLKLQKEYHK--K-Q--I--EFVQMK--KAQSQ-IEN----
+UniRef90_A0A7J6YN49/4-73               ---S-ALNK-AHLQFRRAEN-HLRYRKFDEAI-DCHN--KA--A----ELLQEALSL----T-D------------NP-------R------------SLE-SLKLQRDYHFRQK-Q--I--ILVKK----------------
+UniRef90_T1IIW5/4-80                   -MES-SLNA-AHYQHRKAQN-YMRLGKFDQAV-GHHQ--RA--A----ELLKDAMQM----T-K------------SD-------K------------ALE-SLRLQHDYHV--R-Q--E--AVVRFK--QQEAE-R------
+UniRef90_A0A8S3YT08/15-85              -MES-PLNL-AHMFSRRADM-LTKNRKYEEAL-SCHR--KA--A----ECLLQAMHT----A-S------------CP-------T------------LLD-SLALQHKVYL--S-Q--I--ERLQAK---------------
+UniRef90_A0A0L7L8A3/4-76               ---H-PLNL-AHQQHRRAEA-HLMHNRYDEAM-QCHH--TA--A----ELLLDAMKS----T-G------------SS-------V------------ALE-SITLQHNYHL--K-Q--K--DLIKSK--QDQY---------
+UniRef90_A0A212FJM1/4-76               ---H-PLNL-AHQQHRRAEA-HLKYNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKNK--KEQY---------
+UniRef90_A0A8I6R9T7/5-78               ---S-PLYL-AHQNGRNADN-HMKLRQYDAAV-ACHV--KA--S----EWLSQAMNL----T-K------------YS-------K------------ALE-SLQLQYQYHL--K-Q--T--DLINAK--KLRQE--------
+UniRef90_A0A663N2V2/7-46               --------------------------------------------------------V----T-K------------KL-------L------------AQL-SLELQRDSHM--K-Q--L--LLIQER--WKRAK-REEKLKA
+UniRef90_UPI00103B4600/4-77            ---H-PLNL-AHQQHRRAEA-HIINYRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------G------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYA--------
+UniRef90_UPI001ED879E8/5-72            -----ALNL-AHQQHRRAEA-HLRYRRFDEAI-KCHR--EA--S----RLLGEAMKL----T-N------------VA-------K------------SLE-SLNLQREYHA--Q-Q--E--TIIKMK---------------
+UniRef90_A0A1S3D8V1/11-88              --KG-PLNL-AHKHGRQAEK-KLLQMQFDEAV-LEHD--KA--K----EYLLEALKI----T-T------------VT-------Q------------AVQ-SLTLQLEYHK--K-Q--K--DFVQ----FKKTQ-HEIRK--
+UniRef90_UPI0014256C1B/1-74            ----------ANQQERRVEK-FLLSRQYDEAI-KCHK--KA--A----EYLLEAIEK----T-E------------SL-------E------------IRQ-MLQLKHDHHT--R-Q--P--ALLEET--QRREK-RKKQL--
+UniRef90_A0A7E5VZW8/4-78               ---H-PLNL-AHKQHRRAEA-HLMNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKGK--KEQYE-R------
+UniRef90_A0A7J6YKS0/4-72               ---S-ALNK-AHLQYRKAEN-YLRCRKFEEAI-ECHN--NA--A----DLLQESLSL----T-E------------NP-------R------------SIE-SLKLQRDYHL--R-QKQI--VLVK-----------------
+UniRef90_A0A0P5B9R7/5-77               -----SLNQ-AHYETRRAEQ-LVRQGKLDDAI-ECHE--KA--S----TLLSSAMTL----S-D------------LT-------T------------VKQ-SLLCQKEYHI--R-Q--V--WLLQSK--IAQLE--------
+UniRef90_UPI001C20229E/4-73            ---H-PLNL-AHQQYRRAEA-HMKNNRYDEAM-QCHQ--NA--A----ELLLDAMKS----T-S------------ST-------F------------ALE-SITLQHSYHL--K-Q--K--DIIKCK--K------------
+UniRef90_A0A3Q2X0W5/94-140             ------------------------------------------------DFLTEAMKA----P-V------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREAVK-
+UniRef90_L9KGT7/231-265                -------------------------------------------------------------------------------------L------------AHL-SLELQRDSHM--K-Q--F--LLIQER--WKRAK-REERWKA
+UniRef90_UPI00083C6964/4-71            ---S-ALNM-AHQQQRRAEA-HLRHARFMEAI-ECHQ--LA--A----NHLFDALQC----T-Q------------NP-------Q------------SVD-SINLQRDYHL--R-R--K--EIILA----------------
+UniRef90_UPI000719E09D/7-76            -MEGFPLNF-AHQKERKAEH-LVAQGKLVDAV-SCYR--QA--A----EYLTKSMQQ----T-D------------DP-------I------------ALQ-SLRLQHDNYL--H-Q--G--QLLN-----------------
+UniRef90_A0A4C1Y749/4-78               ---H-PLNL-AHQQHRRAEA-HLRYKRFNEAM-QCHQ--QA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYE-R------
+UniRef90_A0A8S4FVN0/4-75               ---H-PLNL-AHQQYRRAEA-HLKYKRFDEAM-QCHH--NA--A----ELLLDAMKT----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DLIKIK--KEQ----------
+UniRef90_UPI001D088564/27-105          -MNS-SLNK-AHQQERKAEA-LLNKKKFEECI-ECHK--NA--I----SLFTEAMTK----T-T------------DK-------K------------VLL-SLQLQKKYNE--K-Q--I--AAVK----MQQMQ-KEKVL--
+UniRef90_A0A1Y1LWJ1/4-73               ---S-ALNK-AHIQYRRAEN-YLRYRRFEEAI-ECHS--IA--A----ELLQDALSL----T-E------------NP-------R------------SLE-SLKLQRDYHL--R-QKQI--VLVKK----------------
+UniRef90_UPI0018D8AA5B/15-89           --DS-PLNR-AHQIERQAEK-MLQSGRYDQAS-SCYI--RA--A----DQLEVAIQQ----T-Q------------NP-------S------------AVL-SLRLQLENLR--K-Q--P--QIIKKR--QQWDQ--------
+UniRef90_A0A1B6CK25/3-74               --DS-PLFL-AHQNDRKAET-HIRYKRFDEAA-VCHQ--KA--S----GFLLQAMQL----T-S------------VS-------R------------ALE-SLQLQHDYHL--R-Q--K--DIIR----IKKV---------
+UniRef90_UPI00188EBB89/4-76            ---H-PLNL-AHHQHRRAEA-HLNNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------F------------ALE-SITLQHSYHL--K-Q--K--DLIRSK--KEQY---------
+UniRef90_A0A0T6AZY0/5-70               -----ALNQ-AHLQHRRAEV-HLKHRRFSEAI-ECHR--KS--A----ELLSEALNY----T-Q------------NL-------K------------AIE-SLKLQRDFHI--R-Q--T--NVIL-----------------
+UniRef90_A0A5E4QHH5/26-95              ----------AHQQHRRADA-HLKNSKFDEAM-QCHH--NA--A----ELLLDAMKT----T-S------------ST-------A------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYT-R------
+UniRef90_A0A1B6MUV3/4-72               ---S-PLLL-AHQNDRKADN-HILCKRFDDAL-SCHK--TA--A----ELLLHAMQL----T-S------------VT-------R------------AVE-ALHLQYDYHK--R-Q--E--DIVQVK---------------
+UniRef90_A0A1Y1LXR7/4-73               ---S-ALNK-AHIQYRRAEN-YLRYRRFEEAI-ECHS--IA--A----ELLQDALSL----T-E------------NP-------R------------SLE-SLKLQRDYHL--R-QKQI--VLVKK----------------
+UniRef90_A0A8S1B809/5-75               -----QLNL-AHQQHRRAEV-HLQNNRYDEAM-QCHH--NA--A----ELLLDAMKS----T-T------------SS-------V------------ALE-SITLQHSYHL--K-Q--K--DFIKI----KKGQ--------
+UniRef90_A0A8B7YEX4/15-90              --DS-PLNR-AHQIERQAEK-MLQNGRYDQAS-SCYI--RA--A----DQLEGAIQQ----T-Q------------NP-------S------------AIL-SLKLQLENLR--K-Q--P--QVIKKRQQWDKH---------
+UniRef90_A0A182HSU3/5-73               -----HLNR-AHMYGRRAEN-FAKNRRFDEAI-ECHR--KA--V----SHFNEALKL----Q-T------------NT-------V------------VQE-SLQLQRKYHL--K-Q--V--DWMLVR--K------------
+UniRef90_A0A7R9IEP1/12-84              -----ALNV-AHQQHRRAEN-HTKYRRFDDAI-LCHK--QA--A----EKLREAMDL----T-K------------VP-------R------------SLE-SLRLQQDYHN--R-Q--E--DII--R--LKKAQ-FE-----
+UniRef90_A0A5E4QGB1/26-94              ----------AHQQHRRADA-HLKNSKFDEAM-QCHH--NA--A----ELLLDAMKT----T-S------------ST-------A------------ALE-SITLQHSYHL--K-Q--K--DLIKSK--KEQYT--------
+UniRef90_A0A7R8ZBZ1/45-117             -----ALNV-AHQQHRRAEN-HTKYRRFDDAI-LCHK--QA--A----EKLREAMDL----T-K------------VP-------K------------SLE-SLRLQQDYHN--R-Q--E--DIV--R--LKKAQ-FE-----
+UniRef90_Q174N3/6-79                   ------LNM-AHVHGRRAEH-HTKHRRFDEAI-ENHR--KA--A----SFIEEALKI----APQ------------SA-------V------------VIE-SLQLQRKYHM--K-Q--I--EFVRHR--KQQYE-R------
+UniRef90_T1II09/7-83                   -VES-SLNA-AHFQHRKARN-FTRLGKFDLAI-GHHQ--MA--A----DLLKDAMQV----T-K------------SD-------K------------ALE-SIRLQHDYHV--R-Q--D--VVIRFK--QQQAD-K------
+UniRef90_A0A182QRN8/28-101             -----HLNR-AHVYGRRAEN-CAKSRRFDDAI-ECHR--KA--V----FHFNEALKL----Q-T------------NV-------V------------VQE-SLQLQRKYHL--K-Q--V--DWLQAK--KQQYE-R------
+UniRef90_A0A146L608/4-82               --ES-PLYL-AHVKGRSAEN-HMKTREYDAAV-SCHE--KA--S----ELLQQAMTL----T-R------------YA-------K------------ALE-SLELQYHYHR--K-Q--T--DIIKA----KKLQ-HEIQLK-
+UniRef90_UPI001C45B916/4-78            ---S-PLNQ-AHREQRRAEA-CRRGGRLEEAA-ECHG--RA--A----ELLTAALTL----T-T------------TP-------L------------ARQ-SITLQHSYHI--R-Q--Q--ELLRFR--SKQLE-K------
+UniRef90_UPI0012EE3FD5/1-42            ------------------------------------------------------MKT----T-E------------CE-------Q------------ARL-SMELQRDSHI--K-Q--Q--RLIQER--WKREA-RREATKA
+UniRef90_UPI001CF72508/4-69            ---S-PLNK-AHQLDRRAEA-LLKQKKFDESI-ESHH--NA--M----HHLHEALHL----T-Q------------NP-------R------------SLE-SIHLQIDHHQ--K-Q--V--DSL------------------
+UniRef90_A0A1B0CJC9/6-75               -----ALNT-AHRYARRAEA-HFRYKRFDEAI-ECHK--QV--I----EQLQNAIRL----A-T------------VD-------K------------SVV-SLQLQREYHV--K-Q--I--EFLNMR--KM-----------
+UniRef90_A0A1L8DII6/5-73               -----ALNT-AHRYARRAEA-HFRYKRFDEAI-DCHK--QV--I----EQLQNAIRL----A-T------------VD-------K------------SVV-SLQLQREYHV--K-Q--I--DFLMMR--K------------
+UniRef90_UPI0018A7BC3C/4-78            ---S-PLNQ-AHREQRRAEA-FRRGGRLEEAA-ECHG--RA--A----ELLVAALTL----T-P------------TP-------L------------ARQ-SITLQHSYHL--R-Q--Q--ELLKFR--SKQLE-K------
+UniRef90_A0A6A4J9K3/4-82               --ES-PLYL-AHVKGRSAEI-HMKTREYDAAV-SCHE--KA--S----ELLQQAMTL----T-R------------YA-------K------------ALE-SLELQYHYHR--K-Q--T--DIIKA----KKLQ-HEIQLK-
+UniRef90_A0A6L5C7K8/10-79              ----------AHQQSRRADA-HLRAHRFEEAA-ECHR--LA--A----DLVAEAMND----T-R------------QP-------R------------ALE-SLTLQRQHHL--R-Q--T--DVIRLR--KSQYE-K------
+UniRef90_A0A7R8YQQ8/5-72               -----NLNL-AHYYGRRAEN-HLKHFRYDKAI-ENYQ--KA--A----EFTEEAMKG----I-T------------SQ-------T------------VLA-SLRLQHKDHM--R-Q--V--NLIQLK---------------
+UniRef90_A0A8C2BXI4/18-72              ----------------------------------VGK--QT--A----CWLQENLKMPSPAT-E------------KL-------Q------------ARL-PLELQRDSHV--K-Q--Q--RLIEEQ--WKRAK-REDK---
+UniRef90_A0A482VDF5/1-65               ----------AHQLDRRAEA-LTKQKKFEECI-ECHK--NA--M----KYLHDSLQL----T-E------------NP-------R------------SKE-SIQLQIDHHQ--K-Q--M--ESLK----IKK----------
+UniRef90_UPI001C70CB15/4-78            ---S-PLNQ-AHREQRRAEA-FRRGGRLEEAA-ECHG--RA--A----ELLLAALTL----T-P------------TP-------L------------ARQ-SITLQHSYHL--R-Q--Q--ELLKFR--SKQLE-K------
+UniRef90_G3I8P0/1-30                   ------------------------------------------------------MKL----T-Q------------SE-------Q------------AHL-SLELKWDSHM--K-Q--L--LLIQER---------------
+UniRef90_A0A182NRQ6/5-76               -----HLNR-AHVYGRRAEN-WAKSRRFDDAI-ECHR--KA--V----FHFNEALKL----Q-T------------NT-------V------------VLE-SLHLQRKYHL--K-Q--V--EWLQAR--KQQY---------
+UniRef90_UPI0011C0D610/28-73           -------------------------------------------------LLTDAMKT----A-V------------CE-------Q------------ARL-SMELQRDSHI--K-H--Q--RLIQER--WKREA-RREATK-
+UniRef90_UPI00187D92A6/17-89           -MES-ALNS-AHSSSRRADK-HLKYGRYDEAI-KCHS--ET--V----NFLSKAIAE----S-T------------IP-------K------------NIE-NLLLQRKHHE--NIQ--T--IIVRQK--Q------------
+UniRef90_A0A6I9XN69/15-49              -----------------------------------------------------------------------------N-------L------------AQL-SLELQRKSHL--K-Q--I--PLIQER--WKRTQ-RDERLK-
+UniRef90_A0A3S3P3G9/6-75               --DS-PLNK-SHRFERKAED-LAKCGRFDEAI-NYHR--KA--K----ECLLEAKQL----T-R------------SN-------S------------AIS-SIEAQINFHE--N-Q--E--KILAHR---------------
+UniRef90_A0A6P3WPF6/5-59               -----ALNL-AHEKQRRAEV-LLREGKFEEAA-SCHE--HV--A----DLLTEAHTQ----L-E------------SN-------LI----------CAHT-STLS-------------------------------------
+UniRef90_UPI000E33DD7D/19-69           -----ALNL-AHEKQRRAEA-LLREGKFEEAA-SCHE--TV--A----DLLAEAHAQ----L-E------------SS-------L------------IHV-QA---------------------------------------
+UniRef90_A0A6B2EDE5/5-77               -----ALNT-AHRYARRAEA-HFRYKRFDEAI-DCHK--QV--I----EQLHNAIRL----A-T------------VD-------K------------SVV-SLQLQREYHT--K-Q--I--DFLMMR----KAQ-FE-----
+UniRef90_A0A4W5KN38/1-37               ------------------------------------------------------MKL----T-E------------CV-------Q------------AGL-SMALQRDSHV--K-Q--Q--RLIEEK--WKRTR-HE-----
+UniRef90_UPI0006236EF3/5-54            -----ALNL-AHEKQRRAEA-LLREGKFEEAA-KCHE--TV--A----DLLAEAHAQ----L-E------------SN-------L------------LHV-H----------------------------------------
+UniRef90_A0A1B0DBN0/5-72               -----ALNT-AHRYARRAEA-HFRYKRFDEAI-ECHK--QV--A----EQLHNAIRL----A-T------------VD-------K------------SVV-SLQLQREYHT--K-Q--I--EFLTMR---------------
+UniRef90_A0A1B6GK24/4-72               ---S-PLLL-AHQNDRKADN-HIQYKRFDEAL-TCHK--AA--A----ELLLHAMQL----T-S------------VT-------K------------AVE-ALRQQYEYHK--R-Q--E--DIVQVK---------------
+UniRef90_E9FZ10/4-79                   ---S-SLNQ-AHYETRKAEQ-LIRQGNLDAAI-ECHE--KA--S----TLLTCAMTL----S-D------------LT-------A------------VQQ-SLLCQKEYHI--R-Q--V--WLLQSK--IAQLE-KY-----
+UniRef90_UPI0006D513C3/4-73            --KS-PLYL-AHLNARNAEK-FSKKKAFEEAI-ECHL--NA--S----ALLQEAMTL----T-T------------FA-------K------------TLE-SLQLQKNYHL--A-Q--T--EIIRAQ---------------
+UniRef90_UPI001C572035/8-67            ----------THHFGRKADQ-LVAKEK------LCHS--KA--A----ELLTEAWSV----T-Q------------SE-------Q------------VRL-SLEPQRDRHL--Q-Q--Q--RLIKMS--R------------
+UniRef90_A0A7M7RDS8/14-85              --DS-PLNR-AHQCERKAER-MMNNGIHDAAL-QCYK--NA--S----EYIVQAMEK----T-K------------DA-------V------------ALH-SLRLQKENYD--K-M--P--NLVNKR--RQ-----------
+UniRef90_H2Z762/7-79                   ---A-PLNQ-AHFHERKAER-CLAEGKWDEAI-AFYN--TA--S----NFIAQAMQR----I-S------------SR-------P------------SLQ-ALQLQHDFYS--R-Q--S--RVIEIK--RKES---------
+UniRef90_UPI0007383FFA/5-43            -----ILNL-AHEKQRRADV-LLRSGRFEEAA-ECHE--NI--A----ELLAETH----------------------------------------------------------------------------------------
+UniRef90_A0A0J7NYR4/5-55               -----ALNL-AHEKQRRAEA-LLREGKFEEAA-KCHE--TV--A----DLLAEAHVQ----L-E------------SN-------L------------VHI-HA---------------------------------------
+UniRef90_A0A6G1PMH2/10-44              -------------------------------------------------------------------------------------L------------AHL-SMELQRDSHL--K-Q--Q--KLIQER--WKREV-RREAIKA
+UniRef90_A0A834P8B0/5-50               -----ALNL-AHERQRRAEA-LLREGRFEEAA-ECHE--AV--V----QLLSEAFTQ----L-Q------------SN-------F---------------------------------------------------------
+UniRef90_UPI00096B184A/6-71            ------INK-AHQEQRKADV-LLKQKKFDECL-TCHR--NA--I----EYLSQAMKT----N-Q------------QP-------I------------ICLESLQLQIGQLE--R-Q--I--KIVT-----------------
+UniRef90_A0A7I8V6Y3/5-70               --DC-PINS-AHQQERKADS-LINYKKYERAI-ECLD--KA--I----YFIDQASAR----T-K------------VR-------D------------VLT-SLKLQKESLQ--R-R--K--RT-------------------
+UniRef90_A0A0K8TNI1/5-72               -----YLNT-AHYHGRKAES-HTKYRRFDEAI-KHHE--KA--M----VNLTEAIKC----T-S------------SK-------K------------AEE-CLILQRDNHK--R-Q--I--ELLLL----K-----------
+UniRef90_UPI001BB1F16C/16-89           --DS-PLNR-AHQCERKAER-MINNGHHDAAL-HCYQ--SA--S----EYIVKAMEK----T-K------------DA-------G------------ALH-SLRLQKENYD--K-M--P--NLVNKR--RQLD---------
+UniRef90_UPI0014437230/6-48            ------LNA-AHERQRRAEA-LLQAGRFEEAA-KCHE--TV--A----SLLGEAHAR----L-E------------S------------------------------------------------------------------
+UniRef90_A0A158N9Z1/5-54               -----ALNL-AHEKQRRAEA-LLREGKFEEAA-KCHE--TV--A----HLLAEAHEQ----L-E------------SS-------L------------IHV-H----------------------------------------
+UniRef90_A0A2A3EUZ1/13-55              ------LSN-AHEKQRRADA-LLQEGRFEEAA-ECHE--TV--A----SLLEEAHVQ----L-E------------S------------------------------------------------------------------
+UniRef90_A0A8T4DM36/114-137            --------------NDKGDT-LYKLGKYEEAL-ECHD--KA--L---------------------------------------------------------------------------------------------------
+UniRef90_A0A7R9LR49/10-75              -MDS-PLNL-AHRCHRKAEY-YLNDNRFKEAV-EYHL--KA--A----GHIQEALLS----T-T------------CA-------L------------MKA-SLETQKAYHL--S-Q--E--A--------------------
+UniRef90_A0A2K5YN06/4-58               -MEG-SLNL-AHQQRR--------------GY-SCHK--KA--A----AYLSEAMKL----T-Q------------SE-------Q---------------------------------L--LLIQER--RKRPQ-REERSKA
+UniRef90_E0VJ76/5-66                   ----------AHFYDRRANA-LLKKYCFDEAI-DYHL--SA--A----KFLTESLKA----T-D------------NE-------K------------AKQ-SIQLQKEYHL--K-Q--K--DVLR-----------------
+UniRef90_A0A8J5B8R2/1-72               -MES-ALNS-AHSSSRRADK-HMKYGRYDEAI-KCHS--ET--V----NFLAKAIAE----S-T------------IP-------K------------NIE-NLLLQRKHHE--NIQ--K--IIVRQK---------------
+UniRef90_UPI00130469E0/6-55            ------LNA-AHERQRRAEA-LLQEGRYEEAA-KCHE--IV--A----SLLEEAHSR----L-E------------SN-------Y------------VHL-KT---------------------------------------
+UniRef90_A0A833SBT6/5-54               -----VLNA-AHERQRRAEA-LLEEGRFEEAA-KCHE--IV--A----CLLSEAHAQ----L-E------------SK-------Y------------VHL-K----------------------------------------
+UniRef90_A0A1W3JBY4/7-74               ---A-PLNQ-AHFHERKAER-CLSEGRWDDAI-EFYQ--TA--C----DFITKAMEK----I-N------------SQ-------Q------------GLQ-SLQLQQDFYS--R-Q--S--RVIEI----------------
+UniRef90_UPI00143DCF85/16-92           -----ALNT-AHENERRAEA-LLREGKFEEAA-RCHK--RV--A----NLLTEAHSQ----L-EARKLEKNFFNPRSD-------S------------SLE-SLALQRDYHN--R-Q--A--SIV------------------
+UniRef90_UPI00026589D1/10-80           -----HIDL-AHRERRRADR-LLQSHRFDEAI-SAHQ--DA--I----TQLEKVLAF----A-K------------DP-------V------------VNE-SIQLQIAFHN--R-Q--Q--LIVACR--REK----------
+UniRef90_UPI001E675BEC/22-96           ---S-PLNQ-AHREQRRAES-CQRGGRLEEAA-EYHG--QA--A----KLLTKALAL----T-V------------TP-------L------------ARQ-SITLQHGYHI--R-Q--Q--ELLRFR--SKQLE-K------
+UniRef90_A0A673FRS3/4-39               -MDS-PLNR-AHHFGRKADQ-LVAKEKFEEAI-LCHR--KA--A----G----------------------------------------------------------------------------------------------
+UniRef90_A0A7R9HSR0/22-90              ----------AHQQHRRAEN-HTKYRRFDDAI-LCHK--QA--A----EKLREAMDL----T-K------------VP-------K------------SLE-SLRLQQDYHN--R-Q--E--DIV--R--LKKAQ-FE-----
+UniRef90_A0A0C9RRS5/5-43               -----ILNL-AHEKQRRADV-LLRSRRFEEAA-DCHE--KV--A----ELLAETH----------------------------------------------------------------------------------------
+UniRef90_A0A7R9P8Z2/215-283            ----------AHQQHRRAEN-HTKYRRFDDAI-LCHK--QA--A----EKLREAMDL----T-K------------VP-------K------------SLE-SLRLQKDYHN--R-Q--E--DIV--R--LKKAQ-FE-----
+UniRef90_A0A182SMK2/3-62               --------------GRRAEN-CAKNRRFDDAI-ECHR--KA--I----SHLNEALKL----Q-T------------NA-------V------------VQE-SLQLQRKYHL--K-Q--VDWLLVK-----------------
+UniRef90_A0A7M7JWE6/33-106             ------IEL-AHRERRRADR-LLKALRFEEAI-VAHE--EA--T----LHLEKARAL----S-N------------DP-------T------------VQE-SLQLQIAFHNRQK-Q--V--VCYKQE--LQRNQ--------
+UniRef90_UPI000615293F/6-54            ------LNA-AHERQRRAEA-LLHEGRFEEAA-KCHE--TV--A----SLLAEAHSQ----L-E------------SG-------F------------VHL-K----------------------------------------
+UniRef90_UPI00083E4E81/5-55            -----VLNA-AHKRQRRAEA-LLQEGRFEEAA-KCHE--TV--A----SLLGEAHAQ----L-E------------SD-------F------------FHL-KT---------------------------------------
+UniRef90_A0A673HW29/4-39               -MDS-PLNR-AHHFGRKADQ-LVAKEKFEEAI-LCHR--KA--S----Q----------------------------------------------------------------------------------------------
+UniRef90_A0A182YRH1/3-62               --------------GRRAEN-CAKNRRFDDAI-ECHR--KA--V----SHFSEALKL----Q-T------------NA-------I------------VQE-SLQLQRKYHL--K-Q--VDWLLVK-----------------
+UniRef90_A0A5B7EGD0/3-72               ----------AHREQRRAES-FQRGGRLEEAA-ECHG--RA--A----ELLKAALSL----T-K------------NN-------L------------ALQ-SITLQYDHHL--R-Q--H--QLLRFR--NKQLE-K------
+UniRef90_A0A026VVL8/5-53               -----ALNL-AHERQRRAEA-LLHEGKFEEAA-KCHE--TV--A----DLLAEARAQ----L-E------------SS-------L------------IHV------------------------------------------
+UniRef90_UPI000C254E4D/4-78            ---T-PINQ-AHKLRHQAEV-FQKFKEYDQSI-TCHQ--KS--A----EYFAKARDI----T-T------------NK-------A------------AKE-SITYQMEHAL--K-Q--I--RVIDMK--KKKDE-I------
+#=GC RF                                xxxx.xxxx.xxxxxxxxxx.xxxxxxxxxxx.xxxx..xx..x....xxxxxxxxx....x.x............xx.......x............xxx.xxxxxxxxxx..x.x..x..xxxxxx..xxxxx.xxxxxxx
+//

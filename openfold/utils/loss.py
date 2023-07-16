@@ -1667,7 +1667,7 @@ def chain_center_of_mass_loss(
     all_atom_positions = all_atom_positions[..., ca_pos, :]
     all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
     chains, _ = asym_id.unique(return_counts=True)
-    one_hot = torch.nn.functional.one_hot(asym_id.to(torch.int64), 
+    one_hot = torch.nn.functional.one_hot(asym_id.to(torch.int64)-1, # have to reduce asym_id by one because class values must be smaller than num_classes  
                                           num_classes=chains.shape[0]).to(dtype=all_atom_mask.dtype) # make sure asym_id dtype is int
     one_hot = one_hot * all_atom_mask
     chain_pos_mask = one_hot.transpose(-2, -1)
@@ -1749,7 +1749,7 @@ def get_optimal_transform(
             src_atoms = torch.zeros((1, 3), device=src_atoms.device).float()
             tgt_atoms = src_atoms
         else:
-            src_atoms = src_atoms[mask, :]
+            src_atoms = src_atoms.to('cuda:0')[mask, :]
             tgt_atoms = tgt_atoms.to('cuda:0')[mask, :]
     src_center = src_atoms.mean(-2, keepdim=True)
     tgt_center = tgt_atoms.mean(-2, keepdim=True)
@@ -1857,7 +1857,6 @@ def greedy_align(
         best_idx = None
         cur_asym_list = entity_2_asym_list[int(cur_entity_ids)]
         cur_residue_index = per_asym_residue_index[int(cur_asym_id)]
-        
         cur_pred_pos = pred_ca_pos[asym_mask]
         cur_pred_mask = pred_ca_mask[asym_mask]
         for next_asym_id in cur_asym_list:
@@ -1881,36 +1880,29 @@ def greedy_align(
     return align
 
 
-def merge_labels(batch, per_asym_residue_index, labels, align):
+def merge_labels(per_asym_residue_index, labels, align):
     """
-    batch:
-    labels: list of label dicts, each with shape [nk, *]
-    align: list of int, such as [2, None, 0, 1], each entry specify the corresponding label of the asym.
+    per_asym_residue_index: A dictionary that record which asym_id corresponds to which regions of residues in the multimer complex.
+    labels: list of original ground truth feats
+    align: list of tuples, each entry specify the corresponding label of the asym.
     """
-    num_res = batch["msa_mask"].shape[-1]
     outs = {}
     for k, v in labels[0].items():
-        if k in [
-            "resolution",
-        ]:
-            continue
         cur_out = {}
         for i, j in align:
             label = labels[j][k]
+            cur_num_res = labels[j]['aatype'].shape[-1]
             # to 1-based
             cur_residue_index = per_asym_residue_index[i + 1]
-            cur_out[i] = label[cur_residue_index]
+            if len(v.shape)==0 or "template" in k:
+                continue
+            else:    
+                dimension_to_merge = label.shape.index(cur_num_res) if cur_num_res in label.shape else 0
+                cur_out[i] = label.index_select(dimension_to_merge,cur_residue_index)
         cur_out = [x[1] for x in sorted(cur_out.items())]
-        new_v = torch.concat(cur_out, dim=0)
-        merged_nres = new_v.shape[0]
-        assert (
-            merged_nres <= num_res
-        ), f"bad merged num res: {merged_nres} > {num_res}. something is wrong."
-        if merged_nres < num_res:  # must pad
-            pad_dim = new_v.shape[1:]
-            pad_v = new_v.new_zeros((num_res - merged_nres, *pad_dim))
-            new_v = torch.concat((new_v, pad_v), dim=0)
-        outs[k] = new_v
+        if len(cur_out)>0:
+            new_v = torch.concat(cur_out, dim=dimension_to_merge)
+            outs[k] = new_v
     return outs
 
 
@@ -2050,7 +2042,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         true_ca_masks = [
             l["all_atom_mask"][..., ca_idx].float() for l in labels
         ]  # list([nres,])
-
         unique_asym_ids = torch.unique(batch["asym_id"])
 
         per_asym_residue_index = {}
@@ -2059,7 +2050,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             per_asym_residue_index[int(cur_asym_id)] = batch["residue_index"][asym_mask]
 
         anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch)
-        print(f"anchor_gt_asym is : {anchor_gt_asym} and anchor_pred_asym is {anchor_pred_asym}")
         anchor_gt_idx = int(anchor_gt_asym) - 1
 
         unique_entity_ids = torch.unique(batch["entity_id"])
@@ -2100,15 +2090,12 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         del aligned_true_ca_poses
         del r,x
         gc.collect()
-
+        print(f"finished multi-chain permutation and final align is {align}")
         merged_labels = merge_labels(
-            batch,
             per_asym_residue_index,
             labels,
             align,
         )
-            
-        print(f"finished multi-chain permutation and final align is {align}")
                 
         return merged_labels
 
@@ -2122,9 +2109,9 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         batch: a pair of input features and its corresponding ground truth structure
         """
         features,labels = batch
-        features['resolution'] = labels[2]['resolution'] # firstly update the resolution feature
         # first remove the recycling dimention of input features
         features = tensor_tree_map(lambda t: t[..., -1], features)
+        features['resolution'] = labels[0]['resolution']
         # then permutate ground truth chains before calculating the loss
         permutated_labels = self.multi_chain_perm_align(out,features,labels)
         permutated_labels.pop('aatype')
