@@ -1,0 +1,1504 @@
+# STOCKHOLM 1.0
+
+#=GS tr|A0A5N3V7E8|A0A5N3V7E8_MUNMU/43-83     DE [subseq from] Inhibitor of F(1)F(o)-ATPase OS=Muntiacus muntjak OX=9888 GN=FD754_022020 PE=4 SV=1
+#=GS sp|P01096|ATIF1_BOVIN/69-109             DE [subseq from] ATPase inhibitor, mitochondrial OS=Bos taurus OX=9913 GN=ATP5IF1 PE=1 SV=2
+#=GS tr|A0A4W2HGR6|A0A4W2HGR6_BOBOX/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos indicus x Bos taurus OX=30522 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6B0QP80|A0A6B0QP80_9CETA/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos mutus OX=72004 GN=E5288_WYG000531 PE=3 SV=1
+#=GS tr|A0A6J0YT92|A0A6J0YT92_ODOVR/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Odocoileus virginianus texanus OX=9880 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A6P3GNR1|A0A6P3GNR1_BISBI/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bison bison bison OX=43346 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A6P5DDH9|A0A6P5DDH9_BOSIN/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos indicus OX=9915 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A8B9XGI2|A0A8B9XGI2_BOSMU/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos mutus grunniens OX=30521 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C6E313|A0A8C6E313_MOSMO/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Moschus moschiferus OX=68415 PE=3 SV=1
+#=GS tr|L8IJ24|L8IJ24_9CETA/69-109            DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos mutus OX=72004 GN=M91_13445 PE=3 SV=1
+#=GS tr|A0A8D8CB11|A0A8D8CB11_CULPI/80-120    DE [subseq from] ATPase inhibitor, mitochondrial OS=Culex pipiens OX=7175 PE=3 SV=1
+#=GS tr|W5NYG6|W5NYG6_SHEEP/56-96             DE [subseq from] ATP synthase F1 subunit epsilon OS=Ovis aries OX=9940 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A212D4K4|A0A212D4K4_CEREH/117-156   DE [subseq from] ATP synthase F1 subunit epsilon OS=Cervus elaphus hippelaphus OX=46360 GN=Celaphus_00014862 PE=3 SV=1
+#=GS tr|A0A452DUN3|A0A452DUN3_CAPHI/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Capra hircus OX=9925 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6P7DRA9|A0A6P7DRA9_SHEEP/69-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ovis aries OX=9940 GN=JEQ12_010026 PE=3 SV=1
+#=GS tr|A0A5J5MHC3|A0A5J5MHC3_MUNRE/70-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Muntiacus reevesi OX=9886 GN=FD755_007344 PE=3 SV=1
+#=GS tr|A0A5N3WXH2|A0A5N3WXH2_MUNMU/70-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Muntiacus muntjak OX=9888 GN=FD754_010290 PE=3 SV=1
+#=GS tr|A0A4X1TR60|A0A4X1TR60_PIG/69-108      DE [subseq from] ATP synthase F1 subunit epsilon OS=Sus scrofa OX=9823 PE=3 SV=1
+#=GS sp|Q29307|ATIF1_PIG/69-108               DE [subseq from] ATPase inhibitor, mitochondrial OS=Sus scrofa OX=9823 GN=ATP5IF1 PE=1 SV=2
+#=GS tr|A0A8C3WIP0|A0A8C3WIP0_9CETA/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Catagonus wagneri OX=51154 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C2JIR2|A0A8C2JIR2_CYPCA/50-87     DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinus carpio OX=7962 PE=3 SV=1
+#=GS tr|A0A383Z6R7|A0A383Z6R7_BALAS/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Balaenoptera acutorostrata scammoni OX=310752 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2U3V0R3|A0A2U3V0R3_TURTR/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Tursiops truncatus OX=9739 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6P3Q0U8|A0A6P3Q0U8_PTEVA/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pteropus vampyrus OX=132908 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7J8K551|A0A7J8K551_ROUAE/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Rousettus aegyptiacus OX=9407 GN=HJG63_001202 PE=3 SV=1
+#=GS tr|A0A2Y9EF27|A0A2Y9EF27_PHYMC/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Physeter macrocephalus OX=9755 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A643C098|A0A643C098_BALPH/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Balaenoptera physalus OX=9770 GN=E2I00_012050 PE=3 SV=1
+#=GS tr|A0A8C0C640|A0A8C0C640_BALMU/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Balaenoptera musculus OX=9771 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A4U1ETJ8|A0A4U1ETJ8_MONMO/56-94     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Monodon monoceros OX=40151 GN=EI555_019693 PE=3 SV=1
+#=GS tr|L5JUT0|L5JUT0_PTEAL/69-108            DE [subseq from] ATP synthase F1 subunit epsilon OS=Pteropus alecto OX=9402 GN=PAL_GLEAN10015063 PE=3 SV=1
+#=GS tr|A0A1S2ZPB9|A0A1S2ZPB9_ERIEU/70-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Erinaceus europaeus OX=9365 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A8C6BIY5|A0A8C6BIY5_MONMO/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Monodon monoceros OX=40151 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2Y9LD45|A0A2Y9LD45_DELLE/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Delphinapterus leucas OX=9749 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A340XS26|A0A340XS26_LIPVE/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lipotes vexillifer OX=118797 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A341D6Q8|A0A341D6Q8_NEOAA/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neophocaena asiaeorientalis asiaeorientalis OX=1706337 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C9BFA0|A0A8C9BFA0_PHOSS/69-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phocoena sinus OX=42100 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A5N4DBX8|A0A5N4DBX8_CAMDR/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Camelus dromedarius OX=9838 GN=Cadr_000013503 PE=3 SV=1
+#=GS tr|A0A6I9HXJ5|A0A6I9HXJ5_VICPA/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Vicugna pacos OX=30538 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|S9XNE5|S9XNE5_CAMFR/69-108            DE [subseq from] ATP synthase F1 subunit epsilon OS=Camelus ferus OX=419612 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7J8A4S0|A0A7J8A4S0_PIPKU/70-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pipistrellus kuhlii OX=59472 GN=mPipKuh1_001196 PE=3 SV=1
+#=GS tr|A0A7J8F6B1|A0A7J8F6B1_MOLMO/64-101    DE [subseq from] ATP synthase F1 subunit epsilon OS=Molossus molossus OX=27622 GN=HJG59_001220 PE=3 SV=1
+#=GS tr|A0A8C0LH58|A0A8C0LH58_CANLU/42-80     DE [subseq from] ATP synthase F1 subunit epsilon OS=Canis lupus dingo OX=286419 PE=3 SV=1
+#=GS tr|A0A7J7ZU41|A0A7J7ZU41_MYOMY/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis myotis OX=51298 GN=mMyoMyo1_001206 PE=3 SV=1
+#=GS tr|G1NSN7|G1NSN7_MYOLU/69-108            DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis lucifugus OX=59463 PE=3 SV=1
+#=GS tr|A0A6J2LSI3|A0A6J2LSI3_9CHIR/65-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phyllostomus discolor OX=89673 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J2LNI2|A0A6J2LNI2_9CHIR/66-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phyllostomus discolor OX=89673 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7E6DQL4|A0A7E6DQL4_9CHIR/71-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phyllostomus discolor OX=89673 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2F0BN77|A0A2F0BN77_ESCRO/46-85     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Eschrichtius robustus OX=9764 GN=ESR_42847 PE=3 SV=1
+#=GS tr|A0A7J7F953|A0A7J7F953_DICBM/40-79     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Diceros bicornis minor OX=77932 GN=HPG69_004420 PE=3 SV=1
+#=GS tr|A0A3Q7UST5|A0A3Q7UST5_VULVU/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Vulpes vulpes OX=9627 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C0MWR0|A0A8C0MWR0_CANLF/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Canis lupus familiaris OX=9615 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8I3NGS0|A0A8I3NGS0_CANLF/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Canis lupus familiaris OX=9615 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C8Z887|A0A8C8Z887_PROSS/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Prolemur simus OX=1328070 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8B8Z555|A0A8B8Z555_BALMU/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Balaenoptera musculus OX=9771 GN=LOC118906490 PE=3 SV=1
+#=GS tr|A0A4W2E5D6|A0A4W2E5D6_BOBOX/80-118    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos indicus x Bos taurus OX=30522 PE=3 SV=1
+#=GS tr|A0A8B7RX10|A0A8B7RX10_HIPAR/68-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hipposideros armiger OX=186990 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A8C4LP77|A0A8C4LP77_EQUAS/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Equus asinus asinus OX=83772 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|F6ZXT0|F6ZXT0_HORSE/69-108            DE [subseq from] ATP synthase F1 subunit epsilon OS=Equus caballus OX=9796 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6P4ULP7|A0A6P4ULP7_PANPR/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Panthera pardus OX=9691 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A6P6IRN6|A0A6P6IRN6_PUMCO/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Puma concolor OX=9696 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C8WXB5|A0A8C8WXB5_PANLE/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Panthera leo OX=9689 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C9J5G7|A0A8C9J5G7_PANTA/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Panthera tigris altaica OX=74533 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|M3WIS8|M3WIS8_FELCA/67-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Felis catus OX=9685 GN=ATP5IF1 PE=3 SV=2
+#=GS tr|A0A811YP43|A0A811YP43_NYCPR/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nyctereutes procyonoides OX=34880 GN=NYPRO_LOCUS11332 PE=3 SV=1
+#=GS tr|R0JJR5|R0JJR5_ANAPL/10-46             DE [subseq from] ATIF1 ATPase (Fragment) OS=Anas platyrhynchos OX=8839 GN=Anapl_10842 PE=4 SV=1
+#=GS tr|A0A673UAY0|A0A673UAY0_SURSU/98-137    DE [subseq from] ATP synthase F1 subunit epsilon OS=Suricata suricatta OX=37032 PE=3 SV=1
+#=GS tr|A0A2K6GYY1|A0A2K6GYY1_PROCO/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Propithecus coquereli OX=379532 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A671EB64|A0A671EB64_RHIFE/69-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Rhinolophus ferrumequinum OX=59479 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A091IT98|A0A091IT98_CALAN/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Calypte anna OX=9244 GN=N300_10849 PE=4 SV=1
+#=GS tr|A0A091QBY6|A0A091QBY6_MERNU/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Merops nubicus OX=57421 GN=N331_02336 PE=4 SV=1
+#=GS tr|A0A6G1AJV9|A0A6G1AJV9_CROCR/67-105    DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Crocuta crocuta OX=9678 GN=Atpif1 PE=3 SV=1
+#=GS tr|A0A4W2G4K7|A0A4W2G4K7_BOBOX/38-76     DE [subseq from] ATPase inhibitor, mitochondrial OS=Bos indicus x Bos taurus OX=30522 PE=4 SV=1
+#=GS tr|A0A093DKW8|A0A093DKW8_CHAPE/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Chaetura pelagica OX=8897 GN=M959_03248 PE=4 SV=1
+#=GS tr|A0A087RGC7|A0A087RGC7_APTFO/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Aptenodytes forsteri OX=9233 GN=AS27_10082 PE=4 SV=1
+#=GS tr|A0A093NTS0|A0A093NTS0_PYGAD/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Pygoscelis adeliae OX=9238 GN=AS28_12594 PE=4 SV=1
+#=GS tr|A0A091UNE4|A0A091UNE4_NIPNI/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Nipponia nippon OX=128390 GN=Y956_08627 PE=4 SV=1
+#=GS tr|A0A093I7S0|A0A093I7S0_STRCA/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Struthio camelus australis OX=441894 GN=N308_15841 PE=4 SV=1
+#=GS tr|A0A0A0B2Q2|A0A0A0B2Q2_CHAVO/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Charadrius vociferus OX=50402 GN=N301_11012 PE=4 SV=1
+#=GS tr|G3MXH9|G3MXH9_BOVIN/80-118            DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos taurus OX=9913 PE=3 SV=2
+#=GS tr|A0A8C8AEI8|A0A8C8AEI8_9STRI/29-65     DE [subseq from] ATIF1 ATPase OS=Otus sunia OX=257818 PE=4 SV=1
+#=GS tr|A0A1U7SXJ3|A0A1U7SXJ3_CARSF/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Carlito syrichta OX=1868482 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A091RZK5|A0A091RZK5_NESNO/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Nestor notabilis OX=176057 GN=N333_09346 PE=4 SV=1
+#=GS tr|A0A8C0EAU3|A0A8C0EAU3_BUBBB/39-75     DE [subseq from] ATP synthase F1 subunit epsilon OS=Bubo bubo OX=30461 PE=4 SV=1
+#=GS tr|A0A091X7Z5|A0A091X7Z5_OPIHO/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Opisthocomus hoazin OX=30419 GN=N306_11774 PE=4 SV=1
+#=GS tr|A0A8B9D6N5|A0A8B9D6N5_ANSCY/28-64     DE [subseq from] ATIF1 ATPase OS=Anser cygnoid OX=8845 PE=4 SV=1
+#=GS tr|A0A093I8Y4|A0A093I8Y4_EURHL/10-44     DE [subseq from] ATIF1 ATPase (Fragment) OS=Eurypyga helias OX=54383 GN=N326_10918 PE=4 SV=1
+#=GS tr|A0A093GA43|A0A093GA43_DRYPU/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Dryobates pubescens OX=118200 GN=N307_07129 PE=4 SV=1
+#=GS tr|A0A2Y9J3D1|A0A2Y9J3D1_ENHLU/66-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Enhydra lutris kenyoni OX=391180 GN=LOC111143258 PE=3 SV=1
+#=GS tr|A0A7K9M2P9|A0A7K9M2P9_OCETE/22-57     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oceanodroma tethys OX=79633 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A091KD95|A0A091KD95_EGRGA/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Egretta garzetta OX=188379 GN=Z169_08953 PE=4 SV=1
+#=GS tr|A0A7K6AFK4|A0A7K6AFK4_UPUEP/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Upupa epops OX=57439 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1MZ50|A0A7L1MZ50_RHICY/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhinopomastus cyanomelas OX=113115 GN=Atp5if1 PE=3 SV=1
+#=GS tr|H0X2G2|H0X2G2_OTOGA/69-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Otolemur garnettii OX=30611 PE=3 SV=1
+#=GS sp|Q03344|ATIF1_RAT/69-106               DE [subseq from] ATPase inhibitor, mitochondrial OS=Rattus norvegicus OX=10116 GN=Atp5if1 PE=3 SV=2
+#=GS tr|A0A821ZTP6|A0A821ZTP6_9NEOB/69-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ranitomeya imitator OX=111125 GN=RIMITATOR_LOCUS6494739 PE=3 SV=1
+#=GS tr|A0A8B9PMR7|A0A8B9PMR7_APTOW/36-72     DE [subseq from] ATIF1 ATPase OS=Apteryx owenii OX=8824 PE=4 SV=1
+#=GS tr|A0A091NXU0|A0A091NXU0_APAVI/10-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Apaloderma vittatum OX=57397 GN=N311_06057 PE=4 SV=1
+#=GS tr|A0A8J6DHZ8|A0A8J6DHZ8_GALPY/68-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Galemys pyrenaicus OX=202257 GN=J0S82_005166 PE=3 SV=1
+#=GS tr|A0A8C5VP01|A0A8C5VP01_MICMU/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Microcebus murinus OX=30608 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8B9V157|A0A8B9V157_9AVES/48-84     DE [subseq from] ATPase inhibitor, mitochondrial OS=Anas zonorhyncha OX=75864 PE=4 SV=1
+#=GS tr|L5MK29|L5MK29_MYODS/26-62             DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis davidii OX=225400 GN=MDA_GLEAN10002898 PE=3 SV=1
+#=GS tr|L5M7L9|L5M7L9_MYODS/25-61             DE [subseq from] ATPase inhibitor, mitochondrial OS=Myotis davidii OX=225400 GN=MDA_GLEAN10023749 PE=4 SV=1
+#=GS tr|A0A8C7C4I9|A0A8C7C4I9_NEOVI/66-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neovison vison OX=452646 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|M3YVR5|M3YVR5_MUSPF/66-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Mustela putorius furo OX=9669 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|F7IA10|F7IA10_CALJA/69-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Callithrix jacchus OX=9483 GN=ATPIF1 PE=2 SV=1
+#=GS tr|G1SEZ3|G1SEZ3_RABIT/69-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryctolagus cuniculus OX=9986 PE=3 SV=1
+#=GS tr|A0A7K8KD01|A0A7K8KD01_9GRUI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Lophotis ruficrista OX=172689 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9H6Q2|A0A7K9H6Q2_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Bucco capensis OX=135168 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9T2B1|A0A7K9T2B1_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Galbula dea OX=1109041 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2W0H4|A0A7L2W0H4_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Brachypteracias leptosomus OX=135165 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2WGG9|A0A7L2WGG9_PANHA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pandion haliaetus OX=56262 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3CFC7|A0A7L3CFC7_PELUR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pelecanoides urinatrix OX=37079 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3JGZ8|A0A7L3JGZ8_THACH/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Thalassarche chlororhynchos OX=54017 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3XIR4|A0A7L3XIR4_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Calonectris borealis OX=1323832 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4N3W2|A0A7L4N3W2_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ceyx cyanopectus OX=390723 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851DL36|A0A851DL36_TODME/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Todus mexicanus OX=135184 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A2U3VIM7|A0A2U3VIM7_ODORO/67-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Odobenus rosmarus divergens OX=9708 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A3Q7MZY0|A0A3Q7MZY0_CALUR/67-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Callorhinus ursinus OX=34884 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J2CQ46|A0A6J2CQ46_ZALCA/67-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zalophus californianus OX=9704 GN=LOC113920301 PE=3 SV=2
+#=GS tr|A0A6J2D1N3|A0A6J2D1N3_ZALCA/67-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zalophus californianus OX=9704 GN=LOC113922083 PE=3 SV=1
+#=GS tr|A0A6J2EZI8|A0A6J2EZI8_ZALCA/67-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zalophus californianus OX=9704 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A485NTI2|A0A485NTI2_LYNPA/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lynx pardinus OX=191816 GN=LYPA_23C000807 PE=3 SV=1
+#=GS tr|A0A667GSG2|A0A667GSG2_LYNCA/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lynx canadensis OX=61383 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6I9ZXF4|A0A6I9ZXF4_ACIJB/67-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Acinonyx jubatus OX=32536 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|K7F0N2|K7F0N2_PELSI/11-46             DE [subseq from] ATIF1 ATPase OS=Pelodiscus sinensis OX=13735 PE=4 SV=1
+#=GS tr|A0A7L2UB43|A0A7L2UB43_BALRX/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Balaeniceps rex OX=33584 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C0KKX4|A0A8C0KKX4_CANLU/72-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Canis lupus dingo OX=286419 PE=3 SV=1
+#=GS tr|A0A7K4Y7P6|A0A7K4Y7P6_BUCAB/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Bucorvus abyssinicus OX=153643 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A850UAC8|A0A850UAC8_GRUAM/33-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Grus americana OX=9117 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9U9Z0|A0A7K9U9Z0_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chloroceryle aenea OX=176938 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7J7ZSZ4|A0A7J7ZSZ4_MYOMY/73-109    DE [subseq from] ATP synthase inhibitory factor subunit 1 OS=Myotis myotis OX=51298 GN=mMyoMyo1_001207 PE=4 SV=1
+#=GS tr|A0A7K6WB32|A0A7K6WB32_STECA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Steatornis caripensis OX=48435 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7L1F4|A0A7K7L1F4_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Asarcornis scutulata OX=75869 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7UFJ0|A0A7K7UFJ0_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ibidorhyncha struthersii OX=425643 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8KR35|A0A7K8KR35_9GRUI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ardeotis kori OX=89386 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0KJT8|A0A7L0KJT8_CHATO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chauna torquata OX=30388 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0RKI9|A0A7L0RKI9_GLABR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Glaucidium brasilianum OX=78217 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1L7J5|A0A7L1L7J5_HIMHI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Himantopus himantopus OX=225398 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2AD08|A0A7L2AD08_9GRUI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Heliornis fulica OX=54369 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8K0AIY4|A0A8K0AIY4_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Eudyptes robustus OX=345251 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A8S9F4J1|A0A8S9F4J1_9AVES/34-69     DE [subseq from] ATPase inhibitor, mitochondrial (Fragment) OS=Eudyptula novaehollandiae OX=2052820 GN=atp5if1 PE=4 SV=1
+#=GS tr|A0A091GEL2|A0A091GEL2_9AVES/11-45     DE [subseq from] ATIF1 ATPase (Fragment) OS=Cuculus canorus OX=55661 GN=N303_05032 PE=4 SV=1
+#=GS tr|A0A8C0HLM4|A0A8C0HLM4_9AVES/27-63     DE [subseq from] ATP synthase F1 subunit epsilon OS=Buteo japonicus OX=224669 PE=4 SV=1
+#=GS tr|A0A667HAI4|A0A667HAI4_LYNCA/79-119    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lynx canadensis OX=61383 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C4JF07|A0A8C4JF07_DRONO/62-98     DE [subseq from] ATPase inhibitor, mitochondrial OS=Dromaius novaehollandiae OX=8790 PE=4 SV=1
+#=GS tr|A0A6I9JKJ5|A0A6I9JKJ5_CHRAS/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chrysochloris asiatica OX=185453 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A151PGL2|A0A151PGL2_ALLMI/77-117    DE [subseq from] ATP synthase F1 subunit epsilon OS=Alligator mississippiensis OX=8496 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A7K5GT22|A0A7K5GT22_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chunga burmeisteri OX=1352770 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A663NAR0|A0A663NAR0_ATHCN/106-142   DE [subseq from] ATPase inhibitor, mitochondrial OS=Athene cunicularia OX=194338 PE=4 SV=1
+#=GS tr|A0A8D2CTP2|A0A8D2CTP2_SCIVU/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sciurus vulgaris OX=55149 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A851Z7H9|A0A851Z7H9_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Halcyon senegalensis OX=342381 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A493TQ50|A0A493TQ50_ANAPP/78-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anas platyrhynchos platyrhynchos OX=8840 PE=3 SV=1
+#=GS tr|A0A6J3EAD5|A0A6J3EAD5_AYTFU/78-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Aythya fuligula OX=219594 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8B9ZIT4|A0A8B9ZIT4_ANAPL/78-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anas platyrhynchos OX=8839 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8D0FZF2|A0A8D0FZF2_STROC/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Strix occidentalis caurina OX=311401 PE=3 SV=1
+#=GS tr|G1TES2|G1TES2_RABIT/111-146           DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryctolagus cuniculus OX=9986 PE=3 SV=2
+#=GS tr|A0A099ZSJ5|A0A099ZSJ5_TINGU/12-46     DE [subseq from] ATIF1 ATPase (Fragment) OS=Tinamus guttatus OX=94827 GN=N309_05175 PE=4 SV=1
+#=GS tr|A0A672UYI1|A0A672UYI1_STRHB/77-112    DE [subseq from] ATP synthase F1 subunit epsilon OS=Strigops habroptila OX=2489341 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C3RY46|A0A8C3RY46_CHESE/77-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chelydra serpentina OX=8475 PE=3 SV=1
+#=GS tr|A0A6G1RL37|A0A6G1RL37_9GRUI/89-125    DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hypotaenidia okinawae OX=2861861 PE=3 SV=1
+#=GS tr|A0A7L4HBN6|A0A7L4HBN6_PODST/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Podargus strigoides OX=8905 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A098M0G1|A0A098M0G1_9SAUR/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hypsiglena sp. JMG-2014 OX=1550645 PE=3 SV=1
+#=GS tr|A0A098M0G4|A0A098M0G4_9SAUR/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hypsiglena sp. JMG-2014 OX=1550645 PE=3 SV=1
+#=GS tr|A0A8C7E9Y4|A0A8C7E9Y4_NOTPE/64-100    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothoprocta perdicaria OX=30464 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6SEK8|A0A2K6SEK8_SAIBB/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Saimiri boliviensis boliviensis OX=39432 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7L1GDK8|A0A7L1GDK8_9PICI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Indicator maculatus OX=545262 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852ILF6|A0A852ILF6_9PICI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Tricholaema leucomelas OX=240729 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C4SHU0|A0A8C4SHU0_ERPCA/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Erpetoichthys calabaricus OX=27687 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A2K5DQW7|A0A2K5DQW7_AOTNA/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Aotus nancymaae OX=37293 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7K4JUE7|A0A7K4JUE7_GEOCA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Geococcyx californianus OX=8947 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5NKY6|A0A7K5NKY6_CHRMC/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chroicocephalus maculipennis OX=287016 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5X9R9|A0A7K5X9R9_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Dromas ardeola OX=458190 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8PWQ0|A0A7K8PWQ0_COCCO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cochlearius cochlearius OX=110676 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9FXS7|A0A7K9FXS7_STEPR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Stercorarius parasiticus OX=54059 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0TD61|A0A7L0TD61_PODPO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Podilymbus podiceps OX=9252 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1J231|A0A7L1J231_SMUAF/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Smutsornis africanus OX=240209 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1JTU7|A0A7L1JTU7_RYNNI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rynchops niger OX=227184 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3S743|A0A7L3S743_CEPGR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cepphus grylle OX=28697 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3SGT1|A0A7L3SGT1_RISTR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rissa tridactyla OX=75485 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3UJE1|A0A7L3UJE1_URIAL/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Uria aalge OX=13746 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4AX89|A0A7L4AX89_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Phaetusa simplex OX=297813 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4CPB3|A0A7L4CPB3_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nyctiprogne leucopyga OX=382315 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4ME66|A0A7L4ME66_GLAPT/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Glareola pratincola OX=43316 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A850XKG2|A0A850XKG2_PIACA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Piaya cayana OX=33601 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851LLA3|A0A851LLA3_CORCR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Corythaeola cristata OX=103954 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852FXM9|A0A852FXM9_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Larus smithsonianus OX=243888 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A096NQ00|A0A096NQ00_PAPAN/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Papio anubis OX=9555 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A0D9S814|A0A0D9S814_CHLSB/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chlorocebus sabaeus OX=60711 PE=3 SV=1
+#=GS tr|A0A2K5KBI5|A0A2K5KBI5_COLAP/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Colobus angolensis palliatus OX=336983 PE=3 SV=1
+#=GS tr|A0A2K5P0W3|A0A2K5P0W3_CERAT/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cercocebus atys OX=9531 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K5YI49|A0A2K5YI49_MANLE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mandrillus leucophaeus OX=9568 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6AYV8|A0A2K6AYV8_MACNE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Macaca nemestrina OX=9545 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6N3T3|A0A2K6N3T3_RHIBE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Rhinopithecus bieti OX=61621 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6Q8H8|A0A2K6Q8H8_RHIRO/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Rhinopithecus roxellana OX=61622 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C9IDE4|A0A8C9IDE4_9PRIM/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Piliocolobus tephrosceles OX=591936 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8D2EUW1|A0A8D2EUW1_THEGE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Theropithecus gelada OX=9565 PE=3 SV=1
+#=GS tr|A0A8J8XI36|A0A8J8XI36_MACMU/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Macaca mulatta OX=9544 GN=EGK_00460 PE=3 SV=1
+#=GS tr|A0A8J8YQQ0|A0A8J8YQQ0_MACFA/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Macaca fascicularis OX=9541 GN=EGM_00405 PE=3 SV=1
+#=GS tr|F6ZXX7|F6ZXX7_MACMU/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Macaca mulatta OX=9544 GN=ATP5IF1 PE=2 SV=1
+#=GS tr|G7NWV6|G7NWV6_MACFA/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Macaca fascicularis OX=9541 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C8RSV9|A0A8C8RSV9_9SAUR/278-316   DE [subseq from] ATPase inhibitor, mitochondrial OS=Pelusios castaneus OX=367368 PE=3 SV=1
+#=GS tr|A0A6P5K1V3|A0A6P5K1V3_PHACI/79-116    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phascolarctos cinereus OX=38626 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A7K9BSE8|A0A7K9BSE8_9PICI/27-62     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Psilopogon haemacephalus OX=2585815 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2IAP6|A0A7L2IAP6_9PICI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Semnornis frantzii OX=91796 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K4S550|A0A7K4S550_COLPI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Columbina picui OX=115618 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6T9Q8|A0A7K6T9Q8_CALNI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Caloenas nicobarica OX=187106 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4FQI7|A0A7L4FQI7_9COLU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Alopecoenas beccarii OX=262131 GN=Atp5if1 PE=3 SV=1
+#=GS sp|Q5RFJ9|ATIF1_PONAB/69-105             DE [subseq from] ATPase inhibitor, mitochondrial OS=Pongo abelii OX=9601 GN=ATP5IF1 PE=3 SV=1
+#=GS sp|Q9UII2|ATIF1_HUMAN/69-105             DE [subseq from] ATPase inhibitor, mitochondrial OS=Homo sapiens OX=9606 GN=ATP5IF1 PE=1 SV=1
+#=GS tr|A0A2I3H1P7|A0A2I3H1P7_NOMLE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nomascus leucogenys OX=61853 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2J8Y5Q9|A0A2J8Y5Q9_PONAB/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pongo abelii OX=9601 GN=CR201_G0015901 PE=3 SV=1
+#=GS tr|A0A2R9CQC9|A0A2R9CQC9_PANPA/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pan paniscus OX=9597 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6D2XL54|A0A6D2XL54_PANTR/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pan troglodytes OX=9598 GN=CK820_G0045826 PE=3 SV=1
+#=GS tr|H2PYG9|H2PYG9_PANTR/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Pan troglodytes OX=9598 GN=ATP5IF1 PE=2 SV=1
+#=GS tr|A0A7L0DHB0|A0A7L0DHB0_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rostratula benghalensis OX=118793 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1HT51|A0A7L1HT51_9CHAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nycticryphes semicollaris OX=227226 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8J9DF69|A0A8J9DF69_PONAB/83-119    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pongo abelii OX=9601 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6SEL7|A0A2K6SEL7_SAIBB/99-134    DE [subseq from] ATP synthase F1 subunit epsilon OS=Saimiri boliviensis boliviensis OX=39432 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7K7A6J1|A0A7K7A6J1_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nothoprocta pentlandii OX=2585814 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7BFH6|A0A7K7BFH6_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nothoprocta ornata OX=83376 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C3J4J2|A0A8C3J4J2_9CHAR/110-146   DE [subseq from] ATP synthase F1 subunit epsilon OS=Calidris pygmaea OX=425635 PE=3 SV=1
+#=GS tr|A0A671NP70|A0A671NP70_9TELE/28-64     DE [subseq from] Non-specific serine/threonine protein kinase OS=Sinocyclocheilus anshuiensis OX=1608454 PE=4 SV=1
+#=GS tr|A0A8T1S438|A0A8T1S438_CHESE/78-115    DE [subseq from] ATPase inhibitory factor 1 (Fragment) OS=Chelydra serpentina OX=8475 GN=ATPIF1 PE=4 SV=1
+#=GS tr|A0A4X2LUZ3|A0A4X2LUZ3_VOMUR/79-117    DE [subseq from] ATP synthase F1 subunit epsilon OS=Vombatus ursinus OX=29139 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K5J921|A0A2K5J921_COLAP/61-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Colobus angolensis palliatus OX=336983 PE=3 SV=1
+#=GS tr|A0A5E4AD98|A0A5E4AD98_MARMO/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Marmota monax OX=9995 GN=MONAX_5E040477 PE=3 SV=1
+#=GS tr|A0A834UNZ4|A0A834UNZ4_MARMO/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Marmota monax OX=9995 GN=GHT09_001279 PE=3 SV=1
+#=GS tr|A0A8C5ZH40|A0A8C5ZH40_MARMA/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Marmota marmota marmota OX=9994 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C9QJ54|A0A8C9QJ54_SPEDA/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Spermophilus dauricus OX=99837 PE=3 SV=1
+#=GS tr|A0A8D2IDQ4|A0A8D2IDQ4_UROPR/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Urocitellus parryii OX=9999 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|I3N8E6|I3N8E6_ICTTR/70-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Ictidomys tridecemlineatus OX=43179 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6P9FGA6|A0A6P9FGA6_ZALCA/68-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zalophus californianus OX=9704 GN=LOC113936229 PE=3 SV=1
+#=GS tr|A0A498NVV9|A0A498NVV9_LABRO/52-88     DE [subseq from] ATP synthase F1 subunit epsilon OS=Labeo rohita OX=84645 GN=ROHU_003202 PE=3 SV=1
+#=GS tr|A0A2U3Y890|A0A2U3Y890_LEPWE/66-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Leptonychotes weddellii OX=9713 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A2K6Q8J3|A0A2K6Q8J3_RHIRO/99-135    DE [subseq from] ATP synthase F1 subunit epsilon OS=Rhinopithecus roxellana OX=61622 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A811Z6G5|A0A811Z6G5_NYCPR/55-93     DE [subseq from] ATP synthase F1 subunit epsilon OS=Nyctereutes procyonoides OX=34880 GN=NYPRO_LOCUS17093 PE=3 SV=1
+#=GS tr|A0A6I8NDS4|A0A6I8NDS4_ORNAN/66-100    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ornithorhynchus anatinus OX=9258 PE=3 SV=1
+#=GS tr|A0A6B0S3S6|A0A6B0S3S6_9CETA/108-140   DE [subseq from] Inhibitor of F(1)F(o)-ATPase OS=Bos mutus OX=72004 GN=E5288_WYG008447 PE=4 SV=1
+#=GS tr|A0A8C2F0Q9|A0A8C2F0Q9_CYPCA/33-69     DE [subseq from] ATIF1 ATPase OS=Cyprinus carpio OX=7962 PE=4 SV=1
+#=GS tr|A0A7K8XZM9|A0A7K8XZM9_9PICI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Eubucco bourcierii OX=91767 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852BV86|A0A852BV86_9PICI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ramphastos sulfuratus OX=322582 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A6P7R1R4|A0A6P7R1R4_MUSCR/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mus caroli OX=10089 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A1D5PBD2|A0A1D5PBD2_CHICK/55-91     DE [subseq from] ATP synthase F1 subunit epsilon OS=Gallus gallus OX=9031 GN=ATPIF1 PE=3 SV=3
+#=GS tr|A0A0D9SDU9|A0A0D9SDU9_CHLSB/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chlorocebus sabaeus OX=60711 PE=3 SV=1
+#=GS tr|A0A663ER62|A0A663ER62_AQUCH/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Aquila chrysaetos chrysaetos OX=223781 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8B9M4Z7|A0A8B9M4Z7_9AVES/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Accipiter nisus OX=211598 PE=3 SV=1
+#=GS tr|A0A8B9BV76|A0A8B9BV76_9AVES/170-206   DE [subseq from] ATPase inhibitor, mitochondrial OS=Anser brachyrhynchus OX=132585 PE=3 SV=1
+#=GS tr|A0A7L1VWW1|A0A7L1VWW1_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Certhia brachydactyla OX=73330 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851RZQ6|A0A851RZQ6_CERFA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Certhia familiaris OX=73333 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9Y7V2|A0A7K9Y7V2_9GALL/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Odontophorus gujanensis OX=886794 GN=Atp5if1 PE=3 SV=1
+#=GS tr|U3FZF1|U3FZF1_MICFL/79-114            DE [subseq from] ATP synthase F1 subunit epsilon OS=Micrurus fulvius OX=8637 PE=2 SV=1
+#=GS tr|A0A7K6UQP5|A0A7K6UQP5_9AVES/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Aegotheles bennettii OX=48278 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A670YRC9|A0A670YRC9_PSETE/78-113    DE [subseq from] ATP synthase inhibitory factor subunit 1 OS=Pseudonaja textilis OX=8673 GN=ATP5IF1 PE=4 SV=1
+#=GS tr|A0A7K4JYG6|A0A7K4JYG6_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Crypturellus soui OX=458187 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K4LDS6|A0A7K4LDS6_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Crypturellus undulatus OX=48396 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5A3K4|A0A7K5A3K4_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Centropus unirufus OX=1118519 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7WJB2|A0A7K7WJB2_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nothocercus julius OX=2585813 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851TBS2|A0A851TBS2_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nothocercus nigrocapillus OX=1977171 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852LVX5|A0A852LVX5_9AVES/35-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Centropus bengalensis OX=1463675 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A2K5SG67|A0A2K5SG67_CEBIM/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cebus imitator OX=2715852 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J3FA86|A0A6J3FA86_SAPAP/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sapajus apella OX=9515 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7L3AV25|A0A7L3AV25_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Syrrhaptes paradoxus OX=302527 GN=Atp5if1 PE=3 SV=1
+#=GS tr|G3QEV8|G3QEV8_GORGO/70-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Gorilla gorilla gorilla OX=9595 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7L2GXP2|A0A7L2GXP2_NYCGR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nyctibius grandis OX=48427 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8T2K479|A0A8T2K479_9PIPI/74-111    DE [subseq from] Uncharacterized protein OS=Hymenochirus boettgeri OX=247094 GN=GDO86_003567 PE=4 SV=1
+#=GS tr|A0A852KE00|A0A852KE00_UROIN/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Urocolius indicus OX=458196 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A0B8RSH7|A0A0B8RSH7_BOIIR/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Boiga irregularis OX=92519 PE=3 SV=1
+#=GS tr|A0A669PJG1|A0A669PJG1_PHACC/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Phasianus colchicus OX=9054 PE=3 SV=1
+#=GS tr|Q2KKR8|Q2KKR8_SINCH/11-47             DE [subseq from] ATPase inhibitor (Fragment) OS=Siniperca chuatsi OX=119488 PE=2 SV=1
+#=GS tr|A0A672NSN0|A0A672NSN0_SINGR/16-52     DE [subseq from] PLCB1 OS=Sinocyclocheilus grahami OX=75366 PE=4 SV=1
+#=GS tr|A0A6P7LLB9|A0A6P7LLB9_BETSP/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Betta splendens OX=158456 GN=atp5if1b PE=3 SV=1
+#=GS tr|A0A8B6ZEC1|A0A8B6ZEC1_ORYAF/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Orycteropus afer afer OX=1230840 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A8M1M637|A0A8M1M637_NEOSC/66-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neomonachus schauinslandi OX=29088 GN=LOC123324301 PE=3 SV=1
+#=GS tr|E9PV44|E9PV44_MOUSE/37-72             DE [subseq from] ATP synthase F1 subunit epsilon OS=Mus musculus OX=10090 GN=Atpif1 PE=1 SV=1
+#=GS tr|A0A226N2U5|A0A226N2U5_CALSU/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Callipepla squamata OX=9009 GN=ASZ78_004567 PE=3 SV=1
+#=GS tr|A0A226P4X8|A0A226P4X8_COLVI/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Colinus virginianus OX=9014 GN=H355_003645 PE=3 SV=1
+#=GS tr|A0A7K5FTG1|A0A7K5FTG1_PROAR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Probosciger aterrimus OX=141839 GN=Atp5if1 PE=3 SV=1
+#=GS sp|O35143|ATIF1_MOUSE/69-104             DE [subseq from] ATPase inhibitor, mitochondrial OS=Mus musculus OX=10090 GN=Atp5if1 PE=1 SV=2
+#=GS tr|A0A8C6GS25|A0A8C6GS25_MUSSI/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mus spicilegus OX=10103 PE=3 SV=1
+#=GS tr|A0A8C6DZC8|A0A8C6DZC8_MOSMO/43-74     DE [subseq from] ATP synthase F1 subunit epsilon OS=Moschus moschiferus OX=68415 PE=4 SV=1
+#=GS tr|A0A7F8REA8|A0A7F8REA8_LEPWE/66-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Leptonychotes weddellii OX=9713 GN=LOC102748908 PE=3 SV=1
+#=GS tr|G3SWQ8|G3SWQ8_LOXAF/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Loxodonta africana OX=9785 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A1V4JCW8|A0A1V4JCW8_PATFA/77-112    DE [subseq from] ATP synthase F1 subunit epsilon OS=Patagioenas fasciata monilis OX=372326 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A7M4G2Q8|A0A7M4G2Q8_CROPO/61-99     DE [subseq from] ATP synthase F1 subunit epsilon OS=Crocodylus porosus OX=8502 PE=3 SV=1
+#=GS tr|A0A852NNT8|A0A852NNT8_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Atrichornis clamosus OX=449594 GN=Atp5if1 PE=3 SV=1
+#=GS tr|L8Y809|L8Y809_TUPCH/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Tupaia chinensis OX=246437 GN=TREES_T100001268 PE=3 SV=1
+#=GS tr|A0A7L3LK94|A0A7L3LK94_9CHAR/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Turnix velox OX=2529409 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C1Y964|A0A8C1Y964_CYPCA/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinus carpio OX=7962 PE=3 SV=1
+#=GS tr|A0A8C3BUW4|A0A8C3BUW4_CAIMO/323-359   DE [subseq from] ATPase inhibitor, mitochondrial OS=Cairina moschata domestica OX=1240228 PE=3 SV=1
+#=GS tr|A0A7K8SS58|A0A7K8SS58_9AVES/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nyctibius bracteatus OX=48426 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1DKU8|A0A7L1DKU8_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Serilophus lunatus OX=239386 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A286Y431|A0A286Y431_CAVPO/67-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cavia porcellus OX=10141 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C2W3E2|A0A8C2W3E2_CHILA/67-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chinchilla lanigera OX=34839 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8D2MXB4|A0A8D2MXB4_ZONAL/27-62     DE [subseq from] Coiled-coil domain containing 73 OS=Zonotrichia albicollis OX=44394 PE=4 SV=1
+#=GS tr|A0A671NLK7|A0A671NLK7_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus anshuiensis OX=1608454 GN=LOC107669765 PE=3 SV=1
+#=GS tr|A0A673KJE6|A0A673KJE6_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus rhinocerous OX=307959 GN=LOC107730904 PE=3 SV=1
+#=GS tr|A0A6P6LXB2|A0A6P6LXB2_CARAU/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Carassius auratus OX=7957 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A8C1M5I5|A0A8C1M5I5_CYPCA/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinus carpio OX=7962 PE=3 SV=1
+#=GS tr|A0A8C3S0Y3|A0A8C3S0Y3_CHESE/75-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chelydra serpentina OX=8475 PE=3 SV=1
+#=GS tr|A0A8C1H7H3|A0A8C1H7H3_CYPCA/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinus carpio OX=7962 GN=LOC109049973 PE=3 SV=1
+#=GS tr|A0A553MTR9|A0A553MTR9_9TELE/233-269   DE [subseq from] ATP synthase F1 subunit epsilon OS=Danionella translucida OX=623744 GN=DNTS_008405 PE=4 SV=1
+#=GS tr|A0A7K6RHW7|A0A7K6RHW7_9GRUI/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhynochetos jubatus OX=54386 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A3B3S067|A0A3B3S067_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Paramormyrops kingsleyae OX=1676925 PE=3 SV=1
+#=GS tr|A0A4W5JAD8|A0A4W5JAD8_9TELE/64-100    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|H0XRM4|H0XRM4_OTOGA/70-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Otolemur garnettii OX=30611 PE=3 SV=1
+#=GS tr|A0A8C9EN50|A0A8C9EN50_PAVCR/122-158   DE [subseq from] ATP synthase F1 subunit epsilon OS=Pavo cristatus OX=9049 PE=3 SV=1
+#=GS tr|A0A4W5JAB5|A0A4W5JAB5_9TELE/68-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|A0A6P9C5N1|A0A6P9C5N1_PANGU/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pantherophis guttatus OX=94885 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3P8Q565|A0A3P8Q565_ASTCA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Astatotilapia calliptera OX=8154 PE=3 SV=1
+#=GS tr|A0A3Q2W8K0|A0A3Q2W8K0_HAPBU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Haplochromis burtoni OX=8153 PE=3 SV=1
+#=GS tr|I3J6J8|I3J6J8_ORENI/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Oreochromis niloticus OX=8128 PE=3 SV=2
+#=GS tr|A0A8C2YDU4|A0A8C2YDU4_COTJA/45-81     DE [subseq from] ATP synthase F1 subunit epsilon OS=Coturnix japonica OX=93934 PE=4 SV=1
+#=GS tr|A0A803SPR5|A0A803SPR5_ANOCA/72-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anolis carolinensis OX=28377 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A852EXB3|A0A852EXB3_PEUTA/26-61     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Peucedramus taeniatus OX=135441 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A674I907|A0A674I907_TERCA/77-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Terrapene carolina triunguis OX=2587831 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A803XLT4|A0A803XLT4_MELGA/433-469   DE [subseq from] RRM domain-containing protein OS=Meleagris gallopavo OX=9103 PE=4 SV=1
+#=GS tr|A0A1W7RJ59|A0A1W7RJ59_AGKCO/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Agkistrodon contortrix contortrix OX=8713 PE=3 SV=1
+#=GS tr|A0A2Y9DM04|A0A2Y9DM04_TRIMA/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Trichechus manatus latirostris OX=127582 GN=LOC101357969 PE=3 SV=1
+#=GS tr|A0A7J8AM86|A0A7J8AM86_MYOMY/98-134    DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis myotis OX=51298 GN=mMyoMyo1_008042 PE=3 SV=1
+#=GS tr|A0A4W5JEA1|A0A4W5JEA1_9TELE/81-117    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|A0A8C5RWH1|A0A8C5RWH1_LATLA/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Laticauda laticaudata OX=8630 PE=3 SV=1
+#=GS tr|Q6DJL4|Q6DJL4_XENLA/74-109            DE [subseq from] ATP synthase F1 subunit epsilon OS=Xenopus laevis OX=8355 GN=atp5if1.L PE=1 SV=1
+#=GS tr|A0A1S3GHP8|A0A1S3GHP8_DIPOR/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Dipodomys ordii OX=10020 GN=Atpif1 PE=3 SV=1
+#=GS tr|A0A8C6X609|A0A8C6X609_NAJNA/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Naja naja OX=35670 PE=3 SV=1
+#=GS tr|A0A7L0MYK1|A0A7L0MYK1_9PASS/30-65     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Formicarius rufipectus OX=1118560 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1ES42|A0A7L1ES42_OENON/30-65     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oenanthe oenanthe OX=279966 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A670YZZ6|A0A670YZZ6_PSETE/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pseudonaja textilis OX=8673 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|G1PGS1|G1PGS1_MYOLU/69-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis lucifugus OX=59463 PE=3 SV=1
+#=GS tr|A0A7L0M8G9|A0A7L0M8G9_9PSIT/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Amazona guildingii OX=175529 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851X8Q1|A0A851X8Q1_EOLRO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Eolophus roseicapilla OX=176039 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A6P7Z836|A0A6P7Z836_9AMPH/87-120    DE [subseq from] ATP synthase F1 subunit epsilon OS=Microcaecilia unicolor OX=1415580 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3Q0RVL6|A0A3Q0RVL6_AMPCI/44-80     DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphilophus citrinellus OX=61819 PE=3 SV=1
+#=GS tr|A0A3B4GTE0|A0A3B4GTE0_9CICH/95-131    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pundamilia nyererei OX=303518 PE=3 SV=1
+#=GS tr|A0A3P9B9A2|A0A3P9B9A2_9CICH/95-131    DE [subseq from] ATP synthase F1 subunit epsilon OS=Maylandia zebra OX=106582 PE=3 SV=1
+#=GS tr|A0A3Q4FXC8|A0A3Q4FXC8_NEOBR/95-131    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neolamprologus brichardi OX=32507 PE=3 SV=1
+#=GS tr|A0A668UCK5|A0A668UCK5_OREAU/95-131    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oreochromis aureus OX=47969 PE=3 SV=1
+#=GS tr|A0A093PEN6|A0A093PEN6_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Manacus vitellinus OX=328815 GN=N305_07272 PE=3 SV=1
+#=GS tr|A0A7K4PRF1|A0A7K4PRF1_MELMO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Melospiza melodia OX=44397 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K4R382|A0A7K4R382_9TYRA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Neopipo cinnamomea OX=456388 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K4VGG0|A0A7K4VGG0_9EMBE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Emberiza fucata OX=337179 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K4WIN7|A0A7K4WIN7_9TYRA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Tachuris rubrigastra OX=495162 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5BAK1|A0A7K5BAK1_9FURN/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Furnarius figulus OX=463165 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5E265|A0A7K5E265_POLCE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Polioptila caerulea OX=66707 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5JDG4|A0A7K5JDG4_TOXRE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Toxostoma redivivum OX=99882 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5K8I8|A0A7K5K8I8_9TYRA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Mionectes macconnelli OX=254557 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5M521|A0A7K5M521_CARCD/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cardinalis cardinalis OX=98964 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5SJL3|A0A7K5SJL3_9FRIN/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Urocynchramus pylzowi OX=571890 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6A1C1|A0A7K6A1C1_ONYCO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Onychorhynchus coronatus OX=360224 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6C3F0|A0A7K6C3F0_PTIVI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ptilonorhynchus violaceus OX=28724 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6D846|A0A7K6D846_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Origma solitaria OX=720586 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6GGR9|A0A7K6GGR9_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Malurus elegans OX=720584 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6HLI9|A0A7K6HLI9_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Dasyornis broadbenti OX=243059 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6M6E8|A0A7K6M6E8_PANBI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Panurus biarmicus OX=181101 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6QAE8|A0A7K6QAE8_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Climacteris rufus OX=47695 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6Y042|A0A7K6Y042_9PASE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Promerops cafer OX=254652 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7GEP6|A0A7K7GEP6_ERIRU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Erithacus rubecula OX=37610 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7HF98|A0A7K7HF98_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhegmatorhina hoffmannsi OX=468512 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7IEG4|A0A7K7IEG4_LOXCU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Loxia curvirostra OX=64802 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7K582|A0A7K7K582_AGEPH/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Agelaius phoeniceus OX=39638 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7QWX6|A0A7K7QWX6_POEAT/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Poecile atricapillus OX=48891 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7SDA8|A0A7K7SDA8_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nesospiza acunhae OX=381881 GN=Atp5if1_1 PE=3 SV=1
+#=GS tr|A0A7K7YVZ9|A0A7K7YVZ9_THRLU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Thryothorus ludovicianus OX=74200 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8EHL5|A0A7K8EHL5_LEURO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Leucopsar rothschildi OX=127929 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8H583|A0A7K8H583_ORTSP/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Orthonyx spaldingii OX=38397 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8R1K7|A0A7K8R1K7_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Smithornis capensis OX=363769 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8S1M2|A0A7K8S1M2_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhodinocichla rosea OX=58203 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8WHC1|A0A7K8WHC1_9FURN/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sclerurus mexicanus OX=265632 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8YA65|A0A7K8YA65_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sakesphorus luctuosus OX=419690 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8ZUT0|A0A7K8ZUT0_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Grallaria varia OX=117165 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9G9S6|A0A7K9G9S6_LOXLE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Loxia leucoptera OX=96539 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9L0T7|A0A7K9L0T7_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhabdornis inornatus OX=237438 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9Q6A8|A0A7K9Q6A8_IRECY/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Irena cyanogastra OX=175120 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0JEN9|A0A7L0JEN9_PIPCL/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Piprites chloris OX=114369 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0LC54|A0A7L0LC54_9SYLV/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sylvietta virens OX=208069 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0UZH6|A0A7L0UZH6_9PASE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Leptocoma aspasia OX=2585812 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0YCF1|A0A7L0YCF1_9PASE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ploceus nigricollis OX=441696 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0ZUW0|A0A7L0ZUW0_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oxyruncus cristatus OX=114331 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1MK86|A0A7L1MK86_BOMGA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Bombycilla garrulus OX=125297 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1UP22|A0A7L1UP22_PHANI/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Phainopepla nitens OX=161653 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1UZ04|A0A7L1UZ04_SITEU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sitta europaea OX=50251 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1Y3J8|A0A7L1Y3J8_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Scytalopus superciliaris OX=312124 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2C069|A0A7L2C069_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Alaudala cheleensis OX=670337 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2CXN6|A0A7L2CXN6_CATFU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Catharus fuscescens OX=159581 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2PYK7|A0A7L2PYK7_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hypocryptadius cinnamomeus OX=589841 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2TT99|A0A7L2TT99_POMRU/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pomatostomus ruficeps OX=9176 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3EE49|A0A7L3EE49_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chaetops frenatus OX=221966 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3HLS7|A0A7L3HLS7_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Buphagus erythrorhynchus OX=245048 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3IQC9|A0A7L3IQC9_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pardalotus punctatus OX=254575 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3KR83|A0A7L3KR83_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Drymodes brunneopygia OX=626378 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3PPN7|A0A7L3PPN7_9DEND/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Xiphorhynchus elegans OX=269412 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3VNM0|A0A7L3VNM0_MOLAT/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Molothrus ater OX=84834 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4L5B1|A0A7L4L5B1_9CORV/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Callaeas wilsoni OX=1347786 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A850VAF2|A0A850VAF2_9CORV/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chloropsis hardwickii OX=667144 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A850YPW6|A0A850YPW6_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Tichodroma muraria OX=237442 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851ARA9|A0A851ARA9_PICGY/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Picathartes gymnocephalus OX=175131 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851EYV2|A0A851EYV2_PITSO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pitta sordida OX=9163 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851K6T9|A0A851K6T9_VIDCH/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Vidua chalybeata OX=81927 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851MGX0|A0A851MGX0_9DEND/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Campylorhamphus procurvoides OX=190295 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851UL55|A0A851UL55_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Elachura formosa OX=1463973 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851VT53|A0A851VT53_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Copsychus sechellarum OX=797021 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852HZ25|A0A852HZ25_9PASS/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Nicator chloris OX=237433 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852K1M6|A0A852K1M6_SPIPA/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Spizella passerina OX=40210 GN=Atp5if1_0 PE=3 SV=1
+#=GS tr|A0A091EKF7|A0A091EKF7_CORBR/17-51     DE [subseq from] ATIF1 ATPase (Fragment) OS=Corvus brachyrhynchos OX=85066 GN=N302_11028 PE=4 SV=1
+#=GS tr|A0A6J2WH13|A0A6J2WH13_CHACN/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chanos chanos OX=29144 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2RHW0|A0A7L2RHW0_9PASS/32-67     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Neodrepanis coruscans OX=254563 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7N5P989|A0A7N5P989_AILME/66-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ailuropoda melanoleuca OX=9646 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3Q0HHF7|A0A3Q0HHF7_ALLSI/119-155   DE [subseq from] ATPase inhibitor, mitochondrial OS=Alligator sinensis OX=38654 GN=ATP5IF1 PE=4 SV=1
+#=GS tr|A0A3B3BW10|A0A3B3BW10_ORYME/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias melastigma OX=30732 GN=FQA47_016279 PE=3 SV=1
+#=GS tr|A0A7K5TM06|A0A7K5TM06_CEPOR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cephalopterus ornatus OX=114276 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L0Q5L3|A0A7L0Q5L3_SETKR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Setophaga kirtlandii OX=298831 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2DY06|A0A7L2DY06_ANTMN/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Anthoscopus minutus OX=156561 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852A0H1|A0A852A0H1_CALOR/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Calcarius ornatus OX=198940 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A852DNV1|A0A852DNV1_PASAF/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Passerina amoena OX=142471 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A5A9NKQ5|A0A5A9NKQ5_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Triplophysa tibetana OX=1572043 GN=E1301_Tti022825 PE=3 SV=1
+#=GS tr|W5MA17|W5MA17_LEPOC/56-92             DE [subseq from] ATP synthase F1 subunit epsilon OS=Lepisosteus oculatus OX=7918 PE=4 SV=1
+#=GS tr|A0A6P9FC79|A0A6P9FC79_ZALCA/67-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zalophus californianus OX=9704 GN=LOC113925416 PE=3 SV=1
+#=GS tr|Q4RL74|Q4RL74_TETNG/72-107            DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Tetraodon nigroviridis OX=99883 GN=GSTENG00032612001 PE=3 SV=1
+#=GS tr|A0A7J6C1X2|A0A7J6C1X2_9TELE/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Onychostoma macrolepis OX=369639 GN=G5714_019170 PE=3 SV=1
+#=GS tr|G3NFT4|G3NFT4_GASAC/11-46             DE [subseq from] ATIF1 ATPase OS=Gasterosteus aculeatus OX=69293 PE=4 SV=1
+#=GS tr|A0A3B4G1Z4|A0A3B4G1Z4_9CICH/37-73     DE [subseq from] ATP synthase F1 subunit epsilon OS=Pundamilia nyererei OX=303518 PE=3 SV=1
+#=GS tr|A0A3P8PA73|A0A3P8PA73_ASTCA/37-73     DE [subseq from] ATP synthase F1 subunit epsilon OS=Astatotilapia calliptera OX=8154 PE=3 SV=1
+#=GS tr|A0A3Q2X3H6|A0A3Q2X3H6_HAPBU/37-73     DE [subseq from] ATP synthase F1 subunit epsilon OS=Haplochromis burtoni OX=8153 PE=3 SV=1
+#=GS tr|A0A8C0UVB3|A0A8C0UVB3_CYACU/63-98     DE [subseq from] ATPase inhibitor, mitochondrial OS=Cyanistes caeruleus OX=156563 PE=4 SV=1
+#=GS tr|A0A7K5QWQ5|A0A7K5QWQ5_9PASE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Prunella himalayana OX=670356 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2ZPE6|A0A7L2ZPE6_9PASE/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Prunella fulvescens OX=670355 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8D2IVV9|A0A8D2IVV9_VARKO/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Varanus komodoensis OX=61221 PE=3 SV=1
+#=GS tr|A0A8C4UN04|A0A8C4UN04_FALTI/108-144   DE [subseq from] ATP synthase F1 subunit epsilon OS=Falco tinnunculus OX=100819 PE=3 SV=1
+#=GS tr|A0A0P7VHN0|A0A0P7VHN0_SCLFO/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Scleropages formosus OX=113540 GN=LOC108942514 PE=3 SV=1
+#=GS tr|S7MLZ6|S7MLZ6_MYOBR/61-97             DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis brandtii OX=109478 GN=D623_10011880 PE=3 SV=1
+#=GS tr|A0A3Q0R7V9|A0A3Q0R7V9_AMPCI/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphilophus citrinellus OX=61819 PE=3 SV=1
+#=GS tr|A0A8T2MYA2|A0A8T2MYA2_9TELE/70-106    DE [subseq from] Uncharacterized protein OS=Albula glossodonta OX=121402 GN=JZ751_020391 PE=4 SV=1
+#=GS tr|A0A835NRY2|A0A835NRY2_9PASS/49-84     DE [subseq from] ATP synthase F1 subunit epsilon OS=Lamprotornis superbus OX=245042 GN=IHE44_014709 PE=3 SV=1
+#=GS tr|A0A8B9GMG9|A0A8B9GMG9_9PSIT/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amazona collaria OX=241587 PE=3 SV=1
+#=GS sp|A3KNL5|ATF1A_DANRE/68-104             DE [subseq from] ATPase inhibitor A, mitochondrial OS=Danio rerio OX=7955 GN=atp5if1a PE=3 SV=1
+#=GS tr|A0A8C4A125|A0A8C4A125_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Denticeps clupeoides OX=299321 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A6I9YMD7|A0A6I9YMD7_9SAUR/83-118    DE [subseq from] ATP synthase F1 subunit epsilon OS=Thamnophis sirtalis OX=35019 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A5E4DDA6|A0A5E4DDA6_MARMO/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Marmota monax OX=9995 GN=MONAX_5E017627 PE=3 SV=1
+#=GS tr|A0A670JKN4|A0A670JKN4_PODMU/71-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Podarcis muralis OX=64176 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3Q3KYM9|A0A3Q3KYM9_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mastacembelus armatus OX=205130 PE=3 SV=2
+#=GS tr|A0A3Q4MZM5|A0A3Q4MZM5_NEOBR/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neolamprologus brichardi OX=32507 PE=3 SV=1
+#=GS tr|A0A7N4UWZ2|A0A7N4UWZ2_SARHA/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sarcophilus harrisii OX=9305 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A087XPT8|A0A087XPT8_POEFO/11-46     DE [subseq from] ATIF1 ATPase OS=Poecilia formosa OX=48698 PE=4 SV=2
+#=GS tr|A0A3Q3A7R8|A0A3Q3A7R8_KRYMA/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Kryptolebias marmoratus OX=37003 PE=3 SV=1
+#=GS tr|A0A7K5LIU2|A0A7K5LIU2_VIRAL/30-64     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Vireo altiloquus OX=34956 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2KSP5|A0A7L2KSP5_9PASS/30-64     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Zosterops hypoxanthus OX=2485327 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A0E9WGC1|A0A0E9WGC1_ANGAN/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anguilla anguilla OX=7936 PE=3 SV=1
+#=GS tr|A0A452SIB7|A0A452SIB7_URSAM/66-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ursus americanus OX=9643 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J1V638|A0A6J1V638_9SAUR/79-112    DE [subseq from] ATP synthase F1 subunit epsilon OS=Notechis scutatus OX=8663 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A7K4TSA2|A0A7K4TSA2_9SYLV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sinosuthora webbiana OX=337173 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5Q4A7|A0A7K5Q4A7_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Erythrocercus mccallii OX=107208 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5V3W6|A0A7K5V3W6_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Platysteira castanea OX=1160851 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K5WFG8|A0A7K5WFG8_9SYLV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hylia prasina OX=208073 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6J0U9|A0A7K6J0U9_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Machaerirhynchus nigripectus OX=1160894 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6JR72|A0A7K6JR72_9PASE/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oreocharis arfaki OX=979223 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6LN46|A0A7K6LN46_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Falcunculus frontatus OX=254539 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K6PCI2|A0A7K6PCI2_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ifrita kowaldi OX=461245 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7CKB1|A0A7K7CKB1_APHCE/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Aphelocoma coerulescens OX=39617 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7ERY6|A0A7K7ERY6_9SYLV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sylvia atricapilla OX=48155 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7M873|A0A7K7M873_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Brachypodius atriceps OX=182895 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7Q1N0|A0A7K7Q1N0_ACRAR/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Acrocephalus arundinaceus OX=39621 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K7XG82|A0A7K7XG82_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Mohoua ochrocephala OX=874463 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8A306|A0A7K8A306_9PASE/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Melanocharis versteri OX=254552 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8B387|A0A7K8B387_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cnemophilus loriae OX=254448 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8BZS7|A0A7K8BZS7_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhagologus leucostigma OX=156170 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8DHD0|A0A7K8DHD0_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Eulacestoma nigropectus OX=461239 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8FPF4|A0A7K8FPF4_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Struthidea cinerea OX=181839 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8HD02|A0A7K8HD02_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Aleadryas rufinucha OX=461220 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8IXF8|A0A7K8IXF8_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Chaetorhynchus papuensis OX=254446 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K8M4K0|A0A7K8M4K0_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ptilorrhoa leucosticta OX=449384 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9JBN3|A0A7K9JBN3_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Myiagra hebetior OX=381031 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9PAI9|A0A7K9PAI9_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pachycephala philippinensis OX=449367 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9WHD1|A0A7K9WHD1_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhipidura dahli OX=667186 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7K9ZBY4|A0A7K9ZBY4_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Dicrurus megarhynchus OX=450177 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1AM12|A0A7L1AM12_GYMTI/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Gymnorhina tibicen OX=9132 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1BTL9|A0A7L1BTL9_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Illadopsis cleaveri OX=201329 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1F2X7|A0A7L1F2X7_SYLBO/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sylvia borin OX=73324 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1Q377|A0A7L1Q377_ORIOR/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oriolus oriolus OX=181099 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1QEA3|A0A7L1QEA3_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cisticola juncidis OX=52622 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1RMJ5|A0A7L1RMJ5_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Locustella ochotensis OX=187437 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L1ZWP2|A0A7L1ZWP2_LEILU/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Leiothrix lutea OX=36275 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2LSY3|A0A7L2LSY3_9SYLV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hippolais icterina OX=68497 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2MS01|A0A7L2MS01_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Rhadina sibilatrix OX=2585818 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2NXL0|A0A7L2NXL0_PYCJO/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pycnonotus jocosus OX=182897 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2R5R3|A0A7L2R5R3_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Oxylabes madagascariensis OX=98144 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2SPB7|A0A7L2SPB7_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Mystacornis crossleyi OX=98133 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L2XP90|A0A7L2XP90_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Erpornis zantholeuca OX=1112836 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3M8R8|A0A7L3M8R8_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Horornis vulcanius OX=2585811 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L3R484|A0A7L3R484_9SYLV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Cettia cetti OX=68486 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4EGK7|A0A7L4EGK7_HIRRU/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hirundo rustica OX=43150 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A7L4J5H4|A0A7L4J5H4_9PASS/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pomatorhinus ruficollis OX=932028 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851XCP6|A0A851XCP6_9CORV/34-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Corvus moneduloides OX=1196302 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C2CUJ7|A0A8C2CUJ7_CYPCA/20-56     DE [subseq from] Serine/threonine protein kinase OS=Cyprinus carpio OX=7962 PE=4 SV=1
+#=GS tr|A0A3Q1F6F6|A0A3Q1F6F6_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Acanthochromis polyacanthus OX=80966 PE=3 SV=1
+#=GS tr|A0A672M169|A0A672M169_SINGR/91-127    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus grahami OX=75366 GN=LOC107571275 PE=3 SV=1
+#=GS tr|A0A851NRA1|A0A851NRA1_9GALL/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Penelope pileata OX=1118817 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A851R1C5|A0A851R1C5_TYCCO/34-69     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Tychaedon coryphoeus OX=614051 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8S4ARR5|A0A8S4ARR5_9TELE/71-106    DE [subseq from] (Atlantic silverside) hypothetical protein OS=Menidia menidia OX=238744 GN=MMEN_LOCUS5980 PE=4 SV=1
+#=GS tr|A0A8D0BD76|A0A8D0BD76_9SAUR/81-117    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salvator merianae OX=96440 PE=3 SV=1
+#=GS tr|A0A7N4NHP1|A0A7N4NHP1_SARHA/108-142   DE [subseq from] ATP synthase F1 subunit epsilon OS=Sarcophilus harrisii OX=9305 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A218UYH8|A0A218UYH8_9PASE/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lonchura striata domestica OX=299123 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A3L8RY65|A0A3L8RY65_CHLGU/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chloebia gouldiae OX=44316 GN=DV515_00014445 PE=3 SV=1
+#=GS tr|A0A6J2G227|A0A6J2G227_9PASS/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pipra filicauda OX=649802 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C3MDV4|A0A8C3MDV4_GEOPR/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Geospiza parvula OX=87175 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C5ILI1|A0A8C5ILI1_JUNHY/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Junco hyemalis OX=40217 PE=3 SV=1
+#=GS tr|A0A6P6RHN2|A0A6P6RHN2_CARAU/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Carassius auratus OX=7957 GN=LOC113119783 PE=3 SV=1
+#=GS tr|A0A6P3FMK4|A0A6P3FMK4_OCTDE/67-101    DE [subseq from] ATP synthase F1 subunit epsilon OS=Octodon degus OX=10160 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C5UKT3|A0A8C5UKT3_9PASS/61-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Malurus cyaneus samueli OX=2593467 PE=3 SV=1
+#=GS tr|A0A3P9DL25|A0A3P9DL25_9CICH/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Maylandia zebra OX=106582 PE=3 SV=1
+#=GS tr|A0A3Q3J6J7|A0A3Q3J6J7_MONAL/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Monopterus albus OX=43700 PE=3 SV=1
+#=GS tr|A0A4W6DVL7|A0A4W6DVL7_LATCA/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lates calcarifer OX=8187 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A668SNW9|A0A668SNW9_OREAU/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oreochromis aureus OX=47969 PE=3 SV=1
+#=GS tr|A0A6P7KID0|A0A6P7KID0_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Parambassis ranga OX=210632 GN=atp5if1 PE=3 SV=1
+#=GS tr|I3KUI8|I3KUI8_ORENI/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Oreochromis niloticus OX=8128 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A8J7NZU9|A0A8J7NZU9_ATRSP/72-108    DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Atractosteus spatula OX=7917 GN=Atp5if1a PE=3 SV=1
+#=GS tr|A0A8T2PVU6|A0A8T2PVU6_9TELE/70-106    DE [subseq from] Uncharacterized protein OS=Albula glossodonta OX=121402 GN=JZ751_000460 PE=4 SV=1
+#=GS tr|A0A8T3E2D2|A0A8T3E2D2_9TELE/70-106    DE [subseq from] Uncharacterized protein OS=Albula goreensis OX=1534307 GN=AGOR_G00038090 PE=4 SV=1
+#=GS tr|L5LME7|L5LME7_MYODS/26-61             DE [subseq from] ATP synthase F1 subunit epsilon OS=Myotis davidii OX=225400 GN=MDA_GLEAN10007234 PE=3 SV=1
+#=GS tr|A0A667ZBM8|A0A667ZBM8_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Myripristis murdjan OX=586833 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A3B3IEI0|A0A3B3IEI0_ORYLA/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 GN=LOC101166514 PE=3 SV=1
+#=GS tr|A0A3P9HSS6|A0A3P9HSS6_ORYLA/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 PE=3 SV=1
+#=GS tr|A0A3P9KUH0|A0A3P9KUH0_ORYLA/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 PE=3 SV=1
+#=GS tr|G3H1Z3|G3H1Z3_CRIGR/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Cricetulus griseus OX=10029 GN=Atp5if1 PE=3 SV=1
+#=GS sp|F7BK26|ATIF1_XENTR/74-107             DE [subseq from] ATPase inhibitor, mitochondrial OS=Xenopus tropicalis OX=8364 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A3B4A881|A0A3B4A881_9GOBI/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Periophthalmus magnuspinnatus OX=409849 PE=3 SV=1
+#=GS tr|A0A3B4UZI8|A0A3B4UZI8_SERDU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Seriola dumerili OX=41447 PE=3 SV=1
+#=GS tr|A0A3B4WLV5|A0A3B4WLV5_SERLL/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Seriola lalandi dorsalis OX=1841481 PE=3 SV=1
+#=GS tr|A0A3B5B9D0|A0A3B5B9D0_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Stegastes partitus OX=144197 PE=3 SV=1
+#=GS tr|A0A3P8TPG5|A0A3P8TPG5_AMPPE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphiprion percula OX=161767 PE=3 SV=1
+#=GS tr|A0A3Q1B8M3|A0A3Q1B8M3_AMPOC/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphiprion ocellaris OX=80972 PE=3 SV=1
+#=GS tr|A0A4V6AS29|A0A4V6AS29_COLLU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Collichthys lucidus OX=240159 GN=D9C73_020811 PE=3 SV=1
+#=GS tr|A0A4W6F5H5|A0A4W6F5H5_LATCA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lates calcarifer OX=8187 GN=LOC108875043 PE=3 SV=1
+#=GS tr|A0A556V9W7|A0A556V9W7_BAGYA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Bagarius yarrelli OX=175774 GN=Baya_14832 PE=3 SV=1
+#=GS tr|A0A5C6NX01|A0A5C6NX01_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Takifugu flavidus OX=433684 GN=D4764_16G0005110 PE=3 SV=1
+#=GS tr|A0A671TXS4|A0A671TXS4_SPAAU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sparus aurata OX=8175 GN=LOC115566151 PE=3 SV=1
+#=GS tr|A0A672I9B7|A0A672I9B7_SALFA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salarias fasciatus OX=181472 GN=LOC115406559 PE=3 SV=1
+#=GS tr|C1BK85|C1BK85_OSMMO/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Osmerus mordax OX=8014 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A3B4V7X3|A0A3B4V7X3_SERDU/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Seriola dumerili OX=41447 PE=3 SV=1
+#=GS tr|A0A3B4XHP1|A0A3B4XHP1_SERLL/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Seriola lalandi dorsalis OX=1841481 PE=3 SV=1
+#=GS tr|A0A8C9YHB1|A0A8C9YHB1_SANLU/66-101    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sander lucioperca OX=283035 GN=LOC116047304 PE=3 SV=1
+#=GS tr|A0A2I4BLI4|A0A2I4BLI4_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Austrofundulus limnaeus OX=52670 GN=atpif1 PE=3 SV=1
+#=GS tr|A0A1S3PXR2|A0A1S3PXR2_SALSA/63-99     DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=LOC106588193 PE=3 SV=1
+#=GS tr|A0A671XCP0|A0A671XCP0_SPAAU/73-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sparus aurata OX=8175 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A851CQE7|A0A851CQE7_CALVR/30-64     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Calyptomena viridis OX=135972 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A384CEC0|A0A384CEC0_URSMA/66-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ursus maritimus OX=29073 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3Q7XZ21|A0A3Q7XZ21_URSAR/66-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ursus arctos horribilis OX=116960 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J2QKX5|A0A6J2QKX5_COTGO/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cottoperca gobio OX=56716 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A484CJL1|A0A484CJL1_PERFV/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Perca flavescens OX=8167 GN=EPR50_G00147430 PE=3 SV=1
+#=GS tr|A0A8C9YGE9|A0A8C9YGE9_SANLU/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sander lucioperca OX=283035 GN=LOC116047304 PE=3 SV=1
+#=GS tr|H0XQ94|H0XQ94_OTOGA/70-103            DE [subseq from] ATP synthase F1 subunit epsilon OS=Otolemur garnettii OX=30611 PE=3 SV=1
+#=GS tr|A9XG49|A9XG49_AILME/69-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Ailuropoda melanoleuca OX=9646 GN=ATPIF1 PE=2 SV=1
+#=GS tr|A0A8T0B7Q1|A0A8T0B7Q1_SILME/100-136   DE [subseq from] Uncharacterized protein OS=Silurus meridionalis OX=175797 GN=HF521_001686 PE=4 SV=1
+#=GS tr|A0A668AW13|A0A668AW13_9TELE/79-115    DE [subseq from] ATP synthase F1 subunit epsilon OS=Myripristis murdjan OX=586833 GN=LOC115354043 PE=3 SV=1
+#=GS tr|A0A3P9J906|A0A3P9J906_ORYLA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 PE=3 SV=1
+#=GS tr|A0A3P9M8J7|A0A3P9M8J7_ORYLA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 PE=3 SV=1
+#=GS tr|A0A8C7Z2I9|A0A8C7Z2I9_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias sinensis OX=183150 PE=3 SV=1
+#=GS tr|H2MI37|H2MI37_ORYLA/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 GN=LOC101166514 PE=3 SV=2
+#=GS tr|A0A060WZT1|A0A060WZT1_ONCMY/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus mykiss OX=8022 GN=GSONMT00036108001 PE=3 SV=1
+#=GS tr|A0A674D4X4|A0A674D4X4_SALTR/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo trutta OX=8032 GN=LOC115173301 PE=3 SV=1
+#=GS tr|A0A8C7HNU7|A0A8C7HNU7_ONCKI/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus kisutch OX=8019 GN=LOC109907675 PE=3 SV=1
+#=GS tr|A0A8C8EXE5|A0A8C8EXE5_ONCTS/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus tshawytscha OX=74940 GN=LOC112266654 PE=3 SV=1
+#=GS tr|B5X591|B5X591_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|B5X6Y7|B5X6Y7_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|B5X8C4|B5X8C4_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|B5X8F8|B5X8F8_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|B5X915|B5X915_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|B5X9Z8|B5X9Z8_SALSA/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|D2GWK3|D2GWK3_AILME/66-102            DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Ailuropoda melanoleuca OX=9646 GN=PANDA_001191 PE=3 SV=1
+#=GS tr|A0A3B5K339|A0A3B5K339_TAKRU/82-118    DE [subseq from] ATP synthase F1 subunit epsilon OS=Takifugu rubripes OX=31033 GN=LOC101076253 PE=3 SV=1
+#=GS tr|A0A2D1CHA9|A0A2D1CHA9_SPAAU/86-122    DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Sparus aurata OX=8175 GN=ATPIF1 PE=2 SV=1
+#=GS tr|A0A7J6AG23|A0A7J6AG23_AMEME/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Ameiurus melas OX=219545 GN=AMELA_G00162820 PE=3 SV=1
+#=GS tr|W5UTF4|W5UTF4_ICTPU/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Ictalurus punctatus OX=7998 GN=atpif1b PE=2 SV=1
+#=GS tr|A0A1A7YMQ4|A0A1A7YMQ4_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Iconisemion striatum OX=60296 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A8C3DDZ3|A0A8C3DDZ3_9CORV/62-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Corvus moneduloides OX=1196302 PE=3 SV=1
+#=GS tr|A0A8T3DI17|A0A8T3DI17_9TELE/70-106    DE [subseq from] Uncharacterized protein OS=Albula goreensis OX=1534307 GN=AGOR_G00102350 PE=4 SV=1
+#=GS tr|A0A8C6SE49|A0A8C6SE49_9GOBI/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neogobius melanostomus OX=47308 PE=3 SV=1
+#=GS tr|A0A6A5E7U0|A0A6A5E7U0_PERFL/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Perca fluviatilis OX=8168 GN=PFLUV_G00232730 PE=3 SV=1
+#=GS tr|A0A8C9YHS8|A0A8C9YHS8_SANLU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sander lucioperca OX=283035 GN=LOC116037903 PE=3 SV=1
+#=GS tr|H0YRL2|H0YRL2_TAEGU/122-157           DE [subseq from] ATP synthase F1 subunit epsilon OS=Taeniopygia guttata OX=59729 PE=3 SV=2
+#=GS tr|A0A250Y8Y0|A0A250Y8Y0_CASCN/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Castor canadensis OX=51338 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A6P6R7K2|A0A6P6R7K2_CARAU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Carassius auratus OX=7957 GN=LOC113117387 PE=3 SV=1
+#=GS tr|A0A1A8BTL6|A0A1A8BTL6_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius kadleci OX=1051664 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A1A8KPP3|A0A1A8KPP3_NOTKU/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius kuhntae OX=321403 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A1A8VF66|A0A1A8VF66_NOTFU/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius furzeri OX=105023 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A1A7X243|A0A1A7X243_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Iconisemion striatum OX=60296 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A1A8MRY0|A0A1A8MRY0_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius pienaari OX=704102 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A1A8R432|A0A1A8R432_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius rachovii OX=451742 GN=ATPIF1A PE=3 SV=1
+#=GS tr|A0A3Q1IG85|A0A3Q1IG85_ANATE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anabas testudineus OX=64144 PE=3 SV=1
+#=GS tr|A0A3Q3LM12|A0A3Q3LM12_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mastacembelus armatus OX=205130 PE=3 SV=1
+#=GS tr|A0A146VP86|A0A146VP86_FUNHE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Fundulus heteroclitus OX=8078 PE=3 SV=1
+#=GS tr|A0A5N5NEJ4|A0A5N5NEJ4_PANHP/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pangasianodon hypophthalmus OX=310915 GN=PHYPO_G00240900 PE=3 SV=1
+#=GS tr|A0A3Q3EIS6|A0A3Q3EIS6_9LABR/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Labrus bergylta OX=56723 PE=3 SV=1
+#=GS tr|A0A4Z2GQ29|A0A4Z2GQ29_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Liparis tanakae OX=230148 GN=atpif1b PE=3 SV=1
+#=GS tr|A0A8C2XTT8|A0A8C2XTT8_CYCLU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyclopterus lumpus OX=8103 PE=3 SV=1
+#=GS tr|A0A8D3EAF8|A0A8D3EAF8_SCOMX/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Scophthalmus maximus OX=52904 GN=atp5if1b PE=3 SV=1
+#=GS tr|A0A6G1QG97|A0A6G1QG97_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Channa argus OX=215402 GN=EXN66_Car016824 PE=3 SV=1
+#=GS tr|A0A3M0ISA9|A0A3M0ISA9_HIRRU/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hirundo rustica rustica OX=333673 GN=DUI87_32427 PE=3 SV=1
+#=GS tr|A0A8K1GI08|A0A8K1GI08_9PASS/79-113    DE [subseq from] ATP synthase F1 subunit epsilon OS=Zosterops borbonicus OX=364589 GN=HGM15179_009123 PE=3 SV=1
+#=GS tr|A0A6J2WE64|A0A6J2WE64_CHACN/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Chanos chanos OX=29144 GN=LOC115822406 PE=3 SV=1
+#=GS tr|A0A3Q1I565|A0A3Q1I565_ANATE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anabas testudineus OX=64144 PE=3 SV=1
+#=GS tr|G3P3U6|G3P3U6_GASAC/73-109            DE [subseq from] ATP synthase F1 subunit epsilon OS=Gasterosteus aculeatus OX=69293 PE=3 SV=1
+#=GS tr|A0A6A5E147|A0A6A5E147_PERFL/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Perca fluviatilis OX=8168 GN=PFLUV_G00157450 PE=3 SV=1
+#=GS tr|F7BE70|F7BE70_MONDO/145-181           DE [subseq from] ATP synthase F1 subunit epsilon OS=Monodelphis domestica OX=13616 PE=3 SV=2
+#=GS tr|A0A3Q2D9N0|A0A3Q2D9N0_CYPVA/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|H3A4U5|H3A4U5_LATCH/73-109            DE [subseq from] ATP synthase F1 subunit epsilon OS=Latimeria chalumnae OX=7897 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A6J2S1X2|A0A6J2S1X2_COTGO/75-111    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cottoperca gobio OX=56716 GN=LOC115027410 PE=3 SV=1
+#=GS tr|A0A8C1RCC6|A0A8C1RCC6_CYPCA/52-88     DE [subseq from] ATPase inhibitor, mitochondrial OS=Cyprinus carpio OX=7962 PE=4 SV=1
+#=GS tr|A0A8C3HPU8|A0A8C3HPU8_CHRPI/231-268   DE [subseq from] ATP synthase F1 subunit epsilon OS=Chrysemys picta bellii OX=8478 PE=3 SV=1
+#=GS tr|A0A2I4BRU7|A0A2I4BRU7_9TELE/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Austrofundulus limnaeus OX=52670 GN=LOC106522127 PE=3 SV=1
+#=GS tr|A0A3Q3D2B4|A0A3Q3D2B4_HIPCM/38-74     DE [subseq from] ATP synthase F1 subunit epsilon OS=Hippocampus comes OX=109280 PE=3 SV=1
+#=GS tr|C1BWJ3|C1BWJ3_ESOLU/71-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Esox lucius OX=8010 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A8C5GWQ8|A0A8C5GWQ8_9TELE/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Gouania willdenowi OX=441366 GN=LOC114456926 PE=3 SV=1
+#=GS tr|A0A8C3HRE6|A0A8C3HRE6_CHRPI/231-266   DE [subseq from] ATPase inhibitor, mitochondrial OS=Chrysemys picta bellii OX=8478 PE=3 SV=1
+#=GS tr|C1BWE7|C1BWE7_ESOLU/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Esox lucius OX=8010 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A6P3WFA0|A0A6P3WFA0_CLUHA/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Clupea harengus OX=7950 GN=LOC105912502 PE=3 SV=1
+#=GS tr|A0A8C8MJY1|A0A8C8MJY1_ONCTS/24-59     DE [subseq from] Uncharacterized protein OS=Oncorhynchus tshawytscha OX=74940 PE=4 SV=1
+#=GS tr|A0A852MNK8|A0A852MNK8_9PASS/35-68     DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Pteruthius melanotis OX=357074 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A1A8AZ06|A0A1A8AZ06_NOTFU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius furzeri OX=105023 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A1A8DZG3|A0A1A8DZG3_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius kadleci OX=1051664 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A1A8IZN5|A0A1A8IZN5_NOTKU/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius kuhntae OX=321403 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A1A8M5P0|A0A1A8M5P0_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius pienaari OX=704102 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A1A8S4H2|A0A1A8S4H2_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius rachovii OX=451742 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A4W5P461|A0A4W5P461_9TELE/62-98     DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|A0A4Z2H561|A0A4Z2H561_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Liparis tanakae OX=230148 GN=atpif1 PE=3 SV=1
+#=GS tr|H2TBT1|H2TBT1_TAKRU/72-107            DE [subseq from] ATP synthase F1 subunit epsilon OS=Takifugu rubripes OX=31033 GN=atp5if1 PE=3 SV=1
+#=GS tr|G5AP86|G5AP86_HETGA/67-103            DE [subseq from] ATP synthase F1 subunit epsilon OS=Heterocephalus glaber OX=10181 GN=GW7_07119 PE=3 SV=1
+#=GS tr|A0A8J6G3I8|A0A8J6G3I8_MICOH/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Microtus ochrogaster OX=79684 GN=LTLLF_187440 PE=3 SV=1
+#=GS tr|A0A8C9QUG2|A0A8C9QUG2_SCLFO/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Scleropages formosus OX=113540 GN=LOC108921323 PE=3 SV=1
+#=GS tr|A0A5J5CN04|A0A5J5CN04_9PERO/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Etheostoma spectabile OX=54343 GN=FQN60_008863 PE=3 SV=1
+#=GS tr|A0A0P7WQN7|A0A0P7WQN7_SCLFO/127-163   DE [subseq from] ATP synthase F1 subunit epsilon OS=Scleropages formosus OX=113540 GN=Z043_117816 PE=3 SV=1
+#=GS tr|A0A8C5GVD4|A0A8C5GVD4_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gouania willdenowi OX=441366 GN=LOC114456926 PE=3 SV=1
+#=GS tr|A0A6P8H4L2|A0A6P8H4L2_CLUHA/82-117    DE [subseq from] ATP synthase F1 subunit epsilon OS=Clupea harengus OX=7950 GN=LOC105912502 PE=3 SV=1
+#=GS tr|A0A3Q3D8Z9|A0A3Q3D8Z9_HIPCM/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hippocampus comes OX=109280 PE=3 SV=1
+#=GS tr|C3KHS5|C3KHS5_ANOFI/71-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Anoplopoma fimbria OX=229290 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A8C9NMR8|A0A8C9NMR8_SERCA/181-216   DE [subseq from] ATP synthase inhibitory factor subunit 1 OS=Serinus canaria OX=9135 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A8C1FDE7|A0A8C1FDE7_CYPCA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinus carpio OX=7962 GN=LOC109108170 PE=3 SV=1
+#=GS tr|A0A3P8UNU4|A0A3P8UNU4_CYNSE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cynoglossus semilaevis OX=244447 PE=3 SV=1
+#=GS tr|A0A3Q3WQ17|A0A3Q3WQ17_MOLML/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mola mola OX=94237 PE=3 SV=1
+#=GS tr|A0A3P9Q0G7|A0A3P9Q0G7_POERE/67-102    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia reticulata OX=8081 PE=3 SV=1
+#=GS tr|A0A6I9PL54|A0A6I9PL54_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Notothenia coriiceps OX=8208 GN=LOC104962199 PE=3 SV=1
+#=GS tr|A0A6P8WJL7|A0A6P8WJL7_GYMAC/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gymnodraco acuticeps OX=8218 GN=atp5if1b PE=3 SV=1
+#=GS tr|A0A7J5Y691|A0A7J5Y691_DISMA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Dissostichus mawsoni OX=36200 GN=F7725_008115 PE=3 SV=1
+#=GS tr|A0A3B3R681|A0A3B3R681_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Paramormyrops kingsleyae OX=1676925 PE=3 SV=1
+#=GS tr|A0A087Y697|A0A087Y697_POEFO/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia formosa OX=48698 PE=3 SV=1
+#=GS tr|A0A1A8FFV3|A0A1A8FFV3_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nothobranchius korthausae OX=1143690 GN=ATPIF1B PE=3 SV=1
+#=GS tr|A0A3B3VR17|A0A3B3VR17_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia latipinna OX=48699 PE=3 SV=1
+#=GS tr|A0A3B3XLC2|A0A3B3XLC2_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia mexicana OX=48701 PE=3 SV=1
+#=GS tr|A0A3B5L726|A0A3B5L726_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Xiphophorus couchianus OX=32473 PE=3 SV=1
+#=GS tr|A0A3P9Q6H5|A0A3P9Q6H5_POERE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia reticulata OX=8081 PE=3 SV=1
+#=GS tr|A0A3Q2NVA4|A0A3Q2NVA4_FUNHE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Fundulus heteroclitus OX=8078 PE=3 SV=1
+#=GS tr|A0A3Q4B6M5|A0A3Q4B6M5_MOLML/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mola mola OX=94237 PE=3 SV=1
+#=GS tr|M3ZZZ1|M3ZZZ1_XIPMA/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Xiphophorus maculatus OX=8083 PE=3 SV=1
+#=GS tr|A0A8P4KCX9|A0A8P4KCX9_DICLA/70-106    DE [subseq from] ATP synthase inhibitory factor subunit 1b OS=Dicentrarchus labrax OX=13489 PE=4 SV=1
+#=GS tr|A0A8C4Y4K8|A0A8C4Y4K8_9SAUR/69-103    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gopherus evgoodei OX=1825980 GN=ATP5IF1 PE=3 SV=1
+#=GS tr|A0A3P8YEI1|A0A3P8YEI1_ESOLU/95-131    DE [subseq from] ATP synthase F1 subunit epsilon OS=Esox lucius OX=8010 PE=3 SV=1
+#=GS tr|A0A3B5N037|A0A3B5N037_9TELE/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Xiphophorus couchianus OX=32473 PE=3 SV=1
+#=GS tr|M4B0T5|M4B0T5_XIPMA/69-104            DE [subseq from] ATP synthase F1 subunit epsilon OS=Xiphophorus maculatus OX=8083 PE=3 SV=2
+#=GS tr|A0A3Q2PEE2|A0A3Q2PEE2_FUNHE/64-99     DE [subseq from] ATP synthase F1 subunit epsilon OS=Fundulus heteroclitus OX=8078 PE=3 SV=1
+#=GS tr|A0A3Q3X4A3|A0A3Q3X4A3_MOLML/75-111    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mola mola OX=94237 PE=3 SV=1
+#=GS tr|A0A3P9Q1F3|A0A3P9Q1F3_POERE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia reticulata OX=8081 PE=3 SV=1
+#=GS tr|A0A1A6FZ83|A0A1A6FZ83_NEOLE/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neotoma lepida OX=56216 GN=A6R68_09971 PE=3 SV=1
+#=GS tr|A0A6F9ABT7|A0A6F9ABT7_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Coregonus sp. 'balchen' OX=861768 GN=CSTEINMANNI_LOCUS1016294 PE=3 SV=1
+#=GS tr|A0A498M405|A0A498M405_LABRO/1709-1745 DE [subseq from] Brain-specific angiogenesis inhibitor 1-like protein OS=Labeo rohita OX=84645 GN=ROHU_037092 PE=3 SV=1
+#=GS tr|A0A2U9CZL0|A0A2U9CZL0_SCOMX/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Scophthalmus maximus OX=52904 GN=SMAX5B_015503 PE=3 SV=1
+#=GS tr|A0A8C7CS59|A0A8C7CS59_ONCKI/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus kisutch OX=8019 GN=LOC109894669 PE=3 SV=1
+#=GS tr|A0A0S7HDF2|A0A0S7HDF2_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poeciliopsis prolifica OX=188132 GN=ATIF1 PE=3 SV=1
+#=GS tr|A0A3B3VED3|A0A3B3VED3_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia latipinna OX=48699 PE=3 SV=1
+#=GS tr|A0A3B3YGK5|A0A3B3YGK5_9TELE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Poecilia mexicana OX=48701 PE=3 SV=1
+#=GS tr|A0A3Q1FBX7|A0A3Q1FBX7_9TELE/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Acanthochromis polyacanthus OX=80966 PE=3 SV=1
+#=GS tr|A0A8C5C6I4|A0A8C5C6I4_GADMO/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gadus morhua OX=8049 PE=3 SV=1
+#=GS tr|A0A8C6SP70|A0A8C6SP70_9GOBI/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Neogobius melanostomus OX=47308 PE=3 SV=1
+#=GS tr|A0A8C3Y1K6|A0A8C3Y1K6_CATUS/283-318   DE [subseq from] ATPase inhibitor, mitochondrial OS=Catharus ustulatus OX=91951 PE=3 SV=1
+#=GS tr|A0A0P6J910|A0A0P6J910_HETGA/99-135    DE [subseq from] ATP synthase F1 subunit epsilon OS=Heterocephalus glaber OX=10181 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A822HY49|A0A822HY49_9NEOB/38-73     DE [subseq from] (mimic poison frog) hypothetical protein OS=Ranitomeya imitator OX=111125 GN=RIMITATOR_LOCUS13909912 PE=4 SV=1
+#=GS tr|A0A0S7IBT6|A0A0S7IBT6_9TELE/92-128    DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Poeciliopsis prolifica OX=188132 GN=ATIF1 PE=3 SV=1
+#=GS tr|A0A8C7DFE8|A0A8C7DFE8_ONCKI/69-105    DE [subseq from] 39S ribosomal protein L52, mitochondrial OS=Oncorhynchus kisutch OX=8019 PE=4 SV=1
+#=GS tr|A0A3Q2EIA3|A0A3Q2EIA3_CYPVA/60-96     DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|A0A8K9V9A5|A0A8K9V9A5_ONCMY/55-91     DE [subseq from] Uncharacterized protein OS=Oncorhynchus mykiss OX=8022 PE=4 SV=1
+#=GS tr|A0A3Q2EI79|A0A3Q2EI79_CYPVA/61-97     DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|A0A3S2TWV2|A0A3S2TWV2_ORYJA/115-151   DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias javanicus OX=123683 GN=OJAV_G00215010 PE=3 SV=1
+#=GS tr|A0A060WWB7|A0A060WWB7_ONCMY/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus mykiss OX=8022 GN=GSONMT00027687001 PE=3 SV=1
+#=GS tr|A0A4W5M863|A0A4W5M863_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|A0A673YQS0|A0A673YQS0_SALTR/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo trutta OX=8032 GN=LOC115172868 PE=3 SV=1
+#=GS tr|A0A6F9B430|A0A6F9B430_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Coregonus sp. 'balchen' OX=861768 GN=CSTEINMANNI_LOCUS2173916 PE=3 SV=1
+#=GS tr|A0A8C7CN24|A0A8C7CN24_ONCKI/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus kisutch OX=8019 GN=LOC109894669 PE=3 SV=1
+#=GS tr|A0A8C8IDJ1|A0A8C8IDJ1_ONCTS/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus tshawytscha OX=74940 GN=LOC112262056 PE=3 SV=1
+#=GS tr|B5XB07|B5XB07_SALSA/70-106            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A6J0V3U2|A0A6J0V3U2_9SAUR/70-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pogona vitticeps OX=103695 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A6J0UZV8|A0A6J0UZV8_9SAUR/71-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pogona vitticeps OX=103695 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A662YLU1|A0A662YLU1_ACIRT/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Acipenser ruthenus OX=7906 GN=EOD39_15041 PE=3 SV=1
+#=GS tr|A0A3B4CX78|A0A3B4CX78_PYGNA/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Pygocentrus nattereri OX=42514 PE=3 SV=1
+#=GS tr|A0A3Q2DEY6|A0A3Q2DEY6_CYPVA/64-100    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|A0A091E4M7|A0A091E4M7_FUKDA/67-103    DE [subseq from] ATP synthase F1 subunit epsilon OS=Fukomys damarensis OX=885580 GN=H920_00835 PE=3 SV=1
+#=GS tr|A0A3Q2EGM9|A0A3Q2EGM9_CYPVA/65-101    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|G5E0Q5|G5E0Q5_9PIPI/79-111            DE [subseq from] ATP synthase F1 subunit epsilon (Fragment) OS=Hymenochirus curtipes OX=8362 PE=2 SV=1
+#=GS tr|A0A3N0XWB9|A0A3N0XWB9_ANAGA/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Anabarilius grahami OX=495550 GN=DPX16_15398 PE=3 SV=1
+#=GS tr|A0A3B4ZBU8|A0A3B4ZBU8_9TELE/63-99     DE [subseq from] ATP synthase F1 subunit epsilon OS=Stegastes partitus OX=144197 PE=3 SV=1
+#=GS tr|A0A1L8H7Q3|A0A1L8H7Q3_XENLA/74-109    DE [subseq from] ATP synthase F1 subunit epsilon OS=Xenopus laevis OX=8355 GN=atp5if1.S PE=3 SV=1
+#=GS tr|A0A6P7HBA6|A0A6P7HBA6_9TELE/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Parambassis ranga OX=210632 GN=LOC114427437 PE=3 SV=1
+#=GS tr|A0A8B9XUI9|A0A8B9XUI9_BOSMU/65-94     DE [subseq from] ATP synthase F1 subunit epsilon OS=Bos mutus grunniens OX=30521 PE=4 SV=1
+#=GS tr|A0A3Q2EIA6|A0A3Q2EIA6_CYPVA/71-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyprinodon variegatus OX=28743 PE=3 SV=1
+#=GS tr|A0A671N0C6|A0A671N0C6_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus anshuiensis OX=1608454 GN=LOC107654832 PE=3 SV=1
+#=GS tr|A0A672KBN4|A0A672KBN4_SINGR/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus grahami OX=75366 GN=LOC107577051 PE=3 SV=1
+#=GS tr|A0A673KR63|A0A673KR63_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus rhinocerous OX=307959 GN=LOC107715944 PE=3 SV=1
+#=GS tr|A0A665UWQ7|A0A665UWQ7_ECHNA/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Echeneis naucrates OX=173247 GN=LOC115035986 PE=3 SV=1
+#=GS tr|A0A452GX87|A0A452GX87_9SAUR/55-89     DE [subseq from] ATP synthase F1 subunit epsilon OS=Gopherus agassizii OX=38772 PE=3 SV=1
+#=GS tr|A0A672K777|A0A672K777_SINGR/78-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus grahami OX=75366 GN=LOC107577051 PE=3 SV=1
+#=GS tr|A0A4W5MBZ2|A0A4W5MBZ2_9TELE/170-206   DE [subseq from] ATP synthase inhibitory factor subunit 1b OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|B5XAD0|B5XAD0_SALSA/70-105            DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo salar OX=8030 GN=ATIF1 PE=2 SV=1
+#=GS tr|A0A8C5P6G3|A0A8C5P6G3_9ANUR/65-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Leptobrachium leishanense OX=445787 PE=3 SV=1
+#=GS tr|A0A8B9J5C1|A0A8B9J5C1_ASTMX/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Astyanax mexicanus OX=7994 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A673FRZ3|A0A673FRZ3_9TELE/37-73     DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus rhinocerous OX=307959 PE=3 SV=1
+#=GS tr|A0A662YLD9|A0A662YLD9_ACIRT/72-108    DE [subseq from] ATP synthase F1 subunit epsilon OS=Acipenser ruthenus OX=7906 GN=EOD39_14675 PE=3 SV=1
+#=GS tr|A0A5A9NQE5|A0A5A9NQE5_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Triplophysa tibetana OX=1572043 GN=E1301_Tti002766 PE=3 SV=1
+#=GS tr|A0A8C5LK38|A0A8C5LK38_9ANUR/73-112    DE [subseq from] ATP synthase F1 subunit epsilon OS=Leptobrachium leishanense OX=445787 PE=3 SV=1
+#=GS tr|A0A3P8VJ79|A0A3P8VJ79_CYNSE/72-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cynoglossus semilaevis OX=244447 PE=3 SV=1
+#=GS tr|A0A3Q7S6F2|A0A3Q7S6F2_CALUR/90-127    DE [subseq from] ATP synthase F1 subunit epsilon OS=Callorhinus ursinus OX=34884 GN=LOC112840219 PE=3 SV=1
+#=GS tr|A0A553Q1M4|A0A553Q1M4_9TELE/86-122    DE [subseq from] ATP synthase F1 subunit epsilon OS=Danionella translucida OX=623744 GN=DNTS_035367 PE=3 SV=1
+#=GS tr|A0A8C2ZP17|A0A8C2ZP17_CYCLU/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Cyclopterus lumpus OX=8103 PE=3 SV=1
+#=GS tr|A0A8C6RNW2|A0A8C6RNW2_NANGA/69-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Nannospalax galili OX=1026970 GN=Atp5if1 PE=3 SV=1
+#=GS tr|A0A8C3RFD6|A0A8C3RFD6_9PASS/290-324   DE [subseq from] ATPase inhibitor, mitochondrial OS=Cyanoderma ruficeps OX=181631 PE=3 SV=1
+#=GS tr|A0A4W4FJ83|A0A4W4FJ83_ELEEL/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Electrophorus electricus OX=8005 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A6A4RPH2|A0A6A4RPH2_SCOMX/153-189   DE [subseq from] Stathmin OS=Scophthalmus maximus OX=52904 GN=F2P81_023268 PE=4 SV=1
+#=GS tr|A0A673ZTP4|A0A673ZTP4_SALTR/69-104    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo trutta OX=8032 GN=LOC115162568 PE=3 SV=1
+#=GS tr|A0A060VT33|A0A060VT33_ONCMY/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus mykiss OX=8022 GN=GSONMT00076765001 PE=3 SV=1
+#=GS tr|A0A4W5R4Q6|A0A4W5R4Q6_9TELE/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Hucho hucho OX=62062 PE=3 SV=1
+#=GS tr|A0A673ZVV8|A0A673ZVV8_SALTR/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Salmo trutta OX=8032 GN=LOC115162568 PE=3 SV=1
+#=GS tr|A0A8C7DX92|A0A8C7DX92_ONCKI/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus kisutch OX=8019 GN=LOC109903855 PE=3 SV=1
+#=GS tr|A0A8C8LW15|A0A8C8LW15_ONCTS/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus tshawytscha OX=74940 GN=LOC112256471 PE=3 SV=1
+#=GS tr|A0A6I9MNC4|A0A6I9MNC4_9TELE/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Notothenia coriiceps OX=8208 GN=atpif1 PE=3 SV=1
+#=GS tr|A0A6P8TPV1|A0A6P8TPV1_GYMAC/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gymnodraco acuticeps OX=8218 GN=LOC117542600 PE=3 SV=1
+#=GS tr|A0A8C5CMY9|A0A8C5CMY9_GADMO/72-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Gadus morhua OX=8049 GN=atp5if1a PE=3 SV=1
+#=GS tr|A0A8C8LWB8|A0A8C8LWB8_ONCTS/72-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oncorhynchus tshawytscha OX=74940 GN=LOC112256471 PE=3 SV=1
+#=GS tr|A0A3Q1CGE4|A0A3Q1CGE4_AMPOC/70-105    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphiprion ocellaris OX=80972 PE=3 SV=1
+#=GS tr|A0A3P8SKI0|A0A3P8SKI0_AMPPE/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphiprion percula OX=161767 PE=3 SV=1
+#=GS tr|A0A3Q1DHE8|A0A3Q1DHE8_AMPOC/71-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Amphiprion ocellaris OX=80972 PE=3 SV=1
+#=GS tr|A0A1U8CVF2|A0A1U8CVF2_MESAU/72-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Mesocricetus auratus OX=10036 GN=Atpif1 PE=3 SV=1
+#=GS tr|A0A671QKR6|A0A671QKR6_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus anshuiensis OX=1608454 GN=LOC107670836 PE=3 SV=1
+#=GS tr|A0A672KUM0|A0A672KUM0_SINGR/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Sinocyclocheilus grahami OX=75366 GN=LOC107583575 PE=3 SV=1
+#=GS tr|A0A7J6C4J2|A0A7J6C4J2_9TELE/70-106    DE [subseq from] ATP synthase F1 subunit epsilon OS=Onychostoma macrolepis OX=369639 GN=G5714_016999 PE=3 SV=1
+#=GS tr|A0A834C0F4|A0A834C0F4_ORYME/72-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias melastigma OX=30732 GN=FQA47_002296 PE=3 SV=1
+#=GS tr|A0A665WSW4|A0A665WSW4_ECHNA/72-107    DE [subseq from] ATP synthase F1 subunit epsilon OS=Echeneis naucrates OX=173247 GN=atp5if1 PE=3 SV=1
+#=GS tr|A0A6J0IH84|A0A6J0IH84_9PASS/79-114    DE [subseq from] ATP synthase F1 subunit epsilon OS=Lepidothrix coronata OX=321398 GN=ATPIF1 PE=3 SV=1
+#=GS tr|A0A3B3IIE3|A0A3B3IIE3_ORYLA/75-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 GN=LOC101161067 PE=3 SV=1
+#=GS tr|A0A3P9LZG0|A0A3P9LZG0_ORYLA/75-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias latipes OX=8090 PE=3 SV=1
+#=GS tr|A0A8C7XGK9|A0A8C7XGK9_9TELE/75-110    DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias sinensis OX=183150 PE=3 SV=1
+#=GS tr|A0A8C5N839|A0A8C5N839_9TELE/66-99     DE [subseq from] ATP synthase F1 subunit epsilon OS=Gouania willdenowi OX=441366 GN=LOC114456926 PE=3 SV=1
+#=GS tr|A0A3B3D8S7|A0A3B3D8S7_ORYME/137-172   DE [subseq from] ATP synthase F1 subunit epsilon OS=Oryzias melastigma OX=30732 PE=3 SV=1
+#=GS tr|A0A401RRQ2|A0A401RRQ2_CHIPU/48-83     DE [subseq from] ATP synthase F1 subunit epsilon OS=Chiloscyllium punctatum OX=137246 GN=chiPu_0019389 PE=3 SV=1
+#=GS tr|A0A8C0HI71|A0A8C0HI71_CHEAB/56-90     DE [subseq from] ATP synthase F1 subunit epsilon OS=Chelonoidis abingdonii OX=106734 PE=3 SV=1
+
+query                                            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A5N3V7E8|A0A5N3V7E8_MUNMU/43-83             ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+sp|P01096|ATIF1_BOVIN/69-109                     ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A4W2HGR6|A0A4W2HGR6_BOBOX/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A6B0QP80|A0A6B0QP80_9CETA/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A6J0YT92|A0A6J0YT92_ODOVR/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A6P3GNR1|A0A6P3GNR1_BISBI/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A6P5DDH9|A0A6P5DDH9_BOSIN/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A8B9XGI2|A0A8B9XGI2_BOSMU/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A8C6E313|A0A8C6E313_MOSMO/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|L8IJ24|L8IJ24_9CETA/69-109                    ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A8D8CB11|A0A8D8CB11_CULPI/80-120            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|W5NYG6|W5NYG6_SHEEP/56-96                     ALKKHHENEISHHAKEIERLQKEIERHKQSIKRLKQSEDDD
+tr|A0A212D4K4|A0A212D4K4_CEREH/117-156           -LKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A452DUN3|A0A452DUN3_CAPHI/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKRLKQSEDDD
+tr|A0A6P7DRA9|A0A6P7DRA9_SHEEP/69-109            ALKKHHENEISHHAKEIERLQKEIERHKQSIKRLKQSEDDD
+tr|A0A5J5MHC3|A0A5J5MHC3_MUNRE/70-109            -LKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A5N3WXH2|A0A5N3WXH2_MUNMU/70-109            -LKKHHENEISHHAKEIERLQKEIERHKQSIKKLKQSEDDD
+tr|A0A4X1TR60|A0A4X1TR60_PIG/69-108              ALKKHHENEISHHVKEIERLQKEIERHKQSIKKLKNDDDD-
+sp|Q29307|ATIF1_PIG/69-108                       ALKKHHENEISHHVKEIERLQKEIERHKQSIKKLKNDDDD-
+tr|A0A8C3WIP0|A0A8C3WIP0_9CETA/69-108            ALKKHHENEISHHAKEIERLQKEIERHKQSIKKLKNHDDD-
+tr|A0A8C2JIR2|A0A8C2JIR2_CYPCA/50-87             ALKKHHENEISHHAKEIERLQKEIERHKQSIKRLKQSE---
+tr|A0A383Z6R7|A0A383Z6R7_BALAS/69-107            ALKKHHENEISHHVKEIEHLQKEIERHKQSIKKLKRDDD--
+tr|A0A2U3V0R3|A0A2U3V0R3_TURTR/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKRDDD--
+tr|A0A6P3Q0U8|A0A6P3Q0U8_PTEVA/69-108            ALKKHHEEEISHHIKEIERLQKEIERHKQTIKKLKEHDDD-
+tr|A0A7J8K551|A0A7J8K551_ROUAE/69-108            ALKKHHEEEISHHIKEIERLQKEIERHKQTIKKLKEHDDD-
+tr|A0A2Y9EF27|A0A2Y9EF27_PHYMC/69-107            ALKKHHENEISHHVKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A643C098|A0A643C098_BALPH/69-107            ALKKHHENEISHHVKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A8C0C640|A0A8C0C640_BALMU/69-107            ALKKHHENEISHHVKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A4U1ETJ8|A0A4U1ETJ8_MONMO/56-94             ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHNDD--
+tr|L5JUT0|L5JUT0_PTEAL/69-108                    ALKKHHEDEIGHHRKEIERLQKEIERHKQTIKKLKEHDDD-
+tr|A0A1S2ZPB9|A0A1S2ZPB9_ERIEU/70-110            ALKKHHEDEIGHHVKEIERLQKEIERHKQRIKSLKRHDDDD
+tr|A0A8C6BIY5|A0A8C6BIY5_MONMO/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHNDD--
+tr|A0A2Y9LD45|A0A2Y9LD45_DELLE/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A340XS26|A0A340XS26_LIPVE/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A341D6Q8|A0A341D6Q8_NEOAA/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A8C9BFA0|A0A8C9BFA0_PHOSS/69-107            ALKKHHENEISHHMKEIEHLQKEIERHKQSIKKLKHDDD--
+tr|A0A5N4DBX8|A0A5N4DBX8_CAMDR/69-108            ALKKHHENEISHHHQEIEHLQKEIERHKQAIKKLKQHDDD-
+tr|A0A6I9HXJ5|A0A6I9HXJ5_VICPA/69-108            ALKKHHENEISHHHQEIEHLQKEIERHKQAIKKLKQHDDD-
+tr|S9XNE5|S9XNE5_CAMFR/69-108                    ALKKHHENEISHHHQEIEHLQKEIERHKQAIKKLKQHDDD-
+tr|A0A7J8A4S0|A0A7J8A4S0_PIPKU/70-109            ALKKHHEEEIQHHKKEIERLQKEIERHKQNIKKLKSGSDD-
+tr|A0A7J8F6B1|A0A7J8F6B1_MOLMO/64-101            ALKKHHEDEITHYTKEIERLQKEIERHKHTIKKLKDTA---
+tr|A0A8C0LH58|A0A8C0LH58_CANLU/42-80             ALKKHHEDEISHHIKEIERLQKEIERHKKKIKNLKSDDD--
+tr|A0A7J7ZU41|A0A7J7ZU41_MYOMY/69-108            ALKKHHEEEINHHKKEIERLQKEIERHKQNIKKLKDHGDD-
+tr|G1NSN7|G1NSN7_MYOLU/69-108                    ALKKHHEEEINHHKKEIERLQKEIERHKQNIKKLKDHGDD-
+tr|A0A6J2LSI3|A0A6J2LSI3_9CHIR/65-104            ALKKHHEDEIGHHKREIERLQKEIERHKSTIKKLKAHDDD-
+tr|A0A6J2LNI2|A0A6J2LNI2_9CHIR/66-105            ALKKHHEDEIGHHKREIERLQKEIERHKSTIKKLKAHDDD-
+tr|A0A7E6DQL4|A0A7E6DQL4_9CHIR/71-110            ALKKHHEDEIGHHKREIERLQKEIERHKSTIKKLKAHDDD-
+tr|A0A2F0BN77|A0A2F0BN77_ESCRO/46-85             ALKKHHENEISHHVKEIECLQKEMEEHKQLVKKLKHHDDD-
+tr|A0A7J7F953|A0A7J7F953_DICBM/40-79             ALKKHHEDEISHHVKEIEHLQKEIERHKQRIKTLKDHDDD-
+tr|A0A3Q7UST5|A0A3Q7UST5_VULVU/68-106            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKNLKSDDD--
+tr|A0A8C0MWR0|A0A8C0MWR0_CANLF/68-106            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKNLKSDDD--
+tr|A0A8I3NGS0|A0A8I3NGS0_CANLF/68-106            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKNLKSDDD--
+tr|A0A8C8Z887|A0A8C8Z887_PROSS/68-106            ALKKHHEDEIGHHKKEIERLQKEIERHKQKIKMLKNDDD--
+tr|A0A8B8Z555|A0A8B8Z555_BALMU/69-108            ALKKHHENEISHHVKEIECLQKEMEEHKQLVKKLKHHDDD-
+tr|A0A4W2E5D6|A0A4W2E5D6_BOBOX/80-118            ALKKHRENEISHHAKETDYLKREIERHKRSIKKLKRRDD--
+tr|A0A8B7RX10|A0A8B7RX10_HIPAR/68-107            ALKKHHENEIIHHKKEMERLQKEIERHKQAINQLKQHHDD-
+tr|A0A8C4LP77|A0A8C4LP77_EQUAS/69-108            ALKKHHEDEISHHVKEIEHLQKEIERHKQRIKTLKDHDDD-
+tr|F6ZXT0|F6ZXT0_HORSE/69-108                    ALKKHHEDEISHHVKEIEHLQKEIERHKQRIKTLKDHDDD-
+tr|A0A6P4ULP7|A0A6P4ULP7_PANPR/67-107            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKRDEEED
+tr|A0A6P6IRN6|A0A6P6IRN6_PUMCO/67-107            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKRDEEED
+tr|A0A8C8WXB5|A0A8C8WXB5_PANLE/67-107            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKRDEEED
+tr|A0A8C9J5G7|A0A8C9J5G7_PANTA/67-107            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKRDEEED
+tr|M3WIS8|M3WIS8_FELCA/67-107                    ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKRDEEED
+tr|A0A811YP43|A0A811YP43_NYCPR/68-106            ALKKHHEDEIGHHIKEIERLQKEIERHKKKIKNLKSDDD--
+tr|R0JJR5|R0JJR5_ANAPL/10-46                     ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A673UAY0|A0A673UAY0_SURSU/98-137            ALKKHHEDEITHHIKEIERLQKEIERHKKKIKNLKHDDDD-
+tr|A0A2K6GYY1|A0A2K6GYY1_PROCO/69-105            ALKKHHEDEIGHHKKEIERLQKEIERHKQKIKILKQD----
+tr|A0A671EB64|A0A671EB64_RHIFE/69-108            ALKKHHEDEIIHHKKEMERLQKEIERHKQAINKLKQNHED-
+tr|A0A091IT98|A0A091IT98_CALAN/10-45             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A091QBY6|A0A091QBY6_MERNU/10-45             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A6G1AJV9|A0A6G1AJV9_CROCR/67-105            ALKKHHEDEISHHIKEIERLQKEIERHKKKIKHLKDDDD--
+tr|A0A4W2G4K7|A0A4W2G4K7_BOBOX/38-76             ALKKHRENEISHHSKETDYLKREIERHKRSIKKLKRRDD--
+tr|A0A093DKW8|A0A093DKW8_CHAPE/10-45             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKN-----
+tr|A0A087RGC7|A0A087RGC7_APTFO/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A093NTS0|A0A093NTS0_PYGAD/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A091UNE4|A0A091UNE4_NIPNI/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A093I7S0|A0A093I7S0_STRCA/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A0A0B2Q2|A0A0A0B2Q2_CHAVO/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|G3MXH9|G3MXH9_BOVIN/80-118                    ALKKHRENEISHHAKETDCLKRETERHKRSIKKLKRRDD--
+tr|A0A8C8AEI8|A0A8C8AEI8_9STRI/29-65             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A1U7SXJ3|A0A1U7SXJ3_CARSF/69-105            ALKKHHEDEIGHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A091RZK5|A0A091RZK5_NESNO/10-45             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A8C0EAU3|A0A8C0EAU3_BUBBB/39-75             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A091X7Z5|A0A091X7Z5_OPIHO/10-45             ALRKHHEEEIDHHKREIERLQKEIERHKYKIKKLKD-----
+tr|A0A8B9D6N5|A0A8B9D6N5_ANSCY/28-64             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A093I8Y4|A0A093I8Y4_EURHL/10-44             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLQ------
+tr|A0A093GA43|A0A093GA43_DRYPU/10-45             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A2Y9J3D1|A0A2Y9J3D1_ENHLU/66-104            ALKKHHEEEITHHVKEIERLQKEIERHKKKIKHLKDDDD--
+tr|A0A7K9M2P9|A0A7K9M2P9_OCETE/22-57             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A091KD95|A0A091KD95_EGRGA/10-45             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K6AFK4|A0A7K6AFK4_UPUEP/34-69             ALRKHHEEEIDHHMKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L1MZ50|A0A7L1MZ50_RHICY/34-69             ALRKHHEEEIDHHMKEIERLQKEIERHKYKIKKLKD-----
+tr|H0X2G2|H0X2G2_OTOGA/69-104                    ALKKHHEDEIGHHKREIERLQKEIERHKQKIKKLNH-----
+sp|Q03344|ATIF1_RAT/69-106                       ALKKHHEDEIDHHSKEIERLQKQIERHKKKIKYLKNSE---
+tr|A0A821ZTP6|A0A821ZTP6_9NEOB/69-106            ALKKHHEDEIDHHSKEIERLQKQIERHKKKIKYLKNSE---
+tr|A0A8B9PMR7|A0A8B9PMR7_APTOW/36-72             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A091NXU0|A0A091NXU0_APAVI/10-45             ALRQHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A8J6DHZ8|A0A8J6DHZ8_GALPY/68-105            ALKEHHEDEIIHHKKEIERLQKEIERHKHSIKKLKQHD---
+tr|A0A8C5VP01|A0A8C5VP01_MICMU/69-105            ALKKHHEDEIGHHKKEIERLQKDIERHKQEIDKIKKD----
+tr|A0A8B9V157|A0A8B9V157_9AVES/48-84             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|L5MK29|L5MK29_MYODS/26-62                     ALKKQHEEEITHHKKEIERLQKEIEQHKQNIKKLKDH----
+tr|L5M7L9|L5M7L9_MYODS/25-61                     ALKKQHEEEITHHKKEIERLQKEIEQHKQNIKKLKDH----
+tr|A0A8C7C4I9|A0A8C7C4I9_NEOVI/66-104            ALKKHHEEEITHHLKEIERLQKEIERHKKKIKHLKDDDD--
+tr|M3YVR5|M3YVR5_MUSPF/66-104                    ALKKHHEEEITHHLKEIERLQKEIERHKKKIKHLKDDDD--
+tr|F7IA10|F7IA10_CALJA/69-104                    ALKKHHEDEIVHHKKEIERLQKEIERHKQKIKILKD-----
+tr|G1SEZ3|G1SEZ3_RABIT/69-104                    ALKKHHEDEIVHHKKEIERLQKEIERHKQKIKSLNS-----
+tr|A0A7K8KD01|A0A7K8KD01_9GRUI/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K9H6Q2|A0A7K9H6Q2_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K9T2B1|A0A7K9T2B1_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L2W0H4|A0A7L2W0H4_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L2WGG9|A0A7L2WGG9_PANHA/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L3CFC7|A0A7L3CFC7_PELUR/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L3JGZ8|A0A7L3JGZ8_THACH/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L3XIR4|A0A7L3XIR4_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L4N3W2|A0A7L4N3W2_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A851DL36|A0A851DL36_TODME/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A2U3VIM7|A0A2U3VIM7_ODORO/67-105            -LKKHHEEEITHHIKEIERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A3Q7MZY0|A0A3Q7MZY0_CALUR/67-105            -LKKHHEEEITHHIKEIERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A6J2CQ46|A0A6J2CQ46_ZALCA/67-105            -LKKHHEEEITHHIKEIERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A6J2D1N3|A0A6J2D1N3_ZALCA/67-105            -LKKHHEEEITHHIKEIERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A6J2EZI8|A0A6J2EZI8_ZALCA/67-105            -LKKHHEEEITHHIKEIERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A485NTI2|A0A485NTI2_LYNPA/67-107            ALKKHHEDEISHHIKEIEHLQKEIERHKKKIKHLKRDEEED
+tr|A0A667GSG2|A0A667GSG2_LYNCA/67-107            ALKKHHEDEISHHIKEIEHLQKEIERHKKKIKHLKRDEEED
+tr|A0A6I9ZXF4|A0A6I9ZXF4_ACIJB/67-107            ALKKHHEDEISHHIKEIEHLQKEIERHKKKIKHLKRDEEED
+tr|K7F0N2|K7F0N2_PELSI/11-46                     -LRKHHEEEIEHHKKEIERMQKEIERHKYKIKKLKND----
+tr|A0A7L2UB43|A0A7L2UB43_BALRX/34-68             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLK------
+tr|A0A8C0KKX4|A0A8C0KKX4_CANLU/72-110            ALKKHHEDVISHHIKEIERLQKEIKRHKKKIKNLKPDDD--
+tr|A0A7K4Y7P6|A0A7K4Y7P6_BUCAB/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKSKIKKLKD-----
+tr|A0A850UAC8|A0A850UAC8_GRUAM/33-68             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K9U9Z0|A0A7K9U9Z0_9AVES/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKN-----
+tr|A0A7J7ZSZ4|A0A7J7ZSZ4_MYOMY/73-109            ALKKQHEEEITHHKKEIERLQKEIEQHKQNIKKLKDH----
+tr|A0A7K6WB32|A0A7K6WB32_STECA/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K7L1F4|A0A7K7L1F4_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K7UFJ0|A0A7K7UFJ0_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7K8KR35|A0A7K8KR35_9GRUI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L0KJT8|A0A7L0KJT8_CHATO/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L0RKI9|A0A7L0RKI9_GLABR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L1L7J5|A0A7L1L7J5_HIMHI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A7L2AD08|A0A7L2AD08_9GRUI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A8K0AIY4|A0A8K0AIY4_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A8S9F4J1|A0A8S9F4J1_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A091GEL2|A0A091GEL2_9AVES/11-45             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A8C0HLM4|A0A8C0HLM4_9AVES/27-63             ALRKHHEEEIHHHQKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A667HAI4|A0A667HAI4_LYNCA/79-119            ALKKHHEDEISHHIKEIEHLQKEIERHKKKIKHLKRDEEED
+tr|A0A8C4JF07|A0A8C4JF07_DRONO/62-98             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A6I9JKJ5|A0A6I9JKJ5_CHRAS/69-105            ALKKHHEDEIIHSKKEIERLQKEIERHKQRIKKLKND----
+tr|A0A151PGL2|A0A151PGL2_ALLMI/77-117            ALRKHHEEEIDHHKKQIDLLQKEIERHKYKIKKLKNDDDDD
+tr|A0A7K5GT22|A0A7K5GT22_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKN-----
+tr|A0A663NAR0|A0A663NAR0_ATHCN/106-142           ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A8D2CTP2|A0A8D2CTP2_SCIVU/70-104            -LKKHHEDEISHHKKEVERLQKEIERHKQKIKYLQH-----
+tr|A0A851Z7H9|A0A851Z7H9_9AVES/34-69             ALRRHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A493TQ50|A0A493TQ50_ANAPP/78-114            ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A6J3EAD5|A0A6J3EAD5_AYTFU/78-114            ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A8B9ZIT4|A0A8B9ZIT4_ANAPL/78-114            ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A8D0FZF2|A0A8D0FZF2_STROC/79-115            ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|G1TES2|G1TES2_RABIT/111-146                   ALKKHHEDEIIHHKKEIERLQKEIERHKQKIKSLNS-----
+tr|A0A099ZSJ5|A0A099ZSJ5_TINGU/12-46             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A672UYI1|A0A672UYI1_STRHB/77-112            ALRKHHEEEIDHHQKEIERLQKEIERHKYKIKKLKD-----
+tr|A0A8C3RY46|A0A8C3RY46_CHESE/77-114            -LREHHEEEISHHKKEMERLQKEIERHKYKIKKLKGGDD--
+tr|A0A6G1RL37|A0A6G1RL37_9GRUI/89-125            ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A7L4HBN6|A0A7L4HBN6_PODST/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKSKIRKLKD-----
+tr|A0A098M0G1|A0A098M0G1_9SAUR/79-114            -LRKHHEDEISHHKKEIERLQKEIERHKYKIKTLKDD----
+tr|A0A098M0G4|A0A098M0G4_9SAUR/79-114            -LRKHHEDEISHHKKEIERLQKEIERHKYKIKTLKDD----
+tr|A0A8C7E9Y4|A0A8C7E9Y4_NOTPE/64-100            ALRKHHEEEIDHHRKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A2K6SEK8|A0A2K6SEK8_SAIBB/69-104            ALKKHHEDEIVHHKKEIERLQKEIERHKQKIKILKH-----
+tr|A0A7L1GDK8|A0A7L1GDK8_9PICI/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A852ILF6|A0A852ILF6_9PICI/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A8C4SHU0|A0A8C4SHU0_ERPCA/72-108            ALRKHHEEEIDHHKKEIERLQKEIDRHKGKIKKLKDD----
+tr|A0A2K5DQW7|A0A2K5DQW7_AOTNA/69-104            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKILKN-----
+tr|A0A7K4JUE7|A0A7K4JUE7_GEOCA/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K5NKY6|A0A7K5NKY6_CHRMC/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K5X9R9|A0A7K5X9R9_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K8PWQ0|A0A7K8PWQ0_COCCO/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K9FXS7|A0A7K9FXS7_STEPR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L0TD61|A0A7L0TD61_PODPO/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L1J231|A0A7L1J231_SMUAF/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L1JTU7|A0A7L1JTU7_RYNNI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L3S743|A0A7L3S743_CEPGR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L3SGT1|A0A7L3SGT1_RISTR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L3UJE1|A0A7L3UJE1_URIAL/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L4AX89|A0A7L4AX89_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L4CPB3|A0A7L4CPB3_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7L4ME66|A0A7L4ME66_GLAPT/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A850XKG2|A0A850XKG2_PIACA/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A851LLA3|A0A851LLA3_CORCR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A852FXM9|A0A852FXM9_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A096NQ00|A0A096NQ00_PAPAN/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A0D9S814|A0A0D9S814_CHLSB/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K5KBI5|A0A2K5KBI5_COLAP/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K5P0W3|A0A2K5P0W3_CERAT/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K5YI49|A0A2K5YI49_MANLE/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K6AYV8|A0A2K6AYV8_MACNE/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K6N3T3|A0A2K6N3T3_RHIBE/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A2K6Q8H8|A0A2K6Q8H8_RHIRO/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A8C9IDE4|A0A8C9IDE4_9PRIM/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A8D2EUW1|A0A8D2EUW1_THEGE/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A8J8XI36|A0A8J8XI36_MACMU/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A8J8YQQ0|A0A8J8YQQ0_MACFA/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|F6ZXX7|F6ZXX7_MACMU/69-105                    ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|G7NWV6|G7NWV6_MACFA/69-105                    ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A8C8RSV9|A0A8C8RSV9_9SAUR/278-316           ALRKHHEEEISHHKKEIERLQKEIERHKYKIKKLYDNDD--
+tr|A0A6P5K1V3|A0A6P5K1V3_PHACI/79-116            -LRKHHQEEITHHEKEIQRLQKEIERHKNKIRKLKEDDD--
+tr|A0A7K9BSE8|A0A7K9BSE8_9PICI/27-62             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKKLRD-----
+tr|A0A7L2IAP6|A0A7L2IAP6_9PICI/34-69             ALRKHHEEEIGHHQKEIERLQREIERHKHKIKKLKD-----
+tr|A0A7K4S550|A0A7K4S550_COLPI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKSKIKQLKD-----
+tr|A0A7K6T9Q8|A0A7K6T9Q8_CALNI/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKSKIKQLKD-----
+tr|A0A7L4FQI7|A0A7L4FQI7_9COLU/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKSKIKQLKD-----
+sp|Q5RFJ9|ATIF1_PONAB/69-105                     ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+sp|Q9UII2|ATIF1_HUMAN/69-105                     ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A2I3H1P7|A0A2I3H1P7_NOMLE/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A2J8Y5Q9|A0A2J8Y5Q9_PONAB/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A2R9CQC9|A0A2R9CQC9_PANPA/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A6D2XL54|A0A6D2XL54_PANTR/69-105            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|H2PYG9|H2PYG9_PANTR/69-105                    ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A7L0DHB0|A0A7L0DHB0_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKN-----
+tr|A0A7L1HT51|A0A7L1HT51_9CHAR/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKN-----
+tr|A0A8J9DF69|A0A8J9DF69_PONAB/83-119            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A2K6SEL7|A0A2K6SEL7_SAIBB/99-134            ALKKHHEDEIVHHKKEIERLQKEIERHKQKIKILKH-----
+tr|A0A7K7A6J1|A0A7K7A6J1_9AVES/34-69             ALRKHHEEEIDHHRKEIERLQKEIERHKHKIRKLKD-----
+tr|A0A7K7BFH6|A0A7K7BFH6_9AVES/34-69             ALRKHHEEEIDHHRKEIERLQKEIERHKHKIRKLKD-----
+tr|A0A8C3J4J2|A0A8C3J4J2_9CHAR/110-146           ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A671NP70|A0A671NP70_9TELE/28-64             ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8T1S438|A0A8T1S438_CHESE/78-115            -LREHHEEEISHHKREMERLQKEIERHKYKIKKLKGGDD--
+tr|A0A4X2LUZ3|A0A4X2LUZ3_VOMUR/79-117            -LRKHHQEEITHHEKEIQRLQKEIERYKNKIRKLRDDDDD-
+tr|A0A2K5J921|A0A2K5J921_COLAP/61-96             ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLTH-----
+tr|A0A5E4AD98|A0A5E4AD98_MARMO/70-104            -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|A0A834UNZ4|A0A834UNZ4_MARMO/70-104            -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|A0A8C5ZH40|A0A8C5ZH40_MARMA/70-104            -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|A0A8C9QJ54|A0A8C9QJ54_SPEDA/70-104            -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|A0A8D2IDQ4|A0A8D2IDQ4_UROPR/70-104            -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|I3N8E6|I3N8E6_ICTTR/70-104                    -LKKHHEDEISHHKKEIERLQKEIERHKQKIKHLHN-----
+tr|A0A6P9FGA6|A0A6P9FGA6_ZALCA/68-106            -LKKHHEEEITHHIKETERLQKEIERHKKKIKHLKHDDDD-
+tr|A0A498NVV9|A0A498NVV9_LABRO/52-88             ALKKHHEEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A2U3Y890|A0A2U3Y890_LEPWE/66-105            ALKKHHEEEITHHIKEIEHLQKEIERHKKKIKHLKHDDDD-
+tr|A0A2K6Q8J3|A0A2K6Q8J3_RHIRO/99-135            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKTLKHD----
+tr|A0A811Z6G5|A0A811Z6G5_NYCPR/55-93             ALKKHHEDVISHHIKEIECLQKEIEQHKKKIKNLKSDDD--
+tr|A0A6I8NDS4|A0A6I8NDS4_ORNAN/66-100            ALKKHHEEEISHHKMEIERLQKEIERHKHKIKKLH------
+tr|A0A6B0S3S6|A0A6B0S3S6_9CETA/108-140           ALKKHHENEISHHAKETECLKRETERHKRSIKK--------
+tr|A0A8C2F0Q9|A0A8C2F0Q9_CYPCA/33-69             ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A7K8XZM9|A0A7K8XZM9_9PICI/34-69             ALRKHHEEEIDHHQKEIERLQREIERHKHKIKKLKD-----
+tr|A0A852BV86|A0A852BV86_9PICI/34-69             ALRKHHEEEIDHHQKEIERLQREIERHKHKIKKLKD-----
+tr|A0A6P7R1R4|A0A6P7R1R4_MUSCR/69-104            ALKKHHEDEIDHHSKEIERLQKQIERHKKKIQNLKN-----
+tr|A0A1D5PBD2|A0A1D5PBD2_CHICK/55-91             ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A0D9SDU9|A0A0D9SDU9_CHLSB/69-105            ALKKHHEEEIVHHKKEIERLQKEIEQHKQKIKTLKRD----
+tr|A0A663ER62|A0A663ER62_AQUCH/79-115            ALRKHHEEEIHHHQKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A8B9M4Z7|A0A8B9M4Z7_9AVES/79-115            ALRKHHEEEIHHHQKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A8B9BV76|A0A8B9BV76_9AVES/170-206           ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A7L1VWW1|A0A7L1VWW1_9PASS/34-69             ALRKHHEEEINHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851RZQ6|A0A851RZQ6_CERFA/34-69             ALRKHHEEEINHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K9Y7V2|A0A7K9Y7V2_9GALL/34-69             ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|U3FZF1|U3FZF1_MICFL/79-114                    -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLKDD----
+tr|A0A7K6UQP5|A0A7K6UQP5_9AVES/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKYKIKKLT------
+tr|A0A670YRC9|A0A670YRC9_PSETE/78-113            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLE---DD-
+tr|A0A7K4JYG6|A0A7K4JYG6_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K4LDS6|A0A7K4LDS6_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K5A3K4|A0A7K5A3K4_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A7K7WJB2|A0A7K7WJB2_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A851TBS2|A0A851TBS2_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A852LVX5|A0A852LVX5_9AVES/35-69             -LRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|A0A2K5SG67|A0A2K5SG67_CEBIM/69-104            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKILKH-----
+tr|A0A6J3FA86|A0A6J3FA86_SAPAP/69-104            ALKKHHEEEIVHHKKEIERLQKEIERHKQKIKILKH-----
+tr|A0A7L3AV25|A0A7L3AV25_9AVES/34-69             ALRKYHEEEIDHHKKEIERLQKEIERHKHKIKKLKD-----
+tr|G3QEV8|G3QEV8_GORGO/70-105                    -LKKHHEEEIVHHKKEIERLQKEIERHKQKIKMLKHD----
+tr|A0A7L2GXP2|A0A7L2GXP2_NYCGR/34-69             ALKKHHEEEIDHHKKEIERLQKEIERHKYKIKELKH-----
+tr|A0A8T2K479|A0A8T2K479_9PIPI/74-111            -LRKHHEEEIRHHKQEIDRLQKEIERHKGKIKKLKDNDD--
+tr|A0A852KE00|A0A852KE00_UROIN/34-68             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLE------
+tr|A0A0B8RSH7|A0A0B8RSH7_BOIIR/79-114            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKDLKDD----
+tr|A0A669PJG1|A0A669PJG1_PHACC/71-107            ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|Q2KKR8|Q2KKR8_SINCH/11-47                     ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A672NSN0|A0A672NSN0_SINGR/16-52             ALKKHHGEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6P7LLB9|A0A6P7LLB9_BETSP/69-105            ALRRHHEDEIDHHKKEIERLQREIDRHKGKIRKLKDD----
+tr|A0A8B6ZEC1|A0A8B6ZEC1_ORYAF/69-105            ALKKHHEDEIVHSKREIERLQKEIERHKQKIKQLKRD----
+tr|A0A8M1M637|A0A8M1M637_NEOSC/66-105            ALKKHHEEEITHHIKEIECLQKEIEGHKEKIKHLKHDDDD-
+tr|E9PV44|E9PV44_MOUSE/37-72                     ALRKHHEDEIDHHSKEIERLQKQIERHKKKIQQLKN-----
+tr|A0A226N2U5|A0A226N2U5_CALSU/79-115            ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A226P4X8|A0A226P4X8_COLVI/79-115            ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A7K5FTG1|A0A7K5FTG1_PROAR/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKELKD-----
+sp|O35143|ATIF1_MOUSE/69-104                     ALRKHHEDEIDHHSKEIERLQKQIERHKKKIQQLKN-----
+tr|A0A8C6GS25|A0A8C6GS25_MUSSI/69-104            ALRKHHEDEIDHHSKEIERLQKQIERHKKKIQQLKN-----
+tr|A0A8C6DZC8|A0A8C6DZC8_MOSMO/43-74             ALKKHHENEISHHTKEIECLQRETERHKREIK---------
+tr|A0A7F8REA8|A0A7F8REA8_LEPWE/66-104            ALKKHHEEEITHHIKEIERLQKETERHKKKIKHLKHDDD--
+tr|G3SWQ8|G3SWQ8_LOXAF/69-105                    ALKKYHEEEITHTKKEIERLQNEIERHKQKIKKLKHD----
+tr|A0A1V4JCW8|A0A1V4JCW8_PATFA/77-112            ALRKHHEEEIDHHKKEIERLQKEIERHKSKIKQLKD-----
+tr|A0A7M4G2Q8|A0A7M4G2Q8_CROPO/61-99             ALRKHHEEEIDHHKKQIEVLQKEIERHKYKIKKLKNDDD--
+tr|A0A852NNT8|A0A852NNT8_9PASS/34-69             ALRKHHEEEIYHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|L8Y809|L8Y809_TUPCH/69-105                    ALRKHHEEEIAHHQKEIERLQKAIQRHKEKIKVLKQD----
+tr|A0A7L3LK94|A0A7L3LK94_9CHAR/34-68             ALRKHHEEEIDHHKKEIERLQKEIERHKHKIKKLQ------
+tr|A0A8C1Y964|A0A8C1Y964_CYPCA/72-108            ALKKHHEEEINHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C3BUW4|A0A8C3BUW4_CAIMO/323-359           ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKKLKDD----
+tr|A0A7K8SS58|A0A7K8SS58_9AVES/34-69             ALRKHHEEEIDHHKKEIERLQKEIERHKYKIKELKH-----
+tr|A0A7L1DKU8|A0A7L1DKU8_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKYKIKELKD-----
+tr|A0A286Y431|A0A286Y431_CAVPO/67-102            ALKKHHEDEIYHHKKEIERMEKEIERHKQKIKQLKH-----
+tr|A0A8C2W3E2|A0A8C2W3E2_CHILA/67-102            ALKKHHEDEIYHHKKEIERMEKEIERHKQKIKQLKH-----
+tr|A0A8D2MXB4|A0A8D2MXB4_ZONAL/27-62             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A671NLK7|A0A671NLK7_9TELE/71-107            ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A673KJE6|A0A673KJE6_9TELE/71-107            ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6P6LXB2|A0A6P6LXB2_CARAU/71-107            ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C1M5I5|A0A8C1M5I5_CYPCA/71-107            ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C3S0Y3|A0A8C3S0Y3_CHESE/75-109            -LREHHEEEISHHKREMERLQKEIERHKYKIKKLKV-----
+tr|A0A8C1H7H3|A0A8C1H7H3_CYPCA/72-108            ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A553MTR9|A0A553MTR9_9TELE/233-269           ALKKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A7K6RHW7|A0A7K6RHW7_9GRUI/34-68             ALRKHHEEEIVHHKNEIERLQKEIERHKYKIKKLQ------
+tr|A0A3B3S067|A0A3B3S067_9TELE/70-106            ALRKHHEDEIEHHKKEIERLQQEIDRHKGKIKKLKHD----
+tr|A0A4W5JAD8|A0A4W5JAD8_9TELE/64-100            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKQD----
+tr|H0XRM4|H0XRM4_OTOGA/70-105                    ALKKHHEDEIGHHKRETECLQKEIERHRQKIKKLNH-----
+tr|A0A8C9EN50|A0A8C9EN50_PAVCR/122-158           ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A4W5JAB5|A0A4W5JAB5_9TELE/68-104            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKQD----
+tr|A0A6P9C5N1|A0A6P9C5N1_PANGU/79-114            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKDLKDD----
+tr|A0A3P8Q565|A0A3P8Q565_ASTCA/70-106            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q2W8K0|A0A3Q2W8K0_HAPBU/70-106            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|I3J6J8|I3J6J8_ORENI/70-106                    ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C2YDU4|A0A8C2YDU4_COTJA/45-81             ALRKHHEEEIDHHKKEIQRLQKEIERHKHKIKELKDD----
+tr|A0A803SPR5|A0A803SPR5_ANOCA/72-106            -LKKHHEEEINHHQKEIERLQKEIQRHKSKIKKFSD-----
+tr|A0A852EXB3|A0A852EXB3_PEUTA/26-61             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A674I907|A0A674I907_TERCA/77-114            -LREHHEEEIDHHKKEIQRLQKEIDRHKNKIKKLKGDDD--
+tr|A0A803XLT4|A0A803XLT4_MELGA/433-469           ALRRHHEEEIDHHKKEIERLQKEIERHKHKIKKLKDD----
+tr|A0A1W7RJ59|A0A1W7RJ59_AGKCO/79-113            -LRKHHEEEISHHKKEIDRLQKEIERHKYKIKNLQD-----
+tr|A0A2Y9DM04|A0A2Y9DM04_TRIMA/69-105            ALKKYHEEEIVHSKKEIERLQKEIERHKQKIKKLKHD----
+tr|A0A7J8AM86|A0A7J8AM86_MYOMY/98-134            ALKKQHEEEITHHKKEIGRLQKEIEQHKQNIKKLKDH----
+tr|A0A4W5JEA1|A0A4W5JEA1_9TELE/81-117            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKQD----
+tr|A0A8C5RWH1|A0A8C5RWH1_LATLA/79-113            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLQD-----
+tr|Q6DJL4|Q6DJL4_XENLA/74-109                    -LKKHHEDEIHHHKAEIERLQKEIERHKSKIKRLKDD----
+tr|A0A1S3GHP8|A0A1S3GHP8_DIPOR/69-104            ALRKHHENEIEEHKQEIERLQKQIERHKKMIKKLQK-----
+tr|A0A8C6X609|A0A8C6X609_NAJNA/79-113            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLQD-----
+tr|A0A7L0MYK1|A0A7L0MYK1_9PASS/30-65             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L1ES42|A0A7L1ES42_OENON/30-65             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A670YZZ6|A0A670YZZ6_PSETE/79-114            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLE---DD-
+tr|G1PGS1|G1PGS1_MYOLU/69-104                    ALKKQHEEEITHHKKEIEHLQKEIDRHKQNIKKLKD-----
+tr|A0A7L0M8G9|A0A7L0M8G9_9PSIT/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKELKH-----
+tr|A0A851X8Q1|A0A851X8Q1_EOLRO/34-69             ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKELKH-----
+tr|A0A6P7Z836|A0A6P7Z836_9AMPH/87-120            -LKKHHEEEIDHHKKEIERLQKEIERHKYKIKKLY------
+tr|A0A3Q0RVL6|A0A3Q0RVL6_AMPCI/44-80             ALRKHHTEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3B4GTE0|A0A3B4GTE0_9CICH/95-131            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3P9B9A2|A0A3P9B9A2_9CICH/95-131            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q4FXC8|A0A3Q4FXC8_NEOBR/95-131            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A668UCK5|A0A668UCK5_OREAU/95-131            ALKQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A093PEN6|A0A093PEN6_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K4PRF1|A0A7K4PRF1_MELMO/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K4R382|A0A7K4R382_9TYRA/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K4VGG0|A0A7K4VGG0_9EMBE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K4WIN7|A0A7K4WIN7_9TYRA/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5BAK1|A0A7K5BAK1_9FURN/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5E265|A0A7K5E265_POLCE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5JDG4|A0A7K5JDG4_TOXRE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5K8I8|A0A7K5K8I8_9TYRA/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5M521|A0A7K5M521_CARCD/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5SJL3|A0A7K5SJL3_9FRIN/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6A1C1|A0A7K6A1C1_ONYCO/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6C3F0|A0A7K6C3F0_PTIVI/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6D846|A0A7K6D846_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6GGR9|A0A7K6GGR9_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6HLI9|A0A7K6HLI9_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6M6E8|A0A7K6M6E8_PANBI/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6QAE8|A0A7K6QAE8_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K6Y042|A0A7K6Y042_9PASE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7GEP6|A0A7K7GEP6_ERIRU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7HF98|A0A7K7HF98_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7IEG4|A0A7K7IEG4_LOXCU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7K582|A0A7K7K582_AGEPH/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7QWX6|A0A7K7QWX6_POEAT/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7SDA8|A0A7K7SDA8_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K7YVZ9|A0A7K7YVZ9_THRLU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8EHL5|A0A7K8EHL5_LEURO/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8H583|A0A7K8H583_ORTSP/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8R1K7|A0A7K8R1K7_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8S1M2|A0A7K8S1M2_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8WHC1|A0A7K8WHC1_9FURN/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8YA65|A0A7K8YA65_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K8ZUT0|A0A7K8ZUT0_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K9G9S6|A0A7K9G9S6_LOXLE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K9L0T7|A0A7K9L0T7_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K9Q6A8|A0A7K9Q6A8_IRECY/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L0JEN9|A0A7L0JEN9_PIPCL/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L0LC54|A0A7L0LC54_9SYLV/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L0UZH6|A0A7L0UZH6_9PASE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L0YCF1|A0A7L0YCF1_9PASE/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L0ZUW0|A0A7L0ZUW0_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L1MK86|A0A7L1MK86_BOMGA/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L1UP22|A0A7L1UP22_PHANI/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L1UZ04|A0A7L1UZ04_SITEU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L1Y3J8|A0A7L1Y3J8_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L2C069|A0A7L2C069_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L2CXN6|A0A7L2CXN6_CATFU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L2PYK7|A0A7L2PYK7_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L2TT99|A0A7L2TT99_POMRU/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3EE49|A0A7L3EE49_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3HLS7|A0A7L3HLS7_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3IQC9|A0A7L3IQC9_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3KR83|A0A7L3KR83_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3PPN7|A0A7L3PPN7_9DEND/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L3VNM0|A0A7L3VNM0_MOLAT/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7L4L5B1|A0A7L4L5B1_9CORV/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A850VAF2|A0A850VAF2_9CORV/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A850YPW6|A0A850YPW6_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851ARA9|A0A851ARA9_PICGY/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851EYV2|A0A851EYV2_PITSO/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851K6T9|A0A851K6T9_VIDCH/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851MGX0|A0A851MGX0_9DEND/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851UL55|A0A851UL55_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A851VT53|A0A851VT53_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A852HZ25|A0A852HZ25_9PASS/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A852K1M6|A0A852K1M6_SPIPA/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A091EKF7|A0A091EKF7_CORBR/17-51             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A6J2WH13|A0A6J2WH13_CHACN/70-106            ALRKHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A7L2RHW0|A0A7L2RHW0_9PASS/32-67             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A7N5P989|A0A7N5P989_AILME/66-104            ALRKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHNDD--
+tr|A0A3Q0HHF7|A0A3Q0HHF7_ALLSI/119-155           ALKKHHEEEIDHHKKQIDLLQKEIERHKYKIKKLKND----
+tr|A0A3B3BW10|A0A3B3BW10_ORYME/70-106            ALRQHHEDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A7K5TM06|A0A7K5TM06_CEPOR/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A7L0Q5L3|A0A7L0Q5L3_SETKR/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A7L2DY06|A0A7L2DY06_ANTMN/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A852A0H1|A0A852A0H1_CALOR/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A852DNV1|A0A852DNV1_PASAF/34-69             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A5A9NKQ5|A0A5A9NKQ5_9TELE/70-106            ALRKHHQEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|W5MA17|W5MA17_LEPOC/56-92                     ALKKHHEEEIDHHKKEIERLQREIDRRKGQIRKLKHD----
+tr|A0A6P9FC79|A0A6P9FC79_ZALCA/67-104            -LKKHHEEEITHHIKEIERLQKEIERHKK-IKHLKHDDDV-
+tr|Q4RL74|Q4RL74_TETNG/72-107                    -LRKHHEEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A7J6C1X2|A0A7J6C1X2_9TELE/72-108            ALKKHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|G3NFT4|G3NFT4_GASAC/11-46                     ALRKHHVEEIEHHKKEIERLQKEIDRHKGKIRKLNH-----
+tr|A0A3B4G1Z4|A0A3B4G1Z4_9CICH/37-73             ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3P8PA73|A0A3P8PA73_ASTCA/37-73             ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3Q2X3H6|A0A3Q2X3H6_HAPBU/37-73             ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A8C0UVB3|A0A8C0UVB3_CYACU/63-98             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A7K5QWQ5|A0A7K5QWQ5_9PASE/34-69             ALRKHHEEEIHHHQKEIDRLQKEIERHKHKIKQLKD-----
+tr|A0A7L2ZPE6|A0A7L2ZPE6_9PASE/34-69             ALRKHHEEEIHHHQKEIDRLQKEIERHKHKIKQLKD-----
+tr|A0A8D2IVV9|A0A8D2IVV9_VARKO/79-113            -LRKHHEEEIYHHKKEIERLQKEIERHKSKIKKLGD-----
+tr|A0A8C4UN04|A0A8C4UN04_FALTI/108-144           ALRKHHEEEIDHHKKEIERLQKEIERHKHKIRQLKDD----
+tr|A0A0P7VHN0|A0A0P7VHN0_SCLFO/70-106            ALRKHHEEEIDHHKKEIERLQQEIDRHKGKIRKLKHD----
+tr|S7MLZ6|S7MLZ6_MYOBR/61-97                     ALTKQHEEEIIHHKKEIERLQKEIEWHKQNVKKLKDH----
+tr|A0A3Q0R7V9|A0A3Q0R7V9_AMPCI/70-106            ALKQHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8T2MYA2|A0A8T2MYA2_9TELE/70-106            ALKQHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A835NRY2|A0A835NRY2_9PASS/49-84             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A8B9GMG9|A0A8B9GMG9_9PSIT/70-105            ALRKHHEEEIDHHQKEIERLQKEIERHKHKIKELKH-----
+sp|A3KNL5|ATF1A_DANRE/68-104                     ALKNHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C4A125|A0A8C4A125_9TELE/70-106            ALKNHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6I9YMD7|A0A6I9YMD7_9SAUR/83-118            -LRKHHEEEIGHHKKEIERLQKEIERHKYKIKDLKHD----
+tr|A0A5E4DDA6|A0A5E4DDA6_MARMO/70-104            -LKKHHEDEISHHKKEIEHLQKEIERHKQKIKHLHN-----
+tr|A0A670JKN4|A0A670JKN4_PODMU/71-105            -LKKHHEDEIQHQKKEIERLQKEIERHKYKLKKLTD-----
+tr|A0A3Q3KYM9|A0A3Q3KYM9_9TELE/71-107            ALRKHHTEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3Q4MZM5|A0A3Q4MZM5_NEOBR/71-107            ALRKHHTEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A7N4UWZ2|A0A7N4UWZ2_SARHA/79-113            -LRKHHQEEIMHHEKEIQRLQKEIERHKNQMKKLKD-----
+tr|A0A087XPT8|A0A087XPT8_POEFO/11-46             ALRKHHREEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3Q3A7R8|A0A3Q3A7R8_KRYMA/70-105            ALKQHHLDEIDHHKKEIERLQREIDRHKGKIRKLKY-----
+tr|A0A7K5LIU2|A0A7K5LIU2_VIRAL/30-64             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2KSP5|A0A7L2KSP5_9PASS/30-64             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A0E9WGC1|A0A0E9WGC1_ANGAN/70-106            ALRRHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A452SIB7|A0A452SIB7_URSAM/66-102            ALKKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHD----
+tr|A0A6J1V638|A0A6J1V638_9SAUR/79-112            -LRKHHEEEISHHKKEIERLQKEIERHKYKIKNLD------
+tr|A0A7K4TSA2|A0A7K4TSA2_9SYLV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K5Q4A7|A0A7K5Q4A7_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K5V3W6|A0A7K5V3W6_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K5WFG8|A0A7K5WFG8_9SYLV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K6J0U9|A0A7K6J0U9_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K6JR72|A0A7K6JR72_9PASE/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K6LN46|A0A7K6LN46_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K6PCI2|A0A7K6PCI2_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K7CKB1|A0A7K7CKB1_APHCE/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K7ERY6|A0A7K7ERY6_9SYLV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K7M873|A0A7K7M873_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K7Q1N0|A0A7K7Q1N0_ACRAR/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K7XG82|A0A7K7XG82_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8A306|A0A7K8A306_9PASE/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8B387|A0A7K8B387_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8BZS7|A0A7K8BZS7_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8DHD0|A0A7K8DHD0_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8FPF4|A0A7K8FPF4_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8HD02|A0A7K8HD02_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8IXF8|A0A7K8IXF8_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K8M4K0|A0A7K8M4K0_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K9JBN3|A0A7K9JBN3_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K9PAI9|A0A7K9PAI9_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K9WHD1|A0A7K9WHD1_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7K9ZBY4|A0A7K9ZBY4_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1AM12|A0A7L1AM12_GYMTI/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1BTL9|A0A7L1BTL9_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1F2X7|A0A7L1F2X7_SYLBO/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1Q377|A0A7L1Q377_ORIOR/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1QEA3|A0A7L1QEA3_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1RMJ5|A0A7L1RMJ5_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L1ZWP2|A0A7L1ZWP2_LEILU/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2LSY3|A0A7L2LSY3_9SYLV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2MS01|A0A7L2MS01_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2NXL0|A0A7L2NXL0_PYCJO/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2R5R3|A0A7L2R5R3_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2SPB7|A0A7L2SPB7_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L2XP90|A0A7L2XP90_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L3M8R8|A0A7L3M8R8_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L3R484|A0A7L3R484_9SYLV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L4EGK7|A0A7L4EGK7_HIRRU/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A7L4J5H4|A0A7L4J5H4_9PASS/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A851XCP6|A0A851XCP6_9CORV/34-68             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A8C2CUJ7|A0A8C2CUJ7_CYPCA/20-56             ALRRHHKEEIDHHQKEIERLQQEISRHEGKIRKLKQD----
+tr|A0A3Q1F6F6|A0A3Q1F6F6_9TELE/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGMIRKLKHD----
+tr|A0A672M169|A0A672M169_SINGR/91-127            ALKNHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A851NRA1|A0A851NRA1_9GALL/34-69             ALRKHHEEEIHHHKKEIERLQREIERHKHKIKQLKD-----
+tr|A0A851R1C5|A0A851R1C5_TYCCO/34-69             ALRKHHEEEIHHHHKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A8S4ARR5|A0A8S4ARR5_9TELE/71-106            ALRKHHQEEIDHHKKEIERLQKEIDRHKGKIRKLQH-----
+tr|A0A8D0BD76|A0A8D0BD76_9SAUR/81-117            -LKKHHEDEIYHHKKEIERLQKEIERRKSKIK---QFQDDD
+tr|A0A7N4NHP1|A0A7N4NHP1_SARHA/108-142           -LRKHHQEEIMHHEKEIQRLQKEIERHKNQMKKLKD-----
+tr|A0A218UYH8|A0A218UYH8_9PASE/79-114            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A3L8RY65|A0A3L8RY65_CHLGU/79-114            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A6J2G227|A0A6J2G227_9PASS/79-114            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A8C3MDV4|A0A8C3MDV4_GEOPR/79-114            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A8C5ILI1|A0A8C5ILI1_JUNHY/79-114            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A6P6RHN2|A0A6P6RHN2_CARAU/72-108            ALRKHHEEEIDHHKKEIERLQREIDRHQGKIRKLKHD----
+tr|A0A6P3FMK4|A0A6P3FMK4_OCTDE/67-101            ALKKHHEDEIYHHKKAIERMEKEIERHKQKIKQLT------
+tr|A0A8C5UKT3|A0A8C5UKT3_9PASS/61-96             ALRKHHEEEIHHHQKEIDRLQKEIERHKHKIKQLKD-----
+tr|A0A3P9DL25|A0A3P9DL25_9CICH/71-107            ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3Q3J6J7|A0A3Q3J6J7_MONAL/71-107            ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A4W6DVL7|A0A4W6DVL7_LATCA/71-107            ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A668SNW9|A0A668SNW9_OREAU/71-107            ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A6P7KID0|A0A6P7KID0_9TELE/71-107            ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|I3KUI8|I3KUI8_ORENI/71-107                    ALRKHHTEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A8J7NZU9|A0A8J7NZU9_ATRSP/72-108            ALKKHHEEEIDHHKKEIERLQREIDRRKGQIRKLKHD----
+tr|A0A8T2PVU6|A0A8T2PVU6_9TELE/70-106            ALRRHHEEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8T3E2D2|A0A8T3E2D2_9TELE/70-106            ALRRHHEEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|L5LME7|L5LME7_MYODS/26-61                     ALKKQHE-EITHHKTEIERLQKEIEQHKQNIKKLKDH----
+tr|A0A667ZBM8|A0A667ZBM8_9TELE/71-107            ALRKHHEEEIDHHKKEIERLQREIDRHWGKIRKLKHD----
+tr|A0A3B3IEI0|A0A3B3IEI0_ORYLA/60-96             ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A3P9HSS6|A0A3P9HSS6_ORYLA/60-96             ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A3P9KUH0|A0A3P9KUH0_ORYLA/60-96             ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|G3H1Z3|G3H1Z3_CRIGR/69-105                    ALKKHHEDEIQYHEQEIERLQKQIERHKKKMKNLKNN----
+sp|F7BK26|ATIF1_XENTR/74-107                     -LRKHHEEEIRHHKGEIERLQKEIERHKSKIKKLN------
+tr|A0A3B4A881|A0A3B4A881_9GOBI/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B4UZI8|A0A3B4UZI8_SERDU/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B4WLV5|A0A3B4WLV5_SERLL/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B5B9D0|A0A3B5B9D0_9TELE/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3P8TPG5|A0A3P8TPG5_AMPPE/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q1B8M3|A0A3Q1B8M3_AMPOC/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A4V6AS29|A0A4V6AS29_COLLU/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A4W6F5H5|A0A4W6F5H5_LATCA/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A556V9W7|A0A556V9W7_BAGYA/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A5C6NX01|A0A5C6NX01_9TELE/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A671TXS4|A0A671TXS4_SPAAU/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A672I9B7|A0A672I9B7_SALFA/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|C1BK85|C1BK85_OSMMO/70-106                    ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B4V7X3|A0A3B4V7X3_SERDU/71-107            ALRKHHAEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A3B4XHP1|A0A3B4XHP1_SERLL/71-107            ALRKHHAEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A8C9YHB1|A0A8C9YHB1_SANLU/66-101            ALRKHHAEEIDHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|A0A2I4BLI4|A0A2I4BLI4_9TELE/71-106            ALRKHHTEEIDHHKKEIERLQKEIDRHKGKIRKLSH-----
+tr|A0A1S3PXR2|A0A1S3PXR2_SALSA/63-99             ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|A0A671XCP0|A0A671XCP0_SPAAU/73-109            ALRKHHAEEIEHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A851CQE7|A0A851CQE7_CALVR/30-64             ALRKHHQEEIHHHQKEIERLQKEIERHKHKIKQLE------
+tr|A0A384CEC0|A0A384CEC0_URSMA/66-102            ALRKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHD----
+tr|A0A3Q7XZ21|A0A3Q7XZ21_URSAR/66-102            ALRKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHD----
+tr|A0A6J2QKX5|A0A6J2QKX5_COTGO/71-106            ALRKHHSEEIDHHKKEIERLQKEIDRHKGKIRKLNH-----
+tr|A0A484CJL1|A0A484CJL1_PERFV/71-106            ALRKHHAEEIDHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|A0A8C9YGE9|A0A8C9YGE9_SANLU/71-106            ALRKHHAEEIDHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|H0XQ94|H0XQ94_OTOGA/70-103                    -LKKHHEDEVGHHKREIERLQKEIERHQQKIKVLS------
+tr|A9XG49|A9XG49_AILME/69-105                    ALRKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHD----
+tr|A0A8T0B7Q1|A0A8T0B7Q1_SILME/100-136           ALKQHHQDEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A668AW13|A0A668AW13_9TELE/79-115            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3P9J906|A0A3P9J906_ORYLA/70-106            ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A3P9M8J7|A0A3P9M8J7_ORYLA/70-106            ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A8C7Z2I9|A0A8C7Z2I9_9TELE/70-106            ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|H2MI37|H2MI37_ORYLA/70-106                    ALRQHHEEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A060WZT1|A0A060WZT1_ONCMY/71-107            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|A0A674D4X4|A0A674D4X4_SALTR/71-107            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|A0A8C7HNU7|A0A8C7HNU7_ONCKI/71-107            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|A0A8C8EXE5|A0A8C8EXE5_ONCTS/71-107            ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X591|B5X591_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X6Y7|B5X6Y7_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X8C4|B5X8C4_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X8F8|B5X8F8_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X915|B5X915_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|B5X9Z8|B5X9Z8_SALSA/71-107                    ALRKHHEEEIDHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|D2GWK3|D2GWK3_AILME/66-102                    ALRKHHEEEITHHKEEIERLQKEIERHKKKIKHLKHN----
+tr|A0A3B5K339|A0A3B5K339_TAKRU/82-118            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A2D1CHA9|A0A2D1CHA9_SPAAU/86-122            ALKQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A7J6AG23|A0A7J6AG23_AMEME/70-106            ALRQHHQDEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|W5UTF4|W5UTF4_ICTPU/70-106                    ALRQHHQDEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A7YMQ4|A0A1A7YMQ4_9TELE/70-106            ALKQHHLDEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C3DDZ3|A0A8C3DDZ3_9CORV/62-96             ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A8T3DI17|A0A8T3DI17_9TELE/70-106            ALKHHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C6SE49|A0A8C6SE49_9GOBI/69-105            ALKVHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6A5E7U0|A0A6A5E7U0_PERFL/70-106            ALKQHHQEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A8C9YHS8|A0A8C9YHS8_SANLU/70-106            ALKQHHQEEIDHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|H0YRL2|H0YRL2_TAEGU/122-157                   ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A250Y8Y0|A0A250Y8Y0_CASCN/69-104            ALKKHHEDEIDVHEEEIKRLQKQIERHKQKIKNLKY-----
+tr|A0A6P6R7K2|A0A6P6R7K2_CARAU/70-106            ALRKHHREEIDHHQKEIERLQQEISRHEGKIRKLKQD----
+tr|A0A1A8BTL6|A0A1A8BTL6_9TELE/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|A0A1A8KPP3|A0A1A8KPP3_NOTKU/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|A0A1A8VF66|A0A1A8VF66_NOTFU/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|A0A1A7X243|A0A1A7X243_9TELE/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLSH-----
+tr|A0A1A8MRY0|A0A1A8MRY0_9TELE/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLSH-----
+tr|A0A1A8R432|A0A1A8R432_9TELE/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLSH-----
+tr|A0A3Q1IG85|A0A3Q1IG85_ANATE/70-106            ALKQHHQEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q3LM12|A0A3Q3LM12_9TELE/70-106            ALKQHHQEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A146VP86|A0A146VP86_FUNHE/71-106            ALRKHHAEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A5N5NEJ4|A0A5N5NEJ4_PANHP/71-107            ALKQHHQEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q3EIS6|A0A3Q3EIS6_9LABR/70-106            ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A4Z2GQ29|A0A4Z2GQ29_9TELE/70-106            ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A8C2XTT8|A0A8C2XTT8_CYCLU/70-106            ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A8D3EAF8|A0A8D3EAF8_SCOMX/70-106            ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A6G1QG97|A0A6G1QG97_9TELE/71-107            ALRQHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3M0ISA9|A0A3M0ISA9_HIRRU/79-113            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A8K1GI08|A0A8K1GI08_9PASS/79-113            ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A6J2WE64|A0A6J2WE64_CHACN/70-106            ALKHYHQEEIDHHKKEIERLQKEIDRHKGKIRELKQD----
+tr|A0A3Q1I565|A0A3Q1I565_ANATE/71-106            ALRKHHSEEIEHHKKEIERLQKEIDRHKGKIRKLNH-----
+tr|G3P3U6|G3P3U6_GASAC/73-109                    ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A6A5E147|A0A6A5E147_PERFL/71-106            ALRKHHAEEIEHHKKEIERLQKEIDRHKGKIRKLTH-----
+tr|F7BE70|F7BE70_MONDO/145-181                   ALRKYHQEEISHHEKEIQRLQKEIERHKGKIKHLKHD----
+tr|A0A3Q2D9N0|A0A3Q2D9N0_CYPVA/71-106            ALRKHHAEEIEHHKKEIERLQKEIDRHKGKIRKLSH-----
+tr|H3A4U5|H3A4U5_LATCH/73-109                    ALKNHHEEEIYHHEKEIQRLQSEIERHKSKIKKFKHD----
+tr|A0A6J2S1X2|A0A6J2S1X2_COTGO/75-111            ALKQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A8C1RCC6|A0A8C1RCC6_CYPCA/52-88             ALRRHHKEEIDHHQKEIERLQQEISRHEGKIRKLKQD----
+tr|A0A8C3HPU8|A0A8C3HPU8_CHRPI/231-268           -LREHHEEEIDHHKKEIQRLQKEIERHKIKIKKLKAQED--
+tr|A0A2I4BRU7|A0A2I4BRU7_9TELE/70-105            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRNLKX-----
+tr|A0A3Q3D2B4|A0A3Q3D2B4_HIPCM/38-74             ALRKHHTEEIEHHKKEIERLQKEIDRHQGKIRRLKHD----
+tr|C1BWJ3|C1BWJ3_ESOLU/71-107                    ALRKHHEEEIEHSKKEIERLQREIDRHKGKIKKLKHD----
+tr|A0A8C5GWQ8|A0A8C5GWQ8_9TELE/60-96             ALRVHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C3HRE6|A0A8C3HRE6_CHRPI/231-266           -LREHHEEEIDHHKKEIQRLQKEIERHKIKIKKLKDN----
+tr|C1BWE7|C1BWE7_ESOLU/70-106                    ALKQHHEEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A6P3WFA0|A0A6P3WFA0_CLUHA/71-106            -LRRHHEEEIEHHKKEVERLQREIDRHKGKIRKLKHD----
+tr|A0A8C8MJY1|A0A8C8MJY1_ONCTS/24-59             -LRKHHEEEIDHSKKEIERLQREIACHKGNIKKLKHD----
+tr|A0A852MNK8|A0A852MNK8_9PASS/35-68             -LRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A1A8AZ06|A0A1A8AZ06_NOTFU/70-106            ALKQHHLEEIDHHRKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A8DZG3|A0A1A8DZG3_9TELE/70-106            ALKQHHLEEIDHHRKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A8IZN5|A0A1A8IZN5_NOTKU/70-106            ALKQHHLEEIDHHRKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A8M5P0|A0A1A8M5P0_9TELE/70-106            ALKQHHLEEIDHHRKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A8S4H2|A0A1A8S4H2_9TELE/70-106            ALKQHHLEEIDHHRKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A4W5P461|A0A4W5P461_9TELE/62-98             ALRKHHEEEIDHSKKEIERLQREIDCHKGNIKKLKHD----
+tr|A0A4Z2H561|A0A4Z2H561_9TELE/71-107            ALRKHHMEEIDHHKKEIERLQKEIDRHNGKIRKLKHD----
+tr|H2TBT1|H2TBT1_TAKRU/72-107                    -LRNHHEEEIEHHRKEIERLQKEIDRHKGKIRKLKHD----
+tr|G5AP86|G5AP86_HETGA/67-103                    ALKKHHEDEIYHHKKAIEHMEKEIERHKQKIKQLKHD----
+tr|A0A8J6G3I8|A0A8J6G3I8_MICOH/69-105            ALKKHHEDEIEHHEQEIERLQKQIERHRKKMKSLKHN----
+tr|A0A8C9QUG2|A0A8C9QUG2_SCLFO/71-107            ALRKHHQEEIEHHKKEIERLQREIERHEGKIRKLKHD----
+tr|A0A5J5CN04|A0A5J5CN04_9PERO/70-106            ALKQHHQEEIEHHKKEIERLQRDIDRHKGKIRKLKHD----
+tr|A0A0P7WQN7|A0A0P7WQN7_SCLFO/127-163           ALRKHHQEEIEHHKKEIERLQREIERHEGKIRKLKHD----
+tr|A0A8C5GVD4|A0A8C5GVD4_9TELE/70-106            ALRVHHQEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6P8H4L2|A0A6P8H4L2_CLUHA/82-117            -LRRHHEEEIEHHKKEVERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q3D8Z9|A0A3Q3D8Z9_HIPCM/70-106            ALKQHHQEEIDHHKKEIERLQREIDRHQGKIRKLKHD----
+tr|C3KHS5|C3KHS5_ANOFI/71-106                    ALRKHHVEEIEHHKKEIERLQKEIDRHKGKIRKLNH-----
+tr|A0A8C9NMR8|A0A8C9NMR8_SERCA/181-216           ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKELKD-----
+tr|A0A8C1FDE7|A0A8C1FDE7_CYPCA/70-106            ALRRHHKEEIDHHQKEIERLQQEISRHEGKIRKLKQD----
+tr|A0A3P8UNU4|A0A3P8UNU4_CYNSE/70-106            ALKQHHQDEIDHQKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q3WQ17|A0A3Q3WQ17_MOLML/71-107            ALRKHHSEEIEHHKKEIERLQREIDRHKGKIRRLKHD----
+tr|A0A3P9Q0G7|A0A3P9Q0G7_POERE/67-102            ALRKHHGEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A6I9PL54|A0A6I9PL54_9TELE/70-106            ALKQHHQEEIEHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A6P8WJL7|A0A6P8WJL7_GYMAC/70-106            ALKQHHQEEIEHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A7J5Y691|A0A7J5Y691_DISMA/70-106            ALKQHHQEEIEHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A3B3R681|A0A3B3R681_9TELE/70-106            ALRQHHQEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A087Y697|A0A087Y697_POEFO/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A1A8FFV3|A0A1A8FFV3_9TELE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B3VR17|A0A3B3VR17_9TELE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B3XLC2|A0A3B3XLC2_9TELE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3B5L726|A0A3B5L726_9TELE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3P9Q6H5|A0A3P9Q6H5_POERE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q2NVA4|A0A3Q2NVA4_FUNHE/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3Q4B6M5|A0A3Q4B6M5_MOLML/70-106            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|M3ZZZ1|M3ZZZ1_XIPMA/70-106                    ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8P4KCX9|A0A8P4KCX9_DICLA/70-106            ALRQHHQEEIDHHKKEIERMQREIDRHKGKIRKLKHD----
+tr|A0A8C4Y4K8|A0A8C4Y4K8_9SAUR/69-103            -LREHHEEEIHHHKEEIQRLQKEIERHKNKIKKLKG-----
+tr|A0A3P8YEI1|A0A3P8YEI1_ESOLU/95-131            ALKQHHEEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A3B5N037|A0A3B5N037_9TELE/69-104            ALRKHHGEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|M4B0T5|M4B0T5_XIPMA/69-104                    ALRKHHGEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3Q2PEE2|A0A3Q2PEE2_FUNHE/64-99             ALRKHHAEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3Q3X4A3|A0A3Q3X4A3_MOLML/75-111            ALRKHHSEEIEHHKKEIERLQREIDRHKGKIRRLKHD----
+tr|A0A3P9Q1F3|A0A3P9Q1F3_POERE/71-106            ALRKHHGEEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A1A6FZ83|A0A1A6FZ83_NEOLE/69-104            ALRKHHEDEIEHHQQEIERLQKQIERHKKKIKHLKH-----
+tr|A0A6F9ABT7|A0A6F9ABT7_9TELE/71-107            ALRKHHEEEIDHSKNEIERLQREIDRHKGKIKKLKHD----
+tr|A0A498M405|A0A498M405_LABRO/1709-1745         ALKKHHEEEIDHHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A2U9CZL0|A0A2U9CZL0_SCOMX/71-107            ALRKHHAEEIEHHKKEIERLGKEIDRHKGKIRKLKHD----
+tr|A0A8C7CS59|A0A8C7CS59_ONCKI/60-96             ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A0S7HDF2|A0A0S7HDF2_9TELE/71-106            ALRKHHREEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3B3VED3|A0A3B3VED3_9TELE/71-106            ALRKHHREEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3B3YGK5|A0A3B3YGK5_9TELE/71-106            ALRKHHREEIEHHKKEIERLQREIDRHKGKIRKLSH-----
+tr|A0A3Q1FBX7|A0A3Q1FBX7_9TELE/71-107            ALRKYHAEEIDHHKKEIERLQKEIGRHQSRIKKLKHD----
+tr|A0A8C5C6I4|A0A8C5C6I4_GADMO/71-107            ALKQHHQDEIEHHKKEIERMQREIDRHKGKIRMLKHD----
+tr|A0A8C6SP70|A0A8C6SP70_9GOBI/71-107            ALRKHHAEEIENHKKEIERLQKEIDRHKGKIRKLKHD----
+tr|A0A8C3Y1K6|A0A8C3Y1K6_CATUS/283-318           ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLKD-----
+tr|A0A0P6J910|A0A0P6J910_HETGA/99-135            ALKKHHEDEIYHHKKAIEHMEKEIERHKQKIKQLKHD----
+tr|A0A822HY49|A0A822HY49_9NEOB/38-73             -LKKHHEDEIDRHSKEIEHLQKQIKRHKKKIKNLKSN----
+tr|A0A0S7IBT6|A0A0S7IBT6_9TELE/92-128            ALKQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8C7DFE8|A0A8C7DFE8_ONCKI/69-105            ALRKHHEEEIDHSKKEIERLQREIACHKGNIKKLKHD----
+tr|A0A3Q2EIA3|A0A3Q2EIA3_CYPVA/60-96             ALRQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8K9V9A5|A0A8K9V9A5_ONCMY/55-91             ALWKHHEEEIDHSKKEIERLQREIACHKGNIKKLKHD----
+tr|A0A3Q2EI79|A0A3Q2EI79_CYPVA/61-97             ALRQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A3S2TWV2|A0A3S2TWV2_ORYJA/115-151           ALRHHHEEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A060WWB7|A0A060WWB7_ONCMY/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A4W5M863|A0A4W5M863_9TELE/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A673YQS0|A0A673YQS0_SALTR/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A6F9B430|A0A6F9B430_9TELE/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A8C7CN24|A0A8C7CN24_ONCKI/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A8C8IDJ1|A0A8C8IDJ1_ONCTS/70-106            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|B5XB07|B5XB07_SALSA/70-106                    ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|A0A6J0V3U2|A0A6J0V3U2_9SAUR/70-104            -LRKHHEEEIHHHKEEIERLQKEIERHKSKIKKLHD-----
+tr|A0A6J0UZV8|A0A6J0UZV8_9SAUR/71-105            -LRKHHEEEIHHHKEEIERLQKEIERHKSKIKKLHD-----
+tr|A0A662YLU1|A0A662YLU1_ACIRT/72-108            ALRKHHEEEIGHHKKEIDRLEKEIDRRKSKIKALKHD----
+tr|A0A3B4CX78|A0A3B4CX78_PYGNA/70-105            ALRQHHKDEIEHHKKEIERLQREIDRHKGKIRKLNH-----
+tr|A0A3Q2DEY6|A0A3Q2DEY6_CYPVA/64-100            ALRQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A091E4M7|A0A091E4M7_FUKDA/67-103            ALKKHHEDEIYHHKKAIEQMEKEIERHKQKIKQLKHH----
+tr|A0A3Q2EGM9|A0A3Q2EGM9_CYPVA/65-101            ALRQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|G5E0Q5|G5E0Q5_9PIPI/79-111                    -LRKHHEEEIRHHKQEIDRLQKEIERHKGKIKKL-------
+tr|A0A3N0XWB9|A0A3N0XWB9_ANAGA/70-106            ALRRHHQDEIDHHKKEIERLQQEISRHEGKIRKLKHD----
+tr|A0A3B4ZBU8|A0A3B4ZBU8_9TELE/63-99             ALRKHHAEEIEHHKKEIERLQKEINRHQGKIRKLKHD----
+tr|A0A1L8H7Q3|A0A1L8H7Q3_XENLA/74-109            -LKKHHEEEIHHHKSEIERLQKEIERRKNKIKNLKDD----
+tr|A0A6P7HBA6|A0A6P7HBA6_9TELE/69-105            ALKQHHHEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A8B9XUI9|A0A8B9XUI9_BOSMU/65-94             ALKKHHENEISHHAKETECLKRETERHKRN-----------
+tr|A0A3Q2EIA6|A0A3Q2EIA6_CYPVA/71-107            ALRQHHLEEIDHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A671N0C6|A0A671N0C6_9TELE/70-106            ALRRHHQEEIDHHQKEIERLQQEISRHEGKIRKLKKD----
+tr|A0A672KBN4|A0A672KBN4_SINGR/70-106            ALRRHHQEEIDHHQKEIERLQQEISRHEGKIRKLKKD----
+tr|A0A673KR63|A0A673KR63_9TELE/70-106            ALRRHHQEEIDHHQKEIERLQQEISRHEGKIRKLKKD----
+tr|A0A665UWQ7|A0A665UWQ7_ECHNA/70-105            ALRQHHNEEIDHHKKEIERLQREIDRHKGKIRKLNH-----
+tr|A0A452GX87|A0A452GX87_9SAUR/55-89             -LREHHEEEIHHHKEEIQRLQKEIERHKNKIKKLKE-----
+tr|A0A672K777|A0A672K777_SINGR/78-114            ALRRHHQEEIDHHQKEIERLQQEISRHEGKIRKLKKD----
+tr|A0A4W5MBZ2|A0A4W5MBZ2_9TELE/170-206           ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLKHD----
+tr|B5XAD0|B5XAD0_SALSA/70-105                    ALKQHHQEEIDHHKKEISRLQREIDRHKGKIRKLNH-----
+tr|A0A8C5P6G3|A0A8C5P6G3_9ANUR/65-104            ALRKHHEGEIHHHKEEIDRLQKEIHRHKDKIKDLTKRHDD-
+tr|A0A8B9J5C1|A0A8B9J5C1_ASTMX/70-105            ALKNHHKEEIEHHKKEIERLQREIDRHKGKIRKLNH-----
+tr|A0A673FRZ3|A0A673FRZ3_9TELE/37-73             ALRRHHQEEIDHHKKEIERLQQEISRHEGKVRKLKHD----
+tr|A0A662YLD9|A0A662YLD9_ACIRT/72-108            ALRKHHEEEISHHKQEIDRLEKEIDRRKSKIKALKHD----
+tr|A0A5A9NQE5|A0A5A9NQE5_9TELE/70-106            ALRKHHQDEIEHHKKEIERLQHEIGRHQGKIKKLKHD----
+tr|A0A8C5LK38|A0A8C5LK38_9ANUR/73-112            ALRKHHEGEIHHHKEEIDRLQKEIHRHKDKIKDLTKRHDD-
+tr|A0A3P8VJ79|A0A3P8VJ79_CYNSE/72-106            -LRKHHKEEIEHHKKEIERLQKEIDRHKGKIRRLTH-----
+tr|A0A3Q7S6F2|A0A3Q7S6F2_CALUR/90-127            --KKHHEEEITHHRKEMERPQKEIERHKKKIKHLKHDDED-
+tr|A0A553Q1M4|A0A553Q1M4_9TELE/86-122            ALRRHHQEEIDHHKKEIERLQQEIGRHESKIKKLKHD----
+tr|A0A8C2ZP17|A0A8C2ZP17_CYCLU/71-106            ALRKHHMEEIEHHKKEIERLQKEIDRHNGKIRKLNH-----
+tr|A0A8C6RNW2|A0A8C6RNW2_NANGA/69-105            ALKKHHEDEIELHEEEIKRLQKQIERHKKKIKYLKDQ----
+tr|A0A8C3RFD6|A0A8C3RFD6_9PASS/290-324           ALRKHHEEEIHHHQKEIERLQKEIERHKHKIKQLK------
+tr|A0A4W4FJ83|A0A4W4FJ83_ELEEL/70-106            ALRHHHQEEIEHHKKEIERLQREIDRHKGKIRKLKHD----
+tr|A0A6A4RPH2|A0A6A4RPH2_SCOMX/153-189           ALRKHHAEEIEHHKKEIERLGKEIDRHKGKIRKLKHD----
+tr|A0A673ZTP4|A0A673ZTP4_SALTR/69-104            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A060VT33|A0A060VT33_ONCMY/70-105            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A4W5R4Q6|A0A4W5R4Q6_9TELE/70-105            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A673ZVV8|A0A673ZVV8_SALTR/70-105            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A8C7DX92|A0A8C7DX92_ONCKI/70-105            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A8C8LW15|A0A8C8LW15_ONCTS/70-105            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A6I9MNC4|A0A6I9MNC4_9TELE/70-105            ALRKHHSEEIEHHKTEIERLQREIDRHKGKIRKLNH-----
+tr|A0A6P8TPV1|A0A6P8TPV1_GYMAC/70-105            ALRKHHSEEIEHHKTEIERLQREIDRHKGKIRKLNH-----
+tr|A0A8C5CMY9|A0A8C5CMY9_GADMO/72-107            -LRKHHEEEIDHHKKEIDRLRQEIERHNGKIRKLKHD----
+tr|A0A8C8LWB8|A0A8C8LWB8_ONCTS/72-107            ALKQHHQEEIDHHKKEISRLQSEIDRHKGKIRKLNH-----
+tr|A0A3Q1CGE4|A0A3Q1CGE4_AMPOC/70-105            ALRKHHAEEIEHHKKEIERLQKEINRHQGKIRKLTH-----
+tr|A0A3P8SKI0|A0A3P8SKI0_AMPPE/71-106            ALRKHHAEEIEHHKKEIERLQKEINRHQGKIRKLTH-----
+tr|A0A3Q1DHE8|A0A3Q1DHE8_AMPOC/71-106            ALRKHHAEEIEHHKKEIERLQKEINRHQGKIRKLTH-----
+tr|A0A1U8CVF2|A0A1U8CVF2_MESAU/72-106            -LKKHHEDEIQHHEQEIERLQKQIERHKKKINNLKS-----
+tr|A0A671QKR6|A0A671QKR6_9TELE/70-106            ALRRHHQEEIDHHKKEIERLQQEISRHEGKIRKLKHD----
+tr|A0A672KUM0|A0A672KUM0_SINGR/70-106            ALRRHHQEEIDHHKKEIERLQQEIGRHEGKIRKLKHD----
+tr|A0A7J6C4J2|A0A7J6C4J2_9TELE/70-106            ALRRHHQEEIDHHKKEIERLQQEIGRHEGKIRKLKHD----
+tr|A0A834C0F4|A0A834C0F4_ORYME/72-107            -LRRHHSEEIEHHKKEIERLQKEIDRHVGKIRKLKHD----
+tr|A0A665WSW4|A0A665WSW4_ECHNA/72-107            -LRKHHNEEIEHHKKEIERLKREIDRHKGKIRKLKHD----
+tr|A0A6J0IH84|A0A6J0IH84_9PASS/79-114            ALRKHHEEEIHHHQKEIEQLQKEIEPHKHKIKQLKD-----
+tr|A0A3B3IIE3|A0A3B3IIE3_ORYLA/75-110            -LRRHHSEEIEHHKKEIERLQKEIDRHVGKIRKLKHD----
+tr|A0A3P9LZG0|A0A3P9LZG0_ORYLA/75-110            -LRRHHSEEIEHHKKEIERLQKEIDRHVGKIRKLKHD----
+tr|A0A8C7XGK9|A0A8C7XGK9_9TELE/75-110            -LRRHHSEEIEHHKKEIERLQKEIDRHVGKIRKLKHD----
+tr|A0A8C5N839|A0A8C5N839_9TELE/66-99             ALRVHHQEEIDHHQKEIERLQREIDRHKGKIRKL-------
+tr|A0A3B3D8S7|A0A3B3D8S7_ORYME/137-172           -LRRHHSEEIEHHKKEIERLQKEIDRHVGKIRKLKHD----
+tr|A0A401RRQ2|A0A401RRQ2_CHIPU/48-83             -LRKHHQEEINHHEQEIQRLQSEIKRHKSQIKKLKHD----
+tr|A0A8C0HI71|A0A8C0HI71_CHEAB/56-90             -LREYHEEEIDHHKKEIQRLQKEIDRHKNKIKKLKD-----
+#=GC RF                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

@@ -1,0 +1,582 @@
+# STOCKHOLM 1.0
+
+#=GS tr|I6M1Q3|I6M1Q3_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q4|I6M1Q4_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S4|I6M1S4_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S6|I6M1S6_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S7|I6M1S7_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S9|I6M1S9_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1N8|I6M1N8_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1N9|I6M1N9_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q1|I6M1Q1_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q8|I6M1Q8_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1R1|I6M1R1_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1R2|I6M1R2_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1R6|I6M1R6_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1R7|I6M1R7_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S0|I6M1S0_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A8F5SR48|A0A8F5SR48_PLAFA/28-65  DE [subseq from] Merozoite surface protein (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A2S1Q7P1|A0A2S1Q7P1_PLAFA/56-93  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|Q9NIG6|Q9NIG6_PLAFA/58-95          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=1 SV=1
+#=GS tr|A0A159SLH8|A0A159SLH8_PLAFA/58-95  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|Q0KGE8|Q0KGE8_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH7|Q0KGH7_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH8|Q0KGH8_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH9|Q0KGH9_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGI0|Q0KGI0_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A024VYN0|A0A024VYN0_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum Tanzania (2000708) OX=1036725 GN=PFTANZ_05884 PE=4 SV=1
+#=GS tr|A0A7D5NM77|A0A7D5NM77_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NMB1|A0A7D5NMB1_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SVH7|A0A7D5SVH7_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T113|A0A7D5T113_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|Q26019|Q26019_PLAFA/90-127         DE [subseq from] Polymorphic antigen OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A7D5NGN6|A0A7D5NGN6_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SCR7|A0A7D5SCR7_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SM02|A0A7D5SM02_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NGN9|A0A7D5NGN9_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SIE1|A0A7D5SIE1_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T1W8|A0A7D5T1W8_PLAFA/90-127 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|Q0KGI1|Q0KGI1_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGI2|Q0KGI2_PLAFA/66-103         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|W4IHG0|W4IHG0_PLAFA/90-127         DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum NF135/5.C10 OX=1036726 GN=PFNF135_03204 PE=4 SV=1
+#=GS tr|A0A1D8H335|A0A1D8H335_PLAFA/1-33   DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A1D8H342|A0A1D8H342_PLAFA/1-33   DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|I6M1N6|I6M1N6_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P5|I6M1P5_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P9|I6M1P9_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q2|I6M1Q2_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P1|I6M1P1_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P2|I6M1P2_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P6|I6M1P6_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q0|I6M1Q0_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A8F5SQY9|A0A8F5SQY9_PLAFA/28-61  DE [subseq from] Merozoite surface protein (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|O15863|O15863_PLAFA/57-94          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|A0A8F5SQK6|A0A8F5SQK6_PLAFA/28-61  DE [subseq from] Merozoite surface protein (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|I6M1T2|I6M1T2_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T3|I6M1T3_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T4|I6M1T4_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T5|I6M1T5_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T6|I6M1T6_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T7|I6M1T7_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T8|I6M1T8_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T9|I6M1T9_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1U0|I6M1U0_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1U1|I6M1U1_PLAFA/27-60          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A2S1Q7P9|A0A2S1Q7P9_PLAFA/13-50  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|O15853|O15853_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|O15854|O15854_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|O15855|O15855_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|Q7KJI1|Q7KJI1_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|Q9TY90|Q9TY90_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|Q9TY91|Q9TY91_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|A0A2S1Q7Q6|A0A2S1Q7Q6_PLAFA/40-73  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A8F5SQK3|A0A8F5SQK3_PLAFA/28-65  DE [subseq from] Merozoite surface protein (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A8F5SQZ9|A0A8F5SQZ9_PLAFA/28-65  DE [subseq from] Merozoite surface protein (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A159SN63|A0A159SN63_PLAFA/50-87  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A4P8JE26|A0A4P8JE26_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE37|A0A4P8JE37_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE46|A0A4P8JE46_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE51|A0A4P8JE51_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE60|A0A4P8JE60_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE66|A0A4P8JE66_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE74|A0A4P8JE74_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE81|A0A4P8JE81_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE88|A0A4P8JE88_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JE94|A0A4P8JE94_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEB1|A0A4P8JEB1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEC0|A0A4P8JEC0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEC6|A0A4P8JEC6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JED5|A0A4P8JED5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEE7|A0A4P8JEE7_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEF6|A0A4P8JEF6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEG0|A0A4P8JEG0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEG9|A0A4P8JEG9_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEI1|A0A4P8JEI1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JEI8|A0A4P8JEI8_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF24|A0A4P8JF24_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF33|A0A4P8JF33_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF38|A0A4P8JF38_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF44|A0A4P8JF44_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF52|A0A4P8JF52_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF57|A0A4P8JF57_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF66|A0A4P8JF66_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF74|A0A4P8JF74_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF79|A0A4P8JF79_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JF88|A0A4P8JF88_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFC5|A0A4P8JFC5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFD6|A0A4P8JFD6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFE3|A0A4P8JFE3_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFE8|A0A4P8JFE8_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFF5|A0A4P8JFF5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFH2|A0A4P8JFH2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFH9|A0A4P8JFH9_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFJ2|A0A4P8JFJ2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFJ9|A0A4P8JFJ9_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFK6|A0A4P8JFK6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFQ6|A0A4P8JFQ6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFR5|A0A4P8JFR5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFS5|A0A4P8JFS5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFT3|A0A4P8JFT3_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFU2|A0A4P8JFU2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFV0|A0A4P8JFV0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFW0|A0A4P8JFW0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFW7|A0A4P8JFW7_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFX6|A0A4P8JFX6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JFY4|A0A4P8JFY4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGW0|A0A4P8JGW0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGW7|A0A4P8JGW7_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGX5|A0A4P8JGX5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGY3|A0A4P8JGY3_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGZ1|A0A4P8JGZ1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JGZ9|A0A4P8JGZ9_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH04|A0A4P8JH04_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH11|A0A4P8JH11_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH17|A0A4P8JH17_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH24|A0A4P8JH24_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH44|A0A4P8JH44_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH53|A0A4P8JH53_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH59|A0A4P8JH59_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH67|A0A4P8JH67_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH72|A0A4P8JH72_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH79|A0A4P8JH79_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH88|A0A4P8JH88_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JH99|A0A4P8JH99_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JHA7|A0A4P8JHA7_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JHB5|A0A4P8JHB5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI16|A0A4P8JI16_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI25|A0A4P8JI25_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI32|A0A4P8JI32_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI39|A0A4P8JI39_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI48|A0A4P8JI48_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI56|A0A4P8JI56_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI63|A0A4P8JI63_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI70|A0A4P8JI70_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI77|A0A4P8JI77_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JI85|A0A4P8JI85_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLM5|A0A4P8JLM5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLN5|A0A4P8JLN5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLP4|A0A4P8JLP4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLQ4|A0A4P8JLQ4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLR4|A0A4P8JLR4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLS4|A0A4P8JLS4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLT2|A0A4P8JLT2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLU1|A0A4P8JLU1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLV2|A0A4P8JLV2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4P8JLW1|A0A4P8JLW1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKA6|A0A4V1EKA6_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKA7|A0A4V1EKA7_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKA8|A0A4V1EKA8_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKA9|A0A4V1EKA9_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB0|A0A4V1EKB0_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB1|A0A4V1EKB1_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB2|A0A4V1EKB2_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB3|A0A4V1EKB3_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB4|A0A4V1EKB4_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A4V1EKB5|A0A4V1EKB5_PLAFA/77-110 DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|O15862|O15862_PLAFA/57-94          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|A0A1D8H334|A0A1D8H334_PLAFA/1-33   DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A159SLH5|A0A159SLH5_PLAFA/44-77  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A164KJZ5|A0A164KJZ5_PLAFA/17-50  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A3M0JR79|A0A3M0JR79_HIRRU/67-98  DE [subseq from] Protein Wnt OS=Hirundo rustica rustica OX=333673 GN=DUI87_22035 PE=3 SV=1
+#=GS tr|A0A159SLI6|A0A159SLI6_PLAFA/44-77  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLD3|A0A159SLD3_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A161FQX5|A0A161FQX5_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|O15856|O15856_PLAFA/44-77          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=SPAM PE=4 SV=1
+#=GS tr|A0A159SN04|A0A159SN04_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLI0|A0A159SLI0_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A1D8H333|A0A1D8H333_PLAFA/1-33   DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|A0A159SMQ9|A0A159SMQ9_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLY5|A0A159SLY5_PLAFA/43-76  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLB7|A0A159SLB7_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SN55|A0A159SN55_PLAFA/42-75  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A161G531|A0A161G531_PLAFA/44-77  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLC4|A0A159SLC4_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLG8|A0A159SLG8_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SN41|A0A159SN41_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SN47|A0A159SN47_PLAFA/45-78  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|Q0KGE3|Q0KGE3_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGE4|Q0KGE4_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC7|Q0KGC7_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC6|Q0KGC6_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC8|Q0KGC8_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD5|Q0KGD5_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD7|Q0KGD7_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH1|Q0KGH1_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGB6|Q0KGB6_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGB7|Q0KGB7_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGB8|Q0KGB8_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC0|Q0KGC0_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC3|Q0KGC3_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC5|Q0KGC5_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD9|Q0KGD9_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGE0|Q0KGE0_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGE2|Q0KGE2_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGG9|Q0KGG9_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH0|Q0KGH0_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH2|Q0KGH2_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH3|Q0KGH3_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH4|Q0KGH4_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH5|Q0KGH5_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGH6|Q0KGH6_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC4|Q0KGC4_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD0|Q0KGD0_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD1|Q0KGD1_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD2|Q0KGD2_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD8|Q0KGD8_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGE1|Q0KGE1_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC9|Q0KGC9_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD3|Q0KGD3_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGD6|Q0KGD6_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGG8|Q0KGG8_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC1|Q0KGC1_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q0KGC2|Q0KGC2_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|Q9NFV9|Q9NFV9_PLAFA/67-100         DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|W7JS07|W7JS07_PLAFO/69-102         DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum (isolate NF54) OX=5843 GN=PFNF54_03338 PE=4 SV=1
+#=GS tr|A0A0L7KCG2|A0A0L7KCG2_PLAFX/77-110 DE [subseq from] Merozoite Surface protein 3 OS=Plasmodium falciparum (isolate HB3) OX=137071 GN=PFHG_02492 PE=4 SV=1
+#=GS tr|W7F715|W7F715_PLAF8/77-110         DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum (isolate 7G8) OX=57266 GN=PFBG_03130 PE=4 SV=1
+#=GS tr|W7FXY2|W7FXY2_PLAFA/77-110         DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum Santa Lucia OX=478859 GN=PFAG_03053 PE=4 SV=1
+#=GS tr|A0A7D5NHB1|A0A7D5NHB1_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NHB7|A0A7D5NHB7_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NF43|A0A7D5NF43_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NF55|A0A7D5NF55_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NGE7|A0A7D5NGE7_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NGM4|A0A7D5NGM4_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NGN0|A0A7D5NGN0_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NK66|A0A7D5NK66_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NM56|A0A7D5NM56_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NM91|A0A7D5NM91_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SCQ8|A0A7D5SCQ8_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SCR5|A0A7D5SCR5_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SLC6|A0A7D5SLC6_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SLW5|A0A7D5SLW5_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SLX2|A0A7D5SLX2_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SLY7|A0A7D5SLY7_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SM13|A0A7D5SM13_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SVG3|A0A7D5SVG3_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T0Y7|A0A7D5T0Y7_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T0Z6|A0A7D5T0Z6_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T1T3|A0A7D5T1T3_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T1U3|A0A7D5T1U3_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A024WQF5|A0A024WQF5_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum MaliPS096_E11 OX=1036727 GN=PFMALIP_03053 PE=4 SV=1
+#=GS tr|A0A0L0CSD2|A0A0L0CSD2_PLAFA/77-110 DE [subseq from] Polymorphic antigen OS=Plasmodium falciparum RAJ116 OX=580058 GN=PFLG_00123 PE=4 SV=1
+#=GS tr|A0A2I0BRH3|A0A2I0BRH3_PLAFO/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum (isolate NF54) OX=5843 GN=CK202_4885 PE=4 SV=1
+#=GS tr|A0A7D5NGE1|A0A7D5NGE1_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5NJU4|A0A7D5NJU4_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SGD2|A0A7D5SGD2_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SIC7|A0A7D5SIC7_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5SID4|A0A7D5SID4_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A7D5T104|A0A7D5T104_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|Q25995|Q25995_PLAFA/77-110         DE [subseq from] Antigen OS=Plasmodium falciparum OX=5833 PE=4 SV=1
+#=GS tr|Q8IJ55|Q8IJ55_PLAF7/77-110         DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum (isolate 3D7) OX=36329 GN=PF3D7_1035400 PE=4 SV=1
+#=GS tr|A0A7D5NHR3|A0A7D5NHR3_PLAFA/77-110 DE [subseq from] Merozoite surface protein 3 OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A164KK21|A0A164KK21_PLAFA/57-94  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SMX6|A0A159SMX6_PLAFA/58-95  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|I6M1N7|I6M1N7_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P0|I6M1P0_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q9|I6M1Q9_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1S3|I6M1S3_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P7|I6M1P7_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1P8|I6M1P8_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1Q5|I6M1Q5_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|I6M1T0|I6M1T0_PLAFA/27-64          DE [subseq from] Merozoite surface protein-3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP-3 PE=4 SV=1
+#=GS tr|A0A159SMT5|A0A159SMT5_PLAFA/57-94  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLE9|A0A159SLE9_PLAFA/58-95  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SMS8|A0A159SMS8_PLAFA/57-94  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLX1|A0A159SLX1_PLAFA/55-92  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLG3|A0A159SLG3_PLAFA/58-95  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|Q0KGG7|Q0KGG7_PLAFA/53-86          DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=msp3 PE=4 SV=1
+#=GS tr|A0A159SLA6|A0A159SLA6_PLAFA/57-94  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLY0|A0A159SLY0_PLAFA/58-95  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+#=GS tr|A0A159SLF8|A0A159SLF8_PLAFA/55-92  DE [subseq from] Merozoite surface protein 3 (Fragment) OS=Plasmodium falciparum OX=5833 GN=MSP3 PE=4 SV=1
+
+query                                         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1Q3|I6M1Q3_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1Q4|I6M1Q4_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1S4|I6M1S4_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1S6|I6M1S6_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1S7|I6M1S7_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1S9|I6M1S9_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1N8|I6M1N8_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1N9|I6M1N9_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1Q1|I6M1Q1_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1Q8|I6M1Q8_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1R1|I6M1R1_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1R2|I6M1R2_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1R6|I6M1R6_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1R7|I6M1R7_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|I6M1S0|I6M1S0_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A8F5SR48|A0A8F5SR48_PLAFA/28-65          EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A2S1Q7P1|A0A2S1Q7P1_PLAFA/56-93          EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q9NIG6|Q9NIG6_PLAFA/58-95                  EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A159SLH8|A0A159SLH8_PLAFA/58-95          EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGE8|Q0KGE8_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGH7|Q0KGH7_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGH8|Q0KGH8_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGH9|Q0KGH9_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGI0|Q0KGI0_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A024VYN0|A0A024VYN0_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NM77|A0A7D5NM77_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NMB1|A0A7D5NMB1_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SVH7|A0A7D5SVH7_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T113|A0A7D5T113_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q26019|Q26019_PLAFA/90-127                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGN6|A0A7D5NGN6_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SCR7|A0A7D5SCR7_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SM02|A0A7D5SM02_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGN9|A0A7D5NGN9_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SIE1|A0A7D5SIE1_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T1W8|A0A7D5T1W8_PLAFA/90-127         EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|Q0KGI1|Q0KGI1_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEEVNLK
+tr|Q0KGI2|Q0KGI2_PLAFA/66-103                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEEVNLK
+tr|W4IHG0|W4IHG0_PLAFA/90-127                 EAYKKAKQASQDAEQAAKDAENASKEAEEAAKEEVNLK
+tr|A0A1D8H335|A0A1D8H335_PLAFA/1-33           -----AKQASQDAEQAAKDAENASKEAEEAAKEAVNLK
+tr|A0A1D8H342|A0A1D8H342_PLAFA/1-33           -----AKQASQDAEQAAKDAENASKEAEEAAKEEVNLK
+tr|I6M1N6|I6M1N6_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1P5|I6M1P5_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1P9|I6M1P9_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1Q2|I6M1Q2_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1P1|I6M1P1_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1P2|I6M1P2_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1P6|I6M1P6_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1Q0|I6M1Q0_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A8F5SQY9|A0A8F5SQY9_PLAFA/28-61          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|O15863|O15863_PLAFA/57-94                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A8F5SQK6|A0A8F5SQK6_PLAFA/28-61          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T2|I6M1T2_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T3|I6M1T3_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T4|I6M1T4_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T5|I6M1T5_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T6|I6M1T6_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T7|I6M1T7_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T8|I6M1T8_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1T9|I6M1T9_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1U0|I6M1U0_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|I6M1U1|I6M1U1_PLAFA/27-60                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A2S1Q7P9|A0A2S1Q7P9_PLAFA/13-50          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|O15853|O15853_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|O15854|O15854_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|O15855|O15855_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q7KJI1|Q7KJI1_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q9TY90|Q9TY90_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q9TY91|Q9TY91_PLAFA/44-77                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A2S1Q7Q6|A0A2S1Q7Q6_PLAFA/40-73          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A8F5SQK3|A0A8F5SQK3_PLAFA/28-65          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A8F5SQZ9|A0A8F5SQZ9_PLAFA/28-65          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SN63|A0A159SN63_PLAFA/50-87          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A4P8JE26|A0A4P8JE26_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE37|A0A4P8JE37_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE46|A0A4P8JE46_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE51|A0A4P8JE51_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE60|A0A4P8JE60_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE66|A0A4P8JE66_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE74|A0A4P8JE74_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE81|A0A4P8JE81_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE88|A0A4P8JE88_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JE94|A0A4P8JE94_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEB1|A0A4P8JEB1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEC0|A0A4P8JEC0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEC6|A0A4P8JEC6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JED5|A0A4P8JED5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEE7|A0A4P8JEE7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEF6|A0A4P8JEF6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEG0|A0A4P8JEG0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEG9|A0A4P8JEG9_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEI1|A0A4P8JEI1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JEI8|A0A4P8JEI8_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF24|A0A4P8JF24_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF33|A0A4P8JF33_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF38|A0A4P8JF38_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF44|A0A4P8JF44_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF52|A0A4P8JF52_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF57|A0A4P8JF57_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF66|A0A4P8JF66_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF74|A0A4P8JF74_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF79|A0A4P8JF79_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JF88|A0A4P8JF88_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFC5|A0A4P8JFC5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFD6|A0A4P8JFD6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFE3|A0A4P8JFE3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFE8|A0A4P8JFE8_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFF5|A0A4P8JFF5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFH2|A0A4P8JFH2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFH9|A0A4P8JFH9_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFJ2|A0A4P8JFJ2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFJ9|A0A4P8JFJ9_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFK6|A0A4P8JFK6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFQ6|A0A4P8JFQ6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFR5|A0A4P8JFR5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFS5|A0A4P8JFS5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFT3|A0A4P8JFT3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFU2|A0A4P8JFU2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFV0|A0A4P8JFV0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFW0|A0A4P8JFW0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFW7|A0A4P8JFW7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFX6|A0A4P8JFX6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JFY4|A0A4P8JFY4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGW0|A0A4P8JGW0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGW7|A0A4P8JGW7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGX5|A0A4P8JGX5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGY3|A0A4P8JGY3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGZ1|A0A4P8JGZ1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JGZ9|A0A4P8JGZ9_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH04|A0A4P8JH04_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH11|A0A4P8JH11_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH17|A0A4P8JH17_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH24|A0A4P8JH24_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH44|A0A4P8JH44_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH53|A0A4P8JH53_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH59|A0A4P8JH59_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH67|A0A4P8JH67_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH72|A0A4P8JH72_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH79|A0A4P8JH79_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH88|A0A4P8JH88_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JH99|A0A4P8JH99_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JHA7|A0A4P8JHA7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JHB5|A0A4P8JHB5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI16|A0A4P8JI16_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI25|A0A4P8JI25_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI32|A0A4P8JI32_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI39|A0A4P8JI39_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI48|A0A4P8JI48_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI56|A0A4P8JI56_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI63|A0A4P8JI63_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI70|A0A4P8JI70_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI77|A0A4P8JI77_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JI85|A0A4P8JI85_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLM5|A0A4P8JLM5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLN5|A0A4P8JLN5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLP4|A0A4P8JLP4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLQ4|A0A4P8JLQ4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLR4|A0A4P8JLR4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLS4|A0A4P8JLS4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLT2|A0A4P8JLT2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLU1|A0A4P8JLU1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLV2|A0A4P8JLV2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4P8JLW1|A0A4P8JLW1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKA6|A0A4V1EKA6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKA7|A0A4V1EKA7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKA8|A0A4V1EKA8_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKA9|A0A4V1EKA9_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB0|A0A4V1EKB0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB1|A0A4V1EKB1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB2|A0A4V1EKB2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB3|A0A4V1EKB3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB4|A0A4V1EKB4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A4V1EKB5|A0A4V1EKB5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|O15862|O15862_PLAFA/57-94                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A1D8H334|A0A1D8H334_PLAFA/1-33           -----AKKASEDAEKAANDAENASKEAEEASKEAVNLK
+tr|A0A159SLH5|A0A159SLH5_PLAFA/44-77          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A164KJZ5|A0A164KJZ5_PLAFA/17-50          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A3M0JR79|A0A3M0JR79_HIRRU/67-98          ---KVAEQISEDAEQISEDAEQISKDAEQISKDAE---
+tr|A0A159SLI6|A0A159SLI6_PLAFA/44-77          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLD3|A0A159SLD3_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A161FQX5|A0A161FQX5_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|O15856|O15856_PLAFA/44-77                  ----KAKKASEDAEKAANDPENASKEAEEAAKEAVNLK
+tr|A0A159SN04|A0A159SN04_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLI0|A0A159SLI0_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A1D8H333|A0A1D8H333_PLAFA/1-33           -----AKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SMQ9|A0A159SMQ9_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLY5|A0A159SLY5_PLAFA/43-76          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLB7|A0A159SLB7_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SN55|A0A159SN55_PLAFA/42-75          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A161G531|A0A161G531_PLAFA/44-77          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLC4|A0A159SLC4_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SLG8|A0A159SLG8_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SN41|A0A159SN41_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A159SN47|A0A159SN47_PLAFA/45-78          ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGE3|Q0KGE3_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGE4|Q0KGE4_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC7|Q0KGC7_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC6|Q0KGC6_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC8|Q0KGC8_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD5|Q0KGD5_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD7|Q0KGD7_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH1|Q0KGH1_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGB6|Q0KGB6_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGB7|Q0KGB7_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGB8|Q0KGB8_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC0|Q0KGC0_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC3|Q0KGC3_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC5|Q0KGC5_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD9|Q0KGD9_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGE0|Q0KGE0_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGE2|Q0KGE2_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGG9|Q0KGG9_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH0|Q0KGH0_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH2|Q0KGH2_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH3|Q0KGH3_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH4|Q0KGH4_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH5|Q0KGH5_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGH6|Q0KGH6_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC4|Q0KGC4_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD0|Q0KGD0_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD1|Q0KGD1_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD2|Q0KGD2_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD8|Q0KGD8_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGE1|Q0KGE1_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC9|Q0KGC9_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD3|Q0KGD3_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGD6|Q0KGD6_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGG8|Q0KGG8_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC1|Q0KGC1_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q0KGC2|Q0KGC2_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q9NFV9|Q9NFV9_PLAFA/67-100                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|W7JS07|W7JS07_PLAFO/69-102                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A0L7KCG2|A0A0L7KCG2_PLAFX/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|W7F715|W7F715_PLAF8/77-110                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|W7FXY2|W7FXY2_PLAFA/77-110                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NHB1|A0A7D5NHB1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NHB7|A0A7D5NHB7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NF43|A0A7D5NF43_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NF55|A0A7D5NF55_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGE7|A0A7D5NGE7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGM4|A0A7D5NGM4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGN0|A0A7D5NGN0_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NK66|A0A7D5NK66_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NM56|A0A7D5NM56_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NM91|A0A7D5NM91_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SCQ8|A0A7D5SCQ8_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SCR5|A0A7D5SCR5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SLC6|A0A7D5SLC6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SLW5|A0A7D5SLW5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SLX2|A0A7D5SLX2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SLY7|A0A7D5SLY7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SM13|A0A7D5SM13_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SVG3|A0A7D5SVG3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T0Y7|A0A7D5T0Y7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T0Z6|A0A7D5T0Z6_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T1T3|A0A7D5T1T3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T1U3|A0A7D5T1U3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A024WQF5|A0A024WQF5_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A0L0CSD2|A0A0L0CSD2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A2I0BRH3|A0A2I0BRH3_PLAFO/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NGE1|A0A7D5NGE1_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NJU4|A0A7D5NJU4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SGD2|A0A7D5SGD2_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SIC7|A0A7D5SIC7_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5SID4|A0A7D5SID4_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5T104|A0A7D5T104_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q25995|Q25995_PLAFA/77-110                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|Q8IJ55|Q8IJ55_PLAF7/77-110                 ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A7D5NHR3|A0A7D5NHR3_PLAFA/77-110         ----KAKKASEDAEKAANDAENASKEAEEAAKEAVNLK
+tr|A0A164KK21|A0A164KK21_PLAFA/57-94          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SMX6|A0A159SMX6_PLAFA/58-95          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|I6M1N7|I6M1N7_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1P0|I6M1P0_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1Q9|I6M1Q9_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1S3|I6M1S3_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1P7|I6M1P7_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1P8|I6M1P8_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1Q5|I6M1Q5_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|I6M1T0|I6M1T0_PLAFA/27-64                  EAYKKAKQASQDAEQAAKDAEQAAKDAEQASQDAEKLK
+tr|A0A159SMT5|A0A159SMT5_PLAFA/57-94          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SLE9|A0A159SLE9_PLAFA/58-95          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SMS8|A0A159SMS8_PLAFA/57-94          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SLX1|A0A159SLX1_PLAFA/55-92          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SLG3|A0A159SLG3_PLAFA/58-95          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|Q0KGG7|Q0KGG7_PLAFA/53-86                  ----KAKKASEDAEKAANDAENASKEAEEASKEAVNLK
+tr|A0A159SLA6|A0A159SLA6_PLAFA/57-94          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SLY0|A0A159SLY0_PLAFA/58-95          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+tr|A0A159SLF8|A0A159SLF8_PLAFA/55-92          EAYKKAKQASQDAEQAAKDAEQAAKDAEQASKDAEKLK
+#=GC RF                                       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//
