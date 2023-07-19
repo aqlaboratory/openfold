@@ -2069,7 +2069,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         # anchor_pred_mask = anchor_pred_mask.to('cuda')
         input_mask = (anchor_true_mask * anchor_pred_mask).bool()
         r, x = get_optimal_transform(
-            anchor_true_pos,
+            anchor_true_pos[0],
             anchor_pred_pos,mask=input_mask
         )
         del input_mask # just to save memory
