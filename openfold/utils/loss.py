@@ -691,9 +691,13 @@ def compute_tm(
 
     n = residue_weights.shape[-1]
     pair_mask = residue_weights.new_ones((n, n), dtype=torch.int32)
-    if interface:
+    if interface and (asym_id is not None):
+        if len(asym_id.shape)>1:
+            assert len(asym_id.shape)<=2
+            batch_size = asym_id.shape[0]
+            pair_mask = residue_weights.new_ones((batch_size,n, n), dtype=torch.int32)
         pair_mask *= (asym_id[..., None] != asym_id[..., None, :]).to(dtype=pair_mask.dtype)
-
+    
     predicted_tm_term *= pair_mask
 
     pair_residue_weights = pair_mask * (
@@ -1440,7 +1444,10 @@ def violation_loss(
         + l_clash
     )
 
-    return loss
+    # Average over the batch dimension
+    mean = torch.mean(loss)
+
+    return mean
 
 
 def compute_renamed_ground_truth(
@@ -1563,7 +1570,7 @@ def experimentally_resolved_loss(
 ) -> torch.Tensor:
     errors = sigmoid_cross_entropy(logits, all_atom_mask)
     loss = torch.sum(errors * atom37_atom_exists, dim=-1)
-    loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)))
+    loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)).unsqueeze(-1))
     loss = torch.sum(loss, dim=-1)
     
     loss = loss * (
