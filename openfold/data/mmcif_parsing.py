@@ -83,9 +83,9 @@ class MmcifObject:
         files being processed.
       header: Biopython header.
       structure: Biopython structure.
-      chain_to_seqres: Dict mapping chain_id to 1 letter amino acid sequence. E.g.
+      chain_to_seqres: Dict mapping *author assigned* chain_id to 1 letter amino acid sequence. E.g.
         {'A': 'ABCDEFG'}
-      seqres_to_structure: Dict; for each chain_id contains a mapping between
+      seqres_to_structure: Dict; for each *author assigned* chain_id contains a mapping between
         SEQRES index and a ResidueAtPosition. e.g. {'A': {0: ResidueAtPosition,
                                                           1: ResidueAtPosition,
                                                           ...}}
@@ -180,6 +180,7 @@ def parse(
     *, file_id: str, mmcif_string: str, catch_all_errors: bool = True, 
     handle_residue_id_duplication:bool = False,
     quiet_parsing:bool = True,     
+    also_return_mmcif_dict:bool = False,
 ) -> ParsingResult:
     """Entry point, parses an mmcif_string.
 
@@ -315,13 +316,21 @@ def parse(
             pdb_assigned_chain_id_to_author_assigned_chain_id=mmcif_to_author_chain_id,   
             author_assigned_chain_id_to_pdb_assigned_chain_id=author_assigned_chain_id_to_pdb_assigned_chain_id,
         )
-
-        return ParsingResult(mmcif_object=mmcif_object, errors=errors)
+        ans = ParsingResult(mmcif_object=mmcif_object, errors=errors)
+        if not also_return_mmcif_dict:
+            return ans
+        else:
+            return ans, parser._mmcif_dict
     except Exception as e:  # pylint:disable=broad-except
         errors[(file_id, "")] = e
         if not catch_all_errors:
             raise
-        return ParsingResult(mmcif_object=None, errors=errors)
+        ans = ParsingResult(mmcif_object=None, errors=errors)
+        if not also_return_mmcif_dict:
+            return ans
+        else:
+            return ans, parser._mmcif_dict
+
 
 def _get_first_model(structure: PdbStructure) -> PdbStructure:
     """Returns the first model in a Biopython structure."""
