@@ -980,7 +980,6 @@ def between_residue_clash_loss(
             shape (N, 14)
     """
     fp_type = atom14_pred_positions.dtype
-
     # Create the distance matrix.
     # (N, N, 14, 14)
     dists = torch.sqrt(
@@ -1234,7 +1233,7 @@ def find_structural_violations(
             batch["atom14_atom_exists"]
             * atomtype_radius[batch["residx_atom14_to_atom37"]]
         )
-
+    torch.cuda.memory_summary()
     # Compute the between residue clash loss.
     between_residue_clashes = between_residue_clash_loss(
         atom14_pred_positions=atom14_pred_positions,
@@ -1710,36 +1709,30 @@ def kabsch_rotation(P, Q):
     """
 
     assert P.shape == torch.Size([Q.shape[0],Q.shape[1]])
-    finished_rotation = False
-    while not finished_rotation:
-        #
-        # Add a try-except block cuz sometimes SVD fails to converge and crashes the programme 
-        # Will continue trying SVD until the optimal rotaion is calculated
-        # #
-        try:
-            # first need to load P and Q to cpu otherwise cannot extract the numpy matrices
-            rotation = procrustes.rotational(P.to('cpu').numpy(),
-                                  Q.to('cpu').numpy(),translate=True)
-            finished_rotation = True
-        except:
-            print(f"svd failed.")
-            import sys
-            sys.exit()
-    rotation = torch.tensor(rotation.t,dtype=torch.float)
+    rotation = procrustes.rotational(P.detach().cpu().numpy(),
+                                  Q.detach().cpu().numpy(),translate=False,scale=False)
+    rotation = torch.tensor(rotation.t,dtype=torch.float) # rotation.t doesn't mean transpose, t only means get the matrix out of the procruste object
     assert rotation.shape == torch.Size([3,3])
-    return rotation
+    return rotation.to('cuda')
 
 def get_optimal_transform(
     src_atoms: torch.Tensor,
     tgt_atoms: torch.Tensor,
     mask: torch.Tensor = None,
 ):
+    """
+    src_atoms: predicted CA positions, shape:[num_res,3]
+    tgt_atoms: ground-truth CA positions, shape:[num_res,3] 
+    mask: a vector of boolean values, shape:[num_res]
+    """
     assert src_atoms.shape == tgt_atoms.shape, (src_atoms.shape, tgt_atoms.shape)
     assert src_atoms.shape[-1] == 3
-    if torch.isnan(src_atoms).any():
+    assert len(mask.shape) ==1,"mask should have the shape of [num_res]"
+    if torch.isnan(src_atoms).any() or torch.isinf(src_atoms).any():
         #
         # sometimes using fake test inputs generates NaN in the predicted atom positions
         # #
+        logging.warning(f"src_atom has nan or inf")
         src_atoms = torch.nan_to_num(src_atoms,nan=0.0,posinf=1.0,neginf=1.0)
 
     if mask is not None:
@@ -1749,15 +1742,15 @@ def get_optimal_transform(
             src_atoms = torch.zeros((1, 3), device=src_atoms.device).float()
             tgt_atoms = src_atoms
         else:
-            src_atoms = src_atoms.to('cuda:0')[mask, :]
-            tgt_atoms = tgt_atoms.to('cuda:0')[mask, :]
+            src_atoms = src_atoms[mask, :]
+            tgt_atoms = tgt_atoms[mask, :]
     src_center = src_atoms.mean(-2, keepdim=True)
     tgt_center = tgt_atoms.mean(-2, keepdim=True)
     r = kabsch_rotation(src_atoms,tgt_atoms)
     del src_atoms,tgt_atoms,
     gc.collect()
 
-    tgt_center,src_center = tgt_center.to('cuda:0'),src_center.to('cuda:0')
+    tgt_center,src_center = tgt_center.to('cuda'),src_center.to('cuda')
     x = tgt_center.to('cpu') - src_center.to('cpu') @ r.to('cpu')
 
     del tgt_center,src_center,mask
@@ -2047,7 +2040,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         per_asym_residue_index = {}
         for cur_asym_id in unique_asym_ids:
             asym_mask = (batch["asym_id"] == cur_asym_id).bool()
-            per_asym_residue_index[int(cur_asym_id)] = batch["residue_index"][asym_mask]
+            per_asym_residue_index[int(cur_asym_id)] = torch.masked_select(batch["residue_index"],asym_mask)
 
         anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch)
         anchor_gt_idx = int(anchor_gt_asym) - 1
@@ -2060,22 +2053,24 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             entity_2_asym_list[int(cur_ent_id)] = cur_asym_id
         asym_mask = (batch["asym_id"] == anchor_pred_asym).bool()
         anchor_residue_idx = per_asym_residue_index[int(anchor_pred_asym)]
-
-        anchor_true_pos = true_ca_poses[anchor_gt_idx][anchor_residue_idx] 
-        anchor_pred_pos = pred_ca_pos[asym_mask]
-        anchor_true_mask = true_ca_masks[anchor_gt_idx][anchor_residue_idx]
-        anchor_pred_mask = pred_ca_mask[asym_mask]
-        input_mask = (anchor_true_mask.to('cuda:0') * anchor_pred_mask.to('cuda:0')).bool()
+        anchor_true_pos = torch.index_select(true_ca_poses[anchor_gt_idx],1,anchor_residue_idx)
+        anchor_pred_pos = pred_ca_pos[0][asym_mask[0]]
+        
+        # anchor_pred_pos = anchor_pred_pos.to('cuda')
+        anchor_true_mask = torch.index_select(true_ca_masks[anchor_gt_idx],1,anchor_residue_idx)
+        anchor_pred_mask =pred_ca_mask[0][asym_mask[0]]
+        # anchor_pred_mask = anchor_pred_mask.to('cuda')
+        input_mask = (anchor_true_mask * anchor_pred_mask).bool()
         r, x = get_optimal_transform(
-            anchor_true_pos,
-            anchor_pred_pos,mask=input_mask
+            anchor_pred_pos,anchor_true_pos[0],
+            mask=input_mask[0]
         )
         del input_mask # just to save memory
         del anchor_pred_mask
         del anchor_true_mask
         gc.collect()
 
-        aligned_true_ca_poses = [ca.to('cpu') @ r.to('cpu') + x.to('cpu') for ca in true_ca_poses]  # apply transforms
+        aligned_true_ca_poses = [ca @ r + x for ca in true_ca_poses]  # apply transforms
         align = greedy_align(
                 batch,
                 per_asym_residue_index,
@@ -2089,6 +2084,8 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         
         del aligned_true_ca_poses
         del r,x
+        del pred_ca_pos,pred_ca_mask,true_ca_poses,true_ca_masks
+        del anchor_pred_pos,anchor_true_pos
         gc.collect()
         print(f"finished multi-chain permutation and final align is {align}")
         merged_labels = merge_labels(
@@ -2117,7 +2114,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         permutated_labels.pop('aatype')
         features.update(permutated_labels)
         move_to_cpu = lambda t: (t.to('cpu'))
-        features = tensor_tree_map(move_to_cpu,features)
+        # features = tensor_tree_map(move_to_cpu,features)
         if (not _return_breakdown):
             cum_loss = self.loss(out,features,_return_breakdown)
             print(f"cum_loss: {cum_loss}")
