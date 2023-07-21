@@ -330,7 +330,6 @@ def main(args):
         low_prec=(str(args.precision) == "16")
     ) 
     if "multimer" in args.config_preset:
-        print("training multimer models now")
         model_module = OpenFoldMultimerWrapper(config)   
     else: 
         model_module = OpenFoldWrapper(config)
@@ -360,7 +359,6 @@ def main(args):
 
     #data_module = DummyDataLoader("new_batch.pickle")
     if "multimer" in args.config_preset:
-        print("use multimer datamodule now")
         data_module = OpenFoldMultimerDataModule(
         config=config.data, 
         batch_seed=args.seed,
