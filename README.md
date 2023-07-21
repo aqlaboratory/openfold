@@ -5,7 +5,7 @@
 NB: before running the test codes,please download the procrustes package first:
 from https://github.com/theochem/procrustes
 
-Make sure that the product of running ```scripts/generate_mmcif_cache.py``` is ready and available in ```tests/test_data```
+Make sure that ```mmcif_cache.json```, which is the product of running ```scripts/generate_mmcif_cache.py``` is ready and available in ```tests/test_data```
 I have uploaded the json file to owncloud [here](https://oc.embl.de/index.php/s/wVUwc1IHiJUt9sP)
 
 To test the train multimer codes:
