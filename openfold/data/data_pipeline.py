@@ -498,7 +498,7 @@ class AlignmentRunner:
                     jackhmmer_mgnify_result["sto"],
                     max_sequences=self.mgnify_max_hits
                 )
-                self.write_safely(mgnify_out_path, mgnify_msa_as_am)
+                self.write_safely(mgnify_out_path, mgnify_msa_as_a3m)
                 generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
