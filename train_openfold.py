@@ -88,9 +88,10 @@ class OpenFoldWrapper(pl.LightningModule):
             )
 
         for k,v in other_metrics.items():
+            assert(len(v.shape) == 1)
             self.log(
-                f"{phase}/{k}", 
-                v, 
+                f"{phase}/{k}",
+                torch.mean(v),
                 on_step=False, on_epoch=True, logger=True
             )
 
