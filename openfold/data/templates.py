@@ -89,6 +89,24 @@ TEMPLATE_FEATURES = {
 }
 
 
+def empty_template_feats(n_res):
+    return {
+        "template_aatype": np.zeros(
+            (0, n_res, len(residue_constants.restypes_with_x_and_gap)),
+            np.float32
+        ),
+        "template_all_atom_mask": np.zeros(
+            (0, n_res, residue_constants.atom_type_num), np.float32
+        ),
+        "template_all_atom_positions": np.zeros(
+            (0, n_res, residue_constants.atom_type_num, 3), np.float32
+        ),
+        "template_domain_names": np.array([''.encode()], dtype=np.object),
+        "template_sequence": np.array([''.encode()], dtype=np.object),
+        "template_sum_probs": np.zeros((0, 1), dtype=np.float32),
+    }
+
+
 def _get_pdb_id_and_chain(hit: parsers.TemplateHit) -> Tuple[str, str]:
     """Returns PDB id and chain id for an HHSearch Hit."""
     # PDB ID: 4 letters. Chain ID: 1+ alphanumeric letters or "." if unknown.
@@ -1163,21 +1181,7 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
         else:
             num_res = len(query_sequence)
             # Construct a default template with all zeros.
-            template_features = {
-                "template_aatype": np.zeros(
-                    (1, num_res, len(residue_constants.restypes_with_x_and_gap)),
-                    np.float32
-                ),
-                "template_all_atom_masks": np.zeros(
-                    (1, num_res, residue_constants.atom_type_num), np.float32
-                ),
-                "template_all_atom_positions": np.zeros(
-                    (1, num_res, residue_constants.atom_type_num, 3), np.float32
-                ),
-                "template_domain_names": np.array([''.encode()], dtype=np.object),
-                "template_sequence": np.array([''.encode()], dtype=np.object),
-                "template_sum_probs": np.array([0], dtype=np.float32),
-            }
+            template_features = empty_template_feats(num_res)
 
         return TemplateSearchResult(
             features=template_features, errors=errors, warnings=warnings
@@ -1276,21 +1280,7 @@ class HmmsearchHitFeaturizer(TemplateHitFeaturizer):
         else:
             num_res = len(query_sequence)
             # Construct a default template with all zeros.
-            template_features = {
-                "template_aatype": np.zeros(
-                    (1, num_res, len(residue_constants.restypes_with_x_and_gap)),
-                    np.float32
-                ),
-                "template_all_atom_masks": np.zeros(
-                    (1, num_res, residue_constants.atom_type_num), np.float32
-                ),
-                "template_all_atom_positions": np.zeros(
-                    (1, num_res, residue_constants.atom_type_num, 3), np.float32
-                ),
-                "template_domain_names": np.array([''.encode()], dtype=np.object),
-                "template_sequence": np.array([''.encode()], dtype=np.object),
-                "template_sum_probs": np.array([0], dtype=np.float32),
-            }
+            template_features = empty_template_feats(num_res)
 
         return TemplateSearchResult(
             features=template_features,

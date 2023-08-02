@@ -22,7 +22,7 @@ from openfold.data.data_modules import (
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse import remove_arguments
+from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )

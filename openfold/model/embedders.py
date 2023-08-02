@@ -242,7 +242,7 @@ class InputEmbedderMultimer(nn.Module):
 
             entity_id = batch["entity_id"]
             entity_id_same = (entity_id[..., None] == entity_id[..., None, :])
-            rel_feats.append(entity_id_same[..., None])
+            rel_feats.append(entity_id_same[..., None].to(dtype=rel_pos.dtype))
 
             sym_id = batch["sym_id"]
             rel_sym_id = sym_id[..., None] - sym_id[..., None, :]
@@ -577,7 +577,7 @@ class TemplateEmbedder(nn.Module):
             # a second copy during the stack later on
             t_pair = z.new_zeros(
                 z.shape[:-3] +
-                (n_templ, n, n, self.config.template_pair_embedder.c_t)
+                (n_templ, n, n, self.config.template_pair_embedder.c_out)
             )
 
         for i in range(n_templ):
@@ -667,17 +667,17 @@ class TemplatePairEmbedderMultimer(nn.Module):
     ):
         super(TemplatePairEmbedderMultimer, self).__init__()
 
-        self.dgram_linear = Linear(c_dgram, c_out)
-        self.aatype_linear_1 = Linear(c_aatype, c_out)
-        self.aatype_linear_2 = Linear(c_aatype, c_out)
+        self.dgram_linear = Linear(c_dgram, c_out, init='relu')
+        self.aatype_linear_1 = Linear(c_aatype, c_out, init='relu')
+        self.aatype_linear_2 = Linear(c_aatype, c_out, init='relu')
         self.query_embedding_layer_norm = LayerNorm(c_z)
-        self.query_embedding_linear = Linear(c_z, c_out)
+        self.query_embedding_linear = Linear(c_z, c_out, init='relu')
         
-        self.pseudo_beta_mask_linear = Linear(1, c_out)
-        self.x_linear = Linear(1, c_out)
-        self.y_linear = Linear(1, c_out)
-        self.z_linear = Linear(1, c_out)
-        self.backbone_mask_linear = Linear(1, c_out)
+        self.pseudo_beta_mask_linear = Linear(1, c_out, init='relu')
+        self.x_linear = Linear(1, c_out, init='relu')
+        self.y_linear = Linear(1, c_out, init='relu')
+        self.z_linear = Linear(1, c_out, init='relu')
+        self.backbone_mask_linear = Linear(1, c_out, init='relu')
 
     def forward(self,
         template_dgram: torch.Tensor,
@@ -812,10 +812,10 @@ class TemplateEmbedderMultimer(nn.Module):
             single_template_embeds = {}
             act = 0.
 
-            template_positions, pseudo_beta_mask = (
-                single_template_feats["template_pseudo_beta"],
-                single_template_feats["template_pseudo_beta_mask"],
-            )
+            template_positions, pseudo_beta_mask = pseudo_beta_fn(
+                single_template_feats["template_aatype"],
+                single_template_feats["template_all_atom_positions"],
+                single_template_feats["template_all_atom_mask"])
 
             template_dgram = dgram_from_positions(
                 template_positions,

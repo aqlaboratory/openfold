@@ -186,11 +186,6 @@ class AlphaFold(nn.Module):
         if self.config.recycle_early_stop_tolerance < 0:
             return False
 
-        if no_batch_dims == 0:
-            prev_pos = prev_pos.unsqueeze(dim=0)
-            next_pos = next_pos.unsqueeze(dim=0)
-            mask = mask.unsqueeze(dim=0)
-
         ca_idx = residue_constants.atom_order['CA']
         sq_diff = (distances(prev_pos[..., ca_idx, :]) - distances(next_pos[..., ca_idx, :])) ** 2
         mask = mask[..., None] * mask[..., None, :]
@@ -265,7 +260,7 @@ class AlphaFold(nn.Module):
                 requires_grad=False,
             )
 
-        x_prev = pseudo_beta_fn(
+        pseudo_beta_x_prev = pseudo_beta_fn(
             feats["aatype"], x_prev, None
         ).to(dtype=z.dtype)
 
@@ -279,9 +274,11 @@ class AlphaFold(nn.Module):
         m_1_prev_emb, z_prev_emb = self.recycling_embedder(
             m_1_prev,
             z_prev,
-            x_prev,
+            pseudo_beta_x_prev,
             inplace_safe=inplace_safe,
         )
+
+        del pseudo_beta_x_prev
 
         if(self.globals.offload_inference and inplace_safe):
             m = m.to(m_1_prev_emb.device)

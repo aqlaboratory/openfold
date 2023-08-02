@@ -2,7 +2,9 @@ from typing import Sequence
 
 import torch
 
+from openfold.config import NUM_RES
 from openfold.data.data_transforms import curry1
+from openfold.np import residue_constants as rc
 from openfold.utils.tensor_utils import masked_mean
 
 
@@ -301,3 +303,177 @@ def make_msa_profile(batch):
     )
 
     return batch
+
+
+def get_interface_residues(positions, atom_mask, asym_id, interface_threshold):
+    coord_diff = positions[..., None, :, :] - positions[..., None, :, :, :]
+    pairwise_dists = torch.sqrt(torch.sum(coord_diff ** 2, dim=-1))
+
+    diff_chain_mask = (asym_id[..., None, :] != asym_id[..., :, None]).float()
+    pair_mask = atom_mask[..., None, :] * atom_mask[..., None, :, :]
+    mask = diff_chain_mask[..., None] * pair_mask
+
+    min_dist_per_res = torch.where(mask, pairwise_dists, torch.inf).min(dim=-1)
+
+    valid_interfaces = torch.sum((min_dist_per_res < interface_threshold).float(), dim=-1)
+    interface_residues_idxs = torch.nonzero(valid_interfaces, as_tuple=True)[0]
+
+    return interface_residues_idxs
+
+
+def get_spatial_crop_idx(protein, crop_size, interface_threshold, generator):
+    positions = protein["all_atom_positions"]
+    atom_mask = protein["all_atom_mask"]
+    asym_id = protein["asym_id"]
+
+    interface_residues = get_interface_residues(positions=positions,
+                                                atom_mask=atom_mask,
+                                                asym_id=asym_id,
+                                                interface_threshold=interface_threshold)
+
+    if not torch.any(interface_residues):
+        return get_contiguous_crop_idx(protein, crop_size, generator)
+
+    target_res = interface_residues[int(torch.randint(0, interface_residues.shape[-1], (1,),
+                                   device=positions.device, generator=generator)[0])]
+
+    ca_idx = rc.atom_order["CA"]
+    ca_positions = positions[..., ca_idx, :]
+    ca_mask = atom_mask[..., ca_idx].bool()
+
+    coord_diff = ca_positions[..., None, :] - ca_positions[..., None, :, :]
+    ca_pairwise_dists = torch.sqrt(torch.sum(coord_diff ** 2, dim=-1))
+
+    to_target_distances = ca_pairwise_dists[target_res]
+    break_tie = (
+            torch.arange(
+                0, to_target_distances.shape[-1], device=positions.device
+            ).float()
+            * 1e-3
+    )
+    to_target_distances = torch.where(ca_mask[..., None], to_target_distances, torch.inf) + break_tie
+
+    ret = torch.argsort(to_target_distances)[:crop_size]
+    return ret.sort().values
+
+
+def randint(lower, upper, generator, device):
+    return int(torch.randint(
+        lower,
+        upper + 1,
+        (1,),
+        device=device,
+        generator=generator,
+    )[0])
+
+
+def get_contiguous_crop_idx(protein, crop_size, generator):
+    num_res = protein["aatype"].shape[0]
+    if num_res <= crop_size:
+        return torch.arange(num_res)
+
+    _, chain_lens = protein["asym_id"].unique(return_counts=True)
+    shuffle_idx = torch.randperm(chain_lens.shape[-1], device=chain_lens.device, generator=generator)
+    num_remaining = int(chain_lens.sum())
+    num_budget = crop_size
+    crop_idxs = []
+    asym_offset = torch.tensor(0, dtype=torch.int64)
+    for j, idx in enumerate(shuffle_idx):
+        this_len = int(chain_lens[idx])
+        num_remaining -= this_len
+        # num res at most we can keep in this ent
+        crop_size_max = min(num_budget, this_len)
+        # num res at least we shall keep in this ent
+        crop_size_min = min(this_len, max(0, num_budget - num_remaining))
+        chain_crop_size = randint(lower=crop_size_min,
+                                  upper=crop_size_max + 1,
+                                  generator=generator,
+                                  device=chain_lens.device)
+
+        chain_start = randint(lower=0,
+                              upper=this_len - chain_crop_size + 1,
+                              generator=generator,
+                              device=chain_lens.device)
+        crop_idxs.append(
+            torch.arange(asym_offset + chain_start, asym_offset + chain_start + chain_crop_size)
+        )
+        asym_offset += this_len
+
+        num_budget -= chain_crop_size
+
+    return torch.concat(crop_idxs)
+
+
+@curry1
+def random_crop_to_size(
+        protein,
+        crop_size,
+        max_templates,
+        shape_schema,
+        spatial_crop_prob,
+        interface_threshold,
+        subsample_templates=False,
+        seed=None,
+):
+    """Crop randomly to `crop_size`, or keep as is if shorter than that."""
+    # We want each ensemble to be cropped the same way
+    g = torch.Generator(device=protein["seq_length"].device)
+    if seed is not None:
+        g.manual_seed(seed)
+
+    use_spatial_crop = torch.rand((1,),
+                                  device=protein["seq_length"].device,
+                                  generator=g) < spatial_crop_prob
+    if use_spatial_crop:
+        crop_idxs = get_spatial_crop_idx(protein, crop_size, interface_threshold, g)
+    else:
+        crop_idxs = get_contiguous_crop_idx(protein, crop_size, g)
+
+    if "template_mask" in protein:
+        num_templates = protein["template_mask"].shape[-1]
+    else:
+        num_templates = 0
+
+    # No need to subsample templates if there aren't any
+    subsample_templates = subsample_templates and num_templates
+
+    if subsample_templates:
+        templates_crop_start = randint(lower=0,
+                                       upper=num_templates + 1,
+                                       generator=g,
+                                       device=protein["seq_length"].device)
+        templates_select_indices = torch.randperm(
+            num_templates, device=protein["seq_length"].device, generator=g
+        )
+    else:
+        templates_crop_start = 0
+
+    num_res_crop_size = min(int(protein["seq_length"]), crop_size)
+    num_templates_crop_size = min(
+        num_templates - templates_crop_start, max_templates
+    )
+
+    for k, v in protein.items():
+        if k not in shape_schema or (
+                "template" not in k and NUM_RES not in shape_schema[k]
+        ):
+            continue
+
+        # randomly permute the templates before cropping them.
+        if k.startswith("template") and subsample_templates:
+            v = v[templates_select_indices]
+
+        for i, (dim_size, dim) in enumerate(zip(shape_schema[k], v.shape)):
+            is_num_res = dim_size == NUM_RES
+            if i == 0 and k.startswith("template"):
+                crop_size = num_templates_crop_size
+                crop_start = templates_crop_start
+                v = v[slice(crop_start, crop_start + crop_size)]
+            elif is_num_res:
+                v = torch.index_select(v, i, crop_idxs)
+
+        protein[k] = v
+
+    protein["seq_length"] = protein["seq_length"].new_tensor(num_res_crop_size)
+
+    return protein

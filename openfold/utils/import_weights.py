@@ -28,7 +28,7 @@ _NPZ_KEY_PREFIX = "alphafold/alphafold_iteration/"
 # With Param, a poor man's enum with attributes (Rust-style)
 class ParamType(Enum):
     LinearWeight = partial(  # hack: partial prevents fns from becoming methods
-        lambda w: w.transpose(-1, -2)
+        lambda w: w.unsqueeze(-1) if len(w.shape) == 1 else w.transpose(-1, -2)
     )
     LinearWeightMHA = partial(
         lambda w: w.reshape(*w.shape[:-2], -1).transpose(-1, -2)
@@ -58,6 +58,7 @@ class Param:
     param: Union[torch.Tensor, List[torch.Tensor]]
     param_type: ParamType = ParamType.Other
     stacked: bool = False
+    swap: bool = False
 
 
 def process_translation_dict(d, top_layer=True):
@@ -101,6 +102,7 @@ def stacked(param_dict_list, out=None):
                 param=[param.param for param in v],
                 param_type=v[0].param_type,
                 stacked=True,
+                swap=v[0].swap
             )
 
             out[k] = stacked_param
@@ -122,7 +124,12 @@ def assign(translation_dict, orig_weights):
             try:
                 weights = list(map(param_type.transformation, weights))
                 for p, w in zip(ref, weights):
-                    p.copy_(w)
+                    if param.swap:
+                        index = p.shape[0] // 2
+                        p[:index].copy_(w[index:])
+                        p[index:].copy_(w[:index])
+                    else:
+                        p.copy_(w)
             except:
                 print(k)
                 print(ref[0].shape)
@@ -145,10 +152,22 @@ def generate_translation_dict(model, version, is_multimer=False):
     LinearBiasMultimer = lambda l: (
         Param(l, param_type=ParamType.LinearBiasMultimer)
     )
+    LinearWeightSwap = lambda l: (Param(l, param_type=ParamType.LinearWeight, swap=True))
+    LinearBiasSwap = lambda l: (Param(l, swap=True))
 
     LinearParams = lambda l: {
         "weights": LinearWeight(l.weight),
         "bias": LinearBias(l.bias),
+    }
+
+    LinearParamsMHA = lambda l: {
+        "weights": LinearWeightMHA(l.weight),
+        "bias": LinearBiasMHA(l.bias),
+    }
+
+    LinearParamsSwap = lambda l: {
+        "weights": LinearWeightSwap(l.weight),
+        "bias": LinearBiasSwap(l.bias),
     }
 
     LinearParamsMultimer = lambda l: {
@@ -194,10 +213,11 @@ def generate_translation_dict(model, version, is_multimer=False):
 
     def TriMulOutParams(tri_mul, outgoing=True):
         if re.fullmatch("^model_[1-5]_multimer_v3$", version):
+            lin_param_type = LinearParams if outgoing else LinearParamsSwap
             d = {
                 "left_norm_input": LayerNormParams(tri_mul.layer_norm_in),
-                "projection": LinearParams(tri_mul.linear_ab_p),
-                "gate": LinearParams(tri_mul.linear_ab_g),
+                "projection": lin_param_type(tri_mul.linear_ab_p),
+                "gate": lin_param_type(tri_mul.linear_ab_g),
                 "center_norm": LayerNormParams(tri_mul.layer_norm_out),
             }
         else:
@@ -276,24 +296,24 @@ def generate_translation_dict(model, version, is_multimer=False):
     }
 
     PointProjectionParams = lambda pp: {
-        "point_projection": LinearParamsMultimer(
+        "point_projection": LinearParamsMHA(
             pp.linear,
         ),
     }
 
     IPAParamsMultimer = lambda ipa: {
         "q_scalar_projection": {
-            "weights": LinearWeightMultimer(
+            "weights": LinearWeightMHA(
                 ipa.linear_q.weight,
             ),
         },
         "k_scalar_projection": {
-            "weights": LinearWeightMultimer(
+            "weights": LinearWeightMHA(
                 ipa.linear_k.weight,
             ),
         },
         "v_scalar_projection": {
-            "weights": LinearWeightMultimer(
+            "weights": LinearWeightMHA(
                 ipa.linear_v.weight,
             ),
         },
@@ -574,7 +594,7 @@ def generate_translation_dict(model, version, is_multimer=False):
                         "template_pair_embedding_0": LinearParams(
                             temp_embedder.template_pair_embedder.dgram_linear
                         ),
-                        "template_pair_embedding_1": LinearParamsMultimer(
+                        "template_pair_embedding_1": LinearParams(
                             temp_embedder.template_pair_embedder.pseudo_beta_mask_linear
                         ),
                         "template_pair_embedding_2": LinearParams(
@@ -583,16 +603,16 @@ def generate_translation_dict(model, version, is_multimer=False):
                         "template_pair_embedding_3": LinearParams(
                             temp_embedder.template_pair_embedder.aatype_linear_2
                         ),
-                        "template_pair_embedding_4": LinearParamsMultimer(
+                        "template_pair_embedding_4": LinearParams(
                             temp_embedder.template_pair_embedder.x_linear
                         ),
-                        "template_pair_embedding_5": LinearParamsMultimer(
+                        "template_pair_embedding_5": LinearParams(
                             temp_embedder.template_pair_embedder.y_linear
                         ),
-                        "template_pair_embedding_6": LinearParamsMultimer(
+                        "template_pair_embedding_6": LinearParams(
                             temp_embedder.template_pair_embedder.z_linear
                         ),
-                        "template_pair_embedding_7": LinearParamsMultimer(
+                        "template_pair_embedding_7": LinearParams(
                             temp_embedder.template_pair_embedder.backbone_mask_linear
                         ),
                         "template_pair_embedding_8": LinearParams(
@@ -600,7 +620,7 @@ def generate_translation_dict(model, version, is_multimer=False):
                         ),
                         "template_embedding_iteration": tps_blocks_params,
                         "output_layer_norm": LayerNormParams(
-                            model.template_embedder.template_pair_stack.layer_norm
+                            temp_embedder.template_pair_stack.layer_norm
                         ),
                     },
                     "output_linear": LinearParams(

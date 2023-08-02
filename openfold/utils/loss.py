@@ -1643,7 +1643,7 @@ def chain_center_of_mass_loss(
     all_atom_positions = all_atom_positions[..., ca_pos, :]
     all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
 
-    chains, _ = asym_id.unique(return_counts=True)
+    chains = asym_id.unique()
     one_hot = torch.nn.functional.one_hot(asym_id, num_classes=chains.shape[0]).to(dtype=all_atom_mask.dtype)
     one_hot = one_hot * all_atom_mask
     chain_pos_mask = one_hot.transpose(-2, -1)

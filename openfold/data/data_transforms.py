@@ -89,18 +89,17 @@ def make_all_atom_aatype(protein):
 def fix_templates_aatype(protein):
     # Map one-hot to indices
     num_templates = protein["template_aatype"].shape[0]
-    if(num_templates > 0):
-        protein["template_aatype"] = torch.argmax(
-            protein["template_aatype"], dim=-1
-        )
-        # Map hhsearch-aatype to our aatype.
-        new_order_list = rc.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
-        new_order = torch.tensor(
-            new_order_list, dtype=torch.int64, device=protein["template_aatype"].device,
-        ).expand(num_templates, -1)
-        protein["template_aatype"] = torch.gather(
-            new_order, 1, index=protein["template_aatype"]
-        )
+    protein["template_aatype"] = torch.argmax(
+        protein["template_aatype"], dim=-1
+    )
+    # Map hhsearch-aatype to our aatype.
+    new_order_list = rc.MAP_HHBLITS_AATYPE_TO_OUR_AATYPE
+    new_order = torch.tensor(
+        new_order_list, dtype=torch.int64, device=protein["template_aatype"].device,
+    ).expand(num_templates, -1)
+    protein["template_aatype"] = torch.gather(
+        new_order, 1, index=protein["template_aatype"]
+    )
 
     return protein
 
