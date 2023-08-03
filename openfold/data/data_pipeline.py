@@ -831,9 +831,8 @@ class DataPipeline:
                     with open(path, "r") as fp:
                         hits = parsers.parse_hhr(fp.read())
                     all_hits[f] = hits
-                    fp.close()
                     
-                elif (ext =='.sto') and (f.startswith("pdb")):
+                elif (ext =='.sto') and (f.startswith("hmm")):
                     with open(path,"r") as fp:
                         hits = parsers.parse_hmmsearch_sto(fp.read(),input_sequence)
                     all_hits[f] = hits
