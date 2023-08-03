@@ -784,6 +784,45 @@ class DataPipeline:
 
         return all_hits
 
+    def _parse_template_hits(
+            self,
+            alignment_dir: str,
+            alignment_index: Optional[Any] = None,
+            input_sequence=None,
+    ) -> Mapping[str, Any]:
+        all_hits = {}
+        if (alignment_index is not None):
+            fp = open(os.path.join(alignment_dir, alignment_index["db"]), 'rb')
+
+            def read_template(start, size):
+                fp.seek(start)
+                return fp.read(size).decode("utf-8")
+
+            for (name, start, size) in alignment_index["files"]:
+                ext = os.path.splitext(name)[-1]
+
+                if (ext == ".hhr"):
+                    hits = parsers.parse_hhr(read_template(start, size))
+                    all_hits[name] = hits
+
+            fp.close()
+        else:
+            for f in os.listdir(alignment_dir):
+                path = os.path.join(alignment_dir, f)
+                ext = os.path.splitext(f)[-1]
+
+                if (ext == ".hhr"):
+                    with open(path, "r") as fp:
+                        hits = parsers.parse_hhr(fp.read())
+                    all_hits[f] = hits
+                    
+                elif (ext =='.sto') and (f.startswith("hmm")):
+                    with open(path,"r") as fp:
+                        hits = parsers.parse_hmmsearch_sto(fp.read(),input_sequence)
+                    all_hits[f] = hits
+                    fp.close()
+        return all_hits
+
     def _get_msas(self,
         alignment_dir: str,
         input_sequence: Optional[str] = None,
@@ -890,8 +929,7 @@ class DataPipeline:
         input_sequence = mmcif.chain_to_seqres[chain_id]
         hits = self._parse_template_hit_files(
             alignment_dir,
-            input_sequence,
-            alignment_index)
+            alignment_index,input_sequence)
 
         template_features = make_template_features(
             input_sequence,
@@ -939,8 +977,7 @@ class DataPipeline:
 
         hits = self._parse_template_hit_files(
             alignment_dir,
-            input_sequence,
-            alignment_index
+            alignment_index,input_sequence
         )
 
         template_features = make_template_features(
@@ -972,8 +1009,7 @@ class DataPipeline:
 
         hits = self._parse_template_hit_files(
             alignment_dir,
-            input_sequence,
-            alignment_index
+            alignment_index,input_sequence
         )
 
         template_features = make_template_features(
@@ -1062,7 +1098,7 @@ class DataPipeline:
             alignment_dir = os.path.join(
                 super_alignment_dir, desc
             )
-            hits = self._parse_template_hit_files(alignment_dir, seq, alignment_index=None)
+            hits = self._parse_template_hits(alignment_dir, alignment_index=None,input_sequence=input_sequence)
             template_features = make_template_features(
                 seq,
                 hits,

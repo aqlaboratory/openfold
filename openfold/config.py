@@ -163,7 +163,7 @@ def model_config(
         for k,v in multimer_model_config_update['model'].items():
             c.model[k] = v
 
-        for k, v in multimer_model_config_update['loss'].items():
+        for k,v in multimer_model_config_update['loss'].items():
             c.loss[k] = v
 
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
@@ -683,11 +683,24 @@ config = mlc.ConfigDict(
 )
 
 multimer_model_config_update = {
-    "model": {
-        "input_embedder": {
-            "tf_dim": 21,
-            "msa_dim": 49,
-            #"num_msa": 508,
+    'model':{"input_embedder": {
+        "tf_dim": 21,
+        "msa_dim": 49,
+        #"num_msa": 508,
+        "c_z": c_z,
+        "c_m": c_m,
+        "relpos_k": 32,
+        "max_relative_chain": 2,
+        "max_relative_idx": 32,
+        "use_chain_relative": True,
+    },
+    "template": {
+        "distogram": {
+            "min_bin": 3.25,
+            "max_bin": 50.75,
+            "no_bins": 39,
+        },
+        "template_pair_embedder": {
             "c_z": c_z,
             "c_m": c_m,
             "relpos_k": 32,
@@ -828,6 +841,8 @@ multimer_model_config_update = {
         },
         "recycle_early_stop_tolerance": 0.5
     },
+    "recycle_early_stop_tolerance": 0.5
+    },
     "loss": {
         "distogram": {
             "min_bin": 2.3125,
@@ -903,5 +918,5 @@ multimer_model_config_update = {
             "enabled": True,
         },
         "eps": eps,
-    }
+    },
 }
