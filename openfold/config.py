@@ -824,7 +824,9 @@ multimer_model_config_update = {
             "c_s": c_s,
             "c_out": 37,
         },
-    }},
+    },
+    "recycle_early_stop_tolerance": 0.5
+    },
     "loss": {
         "distogram": {
             "min_bin": 2.3125,
@@ -901,5 +903,4 @@ multimer_model_config_update = {
         },
         "eps": eps,
     },
-    "recycle_early_stop_tolerance": 0.5
 }
