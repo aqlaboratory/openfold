@@ -160,7 +160,7 @@ def model_config(
         c.loss.masked_msa.num_classes = 22
         c.data.common.max_recycling_iters = 20
 
-        for k,v in multimer_model_config_update.items():
+        for k,v in multimer_model_config_update['model'].items():
             c.model[k] = v
 
         for k,v in multimer_model_config_update['loss'].items():
@@ -683,7 +683,7 @@ config = mlc.ConfigDict(
 )
 
 multimer_model_config_update = {
-    "input_embedder": {
+    'model':{"input_embedder": {
         "tf_dim": 21,
         "msa_dim": 49,
         #"num_msa": 508,
@@ -824,7 +824,7 @@ multimer_model_config_update = {
             "c_s": c_s,
             "c_out": 37,
         },
-    },
+    }},
     "loss": {
         "distogram": {
             "min_bin": 2.3125,
