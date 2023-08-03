@@ -172,20 +172,20 @@ class Rot3Array:
     ) -> Rot3Array:
         """Construct Rot3Array from components of quaternion."""
         if normalize:
-            inv_norm = torch.rsqrt(eps + w**2 + x**2 + y**2 + z**2)
+            inv_norm = torch.rsqrt(torch.clamp(w**2 + x**2 + y**2 + z**2, min=eps))
             w = w * inv_norm
             x = x * inv_norm
             y = y * inv_norm
             z = z * inv_norm
-        xx = 1 - 2 * (y ** 2 + z ** 2)
-        xy = 2 * (x * y - w * z)
-        xz = 2 * (x * z + w * y)
-        yx = 2 * (x * y + w * z)
-        yy = 1 - 2 * (x ** 2 + z ** 2)
-        yz = 2 * (y * z - w * x)
-        zx = 2 * (x * z - w * y)
-        zy = 2 * (y * z + w * x)
-        zz = 1 - 2 * (x ** 2 + y ** 2)
+        xx = 1.0 - 2.0 * (y ** 2 + z ** 2)
+        xy = 2.0 * (x * y - w * z)
+        xz = 2.0 * (x * z + w * y)
+        yx = 2.0 * (x * y + w * z)
+        yy = 1.0 - 2.0 * (x ** 2 + z ** 2)
+        yz = 2.0 * (y * z - w * x)
+        zx = 2.0 * (x * z - w * y)
+        zy = 2.0 * (y * z + w * x)
+        zz = 1.0 - 2.0 * (x ** 2 + y ** 2)
         return cls(xx, xy, xz, yx, yy, yz, zx, zy, zz)
 
     def reshape(self, new_shape):

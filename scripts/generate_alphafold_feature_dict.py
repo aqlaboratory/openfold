@@ -45,7 +45,7 @@ def main(args):
         uniref90_database_path=args.uniref90_database_path,
         mgnify_database_path=args.mgnify_database_path,
         bfd_database_path=args.bfd_database_path,
-        uniclust30_database_path=args.uniclust30_database_path,
+        uniref30_database_path=args.uniref30_database_path,
         small_bfd_database_path=None,
         template_featurizer=template_featurizer,
         template_searcher=template_searcher,

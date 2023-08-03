@@ -24,7 +24,7 @@ from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
 
 import numpy as np
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
-from openfold.data.templates import get_custom_template_features
+from openfold.data.templates import get_custom_template_features, empty_template_feats
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
@@ -34,22 +34,10 @@ FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
 
 
-def empty_template_feats(n_res) -> FeatureDict:
-    return {
-        "template_aatype": np.zeros((0, n_res)).astype(np.int64),
-        "template_all_atom_positions":
-            np.zeros((0, n_res, 37, 3)).astype(np.float32),
-        "template_sum_probs": np.zeros((0, 1)).astype(np.float32),
-        "template_all_atom_mask": np.zeros((0, n_res, 37)).astype(np.float32),
-    }
-
-
 def make_template_features(
     input_sequence: str,
     hits: Sequence[Any],
     template_featurizer: Any,
-    query_pdb_code: Optional[str] = None,
-    query_release_date: Optional[str] = None,
 ) -> FeatureDict:
     hits_cat = sum(hits.values(), [])
     if(len(hits_cat) == 0 or template_featurizer is None):
@@ -60,11 +48,6 @@ def make_template_features(
             hits=hits_cat,
         )
         template_features = templates_result.features
-
-        # The template featurizer doesn't format empty template features
-        # properly. This is a quick fix.
-        if(template_features["template_aatype"].shape[0] == 0):
-            template_features = empty_template_feats(len(input_sequence))
 
     return template_features
 
@@ -453,7 +436,8 @@ class AlignmentRunner:
         if(uniprot_database_path is not None):
             self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
-                database_path=uniprot_database_path
+                database_path=uniprot_database_path,
+                n_cpu=no_cpus
             )
 
         if(template_searcher is not None and
@@ -839,7 +823,6 @@ class DataPipeline:
                     fp.close()
         return all_hits
 
-
     def _get_msas(self,
         alignment_dir: str,
         input_sequence: Optional[str] = None,
@@ -944,15 +927,14 @@ class DataPipeline:
         mmcif_feats = make_mmcif_features(mmcif, chain_id)
 
         input_sequence = mmcif.chain_to_seqres[chain_id]
-        hits = self._parse_template_hits(
+        hits = self._parse_template_hit_files(
             alignment_dir,
             alignment_index,input_sequence)
 
         template_features = make_template_features(
             input_sequence,
             hits,
-            self.template_featurizer,
-            query_release_date=to_date(mmcif.header["release_date"])
+            self.template_featurizer
         )
 
         msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
@@ -993,7 +975,7 @@ class DataPipeline:
             is_distillation=is_distillation
         )
 
-        hits = self._parse_template_hits(
+        hits = self._parse_template_hit_files(
             alignment_dir,
             alignment_index,input_sequence
         )
@@ -1025,7 +1007,7 @@ class DataPipeline:
         description = os.path.splitext(os.path.basename(core_path))[0].upper()
         core_feats = make_protein_features(protein_object, description)
 
-        hits = self._parse_template_hits(
+        hits = self._parse_template_hit_files(
             alignment_dir,
             alignment_index,input_sequence
         )

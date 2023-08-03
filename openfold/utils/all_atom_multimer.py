@@ -36,9 +36,9 @@ def get_rc_tensor(rc_np, aatype):
 def atom14_to_atom37(
     atom14_data: torch.Tensor,  # (*, N, 14, ...)
     aatype: torch.Tensor # (*, N)
-) -> torch.Tensor:    # (*, N, 37, ...)
+) -> Tuple:    # (*, N, 37, ...)
     """Convert atom14 to atom37 representation."""
-    idx_atom37_to_atom14 = get_rc_tensor(rc.RESTYPE_ATOM37_TO_ATOM14, aatype)
+    idx_atom37_to_atom14 = get_rc_tensor(rc.RESTYPE_ATOM37_TO_ATOM14, aatype).long()
     no_batch_dims = len(aatype.shape) - 1
     atom37_data = tensor_utils.batched_gather(
         atom14_data, 
@@ -50,10 +50,10 @@ def atom14_to_atom37(
     if len(atom14_data.shape) == no_batch_dims + 2:
         atom37_data *= atom37_mask
     elif len(atom14_data.shape) == no_batch_dims + 3:
-        atom37_data *= atom37_mask[..., None].astype(atom37_data.dtype)
+        atom37_data *= atom37_mask[..., None].to(dtype=atom37_data.dtype)
     else:
         raise ValueError("Incorrectly shaped data")
-    return atom37_data
+    return atom37_data, atom37_mask
 
 
 def atom37_to_atom14(aatype, all_atom_pos, all_atom_mask):
@@ -230,13 +230,13 @@ def torsion_angles_to_frames(
     num_residues = aatype.shape[-1]
     sin_angles = torch.cat(
         [
-            torch.zeros_like(aatype).unsqueeze(), 
+            torch.zeros_like(aatype).unsqueeze(dim=-1),
             sin_angles, 
         ],
         dim=-1)
     cos_angles = torch.cat(
         [
-            torch.ones_like(aatype).unsqueeze(), 
+            torch.ones_like(aatype).unsqueeze(dim=-1),
             cos_angles
         ],
         dim=-1

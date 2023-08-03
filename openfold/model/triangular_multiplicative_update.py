@@ -521,12 +521,8 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
 
         def compute_projection(pair, mask):
             p = compute_projection_helper(pair, mask)
-            if self._outgoing:
-                left = p[..., :self.c_hidden]
-                right = p[..., self.c_hidden:]
-            else:
-                left = p[..., self.c_hidden:]
-                right = p[..., :self.c_hidden]
+            left = p[..., :self.c_hidden]
+            right = p[..., self.c_hidden:]
 
             return left, right
 
@@ -580,12 +576,8 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         ab = ab * self.sigmoid(self.linear_ab_g(z))
         ab = ab * self.linear_ab_p(z)
 
-        if self._outgoing:
-            a = ab[..., :self.c_hidden]
-            b = ab[..., self.c_hidden:]
-        else:
-            b = ab[..., :self.c_hidden]
-            a = ab[..., self.c_hidden:]
+        a = ab[..., :self.c_hidden]
+        b = ab[..., self.c_hidden:]
 
         # Prevents overflow of torch.matmul in combine projections in
         # reduced-precision modes

@@ -20,7 +20,7 @@ class QuatRigid(nn.Module):
 
     def forward(self, activations: torch.Tensor) -> Rigid3Array:
         # NOTE: During training, this needs to be run in higher precision
-        rigid_flat = self.linear(activations.to(torch.float32))
+        rigid_flat = self.linear(activations)
         
         rigid_flat = torch.unbind(rigid_flat, dim=-1)
         if(self.full_quat):

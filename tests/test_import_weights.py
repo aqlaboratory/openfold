@@ -15,7 +15,9 @@
 import torch
 import numpy as np
 import unittest
+from pathlib import Path
 
+from tests.config import consts
 from openfold.config import model_config
 from openfold.model.model import AlphaFold
 from openfold.utils.import_weights import import_jax_weights_
@@ -23,15 +25,17 @@ from openfold.utils.import_weights import import_jax_weights_
 
 class TestImportWeights(unittest.TestCase):
     def test_import_jax_weights_(self):
-        npz_path = "openfold/resources/params/params_model_1_ptm.npz"
+        npz_path = Path(__file__).parent.resolve() / f"../openfold/resources/params/params_{consts.model}.npz"
 
-        c = model_config("model_1_ptm")
+        c = model_config(consts.model)
         c.globals.blocks_per_ckpt = None
         model = AlphaFold(c)
+        model.eval()
 
         import_jax_weights_(
             model,
             npz_path,
+            version=consts.model
         )
 
         data = np.load(npz_path)
