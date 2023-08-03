@@ -310,10 +310,10 @@ def fape_loss(
         interface_bb_loss = backbone_loss(
             traj=traj,
             pair_mask=1. - intra_chain_mask,
-            **{**batch, **config.intra_chain_backbone},
+            **{**batch, **config.interface},
         )
         weighted_bb_loss = (intra_chain_bb_loss * config.intra_chain_backbone.weight
-                            + interface_bb_loss * config.intra_chain_backbone.weight)
+                            + interface_bb_loss * config.interface.weight)
     else:
         bb_loss = backbone_loss(
             traj=traj,
