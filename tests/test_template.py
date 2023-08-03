@@ -256,7 +256,7 @@ class Template(unittest.TestCase):
 
         template_feats = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
         if consts.is_multimer:
-            out_repro = model.template_embedder(
+            out_repro_all = model.template_embedder(
                 template_feats,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
@@ -267,7 +267,7 @@ class Template(unittest.TestCase):
                 inplace_safe=False
             )
         else:
-            out_repro = model.template_embedder(
+            out_repro_all = model.template_embedder(
                 template_feats,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
@@ -277,10 +277,10 @@ class Template(unittest.TestCase):
                 inplace_safe=False
             )
 
-        out_repro = out_repro["template_pair_embedding"]
+        out_repro = out_repro_all["template_pair_embedding"]
         out_repro = out_repro.cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
 
 if __name__ == "__main__":

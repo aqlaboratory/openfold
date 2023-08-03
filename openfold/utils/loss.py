@@ -310,10 +310,10 @@ def fape_loss(
         interface_bb_loss = backbone_loss(
             traj=traj,
             pair_mask=1. - intra_chain_mask,
-            **{**batch, **config.interface},
+            **{**batch, **config.interface_backbone},
         )
         weighted_bb_loss = (intra_chain_bb_loss * config.intra_chain_backbone.weight
-                            + interface_bb_loss * config.interface.weight)
+                            + interface_bb_loss * config.interface_backbone.weight)
     else:
         bb_loss = backbone_loss(
             traj=traj,
@@ -541,8 +541,11 @@ def lddt_loss(
         cutoff=cutoff, 
         eps=eps
     )
-    score = torch.nan_to_num(score,nan=torch.nanmean(score))
+
+    # TODO: Remove after initial pipeline testing
+    score = torch.nan_to_num(score, nan=torch.nanmean(score))
     score[score<0] = 0
+
     score = score.detach()
     bin_index = torch.floor(score * no_bins).long()
     bin_index = torch.clamp(bin_index, max=(no_bins - 1))
@@ -1233,7 +1236,7 @@ def find_structural_violations(
             batch["atom14_atom_exists"]
             * atomtype_radius[batch["residx_atom14_to_atom37"]]
         )
-    torch.cuda.memory_summary()
+
     # Compute the between residue clash loss.
     between_residue_clashes = between_residue_clash_loss(
         atom14_pred_positions=atom14_pred_positions,
@@ -1665,9 +1668,11 @@ def chain_center_of_mass_loss(
     all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
     all_atom_positions = all_atom_positions[..., ca_pos, :]
     all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
-    chains, _ = asym_id.unique(return_counts=True)
-    one_hot = torch.nn.functional.one_hot(asym_id.to(torch.int64)-1, # have to reduce asym_id by one because class values must be smaller than num_classes  
-                                          num_classes=chains.shape[0]).to(dtype=all_atom_mask.dtype) # make sure asym_id dtype is int
+    chains = asym_id.unique()
+
+    # Reduce asym_id by one because class values must be smaller than num_classes and asym_ids start at 1
+    one_hot = torch.nn.functional.one_hot(asym_id.long() - 1,
+                                          num_classes=chains.shape[0]).to(dtype=all_atom_mask.dtype)
     one_hot = one_hot * all_atom_mask
     chain_pos_mask = one_hot.transpose(-2, -1)
     chain_exists = torch.any(chain_pos_mask, dim=-1).float()
@@ -1687,6 +1692,7 @@ def chain_center_of_mass_loss(
 
     loss = masked_mean(loss_mask, losses, dim=(-1, -2))
     return loss
+
 
 # #
 # below are the functions required for permutations
@@ -1714,6 +1720,7 @@ def kabsch_rotation(P, Q):
     rotation = torch.tensor(rotation.t,dtype=torch.float) # rotation.t doesn't mean transpose, t only means get the matrix out of the procruste object
     assert rotation.shape == torch.Size([3,3])
     return rotation.to('cuda')
+
 
 def get_optimal_transform(
     src_atoms: torch.Tensor,

@@ -7,7 +7,6 @@ import pickle
 from typing import Optional, Sequence, List, Any
 
 import ml_collections as mlc
-import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import RandomSampler
@@ -18,7 +17,7 @@ from openfold.data import (
     mmcif_parsing,
     templates,
 )
-from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
+from openfold.utils.tensor_utils import dict_multimap
 import contextlib
 import tempfile
 from openfold.utils.tensor_utils import (
@@ -33,6 +32,7 @@ def temp_fasta_file(sequence_str):
         fasta_file.write(sequence_str)
         fasta_file.seek(0)
         yield fasta_file.name
+
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
@@ -296,6 +296,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self._chain_ids) 
 
+
 class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def __init__(self,
         data_dir: str,
@@ -549,9 +550,9 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
                 device=all_chain_features["aatype"].device)
             return all_chain_features
 
-
     def __len__(self):
         return len(self._chain_ids) 
+
 
 def deterministic_train_filter(
     chain_data_cache_entry: Any,
@@ -574,6 +575,7 @@ def deterministic_train_filter(
         return False
 
     return True
+
 
 def deterministic_multimer_train_filter(
         mmcif_data_cache_entry,
@@ -613,9 +615,10 @@ def deterministic_multimer_train_filter(
 
     return True
 
+
 def get_stochastic_train_filter_prob(
     chain_data_cache_entry: Any,
-) -> List[float]:
+) -> float:
     # Stochastic filters
     probabilities = []
     
@@ -723,8 +726,8 @@ class OpenFoldDataset(torch.utils.data.Dataset):
             datapoint_idx = next(samples)
             self.datapoints.append((dataset_idx, datapoint_idx))
 
+
 class OpenFoldMultimerDataset(torch.utils.data.Dataset):
-        
     """
     Create a torch Dataset object for multimer training and 
     add filtering steps described in AlphaFold Multimer's paper:
@@ -753,7 +756,8 @@ class OpenFoldMultimerDataset(torch.utils.data.Dataset):
                     chains = mmcif_data_cache[mmcif_id]['chain_ids']
                     mmcif_data_cache_entry = mmcif_data_cache[mmcif_id]
                     if deterministic_multimer_train_filter(mmcif_data_cache_entry,
-                                                               max_resolution=9,minimum_number_of_residues=5):
+                                                           max_resolution=9,
+                                                           minimum_number_of_residues=5):
                         selected_idx.append(i)
             
             return selected_idx
@@ -781,10 +785,12 @@ class OpenFoldMultimerDataset(torch.utils.data.Dataset):
             logging.info(f"self.epoch_len is {self.epoch_len}")
             self.datapoints += [(dataset_idx, selected_idx[i]) for i in range(self.epoch_len) ]
 
+
 class OpenFoldBatchCollator:
     def __call__(self, prots):
         stack_fn = partial(torch.stack, dim=0)
         return dict_multimap(stack_fn, prots) 
+
 
 class OpenFoldDataLoader(torch.utils.data.DataLoader):
     def __init__(self, *args, config, stage="train", generator=None, **kwargs):
@@ -872,6 +878,7 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
                 yield self._add_batch_properties(batch)
 
         return _batch_prop_gen(it)
+
 
 class OpenFoldMultimerDataLoader(torch.utils.data.DataLoader):
     def __init__(self, *args, config, stage="train", generator=None, **kwargs):
@@ -1110,7 +1117,8 @@ class OpenFoldDataModule(pl.LightningDataModule):
 
     def predict_dataloader(self):
         return self._gen_dataloader("predict") 
-    
+
+
 class OpenFoldMultimerDataModule(OpenFoldDataModule):
     """
     Create a datamodule specifically for multimer training

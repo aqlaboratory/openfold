@@ -51,7 +51,8 @@ def get_alphafold_config():
     return config
 
 
-_param_path = f"openfold/resources/params/params_{consts.model}.npz"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+_param_path = os.path.join(dir_path, "..", f"openfold/resources/params/params_{consts.model}.npz")
 _model = None
 
 
