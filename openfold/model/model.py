@@ -190,7 +190,7 @@ class AlphaFold(nn.Module):
         sq_diff = (distances(prev_pos[..., ca_idx, :]) - distances(next_pos[..., ca_idx, :])) ** 2
         mask = mask[..., None] * mask[..., None, :]
         sq_diff = masked_mean(mask=mask, value=sq_diff, dim=list(range(len(mask.shape))))
-        diff = torch.sqrt(sq_diff + eps)
+        diff = torch.sqrt(sq_diff + eps).item()
         return diff <= self.config.recycle_early_stop_tolerance
 
     def iteration(self, feats, prevs, _recycle=True):

@@ -155,12 +155,12 @@ def model_config(
         c.loss.tm.weight = 0.1
     elif "multimer" in name:
         c.globals.is_multimer = True
-        c.globals.bfloat16 = False
+        c.globals.bfloat16 = True
         c.globals.bfloat16_output = False
         c.loss.masked_msa.num_classes = 22
         c.data.common.max_recycling_iters = 20
 
-        for k,v in multimer_model_config_update['model'].items():
+        for k,v in multimer_model_config_update.items():
             c.model[k] = v
 
         for k,v in multimer_model_config_update['loss'].items():
@@ -593,12 +593,6 @@ config = mlc.ConfigDict(
                     "c_out": 37,
                 },
             },
-            # A negative value indicates that no early stopping will occur, i.e.
-            # the model will always run `max_recycling_iters` number of recycling
-            # iterations. A positive value will enable early stopping if the
-            # difference in pairwise distances is less than the tolerance between
-            # recycling steps.
-            "recycle_early_stop_tolerance": -1.
         },
         "relax": {
             "max_iterations": 0,  # no max
@@ -679,11 +673,17 @@ config = mlc.ConfigDict(
             "eps": eps,
         },
         "ema": {"decay": 0.999},
+        # A negative value indicates that no early stopping will occur, i.e.
+        # the model will always run `max_recycling_iters` number of recycling
+        # iterations. A positive value will enable early stopping if the
+        # difference in pairwise distances is less than the tolerance between
+        # recycling steps.
+        "recycle_early_stop_tolerance": -1
     }
 )
 
 multimer_model_config_update = {
-    'model':{"input_embedder": {
+    "input_embedder": {
         "tf_dim": 21,
         "msa_dim": 49,
         #"num_msa": 508,
@@ -702,146 +702,128 @@ multimer_model_config_update = {
         },
         "template_pair_embedder": {
             "c_z": c_z,
-            "c_m": c_m,
-            "relpos_k": 32,
-            "max_relative_chain": 2,
-            "max_relative_idx": 32,
-            "use_chain_relative": True,
+            "c_out": 64,
+            "c_dgram": 39,
+            "c_aatype": 22,
         },
-        "template": {
-            "distogram": {
-                "min_bin": 3.25,
-                "max_bin": 50.75,
-                "no_bins": 39,
-            },
-            "template_pair_embedder": {
-                "c_z": c_z,
-                "c_out": 64,
-                "c_dgram": 39,
-                "c_aatype": 22,
-            },
-            "template_single_embedder": {
-                "c_in": 34,
-                "c_m": c_m,
-            },
-            "template_pair_stack": {
-                "c_t": c_t,
-                # DISCREPANCY: c_hidden_tri_att here is given in the supplement
-                # as 64. In the code, it's 16.
-                "c_hidden_tri_att": 16,
-                "c_hidden_tri_mul": 64,
-                "no_blocks": 2,
-                "no_heads": 4,
-                "pair_transition_n": 2,
-                "dropout_rate": 0.25,
-                "tri_mul_first": True,
-                "fuse_projection_weights": True,
-                "blocks_per_ckpt": blocks_per_ckpt,
-                "inf": 1e9,
-            },
+        "template_single_embedder": {
+            "c_in": 34,
+            "c_m": c_m,
+        },
+        "template_pair_stack": {
             "c_t": c_t,
-            "c_z": c_z,
-            "inf": 1e5,  # 1e9,
-            "eps": eps,  # 1e-6,
-            "enabled": templates_enabled,
-            "embed_angles": embed_template_torsion_angles,
-            "use_unit_vector": True
+            # DISCREPANCY: c_hidden_tri_att here is given in the supplement
+            # as 64. In the code, it's 16.
+            "c_hidden_tri_att": 16,
+            "c_hidden_tri_mul": 64,
+            "no_blocks": 2,
+            "no_heads": 4,
+            "pair_transition_n": 2,
+            "dropout_rate": 0.25,
+            "tri_mul_first": True,
+            "fuse_projection_weights": True,
+            "blocks_per_ckpt": blocks_per_ckpt,
+            "inf": 1e9,
         },
-        "extra_msa": {
-            "extra_msa_embedder": {
-                "c_in": 25,
-                "c_out": c_e,
-                #"num_extra_msa": 2048
-            },
-            "extra_msa_stack": {
-                "c_m": c_e,
-                "c_z": c_z,
-                "c_hidden_msa_att": 8,
-                "c_hidden_opm": 32,
-                "c_hidden_mul": 128,
-                "c_hidden_pair_att": 32,
-                "no_heads_msa": 8,
-                "no_heads_pair": 4,
-                "no_blocks": 4,
-                "transition_n": 4,
-                "msa_dropout": 0.15,
-                "pair_dropout": 0.25,
-                "opm_first": True,
-                "fuse_projection_weights": True,
-                "clear_cache_between_blocks": True,
-                "inf": 1e9,
-                "eps": eps,  # 1e-10,
-                "ckpt": blocks_per_ckpt is not None,
-            },
-            "enabled": True,
+        "c_t": c_t,
+        "c_z": c_z,
+        "inf": 1e5,  # 1e9,
+        "eps": eps,  # 1e-6,
+        "enabled": templates_enabled,
+        "embed_angles": embed_template_torsion_angles,
+        "use_unit_vector": True
+    },
+    "extra_msa": {
+        "extra_msa_embedder": {
+            "c_in": 25,
+            "c_out": c_e,
+            #"num_extra_msa": 2048
         },
-        "evoformer_stack": {
-            "c_m": c_m,
+        "extra_msa_stack": {
+            "c_m": c_e,
             "c_z": c_z,
-            "c_hidden_msa_att": 32,
+            "c_hidden_msa_att": 8,
             "c_hidden_opm": 32,
             "c_hidden_mul": 128,
             "c_hidden_pair_att": 32,
-            "c_s": c_s,
             "no_heads_msa": 8,
             "no_heads_pair": 4,
-            "no_blocks": 48,
+            "no_blocks": 4,
             "transition_n": 4,
             "msa_dropout": 0.15,
             "pair_dropout": 0.25,
             "opm_first": True,
             "fuse_projection_weights": True,
-            "blocks_per_ckpt": blocks_per_ckpt,
-            "clear_cache_between_blocks": False,
+            "clear_cache_between_blocks": True,
             "inf": 1e9,
             "eps": eps,  # 1e-10,
+            "ckpt": blocks_per_ckpt is not None,
         },
-        "structure_module": {
-            "c_s": c_s,
-            "c_z": c_z,
-            "c_ipa": 16,
-            "c_resnet": 128,
-            "no_heads_ipa": 12,
-            "no_qk_points": 4,
-            "no_v_points": 8,
-            "dropout_rate": 0.1,
-            "no_blocks": 8,
-            "no_transition_layers": 1,
-            "no_resnet_blocks": 2,
-            "no_angles": 7,
-            "trans_scale_factor": 20,
-            "epsilon": eps,  # 1e-12,
-            "inf": 1e5,
-        },
-        "heads": {
-            "lddt": {
-                "no_bins": 50,
-                "c_in": c_s,
-                "c_hidden": 128,
-            },
-            "distogram": {
-                "c_z": c_z,
-                "no_bins": aux_distogram_bins,
-            },
-            "tm": {
-                "c_z": c_z,
-                "no_bins": aux_distogram_bins,
-                "ptm_weight": 0.2,
-                "iptm_weight": 0.8,
-                "enabled": True,
-            },
-            "masked_msa": {
-                "c_m": c_m,
-                "c_out": 22,
-            },
-            "experimentally_resolved": {
-                "c_s": c_s,
-                "c_out": 37,
-            },
-        },
-        "recycle_early_stop_tolerance": 0.5
+        "enabled": True,
     },
-    "recycle_early_stop_tolerance": 0.5
+    "evoformer_stack": {
+        "c_m": c_m,
+        "c_z": c_z,
+        "c_hidden_msa_att": 32,
+        "c_hidden_opm": 32,
+        "c_hidden_mul": 128,
+        "c_hidden_pair_att": 32,
+        "c_s": c_s,
+        "no_heads_msa": 8,
+        "no_heads_pair": 4,
+        "no_blocks": 48,
+        "transition_n": 4,
+        "msa_dropout": 0.15,
+        "pair_dropout": 0.25,
+        "opm_first": True,
+        "fuse_projection_weights": True,
+        "blocks_per_ckpt": blocks_per_ckpt,
+        "clear_cache_between_blocks": False,
+        "inf": 1e9,
+        "eps": eps,  # 1e-10,
+    },
+    "structure_module": {
+        "c_s": c_s,
+        "c_z": c_z,
+        "c_ipa": 16,
+        "c_resnet": 128,
+        "no_heads_ipa": 12,
+        "no_qk_points": 4,
+        "no_v_points": 8,
+        "dropout_rate": 0.1,
+        "no_blocks": 8,
+        "no_transition_layers": 1,
+        "no_resnet_blocks": 2,
+        "no_angles": 7,
+        "trans_scale_factor": 20,
+        "epsilon": eps,  # 1e-12,
+        "inf": 1e5,
+    },
+    "heads": {
+        "lddt": {
+            "no_bins": 50,
+            "c_in": c_s,
+            "c_hidden": 128,
+        },
+        "distogram": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+        },
+        "tm": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+            "ptm_weight": 0.2,
+            "iptm_weight": 0.8,
+            "enabled": True,
+        },
+        "masked_msa": {
+            "c_m": c_m,
+            "c_out": 22,
+        },
+        "experimentally_resolved": {
+            "c_s": c_s,
+            "c_out": 37,
+        },
     },
     "loss": {
         "distogram": {
@@ -919,4 +901,5 @@ multimer_model_config_update = {
         },
         "eps": eps,
     },
+    "recycle_early_stop_tolerance": 0.5
 }
