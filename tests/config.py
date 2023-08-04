@@ -19,7 +19,8 @@ consts = mlc.ConfigDict(
         "c_s": 384,
         "c_t": 64,
         "c_e": 64,
-        "msa_logits": 22  # monomer: 23, multimer: 22
+        "msa_logits": 22,  # monomer: 23, multimer: 22
+        "template_mmcif_dir": None  # Set for test_multimer_datamodule
     }
 )
 

@@ -139,7 +139,8 @@ class AlphaFold(nn.Module):
                 chunk_size=self.globals.chunk_size,
                 multichain_mask_2d=multichain_mask_2d,
                 use_lma=self.globals.use_lma,
-                inplace_safe=inplace_safe
+                inplace_safe=inplace_safe,
+                _mask_trans = self.config._mask_trans
             )
             feats["template_torsion_angles_mask"] = (
                 template_embeds["template_mask"]
@@ -161,7 +162,8 @@ class AlphaFold(nn.Module):
                 templ_dim,
                 chunk_size=self.globals.chunk_size,
                 use_lma=self.globals.use_lma,
-                inplace_safe=inplace_safe
+                inplace_safe=inplace_safe,
+                _mask_trans=self.config._mask_trans
             )
 
         return template_embeds

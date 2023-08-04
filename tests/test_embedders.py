@@ -21,7 +21,7 @@ from openfold.model.embedders import (
     InputEmbedder,
     InputEmbedderMultimer,
     RecyclingEmbedder,
-    TemplateAngleEmbedder,
+    TemplateSingleEmbedder,
     TemplatePairEmbedder
 )
 
@@ -96,7 +96,7 @@ class TestTemplateAngleEmbedder(unittest.TestCase):
         n_templ = 4
         n_res = 256
 
-        tae = TemplateAngleEmbedder(
+        tae = TemplateSingleEmbedder(
             template_angle_dim,
             c_m,
         )

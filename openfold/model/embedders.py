@@ -412,7 +412,7 @@ class RecyclingEmbedder(nn.Module):
         return m_update, z_update
 
 
-class TemplateAngleEmbedder(nn.Module):
+class TemplateSingleEmbedder(nn.Module):
     """
     Embeds the "template_angle_feat" feature.
 
@@ -432,7 +432,7 @@ class TemplateAngleEmbedder(nn.Module):
             c_out:
                 Output channel dimension
         """
-        super(TemplateAngleEmbedder, self).__init__()
+        super(TemplateSingleEmbedder, self).__init__()
 
         self.c_out = c_out
         self.c_in = c_in
@@ -543,8 +543,8 @@ class TemplateEmbedder(nn.Module):
         super(TemplateEmbedder, self).__init__()
         
         self.config = config
-        self.template_angle_embedder = TemplateAngleEmbedder(
-            **config["template_angle_embedder"],
+        self.template_single_embedder = TemplateSingleEmbedder(
+            **config["template_single_embedder"],
         )
         self.template_pair_embedder = TemplatePairEmbedder(
             **config["template_pair_embedder"],
@@ -651,7 +651,7 @@ class TemplateEmbedder(nn.Module):
             )
 
             # [*, S_t, N, C_m]
-            a = self.template_angle_embedder(template_angle_feat)
+            a = self.template_single_embedder(template_angle_feat)
 
             ret["template_single_embedding"] = a
 
@@ -660,7 +660,7 @@ class TemplateEmbedder(nn.Module):
 
 class TemplatePairEmbedderMultimer(nn.Module):
     def __init__(self,
-        c_z: int,
+        c_in: int,
         c_out: int,
         c_dgram: int,
         c_aatype: int,
@@ -670,8 +670,8 @@ class TemplatePairEmbedderMultimer(nn.Module):
         self.dgram_linear = Linear(c_dgram, c_out, init='relu')
         self.aatype_linear_1 = Linear(c_aatype, c_out, init='relu')
         self.aatype_linear_2 = Linear(c_aatype, c_out, init='relu')
-        self.query_embedding_layer_norm = LayerNorm(c_z)
-        self.query_embedding_linear = Linear(c_z, c_out, init='relu')
+        self.query_embedding_layer_norm = LayerNorm(c_in)
+        self.query_embedding_linear = Linear(c_in, c_out, init='relu')
         
         self.pseudo_beta_mask_linear = Linear(1, c_out, init='relu')
         self.x_linear = Linear(1, c_out, init='relu')
@@ -722,11 +722,11 @@ class TemplatePairEmbedderMultimer(nn.Module):
 class TemplateSingleEmbedderMultimer(nn.Module):
     def __init__(self,
         c_in: int,
-        c_m: int,
+        c_out: int,
     ):
         super(TemplateSingleEmbedderMultimer, self).__init__()
-        self.template_single_embedder = Linear(c_in, c_m)
-        self.template_projector = Linear(c_m, c_m)
+        self.template_single_embedder = Linear(c_in, c_out)
+        self.template_projector = Linear(c_out, c_out)
     
     def forward(self,
         batch,
@@ -797,6 +797,7 @@ class TemplateEmbedderMultimer(nn.Module):
         templ_dim,
         chunk_size,
         multichain_mask_2d,
+        _mask_trans=True,
         use_lma=False,
         inplace_safe=False
     ):
@@ -869,7 +870,9 @@ class TemplateEmbedderMultimer(nn.Module):
             template_embeds["template_pair_embedding"], 
             padding_mask_2d.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=chunk_size,
-            _mask_trans=False,
+            use_lma=use_lma,
+            inplace_safe=inplace_safe,
+            _mask_trans=_mask_trans,
         )
         # [*, N, N, C_z]
         t = torch.sum(t, dim=-4) / n_templ

@@ -552,7 +552,7 @@ def embed_templates_offload(
         )
 
         # [*, N, C_m]
-        a = model.template_angle_embedder(template_angle_feat)
+        a = model.template_single_embedder(template_angle_feat)
  
         ret["template_single_embedding"] = a
 
@@ -663,7 +663,7 @@ def embed_templates_average(
         )
 
         # [*, N, C_m]
-        a = model.template_angle_embedder(template_angle_feat)
+        a = model.template_single_embedder(template_angle_feat)
  
         ret["template_single_embedding"] = a
 

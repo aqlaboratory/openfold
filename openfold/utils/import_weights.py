@@ -577,10 +577,10 @@ def generate_translation_dict(model, version, is_multimer=False):
                     "attention": AttentionParams(model.template_embedder.template_pointwise_att.mha),
                 },
                 "template_single_embedding": LinearParams(
-                    model.template_embedder.template_angle_embedder.linear_1
+                    model.template_embedder.template_single_embedder.linear_1
                 ),
                 "template_projection": LinearParams(
-                    model.template_embedder.template_angle_embedder.linear_2
+                    model.template_embedder.template_single_embedder.linear_2
                 ),
             }
         else:

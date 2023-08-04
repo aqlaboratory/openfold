@@ -154,50 +154,37 @@ def model_config(
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     elif "multimer" in name:
-        c.globals.is_multimer = True
-        c.globals.bfloat16 = False
-        c.globals.bfloat16_output = False
-        c.loss.masked_msa.num_classes = 22
-        c.data.common.max_recycling_iters = 20
-
-        for k, v in multimer_model_config_update['model'].items():
-            c.model[k] = v
-
-        for k, v in multimer_model_config_update['loss'].items():
-            c.loss[k] = v
+        c.update(multimer_config_update.copy_and_resolve_references())
+        del c.model.template.template_pointwise_attention
+        del c.loss.fape.backbone
 
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
         if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
             #c.model.input_embedder.num_msa = 252
             #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
+            c.data.train.crop_size = 384
+
             c.data.train.max_msa_clusters = 252
+            c.data.eval.max_msa_clusters = 252
             c.data.predict.max_msa_clusters = 252
+
             c.data.train.max_extra_msa = 1152
+            c.data.eval.max_extra_msa = 1152
             c.data.predict.max_extra_msa = 1152
+
             c.model.evoformer_stack.fuse_projection_weights = False
             c.model.extra_msa.extra_msa_stack.fuse_projection_weights = False
             c.model.template.template_pair_stack.fuse_projection_weights = False
         elif name == 'model_4_multimer_v3':
             #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
             c.data.train.max_extra_msa = 1152
+            c.data.eval.max_extra_msa = 1152
             c.data.predict.max_extra_msa = 1152
         elif name == 'model_5_multimer_v3':
             #c.model.extra_msa.extra_msa_embedder.num_extra_msa = 1152
             c.data.train.max_extra_msa = 1152
+            c.data.eval.max_extra_msa = 1152
             c.data.predict.max_extra_msa = 1152
-        else:
-            c.data.train.max_msa_clusters = 508
-            c.data.predict.max_msa_clusters = 508
-            c.data.train.max_extra_msa = 2048
-            c.data.predict.max_extra_msa = 2048
-
-        c.data.common.unsupervised_features.extend([
-            "msa_mask",
-            "seq_mask",
-            "asym_id",
-            "entity_id",
-            "sym_id",
-        ])
     else:
         raise ValueError("Invalid model name")
 
@@ -451,7 +438,7 @@ config = mlc.ConfigDict(
                     "max_bin": 50.75,
                     "no_bins": 39,
                 },
-                "template_angle_embedder": {
+                "template_single_embedder": {
                     # DISCREPANCY: c_in is supposed to be 51.
                     "c_in": 57,
                     "c_out": c_m,
@@ -682,226 +669,131 @@ config = mlc.ConfigDict(
     }
 )
 
-multimer_model_config_update = {
-    'model': {
+multimer_config_update = mlc.ConfigDict({
+    "globals": {
+        "is_multimer": True,
+        "bfloat16": False, # TODO: Change to True when implemented
+        "bfloat16_output": False
+    },
+    "data": {
+        "common": {
+            "max_recycling_iters": 20,
+            "unsupervised_features": [
+                    "aatype",
+                    "residue_index",
+                    "msa",
+                    "num_alignments",
+                    "seq_length",
+                    "between_segment_residues",
+                    "deletion_matrix",
+                    "no_recycling_iters",
+                    # Additional multimer features
+                    "msa_mask",
+                    "seq_mask",
+                    "asym_id",
+                    "entity_id",
+                    "sym_id",
+                ]
+        },
+        # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model:
+        # c.model.input_embedder.num_msa = 508
+        # c.model.extra_msa.extra_msa_embedder.num_extra_msa = 2048
+        "predict": {
+            "max_msa_clusters": 508,
+            "max_extra_msa": 2048
+        },
+        "eval": {
+            "max_msa_clusters": 508,
+            "max_extra_msa": 2048
+        },
+        "train": {
+            "max_msa_clusters": 508,
+            "max_extra_msa": 2048,
+            "crop_size": 640
+        },
+    },
+    "model": {
         "input_embedder": {
             "tf_dim": 21,
-            "msa_dim": 49,
             #"num_msa": 508,
-            "c_z": c_z,
-            "c_m": c_m,
-            "relpos_k": 32,
             "max_relative_chain": 2,
             "max_relative_idx": 32,
-            "use_chain_relative": True,
+            "use_chain_relative": True
         },
         "template": {
-            "distogram": {
-                "min_bin": 3.25,
-                "max_bin": 50.75,
-                "no_bins": 39,
-            },
-            "template_pair_embedder": {
-                "c_z": c_z,
-                "c_out": 64,
-                "c_dgram": 39,
-                "c_aatype": 22,
-            },
             "template_single_embedder": {
                 "c_in": 34,
-                "c_m": c_m,
+                "c_out": c_m
+            },
+            "template_pair_embedder": {
+                "c_in": c_z,
+                "c_out": c_t,
+                "c_dgram": 39,
+                "c_aatype": 22
             },
             "template_pair_stack": {
-                "c_t": c_t,
-                # DISCREPANCY: c_hidden_tri_att here is given in the supplement
-                # as 64. In the code, it's 16.
-                "c_hidden_tri_att": 16,
-                "c_hidden_tri_mul": 64,
-                "no_blocks": 2,
-                "no_heads": 4,
-                "pair_transition_n": 2,
-                "dropout_rate": 0.25,
                 "tri_mul_first": True,
-                "fuse_projection_weights": True,
-                "blocks_per_ckpt": blocks_per_ckpt,
-                "inf": 1e9,
+                "fuse_projection_weights": True
             },
             "c_t": c_t,
             "c_z": c_z,
-            "inf": 1e5,  # 1e9,
-            "eps": eps,  # 1e-6,
-            "enabled": templates_enabled,
-            "embed_angles": embed_template_torsion_angles,
             "use_unit_vector": True
         },
         "extra_msa": {
-            "extra_msa_embedder": {
-                "c_in": 25,
-                "c_out": c_e,
-                #"num_extra_msa": 2048
-            },
+            # "extra_msa_embedder": {
+            #     "num_extra_msa": 2048
+            # },
             "extra_msa_stack": {
-                "c_m": c_e,
-                "c_z": c_z,
-                "c_hidden_msa_att": 8,
-                "c_hidden_opm": 32,
-                "c_hidden_mul": 128,
-                "c_hidden_pair_att": 32,
-                "no_heads_msa": 8,
-                "no_heads_pair": 4,
-                "no_blocks": 4,
-                "transition_n": 4,
-                "msa_dropout": 0.15,
-                "pair_dropout": 0.25,
                 "opm_first": True,
-                "fuse_projection_weights": True,
-                "clear_cache_between_blocks": True,
-                "inf": 1e9,
-                "eps": eps,  # 1e-10,
-                "ckpt": blocks_per_ckpt is not None,
-            },
-            "enabled": True,
+                "fuse_projection_weights": True
+            }
         },
         "evoformer_stack": {
-            "c_m": c_m,
-            "c_z": c_z,
-            "c_hidden_msa_att": 32,
-            "c_hidden_opm": 32,
-            "c_hidden_mul": 128,
-            "c_hidden_pair_att": 32,
-            "c_s": c_s,
-            "no_heads_msa": 8,
-            "no_heads_pair": 4,
-            "no_blocks": 48,
-            "transition_n": 4,
-            "msa_dropout": 0.15,
-            "pair_dropout": 0.25,
             "opm_first": True,
-            "fuse_projection_weights": True,
-            "blocks_per_ckpt": blocks_per_ckpt,
-            "clear_cache_between_blocks": False,
-            "inf": 1e9,
-            "eps": eps,  # 1e-10,
+            "fuse_projection_weights": True
         },
         "structure_module": {
-            "c_s": c_s,
-            "c_z": c_z,
-            "c_ipa": 16,
-            "c_resnet": 128,
-            "no_heads_ipa": 12,
-            "no_qk_points": 4,
-            "no_v_points": 8,
-            "dropout_rate": 0.1,
-            "no_blocks": 8,
-            "no_transition_layers": 1,
-            "no_resnet_blocks": 2,
-            "no_angles": 7,
-            "trans_scale_factor": 20,
-            "epsilon": eps,  # 1e-12,
-            "inf": 1e5,
+            "trans_scale_factor": 20
         },
         "heads": {
-            "lddt": {
-                "no_bins": 50,
-                "c_in": c_s,
-                "c_hidden": 128,
-            },
-            "distogram": {
-                "c_z": c_z,
-                "no_bins": aux_distogram_bins,
-            },
             "tm": {
-                "c_z": c_z,
-                "no_bins": aux_distogram_bins,
                 "ptm_weight": 0.2,
                 "iptm_weight": 0.8,
-                "enabled": True,
+                "enabled": True
             },
             "masked_msa": {
-                "c_m": c_m,
-                "c_out": 22,
-            },
-            "experimentally_resolved": {
-                "c_s": c_s,
-                "c_out": 37,
+                "c_out": 22
             },
         },
         "recycle_early_stop_tolerance": 0.5
     },
     "loss": {
-        "distogram": {
-            "min_bin": 2.3125,
-            "max_bin": 21.6875,
-            "no_bins": 64,
-            "eps": eps,  # 1e-6,
-            "weight": 0.3,
-        },
-        "experimentally_resolved": {
-            "eps": eps,  # 1e-8,
-            "min_resolution": 0.1,
-            "max_resolution": 3.0,
-            "weight": 0.0,
-        },
         "fape": {
             "intra_chain_backbone": {
                 "clamp_distance": 10.0,
                 "loss_unit_distance": 10.0,
-                "weight": 0.5,
+                "weight": 0.5
             },
             "interface_backbone": {
                 "clamp_distance": 30.0,
                 "loss_unit_distance": 20.0,
-                "weight": 0.5,
-            },
-            "sidechain": {
-                "clamp_distance": 10.0,
-                "length_scale": 10.0,
-                "weight": 0.5,
-            },
-            "eps": 1e-4,
-            "weight": 1.0,
-        },
-        "plddt_loss": {
-            "min_resolution": 0.1,
-            "max_resolution": 3.0,
-            "cutoff": 15.0,
-            "no_bins": 50,
-            "eps": eps,  # 1e-10,
-            "weight": 0.01,
+                "weight": 0.5
+            }
         },
         "masked_msa": {
-            "num_classes": 23,
-            "eps": eps,  # 1e-8,
-            "weight": 2.0,
-        },
-        "supervised_chi": {
-            "chi_weight": 0.5,
-            "angle_norm_weight": 0.01,
-            "eps": eps,  # 1e-6,
-            "weight": 1.0,
+            "num_classes": 22
         },
         "violation": {
-            "violation_tolerance_factor": 12.0,
-            "clash_overlap_tolerance": 1.5,
             "average_clashes": True,
-            "eps": eps,  # 1e-6,
-            "weight": 0.03, # Not finetuning
+            "weight": 0.03 # Not finetuning
         },
         "tm": {
-            "max_bin": 31,
-            "no_bins": 64,
-            "min_resolution": 0.1,
-            "max_resolution": 3.0,
-            "eps": eps,  # 1e-8,
             "weight": 0.1,
-            "enabled": True,
+            "enabled": True
         },
         "chain_center_of_mass": {
-            "clamp_distance": -4.0,
             "weight": 0.05,
-            "eps": eps,
-            "enabled": True,
-        },
-        "eps": eps,
+            "enabled": True
+        }
     }
-}
+})

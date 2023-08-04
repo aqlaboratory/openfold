@@ -40,7 +40,7 @@ def random_asym_ids(n_res, split_chains=True, min_chain_len=4):
         asym_ids.extend(piece * [idx])
     asym_ids.extend((n_res - sum(pieces)) * [final_idx])
 
-    return np.array(asym_ids).astype(np.int64)
+    return np.array(asym_ids).astype(np.float32) + 1
 
 
 def random_template_feats(n_templ, n, batch_size=None):

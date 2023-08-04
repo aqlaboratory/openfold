@@ -1668,11 +1668,8 @@ def chain_center_of_mass_loss(
     all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
     all_atom_positions = all_atom_positions[..., ca_pos, :]
     all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
-    chains = asym_id.unique()
 
-    # Reduce asym_id by one because class values must be smaller than num_classes and asym_ids start at 1
-    one_hot = torch.nn.functional.one_hot(asym_id.long() - 1,
-                                          num_classes=chains.shape[0]).to(dtype=all_atom_mask.dtype)
+    one_hot = torch.nn.functional.one_hot(asym_id.long()).to(dtype=all_atom_mask.dtype)
     one_hot = one_hot * all_atom_mask
     chain_pos_mask = one_hot.transpose(-2, -1)
     chain_exists = torch.any(chain_pos_mask, dim=-1).float()

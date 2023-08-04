@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
+import os
 import shutil
-import pickle
 import torch
-import torch.nn as nn
-import numpy as np
-from functools import partial
 import unittest
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.config import model_config
-from openfold.data.data_modules import OpenFoldMultimerDataModule,OpenFoldDataModule
+from openfold.data.data_modules import OpenFoldMultimerDataModule
 from openfold.model.model import AlphaFold
 from openfold.utils.loss import AlphaFoldMultimerLoss
 from tests.config import consts
 import logging
 logger = logging.getLogger(__name__)
-import os
 
+
+@unittest.skipIf(not consts.is_multimer or consts.template_mmcif_dir is None, "Template mmcif dir required.")
 class TestMultimerDataModule(unittest.TestCase):
     def setUp(self):
         """
@@ -38,14 +35,14 @@ class TestMultimerDataModule(unittest.TestCase):
         use model_1_multimer_v3 for now
         """
         self.config = model_config(
-        "model_1_multimer_v3", 
+        consts.model,
         train=True, 
         low_prec=True)
         self.data_module = OpenFoldMultimerDataModule(
         config=self.config.data, 
         batch_seed=42,
         train_epoch_len=100,
-        template_mmcif_dir = "/g/alphafold/AlphaFold_DBs/2.3.0/pdb_mmcif/mmcif_files/",
+        template_mmcif_dir= consts.template_mmcif_dir,
         template_release_dates_cache_path=os.path.join(os.getcwd(),"tests/test_data/mmcif_cache.json"),
         max_template_date="2500-01-01",
         train_data_dir=os.path.join(os.getcwd(),"tests/test_data/mmcifs"),

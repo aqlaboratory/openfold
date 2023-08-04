@@ -263,6 +263,7 @@ class Template(unittest.TestCase):
                 templ_dim=0,
                 chunk_size=consts.chunk_size,
                 multichain_mask_2d=torch.as_tensor(multichain_mask_2d).cuda(),
+                _mask_trans=False,
                 use_lma=False,
                 inplace_safe=False
             )
@@ -273,6 +274,7 @@ class Template(unittest.TestCase):
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
                 chunk_size=consts.chunk_size,
+                mask_trans=False,
                 use_lma=False,
                 inplace_safe=False
             )
