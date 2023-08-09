@@ -39,7 +39,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
 
         try:
             alignment_runner.run(
-                fasta_path, alignment_dir
+                fasta_path, alignment_dir, input_label=first_name
             )
         except:
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")

@@ -80,6 +80,8 @@ class OpenFoldInference:
             args.max_template_date,
             "--kalign_binary_path",
             args.kalign_binary_path,
+            "--data_random_seed",
+            args.data_random_seed,
         ]
         if args.obsolete_pdbs_path is not None:
             cmd.append("--obsolete_pdbs_path")

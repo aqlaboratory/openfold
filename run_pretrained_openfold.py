@@ -168,8 +168,6 @@ def prep_output(out, batch, feature_dict, feature_processor, args):
 
 
 def main(args):
-    seed_everything(2022)
-
     pid = os.getpid()
     initial_cpu_affinity = os.sched_getaffinity(pid)
 
@@ -252,6 +250,7 @@ def main(args):
     random_seed = args.data_random_seed
     if random_seed is None:
         random_seed = random.randrange(sys.maxsize)
+    seed_everything(random_seed)
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
