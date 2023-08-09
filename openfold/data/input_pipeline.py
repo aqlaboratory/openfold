@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from functools import partial
+import random
 
 import torch
 
@@ -153,7 +154,7 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
 def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
-    ensemble_seed = torch.Generator().seed()
+    ensemble_seed = random.randint(0, 2147483647)
 
     def wrap_ensemble_fn(data, i):
         """Function to be mapped over the ensemble dimension."""
