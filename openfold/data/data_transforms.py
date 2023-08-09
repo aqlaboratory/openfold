@@ -16,7 +16,6 @@
 import itertools
 from functools import reduce, wraps
 from operator import add
-import random
 
 import numpy as np
 import torch
@@ -183,12 +182,14 @@ def randomly_replace_msa_with_unknown(protein, replace_proportion):
 
 @curry1
 def sample_msa(protein, max_seq, keep_extra, seed=None):
-    """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`.""" 
-    if(seed is None):
-        seed = random.randint(0, 2147483647)
+    """Sample MSA randomly, remaining sequences are stored are stored as `extra_*`."""
     num_seq = protein["msa"].shape[0]
-    g = torch.Generator(device=protein["msa"].device)
-    g.manual_seed(seed)
+
+    g = None
+    if seed is not None:
+        g = torch.Generator(device=protein["msa"].device)
+        g.manual_seed(seed)
+
     shuffled = torch.randperm(num_seq - 1, generator=g) + 1
     index_order = torch.cat(
         (torch.tensor([0], device=shuffled.device), shuffled), 
@@ -1141,8 +1142,10 @@ def random_crop_to_size(
 ):
     """Crop randomly to `crop_size`, or keep as is if shorter than that."""
     # We want each ensemble to be cropped the same way
-    g = torch.Generator(device=protein["seq_length"].device)
+
+    g = None
     if seed is not None:
+        g = torch.Generator(device=protein["seq_length"].device)
         g.manual_seed(seed)
 
     seq_length = protein["seq_length"]
