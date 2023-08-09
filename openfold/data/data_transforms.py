@@ -187,6 +187,8 @@ def sample_msa(protein, max_seq, keep_extra, seed=None):
     g = torch.Generator(device=protein["msa"].device)
     if seed is not None:
         g.manual_seed(seed)
+    else:
+        g.seed()
     shuffled = torch.randperm(num_seq - 1, generator=g) + 1
     index_order = torch.cat(
         (torch.tensor([0], device=shuffled.device), shuffled), 
