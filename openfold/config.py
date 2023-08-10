@@ -155,8 +155,6 @@ def model_config(
         c.loss.tm.weight = 0.1
     elif "multimer" in name:
         c.update(multimer_config_update.copy_and_resolve_references())
-        del c.model.template.template_pointwise_attention
-        del c.loss.fape.backbone
 
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
         if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
@@ -354,6 +352,8 @@ config = mlc.ConfigDict(
                 "max_templates": 4,
                 "crop": False,
                 "crop_size": None,
+                "spatial_crop_prob": None,
+                "interface_threshold": None,
                 "supervised": False,
                 "uniform_recycling": False,
             },
@@ -367,6 +367,8 @@ config = mlc.ConfigDict(
                 "max_templates": 4,
                 "crop": False,
                 "crop_size": None,
+                "spatial_crop_prob": None,
+                "interface_threshold": None,
                 "supervised": True,
                 "uniform_recycling": False,
             },
@@ -381,6 +383,8 @@ config = mlc.ConfigDict(
                 "shuffle_top_k_prefiltered": 20,
                 "crop": True,
                 "crop_size": 256,
+                "spatial_crop_prob": 0.,
+                "interface_threshold": None,
                 "supervised": True,
                 "clamp_prob": 0.9,
                 "max_distillation_msa_clusters": 1000,
@@ -709,7 +713,9 @@ multimer_config_update = mlc.ConfigDict({
         "train": {
             "max_msa_clusters": 508,
             "max_extra_msa": 2048,
-            "crop_size": 640
+            "crop_size": 640,
+            "spatial_crop_prob": 0.5,
+            "interface_threshold": 10.
         },
     },
     "model": {
@@ -735,6 +741,7 @@ multimer_config_update = mlc.ConfigDict({
                 "tri_mul_first": True,
                 "fuse_projection_weights": True
             },
+            "template_pointwise_attention": None,  # Not used in Multimer
             "c_t": c_t,
             "c_z": c_z,
             "use_unit_vector": True
@@ -778,7 +785,8 @@ multimer_config_update = mlc.ConfigDict({
                 "clamp_distance": 30.0,
                 "loss_unit_distance": 20.0,
                 "weight": 0.5
-            }
+            },
+            "backbone": None  # Not used in Multimer
         },
         "masked_msa": {
             "num_classes": 22

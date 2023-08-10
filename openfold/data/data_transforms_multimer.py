@@ -100,8 +100,9 @@ def make_masked_msa(batch, config, replace_fraction, seed, eps=1e-6):
     
     logits = torch.log(categorical_probs + eps)
     
-    g = torch.Generator(device=batch["msa"].device)
+    g = None
     if seed is not None:
+        g = torch.Generator(device=batch["msa"].device)
         g.manual_seed(seed)
 
     bert_msa = gumbel_max_sample(logits, generator=g)
@@ -262,8 +263,9 @@ def sample_msa(batch, max_seq, max_extra_msa_seq, seed, inf=1e6):
     Returns:
         Protein with sampled msa.
     """
-    g = torch.Generator(device=batch["msa"].device)
+    g = None
     if seed is not None:
+        g = torch.Generator(device=batch["msa"].device)
         g.manual_seed(seed)
 
     # Sample uniformly among sequences with at least one non-masked position.
@@ -417,8 +419,9 @@ def random_crop_to_size(
 ):
     """Crop randomly to `crop_size`, or keep as is if shorter than that."""
     # We want each ensemble to be cropped the same way
-    g = torch.Generator(device=protein["seq_length"].device)
+    g = None
     if seed is not None:
+        g = torch.Generator(device=protein["seq_length"].device)
         g.manual_seed(seed)
 
     use_spatial_crop = torch.rand((1,),

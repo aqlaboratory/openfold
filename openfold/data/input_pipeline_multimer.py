@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import partial
-
+import random
 import torch
 
 from openfold.data import (
@@ -75,13 +74,44 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
     transforms.append(data_transforms_multimer.nearest_neighbor_clusters())
     transforms.append(data_transforms_multimer.create_msa_feat)
 
+    crop_feats = dict(common_cfg.feat)
+
+    if mode_cfg.fixed_size:
+        transforms.append(data_transforms.select_feat(list(crop_feats)))
+
+        if mode_cfg.crop:
+            transforms.append(
+                data_transforms_multimer.random_crop_to_size(
+                    crop_size=mode_cfg.crop_size,
+                    max_templates=mode_cfg.max_templates,
+                    shape_schema=crop_feats,
+                    spatial_crop_prob=mode_cfg.spatial_crop_prob,
+                    interface_threshold=mode_cfg.interface_threshold,
+                    subsample_templates=mode_cfg.subsample_templates,
+                    seed=ensemble_seed + 1,
+                )
+            )
+        transforms.append(
+            data_transforms.make_fixed_size(
+                shape_schema=crop_feats,
+                msa_cluster_size=pad_msa_clusters,
+                extra_msa_size=mode_cfg.max_extra_msa,
+                num_res=mode_cfg.crop_size,
+                num_templates=mode_cfg.max_templates,
+            )
+        )
+    else:
+        transforms.append(
+            data_transforms.crop_templates(mode_cfg.max_templates)
+        )
+
     return transforms
 
 
 def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
-    ensemble_seed = torch.Generator().seed()
+    ensemble_seed = random.randint(0, torch.iinfo(torch.int32).max)
 
     def wrap_ensemble_fn(data, i):
         """Function to be mapped over the ensemble dimension."""

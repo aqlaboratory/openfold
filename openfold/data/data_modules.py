@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import pickle
-from typing import Optional, Sequence, List, Any
+from typing import Optional, Sequence, Any
 
 import ml_collections as mlc
 import pytorch_lightning as pl
@@ -880,10 +880,7 @@ class OpenFoldMultimerDataLoader(torch.utils.data.DataLoader):
     def __init__(self, *args, config, stage="train", generator=None, **kwargs):
         super(OpenFoldMultimerDataLoader,self).__init__(*args, **kwargs)
         self.config = config
-        self.stage = stage    
-
-        if(generator is None):
-            generator = torch.Generator()
+        self.stage = stage
         
         self.generator = generator
         print('initialised a multimer dataloader')
@@ -1220,8 +1217,9 @@ class OpenFoldMultimerDataModule(OpenFoldDataModule):
             )
     
     def _gen_dataloader(self, stage):
-        generator = torch.Generator()
+        generator = None
         if(self.batch_seed is not None):
+            generator = torch.Generator()
             generator = generator.manual_seed(self.batch_seed)
 
         dataset = None

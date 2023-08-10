@@ -477,8 +477,9 @@ def make_masked_msa(protein, config, replace_fraction, seed):
 
     sh = protein["msa"].shape
 
-    g = torch.Generator(device=protein["msa"].device)
+    g = None
     if seed is not None:
+        g = torch.Generator(device=protein["msa"].device)
         g.manual_seed(seed)
     
     sample = torch.rand(sh, device=device, generator=g)
