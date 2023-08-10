@@ -61,6 +61,7 @@ class TestModel(unittest.TestCase):
         # deepspeed for this test
 
         model = AlphaFold(c)
+        model.eval()
 
         batch = {}
         tf = torch.randint(c.model.input_embedder.tf_dim - 1, size=(n_res,))

@@ -796,11 +796,7 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
     def __init__(self, *args, config, stage="train", generator=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.config = config
-        self.stage = stage    
-
-        if(generator is None):
-            generator = torch.Generator()
-        
+        self.stage = stage
         self.generator = generator
         self._prep_batch_properties_probs()
 
@@ -1077,8 +1073,9 @@ class OpenFoldDataModule(pl.LightningDataModule):
             )
 
     def _gen_dataloader(self, stage):
-        generator = torch.Generator()
+        generator = None
         if(self.batch_seed is not None):
+            generator = torch.Generator()
             generator = generator.manual_seed(self.batch_seed)
 
         dataset = None
