@@ -55,7 +55,7 @@ class TestModel(unittest.TestCase):
         n_res = consts.n_res
         n_extra_seq = consts.n_extra
 
-        c = model_config(consts.model, train=True)
+        c = model_config(consts.model)
         c.model.evoformer_stack.no_blocks = 4  # no need to go overboard here
         c.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         # deepspeed for this test
