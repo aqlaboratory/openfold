@@ -156,6 +156,10 @@ def model_config(
     elif "multimer" in name:
         c.update(multimer_config_update.copy_and_resolve_references())
 
+        # Not used in multimer
+        del c.model.template.template_pointwise_attention
+        del c.loss.fape.backbone
+
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model
         if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
             #c.model.input_embedder.num_msa = 252
@@ -676,11 +680,57 @@ config = mlc.ConfigDict(
 multimer_config_update = mlc.ConfigDict({
     "globals": {
         "is_multimer": True,
-        "bfloat16": False, # TODO: Change to True when implemented
+        "bfloat16": False,  # TODO: Change to True when implemented
         "bfloat16_output": False
     },
     "data": {
         "common": {
+            "feat": {
+                "aatype": [NUM_RES],
+                "all_atom_mask": [NUM_RES, None],
+                "all_atom_positions": [NUM_RES, None, None],
+                # "all_chains_entity_ids": [],  # TODO: Resolve missing features, remove processed msa feats
+                # "all_crops_all_chains_mask": [],
+                # "all_crops_all_chains_positions": [],
+                # "all_crops_all_chains_residue_ids": [],
+                "assembly_num_chains": [],
+                "asym_id": [NUM_RES],
+                "atom14_atom_exists": [NUM_RES, None],
+                "atom37_atom_exists": [NUM_RES, None],
+                "bert_mask": [NUM_MSA_SEQ, NUM_RES],
+                "cluster_bias_mask": [NUM_MSA_SEQ],
+                "cluster_profile": [NUM_MSA_SEQ, NUM_RES, None],
+                "cluster_deletion_mean": [NUM_MSA_SEQ, NUM_RES],
+                "deletion_matrix": [NUM_MSA_SEQ, NUM_RES],
+                "deletion_mean": [NUM_RES],
+                "entity_id": [NUM_RES],
+                "entity_mask": [NUM_RES],
+                "extra_deletion_matrix": [NUM_EXTRA_SEQ, NUM_RES],
+                "extra_msa": [NUM_EXTRA_SEQ, NUM_RES],
+                "extra_msa_mask": [NUM_EXTRA_SEQ, NUM_RES],
+                # "mem_peak": [],
+                "msa": [NUM_MSA_SEQ, NUM_RES],
+                "msa_feat": [NUM_MSA_SEQ, NUM_RES, None],
+                "msa_mask": [NUM_MSA_SEQ, NUM_RES],
+                "msa_profile": [NUM_RES, None],
+                "num_alignments": [],
+                "num_templates": [],
+                # "queue_size": [],
+                "residue_index": [NUM_RES],
+                "residx_atom14_to_atom37": [NUM_RES, None],
+                "residx_atom37_to_atom14": [NUM_RES, None],
+                "resolution": [],
+                "seq_length": [],
+                "seq_mask": [NUM_RES],
+                "sym_id": [NUM_RES],
+                "target_feat": [NUM_RES, None],
+                "template_aatype": [NUM_TEMPLATES, NUM_RES],
+                "template_all_atom_mask": [NUM_TEMPLATES, NUM_RES, None],
+                "template_all_atom_positions": [
+                    NUM_TEMPLATES, NUM_RES, None, None,
+                ],
+                "true_msa": [NUM_MSA_SEQ, NUM_RES]
+            },
             "max_recycling_iters": 20,
             "unsupervised_features": [
                     "aatype",
@@ -741,7 +791,6 @@ multimer_config_update = mlc.ConfigDict({
                 "tri_mul_first": True,
                 "fuse_projection_weights": True
             },
-            "template_pointwise_attention": None,  # Not used in Multimer
             "c_t": c_t,
             "c_z": c_z,
             "use_unit_vector": True
@@ -785,8 +834,7 @@ multimer_config_update = mlc.ConfigDict({
                 "clamp_distance": 30.0,
                 "loss_unit_distance": 20.0,
                 "weight": 0.5
-            },
-            "backbone": None  # Not used in Multimer
+            }
         },
         "masked_msa": {
             "num_classes": 22

@@ -274,9 +274,8 @@ def _correct_post_merged_feats(
 ) -> Mapping[str, np.ndarray]:
     """Adds features that need to be computed/recomputed post merging."""
 
-    num_res = np_example['aatype'].shape[0]
     np_example['seq_length'] = np.asarray(
-        [num_res] * num_res,
+        np_example['aatype'].shape[0],
         dtype=np.int32
     )
     np_example['num_alignments'] = np.asarray(

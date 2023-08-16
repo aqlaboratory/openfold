@@ -31,11 +31,6 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
         data_transforms.make_atom14_masks,
     ]
 
-    if(common_cfg.use_templates):
-        transforms.extend([
-            data_transforms.make_pseudo_beta("template_"),
-        ])
-
     return transforms
 
 
