@@ -86,9 +86,9 @@ class TestTriangularAttention(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         module = (
-            model.evoformer.blocks[0].core.tri_att_start
+            model.evoformer.blocks[0].pair_stack.tri_att_start
             if starting
-            else model.evoformer.blocks[0].core.tri_att_end
+            else model.evoformer.blocks[0].pair_stack.tri_att_end
         )
 
         # To save memory, the full model transposes inputs outside of the

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 import pickle
 import torch
 import torch.nn as nn
@@ -20,8 +21,7 @@ import unittest
 from openfold.config import model_config
 from openfold.data import data_transforms
 from openfold.model.model import AlphaFold
-import openfold.utils.feats as feats
-from openfold.utils.tensor_utils import tree_map, tensor_tree_map
+from openfold.utils.tensor_utils import tensor_tree_map
 import tests.compare_utils as compare_utils
 from tests.config import consts
 from tests.data_utils import (
@@ -36,13 +36,26 @@ if compare_utils.alphafold_is_installed():
 
 
 class TestModel(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if consts.is_multimer:
+            cls.am_atom = alphafold.model.all_atom_multimer
+            cls.am_fold = alphafold.model.folding_multimer
+            cls.am_modules = alphafold.model.modules_multimer
+            cls.am_rigid = alphafold.model.geometry
+        else:
+            cls.am_atom = alphafold.model.all_atom
+            cls.am_fold = alphafold.model.folding
+            cls.am_modules = alphafold.model.modules
+            cls.am_rigid = alphafold.model.r3
+
     def test_dry_run(self):
         n_seq = consts.n_seq
         n_templ = consts.n_templ
         n_res = consts.n_res
         n_extra_seq = consts.n_extra
 
-        c = model_config("model_1")
+        c = model_config(consts.model, train=True)
         c.model.evoformer_stack.no_blocks = 4  # no need to go overboard here
         c.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         # deepspeed for this test
@@ -57,6 +70,7 @@ class TestModel(unittest.TestCase):
         ).float()
         batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
         batch["residue_index"] = torch.arange(n_res)
+
         batch["msa_feat"] = torch.rand((n_seq, n_res, c.model.input_embedder.msa_dim))
         t_feats = random_template_feats(n_templ, n_res)
         batch.update({k: torch.tensor(v) for k, v in t_feats.items()})
@@ -69,6 +83,12 @@ class TestModel(unittest.TestCase):
         batch.update(data_transforms.make_atom14_masks(batch))
         batch["no_recycling_iters"] = torch.tensor(2.)
 
+        if consts.is_multimer:
+            batch["asym_id"] = torch.randint(0, 1, size=(n_res,))
+            batch["entity_id"] = torch.randint(0, 1, size=(n_res,))
+            batch["sym_id"] = torch.randint(0, 1, size=(n_res,))
+            batch["extra_deletion_matrix"] = torch.randint(0, 2, size=(n_extra_seq, n_res))
+
         add_recycling_dims = lambda t: (
             t.unsqueeze(-1).expand(*t.shape, c.data.common.max_recycling_iters)
         )
@@ -78,10 +98,14 @@ class TestModel(unittest.TestCase):
             out = model(batch)
 
     @compare_utils.skip_unless_alphafold_installed()
+    @unittest.skipIf(consts.is_multimer, "Additional changes required for multimer.")
     def test_compare(self):
+        #TODO: Fix test data for multimer MSA features
         def run_alphafold(batch):
             config = compare_utils.get_alphafold_config()
-            model = alphafold.model.modules.AlphaFold(config.model)
+
+            model = self.am_modules.AlphaFold(config.model)
+
             return model(
                 batch=batch,
                 is_training=False,
@@ -92,7 +116,8 @@ class TestModel(unittest.TestCase):
 
         params = compare_utils.fetch_alphafold_module_weights("")
 
-        with open("tests/test_data/sample_feats.pickle", "rb") as fp:
+        fpath = Path(__file__).parent.resolve() / "test_data/sample_feats.pickle"
+        with open(str(fpath), "rb") as fp:
             batch = pickle.load(fp)
 
         out_gt = f.apply(params, jax.random.PRNGKey(42), batch)
@@ -101,7 +126,8 @@ class TestModel(unittest.TestCase):
         # atom37_to_atom14 doesn't like batches
         batch["residx_atom14_to_atom37"] = batch["residx_atom14_to_atom37"][0]
         batch["atom14_atom_exists"] = batch["atom14_atom_exists"][0]
-        out_gt = alphafold.model.all_atom.atom37_to_atom14(out_gt, batch)
+
+        out_gt = self.am_atom.atom37_to_atom14(out_gt, batch)
         out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
 
         batch["no_recycling_iters"] = np.array([3., 3., 3., 3.,])

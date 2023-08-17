@@ -16,6 +16,7 @@
 """Parses the mmCIF file format."""
 import collections
 import dataclasses
+import functools
 import io
 import json
 import logging
@@ -173,6 +174,7 @@ def mmcif_loop_to_dict(
     return {entry[index]: entry for entry in entries}
 
 
+@functools.lru_cache(16, typed=False)
 def parse(
     *, file_id: str, mmcif_string: str, catch_all_errors: bool = True
 ) -> ParsingResult:
@@ -346,7 +348,7 @@ def _get_header(parsed_info: MmCIFDict) -> PdbHeader:
                 raw_resolution = parsed_info[res_key][0]
                 header["resolution"] = float(raw_resolution)
             except ValueError:
-                logging.info(
+                logging.debug(
                     "Invalid resolution format: %s", parsed_info[res_key]
                 )
 
@@ -473,6 +475,20 @@ def get_atom_coords(
                     # Put the coords of the selenium atom in the sulphur column
                     pos[residue_constants.atom_order["SD"]] = [x, y, z]
                     mask[residue_constants.atom_order["SD"]] = 1.0
+
+            # Fix naming errors in arginine residues where NH2 is incorrectly
+            # assigned to be closer to CD than NH1
+            cd = residue_constants.atom_order['CD']
+            nh1 = residue_constants.atom_order['NH1']
+            nh2 = residue_constants.atom_order['NH2']
+            if(
+                res.get_resname() == 'ARG' and
+                all(mask[atom_index] for atom_index in (cd, nh1, nh2)) and
+                (np.linalg.norm(pos[nh1] - pos[cd]) > 
+                 np.linalg.norm(pos[nh2] - pos[cd]))
+            ):
+                pos[nh1], pos[nh2] = pos[nh2].copy(), pos[nh1].copy()
+                mask[nh1], mask[nh2] = mask[nh2].copy(), mask[nh1].copy()
 
         all_atom_positions[res_index] = pos
         all_atom_mask[res_index] = mask

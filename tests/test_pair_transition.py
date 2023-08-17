@@ -76,7 +76,7 @@ class TestPairTransition(unittest.TestCase):
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0].core
+            model.evoformer.blocks[0].pair_stack
             .pair_transition(
                 torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
                 chunk_size=4,

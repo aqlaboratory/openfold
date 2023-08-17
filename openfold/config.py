@@ -1,3 +1,4 @@
+import re
 import copy
 import importlib
 import ml_collections as mlc
@@ -16,7 +17,7 @@ def enforce_config_constraints(config):
         path = s.split('.')
         setting = config
         for p in path:
-            setting = setting[p]
+            setting = setting.get(p)
 
         return setting
 
@@ -152,6 +153,31 @@ def model_config(
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
+    elif "multimer" in name:
+        c.globals.is_multimer = True
+        c.loss.masked_msa.num_classes = 22
+
+        if re.fullmatch("^model_[1-5]_multimer(_v2)?$", name):
+            c.model.evoformer.num_msa = 252
+            c.model.evoformer.num_extra_msa= 1152
+            c.model.evoformer.fuse_projection_weights = False
+            c.model.extra_msa.extra_msa_stack.fuse_projection_weights = False
+            c.model.template.template_pair_stack.fuse_projection_weights = False
+        elif name == 'model_4_multimer_v3':
+            c.model.evoformer.num_extra_msa = 1152
+        elif name == 'model_5_multimer_v3':
+            c.model.evoformer.num_extra_msa = 1152
+
+        for k,v in multimer_model_config_update.items():
+            c.model[k] = v
+
+        c.data.common.unsupervised_features.extend([
+            "msa_mask",
+            "seq_mask",
+            "asym_id",
+            "entity_id",
+            "sym_id",
+        ])
     else:
         raise ValueError("Invalid model name")
 
@@ -380,6 +406,7 @@ config = mlc.ConfigDict(
             "c_e": c_e,
             "c_s": c_s,
             "eps": eps,
+            "is_multimer": False,
         },
         "model": {
             "_mask_trans": False,
@@ -423,6 +450,8 @@ config = mlc.ConfigDict(
                     "no_heads": 4,
                     "pair_transition_n": 2,
                     "dropout_rate": 0.25,
+                    "tri_mul_first": False,
+                    "fuse_projection_weights": False,
                     "blocks_per_ckpt": blocks_per_ckpt,
                     "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
@@ -471,6 +500,8 @@ config = mlc.ConfigDict(
                     "transition_n": 4,
                     "msa_dropout": 0.15,
                     "pair_dropout": 0.25,
+                    "opm_first": False,
+                    "fuse_projection_weights": False,
                     "clear_cache_between_blocks": False,
                     "tune_chunk_size": tune_chunk_size,
                     "inf": 1e9,
@@ -493,6 +524,8 @@ config = mlc.ConfigDict(
                 "transition_n": 4,
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
+                "opm_first": False,
+                "fuse_projection_weights": False,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "clear_cache_between_blocks": False,
                 "tune_chunk_size": tune_chunk_size,
@@ -585,6 +618,7 @@ config = mlc.ConfigDict(
                 "weight": 0.01,
             },
             "masked_msa": {
+                "num_classes": 23,
                 "eps": eps,  # 1e-8,
                 "weight": 2.0,
             },
@@ -614,3 +648,145 @@ config = mlc.ConfigDict(
         "ema": {"decay": 0.999},
     }
 )
+
+multimer_model_config_update = {
+    "input_embedder": {
+        "tf_dim": 21,
+        "msa_dim": 49,
+        "c_z": c_z,
+        "c_m": c_m,
+        "relpos_k": 32,
+        "max_relative_chain": 2,
+        "max_relative_idx": 32,
+        "use_chain_relative": True,
+    },
+    "template": {
+        "distogram": {
+            "min_bin": 3.25,
+            "max_bin": 50.75,
+            "no_bins": 39,
+        },
+        "template_pair_embedder": {
+            "c_z": c_z,
+            "c_out": 64,
+            "c_dgram": 39,
+            "c_aatype": 22,
+        },
+        "template_single_embedder": {
+            "c_in": 34,
+            "c_m": c_m,
+        },
+        "template_pair_stack": {
+            "c_t": c_t,
+            # DISCREPANCY: c_hidden_tri_att here is given in the supplement
+            # as 64. In the code, it's 16.
+            "c_hidden_tri_att": 16,
+            "c_hidden_tri_mul": 64,
+            "no_blocks": 2,
+            "no_heads": 4,
+            "pair_transition_n": 2,
+            "dropout_rate": 0.25,
+            "tri_mul_first": True,
+            "fuse_projection_weights": True,
+            "blocks_per_ckpt": blocks_per_ckpt,
+            "inf": 1e9,
+        },
+        "c_t": c_t,
+        "c_z": c_z,
+        "inf": 1e5,  # 1e9,
+        "eps": eps,  # 1e-6,
+        "enabled": templates_enabled,
+        "embed_angles": embed_template_torsion_angles,
+        "use_unit_vector": True
+    },
+    "extra_msa": {
+        "extra_msa_embedder": {
+            "c_in": 25,
+            "c_out": c_e,
+        },
+        "extra_msa_stack": {
+            "c_m": c_e,
+            "c_z": c_z,
+            "c_hidden_msa_att": 8,
+            "c_hidden_opm": 32,
+            "c_hidden_mul": 128,
+            "c_hidden_pair_att": 32,
+            "no_heads_msa": 8,
+            "no_heads_pair": 4,
+            "no_blocks": 4,
+            "transition_n": 4,
+            "msa_dropout": 0.15,
+            "pair_dropout": 0.25,
+            "opm_first": True,
+            "fuse_projection_weights": True,
+            "clear_cache_between_blocks": True,
+            "inf": 1e9,
+            "eps": eps,  # 1e-10,
+            "ckpt": blocks_per_ckpt is not None,
+        },
+        "enabled": True,
+    },
+    "evoformer_stack": {
+        "c_m": c_m,
+        "c_z": c_z,
+        "c_hidden_msa_att": 32,
+        "c_hidden_opm": 32,
+        "c_hidden_mul": 128,
+        "c_hidden_pair_att": 32,
+        "c_s": c_s,
+        "no_heads_msa": 8,
+        "no_heads_pair": 4,
+        "no_blocks": 48,
+        "transition_n": 4,
+        "msa_dropout": 0.15,
+        "pair_dropout": 0.25,
+        "opm_first": True,
+        "fuse_projection_weights": True,
+        "blocks_per_ckpt": blocks_per_ckpt,
+        "clear_cache_between_blocks": False,
+        "inf": 1e9,
+        "eps": eps,  # 1e-10,
+    },
+    "structure_module": {
+        "c_s": c_s,
+        "c_z": c_z,
+        "c_ipa": 16,
+        "c_resnet": 128,
+        "no_heads_ipa": 12,
+        "no_qk_points": 4,
+        "no_v_points": 8,
+        "dropout_rate": 0.1,
+        "no_blocks": 8,
+        "no_transition_layers": 1,
+        "no_resnet_blocks": 2,
+        "no_angles": 7,
+        "trans_scale_factor": 20,
+        "epsilon": eps,  # 1e-12,
+        "inf": 1e5,
+    },
+    "heads": {
+        "lddt": {
+            "no_bins": 50,
+            "c_in": c_s,
+            "c_hidden": 128,
+        },
+        "distogram": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+        },
+        "tm": {
+            "c_z": c_z,
+            "no_bins": aux_distogram_bins,
+            "enabled": tm_enabled,
+        },
+        "masked_msa": {
+            "c_m": c_m,
+            "c_out": 22,
+        },
+        "experimentally_resolved": {
+            "c_s": c_s,
+            "c_out": 37,
+        },
+    },
+
+}

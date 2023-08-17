@@ -1,8 +1,4 @@
-import copy
 import gzip
-
-import os
-
 import pickle
 
 import numpy as np
@@ -181,7 +177,7 @@ class TestDataTransforms(unittest.TestCase):
         }
         protein = make_hhblits_profile(protein)
         masked_msa_config = config.data.common.masked_msa
-        protein = make_masked_msa.__wrapped__(protein, masked_msa_config, replace_fraction=0.15)
+        protein = make_masked_msa.__wrapped__(protein, masked_msa_config, replace_fraction=0.15, seed=42)
         assert 'bert_mask' in protein
         assert 'true_msa' in protein
         assert 'msa' in protein
