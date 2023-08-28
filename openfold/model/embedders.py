@@ -706,12 +706,12 @@ class TemplatePairEmbedderMultimer(nn.Module):
             backbone_mask[..., None] * backbone_mask[..., None, :]
         )
         backbone_mask_2d *= multichain_mask_2d
-        x, y, z = [coord * backbone_mask_2d for coord in unit_vector]
+        x, y, z = [(coord * backbone_mask_2d).to(dtype=query_embedding.dtype) for coord in unit_vector]
         act += self.x_linear(x[..., None])
         act += self.y_linear(y[..., None])
         act += self.z_linear(z[..., None])
        
-        act += self.backbone_mask_linear(backbone_mask_2d[..., None]) 
+        act += self.backbone_mask_linear(backbone_mask_2d[..., None].to(dtype=query_embedding.dtype))
 
         query_embedding = self.query_embedding_layer_norm(query_embedding)
         act += self.query_embedding_linear(query_embedding)
@@ -735,6 +735,8 @@ class TemplateSingleEmbedderMultimer(nn.Module):
     ):
         out = {}
 
+        dtype = batch["template_all_atom_positions"].dtype
+
         template_chi_angles, template_chi_mask = (
             all_atom_multimer.compute_chi_angles(
                 atom_pos,
@@ -751,9 +753,9 @@ class TemplateSingleEmbedderMultimer(nn.Module):
                 template_chi_mask,
             ],
             dim=-1,
-        )
+        ).to(dtype=dtype)
 
-        template_mask = template_chi_mask[..., 0]
+        template_mask = template_chi_mask[..., 0].to(dtype=dtype)
 
         template_activations = self.template_single_embedder(
             template_features
@@ -829,8 +831,10 @@ class TemplateEmbedderMultimer(nn.Module):
             )
             
             raw_atom_pos = single_template_feats["template_all_atom_positions"]
-            
-            atom_pos = geometry.Vec3Array.from_array(raw_atom_pos)
+
+            # Vec3Arrays are required to be float32
+            atom_pos = geometry.Vec3Array.from_array(raw_atom_pos.to(dtype=torch.float32))
+
             rigid, backbone_mask = all_atom_multimer.make_backbone_affine(
                 atom_pos,
                 single_template_feats["template_all_atom_mask"],

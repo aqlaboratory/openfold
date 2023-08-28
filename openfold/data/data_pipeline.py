@@ -1189,3 +1189,74 @@ class DataPipelineMultimer:
         np_example = pad_msa(np_example, 512)
 
         return np_example
+
+    def get_mmcif_features(
+            self, mmcif_object: mmcif_parsing.MmcifObject, chain_id: str
+    ) -> FeatureDict:
+        mmcif_feats = {}
+
+        all_atom_positions, all_atom_mask = mmcif_parsing.get_atom_coords(
+            mmcif_object=mmcif_object, chain_id=chain_id
+        )
+        mmcif_feats["all_atom_positions"] = all_atom_positions
+        mmcif_feats["all_atom_mask"] = all_atom_mask
+
+        mmcif_feats["resolution"] = np.array(
+            mmcif_object.header["resolution"], dtype=np.float32
+        )
+
+        mmcif_feats["release_date"] = np.array(
+            [mmcif_object.header["release_date"].encode("utf-8")], dtype=np.object_
+        )
+
+        mmcif_feats["is_distillation"] = np.array(0., dtype=np.float32)
+
+        return mmcif_feats
+
+    def process_mmcif(
+            self,
+            mmcif: mmcif_parsing.MmcifObject,  # parsing is expensive, so no path
+            alignment_dir: str,
+            alignment_index: Optional[str] = None,
+    ) -> FeatureDict:
+
+        all_chain_features = {}
+        sequence_features = {}
+        is_homomer_or_monomer = len(set(list(mmcif.chain_to_seqres.values()))) == 1
+        for chain_id, seq in mmcif.chain_to_seqres.items():
+            desc= "_".join([mmcif.file_id, chain_id])
+
+            if seq in sequence_features:
+                all_chain_features[desc] = copy.deepcopy(
+                    sequence_features[seq]
+                )
+                continue
+
+            chain_features = self._process_single_chain(
+                chain_id=desc,
+                sequence=seq,
+                description=desc,
+                chain_alignment_dir=os.path.join(alignment_dir, desc),
+                is_homomer_or_monomer=is_homomer_or_monomer
+            )
+
+            chain_features = convert_monomer_features(
+                chain_features,
+                chain_id=desc
+            )
+
+            mmcif_feats = self.get_mmcif_features(mmcif, chain_id)
+            chain_features.update(mmcif_feats)
+            all_chain_features[desc] = chain_features
+            sequence_features[seq] = chain_features
+
+        all_chain_features = add_assembly_features(all_chain_features)
+
+        np_example = feature_processing_multimer.pair_and_merge(
+            all_chain_features=all_chain_features,
+        )
+
+        # Pad MSA to avoid zero-sized extra_msa.
+        np_example = pad_msa(np_example, 512)
+
+        return np_example

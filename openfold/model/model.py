@@ -348,7 +348,7 @@ class AlphaFold(nn.Module):
                 extra_msa_fn = build_extra_msa_feat
             
             # [*, S_e, N, C_e]
-            extra_msa_feat = extra_msa_fn(feats)
+            extra_msa_feat = extra_msa_fn(feats).to(dtype=z.dtype)
             a = self.extra_msa_embedder(extra_msa_feat)
 
             if(self.globals.offload_inference):
@@ -527,6 +527,7 @@ class AlphaFold(nn.Module):
         # Main recycling loop
         num_iters = batch["aatype"].shape[-1]
         early_stop = False
+        num_recycles = 0
         for cycle_no in range(num_iters): 
             # Select the features for the current recycling cycle
             fetch_cur_batch = lambda t: t[..., cycle_no]
@@ -547,12 +548,16 @@ class AlphaFold(nn.Module):
                     _recycle=(num_iters > 1)
                 )
 
+                num_recycles += 1
+
                 if not is_final_iter:
                     del outputs
                     prevs = [m_1_prev, z_prev, x_prev]
                     del m_1_prev, z_prev, x_prev
                 else:
                     break
+
+        outputs["num_recycles"] = torch.tensor(num_recycles, device=feats["aatype"].device)
 
         if "asym_id" in batch:
             outputs["asym_id"] = feats["asym_id"]

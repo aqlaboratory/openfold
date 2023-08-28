@@ -228,12 +228,13 @@ def process_unmerged_features(
         chain_features['deletion_matrix'], axis=0
     )
 
-    # Add all_atom_mask and dummy all_atom_positions based on aatype.
-    all_atom_mask = residue_constants.STANDARD_ATOM_MASK[
-        chain_features['aatype']]
-    chain_features['all_atom_mask'] = all_atom_mask
-    chain_features['all_atom_positions'] = np.zeros(
-        list(all_atom_mask.shape) + [3])
+    if 'all_atom_positions' not in chain_features:
+        # Add all_atom_mask and dummy all_atom_positions based on aatype.
+        all_atom_mask = residue_constants.STANDARD_ATOM_MASK[
+            chain_features['aatype']]
+        chain_features['all_atom_mask'] = all_atom_mask.astype(dtype=np.float32)
+        chain_features['all_atom_positions'] = np.zeros(
+            list(all_atom_mask.shape) + [3])
 
     # Add assembly_num_chains.
     chain_features['assembly_num_chains'] = np.asarray(num_chains)

@@ -431,15 +431,15 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             _shuffle_top_k_prefiltered=shuffle_top_k_prefiltered,
         )
 
-        self.data_pipeline = data_pipeline.DataPipeline(
+        data_processor = data_pipeline.DataPipeline(
             template_featurizer=template_featurizer,
         )
-        self.multimer_data_pipeline = data_pipeline.DataPipelineMultimer(
-            monomer_data_pipeline=self.data_pipeline
+        self.data_pipeline = data_pipeline.DataPipelineMultimer(
+            monomer_data_pipeline=data_processor
         )
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
-    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
+    def _parse_mmcif(self, path, file_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -457,7 +457,6 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         data = self.data_pipeline.process_mmcif(
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
-            chain_id=chain_id,
             alignment_index=alignment_index
         )
 
@@ -473,82 +472,49 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         mmcif_id = self.idx_to_mmcif_id(idx)
         chains = self.mmcif_data_cache[mmcif_id]['chain_ids']
         print(f"mmcif_id is :{mmcif_id} idx:{idx} and has {len(chains)}chains")
-        seqs = self.mmcif_data_cache[mmcif_id]['seqs']
-        fasta_str = ""
-        for c,s in zip(chains,seqs):
-            fasta_str+=f">{mmcif_id}_{c}\n{s}\n"
-        with temp_fasta_file(fasta_str) as fasta_file:
-            all_chain_features = self.multimer_data_pipeline.process_fasta(fasta_file,self.alignment_dir)
-            
-        # process all_chain_features 
-        all_chain_features = self.feature_pipeline.process_features(all_chain_features,
-                                                                    mode=self.mode,
-                                                                    is_multimer=True)
-        
+
         alignment_index = None
-        ground_truth=[]
         if(self.mode == 'train' or self.mode == 'eval'):
-            for chain in chains:
-                path = os.path.join(self.data_dir, f"{mmcif_id}")
-                ext = None
-                for e in self.supported_exts:
-                    if(os.path.exists(path + e)):
-                        ext = e
-                        break
+            path = os.path.join(self.data_dir, f"{mmcif_id}")
+            ext = None
+            for e in self.supported_exts:
+                if(os.path.exists(path + e)):
+                    ext = e
+                    break
 
-                if(ext is None):
-                    raise ValueError("Invalid file type")
+            if(ext is None):
+                raise ValueError("Invalid file type")
 
-                path += ext
-                alignment_dir = os.path.join(self.alignment_dir,f"{mmcif_id}_{chain.upper()}")
-                if(ext == ".cif"):
-                    data = self._parse_mmcif(
-                        path, mmcif_id, chain, alignment_dir, alignment_index,
-                    )
-                    ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                                is_multimer=False)
-                    #remove recycling dimension
-                    ground_truth_feats = tensor_tree_map(lambda t: t[..., -1], ground_truth_feats)
-                    ground_truth.append(ground_truth_feats)
-                elif(ext == ".core"):
-                    data = self.data_pipeline.process_core(
-                        path, alignment_dir, alignment_index,
-                    )
-                    ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                                is_multimer=False)
-                    ground_truth_feats = tensor_tree_map(lambda t: t[..., -1], ground_truth_feats)
-                    ground_truth.append(ground_truth_feats)
-                elif(ext == ".pdb"):
-                    structure_index = None
-                    data = self.data_pipeline.process_pdb(
-                        pdb_path=path,
-                        alignment_dir=alignment_dir,
-                        is_distillation=self.treat_pdb_as_distillation,
-                        chain_id=chain,
-                        alignment_index=alignment_index,
-                        _structure_index=structure_index,
-                    )
-                    ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                                is_multimer=False)
-                    ground_truth_feats = tensor_tree_map(lambda t: t[..., -1], ground_truth_feats)
-                    ground_truth.append(ground_truth_feats)
-                else:
-                    raise ValueError("Extension branch missing") 
-        
-            all_chain_features["batch_idx"] = torch.tensor(
-                [idx for _ in range(all_chain_features["aatype"].shape[-1])],
-                dtype=torch.int64,
-                device=all_chain_features["aatype"].device)
-            # if it's training now, then return both all_chain_features and ground_truth 
-            return all_chain_features,ground_truth
-        
+            #TODO: Add pdb and core exts to data_pipeline for multimer
+            path += ext
+            if(ext == ".cif"):
+                data = self._parse_mmcif(
+                    path, mmcif_id, self.alignment_dir, alignment_index,
+                )
+            else:
+                raise ValueError("Extension branch missing")
         else:
-            # if it's inference mode, only need all_chain_features
-            all_chain_features["batch_idx"] = torch.tensor(
-                [idx for _ in range(all_chain_features["aatype"].shape[-1])],
-                dtype=torch.int64,
-                device=all_chain_features["aatype"].device)
-            return all_chain_features
+            path = os.path.join(self.data_dir, f"{mmcif_id}.fasta")
+            data = self.data_pipeline.process_fasta(
+                fasta_path=path,
+                alignment_dir=self.alignment_dir
+            )
+
+        if (self._output_raw):
+            return data
+
+        # process all_chain_features
+        data = self.feature_pipeline.process_features(data,
+                                                      mode=self.mode,
+                                                      is_multimer=True)
+
+        # if it's inference mode, only need all_chain_features
+        data["batch_idx"] = torch.tensor(
+            [idx for _ in range(data["aatype"].shape[-1])],
+            dtype=torch.int64,
+            device=data["aatype"].device)
+
+        return data
 
     def __len__(self):
         return len(self._chain_ids) 

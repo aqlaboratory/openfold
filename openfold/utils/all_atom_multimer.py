@@ -67,7 +67,7 @@ def atom37_to_atom14(aatype, all_atom_pos, all_atom_mask):
         residx_atom14_to_atom37, 
         dim=no_batch_dims + 1,
         no_batch_dims=no_batch_dims + 1,
-    ).to(torch.float32)
+    ).to(all_atom_pos.dtype)
     # create a mask for known groundtruth positions
     atom14_mask *= get_rc_tensor(rc.RESTYPE_ATOM14_MASK, aatype) 
     # gather the groundtruth positions
@@ -143,14 +143,14 @@ def atom37_to_frames(
 
     # Compute a mask whether ground truth exists for the group
     gt_atoms_exist = tensor_utils.batched_gather(    # shape (N, 8, 3)
-        all_atom_mask.to(dtype=torch.float32),
+        all_atom_mask.to(dtype=all_atom_positions.dtype),
         residx_rigidgroup_base_atom37_idx,
         batch_dims=no_batch_dims + 1,
     )
     gt_exists = torch.min(gt_atoms_exist, dim=-1) * group_exists    # (N, 8)
 
     # Adapt backbone frame to old convention (mirror x-axis and z-axis).
-    rots = np.tile(np.eye(3, dtype=np.float32), [8, 1, 1])
+    rots = np.tile(np.eye(3, dtype=all_atom_positions.dtype), [8, 1, 1])
     rots[0, 0, 0] = -1
     rots[0, 2, 2] = -1
     gt_frames = gt_frames.compose_rotation(
@@ -161,9 +161,9 @@ def atom37_to_frames(
 
     # The frames for ambiguous rigid groups are just rotated by 180 degree around
     # the x-axis. The ambiguous group is always the last chi-group.
-    restype_rigidgroup_is_ambiguous = np.zeros([21, 8], dtype=np.float32)
+    restype_rigidgroup_is_ambiguous = np.zeros([21, 8], dtype=all_atom_positions.dtype)
     restype_rigidgroup_rots = np.tile(
-        np.eye(3, dtype=np.float32), [21, 8, 1, 1]
+        np.eye(3, dtype=all_atom_positions.dtype), [21, 8, 1, 1]
     )
 
     for resname, _ in rc.residue_atom_renaming_swaps.items():
@@ -334,7 +334,7 @@ def extreme_ca_ca_distance_violations(
     next_ca_mask = mask[..., 1:, 1]    # (N - 1)
     has_no_gap_mask = (
         (residue_index[..., 1:] - residue_index[..., :-1]) == 1.0
-    ).astype(torch.float32)
+    ).astype(positions.x.dtype)
     ca_ca_distance = geometry.euclidean_distance(this_ca_pos, next_ca_pos, eps)
     violations = (ca_ca_distance - rc.ca_ca) > max_angstrom_tolerance
     mask = this_ca_mask * next_ca_mask * has_no_gap_mask
@@ -441,7 +441,7 @@ def compute_chi_angles(
     )
     # Check if all 4 chi angle atoms were set. Shape: [num_res, chis=4].
     chi_angle_atoms_mask = torch.prod(chi_angle_atoms_mask, dim=-1)
-    chi_mask = chi_mask * chi_angle_atoms_mask.to(torch.float32)
+    chi_mask = chi_mask * chi_angle_atoms_mask.to(chi_angles.dtype)
 
     return chi_angles, chi_mask
 

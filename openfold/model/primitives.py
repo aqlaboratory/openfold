@@ -130,6 +130,7 @@ class Linear(nn.Linear):
         bias: bool = True,
         init: str = "default",
         init_fn: Optional[Callable[[torch.Tensor, torch.Tensor], None]] = None,
+        precision=None
     ):
         """
         Args:
@@ -180,6 +181,26 @@ class Linear(nn.Linear):
                     final_init_(self.weight)
                 else:
                     raise ValueError("Invalid init string.")
+
+        self.precision = precision
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        d = input.dtype
+        deepspeed_is_initialized = (
+                deepspeed_is_installed and
+                deepspeed.utils.is_initialized()
+        )
+        if self.precision is not None:
+            with torch.cuda.amp.autocast(enabled=False):
+                return nn.functional.linear(input.to(dtype=self.precision),
+                                            self.weight.to(dtype=self.precision),
+                                            self.bias.to(dtype=self.precision)).to(dtype=d)
+
+        if d is torch.bfloat16 and not deepspeed_is_initialized:
+            with torch.cuda.amp.autocast(enabled=False):
+                return nn.functional.linear(input, self.weight.to(dtype=d), self.bias.to(dtype=d))
+
+        return nn.functional.linear(input, self.weight, self.bias)
 
 
 class LayerNorm(nn.Module):

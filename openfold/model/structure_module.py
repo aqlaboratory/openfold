@@ -175,7 +175,7 @@ class PointProjection(nn.Module):
         self.num_points = num_points
         self.is_multimer = is_multimer
         
-        self.linear = Linear(c_hidden, no_heads * 3 * num_points)
+        self.linear = Linear(c_hidden, no_heads * 3 * num_points, precision=torch.float32)
 
     def forward(self, 
         activations: torch.Tensor, 
@@ -642,6 +642,7 @@ class InvariantPointAttentionMultimer(nn.Module):
 
         pt_att = square_euclidean_distance(q_pts.unsqueeze(-3), k_pts.unsqueeze(-4), epsilon=0.)
         pt_att = torch.sum(pt_att * point_weights[..., None], dim=-1) * (-0.5)
+        pt_att = pt_att.to(dtype=s.dtype)
         a = a + pt_att
 
         scalar_variance = max(self.c_hidden, 1) * 1.
@@ -707,6 +708,7 @@ class InvariantPointAttentionMultimer(nn.Module):
         # [*, N_res, H, P_v]
         o_pt = r[..., None].apply_inverse_to_point(o_pt)
         o_pt_flat = [o_pt.x, o_pt.y, o_pt.z]
+        o_pt_flat = [x.to(dtype=a.dtype) for x in o_pt_flat]
 
         # [*, N_res, H * P_v]
         o_pt_norm = o_pt.norm(epsilon=1e-8)
@@ -1135,6 +1137,8 @@ class StructureModule(nn.Module):
                 "angles": angles,
                 "positions": pred_xyz,
             }
+
+            preds = {k: v.to(dtype=s.dtype) for k, v in preds.items()}
 
             outputs.append(preds)
 

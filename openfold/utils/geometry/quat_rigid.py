@@ -16,7 +16,7 @@ class QuatRigid(nn.Module):
         else:
             rigid_dim = 6
 
-        self.linear = Linear(c_hidden, rigid_dim, init="final")
+        self.linear = Linear(c_hidden, rigid_dim, init="final", precision=torch.float32)
 
     def forward(self, activations: torch.Tensor) -> Rigid3Array:
         # NOTE: During training, this needs to be run in higher precision

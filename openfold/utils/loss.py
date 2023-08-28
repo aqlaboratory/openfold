@@ -1672,7 +1672,7 @@ def chain_center_of_mass_loss(
     one_hot = torch.nn.functional.one_hot(asym_id.long()).to(dtype=all_atom_mask.dtype)
     one_hot = one_hot * all_atom_mask
     chain_pos_mask = one_hot.transpose(-2, -1)
-    chain_exists = torch.any(chain_pos_mask, dim=-1).float()
+    chain_exists = torch.any(chain_pos_mask, dim=-1).to(dtype=all_atom_positions.dtype)
 
     def get_chain_center_of_mass(pos):
         center_sum = (chain_pos_mask[..., None] * pos[..., None, :, :]).sum(dim=-2)
@@ -1694,6 +1694,26 @@ def chain_center_of_mass_loss(
 # #
 # below are the functions required for permutations
 # #
+def compute_rmsd(
+    true_atom_pos: torch.Tensor,
+    pred_atom_pos: torch.Tensor,
+    atom_mask: torch.Tensor = None,
+    eps: float = 1e-6,
+) -> torch.Tensor:
+    # shape check
+    true_atom_pos = true_atom_pos
+    pred_atom_pos = pred_atom_pos
+    sq_diff = torch.square(true_atom_pos - pred_atom_pos).sum(dim=-1, keepdim=False)
+    del true_atom_pos
+    del pred_atom_pos
+    gc.collect()
+    if atom_mask is not None:
+        sq_diff = torch.masked_select(sq_diff, atom_mask.to(sq_diff.device))
+    msd = torch.mean(sq_diff)
+    msd = torch.nan_to_num(msd, nan=1e8)
+    return torch.sqrt(msd + eps) # prevent sqrt 0
+
+
 def kabsch_rotation(P, Q):
     """
     Use procrustes package to calculate best rotation that minimises
@@ -1712,11 +1732,12 @@ def kabsch_rotation(P, Q):
     """
 
     assert P.shape == torch.Size([Q.shape[0],Q.shape[1]])
-    rotation = procrustes.rotational(P.detach().cpu().numpy(),
-                                  Q.detach().cpu().numpy(),translate=False,scale=False)
-    rotation = torch.tensor(rotation.t,dtype=torch.float) # rotation.t doesn't mean transpose, t only means get the matrix out of the procruste object
+    rotation = procrustes.rotational(P.detach().cpu().float().numpy(),
+                                  Q.detach().cpu().float().numpy(),translate=False,scale=False)
+    # Rotation.t doesn't mean transpose, t only means get the matrix out of the procruste object
+    rotation = torch.tensor(rotation.t,dtype=torch.float)
     assert rotation.shape == torch.Size([3,3])
-    return rotation.to('cuda')
+    return rotation.to(device=P.device, dtype=P.dtype)
 
 
 def get_optimal_transform(
@@ -1731,7 +1752,8 @@ def get_optimal_transform(
     """
     assert src_atoms.shape == tgt_atoms.shape, (src_atoms.shape, tgt_atoms.shape)
     assert src_atoms.shape[-1] == 3
-    assert len(mask.shape) ==1,"mask should have the shape of [num_res]"
+    if mask is not None:
+        assert len(mask.shape) == 1, "mask should have the shape of [num_res]"
     if torch.isnan(src_atoms).any() or torch.isinf(src_atoms).any():
         #
         # sometimes using fake test inputs generates NaN in the predicted atom positions
@@ -1743,7 +1765,7 @@ def get_optimal_transform(
         assert mask.dtype == torch.bool
         assert mask.shape[-1] == src_atoms.shape[-2]
         if mask.sum() == 0:
-            src_atoms = torch.zeros((1, 3), device=src_atoms.device).float()
+            src_atoms = torch.zeros((1, 3), device=src_atoms.device, dtype=src_atoms.dtype)
             tgt_atoms = src_atoms
         else:
             src_atoms = src_atoms[mask, :]
@@ -1754,33 +1776,12 @@ def get_optimal_transform(
     del src_atoms,tgt_atoms,
     gc.collect()
 
-    tgt_center,src_center = tgt_center.to('cuda'),src_center.to('cuda')
-    x = tgt_center.to('cpu') - src_center.to('cpu') @ r.to('cpu')
+    x = tgt_center - src_center @ r
 
     del tgt_center,src_center,mask
     gc.collect()
 
-    return r, x.to('cuda')
-
-
-def compute_rmsd(
-    true_atom_pos: torch.Tensor,
-    pred_atom_pos: torch.Tensor,
-    atom_mask: torch.Tensor = None,
-    eps: float = 1e-6,
-) -> torch.Tensor:
-    # shape check
-    true_atom_pos = true_atom_pos.to('cuda:0')
-    pred_atom_pos = pred_atom_pos.to('cuda:0')
-    sq_diff = torch.square(true_atom_pos - pred_atom_pos).sum(dim=-1, keepdim=False)
-    del true_atom_pos
-    del pred_atom_pos
-    gc.collect()
-    if atom_mask is not None:
-        sq_diff = sq_diff.to('cpu')[atom_mask.to('cpu')] # somehow it causes overflow on cuda so moved to cpu
-    msd = torch.mean(sq_diff)
-    msd = torch.nan_to_num(msd, nan=1e8)
-    return torch.sqrt(msd + eps)
+    return r, x
 
 
 def get_least_asym_entity_or_longest_length(batch):
@@ -1834,43 +1835,35 @@ def greedy_align(
     true_ca_poses,
     true_ca_masks,
 ):
+    """
+    Implement Algorithm 4 in the Supplementary Information of AlphaFold-Multimer paper:
+    Evans,R et al., 2022 Protein complex prediction with AlphaFold-Multimer, bioRxiv 2021.10.04.463034; doi: https://doi.org/10.1101/2021.10.04.463034
+    """
     used = [False for _ in range(len(true_ca_poses))]
     align = []
     for cur_asym_id in unique_asym_ids:
-        # skip padding
-        if cur_asym_id == 0:
-            continue
         i = int(cur_asym_id - 1)
         asym_mask = batch["asym_id"] == cur_asym_id
-        entity_id = batch["entity_id"][asym_mask][0]
-        # don't need to align
-        if (entity_id) == 1:
-            align.append((i, i))
-            assert used[i] == False
-            used[i] = True
-            continue
         cur_entity_ids = batch["entity_id"][asym_mask][0]
-        best_rmsd = torch.inf    
+        best_rmsd = torch.inf
         best_idx = None
         cur_asym_list = entity_2_asym_list[int(cur_entity_ids)]
         cur_residue_index = per_asym_residue_index[int(cur_asym_id)]
         cur_pred_pos = pred_ca_pos[asym_mask]
         cur_pred_mask = pred_ca_mask[asym_mask]
         for next_asym_id in cur_asym_list:
-            if next_asym_id == 0:
-                continue
             j = int(next_asym_id - 1)
             if not used[j]:  # possible candidate
-                while best_idx is None:
-                    cropped_pos = true_ca_poses[j]
-                    mask = true_ca_masks[j][cur_residue_index]
-                    rmsd = compute_rmsd(
-                        cropped_pos, cur_pred_pos, (cur_pred_mask.to('cuda:0') * mask.to('cuda:0')).bool()
-                    )
-                    
-                    if (rmsd is not None) and (rmsd < best_rmsd):   
-                        best_rmsd = rmsd
-                        best_idx = j
+                cropped_pos = torch.index_select(true_ca_poses[j],1,cur_residue_index)
+                mask = torch.index_select(true_ca_masks[j],1,cur_residue_index)
+                rmsd = compute_rmsd(
+                    torch.squeeze(cropped_pos,0), torch.squeeze(cur_pred_pos,0),
+                    (cur_pred_mask * mask).bool()
+                )
+                if (rmsd is not None) and (rmsd < best_rmsd):
+                    best_rmsd = rmsd
+                    best_idx = j
+
         assert best_idx is not None
         used[best_idx] = True
         align.append((i, best_idx))
@@ -1882,6 +1875,9 @@ def merge_labels(per_asym_residue_index, labels, align):
     per_asym_residue_index: A dictionary that record which asym_id corresponds to which regions of residues in the multimer complex.
     labels: list of original ground truth feats
     align: list of tuples, each entry specify the corresponding label of the asym.
+
+    modified based on UniFold:
+    https://github.com/dptech-corp/Uni-Fold/blob/b1c89a2cebd4e4ee4c47b4e443f92beeb9138fbb/unifold/losses/chain_align.py#L176C1-L176C1
     """
     outs = {}
     for k, v in labels[0].items():
@@ -1891,10 +1887,12 @@ def merge_labels(per_asym_residue_index, labels, align):
             cur_num_res = labels[j]['aatype'].shape[-1]
             # to 1-based
             cur_residue_index = per_asym_residue_index[i + 1]
-            if len(v.shape)==0 or "template" in k:
+            if len(v.shape)<=1 or "template" in k or "row_mask" in k :
                 continue
-            else:    
+            else:
                 dimension_to_merge = label.shape.index(cur_num_res) if cur_num_res in label.shape else 0
+                if k =='all_atom_positions':
+                    dimension_to_merge=1
                 cur_out[i] = label.index_select(dimension_to_merge,cur_residue_index)
         cur_out = [x[1] for x in sorted(cur_out.items())]
         if len(cur_out)>0:
@@ -2012,6 +2010,7 @@ class AlphaFoldLoss(nn.Module):
                 cum_loss,losses = self.loss(out,batch,_return_breakdown)
                 return cum_loss, losses
 
+
 class AlphaFoldMultimerLoss(AlphaFoldLoss):
     """
     Add multi-chain permutation on top of 
@@ -2021,7 +2020,8 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         super(AlphaFoldMultimerLoss, self).__init__(config)
         self.config = config
 
-    def multi_chain_perm_align(self,out, batch, labels, shuffle_times=2):
+    @staticmethod
+    def multi_chain_perm_align(out, batch, labels, permutate_chains=True):
         """
         A class method that first permutate chains in ground truth first
         before calculating the loss.
@@ -2031,99 +2031,95 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         """
         assert isinstance(labels, list)
         ca_idx = rc.atom_order["CA"]
-        pred_ca_pos = out["final_atom_positions"][..., ca_idx, :].float()  # [bsz, nres, 3]
-        pred_ca_mask = out["final_atom_mask"][..., ca_idx].float()  # [bsz, nres]
+        pred_ca_pos = out["final_atom_positions"][..., ca_idx, :]  # [bsz, nres, 3]
+        pred_ca_mask = out["final_atom_mask"][..., ca_idx].to(dtype=pred_ca_pos.dtype)  # [bsz, nres]
+
         true_ca_poses = [
-            l["all_atom_positions"][..., ca_idx, :].float() for l in labels
+            l["all_atom_positions"][..., ca_idx, :] for l in labels
         ]  # list([nres, 3])
+
         true_ca_masks = [
-            l["all_atom_mask"][..., ca_idx].float() for l in labels
+            l["all_atom_mask"][..., ca_idx].long() for l in labels
         ]  # list([nres,])
         unique_asym_ids = torch.unique(batch["asym_id"])
 
         per_asym_residue_index = {}
         for cur_asym_id in unique_asym_ids:
             asym_mask = (batch["asym_id"] == cur_asym_id).bool()
-            per_asym_residue_index[int(cur_asym_id)] = torch.masked_select(batch["residue_index"],asym_mask)
+            per_asym_residue_index[int(cur_asym_id)] = torch.masked_select(batch["residue_index"], asym_mask)
+        if permutate_chains:
+            anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch)
+            anchor_gt_idx = int(anchor_gt_asym) - 1
 
-        anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch)
-        anchor_gt_idx = int(anchor_gt_asym) - 1
+            unique_entity_ids = torch.unique(batch["entity_id"])
+            entity_2_asym_list = {}
+            for cur_ent_id in unique_entity_ids:
+                ent_mask = batch["entity_id"] == cur_ent_id
+                cur_asym_id = torch.unique(batch["asym_id"][ent_mask])
+                entity_2_asym_list[int(cur_ent_id)] = cur_asym_id
+            asym_mask = (batch["asym_id"] == anchor_pred_asym).bool()
+            anchor_residue_idx = per_asym_residue_index[int(anchor_pred_asym)]
+            anchor_true_pos = torch.index_select(true_ca_poses[anchor_gt_idx], 1, anchor_residue_idx)
+            anchor_pred_pos = pred_ca_pos[0][asym_mask[0]]
 
-        unique_entity_ids = torch.unique(batch["entity_id"])
-        entity_2_asym_list = {}
-        for cur_ent_id in unique_entity_ids:
-            ent_mask = batch["entity_id"] == cur_ent_id
-            cur_asym_id = torch.unique(batch["asym_id"][ent_mask])
-            entity_2_asym_list[int(cur_ent_id)] = cur_asym_id
-        asym_mask = (batch["asym_id"] == anchor_pred_asym).bool()
-        anchor_residue_idx = per_asym_residue_index[int(anchor_pred_asym)]
-        anchor_true_pos = torch.index_select(true_ca_poses[anchor_gt_idx],1,anchor_residue_idx)
-        anchor_pred_pos = pred_ca_pos[0][asym_mask[0]]
-        
-        # anchor_pred_pos = anchor_pred_pos.to('cuda')
-        anchor_true_mask = torch.index_select(true_ca_masks[anchor_gt_idx],1,anchor_residue_idx)
-        anchor_pred_mask =pred_ca_mask[0][asym_mask[0]]
-        # anchor_pred_mask = anchor_pred_mask.to('cuda')
-        input_mask = (anchor_true_mask * anchor_pred_mask).bool()
-        r, x = get_optimal_transform(
-            anchor_pred_pos,anchor_true_pos[0],
-            mask=input_mask[0]
-        )
-        del input_mask # just to save memory
-        del anchor_pred_mask
-        del anchor_true_mask
-        gc.collect()
+            anchor_true_mask = torch.index_select(true_ca_masks[anchor_gt_idx], 1, anchor_residue_idx)
+            anchor_pred_mask = pred_ca_mask[0][asym_mask[0]]
 
-        aligned_true_ca_poses = [ca @ r + x for ca in true_ca_poses]  # apply transforms
-        align = greedy_align(
+            input_mask = (anchor_true_mask * anchor_pred_mask).bool()
+            r, x = get_optimal_transform(
+                anchor_pred_pos, anchor_true_pos[0],
+                mask=input_mask[0]
+            )
+            del input_mask  # just to save memory
+            del anchor_pred_mask
+            del anchor_true_mask
+            gc.collect()
+            aligned_true_ca_poses = [ca @ r + x for ca in true_ca_poses]  # apply transforms
+            del true_ca_poses
+            gc.collect()
+            align = greedy_align(
                 batch,
                 per_asym_residue_index,
-                unique_asym_ids ,
+                unique_asym_ids,
                 entity_2_asym_list,
                 pred_ca_pos,
                 pred_ca_mask,
                 aligned_true_ca_poses,
                 true_ca_masks,
             )
-        
-        del aligned_true_ca_poses
-        del r,x
-        del pred_ca_pos,pred_ca_mask,true_ca_poses,true_ca_masks
-        del anchor_pred_pos,anchor_true_pos
-        gc.collect()
-        print(f"finished multi-chain permutation and final align is {align}")
-        merged_labels = merge_labels(
-            per_asym_residue_index,
-            labels,
-            align,
-        )
-                
-        return merged_labels
 
-    def forward(self,out,batch,_return_breakdown=False):
+            del aligned_true_ca_poses, true_ca_masks
+            del r, x
+            del pred_ca_pos, pred_ca_mask
+            del anchor_pred_pos, anchor_true_pos
+            gc.collect()
+            print(f"finished multi-chain permutation and final align is {align}")
+        else:
+            align = list(enumerate(range(len(labels))))
+
+        return align, per_asym_residue_index
+
+    def forward(self, out, features, _return_breakdown=False, permutate_chains=True):
         """
         Overwrite AlphaFoldLoss forward function so that
-        it first compute multi-chain permutation 
+        it first compute multi-chain permutation
 
         args:
         out: the output of model.forward()
         batch: a pair of input features and its corresponding ground truth structure
         """
-        features,labels = batch
-        # first remove the recycling dimention of input features
-        features = tensor_tree_map(lambda t: t[..., -1], features)
-        features['resolution'] = labels[0]['resolution']
-        # then permutate ground truth chains before calculating the loss
-        permutated_labels = self.multi_chain_perm_align(out,features,labels)
-        permutated_labels.pop('aatype')
-        features.update(permutated_labels)
-        move_to_cpu = lambda t: (t.to('cpu'))
-        # features = tensor_tree_map(move_to_cpu,features)
+        # permutate ground truth chains before calculating the loss
+        # align, per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out, features, labels,
+        #                                                                              permutate_chains=permutate_chains)
+        # permutated_labels = merge_labels(per_asym_residue_index, labels, align)
+        # permutated_labels.pop('aatype')
+        # features.update(permutated_labels)
+
         if (not _return_breakdown):
-            cum_loss = self.loss(out,features,_return_breakdown)
+            cum_loss = self.loss(out, features, _return_breakdown)
             print(f"cum_loss: {cum_loss}")
             return cum_loss
         else:
-            cum_loss,losses = self.loss(out,features,_return_breakdown)
+            cum_loss, losses = self.loss(out, features, _return_breakdown)
             print(f"cum_loss: {cum_loss} losses: {losses}")
             return cum_loss, losses

@@ -260,9 +260,6 @@ class OpenFoldMultimerWrapper(OpenFoldWrapper):
     def __init__(self, config):
         super(OpenFoldMultimerWrapper, self).__init__(config)
         self.config = config
-        self.config.loss.masked_msa.num_classes = 22 # somehow need overwrite this part in multimer loss config
-        self.config.model.evoformer_stack.no_blocks = 4  # no need to go overboard here
-        self.config.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         self.model = AlphaFold(config)
         self.loss = AlphaFoldMultimerLoss(config.loss)
         self.ema = ExponentialMovingAverage(
@@ -276,24 +273,27 @@ class OpenFoldMultimerWrapper(OpenFoldWrapper):
         return self.model(batch)
 
     def training_step(self, batch, batch_idx):
-        all_chain_features,ground_truth = batch
-        if(self.ema.device != all_chain_features["aatype"].device):
-            self.ema.to(all_chain_features["aatype"].device)
+        # Log it
+        if(self.ema.device != batch["aatype"].device):
+            self.ema.to(batch["aatype"].device)
 
         # Run the model
-        outputs = self(all_chain_features)
+        outputs = self(batch)
+
+        # Remove the recycling dimension
+        batch = tensor_tree_map(lambda t: t[..., -1], batch)
+
         # Compute loss
-        loss = self.loss(
-            outputs, (all_chain_features,ground_truth), _return_breakdown=False
+        loss, loss_breakdown = self.loss(
+            outputs, batch, _return_breakdown=True
         )
 
         # Log it
-        self._log(loss, all_chain_features, outputs)
+        self._log(loss_breakdown, batch, outputs)
 
         return loss
     
     def validation_step(self, batch, batch_idx):
-        all_chain_features,ground_truth = batch
         # At the start of validation, load the EMA weights
         if(self.cached_weights is None):
             # model.state_dict() contains references to model weights rather
@@ -304,20 +304,21 @@ class OpenFoldMultimerWrapper(OpenFoldWrapper):
             self.model.load_state_dict(self.ema.state_dict()["params"])
        
         # Run the model
-        outputs = self(all_chain_features)
+        outputs = self(batch)
 
         # Compute loss and other metrics
-        all_chain_features["use_clamped_fape"] = 0.
+        batch["use_clamped_fape"] = 0.
         _, loss_breakdown = self.loss(
-            outputs, all_chain_features, _return_breakdown=True
+            outputs, batch, _return_breakdown=True
         )
 
-        self._log(loss_breakdown, all_chain_features, outputs, train=False)
+        self._log(loss_breakdown, batch, outputs, train=False)
         
     def validation_epoch_end(self, _):
         # Restore the model weights to normal
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
+
 
 def main(args):
     if(args.seed is not None):
