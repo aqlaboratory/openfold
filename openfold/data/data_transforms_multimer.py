@@ -347,7 +347,7 @@ def get_spatial_crop_idx(protein, crop_size, interface_threshold, generator):
         return get_contiguous_crop_idx(protein, crop_size, generator)
 
     target_res_idx = randint(lower=0,
-                             upper=interface_residues.shape[-1],
+                             upper=interface_residues.shape[-1] - 1,
                              generator=generator,
                              device=positions.device)
 
