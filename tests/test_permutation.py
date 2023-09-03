@@ -151,7 +151,19 @@ class TestPermutation(unittest.TestCase):
         tensor_to_cuda = lambda t: t.to('cuda')
         batch = tensor_tree_map(tensor_to_cuda,batch)
         dim_dict = AlphaFoldMultimerLoss.determine_split_dim(batch) 
-        aligns,_ = AlphaFoldMultimerLoss.multi_chain_perm_align(out,
+        aligns,per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out,
                                                                 batch,
                                                                 dim_dict,
                                                                 permutate_chains=True)
+        
+        labels = AlphaFoldMultimerLoss.split_ground_truth_labels(batch,dim_dict=dim_dict,
+                                                                 REQUIRED_FEATURES=[i for i in batch.keys() if i in dim_dict])
+        
+        labels = merge_labels(per_asym_residue_index,labels,aligns,
+                              original_nres=batch['aatype'].shape[-1])
+
+        self.assertTrue(torch.equal(labels['residue_index'],batch['residue_index']))
+        
+        expected_permutated_gt_pos = torch.cat((chain_a2_pos,chain_a1_pos,chain_b2_pos,chain_b3_pos,chain_b1_pos),dim=1)
+        expected_permutated_gt_pos = pad_features(expected_permutated_gt_pos,nres_pad,pad_dim=1)
+        self.assertTrue(torch.equal(labels['all_atom_positions'],expected_permutated_gt_pos))
