@@ -2095,7 +2095,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             per_asym_residue_index[int(cur_asym_id)] = torch.masked_select(batch["residue_index"], asym_mask)
         if permutate_chains:
             anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch)
-            print(f"anchor_gt_asym:{anchor_gt_asym} anchor_pred_asym:{anchor_pred_asym}")
             anchor_gt_idx = int(anchor_gt_asym) - 1
 
             unique_entity_ids = torch.unique(batch["entity_id"])
@@ -2140,7 +2139,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             del pred_ca_pos, pred_ca_mask
             del anchor_pred_pos, anchor_true_pos
             gc.collect()
-            print(f"finished multi-chain permutation and final align is {align}")
         else:
             align = list(enumerate(range(len(labels))))
 
