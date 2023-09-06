@@ -2146,7 +2146,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
 
         return align, per_asym_residue_index
 
-    def forward(self, out, features, _return_breakdown=False):
+    def forward(self, out, features, _return_breakdown=False,permutate_chains=True):
         """
         Overwrite AlphaFoldLoss forward function so that
         it first compute multi-chain permutation
@@ -2155,19 +2155,23 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         out: the output of model.forward()
         batch: a pair of input features and its corresponding ground truth structure
         """
-        # first determin which dimension in the tensor to split into individual ground truth labels
-        dim_dict = AlphaFoldMultimerLoss.determine_split_dim(features) 
+        # first check if it is a monomer
+        is_monomer = len(torch.unique(features['asym_id']))==1 or torch.unique(features['asym_id']).tolist()==[0,1]
+        if not is_monomer:
+            permutate_chains = True
+            # first determin which dimension in the tensor to split into individual ground truth labels
+            dim_dict = AlphaFoldMultimerLoss.determine_split_dim(features) 
 
-        # Then permutate ground truth chains before calculating the loss
-        align, per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out, features,dim_dict=dim_dict,
-                                                                                     permutate_chains=permutate_chains)
-        
-        labels = AlphaFoldMultimerLoss.split_ground_truth_labels(features,dim_dict=dim_dict,
-                                                                 REQUIRED_FEATURES=[i for i in features.keys() if i in dim_dict])
-        # reorder ground truth labels according to permutation results
-        labels = merge_labels(per_asym_residue_index,labels,align,
-                              original_nres=features['aatype'].shape[-1])
-        features.update(labels)
+            # Then permutate ground truth chains before calculating the loss
+            align, per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out, features,dim_dict=dim_dict,
+                                                                                        permutate_chains=permutate_chains)
+            
+            labels = AlphaFoldMultimerLoss.split_ground_truth_labels(features,dim_dict=dim_dict,
+                                                                    REQUIRED_FEATURES=[i for i in features.keys() if i in dim_dict])
+            # reorder ground truth labels according to permutation results
+            labels = merge_labels(per_asym_residue_index,labels,align,
+                                original_nres=features['aatype'].shape[-1])
+            features.update(labels)
 
         if (not _return_breakdown):
             cum_loss = self.loss(out, features, _return_breakdown)
