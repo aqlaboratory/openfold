@@ -23,6 +23,7 @@ import tempfile
 from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
+import random
 
 
 @contextlib.contextmanager
@@ -471,7 +472,6 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         chains = self.mmcif_data_cache[mmcif_id]['chain_ids']
-        print(f"mmcif_id is :{mmcif_id} idx:{idx} and has {len(chains)}chains")
 
         alignment_index = None
         if(self.mode == 'train' or self.mode == 'eval'):
@@ -746,6 +746,7 @@ class OpenFoldMultimerDataset(torch.utils.data.Dataset):
         self.datapoints = []
         for dataset_idx in dataset_choices:
             selected_idx = self.filter_samples(dataset_idx)
+            random.shuffle(selected_idx)
             if len(selected_idx)<self.epoch_len:
                 self.epoch_len = len(selected_idx)
             logging.info(f"self.epoch_len is {self.epoch_len}")
@@ -849,7 +850,6 @@ class OpenFoldMultimerDataLoader(torch.utils.data.DataLoader):
         self.stage = stage
         
         self.generator = generator
-        print('initialised a multimer dataloader')
     def __iter__(self):
         it = super().__iter__()
 
@@ -1167,6 +1167,7 @@ class OpenFoldMultimerDataModule(OpenFoldDataModule):
                 self.eval_dataset = dataset_gen(
                     data_dir=self.val_data_dir,
                     alignment_dir=self.val_alignment_dir,
+                    mmcif_data_cache_path=self.train_mmcif_data_cache_path,
                     filter_path=None,
                     max_template_hits=self.config.eval.max_template_hits,
                     mode="eval",
@@ -1206,7 +1207,6 @@ class OpenFoldMultimerDataModule(OpenFoldDataModule):
             batch_size=1,
             num_workers=self.config.data_module.data_loaders.num_workers,
         )
-        print(f"generated training dataloader")
         return dl
 
 class DummyDataset(torch.utils.data.Dataset):
