@@ -367,6 +367,7 @@ config = mlc.ConfigDict(
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
+            "use_deepspeed_evo_attention": False,
             # Use Staats & Rabe's low-memory attention algorithm. Mutually
             # exclusive with use_flash.
             "use_lma": False,

@@ -3,7 +3,7 @@ import ml_collections as mlc
 consts = mlc.ConfigDict(
     {
         "batch_size": 2,
-        "n_res": 11,
+        "n_res": 20,
         "n_seq": 13,
         "n_templ": 3,
         "n_extra": 17,

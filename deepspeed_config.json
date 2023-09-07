@@ -10,9 +10,18 @@
   "bfloat16": {
     "enabled": true
   },
+  "optimizer": {
+    "type": "Adam",
+    "params": {
+      "lr": 1e-3,
+      "eps": 1e-5
+    }
+  },
   "zero_optimization": {
     "stage": 2,
-    "cpu_offload": true,
+    "offload_optimizer": {
+      "device": "cpu"
+    },
     "contiguous_gradients": true
   },
   "activation_checkpointing": {
