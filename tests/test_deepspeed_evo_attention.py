@@ -96,15 +96,12 @@ class TestDeepSpeedKernel(unittest.TestCase):
             self.assertTrue(torch.allclose(torch.abs(out_repro_msa), torch.abs(out_repro_msa_ds), atol=consts.eps))
             self.assertTrue(torch.allclose(torch.abs(out_repro_pair), torch.abs(out_repro_pair_ds), atol=consts.eps))
 
-    @compare_utils.skip_unless_alphafold_installed()
     def test_compare_evoformer_bf16(self):
         self.compare_evoformer(torch.bfloat16)
 
-    @compare_utils.skip_unless_alphafold_installed()
     def test_compare_evoformer_fp32(self):
         self.compare_evoformer(torch.float32)
 
-    @compare_utils.skip_unless_alphafold_installed()
     def test_dry_run(self):
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
