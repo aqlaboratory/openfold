@@ -402,7 +402,6 @@ def get_contiguous_crop_idx(protein, crop_size, generator):
                               generator=generator,
                               device=chain_lens.device)
         cur_asym_id = unique_asym_ids[int(idx)].item()
-        print(f"######## 405 cur_asym_id:{cur_asym_id} idx:{idx} and per_asym_residue_index keys: {list(per_asym_residue_index.keys())}")
         asym_offset = per_asym_residue_index[int(cur_asym_id)]
         crop_idxs.append(
             torch.arange(asym_offset + chain_start, asym_offset + chain_start + chain_crop_size)
