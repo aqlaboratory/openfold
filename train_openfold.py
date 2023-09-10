@@ -511,7 +511,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--val_mmcif_data_cache_path", type=str, default=None,
-        help="path to the json file which records all the information of mmcif structures used during training"
+        help="path to the json file which records all the information of mmcif structures used during validation"
     )
     parser.add_argument(
         "--kalign_binary_path", type=str, default='/usr/bin/kalign',
