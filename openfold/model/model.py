@@ -78,7 +78,7 @@ class AlphaFold(nn.Module):
         # If using seqemb mode, embed the sequence embeddings passed
         # to the model ("preembeddings") instead of embedding the sequence
         if self.seqemb_mode:
-            self.preembedding_embedder = PreembeddingEmbedder(
+            self.input_embedder = PreembeddingEmbedder(
                 **self.config["preembedding_embedder"],
             )
         else:
@@ -251,7 +251,7 @@ class AlphaFold(nn.Module):
         # m: [*, 1, N, C_m]
         # z: [*, N, N, C_z]
         if self.seqemb_mode:
-            m, z = self.preembedding_embedder(
+            m, z = self.input_embedder(
                 feats["target_feat"],
                 feats["residue_index"],
                 feats["seq_embedding"]
