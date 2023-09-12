@@ -652,7 +652,7 @@ class DataPipeline:
             if (ext == ".pt"):
                 # Load embedding file
                 seqemb_data = torch.load(path)
-                seqemb_features["seq_embedding"] = seqemb_data
+                seqemb_features["seq_embedding"] = seqemb_data["representations"][33]
 
         return seqemb_features
 
