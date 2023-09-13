@@ -29,9 +29,9 @@ import tree
 # Distance from one CA to next CA [trans configuration: omega = 180].
 ca_ca = 3.80209737096
 
-# Format: The list for each AA type contains chi1, chi2, chi3, chi4 in
+# Format: The list for each AA type contains chi1, chi2, chi3, and chi4 in
 # this order (or a relevant subset from chi1 onwards). ALA and GLY don't have
-# chi angles so their chi angle lists are empty.
+# chi angles, so their chi angle lists are empty.
 chi_angles_atoms = {
     "ALA": [],
     # Chi5 in arginine is always 0 +- 5 degrees, so ignore it.
@@ -137,8 +137,8 @@ chi_pi_periodic = [
 # 3: 'psi-group',
 # 4,5,6,7: 'chi1,2,3,4-group'
 # The atom positions are relative to the axis-end-atom of the corresponding
-# rotation axis. The x-axis is in direction of the rotation axis, and the y-axis
-# is defined such that the dihedral-angle-definiting atom (the last entry in
+# rotation axis. The x-axis is in the direction of the rotation axis, and the y-axis
+# is defined such that the dihedral-angle-defining atom (the last entry in
 # chi_angles_atoms above) is in the xy-plane (with a positive y-coordinate).
 # format: [atomname, group_idx, rel_position]
 rigid_group_atom_positions = {
@@ -408,10 +408,10 @@ residue_atoms = {
 # Due to symmetries in the amino acids the naming of atoms is ambiguous in
 # 4 of the 20 amino acids.
 # (The LDDT paper lists 7 amino acids as ambiguous, but the naming ambiguities
-# in LEU, VAL and ARG can be resolved by using the 3d constellations of
+# in LEU, VAL, and ARG can be resolved by using the 3d constellations of
 # the 'ambiguous' atoms and their neighbours)
-# Because for LEU, VAL and ARG, no ambiguous exist when the prediction output is chi angle instead of the location of individual atoms.
-# For the rest, ASP and others, when you rotate the bond 180 degree, you get the same configuraiton due to symmetry.
+# For LEU, VAL, and ARG, no ambiguities exist when the prediction outputs are chi angles instead of the location of individual atoms.
+# For the rest (i.e., ASP and others), when you rotate the bond by 180 degrees, you get the same configuration due to symmetry.
 
 residue_atom_renaming_swaps = {
     "ASP": {"OD1": "OD2"},
@@ -955,8 +955,8 @@ restype_1to3 = {
 
 # NB: restype_3to1 differs from Bio.PDB.protein_letters_3to1 by being a simple
 # 1-to-1 mapping of 3 letter names to one letter names. The latter contains
-# many more, and less common, three letter names as keys and maps many of these
-# to the same one letter name (including 'X' and 'U' which we don't use here).
+# many more, and less common, three-letter names as keys and maps many of these
+# to the same one-letter name (including 'X' and 'U' which we don't use here).
 restype_3to1 = {v: k for k, v in restype_1to3.items()}
 
 # Define a restype name for all unknown residues.
@@ -967,10 +967,10 @@ resname_to_idx = {resname: i for i, resname in enumerate(resnames)}
 
 
 # The mapping here uses hhblits convention, so that B is mapped to D, J and O
-# are mapped to X, U is mapped to C, and Z is mapped to E. Other than that the
+# are mapped to X, U is mapped to C, and Z is mapped to E. Other than that, the
 # remaining 20 amino acids are kept in alphabetical order.
 # There are 2 non-amino acid codes, X (representing any amino acid) and
-# "-" representing a missing amino acid in an alignment.  The id for these
+# "-" representing a missing amino acid in an alignment.  The ID for these
 # codes is put at the end (20 and 21) so that they can easily be ignored if
 # desired.
 HHBLITS_AA_TO_ID = {
@@ -1220,7 +1220,7 @@ _make_rigid_group_constants()
 def make_atom14_dists_bounds(
     overlap_tolerance=1.5, bond_length_tolerance_factor=15
 ):
-    """compute upper and lower bounds for bonds to assess violations."""
+    """Compute upper and lower bounds for bonds to assess violations."""
     restype_atom14_bond_lower_bound = np.zeros([21, 14, 14], np.float32)
     restype_atom14_bond_upper_bound = np.zeros([21, 14, 14], np.float32)
     restype_atom14_bond_stddev = np.zeros([21, 14, 14], np.float32)
