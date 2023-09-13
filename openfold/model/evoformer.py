@@ -801,10 +801,15 @@ class EvoformerStack(nn.Module):
             chunk_size: 
                 Inference-time subbatch size. Acts as a minimum if 
                 self.tune_chunk_size is True
-            use_lma: Whether to use low-memory attention during inference
+            use_deepspeed_evo_attention:
+                Whether to use DeepSpeed memory efficient kernel.
+                Mutually exclusive with use_lma and use_flash.
+            use_lma:
+                Whether to use low-memory attention during inference.
+                Mutually exclusive with use_flash and use_deepspeed_evo_attention.
             use_flash: 
                 Whether to use FlashAttention where possible. Mutually 
-                exclusive with use_lma.
+                exclusive with use_lma and use_deepspeed_evo_attention.
         Returns:
             m:
                 [*, N_seq, N_res, C_m] MSA embedding
@@ -1000,6 +1005,7 @@ class ExtraMSAStack(nn.Module):
             z:
                 [*, N_res, N_res, C_z] pair embedding
             chunk_size: Inference-time subbatch size for Evoformer modules
+            use_deepspeed_evo_attention: Whether to use DeepSpeed memory-efficient kernel
             use_lma: Whether to use low-memory attention during inference
             msa_mask:
                 Optional [*, N_extra, N_res] MSA mask

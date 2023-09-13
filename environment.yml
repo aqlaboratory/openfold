@@ -28,8 +28,6 @@ dependencies:
       - wandb==0.12.21
       - modelcif==0.7
       - git+https://github.com/NVIDIA/dllogger.git
-      - git+https://github.com/NVIDIA/cutlass.git
       - git+https://github.com/microsoft/DeepSpeed.git
       # TODO: Replace above when version becomes available
-      # - deepspeed==0.10.3
-
+      # - deepspeed==0.10.4

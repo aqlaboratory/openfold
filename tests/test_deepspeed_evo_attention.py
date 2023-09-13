@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Unit tests to compare components of OpenFold run with the DeepSpeed memory-efficient
+attention kernel, DS4Sci_EvoformerAttention vs. a stock PyTorch attention implementation.
+"""
+
 import torch
 import unittest
 import numpy as np
@@ -22,17 +27,26 @@ from openfold.model.primitives import (
 )
 from tests.config import consts
 import tests.compare_utils as compare_utils
+from tests.data_utils import (
+    random_template_feats,
+    random_extra_msa_feats,
+)
+
+from openfold.config import model_config
 from openfold.data import data_transforms
+from openfold.model.model import AlphaFold
 from openfold.utils.tensor_utils import tensor_tree_map
 
 
 class TestDeepSpeedKernel(unittest.TestCase):
     def test_ds_kernel_vs_attention(self):
+        """Compare attention with and without using DeepSpeed Evoformer kernel."""
         batch_size = consts.batch_size
         c_hidden = 32
         n = 2 ** 12
         n_seq = 12
         no_heads = 4
+        eps = 2e-2
 
         q = torch.rand(batch_size, n_seq, n, c_hidden).cuda()
         kv = torch.rand(batch_size, n_seq, n, c_hidden).cuda()
@@ -48,11 +62,17 @@ class TestDeepSpeedKernel(unittest.TestCase):
             l = a(q, kv, biases=bias, use_deepspeed_evo_attention=True)
             real = a(q, kv, biases=bias)
 
-        self.assertTrue(torch.max(torch.abs(l - real)) < consts.eps)
+        self.assertTrue(torch.max(torch.abs(l - real)) < eps)
 
     def compare_evoformer(self, dtype):
+        """
+        Compare Evoformer output with and without using DeepSpeed Evoformer attention kernel.
+        Set dtype to confirm the kernel can be used during both training (BF16) and inference (FP32),
+        since the kernel itself can run with either BF16 or FP16 precision.
+        """
         n_res = consts.n_res
         n_seq = consts.n_seq
+        eps = 2e-2
 
         activations = {
             "msa": torch.rand(n_seq, n_res, consts.c_m, device='cuda', dtype=dtype),
@@ -93,16 +113,23 @@ class TestDeepSpeedKernel(unittest.TestCase):
             out_repro_msa_ds = out_repro_msa_ds.cpu()
             out_repro_pair_ds = out_repro_pair_ds.cpu()
 
-            self.assertTrue(torch.allclose(torch.abs(out_repro_msa), torch.abs(out_repro_msa_ds), atol=consts.eps))
-            self.assertTrue(torch.allclose(torch.abs(out_repro_pair), torch.abs(out_repro_pair_ds), atol=consts.eps))
+            self.assertTrue(torch.allclose(torch.abs(out_repro_msa), torch.abs(out_repro_msa_ds), atol=eps))
+            self.assertTrue(torch.allclose(torch.abs(out_repro_pair), torch.abs(out_repro_pair_ds), atol=eps))
 
     def test_compare_evoformer_bf16(self):
+        """Run evoformer comparison test with BF16 precision."""
         self.compare_evoformer(torch.bfloat16)
 
     def test_compare_evoformer_fp32(self):
+        """Run evoformer comparison test with FP32 precision."""
         self.compare_evoformer(torch.float32)
 
-    def test_dry_run(self):
+    def test_compare_model(self):
+        """
+        Run full model with and without using DeepSpeed Evoformer attention kernel
+        and compare output coordinates
+        """
+        eps = 2e-2
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
 
@@ -130,8 +157,19 @@ class TestDeepSpeedKernel(unittest.TestCase):
 
         with torch.no_grad():
             model = compare_utils.get_global_pretrained_openfold()
-            model.globals.use_deepspeed_evo_attention = True
             out_repro = model(batch)
+
+            # Enable kernel
+            model.globals.use_deepspeed_evo_attention = False
+            out_repro_ds = model(batch)
+
+            out_repro = tensor_tree_map(lambda t: t.cpu(), out_repro)
+            out_repro_ds = tensor_tree_map(lambda t: t.cpu(), out_repro_ds)
+
+            out_repro = out_repro["sm"]["positions"][-1].squeeze(0)
+            out_repro_ds = out_repro_ds["sm"]["positions"][-1].squeeze(0)
+
+            self.assertTrue(torch.max(torch.abs(out_repro - out_repro_ds)) < eps)
 
 
 if __name__ == "__main__":

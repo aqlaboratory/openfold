@@ -367,12 +367,15 @@ config = mlc.ConfigDict(
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
+            # Use DeepSpeed memory-efficient attention kernel. Mutually
+            # exclusive with use_lma and use_flash.
             "use_deepspeed_evo_attention": False,
             # Use Staats & Rabe's low-memory attention algorithm. Mutually
-            # exclusive with use_flash.
+            # exclusive with use_deepspeed_evo_attention and use_flash.
             "use_lma": False,
             # Use FlashAttention in selected modules. Mutually exclusive with 
-            # use_lma. Doesn't work that well on long sequences (>1000 residues).
+            # use_deepspeed_evo_attention and use_lma. Doesn't work that well
+            # on long sequences (>1000 residues).
             "use_flash": False,
             "offload_inference": False,
             "c_z": c_z,

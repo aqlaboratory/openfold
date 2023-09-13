@@ -25,6 +25,11 @@ git checkout 5b838a8bef
 python3 setup.py install
 cd $CUR_DIR
 
+echo "Attempting to download CUTLASS, required for Deepspeed Evoformer attention kernel"
+git clone https://github.com/NVIDIA/cutlass.git
+conda env config vars set CUTLASS_PATH=$PWD/cutlass
+source scripts/activate_conda_env.sh
+
 # Install DeepMind's OpenMM patch
 OPENFOLD_DIR=$PWD
 pushd lib/conda/envs/$ENV_NAME/lib/python3.9/site-packages/ \

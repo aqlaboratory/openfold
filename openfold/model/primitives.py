@@ -20,7 +20,9 @@ import numpy as np
 deepspeed_is_installed = importlib.util.find_spec("deepspeed") is not None
 if deepspeed_is_installed:
     import deepspeed
-    from deepspeed.ops.deepspeed4science import DS4Sci_EvoformerAttention
+
+    if importlib.util.find_spec("deepspeed.ops.deepspeed4science") is not None:
+        from deepspeed.ops.deepspeed4science import DS4Sci_EvoformerAttention
 
 fa_is_installed = importlib.util.find_spec("flash_attn") is not None
 if fa_is_installed:
@@ -375,7 +377,8 @@ class Attention(nn.Module):
 
     def _prep_qkv(self,
         q_x: torch.Tensor, 
-        kv_x: torch.Tensor
+        kv_x: torch.Tensor,
+        transpose_qkv_dims: bool = True
     ) -> Tuple[
         torch.Tensor, torch.Tensor, torch.Tensor
     ]:
@@ -389,10 +392,11 @@ class Attention(nn.Module):
         k = k.view(k.shape[:-1] + (self.no_heads, -1))
         v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
-        # [*, H, Q/K, C_hidden]
-        q = q.transpose(-2, -3)
-        k = k.transpose(-2, -3)
-        v = v.transpose(-2, -3)
+        if transpose_qkv_dims:
+            # [*, H, Q/K, C_hidden]
+            q = q.transpose(-2, -3)
+            k = k.transpose(-2, -3)
+            v = v.transpose(-2, -3)
 
         q /= math.sqrt(self.c_hidden)
 
@@ -479,10 +483,10 @@ class Attention(nn.Module):
         if biases is None:
             biases = []
         
-        # [*, H, Q/K, C_hidden]
-        q, k, v = self._prep_qkv(q_x, kv_x)
+        # DeepSpeed attention kernel expects Q/K/V of shape [*, Q/K, H, C_hidden]
+        # All other attention modules expect Q/K/V of shape [*, H, Q/K, C_hidden]
+        q, k, v = self._prep_qkv(q_x, kv_x, transpose_qkv_dims=not use_deepspeed_evo_attention)
 
-        # [*, Q, H, C_hidden]
         if is_fp16_enabled():
             use_memory_efficient_kernel = False
         
@@ -495,17 +499,32 @@ class Attention(nn.Module):
             o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
             o = o.transpose(-2, -3)
         elif use_deepspeed_evo_attention:
-            q = q.transpose(-2, -3)
-            k = k.transpose(-2, -3)
-            v = v.transpose(-2, -3)
+            if len(biases) > 2:
+                raise ValueError(
+                    "If use_deepspeed_evo_attention is True, you may only "
+                    "provide up to two bias terms"
+                )
 
-            add_batch_dim = len(q.shape) < 5
-            if add_batch_dim:
-                q = q.unsqueeze(0)
-                k = k.unsqueeze(0)
-                v = v.unsqueeze(0)
-                biases = [b.unsqueeze(0) for b in biases]
+            orig_shape = q.shape
+            no_batch_dims = len(orig_shape[:-3])
+            if no_batch_dims > 2:
+                raise ValueError(
+                    f"Q is of shape {list(orig_shape)} but must be "
+                    "of shape [B, N, Q/K, H, C_hidden] if "
+                    "use_deepspeed_evo_attention is True."
+                )
 
+            # Bypass asserts for bias shapes in DS4Sci_EvoformerAttention()
+            # by adding batch and N_seq dims if needed.
+            if no_batch_dims < 2:
+                addl_dims = (1,) * (2 - no_batch_dims)
+                q = q.view(*(addl_dims + q.shape))
+                k = k.view(*(addl_dims + k.shape))
+                v = v.view(*(addl_dims + v.shape))
+                biases = [b.view(*(addl_dims + b.shape)) for b in biases]
+
+            # DeepSpeed attn. kernel requires inputs to be type bf16 or fp16
+            # Cast to bf16 so kernel can be used during inference
             orig_dtype = q.dtype
             if orig_dtype not in [torch.bfloat16, torch.float16]:
                 o = DS4Sci_EvoformerAttention(q.to(dtype=torch.bfloat16),
@@ -517,8 +536,7 @@ class Attention(nn.Module):
             else:
                 o = DS4Sci_EvoformerAttention(q, k, v, biases)
 
-            if add_batch_dim:
-                o = o.squeeze(0)
+            o = o.view(orig_shape)
         elif use_lma:
             biases = [
                 b.expand(b.shape[:-2] + (q_x.shape[-2],) + (kv_x.shape[-2],)) 
