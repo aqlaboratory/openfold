@@ -160,7 +160,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
             out_repro = model(batch)
 
             # Enable kernel
-            model.globals.use_deepspeed_evo_attention = False
+            model.globals.use_deepspeed_evo_attention = True
             out_repro_ds = model(batch)
 
             out_repro = tensor_tree_map(lambda t: t.cpu(), out_repro)
