@@ -39,7 +39,7 @@ kernels support in-place attention during inference and training. They use
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 - **FlashAttention** support greatly speeds up MSA attention.
-- **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a new collaboration between OpenFold and DeepSpeed. The kernel provides substantial speedups for training and inference, and significantly reduces the model's peak memory usage. The model is 15% faster during the initial training and finetuning stages, with 40% lower peak memory consumption. To use this feature, set the `use_deepspeed_evo_attention` option in `openfold/config.py`.
+- **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a new collaboration between OpenFold and DeepSpeed4Science initiative. The kernel provides substantial speedups for training and inference, and significantly reduces the model's peak device memory requirement by 13X. The model is 15% faster during the initial training and finetuning stages, with an overall of 40% lower peak memory consumption. To use this feature, simply set the `use_deepspeed_evo_attention` option in `openfold/config.py`.
 
 ## Installation (Linux)
 
