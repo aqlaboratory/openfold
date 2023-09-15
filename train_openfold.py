@@ -417,7 +417,7 @@ if __name__ == "__main__":
                 filtered by the release date of the target'''
     )
     parser.add_argument(
-        "--use_single_seq_mode", type=str, default=None,
+        "--use_single_seq_mode", type=str, default=False,
         help="Use single sequence embeddings instead of MSAs."
     )
     parser.add_argument(
