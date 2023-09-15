@@ -240,6 +240,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             elif(ext == ".core"):
                 data = self.data_pipeline.process_core(
                     path, alignment_dir, alignment_index,
+                    seqemb_mode=self.config.seqemb_mode.enabled,
                 )
             elif(ext == ".pdb"):
                 structure_index = None
