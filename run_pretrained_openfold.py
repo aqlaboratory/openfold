@@ -70,16 +70,11 @@ def precompute_alignments(tags, seqs, alignment_dir, args, is_multimer):
         with open(tmp_fasta_path, "w") as fp:
             fp.write(f">{tag}\n{seq}")
 
-        if is_multimer:
-            local_alignment_dir = os.path.join(
+        local_alignment_dir = os.path.join(
                 alignment_dir,
                 os.path.join(alignment_dir, tag),
             )
-        else:
-            local_alignment_dir = os.path.join(
-                alignment_dir,
-                os.path.join(alignment_dir, tag),
-            )
+        
         if(args.use_precomputed_alignments is None and not os.path.isdir(local_alignment_dir)):
             logger.info(f"Generating alignments for {tag}...")
 
