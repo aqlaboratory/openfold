@@ -17,7 +17,10 @@ import numpy as np
 import unittest
 
 from openfold.model.primitives import (
-    Attention,
+    _lma,
+    _attention,
+    DEFAULT_LMA_Q_CHUNK_SIZE,
+    DEFAULT_LMA_KV_CHUNK_SIZE
 )
 from tests.config import consts
 
@@ -27,26 +30,26 @@ class TestLMA(unittest.TestCase):
         batch_size = consts.batch_size
         c_hidden = 32 
         n = 2**12
+        n_seq = 12
         no_heads = 4
 
-        q = torch.rand(batch_size, n, c_hidden).cuda()
-        kv = torch.rand(batch_size, n, c_hidden).cuda()
+        q = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
+        k = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
+        v = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
 
-        bias = [torch.rand(no_heads, 1, n)]
-        bias = [b.cuda() for b in bias]
-        
-        gating_fill = torch.rand(c_hidden * no_heads, c_hidden)
-        o_fill = torch.rand(c_hidden, c_hidden * no_heads)
-        
-        a = Attention(
-            c_hidden, c_hidden, c_hidden, c_hidden, no_heads
-        ).cuda()
+        bias = [torch.rand(batch_size, n_seq, 1, 1, n), torch.rand(batch_size, 1, no_heads, n, n)]
+        biases = [b.cuda() for b in bias]
         
         with torch.no_grad():
-            l = a(q, kv, biases=bias, use_lma=True)
-            real = a(q, kv, biases=bias)
-        
-        self.assertTrue(torch.max(torch.abs(l - real)) < consts.eps)
+            lma_biases = [
+                b.expand(b.shape[:-2] + (q.shape[-2],) + (k.shape[-2],))
+                for b in biases
+            ]
+            l = _lma(q, k, v, lma_biases, DEFAULT_LMA_Q_CHUNK_SIZE, DEFAULT_LMA_KV_CHUNK_SIZE).cpu()
+            real = _attention(q, k, v, biases).cpu()
+       
+        err = torch.max(torch.abs(l - real))
+        self.assertTrue(err < consts.eps, f'Error: {err}')
 
  
 if __name__ == "__main__":

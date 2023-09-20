@@ -26,7 +26,8 @@ import numpy as np
 import pickle
 
 from openfold.model.primitives import (
-    Attention,
+    _attention,
+    _deepspeed_evo_attn
 )
 from tests.config import consts
 import tests.compare_utils as compare_utils
@@ -43,22 +44,26 @@ class TestDeepSpeedKernel(unittest.TestCase):
         n = 2 ** 12
         n_seq = 12
         no_heads = 4
+        dtype = torch.bfloat16
 
-        q = torch.rand(batch_size, n_seq, n, c_hidden).cuda()
-        kv = torch.rand(batch_size, n_seq, n, c_hidden).cuda()
+        q = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
+        k = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
+        v = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
 
         bias = [torch.rand(batch_size, n_seq, 1, 1, n), torch.rand(batch_size, 1, no_heads, n, n)]
-        bias = [b.cuda() for b in bias]
-
-        a = Attention(
-            c_hidden, c_hidden, c_hidden, c_hidden, no_heads
-        ).cuda()
+        bias = [b.to(dtype=dtype).cuda() for b in bias]
 
         with torch.no_grad():
-            l = a(q, kv, biases=bias, use_deepspeed_evo_attention=True)
-            real = a(q, kv, biases=bias)
+            l = _deepspeed_evo_attn(q, k, v, biases=bias).cpu()
+            
+            q = q.transpose(-2, -3)
+            k = k.transpose(-2, -3)
+            v = v.transpose(-2, -3)
+            real = _attention(q, k, v, biases=bias)
+            real = real.transpose(-2, -3).cpu()
 
-        self.assertTrue(torch.max(torch.abs(l - real)) < consts.eps)
+        err = torch.max(torch.abs(l - real))
+        self.assertTrue(err < consts.eps, f'Error: {err}')
 
     def compare_evoformer(self, dtype):
         """
@@ -112,17 +117,14 @@ class TestDeepSpeedKernel(unittest.TestCase):
             self.assertTrue(torch.allclose(torch.abs(out_repro_msa), torch.abs(out_repro_msa_ds), atol=eps))
             self.assertTrue(torch.allclose(torch.abs(out_repro_pair), torch.abs(out_repro_pair_ds), atol=eps))
 
-    @unittest.skip('Temporarily disabled')
     def test_compare_evoformer_bf16(self):
         """Run evoformer comparison test with BF16 precision."""
         self.compare_evoformer(torch.bfloat16)
 
-    @unittest.skip('Temporarily disabled')
     def test_compare_evoformer_fp32(self):
         """Run evoformer comparison test with FP32 precision."""
         self.compare_evoformer(torch.float32)
 
-    @unittest.skip('Temporarily disabled')
     def test_compare_model(self):
         """
         Run full model with and without using DeepSpeed Evoformer attention kernel
