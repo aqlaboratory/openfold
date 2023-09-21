@@ -46,4 +46,4 @@ echo "Downloading AlphaFold parameters..."
 bash scripts/download_alphafold_params.sh openfold/resources
 
 # Decompress test data
-gunzip tests/test_data/sample_feats.pickle.gz
+gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.pickle

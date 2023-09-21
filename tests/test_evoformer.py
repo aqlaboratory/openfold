@@ -206,7 +206,7 @@ class TestExtraMSAStack(unittest.TestCase):
                 n_res,
             ),
             device="cuda",
-        )
+        ).float()
         pair_mask = torch.randint(
             0,
             2,
@@ -216,7 +216,7 @@ class TestExtraMSAStack(unittest.TestCase):
                 n_res,
             ),
             device="cuda",
-        )
+        ).float()
 
         shape_z_before = z.shape
 
