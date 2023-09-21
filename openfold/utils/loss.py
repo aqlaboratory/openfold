@@ -1819,12 +1819,13 @@ def get_least_asym_entity_or_longest_length(batch):
     if len(least_asym_entities) > 1:
         least_asym_entities = random.choice(least_asym_entities)
     assert len(least_asym_entities)==1
-    best_pred_asym = torch.unique(batch["asym_id"][batch["entity_id"] == least_asym_entities[0]])
+    # best_pred_asym = torch.unique(batch["asym_id"][batch["entity_id"] == least_asym_entities[0]])
     
-    # If there is more than one chain in the predicted output that has the same sequence
-    # as the chosen ground truth anchor, then randomly picke one
-    if len(best_pred_asym) > 1:
-        best_pred_asym = random.choice(best_pred_asym)
+    # # If there is more than one chain in the predicted output that has the same sequence
+    # # as the chosen ground truth anchor, then randomly picke one
+    # if len(best_pred_asym) > 1:
+    #     best_pred_asym = random.choice(best_pred_asym)
+    best_pred_asym = least_asym_entities[0]
     return least_asym_entities[0], best_pred_asym
 
 
@@ -2159,6 +2160,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             true_ca_masks = [
                 l["all_atom_mask"][..., ca_idx].long() for l in labels
             ]  # list([nres,])
+
             r, x = AlphaFoldMultimerLoss.calculate_optimal_transform(true_ca_poses,
                                     anchor_gt_idx,
                                     true_ca_masks,pred_ca_mask,
@@ -2200,6 +2202,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         is_monomer = len(torch.unique(features['asym_id']))==1 or torch.unique(features['asym_id']).tolist()==[0,1]
         if not is_monomer:
             permutate_chains = True
+
             # first determin which dimension in the tensor to split into individual ground truth labels
             dim_dict = AlphaFoldMultimerLoss.determine_split_dim(features) 
 
