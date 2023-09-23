@@ -435,11 +435,11 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             _shuffle_top_k_prefiltered=shuffle_top_k_prefiltered,
         )
 
-        self.monomer_data_processor = data_pipeline.DataPipeline(
+        data_processor = data_pipeline.DataPipeline(
             template_featurizer=template_featurizer,
         )
         self.data_pipeline = data_pipeline.DataPipelineMultimer(
-            monomer_data_pipeline=self.monomer_data_processor
+            monomer_data_pipeline=data_processor
         )
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
@@ -459,9 +459,9 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         mmcif_object = mmcif_object.mmcif_object
 
         data = self.data_pipeline.process_mmcif(
-                mmcif=mmcif_object,
-                alignment_dir=alignment_dir,
-                alignment_index=alignment_index
+            mmcif=mmcif_object,
+            alignment_dir=alignment_dir,
+            alignment_index=alignment_index
             )
 
         return data
@@ -475,7 +475,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
-        
+
         if(self.mode == 'train' or self.mode == 'eval'):
             path = os.path.join(self.data_dir, f"{mmcif_id}")
             ext = None
