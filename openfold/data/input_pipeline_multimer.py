@@ -21,19 +21,11 @@ from openfold.data import (
     data_transforms_multimer,
 )
 
-
-def nonensembled_transform_fns(common_cfg, mode_cfg):
-    """Input pipeline data transformers that are not ensembled."""
-    transforms = [
-        data_transforms.cast_to_64bit_ints,
-        data_transforms_multimer.make_msa_profile,
-        data_transforms_multimer.create_target_feat,
-        data_transforms.make_atom14_masks,
-    ]
-
-    if mode_cfg.supervised:
+def grountruth_transforms_fns():
+        
+        transforms = []
         transforms.extend(
-            [
+            [   data_transforms.make_atom14_masks,
                 data_transforms.make_atom14_positions,
                 data_transforms.atom37_to_frames,
                 data_transforms.atom37_to_torsion_angles(""),
@@ -42,6 +34,16 @@ def nonensembled_transform_fns(common_cfg, mode_cfg):
                 data_transforms.get_chi_angles,
             ]
         )
+        return transforms
+
+def nonensembled_transform_fns(common_cfg, mode_cfg):
+    """Input pipeline data transformers that are not ensembled."""
+    transforms = [
+        data_transforms.cast_to_64bit_ints,
+        data_transforms_multimer.make_msa_profile,
+        data_transforms_multimer.create_target_feat,
+        data_transforms.make_atom14_masks
+    ]
 
     return transforms
 
@@ -118,6 +120,11 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
 def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
+    GROUNDTRUTH_FEATURES=['all_atom_mask', 'all_atom_positions']
+    input_tensors = {k:v for k,v in tensors.items() if k not in GROUNDTRUTH_FEATURES}
+    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES}
+    gt_tensors['aatype'] = tensors['aatype'].to(torch.long)
+    del tensors
     ensemble_seed = random.randint(0, torch.iinfo(torch.int32).max)
 
     def wrap_ensemble_fn(data, i):
@@ -132,27 +139,23 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
         d["ensemble_index"] = i
         return fn(d)
 
-    no_templates = True
-    if("template_aatype" in tensors):
-        no_templates = tensors["template_aatype"].shape[0] == 0
-
     nonensembled = nonensembled_transform_fns(
         common_cfg,
         mode_cfg,
     )
+    gt_tensors = compose(grountruth_transforms_fns())(gt_tensors)
 
-    tensors = compose(nonensembled)(tensors)
-
-    if("no_recycling_iters" in tensors):
-        num_recycling = int(tensors["no_recycling_iters"])
+    input_tensors = compose(nonensembled)(input_tensors)
+    if("no_recycling_iters" in input_tensors):
+        num_recycling = int(input_tensors["no_recycling_iters"])
     else:
         num_recycling = common_cfg.max_recycling_iters
 
-    tensors = map_fn(
-        lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_recycling + 1)
+    input_tensors = map_fn(
+        lambda x: wrap_ensemble_fn(input_tensors, x), torch.arange(num_recycling + 1)
     )
-
-    return tensors
+    
+    return input_tensors,gt_tensors
 
 
 @data_transforms.curry1
