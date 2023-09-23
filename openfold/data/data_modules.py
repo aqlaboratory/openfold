@@ -443,7 +443,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         )
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
-    def _parse_mmcif(self, path, file_id,alignment_dir, alignment_index,chain_id=None):
+    def _parse_mmcif(self, path, file_id,alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -458,18 +458,10 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
 
         mmcif_object = mmcif_object.mmcif_object
 
-        if chain_id is None:
-            data = self.data_pipeline.process_mmcif(
+        data = self.data_pipeline.process_mmcif(
                 mmcif=mmcif_object,
                 alignment_dir=alignment_dir,
                 alignment_index=alignment_index
-            )
-        else:
-            data = self.monomer_data_processor.process_mmcif(
-                mmcif=mmcif_object,
-                alignment_dir=alignment_dir,
-                alignment_index=alignment_index,
-                chain_id=chain_id
             )
 
         return data
@@ -480,69 +472,10 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def idx_to_mmcif_id(self, idx):
         return self._mmcifs[idx]
     
-    def obtain_ground_truth_feature(self,mmcif_id,chain_id):
-        REQUIRED_FEATURES=['atom14_gt_positions','atom14_alt_gt_positions',
-        'all_atom_positions', 'all_atom_mask',
-        'atom14_atom_is_ambiguous','atom14_gt_exists',
-        'atom14_alt_gt_exists','atom14_atom_exists',
-        'atom37_atom_exists','rigidgroups_gt_frames', 'rigidgroups_gt_exists', 
-        'rigidgroups_group_exists', 'rigidgroups_group_is_ambiguous', 
-        'rigidgroups_alt_gt_frames', 
-        'backbone_rigid_tensor', 
-        'backbone_rigid_mask', 'chi_angles_sin_cos', 'chi_mask']
-        alignment_dir = os.path.join(self.alignment_dir,f"{mmcif_id}_{chain_id.upper()}")
-        path = os.path.join(self.data_dir, f"{mmcif_id}")
-        ext = None
-        for e in self.supported_exts:
-            if(os.path.exists(path + e)):
-                ext = e
-                break
-        if(ext is None):
-            raise ValueError("Invalid file type")
-        
-        alignment_index=None
-        path += ext
-        if(ext == ".cif"):
-            data = self._parse_mmcif(
-                path, mmcif_id,alignment_dir, alignment_index,chain_id=chain_id
-            )
-            ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                        is_multimer=False)
-        elif(ext == ".core"):
-            data = self.data_pipeline.process_core(
-                path, alignment_dir, alignment_index,
-            )
-            ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                        is_multimer=False)
-            
-        elif(ext == ".pdb"):
-            structure_index = None
-            data = self.data_pipeline.process_pdb(
-                pdb_path=path,
-                alignment_dir=alignment_dir,
-                is_distillation=self.treat_pdb_as_distillation,
-                chain_id=chain_id,
-                alignment_index=alignment_index,
-                _structure_index=structure_index,
-            )
-            ground_truth_feats = self.feature_pipeline.process_features(data, "train",
-                                                                        is_multimer=False)
-        ground_truth_feats = {k:v for k,v in ground_truth_feats.items() if k in REQUIRED_FEATURES}
-        # remove recycling dimesion 
-        ground_truth_feats = tensor_tree_map(lambda t: t[..., -1], ground_truth_feats)
-        return ground_truth_feats
-
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
         
-        # obtain ground truth structures and features for all the chains
-        # ground_truth = []
-        # chains = self.mmcif_data_cache[mmcif_id]['chain_ids']
-        # for chain in chains:
-        #     ground_truth.append(self.obtain_ground_truth_feature(mmcif_id,chain))
-        
-        # Then prepare input features 
         if(self.mode == 'train' or self.mode == 'eval'):
             path = os.path.join(self.data_dir, f"{mmcif_id}")
             ext = None
