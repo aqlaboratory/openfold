@@ -102,10 +102,9 @@ class TestPermutation(unittest.TestCase):
         batch['all_atom_mask'] = true_atom_mask
         
         dim_dict = AlphaFoldMultimerLoss.determine_split_dim(batch) 
-        aligns = AlphaFoldMultimerLoss.multi_chain_perm_align(out,batch,
+        aligns,_ = AlphaFoldMultimerLoss.multi_chain_perm_align(out,batch,
                                                                 dim_dict,
                                                                 permutate_chains=True)
-        print(f"##### aligns is {aligns}")
         possible_outcome = [[(0,1),(1,0),(2,3),(3,4),(4,2)],[(0,0),(1,1),(2,3),(3,4),(4,2)]]
         wrong_outcome = [[(0,1),(1,0),(2,4),(3,2),(4,3)],[(0,0),(1,1),(2,2),(3,3),(4,4)]]
         self.assertIn(aligns,possible_outcome)
@@ -152,15 +151,15 @@ class TestPermutation(unittest.TestCase):
         tensor_to_cuda = lambda t: t.to('cuda')
         batch = tensor_tree_map(tensor_to_cuda,batch)
         dim_dict = AlphaFoldMultimerLoss.determine_split_dim(batch) 
-        aligns = AlphaFoldMultimerLoss.multi_chain_perm_align(out,
+        aligns,per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out,
                                                                 batch,
                                                                 dim_dict,
                                                                 permutate_chains=True)
-        print(f"##### aligns is {aligns}")
+        
         labels = AlphaFoldMultimerLoss.split_ground_truth_labels(batch,dim_dict=dim_dict,
                                                                  REQUIRED_FEATURES=[i for i in batch.keys() if i in dim_dict])
         
-        labels = merge_labels(labels,aligns,
+        labels = merge_labels(per_asym_residue_index,labels,aligns,
                               original_nres=batch['aatype'].shape[-1])
 
         self.assertTrue(torch.equal(labels['residue_index'],batch['residue_index']))
