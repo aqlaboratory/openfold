@@ -121,9 +121,11 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
     GROUNDTRUTH_FEATURES=['all_atom_mask', 'all_atom_positions']
+    COMMON_FEATURES=['asym_id','sym_id','entity_id']
     input_tensors = {k:v for k,v in tensors.items() if k not in GROUNDTRUTH_FEATURES}
-    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES}
+    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES or k in COMMON_FEATURES}
     gt_tensors['aatype'] = tensors['aatype'].to(torch.long)
+
     del tensors
     ensemble_seed = random.randint(0, torch.iinfo(torch.int32).max)
 
