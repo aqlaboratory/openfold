@@ -36,7 +36,7 @@ def grountruth_transforms_fns():
         )
         return transforms
 
-def nonensembled_transform_fns(common_cfg, mode_cfg):
+def nonensembled_transform_fns():
     """Input pipeline data transformers that are not ensembled."""
     transforms = [
         data_transforms.cast_to_64bit_ints,
@@ -120,13 +120,10 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
 def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
-    GROUNDTRUTH_FEATURES=['all_atom_mask', 'all_atom_positions']
-    COMMON_FEATURES=['asym_id','sym_id','entity_id']
-    input_tensors = {k:v for k,v in tensors.items() if k not in GROUNDTRUTH_FEATURES}
-    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES or k in COMMON_FEATURES}
-    gt_tensors['aatype'] = tensors['aatype'].to(torch.long)
-
-    del tensors
+    GROUNDTRUTH_FEATURES=['all_atom_mask', 'all_atom_positions','asym_id','sym_id','entity_id']
+    tensors['aatype'] = tensors['aatype'].to(torch.long)
+    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES}
+    gt_tensors['aatype'] = tensors['aatype']
     ensemble_seed = random.randint(0, torch.iinfo(torch.int32).max)
 
     def wrap_ensemble_fn(data, i):
@@ -147,17 +144,16 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     )
     gt_tensors = compose(grountruth_transforms_fns())(gt_tensors)
 
-    input_tensors = compose(nonensembled)(input_tensors)
-    if("no_recycling_iters" in input_tensors):
-        num_recycling = int(input_tensors["no_recycling_iters"])
+    tensors = compose(nonensembled)(tensors)
+    if("no_recycling_iters" in tensors):
+        num_recycling = int(tensors["no_recycling_iters"])
     else:
         num_recycling = common_cfg.max_recycling_iters
 
-    input_tensors = map_fn(
-        lambda x: wrap_ensemble_fn(input_tensors, x), torch.arange(num_recycling + 1)
+    tensors = map_fn(
+        lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_recycling + 1)
     )
-    
-    return input_tensors,gt_tensors
+    return tensors,gt_tensors
 
 
 @data_transforms.curry1
