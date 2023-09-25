@@ -138,10 +138,7 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg):
         d["ensemble_index"] = i
         return fn(d)
 
-    nonensembled = nonensembled_transform_fns(
-        common_cfg,
-        mode_cfg,
-    )
+    nonensembled = nonensembled_transform_fns()
     gt_tensors = compose(grountruth_transforms_fns())(gt_tensors)
 
     tensors = compose(nonensembled)(tensors)
