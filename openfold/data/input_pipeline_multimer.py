@@ -22,10 +22,7 @@ from openfold.data import (
 )
 
 def grountruth_transforms_fns():
-        
-        transforms = []
-        transforms.extend(
-            [   data_transforms.make_atom14_masks,
+        transforms = [data_transforms.make_atom14_masks,
                 data_transforms.make_atom14_positions,
                 data_transforms.atom37_to_frames,
                 data_transforms.atom37_to_torsion_angles(""),
@@ -33,7 +30,6 @@ def grountruth_transforms_fns():
                 data_transforms.get_backbone_frames,
                 data_transforms.get_chi_angles,
             ]
-        )
         return transforms
 
 def nonensembled_transform_fns():
