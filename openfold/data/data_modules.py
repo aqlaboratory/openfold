@@ -24,7 +24,7 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 import random
-
+logging.basicConfig(level=logging.INFO)
 
 @contextlib.contextmanager
 def temp_fasta_file(sequence_str):
@@ -724,9 +724,9 @@ class OpenFoldMultimerDataset(torch.utils.data.Dataset):
                         mmcif_id = dataset.idx_to_mmcif_id(i)
                         mmcif_data_cache_entry = mmcif_data_cache[mmcif_id]
                         if deterministic_multimer_train_filter(mmcif_data_cache_entry,
-                                                            max_resolution=9,
-                                                            minimum_number_of_residues=5):
+                                                            max_resolution=9):
                             selected_idx.append(i)
+                logging.info(f"Originally {len(mmcif_data_cache)} mmcifs. After filtering: {len(selected_idx)}")
             else:
                 selected_idx = list(range(len(dataset._mmcif_id_to_idx_dict)))
             return selected_idx
