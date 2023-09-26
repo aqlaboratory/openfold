@@ -120,7 +120,7 @@ def np_example_to_features(
             dtype=torch.float32,
         )
 
-    return {k: v for k, v in features.items()},gt_features
+    return {k: v for k, v in features.items()}, gt_features
 
 
 class FeaturePipeline:
