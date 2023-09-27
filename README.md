@@ -232,6 +232,28 @@ efficent AlphaFold-Multimer more than double the time. Use the
 at once. The `run_pretrained_openfold.py` script can enable this config option with the 
 `--long_sequence_inference` command line option
 
+#### Single-Sequence Model Inference
+To run inference for a sequence using the single sequence model, first you would need the ESM1-b embedding for the sequence. For this you need to set up the ESM model on your system ([ESM](https://www.github.com/facebookresearch/esm.git)). Once you have the the setup ready, use the following command in the ESM model directory to generate an embedding:
+
+```bash
+cd <esm_dir>
+python scripts/extract.py esm1b_t33_650M_UR50S <fasta> output_dir --include per_tok
+```
+
+Once you have the `*.pt` embedding file, you can place it in that sequence's  alignments directory (same as that used by the MSA model of OF). That is, inside the top-level alignments directory, there will be one subdirectory for each sequence you want to run inference on, like so: `alignments_dir/{sequence_id}/{sequence_id}.pt`. You can also place a `*.hhr` files in the same directory, which can contain the details about the structures that you want to use as templates.
+
+Now, you are ready to run inference:
+```bash
+python run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --use_precomputed_alignments alignments_dir \
+    --output_dir ./ \
+    --model_device "cuda:0" \
+    --config_preset "seq_model_esm1b" \
+    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b.pt
+```
+
 ### Training
 
 To train the model, you will first need to precompute protein alignments. 
