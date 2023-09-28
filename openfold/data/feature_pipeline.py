@@ -92,14 +92,19 @@ def np_example_to_features(
     )
 
     with torch.no_grad():
-        if(not is_multimer):
-            features = input_pipeline.process_tensors_from_config(
+        if is_multimer:
+            features,gt_features = input_pipeline_multimer.process_tensors_from_config(
                 tensor_dict,
                 cfg.common,
                 cfg[mode],
             )
+            if mode == 'train':
+                return {k: v for k, v in features.items()}, gt_features
+            else:
+                return {k: v for k, v in features.items()}
+        
         else:
-            features,gt_features = input_pipeline_multimer.process_tensors_from_config(
+            features = input_pipeline.process_tensors_from_config(
                 tensor_dict,
                 cfg.common,
                 cfg[mode],
@@ -120,7 +125,7 @@ def np_example_to_features(
             dtype=torch.float32,
         )
 
-    return {k: v for k, v in features.items()}, gt_features
+    return {k: v for k, v in features.items()}
 
 
 class FeaturePipeline:
