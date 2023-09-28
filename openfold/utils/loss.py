@@ -1788,6 +1788,14 @@ def get_least_asym_entity_or_longest_length(batch,input_asym_id):
 
     If there is a tie, e.g. AABB, first check which sequence is the longer/longest,
     then choose one of the corresponding subunits as anchor 
+
+    Args:
+    batch: in this funtion batch is the full ground truth features
+    input_asym_id: A list of aym_ids that are in the cropped input features
+
+    Return: 
+    anchor_gt_asym_id: Tensor(int) selected ground truth asym_id
+    anchor_pred_asym_ids: list(Tensor(int)) a list of all possible pred anchor candidates
     """
     entity_2_asym_list = AlphaFoldMultimerLoss.get_entity_2_asym_list(batch)
     unique_entity_ids = torch.unique(batch["entity_id"])
@@ -1816,10 +1824,9 @@ def get_least_asym_entity_or_longest_length(batch,input_asym_id):
     assert len(least_asym_entities)==1
     least_asym_entities = least_asym_entities[0]
 
-    anchor_gt_asym_id = [id for id in entity_2_asym_list[least_asym_entities] if id in input_asym_id]
-    best_pred_asym = anchor_gt_asym_id[0]
-    anchor_gt_asym_id = anchor_gt_asym_id[0]
-    return anchor_gt_asym_id, best_pred_asym
+    anchor_gt_asym_id = random.choice(entity_2_asym_list[least_asym_entities])
+    anchor_pred_asym_ids = [id for id in entity_2_asym_list[least_asym_entities] if id in input_asym_id]
+    return anchor_gt_asym_id, anchor_pred_asym_ids
 
 
 def greedy_align(
