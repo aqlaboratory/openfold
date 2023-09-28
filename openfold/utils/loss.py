@@ -2144,7 +2144,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             best_align = None
             # First select anchors from predicted structures and ground truths
             anchor_gt_asym, anchor_pred_asym_ids = get_least_asym_entity_or_longest_length(ground_truth,feature['asym_id'])
-            print(f"########## line 2147 anchor_pred_asym_ids is {anchor_pred_asym_ids} and gt_asym is {anchor_gt_asym}")
             entity_2_asym_list = AlphaFoldMultimerLoss.get_entity_2_asym_list(ground_truth)
             labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth,
                                                                  REQUIRED_FEATURES=["all_atom_mask","all_atom_positions"])
@@ -2190,7 +2189,6 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
                 if rmsd < best_rmsd:
                     best_rmsd = rmsd
                     best_align = align
-                    print(f"##### 2193 rmsd is {rmsd} and anchor_gt_asym is {anchor_gt_asym} and candidate_pred_anchor is {candidate_pred_anchor}")
             del r,x
             del true_ca_masks,aligned_true_ca_poses
             del pred_ca_pos, pred_ca_mask
