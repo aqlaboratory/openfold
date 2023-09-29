@@ -24,7 +24,7 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 import random
-
+logging.basicConfig(level=logging.INFO)
 
 @contextlib.contextmanager
 def temp_fasta_file(sequence_str):
@@ -443,7 +443,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         )
         self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
-    def _parse_mmcif(self, path, file_id, alignment_dir, alignment_index):
+    def _parse_mmcif(self, path, file_id,alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
 
@@ -462,7 +462,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             alignment_index=alignment_index
-        )
+            )
 
         return data
 
@@ -471,10 +471,11 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
 
     def idx_to_mmcif_id(self, idx):
         return self._mmcifs[idx]
-
+    
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
+
         if(self.mode == 'train' or self.mode == 'eval'):
             path = os.path.join(self.data_dir, f"{mmcif_id}")
             ext = None
@@ -503,19 +504,19 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
 
         if (self._output_raw):
             return data
-
+        
         # process all_chain_features
-        data = self.feature_pipeline.process_features(data,
+        data,ground_truth = self.feature_pipeline.process_features(data,
                                                       mode=self.mode,
                                                       is_multimer=True)
-
+        
         # if it's inference mode, only need all_chain_features
         data["batch_idx"] = torch.tensor(
             [idx for _ in range(data["aatype"].shape[-1])],
             dtype=torch.int64,
             device=data["aatype"].device)
 
-        return data
+        return data, ground_truth
 
     def __len__(self):
         return len(self._chain_ids) 
@@ -723,9 +724,9 @@ class OpenFoldMultimerDataset(torch.utils.data.Dataset):
                         mmcif_id = dataset.idx_to_mmcif_id(i)
                         mmcif_data_cache_entry = mmcif_data_cache[mmcif_id]
                         if deterministic_multimer_train_filter(mmcif_data_cache_entry,
-                                                            max_resolution=9,
-                                                            minimum_number_of_residues=5):
+                                                            max_resolution=9):
                             selected_idx.append(i)
+                logging.info(f"Originally {len(mmcif_data_cache)} mmcifs. After filtering: {len(selected_idx)}")
             else:
                 selected_idx = list(range(len(dataset._mmcif_id_to_idx_dict)))
             return selected_idx

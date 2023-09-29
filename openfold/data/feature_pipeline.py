@@ -81,7 +81,7 @@ def np_example_to_features(
     seq_length = np_example["seq_length"]
     num_res = int(seq_length[0]) if seq_length.ndim != 0 else int(seq_length)
     cfg, feature_names = make_data_config(config, mode=mode, num_res=num_res)
-
+ 
     if "deletion_matrix_int" in np_example:
         np_example["deletion_matrix"] = np_example.pop(
             "deletion_matrix_int"
@@ -90,15 +90,29 @@ def np_example_to_features(
     tensor_dict = np_to_tensor_dict(
         np_example=np_example, features=feature_names
     )
+
     with torch.no_grad():
-        if(not is_multimer):
-            features = input_pipeline.process_tensors_from_config(
-                tensor_dict,
-                cfg.common,
-                cfg[mode],
-            )
+        if is_multimer:
+            if mode == 'train':
+                features,gt_features = input_pipeline_multimer.process_tensors_from_config(
+                    tensor_dict,
+                    cfg.common,
+                    cfg[mode],
+                    is_training=True
+                )
+            
+                return {k: v for k, v in features.items()}, gt_features
+            else:
+                features = input_pipeline_multimer.process_tensors_from_config(
+                    tensor_dict,
+                    cfg.common,
+                    cfg[mode],
+                    is_training=False
+                )
+                return {k: v for k, v in features.items()}
+        
         else:
-            features = input_pipeline_multimer.process_tensors_from_config(
+            features = input_pipeline.process_tensors_from_config(
                 tensor_dict,
                 cfg.common,
                 cfg[mode],
