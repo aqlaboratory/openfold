@@ -186,6 +186,7 @@ def model_config(
         # In seqemb mode, we turn off the ExtraMSAStack and Evoformer's column attention.
         c.model.extra_msa.enabled = False
         c.model.evoformer_stack.no_column_attention = True
+        c.update(seq_mode_config.copy_and_resolve_references())
 
     if long_sequence_inference:
         assert(not train)
@@ -284,7 +285,6 @@ config = mlc.ConfigDict(
                     "rigidgroups_gt_frames": [NUM_RES, None, None, None],
                     "seq_length": [],
                     "seq_mask": [NUM_RES],
-                    "seq_embedding": [NUM_RES, None],
                     "target_feat": [NUM_RES, None],
                     "template_aatype": [NUM_TEMPLATES, NUM_RES],
                     "template_all_atom_mask": [NUM_TEMPLATES, NUM_RES, None],
@@ -336,19 +336,11 @@ config = mlc.ConfigDict(
                     "deletion_matrix",
                     "no_recycling_iters",
                 ],
-                "seqemb_features": [ # List of features to be generated in seqemb mode
-                    "seq_embedding"
-                ],
                 "use_templates": templates_enabled,
                 "use_template_torsion_angles": embed_template_torsion_angles,
             },
             "seqemb_mode": { # Configuration for sequence embedding mode
                 "enabled": False, # If True, use seq emb instead of MSA
-                "seqemb_config": {
-                    "max_msa_clusters": 1,
-                    "max_extra_msa": 0,
-                    "max_distillation_msa_clusters": 1
-                },
             },
             "supervised": {
                 "clamp_prob": 0.9,
@@ -436,13 +428,6 @@ config = mlc.ConfigDict(
             "input_embedder": {
                 "tf_dim": 22,
                 "msa_dim": 49,
-                "c_z": c_z,
-                "c_m": c_m,
-                "relpos_k": 32,
-            },
-            "preembedding_embedder": { # Used in sequence embedding mode
-                "tf_dim": 22,
-                "preembedding_dim": preemb_dim_size,
                 "c_z": c_z,
                 "c_m": c_m,
                 "relpos_k": 32,
@@ -672,3 +657,31 @@ config = mlc.ConfigDict(
         "ema": {"decay": 0.999},
     }
 )
+
+seq_mode_config = mlc.ConfigDict({
+    "data": {
+        "common": {
+            "feat": {
+                "seq_embedding": [NUM_RES, None],
+            },
+            "seqemb_features": [ # List of features to be generated in seqemb mode
+                "seq_embedding"
+            ],
+        },
+        "seqemb_mode": { # Configuration for sequence embedding mode
+            "enabled": True, # If True, use seq emb instead of MSA
+        },
+    },
+    "globals": {
+        "seqemb_mode_enabled": True,
+    },
+    "model": {
+        "preembedding_embedder": { # Used in sequence embedding mode
+            "tf_dim": 22,
+            "preembedding_dim": preemb_dim_size,
+            "c_z": c_z,
+            "c_m": c_m,
+            "relpos_k": 32,
+        },
+    }
+})
