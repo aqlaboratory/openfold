@@ -80,8 +80,6 @@ class OpenFoldInference:
             args.max_template_date,
             "--kalign_binary_path",
             args.kalign_binary_path,
-            "--data_random_seed",
-            args.data_random_seed,
         ]
         if args.obsolete_pdbs_path is not None:
             cmd.append("--obsolete_pdbs_path")
@@ -89,6 +87,9 @@ class OpenFoldInference:
         if args.release_dates_path is not None:
             cmd.append("--release_dates_path")
             cmd.append(args.release_dates_path)
+        if args.data_random_seed is not None:
+            cmd.append("--data_random_seed")
+            cmd.append(args.data_random_seed)
 
         logging.info('Launching subprocess "%s"', " ".join(cmd))
         process = subprocess.Popen(
