@@ -379,7 +379,8 @@ class Attention(nn.Module):
     def _prep_qkv(self,
         q_x: torch.Tensor, 
         kv_x: torch.Tensor,
-        transpose_qkv_dims: bool = True
+        transpose_qkv_dims: bool = True,
+        apply_scale: bool = True
     ) -> Tuple[
         torch.Tensor, torch.Tensor, torch.Tensor
     ]:
@@ -399,7 +400,8 @@ class Attention(nn.Module):
             k = k.transpose(-2, -3)
             v = v.transpose(-2, -3)
 
-        q /= math.sqrt(self.c_hidden)
+        if apply_scale:
+            q /= math.sqrt(self.c_hidden)
 
         return q, k, v
 
@@ -486,7 +488,9 @@ class Attention(nn.Module):
         
         # DeepSpeed attention kernel expects Q/K/V of shape [*, Q/K, H, C_hidden]
         # All other attention modules expect Q/K/V of shape [*, H, Q/K, C_hidden]
-        q, k, v = self._prep_qkv(q_x, kv_x, transpose_qkv_dims=not use_deepspeed_evo_attention)
+        q, k, v = self._prep_qkv(q_x, kv_x,
+                                 transpose_qkv_dims=not use_deepspeed_evo_attention,
+                                 apply_scale=not use_deepspeed_evo_attention)
 
         if is_fp16_enabled():
             use_memory_efficient_kernel = False

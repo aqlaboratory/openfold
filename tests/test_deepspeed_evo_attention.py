@@ -15,9 +15,6 @@
 """
 Unit tests to compare components of OpenFold run with the DeepSpeed memory-efficient
 attention kernel, DS4Sci_EvoformerAttention vs. a stock PyTorch attention implementation.
-
-Note: Some tests are temporarily disabled while we investigate discrepancies related
-to using fused attention.
 """
 
 import torch
@@ -159,6 +156,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
         with torch.no_grad():
             with torch.cuda.amp.autocast(dtype=torch.bfloat16):
                 model = compare_utils.get_global_pretrained_openfold()
+                model.globals.use_deepspeed_evo_attention = False
                 out_repro = model(batch)
 
                 # Enable kernel
