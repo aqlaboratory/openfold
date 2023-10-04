@@ -2196,9 +2196,7 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             
         else:
             per_asym_residue_index = AlphaFoldMultimerLoss.get_per_asym_residue_index(feature)
-            labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth,
-                                                                 REQUIRED_FEATURES=["all_atom_mask","all_atom_positions"])
-            best_align = list(enumerate(range(len(labels))))
+            best_align = list(enumerate(range(len(per_asym_residue_index))))
         
         return best_align, per_asym_residue_index
         
