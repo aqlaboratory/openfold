@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import torch
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -95,3 +96,14 @@ def random_affines_4x4(dim):
     affines[:, 3, 3] = 1
 
     return affines.reshape(*dim, 4, 4)
+
+
+def random_attention_inputs(batch_size, n_seq, n, no_heads, c_hidden, inf=1e9, dtype=torch.float32):
+    q = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype).cuda()
+    kv = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype).cuda()
+
+    mask = torch.randint(0, 2, (batch_size, n_seq, 1, 1, n), dtype=dtype).cuda()
+    biases = [inf * (mask - 1), torch.rand(batch_size, 1, no_heads, n, n)]
+    biases = [b.to(dtype=dtype).cuda() for b in biases]
+
+    return q, kv, mask, biases

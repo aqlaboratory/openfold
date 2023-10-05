@@ -169,6 +169,7 @@ class AlphaFold(nn.Module):
             t_pair, 
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=self.globals.chunk_size,
+            use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
             use_lma=self.globals.use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=self.config._mask_trans,

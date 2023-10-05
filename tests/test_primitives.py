@@ -13,40 +13,37 @@
 # limitations under the License.
 
 import torch
-import numpy as np
 import unittest
 
 from openfold.model.primitives import (
-    _lma,
-    _attention,
-    DEFAULT_LMA_Q_CHUNK_SIZE,
-    DEFAULT_LMA_KV_CHUNK_SIZE
+    lecun_normal_init_,
+    Attention,
 )
 from tests.config import consts
+from tests.data_utils import random_attention_inputs
 
 
 class TestLMA(unittest.TestCase):
     def test_lma_vs_attention(self):
-        batch_size = consts.batch_size
-        c_hidden = 32 
-        n = 2**12
-        n_seq = 12
+        c_hidden = 32
         no_heads = 4
 
-        q = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
-        k = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
-        v = torch.rand(batch_size, n_seq, no_heads, n, c_hidden).cuda()
+        q, kv, _, biases = random_attention_inputs(batch_size=consts.batch_size,
+                                                   n_seq=consts.n_seq,
+                                                   n=2**12,
+                                                   no_heads=no_heads,
+                                                   c_hidden=c_hidden)
 
-        bias = [torch.rand(batch_size, n_seq, 1, 1, n), torch.rand(batch_size, 1, no_heads, n, n)]
-        biases = [b.cuda() for b in bias]
-        
+        a = Attention(
+            c_hidden, c_hidden, c_hidden, c_hidden, no_heads
+        ).cuda()
+
         with torch.no_grad():
-            lma_biases = [
-                b.expand(b.shape[:-2] + (q.shape[-2],) + (k.shape[-2],))
-                for b in biases
-            ]
-            l = _lma(q, k, v, lma_biases, DEFAULT_LMA_Q_CHUNK_SIZE, DEFAULT_LMA_KV_CHUNK_SIZE).cpu()
-            real = _attention(q, k, v, biases).cpu()
+            lecun_normal_init_(a.linear_g.weight)
+            lecun_normal_init_(a.linear_o.weight)
+
+            l = a(q, kv, biases=biases, use_lma=True).cpu()
+            real = a(q, kv, biases=biases).cpu()
        
         err = torch.max(torch.abs(l - real))
         self.assertTrue(err < consts.eps, f'Error: {err}')

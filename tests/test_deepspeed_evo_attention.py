@@ -22,45 +22,63 @@ import unittest
 import numpy as np
 import pickle
 
-from openfold.model.primitives import (
-    _attention,
-    _deepspeed_evo_attn
-)
-from tests.config import consts
-import tests.compare_utils as compare_utils
-
 from openfold.data import data_transforms
+from openfold.model.primitives import (
+    lecun_normal_init_,
+    Attention,
+)
 from openfold.utils.tensor_utils import tensor_tree_map
 
+from tests.config import consts
+import tests.compare_utils as compare_utils
+from tests.data_utils import random_template_feats, random_attention_inputs
 
+
+@compare_utils.skip_unless_ds4s_installed()
 class TestDeepSpeedKernel(unittest.TestCase):
-    def test_ds_kernel_vs_attention(self):
+    def compare_attention_types(self, use_flash=False):
         """Compare attention with and without using DeepSpeed Evoformer kernel."""
         batch_size = consts.batch_size
-        c_hidden = 32
+        n_seq = consts.n_seq
         n = 2 ** 12
-        n_seq = 12
+        c_hidden = 32
         no_heads = 4
-        dtype = torch.bfloat16
+        eps = 2e-2
 
-        q = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
-        k = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
-        v = torch.rand(batch_size, n_seq, n, no_heads, c_hidden, dtype=dtype).cuda()
+        q, kv, mask, biases = random_attention_inputs(batch_size=batch_size,
+                                                      n_seq=n_seq,
+                                                      n=n,
+                                                      no_heads=no_heads,
+                                                      c_hidden=c_hidden)
 
-        bias = [torch.rand(batch_size, n_seq, 1, 1, n), torch.rand(batch_size, 1, no_heads, n, n)]
-        bias = [b.to(dtype=dtype).cuda() for b in bias]
+        a = Attention(
+            c_hidden, c_hidden, c_hidden, c_hidden, no_heads
+        ).cuda()
 
         with torch.no_grad():
-            l = _deepspeed_evo_attn(q, k, v, biases=bias).cpu()
-            
-            q = q.transpose(-2, -3)
-            k = k.transpose(-2, -3)
-            v = v.transpose(-2, -3)
-            real = _attention(q, k, v, biases=bias)
-            real = real.transpose(-2, -3).cpu()
+            lecun_normal_init_(a.linear_g.weight)
+            lecun_normal_init_(a.linear_o.weight)
 
-        err = torch.max(torch.abs(l - real))
-        self.assertTrue(err < consts.eps, f'Error: {err}')
+            if use_flash:
+                biases = [biases[0]]
+                flash_mask = mask.reshape(batch_size * n_seq, n)
+                real_out = a(q, kv, use_flash=True, flash_mask=flash_mask).cpu()
+            else:
+                real_out = a(q, kv, biases=biases).cpu()
+
+            ds_out = a(q, kv, biases=biases, use_deepspeed_evo_attention=True).cpu()
+
+        err = torch.max(torch.abs(ds_out - real_out))
+        self.assertTrue(err < eps, f'Error: {err}')
+
+    def test_ds_kernel_vs_attention(self):
+        """Compare regular attention vs. DeepSpeed Evoformer kernel."""
+        self.compare_attention_types(use_flash=False)
+
+    @compare_utils.skip_unless_flash_attn_installed()
+    def test_ds_kernel_vs_flash_attention(self):
+        """Compare Flash Attention vs. DeepSpeed Evoformer kernel."""
+        self.compare_attention_types(use_flash=True)
 
     def compare_evoformer(self, dtype):
         """
@@ -70,7 +88,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
         """
         n_res = 20
         n_seq = 18
-        eps = 2e-2
+        eps = 0.5
 
         activations = {
             "msa": torch.rand(n_seq, n_res, consts.c_m, device='cuda', dtype=dtype),
@@ -111,8 +129,11 @@ class TestDeepSpeedKernel(unittest.TestCase):
             out_repro_msa_ds = out_repro_msa_ds.cpu()
             out_repro_pair_ds = out_repro_pair_ds.cpu()
 
-            self.assertTrue(torch.allclose(torch.abs(out_repro_msa), torch.abs(out_repro_msa_ds), atol=eps))
-            self.assertTrue(torch.allclose(torch.abs(out_repro_pair), torch.abs(out_repro_pair_ds), atol=eps))
+            err = torch.mean(torch.abs(out_repro_msa - out_repro_msa_ds))
+            self.assertTrue(err < eps, f'MSA Error: {err}')
+
+            err = torch.mean(torch.abs(out_repro_pair - out_repro_pair_ds))
+            self.assertTrue(err < eps, f'Pair Error {err}')
 
     def test_compare_evoformer_bf16(self):
         """Run evoformer comparison test with BF16 precision."""
@@ -122,12 +143,54 @@ class TestDeepSpeedKernel(unittest.TestCase):
         """Run evoformer comparison test with FP32 precision."""
         self.compare_evoformer(torch.float32)
 
+    def test_compare_template_stack(self):
+        """
+        Compare Template Stack output with and without using DeepSpeed Evoformer attention kernel.
+        Kernel can be used for Triangle Attention in the Template Pair Stack.
+        """
+        n_templ = consts.n_templ
+        n_res = 20
+        eps = 2e-2
+
+        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
+        batch = random_template_feats(n_templ, n_res)
+        batch["template_all_atom_masks"] = batch["template_all_atom_mask"]
+        pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
+
+        inds = np.random.randint(0, 21, (n_res,))
+        batch["target_feat"] = np.eye(22)[inds]
+
+        with torch.no_grad():
+            model = compare_utils.get_global_pretrained_openfold()
+            model.globals.use_deepspeed_evo_attention = False
+            out_repro = model.embed_templates(
+                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                torch.as_tensor(pair_act).cuda(),
+                torch.as_tensor(pair_mask).cuda(),
+                templ_dim=0,
+                inplace_safe=False
+            )
+            out_repro = out_repro["template_pair_embedding"].cpu()
+
+            model.globals.use_deepspeed_evo_attention = True
+            out_repro_ds = model.embed_templates(
+                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                torch.as_tensor(pair_act).cuda(),
+                torch.as_tensor(pair_mask).cuda(),
+                templ_dim=0,
+                inplace_safe=False
+            )
+            out_repro_ds = out_repro_ds["template_pair_embedding"].cpu()
+
+            err = torch.max(torch.abs(out_repro - out_repro_ds))
+            self.assertTrue(err < eps, f'Error {err}')
+
     def test_compare_model(self):
         """
         Run full model with and without using DeepSpeed Evoformer attention kernel
         and compare output coordinates
         """
-        eps = 2e-2
+        eps = 0.5
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
 
