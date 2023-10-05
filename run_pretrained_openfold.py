@@ -152,6 +152,8 @@ def main(args):
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
+    if args.config_preset.startswith("seq"):
+        args.use_single_seq_mode = True
     config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
 
     if(args.trace_model):
