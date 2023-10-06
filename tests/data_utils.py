@@ -98,12 +98,17 @@ def random_affines_4x4(dim):
     return affines.reshape(*dim, 4, 4)
 
 
-def random_attention_inputs(batch_size, n_seq, n, no_heads, c_hidden, inf=1e9, dtype=torch.float32):
-    q = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype).cuda()
-    kv = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype).cuda()
+def random_attention_inputs(batch_size, n_seq, n, no_heads, c_hidden, inf=1e9,
+                            dtype=torch.float32, requires_grad=False):
+    q = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype, requires_grad=requires_grad).cuda()
+    kv = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype, requires_grad=requires_grad).cuda()
 
-    mask = torch.randint(0, 2, (batch_size, n_seq, 1, 1, n), dtype=dtype).cuda()
-    biases = [inf * (mask - 1), torch.rand(batch_size, 1, no_heads, n, n)]
-    biases = [b.to(dtype=dtype).cuda() for b in biases]
+    mask = torch.randint(0, 2, (batch_size, n_seq, 1, 1, n), dtype=dtype, requires_grad=requires_grad).cuda()
+    z_bias = torch.rand(batch_size, 1, no_heads, n, n, dtype=dtype, requires_grad=requires_grad).cuda()
+    mask_bias = inf * (mask - 1)
+    if requires_grad:
+        mask_bias = mask_bias.detach().clone().requires_grad_()
+
+    biases = [mask_bias, z_bias]
 
     return q, kv, mask, biases
