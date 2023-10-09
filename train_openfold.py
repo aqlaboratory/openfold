@@ -308,7 +308,7 @@ class OpenFoldMultimerWrapper(OpenFoldWrapper):
 
         # Compute loss and other metrics
         features["use_clamped_fape"] = 0.
-        loss, loss_breakdown = self.loss(
+        _, loss_breakdown = self.loss(
             outputs, (features,gt_features), _return_breakdown=True
         )
         self._log(loss_breakdown, features, outputs, train=False)
