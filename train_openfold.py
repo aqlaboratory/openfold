@@ -44,9 +44,7 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
     get_global_step_from_zero_checkpoint
 )
-
 from openfold.utils.logger import PerformanceLoggingCallback
-
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -310,10 +308,9 @@ class OpenFoldMultimerWrapper(OpenFoldWrapper):
 
         # Compute loss and other metrics
         features["use_clamped_fape"] = 0.
-        _, loss_breakdown = self.loss(
+        loss, loss_breakdown = self.loss(
             outputs, (features,gt_features), _return_breakdown=True
         )
-
         self._log(loss_breakdown, features, outputs, train=False)
         
     def validation_epoch_end(self, _):
@@ -331,6 +328,7 @@ def main(args):
         train=True, 
         low_prec=(str(args.precision) == "16")
     ) 
+    config.data.data_module.data_loaders.num_workers = args.num_workers
     if "multimer" in args.config_preset:
         model_module = OpenFoldMultimerWrapper(config)   
     else: 
@@ -494,6 +492,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--train_mmcif_data_cache_path", type=str, default=None,
         help="path to the json file which records all the information of mmcif structures used during training"
+    )
+    parser.add_argument(
+        "--num_workers",type=int,default=16,help="number of workers to be used in datamodule"
     )
     parser.add_argument(
         "--distillation_data_dir", type=str, default=None,
