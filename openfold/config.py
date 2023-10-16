@@ -749,6 +749,9 @@ multimer_config_update = mlc.ConfigDict({
                     "sym_id",
                 ]
         },
+        "supervised": {
+            "clamp_prob": 1.
+        },
         # TODO: Change max_msa_clusters and max_extra_msa to multimer feats within model:
         # c.model.input_embedder.num_msa = 508
         # c.model.extra_msa.extra_msa_embedder.num_extra_msa = 2048
@@ -765,7 +768,8 @@ multimer_config_update = mlc.ConfigDict({
             "max_extra_msa": 2048,
             "crop_size": 640,
             "spatial_crop_prob": 0.5,
-            "interface_threshold": 10.
+            "interface_threshold": 10.,
+            "clamp_prob": 1.,
         },
     },
     "model": {

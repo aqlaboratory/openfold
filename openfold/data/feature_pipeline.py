@@ -93,24 +93,11 @@ def np_example_to_features(
 
     with torch.no_grad():
         if is_multimer:
-            if mode == 'train':
-                features,gt_features = input_pipeline_multimer.process_tensors_from_config(
-                    tensor_dict,
-                    cfg.common,
-                    cfg[mode],
-                    is_training=True
-                )
-            
-                return {k: v for k, v in features.items()}, gt_features
-            else:
-                features = input_pipeline_multimer.process_tensors_from_config(
-                    tensor_dict,
-                    cfg.common,
-                    cfg[mode],
-                    is_training=False
-                )
-                return {k: v for k, v in features.items()}
-        
+            features = input_pipeline_multimer.process_tensors_from_config(
+                tensor_dict,
+                cfg.common,
+                cfg[mode],
+            )
         else:
             features = input_pipeline.process_tensors_from_config(
                 tensor_dict,

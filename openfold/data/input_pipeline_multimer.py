@@ -21,16 +21,17 @@ from openfold.data import (
     data_transforms_multimer,
 )
 
-def grountruth_transforms_fns():
-        transforms = [data_transforms.make_atom14_masks,
-                data_transforms.make_atom14_positions,
-                data_transforms.atom37_to_frames,
-                data_transforms.atom37_to_torsion_angles(""),
-                data_transforms.make_pseudo_beta(""),
-                data_transforms.get_backbone_frames,
-                data_transforms.get_chi_angles,
-            ]
-        return transforms
+
+def groundtruth_transforms_fns():
+    transforms = [data_transforms.make_atom14_masks,
+                  data_transforms.make_atom14_positions,
+                  data_transforms.atom37_to_frames,
+                  data_transforms.atom37_to_torsion_angles(""),
+                  data_transforms.make_pseudo_beta(""),
+                  data_transforms.get_backbone_frames,
+                  data_transforms.get_chi_angles]
+    return transforms
+
 
 def nonensembled_transform_fns():
     """Input pipeline data transformers that are not ensembled."""
@@ -112,20 +113,24 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
 
     return transforms
 
+
 def prepare_ground_truth_features(tensors):
     """Prepare ground truth features that are only needed for loss calculation during training"""
 
-    GROUNDTRUTH_FEATURES=['all_atom_mask', 'all_atom_positions','asym_id','sym_id','entity_id']
-    gt_tensors = {k:v for k,v in tensors.items() if k in GROUNDTRUTH_FEATURES}
+    gt_features = ['all_atom_mask', 'all_atom_positions', 'asym_id', 'sym_id', 'entity_id']
+    gt_tensors = {k: v for k, v in tensors.items() if k in gt_features}
     gt_tensors['aatype'] = tensors['aatype'].to(torch.long)
-    gt_tensors = compose(grountruth_transforms_fns())(gt_tensors)
+    gt_tensors = compose(groundtruth_transforms_fns())(gt_tensors)
     return gt_tensors
 
-def process_tensors_from_config(tensors, common_cfg, mode_cfg,is_training=False):
+
+def process_tensors_from_config(tensors, common_cfg, mode_cfg):
     """Based on the config, apply filters and transformations to the data."""
 
-    if is_training:
-        gt_tensors= prepare_ground_truth_features(tensors)
+    process_gt_feats = mode_cfg.supervised
+    gt_tensors = {}
+    if process_gt_feats:
+        gt_tensors = prepare_ground_truth_features(tensors)
 
     ensemble_seed = random.randint(0, torch.iinfo(torch.int32).max)
     tensors['aatype'] = tensors['aatype'].to(torch.long)
@@ -152,10 +157,10 @@ def process_tensors_from_config(tensors, common_cfg, mode_cfg,is_training=False)
         lambda x: wrap_ensemble_fn(tensors, x), torch.arange(num_recycling + 1)
     )
 
-    if is_training:
-        return tensors,gt_tensors
-    else:
-        return tensors
+    if process_gt_feats:
+        tensors['gt_features'] = gt_tensors
+
+    return tensors
 
 @data_transforms.curry1
 def compose(x, fs):

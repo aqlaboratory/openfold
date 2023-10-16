@@ -13,34 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import partial
-import logging
 import ml_collections
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.distributions.bernoulli import Bernoulli
 from typing import Dict, Optional, Tuple
 
 from openfold.np import residue_constants
-from openfold.utils import feats
 from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.geometry.vector import Vec3Array, euclidean_distance
 from openfold.utils.all_atom_multimer import get_rc_tensor
 from openfold.utils.tensor_utils import (
     tree_map,
-    tensor_tree_map,
     masked_mean,
     permute_final_dims,
-    batched_gather,
 )
 import random
 from openfold.np import residue_constants as rc
-import logging 
-import procrustes 
+import logging
+import procrustes
 from openfold.utils.tensor_utils import tensor_tree_map
-import gc
+
 logger = logging.getLogger(__name__)
+
 
 def softmax_cross_entropy(logits, labels):
     loss = -1 * torch.sum(
@@ -185,11 +180,10 @@ def backbone_loss(
     eps: float = 1e-4,
     **kwargs,
 ) -> torch.Tensor:
-    
     ### need to check if the traj belongs to 4*4 matrix or a tensor_7
-    if traj.shape[-1]==7:
+    if traj.shape[-1] == 7:
         pred_aff = Rigid.from_tensor_7(traj)
-    elif traj.shape[-1]==4:
+    elif traj.shape[-1] == 4:
         pred_aff = Rigid.from_tensor_4x4(traj)
 
     pred_aff = Rigid(
@@ -256,10 +250,10 @@ def sidechain_loss(
     **kwargs,
 ) -> torch.Tensor:
     renamed_gt_frames = (
-        1.0 - alt_naming_is_better[..., None, None, None]
-    ) * rigidgroups_gt_frames + alt_naming_is_better[
-        ..., None, None, None
-    ] * rigidgroups_alt_gt_frames
+                            1.0 - alt_naming_is_better[..., None, None, None]
+                        ) * rigidgroups_gt_frames + alt_naming_is_better[
+                            ..., None, None, None
+                        ] * rigidgroups_alt_gt_frames
 
     # Steamroll the inputs
     sidechain_frames = sidechain_frames[-1]
@@ -297,7 +291,6 @@ def fape_loss(
     batch: Dict[str, torch.Tensor],
     config: ml_collections.ConfigDict,
 ) -> torch.Tensor:
-
     traj = out["sm"]["frames"]
     asym_id = batch.get("asym_id")
     if asym_id is not None:
@@ -328,7 +321,7 @@ def fape_loss(
     )
 
     loss = weighted_bb_loss + config.sidechain.weight * sc_loss
-    
+
     # Average over the batch dimension
     loss = torch.mean(loss)
 
@@ -390,7 +383,7 @@ def supervised_chi_loss(
         (true_chi_shifted - pred_angles) ** 2, dim=-1
     )
     sq_chi_error = torch.minimum(sq_chi_error, sq_chi_error_shifted)
-    
+
     # The ol' switcheroo
     sq_chi_error = sq_chi_error.permute(
         *range(len(sq_chi_error.shape))[1:-2], 0, -2, -1
@@ -502,7 +495,7 @@ def lddt_ca(
     ca_pos = residue_constants.atom_order["CA"]
     all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
     all_atom_positions = all_atom_positions[..., ca_pos, :]
-    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+    all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
 
     return lddt(
         all_atom_pred_pos,
@@ -532,19 +525,19 @@ def lddt_loss(
     ca_pos = residue_constants.atom_order["CA"]
     all_atom_pred_pos = all_atom_pred_pos[..., ca_pos, :]
     all_atom_positions = all_atom_positions[..., ca_pos, :]
-    all_atom_mask = all_atom_mask[..., ca_pos : (ca_pos + 1)]  # keep dim
+    all_atom_mask = all_atom_mask[..., ca_pos: (ca_pos + 1)]  # keep dim
 
     score = lddt(
-        all_atom_pred_pos, 
-        all_atom_positions, 
-        all_atom_mask, 
-        cutoff=cutoff, 
+        all_atom_pred_pos,
+        all_atom_positions,
+        all_atom_mask,
+        cutoff=cutoff,
         eps=eps
     )
 
     # TODO: Remove after initial pipeline testing
     score = torch.nan_to_num(score, nan=torch.nanmean(score))
-    score[score<0] = 0
+    score[score < 0] = 0
 
     score = score.detach()
     bin_index = torch.floor(score * no_bins).long()
@@ -586,7 +579,7 @@ def distogram_loss(
         device=logits.device,
     )
     boundaries = boundaries ** 2
-    
+
     dists = torch.sum(
         (pseudo_beta[..., None, :] - pseudo_beta[..., None, :, :]) ** 2,
         dim=-1,
@@ -707,12 +700,12 @@ def compute_tm(
     n = residue_weights.shape[-1]
     pair_mask = residue_weights.new_ones((n, n), dtype=torch.int32)
     if interface and (asym_id is not None):
-        if len(asym_id.shape)>1:
-            assert len(asym_id.shape)<=2
+        if len(asym_id.shape) > 1:
+            assert len(asym_id.shape) <= 2
             batch_size = asym_id.shape[0]
-            pair_mask = residue_weights.new_ones((batch_size,n, n), dtype=torch.int32)
+            pair_mask = residue_weights.new_ones((batch_size, n, n), dtype=torch.int32)
         pair_mask *= (asym_id[..., None] != asym_id[..., None, :]).to(dtype=pair_mask.dtype)
-    
+
     predicted_tm_term *= pair_mask
 
     pair_residue_weights = pair_mask * (
@@ -726,6 +719,7 @@ def compute_tm(
 
     argmax = (weighted == torch.max(weighted)).nonzero()[0]
     return per_alignment[tuple(argmax)]
+
 
 def tm_loss(
     logits,
@@ -741,9 +735,9 @@ def tm_loss(
     **kwargs,
 ):
     # first check whether this is a tensor_7 or tensor_4*4
-    if final_affine_tensor.shape[-1]==7:
+    if final_affine_tensor.shape[-1] == 7:
         pred_affine = Rigid.from_tensor_7(final_affine_tensor)
-    elif final_affine_tensor.shape[-1]==4:
+    elif final_affine_tensor.shape[-1] == 4:
         pred_affine = Rigid.from_tensor_4x4(final_affine_tensor)
     backbone_rigid = Rigid.from_tensor_4x4(backbone_rigid_tensor)
 
@@ -844,19 +838,19 @@ def between_residue_bond_loss(
     # The C-N bond to proline has slightly different length because of the ring.
     next_is_proline = aatype[..., 1:] == residue_constants.resname_to_idx["PRO"]
     gt_length = (
-        ~next_is_proline
-    ) * residue_constants.between_res_bond_length_c_n[
-        0
-    ] + next_is_proline * residue_constants.between_res_bond_length_c_n[
-        1
-    ]
+                    ~next_is_proline
+                ) * residue_constants.between_res_bond_length_c_n[
+                    0
+                ] + next_is_proline * residue_constants.between_res_bond_length_c_n[
+                    1
+                ]
     gt_stddev = (
-        ~next_is_proline
-    ) * residue_constants.between_res_bond_length_stddev_c_n[
-        0
-    ] + next_is_proline * residue_constants.between_res_bond_length_stddev_c_n[
-        1
-    ]
+                    ~next_is_proline
+                ) * residue_constants.between_res_bond_length_stddev_c_n[
+                    0
+                ] + next_is_proline * residue_constants.between_res_bond_length_stddev_c_n[
+                    1
+                ]
 
     c_n_bond_length_error = torch.sqrt(eps + (c_n_bond_length - gt_length) ** 2)
     c_n_loss_per_residue = torch.nn.functional.relu(
@@ -1082,7 +1076,7 @@ def between_residue_clash_loss(
     # Compute the hard clash mask.
     # shape (N, N, 14, 14)
     clash_mask = dists_mask * (
-            dists < (dists_lower_bound - overlap_tolerance_hard)
+        dists < (dists_lower_bound - overlap_tolerance_hard)
     )
 
     per_atom_num_clash = torch.sum(clash_mask, dim=(-4, -2)) + torch.sum(clash_mask, dim=(-3, -1))
@@ -1098,7 +1092,7 @@ def between_residue_clash_loss(
         "mean_loss": mean_loss,  # shape ()
         "per_atom_loss_sum": per_atom_loss_sum,  # shape (N, 14)
         "per_atom_clash_mask": per_atom_clash_mask,  # shape (N, 14)
-        "per_atom_num_clash": per_atom_num_clash # shape (N, 14)
+        "per_atom_num_clash": per_atom_num_clash  # shape (N, 14)
     }
 
 
@@ -1221,7 +1215,7 @@ def find_structural_violations(
 
     atomtype_radius = atom14_pred_positions.new_tensor(atomtype_radius)
 
-    #TODO: Consolidate monomer/multimer modes
+    # TODO: Consolidate monomer/multimer modes
     asym_id = batch.get("asym_id")
     if asym_id is not None:
         residx_atom14_to_atom37 = get_rc_tensor(
@@ -1372,8 +1366,8 @@ def extreme_ca_ca_distance_violations(
         eps + torch.sum((this_ca_pos - next_ca_pos) ** 2, dim=-1)
     )
     violations = (
-        ca_ca_distance - residue_constants.ca_ca
-    ) > max_angstrom_tolerance
+                     ca_ca_distance - residue_constants.ca_ca
+                 ) > max_angstrom_tolerance
     mask = this_ca_mask * next_ca_mask * has_no_gap_mask
     mean = masked_mean(mask, violations, -1)
     return mean
@@ -1559,16 +1553,16 @@ def compute_renamed_ground_truth(
     alt_naming_is_better = (alt_per_res_lddt < per_res_lddt).type(fp_type)
 
     renamed_atom14_gt_positions = (
-        1.0 - alt_naming_is_better[..., None, None]
-    ) * atom14_gt_positions + alt_naming_is_better[
-        ..., None, None
-    ] * atom14_alt_gt_positions
+                                      1.0 - alt_naming_is_better[..., None, None]
+                                  ) * atom14_gt_positions + alt_naming_is_better[
+                                      ..., None, None
+                                  ] * atom14_alt_gt_positions
 
     renamed_atom14_gt_mask = (
-        1.0 - alt_naming_is_better[..., None]
-    ) * atom14_gt_exists + alt_naming_is_better[..., None] * batch[
-        "atom14_alt_gt_exists"
-    ]
+                                 1.0 - alt_naming_is_better[..., None]
+                             ) * atom14_gt_exists + alt_naming_is_better[..., None] * batch[
+                                 "atom14_alt_gt_exists"
+                             ]
 
     return {
         "alt_naming_is_better": alt_naming_is_better,
@@ -1591,13 +1585,13 @@ def experimentally_resolved_loss(
     loss = torch.sum(errors * atom37_atom_exists, dim=-1)
     loss = loss / (eps + torch.sum(atom37_atom_exists, dim=(-1, -2)).unsqueeze(-1))
     loss = torch.sum(loss, dim=-1)
-    
+
     loss = loss * (
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
     loss = torch.mean(loss)
- 
+
     return loss
 
 
@@ -1701,20 +1695,17 @@ def compute_rmsd(
     eps: float = 1e-6,
 ) -> torch.Tensor:
     sq_diff = torch.square(true_atom_pos - pred_atom_pos).sum(dim=-1, keepdim=False)
-    del true_atom_pos
-    del pred_atom_pos
-    gc.collect()
     if atom_mask is not None:
         sq_diff = torch.masked_select(sq_diff, atom_mask.to(sq_diff.device))
     msd = torch.mean(sq_diff)
     msd = torch.nan_to_num(msd, nan=1e8)
-    return torch.sqrt(msd + eps) # prevent sqrt 0
+    return torch.sqrt(msd + eps)  # prevent sqrt 0
 
 
 def kabsch_rotation(P, Q):
     """
-    Use procrustes package to calculate best rotation that minimises
-    the RMSD betwee P and Q
+    Use procrustes package to calculate the best rotation that minimises
+    the RMSD between P and Q
 
     The optimal rotation matrix was calculated using 
     the rotational() function from procrustes package. Details can be found here:
@@ -1728,12 +1719,12 @@ def kabsch_rotation(P, Q):
     A 3*3 rotation matrix 
     """
 
-    assert P.shape == torch.Size([Q.shape[0],Q.shape[1]])
+    assert P.shape == torch.Size([Q.shape[0], Q.shape[1]])
     rotation = procrustes.rotational(P.detach().cpu().float().numpy(),
-                                  Q.detach().cpu().float().numpy(),translate=False,scale=False)
+                                     Q.detach().cpu().float().numpy(), translate=False, scale=False)
     # Rotation.t doesn't mean transpose, t only means get the matrix out of the procruste object
-    rotation = torch.tensor(rotation.t,dtype=torch.float)
-    assert rotation.shape == torch.Size([3,3])
+    rotation = torch.tensor(rotation.t, dtype=torch.float)
+    assert rotation.shape == torch.Size([3, 3])
     return rotation.to(device=P.device, dtype=P.dtype)
 
 
@@ -1756,7 +1747,7 @@ def get_optimal_transform(
         # sometimes using fake test inputs generates NaN in the predicted atom positions
         # #
         logging.warning(f"src_atom has nan or inf")
-        src_atoms = torch.nan_to_num(src_atoms,nan=0.0,posinf=1.0,neginf=1.0)
+        src_atoms = torch.nan_to_num(src_atoms, nan=0.0, posinf=1.0, neginf=1.0)
 
     if mask is not None:
         assert mask.dtype == torch.bool
@@ -1767,21 +1758,15 @@ def get_optimal_transform(
         else:
             src_atoms = src_atoms[mask, :]
             tgt_atoms = tgt_atoms[mask, :]
-    src_center = src_atoms.mean(-2, keepdim=True,dtype=src_atoms.dtype)
-    tgt_center = tgt_atoms.mean(-2, keepdim=True,dtype=src_atoms.dtype)
-    r = kabsch_rotation(src_atoms,tgt_atoms)
-    del src_atoms,tgt_atoms,
-    gc.collect()
+    src_center = src_atoms.mean(-2, keepdim=True, dtype=src_atoms.dtype)
+    tgt_center = tgt_atoms.mean(-2, keepdim=True, dtype=src_atoms.dtype)
+    r = kabsch_rotation(src_atoms, tgt_atoms)
 
     x = tgt_center - src_center @ r
-
-    del tgt_center,src_center,mask
-    gc.collect()
-
     return r, x
 
 
-def get_least_asym_entity_or_longest_length(batch,input_asym_id):
+def get_least_asym_entity_or_longest_length(batch, input_asym_id):
     """
     First check how many subunit(s) one sequence has, if there is no tie, e.g. AABBB then select 
     one of the A as anchor
@@ -1805,7 +1790,7 @@ def get_least_asym_entity_or_longest_length(batch,input_asym_id):
     for entity_id in unique_entity_ids:
         asym_ids = torch.unique(batch["asym_id"][batch["entity_id"] == entity_id])
         entity_asym_count[int(entity_id)] = len(asym_ids)
-        
+
         # Calculate entity length
         entity_mask = (batch["entity_id"] == entity_id)
         entity_length[int(entity_id)] = entity_mask.sum().item()
@@ -1821,12 +1806,13 @@ def get_least_asym_entity_or_longest_length(batch,input_asym_id):
     # If still multiple entities, return a random one
     if len(least_asym_entities) > 1:
         least_asym_entities = random.choice(least_asym_entities)
-    assert len(least_asym_entities)==1
+    assert len(least_asym_entities) == 1
     least_asym_entities = least_asym_entities[0]
 
     anchor_gt_asym_id = random.choice(entity_2_asym_list[least_asym_entities])
     anchor_pred_asym_ids = [id for id in entity_2_asym_list[least_asym_entities] if id in input_asym_id]
     return anchor_gt_asym_id, anchor_pred_asym_ids
+
 
 def greedy_align(
     batch,
@@ -1843,7 +1829,7 @@ def greedy_align(
     """
     used = [False for _ in range(len(true_ca_poses))]
     align = []
-    unique_asym_ids = [i for i in torch.unique(batch["asym_id"]) if i!=0]
+    unique_asym_ids = [i for i in torch.unique(batch["asym_id"]) if i != 0]
     for cur_asym_id in unique_asym_ids:
         i = int(cur_asym_id - 1)
         asym_mask = batch["asym_id"] == cur_asym_id
@@ -1857,13 +1843,13 @@ def greedy_align(
         for next_asym_id in cur_asym_list:
             j = int(next_asym_id - 1)
             if not used[j]:  # possible candidate
-                cropped_pos = torch.index_select(true_ca_poses[j],1,cur_residue_index)
-                mask = torch.index_select(true_ca_masks[j],1,cur_residue_index)
+                cropped_pos = torch.index_select(true_ca_poses[j], 1, cur_residue_index)
+                mask = torch.index_select(true_ca_masks[j], 1, cur_residue_index)
                 rmsd = compute_rmsd(
-                    torch.squeeze(cropped_pos,0), torch.squeeze(cur_pred_pos,0),
+                    torch.squeeze(cropped_pos, 0), torch.squeeze(cur_pred_pos, 0),
                     (cur_pred_mask * mask).bool()
                 )
-                if (rmsd is not None) and (rmsd < best_rmsd):
+                if rmsd is not None and rmsd < best_rmsd:
                     best_rmsd = rmsd
                     best_idx = j
 
@@ -1873,15 +1859,15 @@ def greedy_align(
     return align
 
 
-def pad_features(feature_tensor,nres_pad,pad_dim):
+def pad_features(feature_tensor, nres_pad, pad_dim):
     """Pad input feature tensor"""
     pad_shape = list(feature_tensor.shape)
     pad_shape[pad_dim] = nres_pad
-    padding_tensor = feature_tensor.new_zeros(pad_shape,device=feature_tensor.device)
-    return torch.concat((feature_tensor,padding_tensor),dim=pad_dim)
+    padding_tensor = feature_tensor.new_zeros(pad_shape, device=feature_tensor.device)
+    return torch.concat((feature_tensor, padding_tensor), dim=pad_dim)
 
 
-def merge_labels(per_asym_residue_index,labels, align,original_nres):
+def merge_labels(per_asym_residue_index, labels, align, original_nres):
     """
     Merge ground truth labels according to the permutation results
 
@@ -1898,24 +1884,25 @@ def merge_labels(per_asym_residue_index,labels, align,original_nres):
             label = labels[j][k]
             # to 1-based
             cur_residue_index = per_asym_residue_index[i + 1]
-            if len(v.shape)<=1 or "template" in k or "row_mask" in k :
+            if len(v.shape) <= 1 or "template" in k or "row_mask" in k:
                 continue
             else:
                 dimension_to_merge = 1
-                cur_out[i] = label.index_select(dimension_to_merge,cur_residue_index)
+                cur_out[i] = label.index_select(dimension_to_merge, cur_residue_index)
         cur_out = [x[1] for x in sorted(cur_out.items())]
-        if len(cur_out)>0:
+        if len(cur_out) > 0:
             new_v = torch.concat(cur_out, dim=dimension_to_merge)
             # below check whether padding is needed
-            if new_v.shape[dimension_to_merge]!=original_nres:
+            if new_v.shape[dimension_to_merge] != original_nres:
                 nres_pad = original_nres - new_v.shape[dimension_to_merge]
-                new_v = pad_features(new_v,nres_pad,pad_dim=dimension_to_merge)
+                new_v = pad_features(new_v, nres_pad, pad_dim=dimension_to_merge)
             outs[k] = new_v
     return outs
 
 
 class AlphaFoldLoss(nn.Module):
     """Aggregation of the various losses described in the supplement"""
+
     def __init__(self, config):
         super(AlphaFoldLoss, self).__init__()
         self.config = config
@@ -1974,13 +1961,13 @@ class AlphaFoldLoss(nn.Module):
             ),
         }
 
-        if(self.config.tm.enabled):
+        if self.config.tm.enabled:
             loss_fns["tm"] = lambda: tm_loss(
                 logits=out["tm_logits"],
                 **{**batch, **out, **self.config.tm},
             )
 
-        if (self.config.chain_center_of_mass.enabled):
+        if self.config.chain_center_of_mass.enabled:
             loss_fns["chain_center_of_mass"] = lambda: chain_center_of_mass_loss(
                 all_atom_pred_pos=out["final_atom_positions"],
                 **{**batch, **self.config.chain_center_of_mass},
@@ -1991,11 +1978,11 @@ class AlphaFoldLoss(nn.Module):
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
             loss = loss_fn()
-            if(torch.isnan(loss) or torch.isinf(loss)):
-                #for k,v in batch.items():
-                #    if(torch.any(torch.isnan(v)) or torch.any(torch.isinf(v))):
+            if torch.isnan(loss) or torch.isinf(loss):
+                # for k,v in batch.items():
+                #    if torch.any(torch.isnan(v)) or torch.any(torch.isinf(v)):
                 #        logging.warning(f"{k}: is nan")
-                #logging.warning(f"{loss_name}: {loss}")
+                # logging.warning(f"{loss_name}: {loss}")
                 logging.warning(f"{loss_name} loss is NaN. Skipping...")
                 loss = loss.new_tensor(0., requires_grad=True)
             cum_loss = cum_loss + weight * loss
@@ -2010,18 +1997,18 @@ class AlphaFoldLoss(nn.Module):
 
         losses["loss"] = cum_loss.detach().clone()
 
-        if(not _return_breakdown):
+        if not _return_breakdown:
             return cum_loss
-        
+
         return cum_loss, losses
-    
+
     def forward(self, out, batch, _return_breakdown=False):
-            if(not _return_breakdown):
-                cum_loss = self.loss(out,batch,_return_breakdown)
-                return cum_loss
-            else:
-                cum_loss,losses = self.loss(out,batch,_return_breakdown)
-                return cum_loss, losses
+        if not _return_breakdown:
+            cum_loss = self.loss(out, batch, _return_breakdown)
+            return cum_loss
+        else:
+            cum_loss, losses = self.loss(out, batch, _return_breakdown)
+            return cum_loss, losses
 
 
 class AlphaFoldMultimerLoss(AlphaFoldLoss):
@@ -2029,12 +2016,13 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
     Add multi-chain permutation on top of 
     AlphaFoldLoss
     """
+
     def __init__(self, config):
         super(AlphaFoldMultimerLoss, self).__init__(config)
         self.config = config
 
     @staticmethod
-    def split_ground_truth_labels(batch,REQUIRED_FEATURES,split_dim=1):
+    def split_ground_truth_labels(gt_features):
         """
         Splits ground truth features according to chains
         
@@ -2042,26 +2030,26 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         a list of feature dictionaries with only necessary ground truth features
         required to finish multi-chain permutation
         """
-        unique_asym_ids, asym_id_counts = torch.unique(batch["asym_id"], sorted=False,return_counts=True)
-        unique_asym_ids, asym_id_counts= unique_asym_ids.tolist(),asym_id_counts.tolist()
-        if 0 in unique_asym_ids:
-            pop_idx = unique_asym_ids.index(0)
-            padding_asym_id = unique_asym_ids.pop(pop_idx)
-            padding_asym_counts = asym_id_counts.pop(pop_idx)
-            unique_asym_ids.append(padding_asym_id)
-            asym_id_counts.append(padding_asym_counts)
-        
-        labels = list(map(dict, zip(*[[(k, v) for v in torch.split(value, asym_id_counts, dim=split_dim)] for k, value in batch.items() if k in REQUIRED_FEATURES])))
+        unique_asym_ids, asym_id_counts = torch.unique(gt_features["asym_id"], sorted=True, return_counts=True)
+        n_res = gt_features["asym_id"].shape[-1]
+
+        def split_dim(shape):
+            return next(iter(i for i, size in enumerate(shape) if size == n_res), None)
+
+        labels = list(map(dict, zip(*[[(k, v) for v in torch.split(v_all, asym_id_counts.tolist(),
+                                                                   dim=split_dim(v_all.shape))]
+                                      for k, v_all in gt_features.items()
+                                      if n_res in v_all.shape])))
         return labels
-    
+
     @staticmethod
     def get_per_asym_residue_index(features):
-        unique_asym_ids = [i for i in torch.unique(features["asym_id"]) if i!=0]
+        unique_asym_ids = [i for i in torch.unique(features["asym_id"]) if i != 0]
         per_asym_residue_index = {}
         for cur_asym_id in unique_asym_ids:
             asym_mask = (features["asym_id"] == cur_asym_id).bool()
             per_asym_residue_index[int(cur_asym_id)] = torch.masked_select(features["residue_index"], asym_mask)
-        
+
         return per_asym_residue_index
 
     @staticmethod
@@ -2083,10 +2071,10 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
             cur_asym_id = torch.unique(batch["asym_id"][ent_mask])
             entity_2_asym_list[int(cur_ent_id)] = cur_asym_id
         return entity_2_asym_list
-    
+
     @staticmethod
-    def calculate_input_mask(true_ca_masks,anchor_gt_idx,anchor_gt_residue,
-                             asym_mask,pred_ca_mask):
+    def calculate_input_mask(true_ca_masks, anchor_gt_idx, anchor_gt_residue,
+                             asym_mask, pred_ca_mask):
         """
         Calculate an input mask for downstream optimal transformation computation
 
@@ -2099,37 +2087,37 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         Returns:
             input_mask (Tensor): A boolean mask
         """
-        pred_ca_mask = torch.squeeze(pred_ca_mask,0)
-        asym_mask = torch.squeeze(asym_mask,0)
+        pred_ca_mask = torch.squeeze(pred_ca_mask, 0)
+        asym_mask = torch.squeeze(asym_mask, 0)
         anchor_pred_mask = pred_ca_mask[asym_mask]
-        anchor_true_mask = torch.index_select(true_ca_masks[anchor_gt_idx],1,anchor_gt_residue)
+        anchor_true_mask = torch.index_select(true_ca_masks[anchor_gt_idx], 1, anchor_gt_residue)
         input_mask = (anchor_true_mask * anchor_pred_mask).bool()
         return input_mask
-    
+
     @staticmethod
     def calculate_optimal_transform(true_ca_poses,
-                                    anchor_gt_idx,anchor_gt_residue,
-                                    true_ca_masks,pred_ca_mask,
+                                    anchor_gt_idx, anchor_gt_residue,
+                                    true_ca_masks, pred_ca_mask,
                                     asym_mask,
                                     pred_ca_pos):
         input_mask = AlphaFoldMultimerLoss.calculate_input_mask(true_ca_masks,
-                                                                anchor_gt_idx,anchor_gt_residue,
+                                                                anchor_gt_idx, anchor_gt_residue,
                                                                 asym_mask,
                                                                 pred_ca_mask)
-        input_mask = torch.squeeze(input_mask,0)
-        pred_ca_pos = torch.squeeze(pred_ca_pos,0)
-        asym_mask = torch.squeeze(asym_mask,0)
-        anchor_true_pos = torch.index_select(true_ca_poses[anchor_gt_idx],1,anchor_gt_residue)
+        input_mask = torch.squeeze(input_mask, 0)
+        pred_ca_pos = torch.squeeze(pred_ca_pos, 0)
+        asym_mask = torch.squeeze(asym_mask, 0)
+        anchor_true_pos = torch.index_select(true_ca_poses[anchor_gt_idx], 1, anchor_gt_residue)
         anchor_pred_pos = pred_ca_pos[asym_mask]
         r, x = get_optimal_transform(
-            anchor_pred_pos, torch.squeeze(anchor_true_pos,0),
+            anchor_pred_pos, torch.squeeze(anchor_true_pos, 0),
             mask=input_mask
-            )
-        
+        )
+
         return r, x
-    
+
     @staticmethod
-    def multi_chain_perm_align(out, batch,permutate_chains=False):
+    def multi_chain_perm_align(out, features, ground_truth):
         """
         A class method that first permutate chains in ground truth first
         before calculating the loss.
@@ -2137,71 +2125,68 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         Details are described in Section 7.3 in the Supplementary of AlphaFold-Multimer paper:
         https://www.biorxiv.org/content/10.1101/2021.10.04.463034v2
         """
-        feature, ground_truth = batch
-        del batch
-        if permutate_chains:
-            best_rmsd = float('inf')
-            best_align = None
-            # First select anchors from predicted structures and ground truths
-            anchor_gt_asym, anchor_pred_asym_ids = get_least_asym_entity_or_longest_length(ground_truth,feature['asym_id'])
-            entity_2_asym_list = AlphaFoldMultimerLoss.get_entity_2_asym_list(ground_truth)
-            labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth,
-                                                                 REQUIRED_FEATURES=["all_atom_mask","all_atom_positions"])
-            assert isinstance(labels, list)
-            del ground_truth
-            anchor_gt_idx = int(anchor_gt_asym) - 1
-            # Then calculate optimal transform by aligning anchors
-            ca_idx = rc.atom_order["CA"]
-            pred_ca_pos = out["final_atom_positions"][..., ca_idx, :]  # [bsz, nres, 3]
-            pred_ca_mask = out["final_atom_mask"][..., ca_idx].to(dtype=pred_ca_pos.dtype)  # [bsz, nres]
+        unique_asym_ids = set(torch.unique(features['asym_id']).tolist())
+        unique_asym_ids.discard(0)  # Remove padding asym_id
+        is_monomer = len(unique_asym_ids) == 1
 
-            true_ca_poses = [
-                l["all_atom_positions"][..., ca_idx, :] for l in labels
-            ]  # list([nres, 3])
-            true_ca_masks = [
-                l["all_atom_mask"][..., ca_idx].long() for l in labels
-            ]  # list([nres,])
-            per_asym_residue_index = AlphaFoldMultimerLoss.get_per_asym_residue_index(feature)
-            for candidate_pred_anchor in anchor_pred_asym_ids:
-                asym_mask = (feature["asym_id"] == candidate_pred_anchor).bool()
-                anchor_gt_residue = per_asym_residue_index[int(candidate_pred_anchor)]
-                r, x = AlphaFoldMultimerLoss.calculate_optimal_transform(true_ca_poses,
-                                        anchor_gt_idx,anchor_gt_residue,
-                                        true_ca_masks,pred_ca_mask,
-                                        asym_mask,
-                                        pred_ca_pos
-                )
-                aligned_true_ca_poses = [ca.to(r.dtype) @ r + x for ca in true_ca_poses]  # apply transforms
-                align = greedy_align(
-                    feature,
-                    per_asym_residue_index,
-                    entity_2_asym_list,
-                    pred_ca_pos,
-                    pred_ca_mask,
-                    aligned_true_ca_poses,
-                    true_ca_masks,
-                )
-                merged_labels = merge_labels(per_asym_residue_index,labels,align,
-                                      original_nres=feature['aatype'].shape[-1])
-                rmsd = compute_rmsd(true_atom_pos = merged_labels['all_atom_positions'][..., ca_idx, :].to(r.dtype) @ r + x,
-                                    pred_atom_pos = pred_ca_pos,
-                                    atom_mask = (pred_ca_mask * merged_labels['all_atom_mask'][..., ca_idx].long()).bool())
-                if rmsd < best_rmsd:
-                    best_rmsd = rmsd
-                    best_align = align
-            del r,x
-            del true_ca_masks,aligned_true_ca_poses
-            del pred_ca_pos, pred_ca_mask
-            gc.collect()
-            
-        else:
-            per_asym_residue_index = AlphaFoldMultimerLoss.get_per_asym_residue_index(feature)
+        per_asym_residue_index = AlphaFoldMultimerLoss.get_per_asym_residue_index(features)
+
+        if is_monomer:
             best_align = list(enumerate(range(len(per_asym_residue_index))))
-        
-        return best_align, per_asym_residue_index
-        
+            return best_align, per_asym_residue_index
 
-    def forward(self, out, batch, _return_breakdown=False,permutate_chains=True):
+        best_rmsd = float('inf')
+        best_align = None
+        # First select anchors from predicted structures and ground truths
+        anchor_gt_asym, anchor_pred_asym_ids = get_least_asym_entity_or_longest_length(ground_truth,
+                                                                                       features['asym_id'])
+        entity_2_asym_list = AlphaFoldMultimerLoss.get_entity_2_asym_list(ground_truth)
+        labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth)
+        assert isinstance(labels, list)
+        anchor_gt_idx = int(anchor_gt_asym) - 1
+        # Then calculate optimal transform by aligning anchors
+        ca_idx = rc.atom_order["CA"]
+        pred_ca_pos = out["final_atom_positions"][..., ca_idx, :]  # [bsz, nres, 3]
+        pred_ca_mask = out["final_atom_mask"][..., ca_idx].to(dtype=pred_ca_pos.dtype)  # [bsz, nres]
+
+        true_ca_poses = [
+            l["all_atom_positions"][..., ca_idx, :] for l in labels
+        ]  # list([nres, 3])
+        true_ca_masks = [
+            l["all_atom_mask"][..., ca_idx].long() for l in labels
+        ]  # list([nres,])
+        for candidate_pred_anchor in anchor_pred_asym_ids:
+            asym_mask = (features["asym_id"] == candidate_pred_anchor).bool()
+            anchor_gt_residue = per_asym_residue_index[candidate_pred_anchor.item()]
+            r, x = AlphaFoldMultimerLoss.calculate_optimal_transform(true_ca_poses,
+                                                                     anchor_gt_idx, anchor_gt_residue,
+                                                                     true_ca_masks, pred_ca_mask,
+                                                                     asym_mask,
+                                                                     pred_ca_pos
+                                                                     )
+            aligned_true_ca_poses = [ca.to(r.dtype) @ r + x for ca in true_ca_poses]  # apply transforms
+            align = greedy_align(
+                features,
+                per_asym_residue_index,
+                entity_2_asym_list,
+                pred_ca_pos,
+                pred_ca_mask,
+                aligned_true_ca_poses,
+                true_ca_masks,
+            )
+            merged_labels = merge_labels(per_asym_residue_index, labels, align,
+                                         original_nres=features['aatype'].shape[-1])
+            rmsd = compute_rmsd(
+                true_atom_pos=merged_labels['all_atom_positions'][..., ca_idx, :].to(r.dtype) @ r + x,
+                pred_atom_pos=pred_ca_pos,
+                atom_mask=(pred_ca_mask * merged_labels['all_atom_mask'][..., ca_idx].long()).bool())
+            if rmsd < best_rmsd:
+                best_rmsd = rmsd
+                best_align = align
+
+        return best_align, per_asym_residue_index
+
+    def forward(self, out, batch, _return_breakdown=False):
         """
         Overwrite AlphaFoldLoss forward function so that
         it first compute multi-chain permutation
@@ -2210,32 +2195,24 @@ class AlphaFoldMultimerLoss(AlphaFoldLoss):
         out: the output of model.forward()
         batch: a pair of input features and its corresponding ground truth structure
         """
-        # first check if it is a monomer
-        features, ground_truth = batch
-        del batch
-        is_monomer = len(torch.unique(features['asym_id']))==1 or torch.unique(features['asym_id']).tolist()==[0,1]
+        ground_truth = batch.pop('gt_features')
+        labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth)
 
-        if not is_monomer:
-            permutate_chains = True
+        # Then permute ground truth chains before calculating the loss
+        align, per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out=out,
+                                                                                     features=batch,
+                                                                                     ground_truth=ground_truth)
 
-        # Then permutate ground truth chains before calculating the loss
-        align,per_asym_residue_index = AlphaFoldMultimerLoss.multi_chain_perm_align(out, 
-                                                                                    (features,ground_truth),
-                                                                                    permutate_chains=permutate_chains)
-            
-        labels = AlphaFoldMultimerLoss.split_ground_truth_labels(ground_truth,
-                                                                REQUIRED_FEATURES=[i for i in ground_truth.keys()])
-        
         # reorder ground truth labels according to permutation results
-        labels = merge_labels(per_asym_residue_index,labels,align,
-                            original_nres=features['aatype'].shape[-1])
-        features.update(labels)
+        labels = merge_labels(per_asym_residue_index, labels, align,
+                              original_nres=batch['aatype'].shape[-1])
+        batch.update(labels)
 
-        if (not _return_breakdown):
-            cum_loss = self.loss(out, features, _return_breakdown)
+        if not _return_breakdown:
+            cum_loss = self.loss(out, batch, _return_breakdown)
             print(f"cum_loss: {cum_loss}")
             return cum_loss
         else:
-            cum_loss, losses = self.loss(out, features, _return_breakdown)
+            cum_loss, losses = self.loss(out, batch, _return_breakdown)
             print(f"cum_loss: {cum_loss} losses: {losses}")
             return cum_loss, losses

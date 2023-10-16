@@ -1,24 +1,17 @@
 import argparse
 import logging
 import os
-import random
 import sys
-import time
 
-import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins.training_type import DeepSpeedPlugin, DDPPlugin
-from pytorch_lightning.plugins.environments import SLURMEnvironment
 import torch
 
 from openfold.config import model_config
-from openfold.data.data_modules import (
-    OpenFoldDataModule,OpenFoldMultimerDataModule,
-    DummyDataLoader,
-)
+from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataModule
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
@@ -53,7 +46,12 @@ class OpenFoldWrapper(pl.LightningModule):
         super(OpenFoldWrapper, self).__init__()
         self.config = config
         self.model = AlphaFold(config)
-        self.loss = AlphaFoldLoss(config.loss)
+
+        if self.config.globals.is_multimer:
+            self.loss = AlphaFoldMultimerLoss(config.loss)
+        else:
+            self.loss = AlphaFoldLoss(config.loss)
+
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
         )
@@ -256,72 +254,6 @@ class OpenFoldWrapper(pl.LightningModule):
         )
 
 
-class OpenFoldMultimerWrapper(OpenFoldWrapper):
-    def __init__(self, config):
-        super(OpenFoldMultimerWrapper, self).__init__(config)
-        self.config = config
-        self.model = AlphaFold(config)
-        self.loss = AlphaFoldMultimerLoss(config.loss)
-        self.ema = ExponentialMovingAverage(
-            model=self.model, decay=config.ema.decay
-        )
-        
-        self.cached_weights = None
-        self.last_lr_step = -1
-
-    def forward(self, batch):
-        return self.model(batch)
-
-    def training_step(self, batch, batch_idx):
-        features,gt_features = batch
-        # Log it
-        if(self.ema.device != features["aatype"].device):
-            self.ema.to(features["aatype"].device)
-
-        # Run the model
-        outputs = self(features)
-
-        # Remove the recycling dimension
-        features = tensor_tree_map(lambda t: t[..., -1], features)
-
-        # Compute loss
-        loss, loss_breakdown = self.loss(
-            outputs, (features,gt_features), _return_breakdown=True
-        )
-
-        # Log it
-        self._log(loss_breakdown, features, outputs)
-
-        return loss
-    
-    def validation_step(self, batch, batch_idx):
-        features,gt_features = batch
-        # At the start of validation, load the EMA weights
-        if(self.cached_weights is None):
-            # model.state_dict() contains references to model weights rather
-            # than copies. Therefore, we need to clone them before calling 
-            # load_state_dict().
-            clone_param = lambda t: t.detach().clone()
-            self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
-            self.model.load_state_dict(self.ema.state_dict()["params"])
-       
-        # Run the model
-        outputs = self(features)
-
-        # Compute loss and other metrics
-        features["use_clamped_fape"] = 0.
-        _, loss_breakdown = self.loss(
-            outputs, (features,gt_features), _return_breakdown=True
-        )
-
-        self._log(loss_breakdown, features, outputs, train=False)
-        
-    def validation_epoch_end(self, _):
-        # Restore the model weights to normal
-        self.model.load_state_dict(self.cached_weights)
-        self.cached_weights = None
-
-
 def main(args):
     if(args.seed is not None):
         seed_everything(args.seed) 
@@ -331,10 +263,8 @@ def main(args):
         train=True, 
         low_prec=(str(args.precision) == "16")
     ) 
-    if "multimer" in args.config_preset:
-        model_module = OpenFoldMultimerWrapper(config)   
-    else: 
-        model_module = OpenFoldWrapper(config)
+    model_module = OpenFoldWrapper(config)
+
     if(args.resume_from_ckpt):
         if(os.path.isdir(args.resume_from_ckpt)):  
             last_global_step = get_global_step_from_zero_checkpoint(args.resume_from_ckpt)
@@ -359,7 +289,6 @@ def main(args):
     if(args.script_modules):
         script_preset_(model_module)
 
-    #data_module = DummyDataLoader("new_batch.pickle")
     if "multimer" in args.config_preset:
         data_module = OpenFoldMultimerDataModule(
         config=config.data, 
