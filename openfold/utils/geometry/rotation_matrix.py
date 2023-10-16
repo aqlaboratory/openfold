@@ -18,9 +18,7 @@ import dataclasses
 from typing import List
 
 import torch
-import numpy as np
 
-from openfold.utils.geometry import struct_of_array
 from openfold.utils.geometry import utils
 from openfold.utils.geometry import vector
 from openfold.utils.tensor_utils import tensor_tree_map

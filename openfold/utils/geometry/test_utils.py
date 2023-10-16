@@ -18,7 +18,6 @@ import dataclasses
 from alphafold.model.geometry import rigid_matrix_vector
 from alphafold.model.geometry import rotation_matrix
 from alphafold.model.geometry import vector
-import jax.numpy as jnp
 import numpy as np
 
 
@@ -35,7 +34,7 @@ def assert_rotation_matrix_close(mat1: rotation_matrix.Rot3Array,
   np.testing.assert_array_almost_equal(mat1.to_array(), mat2.to_array(), 6)
 
 
-def assert_array_equal_to_rotation_matrix(array: jnp.ndarray,
+def assert_array_equal_to_rotation_matrix(array: np.ndarray,
                                           matrix: rotation_matrix.Rot3Array):
   """Check that array and Matrix match."""
   np.testing.assert_array_equal(matrix.xx, array[..., 0, 0])
@@ -49,7 +48,7 @@ def assert_array_equal_to_rotation_matrix(array: jnp.ndarray,
   np.testing.assert_array_equal(matrix.zz, array[..., 2, 2])
 
 
-def assert_array_close_to_rotation_matrix(array: jnp.ndarray,
+def assert_array_close_to_rotation_matrix(array: np.ndarray,
                                           matrix: rotation_matrix.Rot3Array):
   np.testing.assert_array_almost_equal(matrix.to_array(), array, 6)
 
@@ -66,11 +65,11 @@ def assert_vectors_close(vec1: vector.Vec3Array, vec2: vector.Vec3Array):
   np.testing.assert_allclose(vec1.z, vec2.z, atol=1e-6, rtol=0.)
 
 
-def assert_array_close_to_vector(array: jnp.ndarray, vec: vector.Vec3Array):
+def assert_array_close_to_vector(array: np.ndarray, vec: vector.Vec3Array):
   np.testing.assert_allclose(vec.to_array(), array, atol=1e-6, rtol=0.)
 
 
-def assert_array_equal_to_vector(array: jnp.ndarray, vec: vector.Vec3Array):
+def assert_array_equal_to_vector(array: np.ndarray, vec: vector.Vec3Array):
   np.testing.assert_array_equal(vec.to_array(), array)
 
 

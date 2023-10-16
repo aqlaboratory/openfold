@@ -20,7 +20,6 @@ from typing import Union, List
 import torch
 
 from openfold.utils.geometry import rotation_matrix
-from openfold.utils.geometry import struct_of_array
 from openfold.utils.geometry import vector
 
 

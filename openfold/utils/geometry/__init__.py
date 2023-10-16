@@ -15,13 +15,10 @@
 
 from openfold.utils.geometry import rigid_matrix_vector
 from openfold.utils.geometry import rotation_matrix
-from openfold.utils.geometry import struct_of_array
 from openfold.utils.geometry import vector
 
 Rot3Array = rotation_matrix.Rot3Array
 Rigid3Array = rigid_matrix_vector.Rigid3Array
-
-StructOfArray = struct_of_array.StructOfArray
 
 Vec3Array = vector.Vec3Array
 square_euclidean_distance = vector.square_euclidean_distance

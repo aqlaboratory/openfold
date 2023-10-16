@@ -19,8 +19,6 @@ from typing import Union, List
 
 import torch
 
-from openfold.utils.geometry import utils
-
 Float = Union[float, torch.Tensor]
 
 @dataclasses.dataclass(frozen=True)
