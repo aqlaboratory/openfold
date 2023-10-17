@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# Install DeepMind's OpenMM patch
-OPENFOLD_DIR=$PWD
-pushd $CONDA_DEFAULT_ENV/lib/python3.9/site-packages/ \
-    && patch -p0 < $OPENFOLD_DIR/lib/openmm.patch \
-    && popd
-
 # Download folding resources
-wget --no-check-certificate -P openfold/resources \
+wget -N --no-check-certificate -P openfold/resources \
     https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
 
 # Certain tests need access to this file
