@@ -18,3 +18,6 @@ ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/co
 gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.pickle
 
 python setup.py install
+
+# Setup LD_LIBRARY_PATH to include conda directory:
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`
