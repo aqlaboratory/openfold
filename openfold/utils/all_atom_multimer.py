@@ -17,7 +17,6 @@ from functools import partial
 from typing import Dict, Text, Tuple
 
 import torch
-import jax.numpy as jnp
 
 from openfold.np import residue_constants as rc
 from openfold.utils import geometry, tensor_utils
@@ -26,7 +25,7 @@ import numpy as np
 
 
 def squared_difference(x, y):
-    return jnp.square(x - y)
+    return np.square(x - y)
 
 
 def get_rc_tensor(rc_np, aatype):

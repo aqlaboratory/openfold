@@ -20,8 +20,9 @@ from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
-from openfold.utils.loss import AlphaFoldLoss, AlphaFoldMultimerLoss,lddt_ca
+from openfold.utils.loss import AlphaFoldLoss, lddt_ca
 from openfold.utils.lr_schedulers import AlphaFoldLRScheduler
+from openfold.utils.multi_chain_permutation import multi_chain_permutation_align
 from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
@@ -46,11 +47,9 @@ class OpenFoldWrapper(pl.LightningModule):
         super(OpenFoldWrapper, self).__init__()
         self.config = config
         self.model = AlphaFold(config)
+        self.is_multimer = self.config.globals.is_multimer
 
-        if self.config.globals.is_multimer:
-            self.loss = AlphaFoldMultimerLoss(config.loss)
-        else:
-            self.loss = AlphaFoldLoss(config.loss)
+        self.loss = AlphaFoldLoss(config.loss)
 
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
@@ -96,11 +95,18 @@ class OpenFoldWrapper(pl.LightningModule):
         if(self.ema.device != batch["aatype"].device):
             self.ema.to(batch["aatype"].device)
 
+        ground_truth = batch.pop('gt_features', None)
+
         # Run the model
         outputs = self(batch)
 
         # Remove the recycling dimension
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
+
+        if self.is_multimer:
+            batch = multi_chain_permutation_align(out=outputs,
+                                                  features=batch,
+                                                  ground_truth=ground_truth)
 
         # Compute loss
         loss, loss_breakdown = self.loss(
@@ -124,13 +130,21 @@ class OpenFoldWrapper(pl.LightningModule):
             clone_param = lambda t: t.detach().clone()
             self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
             self.model.load_state_dict(self.ema.state_dict()["params"])
-       
+
+        ground_truth = batch.pop('gt_features', None)
+
         # Run the model
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
 
-        # Compute loss and other metrics
         batch["use_clamped_fape"] = 0.
+
+        if self.is_multimer:
+            batch = multi_chain_permutation_align(out=outputs,
+                                                  features=batch,
+                                                  ground_truth=ground_truth)
+
+        # Compute loss and other metrics
         _, loss_breakdown = self.loss(
             outputs, batch, _return_breakdown=True
         )

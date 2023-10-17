@@ -664,11 +664,11 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                  generator: torch.Generator = None,
                  _roll_at_init: bool = True
                  ):
-        super(OpenFoldMultimerDataset).__init__(datasets=datasets,
-                                                probabilities=probabilities,
-                                                epoch_len=epoch_len,
-                                                generator=generator,
-                                                _roll_at_init=_roll_at_init)
+        super(OpenFoldMultimerDataset, self).__init__(datasets=datasets,
+                                                      probabilities=probabilities,
+                                                      epoch_len=epoch_len,
+                                                      generator=generator,
+                                                      _roll_at_init=_roll_at_init)
 
     @staticmethod
     def deterministic_train_filter(
@@ -782,6 +782,7 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
         )
 
     def _add_batch_properties(self, batch):
+        gt_features = batch.pop('gt_features', None)
         samples = torch.multinomial(
             self.prop_probs_tensor,
             num_samples=1,  # 1 per row
@@ -814,6 +815,7 @@ class OpenFoldDataLoader(torch.utils.data.DataLoader):
 
         resample_recycling = lambda t: t[..., :no_recycling + 1]
         batch = tensor_tree_map(resample_recycling, batch)
+        batch['gt_features'] = gt_features
 
         return batch
 
