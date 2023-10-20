@@ -28,9 +28,7 @@ COPY scripts /opt/openfold/scripts
 COPY run_pretrained_openfold.py /opt/openfold/run_pretrained_openfold.py
 COPY train_openfold.py /opt/openfold/train_openfold.py
 COPY setup.py /opt/openfold/setup.py
-COPY lib/openmm.patch /opt/openfold/lib/openmm.patch
 RUN wget -q -P /opt/openfold/openfold/resources \
     https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt
-RUN patch -p0 -d /opt/conda/lib/python3.9/site-packages/ < /opt/openfold/lib/openmm.patch
 WORKDIR /opt/openfold
 RUN python3 setup.py install
