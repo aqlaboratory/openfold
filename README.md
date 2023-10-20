@@ -48,37 +48,17 @@ and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (night
 installed on on your system. You'll need `git-lfs` to download OpenFold parameters. 
 Finally, some download scripts require `aria2c` and `aws`.
 
-For convenience, we provide a script that installs Miniconda locally, creates a 
-`conda` virtual environment, installs all Python dependencies, and downloads
-useful resources, including both sets of model parameters. Run:
+This package is currently supported for CUDA 11 and Pytorch 1.12
 
-```bash
-scripts/install_third_party_dependencies.sh
-```
+To install:
+1. Clone the repository, e.g. `git clone https://github.com/aqlaboratory/openfold.git`
+1. From the `openfold` repo: 
+    - Create an [Anaconda/Mamba](https://docs.anaconda.com/free/anaconda/install/index.html) environment, e.g. `conda env create -n openfold_env`
+    - Activate the environment, e.g `conda activate openfold_env` 
+1. Run `scripts/install_third_party_dependencies.sh` to configure kernels and folding resources.
 
-To activate the environment, run:
+For some systems, it may help to append the Conda environment library path to `$LD_LIBRARY_PATH`. The `install_third_party_dependencies.sh` script does this once, but you may need this for each bash instance.
 
-```bash
-source scripts/activate_conda_env.sh
-```
-
-To deactivate it, run:
-
-```bash
-source scripts/deactivate_conda_env.sh
-```
-
-With the environment active, compile OpenFold's CUDA kernels with
-
-```bash
-python3 setup.py install
-```
-
-To install the HH-suite to `/usr/bin`, run
-
-```bash
-# scripts/install_hh_suite.sh
-```
 
 ## Usage
 
