@@ -14,7 +14,3 @@ gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.
 python setup.py install
 
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
-
-# The following will prepend conda library environment to $LD_LIBRARY_PATH
-# upon conda library activation 
-# conda env config vars set LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
