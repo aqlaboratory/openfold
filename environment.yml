@@ -10,23 +10,25 @@ dependencies:
   - conda-forge::cudatoolkit==11.3.*
   - conda-forge::openmm=7.7.0
   - conda-forge::pdbfixer
+  - conda-forge::awscli
+  - conda-forge::biopython==1.79
+  - conda-forge::ninja
+  - conda-forge::numpy==1.21.2
+  - conda-forge::scipy==1.7.1
+  - conda-forge::pyyaml==5.4.1
+  - conda-forge::packaging
+  - conda-forge::tqdm==4.62.2
+  - conda-forge::typing-extensions==3.10.0.2
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04
+  - bioconda::aria2
   - pytorch::pytorch=1.12.*
   - pip:
-      - packaging
-      - ninja==1.11.1
-      - biopython==1.79
       - deepspeed==0.5.10
       - dm-tree==0.1.6
       - ml-collections==0.1.0
-      - numpy==1.21.2
-      - PyYAML==5.4.1
       - requests==2.26.0
-      - scipy==1.7.1
-      - tqdm==4.62.2
-      - typing-extensions==3.10.0.2
       - pytorch_lightning==1.5.10
       - wandb==0.12.21
       - modelcif==0.7

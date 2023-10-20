@@ -8,16 +8,13 @@ wget -N --no-check-certificate -P openfold/resources \
 mkdir -p tests/test_data/alphafold/common
 ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/common
 
-# echo "Downloading OpenFold parameters..."
-# bash scripts/download_openfold_params.sh openfold/resources
-# 
-# echo "Downloading AlphaFold parameters..."
-# bash scripts/download_alphafold_params.sh openfold/resources
-
 # Decompress test data
 gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.pickle
 
 python setup.py install
 
-# Setup LD_LIBRARY_PATH to include conda directory:
-export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
+# The following will prepend conda library environment to $LD_LIBRARY_PATH
+# upon conda library activation 
+# conda env config vars set LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
