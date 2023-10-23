@@ -110,7 +110,7 @@ def main(args):
 
             logits = out["logits"].to(device="cpu")
             representations = {
-                layer: t.to(device="cpu") for layer, t in out["representations"].items()
+                33: out["representations"][33].to(device="cpu")
             }
 
             for i, label in enumerate(labels):
@@ -118,8 +118,7 @@ def main(args):
                 result = {"label": label}
 
                 result["representations"] = {
-                    layer: t[i, 1: len(strs[i]) + 1].clone()
-                    for layer, t in representations.items()
+                    33: representations[33][i, 1: len(strs[i]) + 1].clone()
                 }
                 torch.save(
                     result,
