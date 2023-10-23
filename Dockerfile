@@ -13,15 +13,15 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/
 
 RUN apt-get update && apt-get install -y wget libxml2 cuda-minimal-build-11-3 libcusparse-dev-11-3 libcublas-dev-11-3 libcusolver-dev-11-3 git
 RUN wget -P /tmp \
-    "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
-    && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
-    && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
+    "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" \
+    && bash /tmp/Miniforge3-Linux-x86_64.sh -b -p /opt/conda \
+    && rm /tmp/Miniforge3-Linux-x86_64.sh
 ENV PATH /opt/conda/bin:$PATH
 
 COPY environment.yml /opt/openfold/environment.yml
 
 # installing into the base environment since the docker container wont do anything other than run openfold
-RUN conda env update -n base --file /opt/openfold/environment.yml && conda clean --all
+RUN mamba env update -n base --file /opt/openfold/environment.yml && mamba clean --all
 
 COPY openfold /opt/openfold/openfold
 COPY scripts /opt/openfold/scripts
