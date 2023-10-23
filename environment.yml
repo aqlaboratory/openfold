@@ -10,7 +10,7 @@ dependencies:
   - pdbfixer
   - cudatoolkit==11.3.*
   - pytorch=1.12.*
-  - pytorch_lightning==1.5.10
+  - pytorch-lightning==1.5.10
   - biopython==1.79
   - numpy==1.21
   - PyYAML==5.4.1
