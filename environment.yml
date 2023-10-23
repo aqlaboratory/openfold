@@ -28,4 +28,4 @@ dependencies:
       - dm-tree==0.1.6  # 0.1.6 yanked from conda-forge - update?
       - ml-collections==0.1.0  # 0.1.1 is oldest available on conda-forge - update?
       - git+https://github.com/NVIDIA/dllogger.git
-      - git+https://github.com/Dao-AILab/flash-attention.git@5b838a8bef
+      - git+https://github.com/Dao-AILab/flash-attention.git@5b838a8
