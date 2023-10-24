@@ -32,4 +32,3 @@ dependencies:
       - dm-tree==0.1.6
       - git+https://github.com/NVIDIA/dllogger.git
       - git+https://github.com/Dao-AILab/flash-attention.git@v0.2.1
-      # - git+https://github.com/Dao-AILab/flash-attention.git@5b838a8
