@@ -84,7 +84,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     no_cpus=args.cpus,
                 )
                 embedding_generator = EmbeddingGenerator()
-                embedding_generator.run(args.fasta_dir, local_alignment_dir)
+                embedding_generator.run(tmp_fasta_path, alignment_dir)
             else:
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,
