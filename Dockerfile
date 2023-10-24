@@ -22,7 +22,7 @@ COPY environment.yml /opt/openfold/environment.yml
 
 # installing into the base environment since the docker container wont do anything other than run openfold
 RUN mamba env update -n base --file /opt/openfold/environment.yml && mamba clean --all
-EXPORT LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH}
+RUN export LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH}
 
 COPY openfold /opt/openfold/openfold
 COPY scripts /opt/openfold/scripts
