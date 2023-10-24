@@ -77,7 +77,7 @@ python3 setup.py install
 To install the HH-suite to `/usr/bin`, run
 
 ```bash
-# scripts/install_hh_suite.sh
+scripts/install_hh_suite.sh
 ```
 
 ## Usage
