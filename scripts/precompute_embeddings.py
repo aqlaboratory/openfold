@@ -58,74 +58,106 @@ class SequenceDataset(object):
         _flush_current_buf()
         return batches
 
-def main(args):
-    labels = []
-    seqs = []
 
-    # Generate a single bulk file
-    for f in os.listdir(args.fasta_dir):
-        f_name, ext = os.path.splitext(f)
-        if ext != '.fasta' and ext != '.fa':
-            logging.warning(f"Ignoring non-FASTA file: {f}")
-            continue
-        with open(os.path.join(args.fasta_dir, f), 'r') as infile:
-            seq = infile.readlines()[1].strip()
-        labels.append(f_name)
-        seqs.append(seq)
+class EmbeddingGenerator:
+    """Generates the ESM-1b embeddings for the single sequence model"""
+    def __init__(self,
+        toks_per_batch: int = 4096,
+        truncate: bool = True,
+        use_local_esm: str = None,
+        nogpu: bool = False,
+    ):
+        self.toks_per_batch = toks_per_batch
+        self.truncate = truncate
+        self.use_local_esm = use_local_esm
+        self.nogpu = nogpu
+        
+        # Generate embeddings in bulk
+        if self.use_local_esm:
+            self.model, self.alphabet = torch.hub.load(self.use_local_esm, "esm1b_t33_650M_UR50S", source='local')
+        else:
+            self.model, self.alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
+        if torch.cuda.is_available() and not self.nogpu:
+            self.model = self.model.to(device="cuda")
     
-    lines = []
-    for label, seq in zip(labels, seqs):
-        lines += f'>{label}\n'
-        lines += f'{seq}\n'
-    os.makedirs(args.output_dir, exist_ok=True)
-    temp_fasta_file = os.path.join(args.output_dir, 'temp.fasta')
-    with open(temp_fasta_file, 'w') as outfile:
-        outfile.writelines(lines)
+    def run(
+        self,
+        fasta_dir,
+        output_dir,
+    ):
+        labels = []
+        seqs = []
 
-    # Generate embeddings in bulk
-    if args.use_local_esm:
-        model, alphabet = torch.hub.load(args.use_local_esm, "esm1b_t33_650M_UR50S", source='local')
-    else:
-        model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
-    if torch.cuda.is_available() and not args.nogpu:
-        model = model.to(device="cuda")
-    dataset = SequenceDataset.from_file(temp_fasta_file)
-    batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
-    data_loader = torch.utils.data.DataLoader(
-        dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
-    )
-    logging.info("Loaded all sequences")
-    repr_layers = [33]
+        # Generate a single bulk file
+        for f in os.listdir(fasta_dir):
+            f_name, ext = os.path.splitext(f)
+            if ext != '.fasta' and ext != '.fa':
+                logging.warning(f"Ignoring non-FASTA file: {f}")
+                continue
+            with open(os.path.join(fasta_dir, f), 'r') as infile:
+                seq = infile.readlines()[1].strip()
+            labels.append(f_name)
+            seqs.append(seq)
+        
+        lines = []
+        for label, seq in zip(labels, seqs):
+            lines += f'>{label}\n'
+            lines += f'{seq}\n'
+        os.makedirs(output_dir, exist_ok=True)
+        temp_fasta_file = os.path.join(output_dir, 'temp.fasta')
+        with open(temp_fasta_file, 'w') as outfile:
+            outfile.writelines(lines)
 
-    with torch.no_grad():
-        for batch_idx, (labels, strs, toks) in enumerate(data_loader):
-            logging.info(f"Processing {batch_idx + 1} of {len(batches)} batches ({toks.size(0)} sequences)")
-            if torch.cuda.is_available() and not args.nogpu:
-                toks = toks.to(device="cuda", non_blocking=True)
-            
-            if args.truncate:
-                toks = toks[:1022]
-            
-            out = model(toks, repr_layers=repr_layers, return_contacts=False)
+        dataset = SequenceDataset.from_file(temp_fasta_file)
+        batches = dataset.get_batch_indices(self.toks_per_batch, extra_toks_per_seq=1)
+        data_loader = torch.utils.data.DataLoader(
+            dataset, collate_fn=self.alphabet.get_batch_converter(), batch_sampler=batches
+        )
+        logging.info("Loaded all sequences")
+        repr_layers = [33]
 
-            logits = out["logits"].to(device="cpu")
-            representations = {
-                33: out["representations"][33].to(device="cpu")
-            }
+        with torch.no_grad():
+            for batch_idx, (labels, strs, toks) in enumerate(data_loader):
+                logging.info(f"Processing {batch_idx + 1} of {len(batches)} batches ({toks.size(0)} sequences)")
+                if torch.cuda.is_available() and not self.nogpu:
+                    toks = toks.to(device="cuda", non_blocking=True)
+                
+                if self.truncate:
+                    toks = toks[:1022]
+                
+                out = self.model(toks, repr_layers=repr_layers, return_contacts=False)
 
-            for i, label in enumerate(labels):
-                os.makedirs(os.path.join(args.output_dir, label), exist_ok=True)
-                result = {"label": label}
-
-                result["representations"] = {
-                    33: representations[33][i, 1: len(strs[i]) + 1].clone()
+                representations = {
+                    33: out["representations"][33].to(device="cpu")
                 }
-                torch.save(
-                    result,
-                    os.path.join(args.output_dir, label, label+".pt")
-                )
-    
-    os.remove(temp_fasta_file)
+
+                for i, label in enumerate(labels):
+                    os.makedirs(os.path.join(output_dir, label), exist_ok=True)
+                    result = {"label": label}
+
+                    result["representations"] = {
+                        33: representations[33][i, 1: len(strs[i]) + 1].clone()
+                    }
+                    torch.save(
+                        result,
+                        os.path.join(output_dir, label, label+".pt")
+                    )
+        
+        os.remove(temp_fasta_file)
+        
+
+def main(args):
+    logging.info("Loading the model...")
+    embedding_generator = EmbeddingGenerator(
+        args.toks_per_batch,
+        args.truncate,
+        args.use_local_esm,
+        args.nogpu)
+    logging.info("Loading the sequences and running the inference...")
+    embedding_generator.run(
+        args.fasta_dir,
+        args.output_dir
+    )
     logging.info("Completed.")
 
 

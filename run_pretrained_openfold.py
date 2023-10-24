@@ -55,6 +55,7 @@ from openfold.utils.trace_utils import (
     pad_feature_dict_seq,
     trace_model_,
 )
+from scripts.precompute_embeddings import EmbeddingGenerator
 from scripts.utils import add_data_args
 
 
@@ -82,6 +83,8 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     pdb70_database_path=args.pdb70_database_path,
                     no_cpus=args.cpus,
                 )
+                embedding_generator = EmbeddingGenerator()
+                embedding_generator.run(args.fasta_dir, local_alignment_dir)
             else:
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,
