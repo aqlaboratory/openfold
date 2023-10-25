@@ -53,8 +53,9 @@ This package is currently supported for CUDA 11 and Pytorch 1.12
 To install:
 1. Clone the repository, e.g. `git clone https://github.com/aqlaboratory/openfold.git`
 1. From the `openfold` repo: 
-    - Create an [Anaconda/Mamba](https://docs.anaconda.com/free/anaconda/install/index.html) environment, e.g. 
-        `conda env create -n openfold_env -f environment.yml`
+    - Create a [Mamba]("https://github.com/conda-forge/miniforge/releases/latest/download/) environment, e.g. 
+        `mamba env create -n openfold_env -f environment.yml`
+      Mamba is recommended as the dependencies required by OpenFold are quite large and mamba can speed up the process.
     - Activate the environment, e.g `conda activate openfold_env` 
 1. Run `scripts/install_third_party_dependencies.sh` to configure kernels and folding resources.
 
