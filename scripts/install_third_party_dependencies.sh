@@ -14,3 +14,5 @@ gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.
 python setup.py install
 
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+# This setting is used to fix a worker assignment issue during data loading
+conda env config vars set KMP_AFFINITY=none
