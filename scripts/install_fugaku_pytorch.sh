@@ -44,6 +44,9 @@ sed -i "s|PREFIX=~/prefix|PREFIX=$PREFIX|g" env.src
 sed -i "s|VENV_PATH=~/venv||g" env.src
 # force flushing denormal numbers to zero
 sed -i "s|CFLAGS=-O3 CXXFLAGS=-O3|CFLAGS=-Kfast|g" 5_pytorch.sh
+# Cython<3
+sed -i "s|Cython>=0.29.18|Cython>=0.29.18,<3|g" 4_numpy_scipy.sh
+sed -i "s|Cython>=0.29.21|Cython>=0.29.21,<3|g" 4_numpy_scipy.sh
 
 export fjenv_use_venv=false
 bash 1_python.sh

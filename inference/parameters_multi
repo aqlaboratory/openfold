@@ -18,6 +18,8 @@ AlignmentDir=example/alignment
 OutputDir=$LOGDIR
 Timeout=3600
 
+ModelNum=1
+
 PARAMS=(
     python3
     $OPENFOLDDIR/run_pretrained_openfold_multi.py
@@ -25,7 +27,8 @@ PARAMS=(
     $OutputDir
     $DataDir/pdb_mmcif/mmcif_files
     --model_device cpu
-    --jax_param_path $DataDir/params/params_model_1.npz
+    --config_preset "model_${ModelNum}"
+    --jax_param_path $DataDir/params/params_model_${ModelNum}.npz
     --kalign_binary_path $PREFIX/bin/kalign
     --use_precomputed_alignments $AlignmentDir
     --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
