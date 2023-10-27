@@ -33,6 +33,7 @@ from openfold.model.embedders import (
     TemplateEmbedder,
     TemplateEmbedderMultimer,
     ExtraMSAEmbedder,
+    PreembeddingEmbedder,
 )
 from openfold.model.evoformer import EvoformerStack, ExtraMSAStack
 from openfold.model.heads import AuxiliaryHeads
@@ -80,11 +81,18 @@ class AlphaFold(nn.Module):
         self.config = config.model
         self.template_config = self.config.template
         self.extra_msa_config = self.config.extra_msa
+        self.seqemb_mode = config.globals.seqemb_mode_enabled
 
         # Main trunk + structure module
-        if(self.globals.is_multimer):
+        if self.globals.is_multimer:
             self.input_embedder = InputEmbedderMultimer(
-                **self.config["input_embedder"],
+                **self.config["input_embedder"]
+            )
+        elif self.seqemb_mode:
+            # If using seqemb mode, embed the sequence embeddings passed
+            # to the model ("preembeddings") instead of embedding the sequence
+            self.input_embedder = PreembeddingEmbedder(
+                **self.config["preembedding_embedder"],
             )
         else:
             self.input_embedder = InputEmbedder(
@@ -220,15 +228,23 @@ class AlphaFold(nn.Module):
         seq_mask = feats["seq_mask"]
         pair_mask = seq_mask[..., None] * seq_mask[..., None, :]
         msa_mask = feats["msa_mask"]
-        
-        ## Initialize the MSA and pair representations
 
-        if (self.globals.is_multimer):
+        if self.globals.is_multimer:
+            # Initialize the MSA and pair representations
             # m: [*, S_c, N, C_m]
             # z: [*, N, N, C_z]
             m, z = self.input_embedder(feats)
-
+        elif self.seqemb_mode:
+            # Initialize the SingleSeq and pair representations
+            # m: [*, 1, N, C_m]
+            # z: [*, N, N, C_z]
+            m, z = self.input_embedder(
+                feats["target_feat"],
+                feats["residue_index"],
+                feats["seq_embedding"]
+            )
         else:
+            # Initialize the MSA and pair representations
             # m: [*, S_c, N, C_m]
             # z: [*, N, N, C_z]
             m, z = self.input_embedder(

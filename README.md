@@ -29,7 +29,7 @@ vice versa (see `scripts/convert_of_weights_to_jax.py`).
 
 OpenFold has the following advantages over the reference implementation:
 
-- **Faster inference** on GPU, sometimes by as much as 2x. The greatest speedups are achieved on (>= Ampere) GPUs.
+- **Faster inference** on GPU, sometimes by as much as 2x. The greatest speedups are achieved on Ampere or higher architecture GPUs.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
@@ -231,6 +231,51 @@ efficent AlphaFold-Multimer more than double the time. Use the
 `long_sequence_inference` config option to enable all of these interventions
 at once. The `run_pretrained_openfold.py` script can enable this config option with the 
 `--long_sequence_inference` command line option
+
+#### SoloSeq Inference
+To run inference for a sequence using the SoloSeq single-sequence model, you can either precompute ESM-1b embeddings in bulk, or you can generate them during inference.
+
+For generating ESM-1b embeddings in bulk, use the provided script: `scripts/precompute_embeddings.py`. The script takes a directory of FASTA files (one sequence per file) and generates ESM-1b embeddings in the same format and directory structure as required by SoloSeq. Following is an example command to use the script:
+
+```bash
+python scripts/precompute_embeddings.py fasta_dir/ embeddings_output_dir/
+```
+
+In the same per-label subdirectories inside `embeddings_output_dir`, you can also place `*.hhr` files (outputs from HHSearch), which can contain the details about the structures that you want to use as templates. If you do not place any such file, templates will not be used and only the ESM-1b embeddings will be used to predict the structure. If you want to use templates, you need to pass the PDB MMCIF dataset to the command.
+
+Now, you are ready to run inference:
+```bash
+python run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --use_precomputed_alignments embeddings_output_dir \
+    --output_dir ./ \
+    --model_device "cuda:0" \
+    --config_preset "seq_model_esm1b_ptm" \
+    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt
+```
+
+For generating the embeddings during inference, skip the `--use_precomputed_alignments` argument. The `*.hhr` files will be generated as well if you pass the paths to the relevant databases and tools, as specified in the command below. If you skip the database and tool arguments, HHSearch will not be used to find templates and only generated ESM-1b embeddings will be used to predict the structure.
+```bash
+python3 run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --output_dir ./ \
+    --model_device "cuda:0" \
+    --config_preset "seq_model_esm1b_ptm" \
+    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
+```
+
+For generating template information, you will need the UniRef90 and PDB70 databases and the JackHmmer and HHSearch binaries. 
+
+SoloSeq allows you to use the same flags and optimizations as the MSA-based OpenFold. For example, you can skip relaxation using `--skip_relaxation`, save all model outputs using `--save_outputs`, and generate output files in MMCIF format using `--cif_output`.
+
+**NOTE:** Due to the nature of the ESM-1b embeddings, the sequence length for inference using the SoloSeq model is limited to 1022 residues. Sequences longer than that will be truncated.
 
 ### Training
 
@@ -439,17 +484,27 @@ Please cite our paper:
 
 ```bibtex
 @article {Ahdritz2022.11.20.517210,
-	author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed},
-	title = {OpenFold: Retraining AlphaFold2 yields new insights into its learning mechanisms and capacity for generalization},
+	author = {Ahdritz, Gustaf and Bouatta, Nazim and Floristean, Christina and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed},
+	title = {{O}pen{F}old: {R}etraining {A}lpha{F}old2 yields new insights into its learning mechanisms and capacity for generalization},
 	elocation-id = {2022.11.20.517210},
 	year = {2022},
 	doi = {10.1101/2022.11.20.517210},
 	publisher = {Cold Spring Harbor Laboratory},
-	abstract = {AlphaFold2 revolutionized structural biology with the ability to predict protein structures with exceptionally high accuracy. Its implementation, however, lacks the code and data required to train new models. These are necessary to (i) tackle new tasks, like protein-ligand complex structure prediction, (ii) investigate the process by which the model learns, which remains poorly understood, and (iii) assess the model{\textquoteright}s generalization capacity to unseen regions of fold space. Here we report OpenFold, a fast, memory-efficient, and trainable implementation of AlphaFold2, and OpenProteinSet, the largest public database of protein multiple sequence alignments. We use OpenProteinSet to train OpenFold from scratch, fully matching the accuracy of AlphaFold2. Having established parity, we assess OpenFold{\textquoteright}s capacity to generalize across fold space by retraining it using carefully designed datasets. We find that OpenFold is remarkably robust at generalizing despite extreme reductions in training set size and diversity, including near-complete elisions of classes of secondary structure elements. By analyzing intermediate structures produced by OpenFold during training, we also gain surprising insights into the manner in which the model learns to fold proteins, discovering that spatial dimensions are learned sequentially. Taken together, our studies demonstrate the power and utility of OpenFold, which we believe will prove to be a crucial new resource for the protein modeling community.},
 	URL = {https://www.biorxiv.org/content/10.1101/2022.11.20.517210},
 	eprint = {https://www.biorxiv.org/content/early/2022/11/22/2022.11.20.517210.full.pdf},
 	journal = {bioRxiv}
 }
 ```
+If you use OpenProteinSet, please also cite:
 
+```bibtex
+@misc{ahdritz2023openproteinset,
+      title={{O}pen{P}rotein{S}et: {T}raining data for structural biology at scale}, 
+      author={Gustaf Ahdritz and Nazim Bouatta and Sachin Kadyan and Lukas Jarosch and Daniel Berenberg and Ian Fisk and Andrew M. Watkins and Stephen Ra and Richard Bonneau and Mohammed AlQuraishi},
+      year={2023},
+      eprint={2308.05326},
+      archivePrefix={arXiv},
+      primaryClass={q-bio.BM}
+}
+```
 Any work that cites OpenFold should also cite AlphaFold.

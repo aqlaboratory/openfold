@@ -263,6 +263,7 @@ class PairStack(nn.Module):
 
         return z
 
+
 class MSABlock(nn.Module, ABC):
     @abstractmethod
     def __init__(self,
@@ -383,6 +384,7 @@ class EvoformerBlock(MSABlock):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        no_column_attention: bool,
         opm_first: bool,
         fuse_projection_weights: bool,
         inf: float,
@@ -404,12 +406,16 @@ class EvoformerBlock(MSABlock):
                                              inf=inf,
                                              eps=eps)
 
-        self.msa_att_col = MSAColumnAttention(
-            c_m,
-            c_hidden_msa_att,
-            no_heads_msa,
-            inf=inf,
-        )
+        # Specifically, seqemb mode does not use column attention
+        self.no_column_attention = no_column_attention
+
+        if not self.no_column_attention:
+            self.msa_att_col = MSAColumnAttention(
+                c_m,
+                c_hidden_msa_att,
+                no_heads_msa,
+                inf=inf,
+            )
 
     def forward(self,
         m: Optional[torch.Tensor],
@@ -470,16 +476,18 @@ class EvoformerBlock(MSABlock):
             torch.cuda.empty_cache()
             m, z = input_tensors
 
-        m = add(m,
-                self.msa_att_col(
-                    m,
-                    mask=msa_mask,
-                    chunk_size=chunk_size,
-                    use_lma=use_lma,
-                    use_flash=use_flash,
-                ),
-                inplace=inplace_safe,
-                )
+        # Specifically, column attention is not used in seqemb mode.
+        if not self.no_column_attention:
+            m = add(m,
+                    self.msa_att_col(
+                        m,
+                        mask=msa_mask,
+                        chunk_size=chunk_size,
+                        use_lma=use_lma,
+                        use_flash=use_flash,
+                    ),
+                    inplace=inplace_safe,
+                    )
 
         m = add(
             m,
@@ -749,6 +757,7 @@ class EvoformerStack(nn.Module):
         transition_n: int,
         msa_dropout: float,
         pair_dropout: float,
+        no_column_attention: bool,
         opm_first: bool,
         fuse_projection_weights: bool,
         blocks_per_ckpt: int,
@@ -787,6 +796,16 @@ class EvoformerStack(nn.Module):
                 Dropout rate for MSA activations
             pair_dropout:
                 Dropout used for pair activations
+            no_column_attention:
+                When True, doesn't use column attention. Required for running
+                sequence embedding mode
+            opm_first:
+                When True, Outer Product Mean is performed at the beginning of
+                the Evoformer block instead of after the MSA Stack.
+                Used in Multimer pipeline.
+            fuse_projection_weights:
+                When True, uses FusedTriangleMultiplicativeUpdate variant in
+                the Pair Stack. Used in Multimer pipeline.
             blocks_per_ckpt:
                 Number of Evoformer blocks in each activation checkpoint
             clear_cache_between_blocks:
@@ -815,6 +834,7 @@ class EvoformerStack(nn.Module):
                 transition_n=transition_n,
                 msa_dropout=msa_dropout,
                 pair_dropout=pair_dropout,
+                no_column_attention=no_column_attention,
                 opm_first=opm_first,
                 fuse_projection_weights=fuse_projection_weights,
                 inf=inf,

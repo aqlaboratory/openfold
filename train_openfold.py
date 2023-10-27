@@ -436,7 +436,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--train_mmcif_data_cache_path", type=str, default=None,
-        help="path to the json file which records all the information of mmcif structures used during training"
+        help="Path to the json file which records all the information of mmcif structures used during training"
+    )
+    parser.add_argument(
+        "--use_single_seq_mode", type=str, default=False,
+        help="Use single sequence embeddings instead of MSAs."
     )
     parser.add_argument(
         "--distillation_data_dir", type=str, default=None,
