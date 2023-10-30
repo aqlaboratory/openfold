@@ -556,6 +556,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
         cache_entry: Any,
         max_resolution: float = 9.,
         max_single_aa_prop: float = 0.8,
+        *args, **kwargs
     ) -> bool:
         # Hard filters
         resolution = cache_entry.get("resolution", None)
@@ -569,6 +570,7 @@ class OpenFoldDataset(torch.utils.data.Dataset):
     @staticmethod
     def get_stochastic_train_filter_prob(
         cache_entry: Any,
+        *args, **kwargs
     ) -> float:
         # Stochastic filters
         probabilities = []
@@ -677,9 +679,11 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
     @staticmethod
     def deterministic_train_filter(
         cache_entry: Any,
+        is_distillation: bool,
         max_resolution: float = 9.,
         max_single_aa_prop: float = 0.8,
         minimum_number_of_residues: int = 200,
+        *args, **kwargs
     ) -> bool:
         """
         Implement multimer training filtering criteria described in
@@ -692,12 +696,13 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                                       max_resolution=max_resolution),
                     all_seq_len_filter(seqs=seqs,
                                        minimum_number_of_residues=minimum_number_of_residues),
-                    aa_count_filter(seqs=seqs,
-                                    max_single_aa_prop=max_single_aa_prop)])
+                    (is_distillation and aa_count_filter(seqs=seqs,
+                                                         max_single_aa_prop=max_single_aa_prop))])
 
     @staticmethod
     def get_stochastic_train_filter_prob(
         cache_entry: Any,
+        *args, **kwargs
     ) -> list:
         # Stochastic filters
         cluster_sizes = cache_entry.get("cluster_sizes")
@@ -710,6 +715,7 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
     def looped_samples(self, dataset_idx):
         max_cache_len = int(self.epoch_len * self.probabilities[dataset_idx])
         dataset = self.datasets[dataset_idx]
+        is_distillation = dataset.treat_pdb_as_distillation
         idx_iter = self.looped_shuffled_dataset_idx(len(dataset))
         mmcif_data_cache = dataset.mmcif_data_cache
         while True:
@@ -719,7 +725,8 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                 candidate_idx = next(idx_iter)
                 mmcif_id = dataset.idx_to_mmcif_id(candidate_idx)
                 mmcif_data_cache_entry = mmcif_data_cache[mmcif_id]
-                if not self.deterministic_train_filter(mmcif_data_cache_entry):
+                if not self.deterministic_train_filter(cache_entry=mmcif_data_cache_entry,
+                                                       is_distillation=is_distillation):
                     continue
 
                 chain_probs = self.get_stochastic_train_filter_prob(

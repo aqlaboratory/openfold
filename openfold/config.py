@@ -714,9 +714,7 @@ config = mlc.ConfigDict(
 
 multimer_config_update = mlc.ConfigDict({
     "globals": {
-        "is_multimer": True,
-        "bfloat16": False,  # TODO: Change to True when implemented
-        "bfloat16_output": False
+        "is_multimer": True
     },
     "data": {
         "common": {
@@ -766,7 +764,7 @@ multimer_config_update = mlc.ConfigDict({
                 ],
                 "true_msa": [NUM_MSA_SEQ, NUM_RES]
             },
-            "max_recycling_iters": 20,
+            "max_recycling_iters": 20,  # For training, value is 3
             "unsupervised_features": [
                     "aatype",
                     "residue_index",
@@ -860,7 +858,7 @@ multimer_config_update = mlc.ConfigDict({
                 "c_out": 22
             },
         },
-        "recycle_early_stop_tolerance": 0.5
+        "recycle_early_stop_tolerance": 0.5  # For training, value is -1.
     },
     "loss": {
         "fape": {

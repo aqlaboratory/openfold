@@ -17,24 +17,19 @@ import logging
 import math
 import numpy as np
 import os
-
-from openfold.utils.script_utils import load_models_from_command_line, parse_fasta, run_model, prep_output, \
-    update_timings, relax_protein
+import pickle
+import random
+import time
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
 
-import pickle
-
-import random
-import time
 import torch
-
 torch_versions = torch.__version__.split(".")
 torch_major_version = int(torch_versions[0])
 torch_minor_version = int(torch_versions[1])
-if(
+if (
     torch_major_version > 1 or
     (torch_major_version == 1 and torch_minor_version >= 12)
 ):
@@ -44,20 +39,17 @@ if(
 torch.set_grad_enabled(False)
 
 from openfold.config import model_config
-from openfold.data.tools import hhsearch, hmmsearch
-from openfold.model.model import AlphaFold
-from openfold.model.torchscript import script_preset_
 from openfold.data import templates, feature_pipeline, data_pipeline
-from openfold.np import residue_constants, protein
-import openfold.np.relax.relax as relax
-
-from openfold.utils.tensor_utils import (
-    tensor_tree_map,
-)
+from openfold.data.tools import hhsearch, hmmsearch
+from openfold.np import protein
+from openfold.utils.script_utils import (load_models_from_command_line, parse_fasta, run_model,
+                                         prep_output, relax_protein)
+from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.trace_utils import (
     pad_feature_dict_seq,
     trace_model_,
 )
+
 from scripts.precompute_embeddings import EmbeddingGenerator
 from scripts.utils import add_data_args
 
@@ -65,18 +57,18 @@ from scripts.utils import add_data_args
 TRACING_INTERVAL = 50
 
 
-def precompute_alignments(tags, seqs, alignment_dir, args, is_multimer):
+def precompute_alignments(tags, seqs, alignment_dir, args):
     for tag, seq in zip(tags, seqs):
         tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
         with open(tmp_fasta_path, "w") as fp:
             fp.write(f">{tag}\n{seq}")
 
         local_alignment_dir = os.path.join(
-                alignment_dir,
-                os.path.join(alignment_dir, tag),
-            )
-        
-        if(args.use_precomputed_alignments is None and not os.path.isdir(local_alignment_dir)):
+            alignment_dir,
+            os.path.join(alignment_dir, tag),
+        )
+
+        if args.use_precomputed_alignments is None and not os.path.isdir(local_alignment_dir):
             logger.info(f"Generating alignments for {tag}...")
 
             os.makedirs(local_alignment_dir)
@@ -91,6 +83,19 @@ def precompute_alignments(tags, seqs, alignment_dir, args, is_multimer):
                 embedding_generator = EmbeddingGenerator()
                 embedding_generator.run(tmp_fasta_path, alignment_dir)
             else:
+                is_multimer = "multimer" in args.config_preset
+                if is_multimer:
+                    template_searcher = hmmsearch.Hmmsearch(
+                        binary_path=args.hmmsearch_binary_path,
+                        hmmbuild_binary_path=args.hmmbuild_binary_path,
+                        database_path=args.pdb_seqres_database_path,
+                    )
+                else:
+                    template_searcher = hhsearch.HHSearch(
+                        binary_path=args.hhsearch_binary_path,
+                        databases=[args.pdb70_database_path],
+                    )
+
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,
                     hhblits_binary_path=args.hhblits_binary_path,
@@ -100,7 +105,9 @@ def precompute_alignments(tags, seqs, alignment_dir, args, is_multimer):
                     uniref30_database_path=args.uniref30_database_path,
                     uniclust30_database_path=args.uniclust30_database_path,
                     uniprot_database_path=args.uniprot_database_path,
-                    no_cpus=args.cpus,
+                    template_searcher=template_searcher,
+                    use_small_bfd=args.bfd_database_path is None,
+                    no_cpus=args.cpus_per_task
                 )
 
             alignment_runner.run(
@@ -161,12 +168,13 @@ def generate_feature_dict(
 
     return feature_dict
 
+
 def list_files_with_extensions(dir, extensions):
     return [f for f in os.listdir(dir) if f.endswith(extensions)]
 
 
 def main(args):
-# Create the output directory
+    # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
     if args.config_preset.startswith("seq"):
@@ -174,24 +182,15 @@ def main(args):
 
     config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
 
-    if(args.trace_model):
-        if(not config.data.predict.fixed_size):
+    if args.trace_model:
+        if not config.data.predict.fixed_size:
             raise ValueError(
                 "Tracing requires that fixed_size mode be enabled in the config"
             )
 
     is_multimer = "multimer" in args.config_preset
 
-    if(is_multimer):
-        if(not args.use_precomputed_alignments):
-            template_searcher = hmmsearch.Hmmsearch(
-                binary_path=args.hmmsearch_binary_path,
-                hmmbuild_binary_path=args.hmmbuild_binary_path,
-                database_path=args.pdb_seqres_database_path,
-            )
-        else:
-            template_searcher = None
-
+    if is_multimer:
         template_featurizer = templates.HmmsearchHitFeaturizer(
             mmcif_dir=args.template_mmcif_dir,
             max_template_date=args.max_template_date,
@@ -201,14 +200,6 @@ def main(args):
             obsolete_pdbs_path=args.obsolete_pdbs_path
         )
     else:
-        if(not args.use_precomputed_alignments):
-            template_searcher = hhsearch.HHSearch(
-                binary_path=args.hhsearch_binary_path,
-                databases=[args.pdb70_database_path],
-            )
-        else:
-            template_searcher = None
-
         template_featurizer = templates.HhsearchHitFeaturizer(
             mmcif_dir=args.template_mmcif_dir,
             max_template_date=args.max_template_date,
@@ -218,28 +209,11 @@ def main(args):
             obsolete_pdbs_path=args.obsolete_pdbs_path
         )
 
-    if(not args.use_precomputed_alignments):
-        alignment_runner = data_pipeline.AlignmentRunner(
-            jackhmmer_binary_path=args.jackhmmer_binary_path,
-            hhblits_binary_path=args.hhblits_binary_path,
-            uniref90_database_path=args.uniref90_database_path,
-            mgnify_database_path=args.mgnify_database_path,
-            bfd_database_path=args.bfd_database_path,
-            uniref30_database_path=args.uniref30_database_path,
-            uniclust30_database_path=args.uniclust30_database_path,
-            uniprot_database_path=args.uniprot_database_path,
-            template_searcher=template_searcher,
-            use_small_bfd=(args.bfd_database_path is None),
-            no_cpus=args.cpus,
-        )
-    else:
-        alignment_runner = None
-
     data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
     )
 
-    if(is_multimer):
+    if is_multimer:
         data_processor = data_pipeline.DataPipelineMultimer(
             monomer_data_pipeline=data_processor,
         )
@@ -247,7 +221,7 @@ def main(args):
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
-        random_seed = random.randrange(2**32)
+        random_seed = random.randrange(2 ** 32)
 
     np.random.seed(random_seed)
     torch.manual_seed(random_seed + 1)
@@ -292,6 +266,7 @@ def main(args):
         args.openfold_checkpoint_path,
         args.jax_param_path,
         args.output_dir)
+
     for model, output_directory in model_generator:
         cur_tracing_interval = 0
         for (tag, tags), seqs in sorted_targets:
@@ -300,10 +275,10 @@ def main(args):
                 output_name = f'{output_name}_{args.output_postfix}'
 
             # Does nothing if the alignments have already been computed
-            precompute_alignments(tags, seqs, alignment_dir, args, is_multimer)
+            precompute_alignments(tags, seqs, alignment_dir, args)
 
             feature_dict = feature_dicts.get(tag, None)
-            if(feature_dict is None):
+            if feature_dict is None:
                 feature_dict = generate_feature_dict(
                     tags,
                     seqs,
@@ -312,7 +287,7 @@ def main(args):
                     args,
                 )
 
-                if(args.trace_model):
+                if args.trace_model:
                     n = feature_dict["aatype"].shape[-2]
                     rounded_seqlen = round_up_seqlen(n)
                     feature_dict = pad_feature_dict_seq(
@@ -326,12 +301,12 @@ def main(args):
             )
 
             processed_feature_dict = {
-                k:torch.as_tensor(v, device=args.model_device)
-                for k,v in processed_feature_dict.items()
+                k: torch.as_tensor(v, device=args.model_device)
+                for k, v in processed_feature_dict.items()
             }
 
-            if (args.trace_model):
-                if (rounded_seqlen > cur_tracing_interval):
+            if args.trace_model:
+                if rounded_seqlen > cur_tracing_interval:
                     logger.info(
                         f"Tracing model at {rounded_seqlen} residues..."
                     )
@@ -380,7 +355,8 @@ def main(args):
             if not args.skip_relaxation:
                 # Relax the prediction.
                 logger.info(f"Running relaxation on {unrelaxed_output_path}...")
-                relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name, args.cif_output)
+                relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name,
+                              args.cif_output)
 
             if args.save_outputs:
                 output_dict_path = os.path.join(
@@ -482,13 +458,13 @@ if __name__ == "__main__":
     add_data_args(parser)
     args = parser.parse_args()
 
-    if(args.jax_param_path is None and args.openfold_checkpoint_path is None):
+    if args.jax_param_path is None and args.openfold_checkpoint_path is None:
         args.jax_param_path = os.path.join(
             "openfold", "resources", "params",
             "params_" + args.config_preset + ".npz"
         )
 
-    if(args.model_device == "cpu" and torch.cuda.is_available()):
+    if args.model_device == "cpu" and torch.cuda.is_available():
         logging.warning(
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""

@@ -116,13 +116,13 @@ def parse_and_align(files, alignment_runner, args):
 
 def main(args):
     # Build the alignment tool runner
-    if (args.hmmsearch_binary_path is not None):
+    if args.hmmsearch_binary_path is not None and args.pdb_seqres_database_path is not None:
         template_searcher = hmmsearch.Hmmsearch(
             binary_path=args.hmmsearch_binary_path,
             hmmbuild_binary_path=args.hmmbuild_binary_path,
             database_path=args.pdb_seqres_database_path,
         )
-    elif (args.hhsearch_binary_path is not None):
+    elif args.hhsearch_binary_path is not None and args.pdb70_database_path is not None:
         template_searcher = hhsearch.HHSearch(
             binary_path=args.hhsearch_binary_path,
             databases=[args.pdb70_database_path],

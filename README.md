@@ -10,10 +10,10 @@ A faithful but trainable PyTorch reproduction of DeepMind's
 ## Features
 
 OpenFold carefully reproduces (almost) all of the features of the original open
-source inference code (v2.0.1). The sole exception is model ensembling, which 
-fared poorly in DeepMind's own ablation testing and is being phased out in future
-DeepMind experiments. It is omitted here for the sake of reducing clutter. In 
-cases where the *Nature* paper differs from the source, we always defer to the 
+source monomer (v2.0.1) and multimer (v2.3.2) inference code. The sole exception is 
+model ensembling, which fared poorly in DeepMind's own ablation testing and is being 
+phased out in future DeepMind experiments. It is omitted here for the sake of reducing 
+clutter. In cases where the *Nature* paper differs from the source, we always defer to the 
 latter.
 
 OpenFold is trainable in full precision, half precision, or `bfloat16` with or without DeepSpeed, 
@@ -142,14 +142,14 @@ python3 run_pretrained_openfold.py \
     --mgnify_database_path data/mgnify/mgy_clusters_2018_12.fa \
     --pdb70_database_path data/pdb70/pdb70 \
     --uniclust30_database_path data/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
-    --output_dir ./ \
     --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --model_device "cuda:0" \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
     --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
     --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
     --config_preset "model_1_ptm" \
+    --model_device "cuda:0" \
+    --output_dir ./ \
     --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_ptm_2.pt
 ```
 
@@ -186,13 +186,6 @@ To enable it, add `--trace_model` to the inference command.
 
 To get a speedup during inference, enable [FlashAttention](https://github.com/HazyResearch/flash-attention)
 in the config. Note that it appears to work best for sequences with < 1000 residues.
-
-Input FASTA files containing multiple sequences are treated as complexes. In
-this case, the inference script runs AlphaFold-Gap, a hack proposed
-[here](https://twitter.com/minkbaek/status/1417538291709071362?lang=en), using
-the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer). To
-run inference with AlphaFold-Multimer, use the (experimental) `multimer` branch 
-instead.
 
 To minimize memory usage during inference on long sequences, consider the
 following changes:
@@ -231,6 +224,74 @@ efficent AlphaFold-Multimer more than double the time. Use the
 `long_sequence_inference` config option to enable all of these interventions
 at once. The `run_pretrained_openfold.py` script can enable this config option with the 
 `--long_sequence_inference` command line option
+
+Input FASTA files containing multiple sequences are treated as complexes. In
+this case, the inference script runs AlphaFold-Gap, a hack proposed
+[here](https://twitter.com/minkbaek/status/1417538291709071362?lang=en), using
+the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer).
+
+#### Multimer Inference
+
+To run inference on a complex or multiple complexes using a set of DeepMind's pretrained parameters, run e.g.:
+
+```bash
+python3 run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --mgnify_database_path data/mgnify/mgy_clusters_2022_05.fa \
+    --pdb_seqres_database_path data/pdb_seqres/pdb_seqres.txt \
+    --uniref30_database_path data/uniref30/UniRef30_2021_03 \
+    --uniprot_database_path data/uniprot/uniprot.fasta \
+    --bfd_database_path data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhblits_binary_path lib/conda/envs/openfold_venv/bin/hhblits \
+    --hmmsearch_binary_path lib/conda/envs/openfold_venv/bin/hmmsearch \
+    --hmmbuild_binary_path lib/conda/envs/openfold_venv/bin/hmmbuild \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
+    --config_preset "model_1_multimer_v3" \
+    --model_device "cuda:0" \
+    --output_dir ./ 
+```
+
+As with monomer inference, if you've already computed alignments for the query, you can use 
+the `--use_precomputed_alignments` option. Note that template searching in the multimer pipeline 
+uses HMMSearch with the PDB SeqRes database, replacing HHSearch and PDB70 used in the monomer pipeline.
+
+##### Upgrades
+The above command requires several upgrades to existing openfold installations. 
+
+1. Re-download the alphafold parameters to get the latest
+AlphaFold-Multimer v3 weights:
+    
+   ```bash
+    bash scripts/download_alphafold_params.sh openfold/resources
+    ```
+
+2. Download the [UniProt](https://www.uniprot.org/uniprotkb/) 
+and [PDB SeqRes](https://www.rcsb.org/) databases: 
+    
+   ```bash
+    bash scripts/download_uniprot.sh data/
+    ```
+    
+    The PDB SeqRes and PDB databases must be from the same date to avoid potential 
+    errors during template searching. Remove the existing `data/pdb_mmcif` directory 
+    and download both databases:
+    
+   ```bash
+    bash scripts/download_pdb_mmcif.sh data/
+    bash scripts/download_pdb_seqres.sh data/
+    ```
+
+3. Additionally, AlphaFold-Multimer uses upgraded versions of the [MGnify](https://www.ebi.ac.uk/metagenomics) 
+and [UniRef30](https://uniclust.mmseqs.com/) (previously UniClust30) databases. To download the upgraded databases, run:
+    
+   ```bash
+    bash scripts/download_uniref30.sh data/
+    bash scripts/download_mgnify.sh data/
+    ```
+   Multimer inference can also run with the older database versions if desired. 
 
 #### SoloSeq Inference
 To run inference for a sequence using the SoloSeq single-sequence model, you can either precompute ESM-1b embeddings in bulk, or you can generate them during inference.
