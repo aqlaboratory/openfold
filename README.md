@@ -14,12 +14,19 @@ wget -P openfold/resources https://git.scicore.unibas.ch/schwede/openstructure/-
 ```
 
 ## データセットの取得
-[README_org.md](./README_org.md#usage)を参考に学習済みモデルおよび推論や学習に必要なデータセットをダウンロードしてください。
-DeepMindのMSA generation pipelineを利用するため、`scripts/download_data.sh`と`scripts/download_alphafold_dbs.sh`を使用します。
-本プログラムの前処理はsmall_bfdの利用を前提としているため、
-`scripts/download_alphafold_dbs.sh`でダウンロードする際は以下のように第2引数に`reduced_dbs`の指定が必要です。
-```
-bash scripts/download_alphafold_dbs.sh data/ reduced_dbs
+データセットを保存する任意のディレクトリ(以降`DATADIR`と記載)を用意しておく。
+aria2をインストールしたのち、学習済みモデルおよび推論や学習に必要なデータセットをダウンロードする。
+
+```shell
+git clone https://github.com/spack/spack.git
+SPACK_ROOT=`pwd`/spack
+source $SPACK_ROOT/share/spack/setup-env.sh
+spack install aria2
+spack load aria2
+
+DATADIR="データセットを保存するディレクトリ"
+bash scripts/download_alphafold_params.sh $DATADIR
+bash scripts/download_alphafold_dbs.sh $DATADIR reduced_dbs
 ```
 
 ## 初期設定
@@ -27,7 +34,7 @@ bash scripts/download_alphafold_dbs.sh data/ reduced_dbs
 
 - `PREFIX`: インストールディレクトリ (必須)
 - `OPENFOLDDIR`: このREADME.mdがあるディレクトリ (必須) 
-- `DATADIR`: データセットのディレクトリ (必須)
+- `DATADIR`: データセットをダウンロードしたディレクトリ (必須)
 - `PJSUB_OPT`: ジョブ投入時の追加オプション (任意)
     - シングルアカウントの場合は`-g <グループID>`を指定する
     - 必要におうじて`-x PJM_LLIO_GFSCACHE=<ボリューム>`を指定する
