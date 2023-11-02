@@ -13,8 +13,8 @@ dependencies:
   - cudatoolkit==11.3.*
   - pytorch-lightning==1.5.10
   - biopython==1.79
-  - pandas==2.0.2
   - numpy==1.21
+  - pandas==2.0
   - PyYAML==5.4.1
   - requests
   - scipy==1.7
