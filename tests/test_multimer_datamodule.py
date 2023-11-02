@@ -20,7 +20,8 @@ from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.config import model_config
 from openfold.data.data_modules import OpenFoldMultimerDataModule
 from openfold.model.model import AlphaFold
-from openfold.utils.loss import AlphaFoldMultimerLoss
+from openfold.utils.loss import AlphaFoldLoss
+from openfold.utils.multi_chain_permutation import multi_chain_permutation_align
 from tests.config import consts
 import logging
 logger = logging.getLogger(__name__)
@@ -61,17 +62,28 @@ class TestMultimerDataModule(unittest.TestCase):
         self.c.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         # deepspeed for this test
         self.model = AlphaFold(self.c)
-        self.multimer_loss = AlphaFoldMultimerLoss(self.c.loss)
+        self.loss = AlphaFoldLoss(self.c.loss)
 
     def testPrepareData(self):
         self.data_module.prepare_data()
         self.data_module.setup()
         train_dataset = self.data_module.train_dataset
-        all_chain_features,ground_truth = train_dataset[1]
+        all_chain_features = train_dataset[1]
         add_batch_size_dimension = lambda t: (
             t.unsqueeze(0)
         )
-        all_chain_features = tensor_tree_map(add_batch_size_dimension,all_chain_features)
+        all_chain_features = tensor_tree_map(add_batch_size_dimension, all_chain_features)
         with torch.no_grad():
+            ground_truth = all_chain_features.pop('gt_features', None)
+
+            # Run the model
             out = self.model(all_chain_features)
-            self.multimer_loss(out,(all_chain_features,ground_truth))
+
+            # Remove the recycling dimension
+            all_chain_features = tensor_tree_map(lambda t: t[..., -1], all_chain_features)
+
+            all_chain_features = multi_chain_permutation_align(out=out,
+                                                               features=all_chain_features,
+                                                               ground_truth=ground_truth)
+
+            self.loss(out, all_chain_features)

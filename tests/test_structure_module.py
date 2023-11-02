@@ -46,16 +46,17 @@ if compare_utils.alphafold_is_installed():
 class TestStructureModule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if consts.is_multimer:
-            cls.am_atom = alphafold.model.all_atom_multimer
-            cls.am_fold = alphafold.model.folding_multimer
-            cls.am_modules = alphafold.model.modules_multimer
-            cls.am_rigid = alphafold.model.geometry
-        else:
-            cls.am_atom = alphafold.model.all_atom
-            cls.am_fold = alphafold.model.folding
-            cls.am_modules = alphafold.model.modules
-            cls.am_rigid = alphafold.model.r3
+        if compare_utils.alphafold_is_installed():
+            if consts.is_multimer:
+                cls.am_atom = alphafold.model.all_atom_multimer
+                cls.am_fold = alphafold.model.folding_multimer
+                cls.am_modules = alphafold.model.modules_multimer
+                cls.am_rigid = alphafold.model.geometry
+            else:
+                cls.am_atom = alphafold.model.all_atom
+                cls.am_fold = alphafold.model.folding
+                cls.am_modules = alphafold.model.modules
+                cls.am_rigid = alphafold.model.r3
 
     def test_structure_module_shape(self):
         batch_size = consts.batch_size
@@ -202,16 +203,17 @@ class TestStructureModule(unittest.TestCase):
 class TestInvariantPointAttention(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if consts.is_multimer:
-            cls.am_atom = alphafold.model.all_atom_multimer
-            cls.am_fold = alphafold.model.folding_multimer
-            cls.am_modules = alphafold.model.modules_multimer
-            cls.am_rigid = alphafold.model.geometry
-        else:
-            cls.am_atom = alphafold.model.all_atom
-            cls.am_fold = alphafold.model.folding
-            cls.am_modules = alphafold.model.modules
-            cls.am_rigid = alphafold.model.r3
+        if compare_utils.alphafold_is_installed():
+            if consts.is_multimer:
+                cls.am_atom = alphafold.model.all_atom_multimer
+                cls.am_fold = alphafold.model.folding_multimer
+                cls.am_modules = alphafold.model.modules_multimer
+                cls.am_rigid = alphafold.model.geometry
+            else:
+                cls.am_atom = alphafold.model.all_atom
+                cls.am_fold = alphafold.model.folding
+                cls.am_modules = alphafold.model.modules
+                cls.am_rigid = alphafold.model.r3
 
     def test_shape(self):
         c_m = 13
