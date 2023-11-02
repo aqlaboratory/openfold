@@ -68,34 +68,34 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
             os.path.join(alignment_dir, tag),
         )
 
-        if args.use_precomputed_alignments is None and not os.path.isdir(local_alignment_dir):
+        if args.use_precomputed_alignments is None:
             logger.info(f"Generating alignments for {tag}...")
 
-            os.makedirs(local_alignment_dir)
+            os.makedirs(local_alignment_dir, exist_ok=True)
+
+            if "multimer" in args.config_preset:
+                template_searcher = hmmsearch.Hmmsearch(
+                    binary_path=args.hmmsearch_binary_path,
+                    hmmbuild_binary_path=args.hmmbuild_binary_path,
+                    database_path=args.pdb_seqres_database_path,
+                )
+            else:
+                template_searcher = hhsearch.HHSearch(
+                    binary_path=args.hhsearch_binary_path,
+                    databases=[args.pdb70_database_path],
+                )
 
             # In seqemb mode, use AlignmentRunner only to generate templates
             if args.use_single_seq_mode:
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,
                     uniref90_database_path=args.uniref90_database_path,
+                    template_searcher=template_searcher,
                     no_cpus=args.cpus,
                 )
                 embedding_generator = EmbeddingGenerator()
                 embedding_generator.run(tmp_fasta_path, alignment_dir)
             else:
-                is_multimer = "multimer" in args.config_preset
-                if is_multimer:
-                    template_searcher = hmmsearch.Hmmsearch(
-                        binary_path=args.hmmsearch_binary_path,
-                        hmmbuild_binary_path=args.hmmbuild_binary_path,
-                        database_path=args.pdb_seqres_database_path,
-                    )
-                else:
-                    template_searcher = hhsearch.HHSearch(
-                        binary_path=args.hhsearch_binary_path,
-                        databases=[args.pdb70_database_path],
-                    )
-
                 alignment_runner = data_pipeline.AlignmentRunner(
                     jackhmmer_binary_path=args.jackhmmer_binary_path,
                     hhblits_binary_path=args.hhblits_binary_path,
@@ -107,7 +107,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     uniprot_database_path=args.uniprot_database_path,
                     template_searcher=template_searcher,
                     use_small_bfd=args.bfd_database_path is None,
-                    no_cpus=args.cpus_per_task
+                    no_cpus=args.cpus
                 )
 
             alignment_runner.run(
@@ -244,7 +244,7 @@ def main(args):
 
         tags, seqs = parse_fasta(data)
 
-        if ((not is_multimer) and len(tags) != 1):
+        if not is_multimer and len(tags) != 1:
             print(
                 f"{fasta_path} contains more than one sequence but "
                 f"multimer mode is not enabled. Skipping..."
