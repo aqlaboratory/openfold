@@ -665,3 +665,45 @@ def import_jax_weights_(model, npz_path, version="model_1"):
 
     # Set weights
     assign(flat, data)
+
+
+def convert_deprecated_v1_keys(state_dict):
+    """Update older OpenFold model weight names to match the current model code."""
+
+    replacements = {
+        'template_angle_embedder': 'template_single_embedder',
+        'core.msa_transition': 'msa_transition',
+        'core.outer_product_mean': 'outer_product_mean',
+        'core.tri_': 'pair_stack.tri_',
+        'core.pair_transition': 'pair_stack.pair_transition',
+        'ipa.linear_q_points': 'ipa.linear_q_points.linear',
+        'ipa.linear_kv_points': 'ipa.linear_kv_points.linear'
+    }
+
+    convert_key_re = re.compile("(%s)" % "|".join(map(re.escape, replacements.keys())))
+
+    converted_state_dict = {}
+    for key, value in state_dict.items():
+        # For each match, look-up replacement value in the dictionary
+        new_key = convert_key_re.sub(lambda m: replacements[m.group()], key)
+
+        # Add prefix for template modules
+        if new_key.startswith('template'):
+            new_key = f'template_embedder.{new_key}'
+
+        converted_state_dict[new_key] = value
+
+    return converted_state_dict
+
+
+def import_openfold_weights_(model, state_dict):
+    """
+    Import model weights. Several parts of the model were refactored in the process
+    of adding support for Multimer. The state dicts of older models are translated
+    to match the refactored model code.
+    """
+    try:
+        model.load_state_dict(state_dict)
+    except RuntimeError:
+        converted_state_dict = convert_deprecated_v1_keys(state_dict)
+        model.load_state_dict(converted_state_dict)

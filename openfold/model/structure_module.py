@@ -174,8 +174,10 @@ class PointProjection(nn.Module):
         self.no_heads = no_heads
         self.num_points = num_points
         self.is_multimer = is_multimer
-        
-        self.linear = Linear(c_hidden, no_heads * 3 * num_points, precision=torch.float32)
+
+        # Multimer requires this to be run with fp32 precision during training
+        precision = torch.float32 if self.is_multimer else None
+        self.linear = Linear(c_hidden, no_heads * 3 * num_points, precision=precision)
 
     def forward(self, 
         activations: torch.Tensor, 
