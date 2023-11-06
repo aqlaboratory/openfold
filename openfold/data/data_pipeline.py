@@ -272,12 +272,17 @@ def run_msa_tool(
     return result
 
 
-# Generate 1-sequence MSA features having only the input sequence
-def make_dummy_msa_feats(input_sequence) -> parsers.Msa:
+def make_dummy_msa_obj(input_sequence) -> parsers.Msa:
     deletion_matrix = [[0 for _ in input_sequence]]
-    return parsers.Msa(sequences=input_sequence,
+    return parsers.Msa(sequences=[input_sequence],
                        deletion_matrix=deletion_matrix,
                        descriptions=None)
+
+
+# Generate 1-sequence MSA features having only the input sequence
+def make_dummy_msa_feats(input_sequence) -> FeatureDict:
+    msa_data_obj = make_dummy_msa_obj(input_sequence)
+    return make_msa_features([msa_data_obj])
 
 
 def make_sequence_features_with_custom_template(
@@ -810,7 +815,7 @@ class DataPipeline:
                     """
                 )
 
-            msa_data["dummy"] = make_dummy_msa_feats(input_sequence)
+            msa_data["dummy"] = make_dummy_msa_obj(input_sequence)
 
         return list(msa_data.values())
 
@@ -885,7 +890,7 @@ class DataPipeline:
         sequence_embedding_features = {}
         # If using seqemb mode, generate a dummy MSA features using just the sequence
         if seqemb_mode:
-            msa_features = [make_dummy_msa_feats(input_sequence)]
+            msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)
         else:
             msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
@@ -935,7 +940,7 @@ class DataPipeline:
         sequence_embedding_features = {}
         # If using seqemb mode, generate a dummy MSA features using just the sequence
         if seqemb_mode:
-            msa_features = [make_dummy_msa_feats(input_sequence)]
+            msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)
         else:
             msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
@@ -992,7 +997,7 @@ class DataPipeline:
         sequence_embedding_features = {}
         # If in sequence embedding mode, generate dummy MSA features using just the input sequence
         if seqemb_mode:
-            msa_features = [make_dummy_msa_feats(input_sequence)]
+            msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)
         else:
             msa_features = self._process_msa_feats(alignment_dir, input_sequence, alignment_index)
@@ -1032,7 +1037,7 @@ class DataPipeline:
         sequence_embedding_features = {}
         # If in sequence embedding mode, generate dummy MSA features using just the input sequence
         if seqemb_mode:
-            msa_features = [make_dummy_msa_feats(input_sequence)]
+            msa_features = make_dummy_msa_feats(input_sequence)
             sequence_embedding_features = self._process_seqemb_features(alignment_dir)
         else:
             msa_features = self._process_msa_feats(alignment_dir, input_sequence)
