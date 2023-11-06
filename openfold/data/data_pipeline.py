@@ -276,7 +276,7 @@ def make_dummy_msa_obj(input_sequence) -> parsers.Msa:
     deletion_matrix = [[0 for _ in input_sequence]]
     return parsers.Msa(sequences=[input_sequence],
                        deletion_matrix=deletion_matrix,
-                       descriptions=None)
+                       descriptions=['dummy'])
 
 
 # Generate 1-sequence MSA features having only the input sequence
