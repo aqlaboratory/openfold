@@ -159,7 +159,7 @@ def run_model(model, batch, tag, output_dir):
         out = model(batch)
         inference_time = time.perf_counter() - t
         logger.info(f"Inference time: {inference_time}")
-        update_timings({"inference": inference_time}, os.path.join(output_dir, "timings.json"))
+        update_timings({tag: {"inference": inference_time}}, os.path.join(output_dir, "timings.json"))
 
         model.config.template.enabled = template_enabled
 

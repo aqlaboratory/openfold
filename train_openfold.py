@@ -417,6 +417,10 @@ if __name__ == "__main__":
                 filtered by the release date of the target'''
     )
     parser.add_argument(
+        "--use_single_seq_mode", type=str, default=False,
+        help="Use single sequence embeddings instead of MSAs."
+    )
+    parser.add_argument(
         "--distillation_data_dir", type=str, default=None,
         help="Directory containing training PDB files"
     )

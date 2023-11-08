@@ -29,7 +29,7 @@ vice versa (see `scripts/convert_of_weights_to_jax.py`).
 
 OpenFold has the following advantages over the reference implementation:
 
-- **Faster inference** on GPU, sometimes by as much as 2x. The greatest speedups are achieved on (>= Ampere) GPUs.
+- **Faster inference** on GPU, sometimes by as much as 2x. The greatest speedups are achieved on Ampere or higher architecture GPUs.
 - **Inference on extremely long chains**, made possible by our implementation of low-memory attention 
 ([Rabe & Staats 2021](https://arxiv.org/pdf/2112.05682.pdf)). OpenFold can predict the structures of
   sequences with more than 4000 residues on a single A100, and even longer ones with CPU offloading.
@@ -49,37 +49,19 @@ and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (night
 installed on your system. You'll need `git-lfs` to download OpenFold parameters. 
 Finally, some download scripts require `aria2c` and `aws`.
 
-For convenience, we provide a script that installs Miniconda locally, creates a 
-`conda` virtual environment, installs all Python dependencies, and downloads
-useful resources, including both sets of model parameters. Run:
+This package is currently supported for CUDA 11 and Pytorch 1.12
 
-```bash
-scripts/install_third_party_dependencies.sh
-```
+To install:
+1. Clone the repository, e.g. `git clone https://github.com/aqlaboratory/openfold.git`
+1. From the `openfold` repo: 
+    - Create a [Mamba]("https://github.com/conda-forge/miniforge/releases/latest/download/) environment, e.g. 
+        `mamba env create -n openfold_env -f environment.yml`
+      Mamba is recommended as the dependencies required by OpenFold are quite large and mamba can speed up the process.
+    - Activate the environment, e.g `conda activate openfold_env` 
+1. Run `scripts/install_third_party_dependencies.sh` to configure kernels and folding resources.
 
-To activate the environment, run:
+For some systems, it may help to append the Conda environment library path to `$LD_LIBRARY_PATH`. The `install_third_party_dependencies.sh` script does this once, but you may need this for each bash instance.
 
-```bash
-source scripts/activate_conda_env.sh
-```
-
-To deactivate it, run:
-
-```bash
-source scripts/deactivate_conda_env.sh
-```
-
-With the environment active, compile OpenFold's CUDA kernels with
-
-```bash
-python3 setup.py install
-```
-
-To install the HH-suite to `/usr/bin`, run
-
-```bash
-# scripts/install_hh_suite.sh
-```
 
 ## Usage
 
@@ -232,6 +214,51 @@ efficent AlphaFold-Multimer more than double the time. Use the
 `long_sequence_inference` config option to enable all of these interventions
 at once. The `run_pretrained_openfold.py` script can enable this config option with the 
 `--long_sequence_inference` command line option
+
+#### SoloSeq Inference
+To run inference for a sequence using the SoloSeq single-sequence model, you can either precompute ESM-1b embeddings in bulk, or you can generate them during inference.
+
+For generating ESM-1b embeddings in bulk, use the provided script: `scripts/precompute_embeddings.py`. The script takes a directory of FASTA files (one sequence per file) and generates ESM-1b embeddings in the same format and directory structure as required by SoloSeq. Following is an example command to use the script:
+
+```bash
+python scripts/precompute_embeddings.py fasta_dir/ embeddings_output_dir/
+```
+
+In the same per-label subdirectories inside `embeddings_output_dir`, you can also place `*.hhr` files (outputs from HHSearch), which can contain the details about the structures that you want to use as templates. If you do not place any such file, templates will not be used and only the ESM-1b embeddings will be used to predict the structure. If you want to use templates, you need to pass the PDB MMCIF dataset to the command.
+
+Now, you are ready to run inference:
+```bash
+python run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --use_precomputed_alignments embeddings_output_dir \
+    --output_dir ./ \
+    --model_device "cuda:0" \
+    --config_preset "seq_model_esm1b_ptm" \
+    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt
+```
+
+For generating the embeddings during inference, skip the `--use_precomputed_alignments` argument. The `*.hhr` files will be generated as well if you pass the paths to the relevant databases and tools, as specified in the command below. If you skip the database and tool arguments, HHSearch will not be used to find templates and only generated ESM-1b embeddings will be used to predict the structure.
+```bash
+python3 run_pretrained_openfold.py \
+    fasta_dir \
+    data/pdb_mmcif/mmcif_files/ \
+    --output_dir ./ \
+    --model_device "cuda:0" \
+    --config_preset "seq_model_esm1b_ptm" \
+    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt \
+    --uniref90_database_path data/uniref90/uniref90.fasta \
+    --pdb70_database_path data/pdb70/pdb70 \
+    --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
+    --hhsearch_binary_path lib/conda/envs/openfold_venv/bin/hhsearch \
+    --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
+```
+
+For generating template information, you will need the UniRef90 and PDB70 databases and the JackHmmer and HHSearch binaries. 
+
+SoloSeq allows you to use the same flags and optimizations as the MSA-based OpenFold. For example, you can skip relaxation using `--skip_relaxation`, save all model outputs using `--save_outputs`, and generate output files in MMCIF format using `--cif_output`.
+
+**NOTE:** Due to the nature of the ESM-1b embeddings, the sequence length for inference using the SoloSeq model is limited to 1022 residues. Sequences longer than that will be truncated.
 
 ### Training
 
@@ -440,7 +467,7 @@ Please cite our paper:
 
 ```bibtex
 @article {Ahdritz2022.11.20.517210,
-	author = {Ahdritz, Gustaf and Bouatta, Nazim and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed},
+	author = {Ahdritz, Gustaf and Bouatta, Nazim and Floristean, Christina and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed},
 	title = {{O}pen{F}old: {R}etraining {A}lpha{F}old2 yields new insights into its learning mechanisms and capacity for generalization},
 	elocation-id = {2022.11.20.517210},
 	year = {2022},

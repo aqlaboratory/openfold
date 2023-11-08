@@ -152,8 +152,41 @@ def model_config(
         c.model.template.enabled = False
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
+    # SINGLE SEQUENCE EMBEDDING PRESETS
+    elif name == "seqemb_initial_training":
+        c.data.train.max_msa_clusters = 1
+        c.data.eval.max_msa_clusters = 1
+        c.data.train.max_distillation_msa_clusters = 1
+    elif name == "seqemb_finetuning":
+        c.data.train.max_msa_clusters = 1
+        c.data.eval.max_msa_clusters = 1
+        c.data.train.max_distillation_msa_clusters = 1
+        c.data.train.crop_size = 384
+        c.loss.violation.weight = 1.
+        c.loss.experimentally_resolved.weight = 0.01
+    elif name == "seq_model_esm1b":
+        c.data.common.use_templates = True
+        c.data.common.use_template_torsion_angles = True
+        c.model.template.enabled = True
+        c.data.predict.max_msa_clusters = 1
+    elif name == "seq_model_esm1b_ptm":
+        c.data.common.use_templates = True
+        c.data.common.use_template_torsion_angles = True
+        c.model.template.enabled = True
+        c.data.predict.max_msa_clusters = 1
+        c.model.heads.tm.enabled = True
+        c.loss.tm.weight = 0.1
     else:
         raise ValueError("Invalid model name")
+
+    if name.startswith("seq"):
+        # Tell the data pipeline that we will use sequence embeddings instead of MSAs.
+        c.data.seqemb_mode.enabled = True
+        c.globals.seqemb_mode_enabled = True
+        # In seqemb mode, we turn off the ExtraMSAStack and Evoformer's column attention.
+        c.model.extra_msa.enabled = False
+        c.model.evoformer_stack.no_column_attention = True
+        c.update(seq_mode_config.copy_and_resolve_references())
 
     if long_sequence_inference:
         assert(not train)
@@ -189,6 +222,11 @@ c_m = mlc.FieldReference(256, field_type=int)
 c_t = mlc.FieldReference(64, field_type=int)
 c_e = mlc.FieldReference(64, field_type=int)
 c_s = mlc.FieldReference(384, field_type=int)
+
+# For seqemb mode, dimension size of the per-residue sequence embedding passed to the model
+# In current model, the dimension size is the ESM-1b dimension size i.e. 1280.
+preemb_dim_size = mlc.FieldReference(1280, field_type=int)
+
 blocks_per_ckpt = mlc.FieldReference(None, field_type=int)
 chunk_size = mlc.FieldReference(4, field_type=int)
 aux_distogram_bins = mlc.FieldReference(64, field_type=int)
@@ -301,6 +339,9 @@ config = mlc.ConfigDict(
                 "use_templates": templates_enabled,
                 "use_template_torsion_angles": embed_template_torsion_angles,
             },
+            "seqemb_mode": { # Configuration for sequence embedding mode
+                "enabled": False, # If True, use seq emb instead of MSA
+            },
             "supervised": {
                 "clamp_prob": 0.9,
                 "supervised_features": [
@@ -365,6 +406,7 @@ config = mlc.ConfigDict(
         },
         # Recurring FieldReferences that can be changed globally here
         "globals": {
+            "seqemb_mode_enabled": False, # Global flag for enabling seq emb mode
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
             # Use DeepSpeed memory-efficient attention kernel. Mutually
@@ -497,6 +539,7 @@ config = mlc.ConfigDict(
                 "transition_n": 4,
                 "msa_dropout": 0.15,
                 "pair_dropout": 0.25,
+                "no_column_attention": False,
                 "blocks_per_ckpt": blocks_per_ckpt,
                 "clear_cache_between_blocks": False,
                 "tune_chunk_size": tune_chunk_size,
@@ -618,3 +661,31 @@ config = mlc.ConfigDict(
         "ema": {"decay": 0.999},
     }
 )
+
+seq_mode_config = mlc.ConfigDict({
+    "data": {
+        "common": {
+            "feat": {
+                "seq_embedding": [NUM_RES, None],
+            },
+            "seqemb_features": [ # List of features to be generated in seqemb mode
+                "seq_embedding"
+            ],
+        },
+        "seqemb_mode": { # Configuration for sequence embedding mode
+            "enabled": True, # If True, use seq emb instead of MSA
+        },
+    },
+    "globals": {
+        "seqemb_mode_enabled": True,
+    },
+    "model": {
+        "preembedding_embedder": { # Used in sequence embedding mode
+            "tf_dim": 22,
+            "preembedding_dim": preemb_dim_size,
+            "c_z": c_z,
+            "c_m": c_m,
+            "relpos_k": 32,
+        },
+    }
+})

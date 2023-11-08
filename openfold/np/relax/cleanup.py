@@ -20,14 +20,8 @@ cases like removing chains of length one (see clean_structure).
 import io
 
 import pdbfixer
-try:
-    # openmm >= 7.6
-    from openmm import app
-    from openmm.app import element
-except ImportError:
-    # openmm < 7.6 (requires DeepMind patch)
-    from simtk.openmm import app
-    from simtk.openmm.app import element
+from openmm import app
+from openmm.app import element
 
 
 def fix_pdb(pdbfile, alterations_info):

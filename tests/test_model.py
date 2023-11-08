@@ -47,32 +47,72 @@ class TestModel(unittest.TestCase):
         c.model.evoformer_stack.blocks_per_ckpt = None  # don't want to set up
         # deepspeed for this test
 
-        model = AlphaFold(c)
+        model = AlphaFold(c).cuda()
         model.eval()
 
         batch = {}
-        tf = torch.randint(c.model.input_embedder.tf_dim - 1, size=(n_res,))
+        tf = torch.randint(c.model.input_embedder.tf_dim - 1, size=(n_res,)).cuda()
         batch["target_feat"] = nn.functional.one_hot(
             tf, c.model.input_embedder.tf_dim
-        ).float()
-        batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
-        batch["residue_index"] = torch.arange(n_res)
-        batch["msa_feat"] = torch.rand((n_seq, n_res, c.model.input_embedder.msa_dim))
+        ).float().cuda()
+        batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1).cuda()
+        batch["residue_index"] = torch.arange(n_res).cuda()
+        batch["msa_feat"] = torch.rand((n_seq, n_res, c.model.input_embedder.msa_dim)).cuda()
         t_feats = random_template_feats(n_templ, n_res)
-        batch.update({k: torch.tensor(v) for k, v in t_feats.items()})
+        batch.update({k: torch.tensor(v).cuda() for k, v in t_feats.items()})
         extra_feats = random_extra_msa_feats(n_extra_seq, n_res)
-        batch.update({k: torch.tensor(v) for k, v in extra_feats.items()})
+        batch.update({k: torch.tensor(v).cuda() for k, v in extra_feats.items()})
         batch["msa_mask"] = torch.randint(
             low=0, high=2, size=(n_seq, n_res)
-        ).float()
-        batch["seq_mask"] = torch.randint(low=0, high=2, size=(n_res,)).float()
+        ).float().cuda()
+        batch["seq_mask"] = torch.randint(low=0, high=2, size=(n_res,)).float().cuda()
         batch.update(data_transforms.make_atom14_masks(batch))
-        batch["no_recycling_iters"] = torch.tensor(2.)
+        batch["no_recycling_iters"] = torch.tensor(2.).cuda()
 
         add_recycling_dims = lambda t: (
             t.unsqueeze(-1).expand(*t.shape, c.data.common.max_recycling_iters)
         )
         batch = tensor_tree_map(add_recycling_dims, batch)
+
+        with torch.no_grad():
+            out = model(batch)
+
+    def test_dry_run_seqemb_mode(self):
+        n_seq = 1
+        n_templ = consts.n_templ
+        n_res = consts.n_res
+        msa_dim = 49
+
+        c = model_config("seq_model_esm1b")
+        c.model.evoformer_stack.no_blocks = 2
+        c.model.evoformer_stack.blocks_per_ckpt = None
+        model = AlphaFold(c)
+        model.to(torch.device('cuda'))
+        model.eval()
+
+        batch = {}
+        tf = torch.randint(c.model.preembedding_embedder.tf_dim - 1, size=(n_res,))
+        batch["target_feat"] = nn.functional.one_hot(tf, c.model.preembedding_embedder.tf_dim).float()
+        batch["aatype"] = torch.argmax(batch["target_feat"], dim=-1)
+        batch["residue_index"] = torch.arange(n_res)
+        batch["msa_feat"] = torch.rand((n_seq, n_res, msa_dim))
+        batch["seq_embedding"] = torch.rand((n_res, c.model.preembedding_embedder.preembedding_dim))
+
+        t_feats = random_template_feats(n_templ, n_res)
+        batch.update({k: torch.tensor(v) for k, v in t_feats.items()})
+
+        batch["seq_mask"] = torch.randint(low=0, high=2, size=(n_res,)).float()
+        batch.update(data_transforms.make_atom14_masks(batch))
+        batch["msa_mask"] = torch.randint(low=0, high=2, size=(n_seq, n_res)).float()
+        
+        batch["no_recycling_iters"] = torch.tensor(2.)
+        add_recycling_dims = lambda t: (
+            t.unsqueeze(-1).expand(*t.shape, c.data.common.max_recycling_iters)
+        )
+        batch = tensor_tree_map(add_recycling_dims, batch)
+
+        to_cuda_device = lambda t: t.to(torch.device("cuda"))
+        batch = tensor_tree_map(to_cuda_device, batch)
 
         with torch.no_grad():
             out = model(batch)
