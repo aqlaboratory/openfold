@@ -448,7 +448,7 @@ class AlignmentRunner:
                 n_cpu=no_cpus,
             )
 
-        self._uniprot_msa_runner = None
+        self.jackhmmer_uniprot_runner = None
         if(uniprot_database_path is not None):
             self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
@@ -1180,15 +1180,20 @@ class DataPipelineMultimer:
             # sequences.
             if not is_homomer_or_monomer:
                 all_seq_msa_features = self._all_seq_msa_features(
-                    chain_fasta_path,
                     chain_alignment_dir
                 )
                 chain_features.update(all_seq_msa_features)
         return chain_features
 
-    def _all_seq_msa_features(self, fasta_path, alignment_dir):
+    @staticmethod
+    def _all_seq_msa_features(alignment_dir):
         """Get MSA features for unclustered uniprot, for pairing."""
         uniprot_msa_path = os.path.join(alignment_dir, "uniprot_hits.sto")
+        if not os.path.exists(uniprot_msa_path):
+            chain_id = os.path.basename(os.path.normpath(alignment_dir))
+            raise ValueError(f"Missing 'uniprot_hits.sto' for {chain_id}. "
+                             f"This is required for Multimer MSA pairing.")
+
         with open(uniprot_msa_path, "r") as fp:
             uniprot_msa_string = fp.read()
         msa = parsers.parse_stockholm(uniprot_msa_string)
