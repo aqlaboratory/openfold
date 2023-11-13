@@ -379,7 +379,6 @@ class Attention(nn.Module):
     def _prep_qkv(self,
         q_x: torch.Tensor, 
         kv_x: torch.Tensor,
-        transpose_qkv_dims: bool = True,
         apply_scale: bool = True
     ) -> Tuple[
         torch.Tensor, torch.Tensor, torch.Tensor
@@ -394,11 +393,10 @@ class Attention(nn.Module):
         k = k.view(k.shape[:-1] + (self.no_heads, -1))
         v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
-        if transpose_qkv_dims:
-            # [*, H, Q/K, C_hidden]
-            q = q.transpose(-2, -3)
-            k = k.transpose(-2, -3)
-            v = v.transpose(-2, -3)
+        # [*, H, Q/K, C_hidden]
+        q = q.transpose(-2, -3)
+        k = k.transpose(-2, -3)
+        v = v.transpose(-2, -3)
 
         if apply_scale:
             q /= math.sqrt(self.c_hidden)
@@ -486,10 +484,8 @@ class Attention(nn.Module):
         if biases is None:
             biases = []
         
-        # DeepSpeed attention kernel expects Q/K/V of shape [*, Q/K, H, C_hidden]
-        # All other attention modules expect Q/K/V of shape [*, H, Q/K, C_hidden]
+        # DeepSpeed attention kernel applies scaling internally
         q, k, v = self._prep_qkv(q_x, kv_x,
-                                 transpose_qkv_dims=not use_deepspeed_evo_attention,
                                  apply_scale=not use_deepspeed_evo_attention)
 
         if is_fp16_enabled():
@@ -629,11 +625,11 @@ def _deepspeed_evo_attn(
 
     Args:
         q:
-            [*, Q, H, C_hidden] query data
+            [*, H, Q, C_hidden] query data
         k:
-            [*, K, H, C_hidden] key data
+            [*, H, K, C_hidden] key data
         v:
-            [*, V, H, C_hidden] value data
+            [*, H, V, C_hidden] value data
         biases:
             List of biases that broadcast to [*, H, Q, K]
     """
@@ -651,6 +647,11 @@ def _deepspeed_evo_attn(
         if no_batch_dims > 2:
             return x.reshape(*((x.shape[0], -1) + x.shape[-3:]))
         return x
+
+    # [*, Q/K, H, C_hidden]
+    q = q.transpose(-2, -3)
+    k = k.transpose(-2, -3)
+    v = v.transpose(-2, -3)
 
     # Reshape tensors to match expected input shape [B, N, Q/K, H, C_hidden]
     # for DS4Sci_EvoformerAttention() by adding or flattening batch dims as needed.

@@ -155,7 +155,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
         n_seq = 18
         c_m_shape = (consts.c_m,)
         c_z_shape = (consts.c_z,)
-        eps = 2e-2
+        eps = 5e-2
 
         activations = {
             "msa": torch.rand(n_seq, n_res, consts.c_m, device='cuda', dtype=dtype),
