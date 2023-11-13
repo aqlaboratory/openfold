@@ -32,11 +32,10 @@ def enforce_config_constraints(config):
         ),
     ]
 
-    for s1, s2 in mutually_exclusive_bools:
-        s1_setting = string_to_setting(s1)
-        s2_setting = string_to_setting(s2)
-        if(s1_setting and s2_setting):
-            raise ValueError(f"Only one of {s1} and {s2} may be set at a time")
+    for options in mutually_exclusive_bools:
+        option_settings = [string_to_setting(o) for o in options]
+        if sum(option_settings) > 1:
+            raise ValueError(f"Only one of {', '.join(options)} may be set at a time")
 
     fa_is_installed = importlib.util.find_spec("flash_attn") is not None
     if config.globals.use_flash and not fa_is_installed:
