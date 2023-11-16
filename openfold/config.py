@@ -200,9 +200,9 @@ def model_config(
     if long_sequence_inference:
         assert(not train)
         c.globals.offload_inference = True
-        c.globals.use_lma = True
+        # Default to DeepSpeed memory-efficient attention kernel unless use_lma is explicitly set
+        c.globals.use_deepspeed_evo_attention = True if not c.globals.use_lma else False
         c.globals.use_flash = False
-        c.globals.use_deepspeed_evo_attention = False
         c.model.template.offload_inference = True
         c.model.template.template_pair_stack.tune_chunk_size = False
         c.model.extra_msa.extra_msa_stack.tune_chunk_size = False
