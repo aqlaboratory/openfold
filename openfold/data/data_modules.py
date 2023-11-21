@@ -696,7 +696,7 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                                       max_resolution=max_resolution),
                     aa_count_filter(seqs=seqs,
                                     max_single_aa_prop=max_single_aa_prop),
-                    (is_distillation and all_seq_len_filter(seqs=seqs,
+                    (not is_distillation and all_seq_len_filter(seqs=seqs,
                                        minimum_number_of_residues=minimum_number_of_residues))])
 
     @staticmethod
