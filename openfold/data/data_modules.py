@@ -694,10 +694,10 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
 
         return all([resolution_filter(resolution=resolution,
                                       max_resolution=max_resolution),
-                    all_seq_len_filter(seqs=seqs,
-                                       minimum_number_of_residues=minimum_number_of_residues),
-                    (is_distillation and aa_count_filter(seqs=seqs,
-                                                         max_single_aa_prop=max_single_aa_prop))])
+                    aa_count_filter(seqs=seqs,
+                                    max_single_aa_prop=max_single_aa_prop),
+                    (is_distillation and all_seq_len_filter(seqs=seqs,
+                                       minimum_number_of_residues=minimum_number_of_residues))])
 
     @staticmethod
     def get_stochastic_train_filter_prob(
