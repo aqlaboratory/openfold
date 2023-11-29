@@ -51,6 +51,7 @@
 1. ノード数と制限時間を決める
     - ノード数: 入力シーケンス数以下の数
     - 制限時間: 任意の時間。`estimate_time.awk`を用いて処理時間を推定し、(ノード数)×(制限時間)がおよそ推定処理時間となるように設定してもよい。
+      - `./estimate_time.awk $InputFasta`
 
 1. `Submit_inference_multi`により推論のジョブを投入する
     - `./Submit_inference_multi {$NumNodes|$NodeShape} $TimeLimit`
