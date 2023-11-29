@@ -114,7 +114,13 @@ the model, consult `run_pretrained_openfold.py`.
 ### Inference
 
 To run inference on a sequence or multiple sequences using a set of DeepMind's 
-pretrained parameters, run e.g.:
+pretrained parameters, first download the OpenFold weights e.g.:
+
+```bash 
+bash scripts/download_openfold_params.sh openfold/resources
+```
+
+then run e.g.:
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -225,6 +231,14 @@ python scripts/precompute_embeddings.py fasta_dir/ embeddings_output_dir/
 
 In the same per-label subdirectories inside `embeddings_output_dir`, you can also place `*.hhr` files (outputs from HHSearch), which can contain the details about the structures that you want to use as templates. If you do not place any such file, templates will not be used and only the ESM-1b embeddings will be used to predict the structure. If you want to use templates, you need to pass the PDB MMCIF dataset to the command.
 
+Then download the SoloSeq model weights, e.g.:
+
+
+```bash 
+bash scripts/download_openfold_soloseq_params.sh openfold/resources
+```
+
+
 Now, you are ready to run inference:
 ```bash
 python run_pretrained_openfold.py \
@@ -234,7 +248,7 @@ python run_pretrained_openfold.py \
     --output_dir ./ \
     --model_device "cuda:0" \
     --config_preset "seq_model_esm1b_ptm" \
-    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt
+    --openfold_checkpoint_path openfold/resources/openfold_soloseq_params/seq_model_esm1b_ptm.pt
 ```
 
 For generating the embeddings during inference, skip the `--use_precomputed_alignments` argument. The `*.hhr` files will be generated as well if you pass the paths to the relevant databases and tools, as specified in the command below. If you skip the database and tool arguments, HHSearch will not be used to find templates and only generated ESM-1b embeddings will be used to predict the structure.
