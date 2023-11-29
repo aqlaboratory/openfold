@@ -63,6 +63,9 @@ rm -rf hmmer
 git clone https://github.com/EddyRivasLab/hmmer.git -b h3-arm
 pushd hmmer
 git clone https://github.com/EddyRivasLab/easel -b develop
+pushd easel
+git checkout 367f817 # 2023/09/22
+popd
 sed -i "s|AC_PREREQ(\[2.71\])|AC_PREREQ(\[2.69\])|g" configure.ac
 autoconf
 ./configure --prefix=$PREFIX
