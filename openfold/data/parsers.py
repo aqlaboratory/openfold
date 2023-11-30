@@ -20,7 +20,7 @@ import itertools
 import re
 import string
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Set
-
+import asyncio
 
 DeletionMatrix = Sequence[Sequence[int]]
 
@@ -120,9 +120,9 @@ def parse_stockholm(stockholm_string: str) -> Msa:
         line = line.strip()
         if not line or line.startswith(("#", "//")):
             continue
-        name, sequence = line.split()
+        name, sequence = line.split(maxsplit=1)
         if name not in name_to_sequence:
-            name_to_sequence[name] = ""
+            name_to_sequence.setdefault(name,"")
         name_to_sequence[name] += sequence
 
     msa = []

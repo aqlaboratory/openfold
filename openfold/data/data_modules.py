@@ -22,6 +22,9 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 
+def calculate_elapse(start, end):
+    elapse = end - start
+    print(f"this function runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
@@ -195,7 +198,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             alignment_index=alignment_index,
             seqemb_mode=self.config.seqemb_mode.enabled
         )
-
         return data
 
     def chain_id_to_idx(self, chain_id):
@@ -423,24 +425,25 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def _parse_mmcif(self, path, file_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
-
+        import time
         mmcif_object = mmcif_parsing.parse(
             file_id=file_id, mmcif_string=mmcif_string
         )
-
         # Crash if an error is encountered. Any parsing errors should have
         # been dealt with at the alignment stage.
         if mmcif_object.mmcif_object is None:
             raise list(mmcif_object.errors.values())[0]
 
         mmcif_object = mmcif_object.mmcif_object
-
+        # print(f" ###### line 442 started mmcif_processing")
+        # start = time.time()
         data = self.data_pipeline.process_mmcif(
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             alignment_index=alignment_index
         )
-
+        # end = time.time()
+        # calculate_elapse(start , end)s
         return data
 
     def mmcif_id_to_idx(self, mmcif_id):
@@ -450,6 +453,8 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         return self._mmcifs[idx]
 
     def __getitem__(self, idx):
+        print(f"####### line 456 idx is {idx}")
+
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
 
@@ -741,9 +746,7 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                 generator=self.generator,
             )
             samples = samples.squeeze()
-
             cache = [i for i, s in zip(idx, samples) if s]
-
             for datapoint_idx in cache:
                 yield datapoint_idx
 

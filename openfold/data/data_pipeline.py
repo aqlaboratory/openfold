@@ -35,6 +35,9 @@ from openfold.np import residue_constants, protein
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
 
+def calculate_elapse(start, end, name):
+    elapse = end - start
+    print(f"{name} runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
 
 def make_template_features(
     input_sequence: str,
@@ -739,13 +742,21 @@ class DataPipeline:
                 filename, ext = os.path.splitext(f)
 
                 if(ext == ".a3m"):
+                    import time 
+                    start = time.time()
                     with open(path, "r") as fp:
                         msa = parsers.parse_a3m(fp.read())
+                    end = time.time()
+                    calculate_elapse(start, end, "parser.parse_a3m")
                 elif(ext == ".sto" and not "hmm_output" == filename):
+                    import time
+                    start = time.time()
                     with open(path, "r") as fp:
                         msa = parsers.parse_stockholm(
                             fp.read()
                         )
+                    end = time.time()
+                    calculate_elapse(start, end, "parsers.parse_stockholm")
                 else:
                     continue
 
@@ -825,13 +836,22 @@ class DataPipeline:
         input_sequence: Optional[str] = None,
         alignment_index: Optional[str] = None
     ) -> Mapping[str, Any]:
+        import time
+        start_main = time.time()
+        start = time.time()
         msas = self._get_msas(
             alignment_dir, input_sequence, alignment_index
         )
+        end = time.time()
+        calculate_elapse(start,end,"get_msas")
+        start = time.time()
         msa_features = make_msa_features(
             msas=msas
         )
-
+        end = time.time()
+        calculate_elapse(start, end, "make_msa_features")
+        end_main = time.time()
+        calculate_elapse(start_main, end_main,"process_msa_feats")
         return msa_features
 
     # Load and process sequence embedding features
