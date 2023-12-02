@@ -435,15 +435,11 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             raise list(mmcif_object.errors.values())[0]
 
         mmcif_object = mmcif_object.mmcif_object
-        # print(f" ###### line 442 started mmcif_processing")
-        # start = time.time()
         data = self.data_pipeline.process_mmcif(
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             alignment_index=alignment_index
         )
-        # end = time.time()
-        # calculate_elapse(start , end)s
         return data
 
     def mmcif_id_to_idx(self, mmcif_id):
@@ -453,8 +449,6 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         return self._mmcifs[idx]
 
     def __getitem__(self, idx):
-        print(f"####### line 456 idx is {idx}")
-
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
 

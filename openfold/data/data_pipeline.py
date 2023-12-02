@@ -24,7 +24,7 @@ from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
 import subprocess
 import numpy as np
 import torch
-
+import pickle
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
 from openfold.data.templates import get_custom_template_features, empty_template_feats
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
@@ -738,22 +738,10 @@ class DataPipeline:
             fp.close()
         else:
             # Now will split the following steps into multiple processes 
-            
-            # a3m_tasks = [(alignment_dir, a3m) for a3m in a3m_files]
-            # sto_tasks = [(alignment_dir, sto) for sto in stockholm_files]
-            # with NonDaemonicProcessPool(len(a3m_tasks) + len(sto_tasks)) as pool:
-            #     a3m_results = pool.starmap(parse_a3m_file, a3m_tasks)
-            #     sto_results = pool.starmap(parse_stockholm_file, sto_tasks)
-            #     msa_results = {**a3m_results, **sto_results}
-            import time, json
             current_directory = os.path.dirname(os.path.abspath(__file__))
-            start = time.time()
-            cmd = f"{current_directory}/parse_msa_files.py {alignment_dir}"
-            msa_data = subprocess.check_output(['python', cmd], capture_output=True, text= True)
-            msa_data = json.load(msa_data)
-            end = time.time()
-            calculate_elapse(start, end, "multiprocessing version")
-
+            cmd = f"{current_directory}/parse_msa_files.py"
+            msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
+            msa_data = pickle.load((open(msa_data.stdout.rstrip(),'rb')))
         return msa_data
 
     def _parse_template_hit_files(
@@ -836,12 +824,9 @@ class DataPipeline:
         )
         end = time.time()
         calculate_elapse(start,end,"get_msas")
-        start = time.time()
         msa_features = make_msa_features(
             msas=msas
         )
-        end = time.time()
-        calculate_elapse(start, end, "make_msa_features")
         end_main = time.time()
         calculate_elapse(start_main, end_main,"process_msa_feats")
         return msa_features
