@@ -738,10 +738,14 @@ class DataPipeline:
             fp.close()
         else:
             # Now will split the following steps into multiple processes 
+            import time
             current_directory = os.path.dirname(os.path.abspath(__file__))
             cmd = f"{current_directory}/parse_msa_files.py"
+            start = time.time()
             msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
-            msa_data = pickle.load((open(msa_data.stdout.rstrip(),'rb')))
+            msa_data = pickle.load((open(msa_data.stdout.lstrip().rstrip(),'rb')))
+            end = time.time()
+            calculate_elapse(start, end, "parse_msa_files in data_pipeline")
         return msa_data
 
     def _parse_template_hit_files(
@@ -823,12 +827,12 @@ class DataPipeline:
             alignment_dir, input_sequence, alignment_index
         )
         end = time.time()
-        calculate_elapse(start,end,"get_msas")
+        calculate_elapse(start,end,"get_msas in data_pipeline")
         msa_features = make_msa_features(
             msas=msas
         )
         end_main = time.time()
-        calculate_elapse(start_main, end_main,"process_msa_feats")
+        calculate_elapse(start_main, end_main,"process_msa_feats in data_pipeline")
         return msa_features
 
     # Load and process sequence embedding features

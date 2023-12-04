@@ -22,9 +22,9 @@ from openfold.utils.tensor_utils import (
     tensor_tree_map,
 )
 
-def calculate_elapse(start, end):
+def calculate_elapse(start, end, name):
     elapse = end - start
-    print(f"this function runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
+    print(f"{name} runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
@@ -451,7 +451,8 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
         alignment_index = None
-
+        import time
+        start = time.time()
         if self.mode == 'train' or self.mode == 'eval':
             path = os.path.join(self.data_dir, f"{mmcif_id}")
             ext = None
@@ -477,15 +478,18 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
                 fasta_path=path,
                 alignment_dir=self.alignment_dir
             )
-
+        end = time.time()
+        calculate_elapse(start, end, "process_fasta in data_modules")
         if self._output_raw:
             return data
-
+        process_start = time.time()
         # process all_chain_features
         data = self.feature_pipeline.process_features(data,
                                                       mode=self.mode,
                                                       is_multimer=True)
-
+        end = time.time()
+        calculate_elapse(process_start, end, "process_features in data_modules")
+        calculate_elapse(start, end, "dataset get_item in data_modules")
         # if it's inference mode, only need all_chain_features
         data["batch_idx"] = torch.tensor(
             [idx for _ in range(data["aatype"].shape[-1])],
