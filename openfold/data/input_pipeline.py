@@ -71,6 +71,9 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
     """Input pipeline data transformers that can be ensembled and averaged."""
     transforms = []
 
+    if mode_cfg.block_delete_msa:
+        transforms.append(data_transforms.block_delete_msa(common_cfg.block_delete_msa))
+
     if "max_distillation_msa_clusters" in mode_cfg:
         transforms.append(
             data_transforms.sample_msa_distillation(
