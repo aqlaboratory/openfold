@@ -156,10 +156,12 @@ def model_config(
     elif name == "seqemb_initial_training":
         c.data.train.max_msa_clusters = 1
         c.data.eval.max_msa_clusters = 1
+        c.data.train.block_delete_msa = False
         c.data.train.max_distillation_msa_clusters = 1
     elif name == "seqemb_finetuning":
         c.data.train.max_msa_clusters = 1
         c.data.eval.max_msa_clusters = 1
+        c.data.train.block_delete_msa = False
         c.data.train.max_distillation_msa_clusters = 1
         c.data.train.crop_size = 384
         c.loss.violation.weight = 1.
@@ -311,6 +313,11 @@ config = mlc.ConfigDict(
                     "true_msa": [NUM_MSA_SEQ, NUM_RES],
                     "use_clamped_fape": [],
                 },
+                "block_delete_msa": {
+                    "msa_fraction_per_block": 0.3,
+                    "randomize_num_blocks": False,
+                    "num_blocks": 5,
+                },
                 "masked_msa": {
                     "profile_prob": 0.1,
                     "same_prob": 0.1,
@@ -355,6 +362,7 @@ config = mlc.ConfigDict(
             "predict": {
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
+                "block_delete_msa": False,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 512,
                 "max_extra_msa": 1024,
@@ -368,6 +376,7 @@ config = mlc.ConfigDict(
             "eval": {
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
+                "block_delete_msa": False,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
                 "max_extra_msa": 1024,
@@ -381,6 +390,7 @@ config = mlc.ConfigDict(
             "train": {
                 "fixed_size": True,
                 "subsample_templates": True,
+                "block_delete_msa": True,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
                 "max_extra_msa": 1024,
