@@ -253,28 +253,33 @@ def block_delete_msa(protein, config):
         * config.msa_fraction_per_block
     ).to(torch.int32)
 
+    if int(block_num_seq) == 0:
+        return protein
+
     if config.randomize_num_blocks:
-        nb = torch.distributions.uniform.Uniform(
-            0, config.num_blocks + 1
-        ).sample()
+        nb = int(torch.randint(
+            low=0,
+            high=config.num_blocks + 1,
+            size=(1,),
+            device=protein["msa"].device,
+        )[0])
     else:
         nb = config.num_blocks
 
-    del_block_starts = torch.distributions.Uniform(0, num_seq).sample(nb)
-    del_blocks = del_block_starts[:, None] + torch.range(block_num_seq)
-    del_blocks = torch.clip(del_blocks, 0, num_seq - 1)
-    del_indices = torch.unique(torch.sort(torch.reshape(del_blocks, [-1])))[0]
+    del_block_starts = torch.randint(low=1, high=num_seq, size=(nb,), device=protein["msa"].device)
+    del_blocks = del_block_starts[:, None] + torch.arange(start=0, end=block_num_seq)
+    del_blocks = torch.clip(del_blocks, 1, num_seq - 1)
+    del_indices = torch.unique(torch.reshape(del_blocks, [-1]))
 
     # Make sure we keep the original sequence
-    combined = torch.cat((torch.range(1, num_seq)[None], del_indices[None]))
+    combined = torch.cat((torch.arange(start=0, end=num_seq), del_indices)).long()
     uniques, counts = combined.unique(return_counts=True)
-    difference = uniques[counts == 1]
-    intersection = uniques[counts > 1]
-    keep_indices = torch.squeeze(difference, 0)
+    keep_indices = uniques[counts == 1]
 
+    assert int(keep_indices[0]) == 0
     for k in MSA_FEATURE_NAMES:
         if k in protein:
-            protein[k] = torch.gather(protein[k], keep_indices)
+            protein[k] = torch.index_select(protein[k], 0, keep_indices)
 
     return protein
 

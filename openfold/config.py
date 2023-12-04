@@ -156,10 +156,12 @@ def model_config(
     elif name == "seqemb_initial_training":
         c.data.train.max_msa_clusters = 1
         c.data.eval.max_msa_clusters = 1
+        c.data.train.block_delete_msa = False
         c.data.train.max_distillation_msa_clusters = 1
     elif name == "seqemb_finetuning":
         c.data.train.max_msa_clusters = 1
         c.data.eval.max_msa_clusters = 1
+        c.data.train.block_delete_msa = False
         c.data.train.max_distillation_msa_clusters = 1
         c.data.train.crop_size = 384
         c.loss.violation.weight = 1.
