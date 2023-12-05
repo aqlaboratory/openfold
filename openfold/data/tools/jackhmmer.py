@@ -186,17 +186,26 @@ class Jackhmmer:
         )
 
         return raw_output
-
+    
     def query(self, 
         input_fasta_path: str,
         max_sequences: Optional[int] = None
     ) -> Sequence[Mapping[str, Any]]:
+        return self.query_multiple([input_fasta_path], max_sequences)[0]
+
+    def query_multiple(self, 
+        input_fasta_paths: str,
+        max_sequences: Optional[int] = None
+    ) -> Sequence[Sequence[Mapping[str, Any]]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            single_chunk_result = self._query_chunk(
-                input_fasta_path, self.database_path, max_sequences,
-            )
-            return [single_chunk_result]
+            single_chunk_results = []
+            for input_fasta_path in input_fasta_paths:
+                single_chunk_result = self._query_chunk(
+                    input_fasta_path, self.database_path, max_sequences,
+                )
+                single_chunk_results.append(single_chunk_result)
+            return single_chunk_results 
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -211,7 +220,7 @@ class Jackhmmer:
 
         # Download the (i+1)-th chunk while Jackhmmer is running on the i-th chunk
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
-            chunked_output = []
+            chunked_outputs = [[] for _ in range(len(input_fasta_paths))]
             for i in range(1, self.num_streamed_chunks + 1):
                 # Copy the chunk locally
                 if i == 1:
@@ -229,21 +238,21 @@ class Jackhmmer:
 
                 # Run Jackhmmer with the chunk
                 future.result()
-                chunked_output.append(
-                    self._query_chunk(
-                        input_fasta_path, 
-                        db_local_chunk(i), 
-                        max_sequences
+                for fasta_idx, input_fasta_path in enumerate(input_fasta_paths):
+                    chunked_outputs[fasta_idx].append(
+                        self._query_chunk(
+                            input_fasta_path, 
+                            db_local_chunk(i), 
+                            max_sequences
+                        )
                     )
-                )
 
                 # Remove the local copy of the chunk
                 os.remove(db_local_chunk(i))
-                future = next_future
                 # Do not set next_future for the last chunk so that this works
                 # even for databases with only 1 chunk
                 if(i < self.num_streamed_chunks):
                     future = next_future
                 if self.streaming_callback:
                     self.streaming_callback(i)
-        return chunked_output
+        return chunked_outputs
