@@ -432,7 +432,7 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-                    "num_workers": 16,
+                    "num_workers": 1,
                     "pin_memory": True,
                 },
             },
@@ -764,7 +764,7 @@ multimer_config_update = mlc.ConfigDict({
                 ],
                 "true_msa": [NUM_MSA_SEQ, NUM_RES]
             },
-            "max_recycling_iters": 20,  # For training, value is 3
+            "max_recycling_iters": 1,  # For training, value is 3
             "unsupervised_features": [
                     "aatype",
                     "residue_index",
@@ -799,7 +799,7 @@ multimer_config_update = mlc.ConfigDict({
         "train": {
             "max_msa_clusters": 508,
             "max_extra_msa": 2048,
-            "crop_size": 640,
+            "crop_size": 32,
             "spatial_crop_prob": 0.5,
             "interface_threshold": 10.,
             "clamp_prob": 1.,
