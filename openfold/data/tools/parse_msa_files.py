@@ -1,7 +1,7 @@
 import os, multiprocessing, argparse, pickle, tempfile, concurrent
 import multiprocessing.pool # Need to import multiprocessing.pool first otherwise multiprocessing.pool.Pool cannot be called
 from openfold.data import parsers
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 def parse_stockholm_file(alignment_dir: str, stockholm_file: str):
     path = os.path.join(alignment_dir, stockholm_file)
@@ -26,7 +26,7 @@ def run_parse_all_msa_files_multiprocessing(stockholm_files: list, a3m_files: li
     msa_results={}
     a3m_tasks = [(alignment_dir, f) for f in a3m_files]
     sto_tasks = [(alignment_dir, f) for f in stockholm_files]
-    with ThreadPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers = len(a3m_tasks) + len(sto_tasks)) as executor:
         a3m_futures = {executor.submit(parse_a3m_file, *task): task for task in a3m_tasks}
         sto_futures = {executor.submit(parse_stockholm_file, *task): task for task in sto_tasks}
 
