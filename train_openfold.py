@@ -42,9 +42,6 @@ from scripts.zero_to_fp32 import (
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
-def calculate_elapse(start, end):
-    elapse = end - start
-    print(f"this function runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
 
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
@@ -319,7 +316,7 @@ def main(args):
             batch_seed=args.seed,
             **vars(args)
         )
-        
+
     data_module.prepare_data()
     data_module.setup()
     

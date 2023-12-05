@@ -195,6 +195,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
             alignment_index=alignment_index,
             seqemb_mode=self.config.seqemb_mode.enabled
         )
+
         return data
 
     def chain_id_to_idx(self, chain_id):
@@ -422,21 +423,24 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
     def _parse_mmcif(self, path, file_id, alignment_dir, alignment_index):
         with open(path, 'r') as f:
             mmcif_string = f.read()
-        import time
+
         mmcif_object = mmcif_parsing.parse(
             file_id=file_id, mmcif_string=mmcif_string
         )
+
         # Crash if an error is encountered. Any parsing errors should have
         # been dealt with at the alignment stage.
         if mmcif_object.mmcif_object is None:
             raise list(mmcif_object.errors.values())[0]
 
         mmcif_object = mmcif_object.mmcif_object
+
         data = self.data_pipeline.process_mmcif(
             mmcif=mmcif_object,
             alignment_dir=alignment_dir,
             alignment_index=alignment_index
         )
+
         return data
 
     def mmcif_id_to_idx(self, mmcif_id):
@@ -450,8 +454,6 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         alignment_index = None
 
         if self.mode == 'train' or self.mode == 'eval':
-            import time 
-            start = time.time()
             path = os.path.join(self.data_dir, f"{mmcif_id}")
             ext = None
             for e in self.supported_exts:
@@ -476,6 +478,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
                 fasta_path=path,
                 alignment_dir=self.alignment_dir
             )
+
         if self._output_raw:
             return data
 
@@ -483,7 +486,7 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
         data = self.feature_pipeline.process_features(data,
                                                       mode=self.mode,
                                                       is_multimer=True)
-        
+
         # if it's inference mode, only need all_chain_features
         data["batch_idx"] = torch.tensor(
             [idx for _ in range(data["aatype"].shape[-1])],
@@ -738,7 +741,9 @@ class OpenFoldMultimerDataset(OpenFoldDataset):
                 generator=self.generator,
             )
             samples = samples.squeeze()
+
             cache = [i for i, s in zip(idx, samples) if s]
+
             for datapoint_idx in cache:
                 yield datapoint_idx
 
