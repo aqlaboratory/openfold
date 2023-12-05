@@ -28,16 +28,14 @@ import pickle
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
 from openfold.data.templates import get_custom_template_features, empty_template_feats
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
-from openfold.data.tools.utils import to_date, NonDaemonicProcess, NonDaemonicProcessPool
+from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
-
+import concurrent
+from concurrent.futures import ThreadPoolExecutor
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
 
-def calculate_elapse(start, end, name):
-    elapse = end - start
-    print(f"{name} runs {round(elapse,3)} seconds i.e. {round(elapse/60, 3)} minutes")
 
 def make_template_features(
     input_sequence: str,
@@ -738,14 +736,11 @@ class DataPipeline:
             fp.close()
         else:
             # Now will split the following steps into multiple processes 
-            import time
             current_directory = os.path.dirname(os.path.abspath(__file__))
-            cmd = f"{current_directory}/parse_msa_files.py"
-            start = time.time()
+            cmd = f"{current_directory}/tools/parse_msa_files.py"
             msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
             msa_data = pickle.load((open(msa_data.stdout.lstrip().rstrip(),'rb')))
-            end = time.time()
-            calculate_elapse(start, end, "parse_msa_files in data_pipeline")
+
         return msa_data
 
     def _parse_template_hit_files(
@@ -820,19 +815,14 @@ class DataPipeline:
         input_sequence: Optional[str] = None,
         alignment_index: Optional[str] = None
     ) -> Mapping[str, Any]:
-        import time
-        start_main = time.time()
-        start = time.time()
+
         msas = self._get_msas(
             alignment_dir, input_sequence, alignment_index
         )
-        end = time.time()
-        calculate_elapse(start,end,"get_msas in data_pipeline")
         msa_features = make_msa_features(
             msas=msas
         )
-        end_main = time.time()
-        calculate_elapse(start_main, end_main,"process_msa_feats in data_pipeline")
+
         return msa_features
 
     # Load and process sequence embedding features
@@ -1216,7 +1206,9 @@ class DataPipelineMultimer:
         with open(fasta_path) as f:
             input_fasta_str = f.read()
 
+
         input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
+
 
         all_chain_features = {}
         sequence_features = {}
@@ -1228,6 +1220,7 @@ class DataPipelineMultimer:
                 )
                 continue
 
+
             chain_features = self._process_single_chain(
                 chain_id=desc,
                 sequence=seq,
@@ -1236,6 +1229,7 @@ class DataPipelineMultimer:
                 is_homomer_or_monomer=is_homomer_or_monomer
             )
 
+
             chain_features = convert_monomer_features(
                 chain_features,
                 chain_id=desc
@@ -1243,17 +1237,20 @@ class DataPipelineMultimer:
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 
+
         all_chain_features = add_assembly_features(all_chain_features)
+
 
         np_example = feature_processing_multimer.pair_and_merge(
             all_chain_features=all_chain_features,
         )
 
+
         # Pad MSA to avoid zero-sized extra_msa.
         np_example = pad_msa(np_example, 512)
 
         return np_example
-
+    
     def get_mmcif_features(
             self, mmcif_object: mmcif_parsing.MmcifObject, chain_id: str
     ) -> FeatureDict:
@@ -1284,17 +1281,20 @@ class DataPipelineMultimer:
             alignment_index: Optional[str] = None,
     ) -> FeatureDict:
 
+
         all_chain_features = {}
         sequence_features = {}
         is_homomer_or_monomer = len(set(list(mmcif.chain_to_seqres.values()))) == 1
         for chain_id, seq in mmcif.chain_to_seqres.items():
             desc= "_".join([mmcif.file_id, chain_id])
 
+
             if seq in sequence_features:
                 all_chain_features[desc] = copy.deepcopy(
                     sequence_features[seq]
                 )
                 continue
+
 
             chain_features = self._process_single_chain(
                 chain_id=desc,
@@ -1304,23 +1304,29 @@ class DataPipelineMultimer:
                 is_homomer_or_monomer=is_homomer_or_monomer
             )
 
+
             chain_features = convert_monomer_features(
                 chain_features,
                 chain_id=desc
             )
+
 
             mmcif_feats = self.get_mmcif_features(mmcif, chain_id)
             chain_features.update(mmcif_feats)
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 
+
         all_chain_features = add_assembly_features(all_chain_features)
+
 
         np_example = feature_processing_multimer.pair_and_merge(
             all_chain_features=all_chain_features,
         )
 
+
         # Pad MSA to avoid zero-sized extra_msa.
         np_example = pad_msa(np_example, 512)
+
 
         return np_example
