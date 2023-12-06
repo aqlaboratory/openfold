@@ -726,7 +726,8 @@ class DataPipeline:
                     )
                 # The "hmm_output" exception is a crude way to exclude
                 # multimer template hits.
-                elif(ext == ".sto" and not "hmm_output" == filename):
+                # Multimer "uniprot_hits" processed separately.
+                elif(ext == ".sto" and filename not in ["uniprot_hits", "hmm_output"]):
                     msa = parsers.parse_stockholm(read_msa(start, size))
                 else:
                     continue

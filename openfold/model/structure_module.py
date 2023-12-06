@@ -716,7 +716,7 @@ class InvariantPointAttentionMultimer(nn.Module):
         o_pt_norm = o_pt.norm(epsilon=1e-8)
 
         if (_offload_inference):
-            z[0] = z[0].to(o_pt.device)
+            z[0] = z[0].to(o_pt.x.device)
 
         o_pair = torch.einsum('...ijh, ...ijc->...ihc', a, z[0].to(dtype=a.dtype))
 
