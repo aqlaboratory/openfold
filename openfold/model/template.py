@@ -474,6 +474,7 @@ def embed_templates_offload(
             chunk_size=model.globals.chunk_size,
             use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
             use_lma=model.globals.use_lma,
+            inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
         )
 
@@ -592,6 +593,7 @@ def embed_templates_average(
             chunk_size=model.globals.chunk_size,
             use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
             use_lma=model.globals.use_lma,
+            inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
         )
 
