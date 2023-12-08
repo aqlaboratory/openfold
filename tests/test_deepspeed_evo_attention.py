@@ -56,6 +56,8 @@ class TestDeepSpeedKernel(unittest.TestCase):
             c_hidden, c_hidden, c_hidden, c_hidden, no_heads
         ).cuda()
 
+        # Change output params init for testing since they are initialized with 'final' init (zeros)
+        # Otherwise both will just return zero.
         with torch.no_grad():
             lecun_normal_init_(a.linear_g.weight)
             lecun_normal_init_(a.linear_o.weight)
@@ -106,12 +108,14 @@ class TestDeepSpeedKernel(unittest.TestCase):
             lecun_normal_init_(attn.linear_o.weight)
 
         def clone(t):
+            # Create new params, clone values
             t = t.clone()
             if t.requires_grad:
                 t.retain_grad()
             return t
 
         def init_attn():
+            # Create new attention object with same initial weights
             a_clone = Attention(
                 c_hidden, c_hidden, c_hidden, c_hidden, no_heads
             ).cuda()
@@ -119,12 +123,13 @@ class TestDeepSpeedKernel(unittest.TestCase):
             a_clone.load_state_dict(attn.state_dict())
             return a_clone
 
+        # Clone param values and run attention with DS kernel
         q_repro = clone(q)
         kv_repro = clone(kv)
         biases_repro = [clone(b) for b in biases]
 
-        a = init_attn()
-        out_repro = a(q_repro, kv_repro, biases=biases_repro, use_deepspeed_evo_attention=True)
+        a_repro = init_attn()
+        out_repro = a_repro(q_repro, kv_repro, biases=biases_repro, use_deepspeed_evo_attention=True)
         loss_repro = torch.mean(out_repro)
         loss_repro.backward()
 
@@ -132,18 +137,29 @@ class TestDeepSpeedKernel(unittest.TestCase):
         kv_gt = clone(kv)
         biases_gt = [clone(b) for b in biases]
 
-        a = init_attn()
-        out_gt = a(q_gt, kv_gt, biases=biases_gt)
+        # Clone param values and run attention without DS kernel
+        a_gt = init_attn()
+        out_gt = a_gt(q_gt, kv_gt, biases=biases_gt)
 
         loss_gt = torch.mean(out_gt)
         loss_gt.backward()
 
-        pairs = zip([q_repro, kv_repro, biases_repro[0], biases_repro[1]],
-                    [q_gt, kv_gt, biases_gt[0], biases_gt[1]])
+        # Compare the grads of attention inputs
+        pairs = zip([q_repro, kv_repro, biases_repro[1]],
+                    [q_gt, kv_gt, biases_gt[1]])
         for i, item in enumerate(pairs):
             t_repro, t_gt = item
             err = torch.max(torch.abs(t_repro.grad.cpu() - t_gt.grad.cpu()))
             self.assertTrue(err < eps, f'Error item #{i}: {err}')
+
+        # Compare the grads of model weights
+        a_repro_params = dict(a_repro.named_parameters())
+        a_gt_params = dict(a_gt.named_parameters())
+        for name in a_gt_params.keys():
+            t_repro = a_repro_params[name]
+            t_gt = a_gt_params[name]
+            err = torch.max(torch.abs(t_repro.grad.cpu() - t_gt.grad.cpu()))
+            self.assertTrue(err < eps, f'Error item {name}: {err}')
 
     def compare_evoformer(self, dtype, eps):
         """
