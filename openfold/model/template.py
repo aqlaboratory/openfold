@@ -20,7 +20,7 @@ from typing import Optional, List
 import torch
 import torch.nn as nn
 
-from openfold.model.primitives import Linear, LayerNorm, Attention
+from openfold.model.primitives import LayerNorm, Attention
 from openfold.model.dropout import (
     DropoutRowwise,
     DropoutColumnwise,
@@ -46,7 +46,6 @@ from openfold.utils.feats import (
 from openfold.utils.tensor_utils import (
     add,
     permute_final_dims,
-    flatten_final_dims,
     tensor_tree_map,
 )
 
@@ -200,7 +199,8 @@ class TemplatePairStackBlock(nn.Module):
     def forward(self, 
         z: torch.Tensor, 
         mask: torch.Tensor, 
-        chunk_size: Optional[int] = None, 
+        chunk_size: Optional[int] = None,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -226,6 +226,7 @@ class TemplatePairStackBlock(nn.Module):
                         single,
                         chunk_size=_attn_chunk_size,
                         mask=single_mask,
+                        use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                         use_lma=use_lma,
                         inplace_safe=inplace_safe,
                     )
@@ -239,6 +240,7 @@ class TemplatePairStackBlock(nn.Module):
                         single,
                         chunk_size=_attn_chunk_size,
                         mask=single_mask,
+                        use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                         use_lma=use_lma,
                         inplace_safe=inplace_safe,
                     )
@@ -355,6 +357,7 @@ class TemplatePairStack(nn.Module):
         t: torch.tensor,
         mask: torch.tensor,
         chunk_size: int,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -378,6 +381,7 @@ class TemplatePairStack(nn.Module):
                 b,
                 mask=mask,
                 chunk_size=chunk_size,
+                use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                 use_lma=use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
@@ -468,7 +472,9 @@ def embed_templates_offload(
             t.unsqueeze(templ_dim),
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=model.globals.chunk_size,
+            use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
             use_lma=model.globals.use_lma,
+            inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
         )
 
@@ -585,7 +591,9 @@ def embed_templates_average(
             t, 
             pair_mask.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=model.globals.chunk_size,
+            use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
             use_lma=model.globals.use_lma,
+            inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
         )
 

@@ -181,6 +181,7 @@ def trace_model_(model, sample_input):
         ("mask", msa_mask),
         ("chunk_size", torch.tensor(evoformer_attn_chunk_size)),
         ("use_memory_efficient_kernel", torch.tensor(False)),
+        ("use_deepspeed_evo_attention", torch.tensor(model.globals.use_deepspeed_evo_attention)),
         ("use_lma", torch.tensor(model.globals.use_lma)),
     ]
     verify_arg_order(
@@ -201,6 +202,7 @@ def trace_model_(model, sample_input):
         ("m", m),
         ("mask", msa_mask),
         ("chunk_size", torch.tensor(evoformer_chunk_size)),
+        ("use_deepspeed_evo_attention", torch.tensor(model.globals.use_deepspeed_evo_attention)),
         ("use_lma", torch.tensor(model.globals.use_lma)),
         ("use_flash", torch.tensor(model.globals.use_flash)),
     ]
@@ -283,6 +285,7 @@ def trace_model_(model, sample_input):
         ("mask", pair_mask.float()),
         ("chunk_size", torch.tensor(evoformer_attn_chunk_size)),
         ("use_memory_efficient_kernel", torch.tensor(False)),
+        ("use_deepspeed_evo_attention", torch.tensor(model.globals.use_deepspeed_evo_attention)),
         ("use_lma", torch.tensor(model.globals.use_lma)),
         ("inplace_safe", torch.tensor(True)),
     ]
@@ -305,6 +308,7 @@ def trace_model_(model, sample_input):
         ("mask", pair_mask.transpose(-1, -2).float()),
         ("chunk_size", torch.tensor(evoformer_attn_chunk_size)),
         ("use_memory_efficient_kernel", torch.tensor(False)),
+        ("use_deepspeed_evo_attention", torch.tensor(model.globals.use_deepspeed_evo_attention)),
         ("use_lma", torch.tensor(model.globals.use_lma)),
         ("inplace_safe", torch.tensor(True)),
     ]

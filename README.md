@@ -39,13 +39,14 @@ kernels support in-place attention during inference and training. They use
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 - **FlashAttention** support greatly speeds up MSA attention.
+- **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a collaboration between OpenFold and the DeepSpeed4Science initiative. The kernel provides substantial speedups for training and inference, and significantly reduces the model's peak device memory requirement by 13X. The model is 15% faster during the initial training and finetuning stages, and up to 4x faster during inference. To use this feature, simply set the `use_deepspeed_evo_attention` option in `openfold/config.py`.
 
 ## Installation (Linux)
 
 All Python dependencies are specified in `environment.yml`. For producing sequence 
 alignments, you'll also need `kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), 
 and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (nightly build)} 
-installed on on your system. You'll need `git-lfs` to download OpenFold parameters. 
+installed on your system. You'll need `git-lfs` to download OpenFold parameters. 
 Finally, some download scripts require `aria2c` and `aws`.
 
 This package is currently supported for CUDA 11 and Pytorch 1.12

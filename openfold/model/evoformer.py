@@ -87,7 +87,6 @@ class MSATransition(nn.Module):
              no_batch_dims=len(m.shape[:-2]),
          )
 
-
     def forward(
         self,
         m: torch.Tensor,
@@ -181,6 +180,7 @@ class EvoformerBlockCore(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -260,6 +260,7 @@ class EvoformerBlockCore(nn.Module):
                     mask=pair_mask, 
                     chunk_size=_attn_chunk_size, 
                     use_memory_efficient_kernel=False,
+                    use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                     use_lma=use_lma,
                     inplace_safe=inplace_safe,
                 )
@@ -279,6 +280,7 @@ class EvoformerBlockCore(nn.Module):
                     mask=pair_mask.transpose(-1, -2),
                     chunk_size=_attn_chunk_size,
                     use_memory_efficient_kernel=False,
+                    use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                     use_lma=use_lma,
                     inplace_safe=inplace_safe,
                 )
@@ -339,7 +341,7 @@ class EvoformerBlock(nn.Module):
 
         # Specifically, seqemb mode does not use column attention
         self.no_column_attention = no_column_attention
-        if self.no_column_attention == False:
+        if not self.no_column_attention:
             self.msa_att_col = MSAColumnAttention(
                 c_m,
                 c_hidden_msa_att,
@@ -369,6 +371,7 @@ class EvoformerBlock(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         use_flash: bool = False,
         inplace_safe: bool = False,
@@ -396,6 +399,7 @@ class EvoformerBlock(nn.Module):
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_memory_efficient_kernel=False,
+                    use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                     use_lma=use_lma,
                 )
             ),
@@ -403,12 +407,13 @@ class EvoformerBlock(nn.Module):
         )
 
         # Specifically, column attention is not used in seqemb mode.
-        if self.no_column_attention == False:
+        if not self.no_column_attention:
             m = add(m,
                 self.msa_att_col(
                     m,
                     mask=msa_mask,
                     chunk_size=chunk_size,
+                    use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                     use_lma=use_lma,
                     use_flash=use_flash,
                 ),
@@ -424,7 +429,8 @@ class EvoformerBlock(nn.Module):
             input_tensors, 
             msa_mask=msa_mask, 
             pair_mask=pair_mask, 
-            chunk_size=chunk_size, 
+            chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
@@ -500,6 +506,7 @@ class ExtraMSABlock(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: Optional[int] = None,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -526,7 +533,8 @@ class ExtraMSABlock(nn.Module):
                     mask=msa_mask, 
                     chunk_size=_attn_chunk_size,
                     use_lma=use_lma,
-                    use_memory_efficient_kernel=not use_lma,
+                    use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                    use_memory_efficient_kernel=not (use_lma or use_deepspeed_evo_attention),
                     _checkpoint_chunks=
                         self.ckpt if torch.is_grad_enabled() else False,
                 )
@@ -560,6 +568,7 @@ class ExtraMSABlock(nn.Module):
                 msa_mask=msa_mask, 
                 pair_mask=pair_mask, 
                 chunk_size=chunk_size,
+                use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                 use_lma=use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
@@ -685,6 +694,7 @@ class EvoformerStack(nn.Module):
         m: torch.Tensor, 
         z: torch.Tensor, 
         chunk_size: int,
+        use_deepspeed_evo_attention: bool,
         use_lma: bool,
         use_flash: bool,
         msa_mask: Optional[torch.Tensor],
@@ -698,6 +708,7 @@ class EvoformerStack(nn.Module):
                 msa_mask=msa_mask,
                 pair_mask=pair_mask,
                 chunk_size=chunk_size,
+                use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                 use_lma=use_lma,
                 use_flash=use_flash,
                 inplace_safe=inplace_safe,
@@ -737,6 +748,7 @@ class EvoformerStack(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         use_flash: bool = False,
         _mask_trans: bool = True,
@@ -748,6 +760,7 @@ class EvoformerStack(nn.Module):
             m=input_tensors[0],
             z=input_tensors[1],
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             use_flash=use_flash,
             msa_mask=msa_mask,
@@ -779,6 +792,7 @@ class EvoformerStack(nn.Module):
         msa_mask: torch.Tensor,
         pair_mask: torch.Tensor,
         chunk_size: int,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         use_flash: bool = False,
         inplace_safe: bool = False,
@@ -797,10 +811,15 @@ class EvoformerStack(nn.Module):
             chunk_size: 
                 Inference-time subbatch size. Acts as a minimum if 
                 self.tune_chunk_size is True
-            use_lma: Whether to use low-memory attention during inference
+            use_deepspeed_evo_attention:
+                Whether to use DeepSpeed memory efficient kernel.
+                Mutually exclusive with use_lma and use_flash.
+            use_lma:
+                Whether to use low-memory attention during inference.
+                Mutually exclusive with use_flash and use_deepspeed_evo_attention.
             use_flash: 
                 Whether to use FlashAttention where possible. Mutually 
-                exclusive with use_lma.
+                exclusive with use_lma and use_deepspeed_evo_attention.
         Returns:
             m:
                 [*, N_seq, N_res, C_m] MSA embedding
@@ -813,6 +832,7 @@ class EvoformerStack(nn.Module):
             m=m,
             z=z,
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             use_flash=use_flash,
             msa_mask=msa_mask,
@@ -893,6 +913,7 @@ class ExtraMSAStack(nn.Module):
         m: torch.Tensor, 
         z: torch.Tensor, 
         chunk_size: int,
+        use_deepspeed_evo_attention: bool,
         use_lma: bool,
         msa_mask: Optional[torch.Tensor],
         pair_mask: Optional[torch.Tensor],
@@ -904,7 +925,8 @@ class ExtraMSAStack(nn.Module):
                 b, 
                 msa_mask=msa_mask, 
                 pair_mask=pair_mask, 
-                chunk_size=chunk_size, 
+                chunk_size=chunk_size,
+                use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                 use_lma=use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
@@ -941,6 +963,7 @@ class ExtraMSAStack(nn.Module):
     def _forward_offload(self,
         input_tensors: Sequence[torch.Tensor],
         chunk_size: int,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         msa_mask: Optional[torch.Tensor] = None,
         pair_mask: Optional[torch.Tensor] = None,
@@ -953,6 +976,7 @@ class ExtraMSAStack(nn.Module):
             m=input_tensors[0],
             z=input_tensors[1],
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
@@ -979,6 +1003,7 @@ class ExtraMSAStack(nn.Module):
         msa_mask: Optional[torch.Tensor],
         pair_mask: Optional[torch.Tensor],
         chunk_size: int,
+        use_deepspeed_evo_attention: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -990,6 +1015,7 @@ class ExtraMSAStack(nn.Module):
             z:
                 [*, N_res, N_res, C_z] pair embedding
             chunk_size: Inference-time subbatch size for Evoformer modules
+            use_deepspeed_evo_attention: Whether to use DeepSpeed memory-efficient kernel
             use_lma: Whether to use low-memory attention during inference
             msa_mask:
                 Optional [*, N_extra, N_res] MSA mask
@@ -1003,6 +1029,7 @@ class ExtraMSAStack(nn.Module):
             m=m,
             z=z,
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             msa_mask=msa_mask,
             pair_mask=pair_mask,
