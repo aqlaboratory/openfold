@@ -190,11 +190,11 @@ class Jackhmmer:
     def query(self, 
         input_fasta_path: str,
         max_sequences: Optional[int] = None
-    ) -> Sequence[Mapping[str, Any]]:
-        return self.query_multiple([input_fasta_path], max_sequences)[0]
+    ) -> Sequence[Sequence[Mapping[str, Any]]]:
+        return self.query_multiple([input_fasta_path], max_sequences)
 
     def query_multiple(self, 
-        input_fasta_paths: str,
+        input_fasta_paths: Sequence[str],
         max_sequences: Optional[int] = None
     ) -> Sequence[Sequence[Mapping[str, Any]]]:
         """Queries the database using Jackhmmer."""

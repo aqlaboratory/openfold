@@ -451,7 +451,11 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         mmcif_id = self.idx_to_mmcif_id(idx)
+
         alignment_index = None
+        if self.alignment_index is not None:
+            alignment_index = {k: v for k, v in self.alignment_index.items()
+                               if f'{mmcif_id}_' in k}
 
         if self.mode == 'train' or self.mode == 'eval':
             path = os.path.join(self.data_dir, f"{mmcif_id}")
@@ -476,7 +480,8 @@ class OpenFoldSingleMultimerDataset(torch.utils.data.Dataset):
             path = os.path.join(self.data_dir, f"{mmcif_id}.fasta")
             data = self.data_pipeline.process_fasta(
                 fasta_path=path,
-                alignment_dir=self.alignment_dir
+                alignment_dir=self.alignment_dir,
+                alignment_index=alignment_index
             )
 
         if self._output_raw:
