@@ -21,16 +21,17 @@ import dataclasses
 from multiprocessing import cpu_count
 import tempfile
 from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
-
+import subprocess
 import numpy as np
 import torch
-
+import pickle
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
 from openfold.data.templates import get_custom_template_features, empty_template_feats
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
-
+import concurrent
+from concurrent.futures import ThreadPoolExecutor
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
@@ -735,22 +736,11 @@ class DataPipeline:
 
             fp.close()
         else:
-            for f in os.listdir(alignment_dir):
-                path = os.path.join(alignment_dir, f)
-                filename, ext = os.path.splitext(f)
-
-                if(ext == ".a3m"):
-                    with open(path, "r") as fp:
-                        msa = parsers.parse_a3m(fp.read())
-                elif(ext == ".sto" and filename not in ["uniprot_hits", "hmm_output"]):
-                    with open(path, "r") as fp:
-                        msa = parsers.parse_stockholm(
-                            fp.read()
-                        )
-                else:
-                    continue
-
-                msa_data[f] = msa
+            # Now will split the following steps into multiple processes 
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            cmd = f"{current_directory}/tools/parse_msa_files.py"
+            msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
+            msa_data = pickle.load((open(msa_data.stdout.lstrip().rstrip(),'rb')))
 
         return msa_data
 
@@ -826,6 +816,7 @@ class DataPipeline:
         input_sequence: Optional[str] = None,
         alignment_index: Optional[str] = None
     ) -> Mapping[str, Any]:
+
         msas = self._get_msas(
             alignment_dir, input_sequence, alignment_index
         )
@@ -1216,7 +1207,9 @@ class DataPipelineMultimer:
         with open(fasta_path) as f:
             input_fasta_str = f.read()
 
+
         input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
+
 
         all_chain_features = {}
         sequence_features = {}
@@ -1228,6 +1221,7 @@ class DataPipelineMultimer:
                 )
                 continue
 
+
             chain_features = self._process_single_chain(
                 chain_id=desc,
                 sequence=seq,
@@ -1236,6 +1230,7 @@ class DataPipelineMultimer:
                 is_homomer_or_monomer=is_homomer_or_monomer
             )
 
+
             chain_features = convert_monomer_features(
                 chain_features,
                 chain_id=desc
@@ -1243,17 +1238,20 @@ class DataPipelineMultimer:
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 
+
         all_chain_features = add_assembly_features(all_chain_features)
+
 
         np_example = feature_processing_multimer.pair_and_merge(
             all_chain_features=all_chain_features,
         )
 
+
         # Pad MSA to avoid zero-sized extra_msa.
         np_example = pad_msa(np_example, 512)
 
         return np_example
-
+    
     def get_mmcif_features(
             self, mmcif_object: mmcif_parsing.MmcifObject, chain_id: str
     ) -> FeatureDict:
@@ -1284,17 +1282,20 @@ class DataPipelineMultimer:
             alignment_index: Optional[str] = None,
     ) -> FeatureDict:
 
+
         all_chain_features = {}
         sequence_features = {}
         is_homomer_or_monomer = len(set(list(mmcif.chain_to_seqres.values()))) == 1
         for chain_id, seq in mmcif.chain_to_seqres.items():
             desc= "_".join([mmcif.file_id, chain_id])
 
+
             if seq in sequence_features:
                 all_chain_features[desc] = copy.deepcopy(
                     sequence_features[seq]
                 )
                 continue
+
 
             chain_features = self._process_single_chain(
                 chain_id=desc,
@@ -1304,23 +1305,29 @@ class DataPipelineMultimer:
                 is_homomer_or_monomer=is_homomer_or_monomer
             )
 
+
             chain_features = convert_monomer_features(
                 chain_features,
                 chain_id=desc
             )
+
 
             mmcif_feats = self.get_mmcif_features(mmcif, chain_id)
             chain_features.update(mmcif_feats)
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 
+
         all_chain_features = add_assembly_features(all_chain_features)
+
 
         np_example = feature_processing_multimer.pair_and_merge(
             all_chain_features=all_chain_features,
         )
 
+
         # Pad MSA to avoid zero-sized extra_msa.
         np_example = pad_msa(np_example, 512)
+
 
         return np_example
