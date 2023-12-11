@@ -657,6 +657,7 @@ class TemplateEmbedder(nn.Module):
         templ_dim,
         chunk_size,
         _mask_trans=True,
+        use_deepspeed_evo_attention=False,
         use_lma=False,
         inplace_safe=False
     ):
@@ -707,6 +708,7 @@ class TemplateEmbedder(nn.Module):
             t_pair,
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
@@ -893,6 +895,7 @@ class TemplateEmbedderMultimer(nn.Module):
         chunk_size,
         multichain_mask_2d,
         _mask_trans=True,
+        use_deepspeed_evo_attention=False,
         use_lma=False,
         inplace_safe=False
     ):
@@ -967,6 +970,7 @@ class TemplateEmbedderMultimer(nn.Module):
             template_embeds["template_pair_embedding"], 
             padding_mask_2d.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=chunk_size,
+            use_deepspeed_evo_attention=use_deepspeed_evo_attention,
             use_lma=use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,

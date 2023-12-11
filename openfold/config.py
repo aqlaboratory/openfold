@@ -29,18 +29,27 @@ def enforce_config_constraints(config):
         (
             "globals.use_lma",
             "globals.use_flash",
+            "globals.use_deepspeed_evo_attention"
         ),
     ]
 
-    for s1, s2 in mutually_exclusive_bools:
-        s1_setting = string_to_setting(s1)
-        s2_setting = string_to_setting(s2)
-        if(s1_setting and s2_setting):
-            raise ValueError(f"Only one of {s1} and {s2} may be set at a time")
+    for options in mutually_exclusive_bools:
+        option_settings = [string_to_setting(o) for o in options]
+        if sum(option_settings) > 1:
+            raise ValueError(f"Only one of {', '.join(options)} may be set at a time")
 
     fa_is_installed = importlib.util.find_spec("flash_attn") is not None
-    if(config.globals.use_flash and not fa_is_installed):
+    if config.globals.use_flash and not fa_is_installed:
         raise ValueError("use_flash requires that FlashAttention is installed")
+
+    deepspeed_is_installed = importlib.util.find_spec("deepspeed") is not None
+    ds4s_is_installed = deepspeed_is_installed and importlib.util.find_spec(
+        "deepspeed.ops.deepspeed4science") is not None
+    if config.globals.use_deepspeed_evo_attention and not ds4s_is_installed:
+        raise ValueError(
+            "use_deepspeed_evo_attention requires that DeepSpeed be installed "
+            "and that the deepspeed.ops.deepspeed4science package exists"
+        )
 
     if(
         config.globals.offload_inference and 
@@ -158,10 +167,12 @@ def model_config(
         if name == "seqemb_initial_training":
             c.data.train.max_msa_clusters = 1
             c.data.eval.max_msa_clusters = 1
+            c.data.train.block_delete_msa = False
             c.data.train.max_distillation_msa_clusters = 1
         elif name == "seqemb_finetuning":
             c.data.train.max_msa_clusters = 1
             c.data.eval.max_msa_clusters = 1
+            c.data.train.block_delete_msa = False
             c.data.train.max_distillation_msa_clusters = 1
             c.data.train.crop_size = 384
             c.loss.violation.weight = 1.
@@ -218,7 +229,8 @@ def model_config(
     if long_sequence_inference:
         assert(not train)
         c.globals.offload_inference = True
-        c.globals.use_lma = True
+        # Default to DeepSpeed memory-efficient attention kernel unless use_lma is explicitly set
+        c.globals.use_deepspeed_evo_attention = True if not c.globals.use_lma else False
         c.globals.use_flash = False
         c.model.template.offload_inference = True
         c.model.template.template_pair_stack.tune_chunk_size = False
@@ -338,6 +350,11 @@ config = mlc.ConfigDict(
                     "true_msa": [NUM_MSA_SEQ, NUM_RES],
                     "use_clamped_fape": [],
                 },
+                "block_delete_msa": {
+                    "msa_fraction_per_block": 0.3,
+                    "randomize_num_blocks": False,
+                    "num_blocks": 5,
+                },
                 "masked_msa": {
                     "profile_prob": 0.1,
                     "same_prob": 0.1,
@@ -382,6 +399,7 @@ config = mlc.ConfigDict(
             "predict": {
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
+                "block_delete_msa": False,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 512,
                 "max_extra_msa": 1024,
@@ -397,6 +415,7 @@ config = mlc.ConfigDict(
             "eval": {
                 "fixed_size": True,
                 "subsample_templates": False,  # We want top templates.
+                "block_delete_msa": False,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
                 "max_extra_msa": 1024,
@@ -412,6 +431,7 @@ config = mlc.ConfigDict(
             "train": {
                 "fixed_size": True,
                 "subsample_templates": True,
+                "block_delete_msa": True,
                 "masked_msa_replace_fraction": 0.15,
                 "max_msa_clusters": 128,
                 "max_extra_msa": 1024,
@@ -441,11 +461,15 @@ config = mlc.ConfigDict(
         "globals": {
             "blocks_per_ckpt": blocks_per_ckpt,
             "chunk_size": chunk_size,
+            # Use DeepSpeed memory-efficient attention kernel. Mutually
+            # exclusive with use_lma and use_flash.
+            "use_deepspeed_evo_attention": False,
             # Use Staats & Rabe's low-memory attention algorithm. Mutually
-            # exclusive with use_flash.
+            # exclusive with use_deepspeed_evo_attention and use_flash.
             "use_lma": False,
             # Use FlashAttention in selected modules. Mutually exclusive with 
-            # use_lma. Doesn't work that well on long sequences (>1000 residues).
+            # use_deepspeed_evo_attention and use_lma. Doesn't work that well
+            # on long sequences (>1000 residues).
             "use_flash": False,
             "offload_inference": False,
             "c_z": c_z,
@@ -799,6 +823,7 @@ multimer_config_update = mlc.ConfigDict({
         "train": {
             "max_msa_clusters": 508,
             "max_extra_msa": 2048,
+            "block_delete_msa" : False,
             "crop_size": 640,
             "spatial_crop_prob": 0.5,
             "interface_threshold": 10.,

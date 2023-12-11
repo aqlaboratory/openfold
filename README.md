@@ -39,13 +39,14 @@ kernels support in-place attention during inference and training. They use
 implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 - **FlashAttention** support greatly speeds up MSA attention.
+- **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a collaboration between OpenFold and the DeepSpeed4Science initiative. The kernel provides substantial speedups for training and inference, and significantly reduces the model's peak device memory requirement by 13X. The model is 15% faster during the initial training and finetuning stages, and up to 4x faster during inference. To use this feature, simply set the `use_deepspeed_evo_attention` option in `openfold/config.py`.
 
 ## Installation (Linux)
 
 All Python dependencies are specified in `environment.yml`. For producing sequence 
 alignments, you'll also need `kalign`, the [HH-suite](https://github.com/soedinglab/hh-suite), 
 and one of {`jackhmmer`, [MMseqs2](https://github.com/soedinglab/mmseqs2) (nightly build)} 
-installed on on your system. You'll need `git-lfs` to download OpenFold parameters. 
+installed on your system. You'll need `git-lfs` to download OpenFold parameters. 
 Finally, some download scripts require `aria2c` and `aws`.
 
 This package is currently supported for CUDA 11 and Pytorch 1.12
@@ -114,7 +115,13 @@ the model, consult `run_pretrained_openfold.py`.
 ### Inference
 
 To run inference on a sequence or multiple sequences using a set of DeepMind's 
-pretrained parameters, run e.g.:
+pretrained parameters, first download the OpenFold weights e.g.:
+
+```bash 
+bash scripts/download_openfold_params.sh openfold/resources
+```
+
+then run e.g.:
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -286,6 +293,14 @@ python scripts/precompute_embeddings.py fasta_dir/ embeddings_output_dir/
 
 In the same per-label subdirectories inside `embeddings_output_dir`, you can also place `*.hhr` files (outputs from HHSearch), which can contain the details about the structures that you want to use as templates. If you do not place any such file, templates will not be used and only the ESM-1b embeddings will be used to predict the structure. If you want to use templates, you need to pass the PDB MMCIF dataset to the command.
 
+Then download the SoloSeq model weights, e.g.:
+
+
+```bash 
+bash scripts/download_openfold_soloseq_params.sh openfold/resources
+```
+
+
 Now, you are ready to run inference:
 ```bash
 python run_pretrained_openfold.py \
@@ -295,7 +310,7 @@ python run_pretrained_openfold.py \
     --output_dir ./ \
     --model_device "cuda:0" \
     --config_preset "seq_model_esm1b_ptm" \
-    --openfold_checkpoint_path openfold/resources/openfold_params/seq_model_esm1b_ptm.pt
+    --openfold_checkpoint_path openfold/resources/openfold_soloseq_params/seq_model_esm1b_ptm.pt
 ```
 
 For generating the embeddings during inference, skip the `--use_precomputed_alignments` argument. The `*.hhr` files will be generated as well if you pass the paths to the relevant databases and tools, as specified in the command below. If you skip the database and tool arguments, HHSearch will not be used to find templates and only generated ESM-1b embeddings will be used to predict the structure.

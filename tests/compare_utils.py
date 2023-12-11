@@ -10,13 +10,24 @@ import numpy as np
 from openfold.config import model_config
 from openfold.model.model import AlphaFold
 from openfold.utils.import_weights import import_jax_weights_
-from tests.config import consts
 
 # Give JAX some GPU memory discipline
 # (by default it hogs 90% of GPU memory. This disables that behavior and also
 # forces it to proactively free memory that it allocates)
 os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"] = "platform"
 os.environ["JAX_PLATFORM_NAME"] = "gpu"
+
+
+def skip_unless_ds4s_installed():
+    deepspeed_is_installed = importlib.util.find_spec("deepspeed") is not None
+    ds4s_is_installed = deepspeed_is_installed and importlib.util.find_spec(
+        "deepspeed.ops.deepspeed4science") is not None
+    return unittest.skipUnless(ds4s_is_installed, "Requires DeepSpeed with version ≥ 0.10.4")
+
+
+def skip_unless_flash_attn_installed():
+    fa_is_installed = importlib.util.find_spec("flash_attn") is not None
+    return unittest.skipUnless(fa_is_installed, "Requires Flash Attention")
 
 
 def alphafold_is_installed():
