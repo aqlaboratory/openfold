@@ -189,7 +189,7 @@ class Linear(nn.Linear):
         d = input.dtype
         deepspeed_is_initialized = (
                 deepspeed_is_installed and
-                deepspeed.utils.is_initialized()
+                deepspeed.comm.comm.is_initialized()
         )
         if self.precision is not None:
             with torch.cuda.amp.autocast(enabled=False):

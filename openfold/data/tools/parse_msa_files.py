@@ -2,6 +2,7 @@ import os, argparse, pickle, tempfile, concurrent
 from openfold.data import parsers
 from concurrent.futures import ProcessPoolExecutor
 
+
 def parse_stockholm_file(alignment_dir: str, stockholm_file: str):
     path = os.path.join(alignment_dir, stockholm_file)
     file_name,_ = os.path.splitext(stockholm_file)
@@ -10,6 +11,7 @@ def parse_stockholm_file(alignment_dir: str, stockholm_file: str):
         infile.close()
     return {file_name: msa}
 
+
 def parse_a3m_file(alignment_dir: str, a3m_file: str):
     path = os.path.join(alignment_dir, a3m_file)
     file_name,_ = os.path.splitext(a3m_file)
@@ -17,6 +19,7 @@ def parse_a3m_file(alignment_dir: str, a3m_file: str):
         msa = parsers.parse_a3m(infile.read())
         infile.close()
     return {file_name: msa}
+
 
 def run_parse_all_msa_files_multiprocessing(stockholm_files: list, a3m_files: list, alignment_dir:str):
     # Number of workers based on the tasks
@@ -35,17 +38,20 @@ def run_parse_all_msa_files_multiprocessing(stockholm_files: list, a3m_files: li
                 print(f'Task generated an exception: {exc}')
         return msa_results
 
+
 def main():  
     parser = argparse.ArgumentParser(description='Process msa files in parallel')
     parser.add_argument('--alignment_dir', type=str, help='path to alignment dir')
     args = parser.parse_args()
     alignment_dir = args.alignment_dir
-    stockholm_files = [i for i in os.listdir(alignment_dir) if (i.endswith('.sto') and ("hmm_output" not in i))]
+    stockholm_files = [i for i in os.listdir(alignment_dir)
+                       if all([i.endswith('.sto'), "hmm_output" not in i, "uniprot_hits" not in i])]
     a3m_files = [i for i in os.listdir(alignment_dir) if i.endswith('.a3m')]
     msa_data = run_parse_all_msa_files_multiprocessing(stockholm_files, a3m_files, alignment_dir)
     with tempfile.NamedTemporaryFile('wb', suffix='.pkl', delete=False) as outfile:
         pickle.dump(msa_data, outfile)
         print(outfile.name)
+
 
 if __name__ == "__main__":
     main()
