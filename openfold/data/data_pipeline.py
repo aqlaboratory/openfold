@@ -18,7 +18,6 @@ import copy
 import collections
 import contextlib
 import dataclasses
-from multiprocessing import cpu_count
 import tempfile
 from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
 import subprocess
@@ -30,8 +29,7 @@ from openfold.data.templates import get_custom_template_features, empty_template
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
-import concurrent
-from concurrent.futures import ThreadPoolExecutor
+import tarfile 
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
@@ -1160,10 +1158,28 @@ class DataPipelineMultimer:
             is_homomer_or_monomer: bool
     ) -> FeatureDict:
         """Runs the monomer pipeline on a single chain."""
+        
+        @contextlib.contextmanager
+        def open_tar_bz2(file_path):
+            tar = tarfile.open(file_path, 'r:bz2')
+            try:
+                yield tar
+            except:
+                print(f"Filed to unzip the file at: {file_path}")
+            finally:
+                tar.close()
+        
         chain_fasta_str = f'>{chain_id}\n{sequence}\n'
 
-        if chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
-            raise ValueError(f"Alignments for {chain_id} not found...")
+        if chain_alignment_index is not None and os.path.exists(chain_alignment_dir):
+            pass
+        elif chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
+            raise ValueError(f"Alignments for {chain_id} not found...") 
+        elif chain_alignment_index is not None and os.path.exists(os.path.join(chain_alignment_dir,".tar.bz2")):
+            with tempfile.TemporaryDirectory(delete=False) as tmpdir:
+                with open_tar_bz2(os.path.join(chain_alignment_dir,".tar.bz2")) as tar:
+                    tar.extractcall(path = tmpdir.name)
+                chain_alignment_dir = tmpdir.name 
 
         with temp_fasta_file(chain_fasta_str) as chain_fasta_path:
             chain_features = self._monomer_data_pipeline.process_fasta(
