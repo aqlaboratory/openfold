@@ -737,8 +737,10 @@ class DataPipeline:
             # Now will split the following steps into multiple processes 
             current_directory = os.path.dirname(os.path.abspath(__file__))
             cmd = f"{current_directory}/tools/parse_msa_files.py"
-            msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
-            msa_data = pickle.load((open(msa_data.stdout.lstrip().rstrip(),'rb')))
+            msa_data_path = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
+            msa_data_path = msa_data_path.stdout.lstrip().rstrip()
+            msa_data = pickle.load((open(msa_data_path,'rb')))
+            os.remove(msa_data_path)
 
         return msa_data
 
@@ -1159,27 +1161,17 @@ class DataPipelineMultimer:
     ) -> FeatureDict:
         """Runs the monomer pipeline on a single chain."""
         
-        @contextlib.contextmanager
-        def open_tar_bz2(file_path):
-            tar = tarfile.open(file_path, 'r:bz2')
-            try:
-                yield tar
-            except:
-                print(f"Filed to unzip the file at: {file_path}")
-            finally:
-                tar.close()
-        
         chain_fasta_str = f'>{chain_id}\n{sequence}\n'
 
         if chain_alignment_index is not None and os.path.exists(chain_alignment_dir):
             pass
-        elif chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
+        elif chain_alignment_index is None and not (os.path.exists(chain_alignment_dir) or os.path.exists(chain_alignment_dir + ".tar.bz2")):
             raise ValueError(f"Alignments for {chain_id} not found...") 
-        elif chain_alignment_index is not None and os.path.exists(os.path.join(chain_alignment_dir,".tar.bz2")):
-            with tempfile.TemporaryDirectory(delete=False) as tmpdir:
-                with open_tar_bz2(os.path.join(chain_alignment_dir,".tar.bz2")) as tar:
-                    tar.extractcall(path = tmpdir.name)
-                chain_alignment_dir = tmpdir.name 
+        elif chain_alignment_index is not None or os.path.exists(chain_alignment_dir + ".tar.bz2"):
+            tmpdir = tempfile.mkdtemp()
+            cmd = f"tar -xvf {chain_alignment_dir + '.tar.bz2'} -C {tmpdir}"
+            result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
+            chain_alignment_dir = os.path.join(tmpdir, os.listdir(tmpdir)[0]) 
 
         with temp_fasta_file(chain_fasta_str) as chain_fasta_path:
             chain_features = self._monomer_data_pipeline.process_fasta(
