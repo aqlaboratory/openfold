@@ -29,7 +29,6 @@ from openfold.data.templates import get_custom_template_features, empty_template
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
-import tarfile 
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
