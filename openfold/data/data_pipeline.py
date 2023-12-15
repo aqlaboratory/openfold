@@ -1163,7 +1163,7 @@ class DataPipelineMultimer:
         chain_fasta_str = f'>{chain_id}\n{sequence}\n'
 
         if chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
-             raise ValueError(f"Alignments for {chain_id} not found...")
+            raise ValueError(f"Alignments for {chain_id} not found...")
 
         with temp_fasta_file(chain_fasta_str) as chain_fasta_path:
             chain_features = self._monomer_data_pipeline.process_fasta(
