@@ -1160,18 +1160,10 @@ class DataPipelineMultimer:
             is_homomer_or_monomer: bool
     ) -> FeatureDict:
         """Runs the monomer pipeline on a single chain."""
-        
         chain_fasta_str = f'>{chain_id}\n{sequence}\n'
 
-        if chain_alignment_index is not None and os.path.exists(chain_alignment_dir):
-            pass
-        elif chain_alignment_index is None and not (os.path.exists(chain_alignment_dir) or os.path.exists(chain_alignment_dir + ".tar.bz2")):
-            raise ValueError(f"Alignments for {chain_id} not found...") 
-        elif chain_alignment_index is not None or os.path.exists(chain_alignment_dir + ".tar.bz2"):
-            tmpdir = tempfile.mkdtemp()
-            cmd = f"tar -xvf {chain_alignment_dir + '.tar.bz2'} -C {tmpdir}"
-            result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
-            chain_alignment_dir = os.path.join(tmpdir, os.listdir(tmpdir)[0]) 
+        if chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
+             raise ValueError(f"Alignments for {chain_id} not found...")
 
         with temp_fasta_file(chain_fasta_str) as chain_fasta_path:
             chain_features = self._monomer_data_pipeline.process_fasta(
