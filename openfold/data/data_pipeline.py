@@ -30,8 +30,6 @@ from openfold.data.templates import get_custom_template_features, empty_template
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date
 from openfold.np import residue_constants, protein
-import concurrent
-from concurrent.futures import ThreadPoolExecutor
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
@@ -739,8 +737,10 @@ class DataPipeline:
             # Now will split the following steps into multiple processes 
             current_directory = os.path.dirname(os.path.abspath(__file__))
             cmd = f"{current_directory}/tools/parse_msa_files.py"
-            msa_data = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
-            msa_data = pickle.load((open(msa_data.stdout.lstrip().rstrip(),'rb')))
+            msa_data_path = subprocess.run(['python',cmd, f"--alignment_dir={alignment_dir}"],capture_output=True, text=True)
+            msa_data_path = msa_data_path.stdout.lstrip().rstrip()
+            msa_data = pickle.load((open(msa_data_path,'rb')))
+            os.remove(msa_data_path)
 
         return msa_data
 
