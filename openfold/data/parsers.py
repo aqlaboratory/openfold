@@ -393,3 +393,93 @@ def parse_e_values_from_tblout(tblout: str) -> Dict[str, float]:
         target_name = fields[0]
         e_values[target_name] = float(e_value)
     return e_values
+
+
+def parse_sto_seq_line(line: str) -> Tuple[str, str]:
+    """Parse a sequence line of the Stockholm format."""
+
+    if line.strip() and not line.startswith(("#", "//")):
+        # Ignore blank lines, markup and end symbols - remainder are alignment
+        # sequence parts.
+        seqname, aligned_seq = line.split(maxsplit=1)
+        return seqname, aligned_seq.strip()
+    else:
+        return None, None
+
+
+def parse_sto_gs_line(line: str) -> Tuple[str, str, str]:
+    """Parse a GS line of the Stockholm format."""
+
+    if line[:4] == "#=GS":
+        # Description row - example format is:
+        # #=GS UniRef90_Q9H5Z4/4-78            DE [subseq from] cDNA: FLJ22755 ...
+        columns = line.split(maxsplit=3)
+        seqname, feature = columns[1:3]
+        value = columns[3] if len(columns) == 4 else ""
+        return seqname, feature, value.strip()
+    else:
+        return None, None, None
+
+
+def convert_stockholm_to_a3m_stream(
+        sto_path: str,
+        a3m_path: str,
+        max_sequences: Optional[int]=None):
+    """Converts MSA of the Stockholm format to the A3M format.
+    This method consumes less memory than convert_stockholm_to_a3m
+    by streaming the input sto file.
+    """
+
+    seq_fps = {}
+    desc_fps = {}
+    with open(sto_path, "r") as sto:
+        # Get pointers of sequence/description lines
+        line = True
+        while line:
+            fp = sto.tell()
+            line = sto.readline()
+
+            # Sequence line
+            seqname, _ = parse_sto_seq_line(line)
+            if seqname is not None:
+                if seqname not in seq_fps.keys():
+                    seq_fps[seqname] = []
+                seq_fps[seqname].append(fp)
+                continue
+
+            # Description line
+            seqname, feature, _ = parse_sto_gs_line(line)
+            if seqname is not None and feature == "DE":
+                desc_fps[seqname] = fp
+
+        with open(a3m_path, "w") as a3m:
+            query_seqname = None
+            query_seq = None
+            seq_count = 0
+            for seqname, fps in seq_fps.items():
+                aligned_seq = ""
+                for fp in fps:
+                    sto.seek(fp)
+                    line = sto.readline()
+                    _, aseq = parse_sto_seq_line(line)
+                    aligned_seq += aseq
+
+                # query_sequence is assumed to be the first sequence
+                if query_seq is None:
+                    query_seqname = seqname
+                    query_seq = aligned_seq
+                    query_non_gaps = [res != "-" for res in query_seq]
+
+                if seqname in desc_fps.keys():
+                    sto.seek(desc_fps[seqname])
+                    line = sto.readline()
+                    _, _, desc = parse_sto_gs_line(line)
+                else:
+                    desc = ""
+
+                # Convert sto format to a3m line by line
+                a3m_seq = "".join(_convert_sto_seq_to_a3m(query_non_gaps, aligned_seq))
+                a3m.write(f">{seqname} {desc}\n{a3m_seq}\n")
+                seq_count += 1
+                if max_sequences and seq_count >= max_sequences:
+                    break

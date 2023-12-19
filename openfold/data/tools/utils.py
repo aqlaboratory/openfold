@@ -24,6 +24,7 @@ import time
 import pickle
 import os
 import lz4
+import signal
 from typing import Optional
 
 from openfold.data import mmcif_parsing
@@ -38,13 +39,32 @@ def tmpdir_manager(base_dir: Optional[str] = None):
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+class TimeoutException(Exception):
+    pass
+
+
+def timeout_handler(signum, frame):
+    raise TimeoutException()
+
+
 @contextlib.contextmanager
-def timing(msg: str):
-    logging.info("Started %s", msg)
-    tic = time.perf_counter()
-    yield
-    toc = time.perf_counter()
-    logging.info("Finished %s in %.3f seconds", msg, toc - tic)
+def timing(msg: str, timeout: float=None):
+    if timeout is None:
+        logging.info("Started %s", msg)
+    else:
+        logging.info(f"Started {msg} with a {timeout} second timeout")
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(int(timeout))
+
+    try:
+        tic = time.perf_counter()
+        yield
+        toc = time.perf_counter()
+        logging.info("Finished %s in %.3f seconds", msg, toc - tic)
+    except TimeoutException:
+        logging.info(f"Exceeded {timeout} seconds in {msg}")
+
+    signal.alarm(0)
 
 
 def to_date(s: str):

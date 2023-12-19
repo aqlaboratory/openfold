@@ -1,0 +1,28 @@
+# STOCKHOLM 1.0
+#=GF ID query-i1
+#=GF AU jackhmmer (HMMER 3.3.2)
+
+#=GS seq3/1-237 DE [subseq from] seq3
+#=GS seq1/1-140 DE [subseq from] seq1
+#=GS seq2/1-100 DE [subseq from] seq2
+
+query              AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDD-EEEEEEEEEEFFFFFFFFFFGGGGGGGGGGHHHHHHHHHHIIIIIIIIII----------JJJJJJJJJJKKKKKKKKKKLLLLLLLLLLMMMMMMMMMMNNNNNNNNNNOOOOOOOOOO----------PPPPPPPPPPQQQQQQQQQQ-RRRRRRRR
+seq3/1-237         AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDAEEEEEEEEEEFFFFFFFFFFGGGGGGGGGGHHHHHHHHHHAIIIIIIIII---------IJJJJJJJJJJKKKKKKKKKKLLLLLLLLL----------LNNNNNNNNNOOOOOOOOOOMMMMMMMMMMNPPPPPPPPPPQQQQQQQQQQARRRRRRRR
+#=GR seq3/1-237 PP 789999*************************99999888835667778899***************************9998877766655.........055666677778888888888776665543..........467766666666666666652444444555599999999999888777666266777888
+seq1/1-140         AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDD-EEEEEEEEEEFFFFFFFFFFGGGGGGGGGGHHHHHHHHHHIIIIIIIIII----------JJJJJJJJJJKKKKKKKKKKLLLLLLLLLLMMMMMMMMMMNNNNNNNNNN-------------------------------------------------
+#=GR seq1/1-140 PP 789999**********************************.**************************************************..........**********************************************9998.................................................
+seq2/1-100         ------------------------------DDDDDDDDDD-EEEEEEEEEEFFFFFFFFFFGGGGGGGGGGHHHHHHHHHHIIIIIIIIIIAAAAAAAAAAJJJJJJJJJJKKKKKKKKKKLLLLLLLLLL---------------------------------------------------------------------
+#=GR seq2/1-100 PP ..............................89999*****.******************************************999999875555555554678888999999999999999999998886.....................................................................
+#=GC PP_cons       789999************************99999*9999.89999999********************************9999988887..........778888999999999999999988888778*********789988888876666666652..........99999999999888777666.66777888
+#=GC RF            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........xxxxxxxxxxxxxxxxxxxx.xxxxxxxx
+
+query              RRSSSSSSSSSSTTTTTTTTTTUUUUUUUUUUVVVVVVVVVVWWWWWWWWWWXXXXXXXXXXYYYYYYYYYYZZZZZZZZZZ
+seq3/1-237         RRSSSSSSSSSSTTTTTTTTTTUUUUUUUUUUVVVVVVVVVVWWWWWWWWWWXXXX--------------------------
+#=GR seq3/1-237 PP 999999999*******************************************9765..........................
+seq1/1-140         ----------------------------------------------------------------------------------
+#=GR seq1/1-140 PP ..................................................................................
+seq2/1-100         ----------------------------------------------------------------------------------
+#=GR seq2/1-100 PP ..................................................................................
+#=GC PP_cons       999999999*******************************************9765..........................
+#=GC RF            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

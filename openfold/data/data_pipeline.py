@@ -26,7 +26,7 @@ import numpy as np
 
 from openfold.data import templates, parsers, mmcif_parsing
 from openfold.data.tools import jackhmmer, hhblits, hhsearch
-from openfold.data.tools.utils import to_date 
+from openfold.data.tools.utils import to_date, timing
 from openfold.np import residue_constants, protein
 
 PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
@@ -283,6 +283,7 @@ class AlignmentRunner:
         mgnify_max_hits: int = 5000,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
+        stream_sto_size: Optional[int] = None,
     ):
         """
         Args:
@@ -321,6 +322,9 @@ class AlignmentRunner:
                 Apply chmod 440 after preprocessing
             timeout:
                 Timeout in seconds for each tool
+            stream_sto_size:
+                Use the stream version of sto-to-a3m conversion
+                if sto file size is larger than this size
         """
         db_map = {
             "jackhmmer": {
@@ -355,6 +359,7 @@ class AlignmentRunner:
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
         self.use_small_bfd = use_small_bfd
+        self.stream_sto_size = stream_sto_size
 
         if(no_cpus is None):
             no_cpus = cpu_count()
@@ -367,6 +372,7 @@ class AlignmentRunner:
                 binary_path=jackhmmer_binary_path,
                 database_path=uniref90_database_path,
                 n_cpu=no_cpus,
+                stream_sto_size=stream_sto_size,
             )
    
         self.jackhmmer_small_bfd_runner = None
@@ -396,6 +402,7 @@ class AlignmentRunner:
                 binary_path=jackhmmer_binary_path,
                 database_path=mgnify_database_path,
                 n_cpu=no_cpus,
+                stream_sto_size=stream_sto_size,
             )
 
         self.hhsearch_pdb70_runner = None
@@ -415,18 +422,53 @@ class AlignmentRunner:
             path: str) -> bool:
         return not (ignore_if_exists and os.path.exists(path))
 
+    def get_temp_path(self, out_path: str) -> str:
+        return out_path+".temp"
+
     def write_safely(
             self,
             out_path: str,
             content: Any) -> None:
-        temp_path = out_path+".temp"
+        temp_path = self.get_temp_path(out_path)
         with open(temp_path, "w") as f:
             f.write(content)
 
-        os.rename(temp_path, out_path)
+        self.move_safely(temp_path, out_path)
 
+    def move_safely(self, src: str, dst: str) -> None:
+        os.rename(src, dst)
         if self.disable_write_permission:
-            Path(out_path).chmod(0o440)
+            Path(dst).chmod(0o440)
+
+    def convert_stockholm_to_a3m_safely(
+            self,
+            a3m_path: str,
+            max_hits: int,
+            result,
+            timeout: Optional[float]=None) -> None:
+        sto = result.get("sto", None)
+        sto_path = result.get("sto_path", None)
+        assert (sto_path is not None) != (sto is not None)
+        if sto is not None:
+            with timing(
+                    f"convert_stockholm_to_a3m ({len(sto)} bytes)"):
+                msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                    sto,
+                    max_sequences=max_hits,
+                )
+                self.write_safely(a3m_path, msa_as_a3m)
+        else:
+            a3m_temp_path = self.get_temp_path(a3m_path)
+            with timing(
+                    f"convert_stockholm_to_a3m_stream query ({sto_path} -> {a3m_temp_path})",
+                    timeout=self.timeout):
+                parsers.convert_stockholm_to_a3m_stream(
+                    sto_path,
+                    a3m_temp_path,
+                    max_sequences=max_hits
+                )
+                self.move_safely(a3m_temp_path, a3m_path)
+            os.remove(sto_path)
 
     def run(
         self,
@@ -462,11 +504,12 @@ class AlignmentRunner:
                 timeout=self.timeout,
                 preexec_fn=preexec_fn,
             )[0]
-            uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                jackhmmer_uniref90_result["sto"], 
-                max_sequences=self.uniref_max_hits
+            self.convert_stockholm_to_a3m_safely(
+                uniref90_out_path,
+                self.uniref_max_hits,
+                jackhmmer_uniref90_result,
+                timeout=self.timeout,
             )
-            self.write_safely(uniref90_out_path, uniref90_msa_as_a3m)
             generated.append(UNIREF90_OUT_FILENAME)
 
         if(self.hhsearch_pdb70_runner is not None):
@@ -494,11 +537,12 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
-                mgnify_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                    jackhmmer_mgnify_result["sto"],
-                    max_sequences=self.mgnify_max_hits
+                self.convert_stockholm_to_a3m_safely(
+                    mgnify_out_path,
+                    self.mgnify_max_hits,
+                    jackhmmer_mgnify_result,
+                    timeout=self.timeout,
                 )
-                self.write_safely(mgnify_out_path, mgnify_msa_as_a3m)
                 generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):

@@ -60,6 +60,10 @@ Timeout_mgnify=3600
 Timeout_uniref90=3600
 Timeout_pdb70=1800
 
+# Use the stream version of sto-to-a3m conversion if sto file size is
+# larger than this size, which keeps memory usage small
+StreamSTOSize=1073741824 # 1 GiB
+
 #----------- Configurations end -----------#
 
 SubmitScript=scripts/Submit_preproc_fugaku
@@ -83,6 +87,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 		 StepName="${StepNameBase}_${Database}" \
 		 DoStaging=$DoStaging \
 		 LimitMaxMem=$LimitMaxMemJackhmmer \
+		 StreamSTOSize=$StreamSTOSize \
 		 ScriptArgs="" \
 		 $SubmitScript
     fi
@@ -109,6 +114,7 @@ if (( $Do_pdb70  == 1 )); then
 	     StepName=$StepName \
 	     DoStaging=$DoStaging \
 	     LimitMaxMem=$LimitMaxMemHHsearch \
+	     StreamSTOSize=$StreamSTOSize \
 	     ScriptArgs="" \
 	     $SubmitScript
 fi

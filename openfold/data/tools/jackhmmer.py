@@ -23,6 +23,8 @@ import os
 import subprocess
 from typing import Any, Callable, Mapping, Optional, Sequence
 from urllib import request
+import tempfile
+import shutil
 
 from openfold.data.tools import utils
 
@@ -47,6 +49,7 @@ class Jackhmmer:
         dom_e: Optional[float] = None,
         num_streamed_chunks: Optional[int] = None,
         streaming_callback: Optional[Callable[[int], None]] = None,
+        stream_sto_size: Optional[int] = None,
     ):
         """Initializes the Python Jackhmmer wrapper.
 
@@ -67,6 +70,8 @@ class Jackhmmer:
           num_streamed_chunks: Number of database chunks to stream over.
           streaming_callback: Callback function run after each chunk iteration with
             the iteration number as argument.
+          stream_sto_size: Return the path to the generated sto file if its size is larger than this.
+            It is caller's responsibility to remove the sto file after it is consumed.
         """
         self.binary_path = binary_path
         self.database_path = database_path
@@ -92,6 +97,7 @@ class Jackhmmer:
         self.dom_e = dom_e
         self.get_tblout = get_tblout
         self.streaming_callback = streaming_callback
+        self.stream_sto_size = stream_sto_size
 
     def _query_chunk(
             self,
@@ -176,16 +182,37 @@ class Jackhmmer:
                 with open(tblout_path) as f:
                     tbl = f.read()
 
-            with open(sto_path) as f:
-                sto = f.read()
+            sto_size = os.path.getsize(sto_path)
+            return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
+            if return_path:
+                f = tempfile.NamedTemporaryFile(
+                    dir="/tmp",
+                    suffix=".sto",
+                    delete=False,
+                )
+                persistent_sto_path = f.name
+                f.close()
+                shutil.move(sto_path, persistent_sto_path)
+                sto_path = persistent_sto_path
+            else:
+                with utils.timing(
+                        f"Reading STO file ({input_label}, {sto_path})"):
+                    with open(sto_path) as f:
+                        sto = f.read()
+
+            logging.info(f"sto path: {sto_path}, size: {sto_size}, stream_size: {self.stream_sto_size}, stream: {return_path}")
 
         raw_output = dict(
-            sto=sto,
             tbl=tbl,
             stderr=stderr,
             n_iter=self.n_iter,
             e_value=self.e_value,
         )
+
+        if return_path:
+            raw_output["sto_path"] = sto_path
+        else:
+            raw_output["sto"] = sto
 
         return raw_output
 

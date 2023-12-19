@@ -61,8 +61,9 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
                 try:
                     os.makedirs(alignment_dir)
                 except Exception as e:
-                    logging.warning(f"Failed to create directory for {name} with exception {e}...")
-                    continue
+                    if not os.path.exists(alignment_dir):
+                        logging.warning(f"Failed to create directory for {name} with exception {e}...")
+                        continue
 
             if i_name == 0:
                 fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
@@ -245,6 +246,7 @@ def main(args):
         no_cpus=args.cpus_per_task,
         disable_write_permission=args.disable_write_permission,
         timeout=args.timeout,
+        stream_sto_size=args.stream_sto_size,
     )
 
     comm = MPI.COMM_WORLD
@@ -344,6 +346,10 @@ if __name__ == "__main__":
         help="The RLIMIT_AS memory limit for each search tool in bytes (default: None)",
     )
     parser.add_argument(
+        '--stream-sto-size', type=int, default=1024*1024*1024,
+        help="Use the stream version of sto-to-a3m conversion if sto file size is larger than this size (default: 1 GiB)",
+    )
+    parser.add_argument(
         '--report_out_path', type=str, default=None,
         help="Path to output the number of uncompleted seqs. (default: None)",
     )
@@ -364,7 +370,6 @@ if __name__ == "__main__":
         action="store_const",
         help="Set permission 440 to output MSA and template files",
     )
-
 
     args = parser.parse_args()
 

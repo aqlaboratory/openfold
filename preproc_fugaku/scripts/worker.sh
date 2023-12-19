@@ -36,6 +36,7 @@ echo ScriptArgs=$ScriptArgs
 echo NumTotalThreads=$NumTotalThreads
 echo DoStaging=$DoStaging
 echo LimitMaxMem=$LimitMaxMem
+echo StreamSTOSize=$StreamSTOSize
 echo "--- worker.sh arguments end ---"
 
 # Database path in $DataDir
@@ -197,6 +198,7 @@ while (( $NumProcs > 0 )); do
 	--kalign_binary_path $BinDir/kalign \
 	--timeout $ToolTimeLimit \
 	--report_out_path $ReportOutPath \
+	--stream-sto-size $StreamSTOSize \
 	$DatabaseArgs \
 	$MaxMemArg \
 	$ScriptArgs
