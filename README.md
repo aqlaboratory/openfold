@@ -63,7 +63,7 @@ To install:
 For some systems, it may help to append the Conda environment library path to `$LD_LIBRARY_PATH`. The `install_third_party_dependencies.sh` script does this once, but you may need this for each bash instance.
 
 
-## Alignment and model parameter download 
+## Alignment Database Download 
 
 If you intend to generate your own alignments, e.g. for inference, you have two 
 choices for downloading protein databases, depending on whether you want to use 
