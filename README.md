@@ -63,7 +63,7 @@ To install:
 For some systems, it may help to append the Conda environment library path to `$LD_LIBRARY_PATH`. The `install_third_party_dependencies.sh` script does this once, but you may need this for each bash instance.
 
 
-## Usage
+## Alignment and model parameter download 
 
 If you intend to generate your own alignments, e.g. for inference, you have two 
 choices for downloading protein databases, depending on whether you want to use 
@@ -112,7 +112,16 @@ DeepMind's pretrained parameters, you will only be able to make changes that
 do not affect the shapes of model parameters. For an example of initializing
 the model, consult `run_pretrained_openfold.py`.
 
-### Inference
+## Inference
+
+OpenFold now supports three inference modes: 
+- [Monomer Inference](#monomer-inference): OpenFold reproduction of AlphaFold2. Inference available with either DeepMind's pretrained parameters or OpenFold trained parameters. 
+- [Multimer Inference](#multimer-inference): OpenFold reproduction of AlphaFold-Multimer. Inference available with DeepMind's pre-trained parameters. 
+- [Single Sequence Inference (SoloSeq)](#soloseq-inference): Language Model based structure prediction, using [ESM-1b](https://github.com/facebookresearch/esm) embeddings.  
+
+More instructions for each inference mode are provided below:
+
+### Monomer inference
 
 To run inference on a sequence or multiple sequences using a set of DeepMind's 
 pretrained parameters, first download the OpenFold weights e.g.:
@@ -335,7 +344,7 @@ SoloSeq allows you to use the same flags and optimizations as the MSA-based Open
 
 **NOTE:** Due to the nature of the ESM-1b embeddings, the sequence length for inference using the SoloSeq model is limited to 1022 residues. Sequences longer than that will be truncated.
 
-### Training
+## Training
 
 To train the model, you will first need to precompute protein alignments. 
 
