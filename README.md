@@ -7,6 +7,24 @@ _Figure: Comparison of OpenFold and AlphaFold2 predictions to the experimental s
 A faithful but trainable PyTorch reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
+## Contents
+
+- [OpenFold](#openfold)
+  - [Contents](#contents)
+  - [Features](#features)
+  - [Installation (Linux)](#installation-linux)
+  - [Download Alignment Databases](#download-alignment-databases)
+  - [Inference](#inference)
+    - [Monomer inference](#monomer-inference)
+    - [Multimer Inference](#multimer-inference)
+    - [Soloseq Inference](#soloseq-inference)
+  - [Training](#training)
+  - [Testing](#testing)
+  - [Building and Using the Docker Container](#building-and-using-the-docker-container)
+  - [Copyright Notice](#copyright-notice)
+  - [Contributing](#contributing)
+  - [Citing this Work](#citing-this-work)
+
 ## Features
 
 OpenFold carefully reproduces (almost) all of the features of the original open
@@ -63,7 +81,7 @@ To install:
 For some systems, it may help to append the Conda environment library path to `$LD_LIBRARY_PATH`. The `install_third_party_dependencies.sh` script does this once, but you may need this for each bash instance.
 
 
-## Alignment Database Download 
+## Download Alignment Databases
 
 If you intend to generate your own alignments, e.g. for inference, you have two 
 choices for downloading protein databases, depending on whether you want to use 
@@ -228,7 +246,7 @@ this case, the inference script runs AlphaFold-Gap, a hack proposed
 [here](https://twitter.com/minkbaek/status/1417538291709071362?lang=en), using
 the specified stock AlphaFold/OpenFold parameters (NOT AlphaFold-Multimer).
 
-#### Multimer Inference
+### Multimer Inference
 
 To run inference on a complex or multiple complexes using a set of DeepMind's pretrained parameters, run e.g.:
 
@@ -256,7 +274,8 @@ As with monomer inference, if you've already computed alignments for the query, 
 the `--use_precomputed_alignments` option. Note that template searching in the multimer pipeline 
 uses HMMSearch with the PDB SeqRes database, replacing HHSearch and PDB70 used in the monomer pipeline.
 
-##### Upgrades
+**Upgrade from an existing OpenFold installation** 
+
 The above command requires several upgrades to existing openfold installations. 
 
 1. Re-download the alphafold parameters to get the latest
@@ -264,14 +283,14 @@ AlphaFold-Multimer v3 weights:
     
    ```bash
     bash scripts/download_alphafold_params.sh openfold/resources
-    ```
+   ```
 
 2. Download the [UniProt](https://www.uniprot.org/uniprotkb/) 
 and [PDB SeqRes](https://www.rcsb.org/) databases: 
     
    ```bash
     bash scripts/download_uniprot.sh data/
-    ```
+   ```
     
     The PDB SeqRes and PDB databases must be from the same date to avoid potential 
     errors during template searching. Remove the existing `data/pdb_mmcif` directory 
@@ -280,7 +299,7 @@ and [PDB SeqRes](https://www.rcsb.org/) databases:
    ```bash
     bash scripts/download_pdb_mmcif.sh data/
     bash scripts/download_pdb_seqres.sh data/
-    ```
+   ```
 
 3. Additionally, AlphaFold-Multimer uses upgraded versions of the [MGnify](https://www.ebi.ac.uk/metagenomics) 
 and [UniRef30](https://uniclust.mmseqs.com/) (previously UniClust30) databases. To download the upgraded databases, run:
@@ -288,10 +307,12 @@ and [UniRef30](https://uniclust.mmseqs.com/) (previously UniClust30) databases. 
    ```bash
     bash scripts/download_uniref30.sh data/
     bash scripts/download_mgnify.sh data/
-    ```
+   ```
    Multimer inference can also run with the older database versions if desired. 
 
-#### SoloSeq Inference
+
+### Soloseq Inference
+
 To run inference for a sequence using the SoloSeq single-sequence model, you can either precompute ESM-1b embeddings in bulk, or you can generate them during inference.
 
 For generating ESM-1b embeddings in bulk, use the provided script: `scripts/precompute_embeddings.py`. The script takes a directory of FASTA files (one sequence per file) and generates ESM-1b embeddings in the same format and directory structure as required by SoloSeq. Following is an example command to use the script:
@@ -482,9 +503,9 @@ environment. These run components of AlphaFold and OpenFold side by side and
 ensure that output activations are adequately similar. For most modules, we
 target a maximum pointwise difference of `1e-4`.
 
-## Building and using the docker container
+## Building and Using the Docker Container
 
-### Building the docker image
+**Building the Docker Image**
 
 Openfold can be built as a docker container using the included dockerfile. To build it, run the following command from the root of this repository:
 
@@ -492,7 +513,7 @@ Openfold can be built as a docker container using the included dockerfile. To bu
 docker build -t openfold .
 ```
 
-### Running the docker container 
+**Running the Docker Container** 
 
 The built container contains both `run_pretrained_openfold.py` and `train_openfold.py` as well as all necessary software dependencies. It does not contain the model parameters, sequence, or structural databases. These should be downloaded to the host machine following the instructions in the Usage section above. 
 
@@ -532,7 +553,7 @@ python3 /opt/openfold/run_pretrained_openfold.py \
 --openfold_checkpoint_path /database/openfold_params/finetuning_ptm_2.pt
 ```
 
-## Copyright notice
+## Copyright Notice
 
 While AlphaFold's and, by extension, OpenFold's source code is licensed under
 the permissive Apache Licence, Version 2.0, DeepMind's pretrained parameters 
@@ -545,7 +566,7 @@ replaces the original, more restrictive CC BY-NC 4.0 license as of January 2022.
 If you encounter problems using OpenFold, feel free to create an issue! We also
 welcome pull requests from the community.
 
-## Citing this work
+## Citing this Work
 
 Please cite our paper:
 
