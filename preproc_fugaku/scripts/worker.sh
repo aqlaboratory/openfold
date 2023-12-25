@@ -37,6 +37,8 @@ echo NumTotalThreads=$NumTotalThreads
 echo DoStaging=$DoStaging
 echo LimitMaxMem=$LimitMaxMem
 echo StreamSTOSize=$StreamSTOSize
+echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
+echo MaxHits=$MaxHits
 echo "--- worker.sh arguments end ---"
 
 # Database path in $DataDir
@@ -148,12 +150,21 @@ fi
 DatabaseArgs=""
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
+    if [[ -n $MaxHits ]]; then
+	DatabaseArgs="$DatabaseArgs --uniref90-max-hits $MaxHits"
+    fi
 elif [[ $Mode = "pdb70" ]]; then
     DatabaseArgs="--pdb70_database_path $Database/pdb70"
 elif [[ $Mode = "mgnify" ]]; then
     DatabaseArgs="--mgnify_database_path $Database"
+    if [[ -n $MaxHits ]]; then
+	DatabaseArgs="$DatabaseArgs --mgnify-max-hits $MaxHits"
+    fi
 elif [[ $Mode = "small_bfd" ]]; then
     DatabaseArgs="--bfd_database_path $Database"
+    if [[ -n $MaxHits ]]; then
+	DatabaseArgs="$DatabaseArgs --small-bfd-max-hits $MaxHits"
+    fi
 else
     echo "Invalid Mode: $Mode" >&2
     exit
@@ -168,6 +179,11 @@ while (( $NumProcs > 0 )); do
     if [[ $LimitMaxMem = 1 ]]; then
 	MaxMem=$(($OPENFOLD_MAX_MEM / $NumProcs))
 	MaxMemArg="--max_memory ${MaxMem}"
+    fi
+
+    ConvertSmallBFDToA3MArg=""
+    if [[ $ConvertSmallBFDToA3M = 1 ]]; then
+	ConvertSmallBFDToA3MArg="--convert-small-bfd-to-a3m"
     fi
 
     export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
@@ -201,6 +217,7 @@ while (( $NumProcs > 0 )); do
 	--stream-sto-size $StreamSTOSize \
 	$DatabaseArgs \
 	$MaxMemArg \
+	$ConvertSmallBFDToA3MArg \
 	$ScriptArgs
 
     RemainingCount=`cat $ReportOutPath`

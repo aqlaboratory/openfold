@@ -243,10 +243,14 @@ def main(args):
         uniclust30_database_path=None,
         pdb70_database_path=args.pdb70_database_path,
         use_small_bfd=True,
+        convert_small_bfd_to_a3m=args.convert_small_bfd_to_a3m,
         no_cpus=args.cpus_per_task,
         disable_write_permission=args.disable_write_permission,
         timeout=args.timeout,
         stream_sto_size=args.stream_sto_size,
+        uniref_max_hits=args.uniref90_max_hits,
+        mgnify_max_hits=args.mgnify_max_hits,
+        small_bfd_max_hits=args.small_bfd_max_hits,
     )
 
     comm = MPI.COMM_WORLD
@@ -369,6 +373,26 @@ if __name__ == "__main__":
         const=True,
         action="store_const",
         help="Set permission 440 to output MSA and template files",
+    )
+    parser.add_argument(
+        "--convert-small-bfd-to-a3m",
+        dest="convert_small_bfd_to_a3m",
+        default=False,
+        const=True,
+        action="store_const",
+        help="Convert small BFD MSAs from STO to A3M",
+    )
+    parser.add_argument(
+        "--uniref90-max-hits", type=int, default=10000,
+        help="The maximum number of MSA hits on UniRef90 (default: 10000)",
+    )
+    parser.add_argument(
+        "--mgnify-max-hits", type=int, default=5000,
+        help="The maximum number of MSA hits on MGnify (default: 5000)",
+    )
+    parser.add_argument(
+        "--small-bfd-max-hits", type=int, default=None,
+        help="The maximum number of MSA hits on small BFD (default: unlimited)",
     )
 
     args = parser.parse_args()

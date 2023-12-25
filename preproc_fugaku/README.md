@@ -1,5 +1,23 @@
 # 富士通最適化版 前処理（MSA/テンプレート検索）スクリプト
 
+## 出力フォーマットについて
+各データベースについて検索を実行した場合、以下のファイルが出力されます。
+
+```
+（$OutputDirのパス）
+└──（タンパク質名）
+　   ├── mgnify_hits.a3m    : MGnifyから検索したMSA
+　   ├── pdb70_hits.hhr     : PDB70から検索したテンプレート
+　   ├── small_bfd_hits.a3m : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　   ├── small_bfd_hits.sto : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　   └── uniref90_hits.a3m  : UniRef90から検索したMSA
+```
+
+`small_bfd_hits.a3m`と`small_bfd_hits.sto`には以下の違いがあります。
+
+* 一般に`a3m`のほうがファイルサイズが小さくなります。
+* `$MaxHits_small_bfd`を設定している場合、ヒット件数がその値に制限されます。制限しない場合、一部のタンパク質ではファイルサイズが非常に大きくなる場合があります。
+
 ## 使用方法
 
 1. [`scripts/setenv`](../scripts/setenv)の以下の環境変数をセットする
@@ -21,11 +39,14 @@
     * `$InputFile`: 3. のFASTAファイルのパス
     * `$OutputDir`: 前処理結果を出力するディレクトリのパス（ジョブ投入時に存在しない場合、ジョブ実行時に自動作成）
     * `$DoStaging`: Pythonモジュール、実行ファイル、データベースについてLLIO transfer（富岳）またはメモリステージング（それ以外）を行うかどうか。富岳では各SIO（87 GiB/ノード）が使用するデータベース全体を保持する必要があるため、十分なノード数（例えば>=12ノード以上）を使用する場合に有効にする
+    * `$ConvertSmallBFDToA3M`: small BFDについて、出力ファイルをstoからa3mに変換する
     * `$LimitMaxMem*`: プロセスあたりの最大メモリ量を（ノードメモリ量）/（ノード内プロセス数）に制限するかどうか
     * `$NumNodes`: 各ジョブのノード数
     * `$JobTime_*`: 各ジョブの制限時間
     * `$Timeout_*`: 各ジョブ中の検索ツールの入力配列ごとの制限時間
     * `$NumProcs*`, `$NumThreads*`: 各検索ツールのノード内プロセス数、プロセス内スレッド数
+    * `$StreamSTOSize`: MSAとしてこのサイズを超えるstoファイルが出力された場合、a3mへの変換をストリーミングで行う実装を使用する。小さな値を設定するほど各プロセスのメモリ消費量が小さくなるが、変換速度は低下する
+    * `$MaxHits_*`: 各ジョブの最大MSAヒット件数。`$MaxHits_*=""`の場合、ヒット件数を制限しない
 
 5. `submit.sh`を実行してジョブを投入する
 

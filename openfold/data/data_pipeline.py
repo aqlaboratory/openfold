@@ -33,7 +33,8 @@ PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
 MGNIFY_OUT_FILENAME    = "mgnify_hits.a3m"
 UNIREF90_OUT_FILENAME  = "uniref90_hits.a3m"
 BFD_OUT_FILENAME       = "bfd_uniclust_hits.a3m"
-SMALL_BFD_OUT_FILENAME = "small_bfd_hits.sto"
+SMALL_BFD_OUT_FILENAME_STO = "small_bfd_hits.sto"
+SMALL_BFD_OUT_FILENAME_A3M = "small_bfd_hits.a3m"
 
 FeatureDict = Mapping[str, np.ndarray]
 
@@ -278,9 +279,11 @@ class AlignmentRunner:
         uniclust30_database_path: Optional[str] = None,
         pdb70_database_path: Optional[str] = None,
         use_small_bfd: Optional[bool] = None,
+        convert_small_bfd_to_a3m: Optional[bool] = False,
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
+        small_bfd_max_hits: int = None,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
         stream_sto_size: Optional[int] = None,
@@ -311,6 +314,7 @@ class AlignmentRunner:
             use_small_bfd:
                 Whether to search the BFD database alone with jackhmmer or 
                 in conjunction with uniclust30 with hhblits.
+            convert_small_bfd_t_a3m: Convert small BFD MSAs from STO to A3M.
             no_cpus:
                 The number of CPUs available for alignment. By default, all
                 CPUs are used.
@@ -358,7 +362,9 @@ class AlignmentRunner:
 
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
+        self.small_bfd_max_hits = small_bfd_max_hits
         self.use_small_bfd = use_small_bfd
+        self.convert_small_bfd_to_a3m = convert_small_bfd_to_a3m
         self.stream_sto_size = stream_sto_size
 
         if(no_cpus is None):
@@ -383,6 +389,7 @@ class AlignmentRunner:
                     binary_path=jackhmmer_binary_path,
                     database_path=bfd_database_path,
                     n_cpu=no_cpus,
+                    stream_sto_size=(stream_sto_size if convert_small_bfd_to_a3m else None),
                 )
 
             else:
@@ -451,7 +458,7 @@ class AlignmentRunner:
         assert (sto_path is not None) != (sto is not None)
         if sto is not None:
             with timing(
-                    f"convert_stockholm_to_a3m ({len(sto)} bytes)"):
+                    f"convert_stockholm_to_a3m ({len(sto)} bytes, max_hits={max_hits})"):
                 msa_as_a3m = parsers.convert_stockholm_to_a3m(
                     sto,
                     max_sequences=max_hits,
@@ -460,7 +467,7 @@ class AlignmentRunner:
         else:
             a3m_temp_path = self.get_temp_path(a3m_path)
             with timing(
-                    f"convert_stockholm_to_a3m_stream query ({sto_path} -> {a3m_temp_path})",
+                    f"convert_stockholm_to_a3m_stream query ({sto_path} -> {a3m_temp_path}, max_hits={max_hits})",
                     timeout=self.timeout):
                 parsers.convert_stockholm_to_a3m_stream(
                     sto_path,
@@ -546,7 +553,13 @@ class AlignmentRunner:
                 generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            bfd_out_filename = \
+                (SMALL_BFD_OUT_FILENAME_A3M \
+                 if self.convert_small_bfd_to_a3m \
+                 else SMALL_BFD_OUT_FILENAME_STO)
+            bfd_out_path = os.path.join(
+                output_dir,
+                bfd_out_filename)
             if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 jackhmmer_small_bfd_result = self.jackhmmer_small_bfd_runner.query(
                     fasta_path,
@@ -554,8 +567,16 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
-                self.write_safely(bfd_out_path, jackhmmer_small_bfd_result["sto"])
-                generated.append(SMALL_BFD_OUT_FILENAME)
+                if self.convert_small_bfd_to_a3m:
+                    self.convert_stockholm_to_a3m_safely(
+                        bfd_out_path,
+                        self.small_bfd_max_hits,
+                        jackhmmer_small_bfd_result,
+                        timeout=self.timeout,
+                    )
+                else:
+                    self.write_safely(bfd_out_path, jackhmmer_small_bfd_result["sto"])
+                generated.append(bfd_out_filename)
 
         elif(self.hhblits_bfd_uniclust_runner is not None):
             bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
@@ -602,7 +623,13 @@ class AlignmentRunner:
                 return True
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_path = os.path.join(output_dir, SMALL_BFD_OUT_FILENAME)
+            bfd_out_filename = \
+                (SMALL_BFD_OUT_FILENAME_A3M \
+                 if self.convert_small_bfd_to_a3m \
+                 else SMALL_BFD_OUT_FILENAME_STO)
+            bfd_out_path = os.path.join(
+                output_dir,
+                bfd_out_filename)
             if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 return True
 
