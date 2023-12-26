@@ -34,7 +34,7 @@ TempDir=temp
 DoStaging=1
 
 # Convert small BFD MSAs from the sto format to a3m format to improve I/O performance in training/inference
-ConvertSmallBFDToA3M=1
+ConvertSmallBFDToA3M=0
 
 #---------- Job configurations ----------#
 
