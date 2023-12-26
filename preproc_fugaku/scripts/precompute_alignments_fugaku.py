@@ -232,6 +232,17 @@ def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
 
 
 def main(args):
+
+    comm = MPI.COMM_WORLD
+    mpi_rank = comm.Get_rank()
+    mpi_size = comm.Get_size()
+    assert mpi_size > 0
+    assert mpi_rank >= 0 and mpi_rank < mpi_size
+
+    assert len(args.temp_dir) > 0
+    my_temp_dir = os.path.join(args.temp_dir, f"{mpi_rank}")
+    os.makedirs(my_temp_dir)
+
     # Build the alignment tool runner
     alignment_runner = AlignmentRunner(
         jackhmmer_binary_path=args.jackhmmer_binary_path,
@@ -251,13 +262,8 @@ def main(args):
         uniref_max_hits=args.uniref90_max_hits,
         mgnify_max_hits=args.mgnify_max_hits,
         small_bfd_max_hits=args.small_bfd_max_hits,
+        temp_dir=my_temp_dir,
     )
-
-    comm = MPI.COMM_WORLD
-    mpi_rank = comm.Get_rank()
-    mpi_size = comm.Get_size()
-    assert mpi_size > 0
-    assert mpi_rank >= 0 and mpi_rank < mpi_size
 
     input_file = args.input_file
     with open(input_file, 'r') as fp:
@@ -288,7 +294,8 @@ def main(args):
     logging.info(f"host={host}, rank={mpi_rank}/{mpi_size}, "
                  f"total_count={orig_total_count}, "
                  f"total_uncompleted_count={uncompleted_total_count}, "
-                 f"my_count={len(input_seq_chains)}")
+                 f"my_count={len(input_seq_chains)}, "
+                 f"my_temp_dir={my_temp_dir}")
 
     completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
@@ -393,6 +400,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--small-bfd-max-hits", type=int, default=None,
         help="The maximum number of MSA hits on small BFD (default: unlimited)",
+    )
+    parser.add_argument(
+        "--temp-dir", type=str, default="/tmp",
+        help="Path to the temporary directory (default: /tmp)",
     )
 
     args = parser.parse_args()

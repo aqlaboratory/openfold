@@ -30,6 +30,7 @@ echo NumProcs=$NumProcs
 echo NumThreads=$NumThreads
 echo InputFile=$InputFile
 echo OutputDir=$OutputDir
+echo TempDir=$TempDir
 echo Mode=$Mode
 echo StepName=$StepName
 echo DoStaging=$DoStaging
@@ -74,6 +75,8 @@ JobName="$MyName.$Time"
 LogDir="$MyDir/log"/"$JobName"
 mkdir -p "$LogDir" || exit
 
+mkdir -p "$TempDir"
+
 ###
 
 cp "$MyDir/$0" $LogDir
@@ -117,6 +120,7 @@ source ../scripts/setenv
 
 InputDir=$InputFile \
     OutputDir=$OutputDir \
+    TempDir=$TempDir \
     ToolTimeLimit=$ToolTimeLimit \
     NumNodes=$NumNodes \
     NumProcs=$NumProcs \

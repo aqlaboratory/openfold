@@ -47,6 +47,7 @@ class HHBlits:
         alt: Optional[int] = None,
         p: int = _HHBLITS_DEFAULT_P,
         z: int = _HHBLITS_DEFAULT_Z,
+        temp_dir: Optional[str] = "/tmp",
     ):
         """Initializes the Python HHblits wrapper.
 
@@ -72,6 +73,7 @@ class HHBlits:
             HHblits default: 20.
           z: Hard cap on number of hits reported in the hhr file.
             HHblits default: 500. NB: The relevant HHblits flag is -Z not -z.
+          temp_dir: Path to the temporary directory.
 
         Raises:
           RuntimeError: If HHblits binary not found within the path.
@@ -99,6 +101,7 @@ class HHBlits:
         self.alt = alt
         self.p = p
         self.z = z
+        self.temp_dir = temp_dir
 
     def query(
             self,
@@ -107,7 +110,7 @@ class HHBlits:
             timeout: float=None,
             preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database using HHblits."""
-        with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
+        with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
             a3m_path = os.path.join(query_tmp_dir, "output.a3m")
 
             db_cmd = []

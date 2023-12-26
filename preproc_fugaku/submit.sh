@@ -24,6 +24,12 @@ InputFile=input_examples/short.fasta
 # The path to the output directory
 OutputDir=output
 
+# The root path of temporary directories.
+# Each job creates one or more sub-directories in $TempDir.
+# It is safe to remove all temporary directories once all jobs are completed.
+# /tmp is NOT recommended on Fugaku as OpenFold consumes GBs of disk space.
+TempDir=temp
+
 # Whether or not LLIO transfer is performed for Python modules, executables, and databases
 DoStaging=1
 
@@ -98,6 +104,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 		 NumThreads=$NumThreadsJackhmmer \
 		 InputFile=$InputFile \
 		 OutputDir=$OutputDir \
+		 TempDir=$TempDir \
 		 Mode=$Database \
 		 StepName="${StepNameBase}_${Database}" \
 		 DoStaging=$DoStaging \
@@ -127,6 +134,7 @@ if (( $Do_pdb70  == 1 )); then
 	     NumThreads=$NumThreadsHHsearch \
 	     InputFile=$InputFile \
 	     OutputDir=$OutputDir \
+	     TempDir=$TempDir \
 	     Mode=pdb70 \
 	     StepName=$StepName \
 	     DoStaging=$DoStaging \

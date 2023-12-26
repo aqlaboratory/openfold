@@ -27,6 +27,7 @@ NumTotalThreads=$(($NumProcs * $NumThreads))
 echo "---- worker.sh arguments -----"
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
+echo TempDir=$TempDir
 echo ToolTimeLimit=$ToolTimeLimit
 echo NumNodes=$NumNodes
 echo NumProcs=$NumProcs
@@ -40,6 +41,18 @@ echo StreamSTOSize=$StreamSTOSize
 echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
 echo MaxHits=$MaxHits
 echo "--- worker.sh arguments end ---"
+
+if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
+    JobId=$PJM_SUBJOBID
+else
+    echo "Unsupported machine" >&2
+    exit
+fi
+
+# Job temporary directory
+JobTempDir=$TempDir/$JobId
+echo JobTempDir=$JobTempDir
+mkdir -p $JobTempDir
 
 # Database path in $DataDir
 Uniref90=$DataDir/uniref90/uniref90.fasta
@@ -215,6 +228,7 @@ while (( $NumProcs > 0 )); do
 	--timeout $ToolTimeLimit \
 	--report_out_path $ReportOutPath \
 	--stream-sto-size $StreamSTOSize \
+	--temp-dir $JobTempDir \
 	$DatabaseArgs \
 	$MaxMemArg \
 	$ConvertSmallBFDToA3MArg \
@@ -239,3 +253,5 @@ while (( $NumProcs > 0 )); do
     fi
 
 done
+
+rm -r $JobTempDir

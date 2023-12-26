@@ -287,6 +287,7 @@ class AlignmentRunner:
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
         stream_sto_size: Optional[int] = None,
+        temp_dir: Optional[str] = "/tmp",
     ):
         """
         Args:
@@ -329,6 +330,8 @@ class AlignmentRunner:
             stream_sto_size:
                 Use the stream version of sto-to-a3m conversion
                 if sto file size is larger than this size
+            temp_dir:
+                Path to the temporary directory
         """
         db_map = {
             "jackhmmer": {
@@ -366,6 +369,7 @@ class AlignmentRunner:
         self.use_small_bfd = use_small_bfd
         self.convert_small_bfd_to_a3m = convert_small_bfd_to_a3m
         self.stream_sto_size = stream_sto_size
+        self.temp_dir = temp_dir
 
         if(no_cpus is None):
             no_cpus = cpu_count()
@@ -379,6 +383,7 @@ class AlignmentRunner:
                 database_path=uniref90_database_path,
                 n_cpu=no_cpus,
                 stream_sto_size=stream_sto_size,
+                temp_dir=self.temp_dir,
             )
    
         self.jackhmmer_small_bfd_runner = None
@@ -390,6 +395,7 @@ class AlignmentRunner:
                     database_path=bfd_database_path,
                     n_cpu=no_cpus,
                     stream_sto_size=(stream_sto_size if convert_small_bfd_to_a3m else None),
+                    temp_dir=self.temp_dir,
                 )
 
             else:
@@ -401,6 +407,7 @@ class AlignmentRunner:
                     binary_path=hhblits_binary_path,
                     databases=dbs,
                     n_cpu=no_cpus,
+                    temp_dir=self.temp_dir,
                 )
 
         self.jackhmmer_mgnify_runner = None
@@ -410,6 +417,7 @@ class AlignmentRunner:
                 database_path=mgnify_database_path,
                 n_cpu=no_cpus,
                 stream_sto_size=stream_sto_size,
+                temp_dir=self.temp_dir,
             )
 
         self.hhsearch_pdb70_runner = None
@@ -418,6 +426,7 @@ class AlignmentRunner:
                 binary_path=hhsearch_binary_path,
                 databases=[pdb70_database_path],
                 n_cpu=no_cpus,
+                temp_dir=self.temp_dir,
             )
 
         self.disable_write_permission = disable_write_permission

@@ -19,7 +19,7 @@ import glob
 import logging
 import os
 import subprocess
-from typing import Sequence, Callable
+from typing import Sequence, Callable, Optional
 
 from openfold.data.tools import utils
 
@@ -34,6 +34,7 @@ class HHSearch:
         databases: Sequence[str],
         n_cpu: int = 2,
         maxseq: int = 1_000_000,
+        temp_dir: Optional[str] = "/tmp",
     ):
         """Initializes the Python HHsearch wrapper.
 
@@ -45,6 +46,7 @@ class HHSearch:
           n_cpu: The number of CPUs to use
           maxseq: The maximum number of rows in an input alignment. Note that this
             parameter is only supported in HHBlits version 3.1 and higher.
+          temp_dir: Path to the temporary directory
 
         Raises:
           RuntimeError: If HHsearch binary not found within the path.
@@ -53,6 +55,7 @@ class HHSearch:
         self.databases = databases
         self.n_cpu = n_cpu
         self.maxseq = maxseq
+        self.temp_dir = temp_dir
 
         for database_path in self.databases:
             if not glob.glob(database_path + "_*"):
@@ -70,7 +73,7 @@ class HHSearch:
             timeout: float=None,
             preexec_fn: Callable=None) -> str:
         """Queries the database using HHsearch using a given a3m."""
-        with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
+        with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
             input_path = os.path.join(query_tmp_dir, "query.a3m")
             hhr_path = os.path.join(query_tmp_dir, "output.hhr")
             with open(input_path, "w") as f:

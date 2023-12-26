@@ -50,6 +50,7 @@ class Jackhmmer:
         num_streamed_chunks: Optional[int] = None,
         streaming_callback: Optional[Callable[[int], None]] = None,
         stream_sto_size: Optional[int] = None,
+        temp_dir: Optional[str] = "/tmp",
     ):
         """Initializes the Python Jackhmmer wrapper.
 
@@ -72,6 +73,7 @@ class Jackhmmer:
             the iteration number as argument.
           stream_sto_size: Return the path to the generated sto file if its size is larger than this.
             It is caller's responsibility to remove the sto file after it is consumed.
+          temp_dir: Path to the temporary directory.
         """
         self.binary_path = binary_path
         self.database_path = database_path
@@ -98,6 +100,7 @@ class Jackhmmer:
         self.get_tblout = get_tblout
         self.streaming_callback = streaming_callback
         self.stream_sto_size = stream_sto_size
+        self.temp_dir = temp_dir
 
     def _query_chunk(
             self,
@@ -107,7 +110,7 @@ class Jackhmmer:
             timeout: float=None,
             preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
-        with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
+        with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
             sto_path = os.path.join(query_tmp_dir, "output.sto")
 
             # The F1/F2/F3 are the expected proportion to pass each of the filtering
@@ -186,7 +189,7 @@ class Jackhmmer:
             return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
             if return_path:
                 f = tempfile.NamedTemporaryFile(
-                    dir="/tmp",
+                    dir=self.temp_dir,
                     suffix=".sto",
                     delete=False,
                 )
@@ -232,7 +235,7 @@ class Jackhmmer:
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
-        db_local_chunk = lambda db_idx: f"/tmp/ramdisk/{db_basename}.{db_idx}"
+        db_local_chunk = lambda db_idx: f"{self.temp_dir}/ramdisk/{db_basename}.{db_idx}"
 
         # Remove existing files to prevent OOM
         for f in glob.glob(db_local_chunk("[0-9]*")):
