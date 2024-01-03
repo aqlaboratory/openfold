@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+source $OPENFOLDDIR/scripts/setenv
+
 MMCIFCache=example/mmcif_cache.json
 InputFasta=example/input/short.fasta
 AlignmentDir=example/alignment
@@ -36,9 +38,8 @@ PARAMS=(
     --release_dates_path $MMCIFCache
     --timeout $Timeout
     --first_lower
+    --max_memory $OPENFOLD_MAX_MEM
 )
-
-source $OPENFOLDDIR/scripts/setenv
 
 # for Torch Extensions
 export TORCH_EXTENSIONS_DIR=$TMPDIR

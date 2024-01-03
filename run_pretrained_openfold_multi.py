@@ -268,6 +268,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--skip_relaxation", action="store_true", default=False,
     )
+    parser.add_argument(
+        "--max_memory", type=int, default=None,
+        help="""Limit memory consumption"""
+    )
 
     args = parser.parse_args()
 

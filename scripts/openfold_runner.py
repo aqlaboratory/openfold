@@ -16,8 +16,10 @@
 
 """A Python wrapper for OpenFold."""
 import os
+import signal
 import subprocess
 import re
+import resource
 from typing import Sequence
 
 from absl import logging
@@ -93,16 +95,27 @@ class OpenFoldInference:
             cmd.append("--data_random_seed")
             cmd.append(args.data_random_seed)
 
+        def preexec_fn():
+            os.setpgrp()
+            if args.max_memory is not None:
+                resource.setrlimit(
+                    resource.RLIMIT_AS,
+                    (args.max_memory, resource.RLIM_INFINITY))
+
         logging.info('Launching subprocess "%s"', " ".join(cmd))
         process = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.exec_path
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.exec_path,
+            preexec_fn=preexec_fn,
         )
 
         with utils.timing("OpenFold inference query"):
-            stdout, stderr = process.communicate(timeout=timeout)
             try:
+                stdout, stderr = process.communicate(timeout=timeout)
                 retcode = process.wait(timeout=timeout)
             except subprocess.TimeoutExpired as e:
+                pgid = os.getpgid(process.pid)
+                logging.info(f'Terminating the whole process group (pid:{process.pid}, pgid={pgid})...')
+                os.killpg(pgid, signal.SIGTERM)
                 raise e
 
             stdout_dec = stdout.decode("utf-8")

@@ -28,7 +28,7 @@ export PJSUB_OPT=
 export OPENFOLD_MACHINE="fugaku"
 
 # Per-node memory size
-export OPENFOLD_MAX_MEM=34359738368 # 32 GiB
+export OPENFOLD_MAX_MEM=27917287424 # 26 GiB
 
 # Define only if PBS is used
 export OPENFOLD_PBS_RESOURCE=""
