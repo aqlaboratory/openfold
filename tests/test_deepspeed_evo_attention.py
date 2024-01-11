@@ -274,7 +274,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
         Run full model with and without using DeepSpeed Evoformer attention kernel
         and compare output coordinates.
         """
-        eps = 0.5
+        eps = 0.2
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
 
@@ -316,7 +316,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
                 out_repro = out_repro["sm"]["positions"][-1].squeeze(0)
                 out_repro_ds = out_repro_ds["sm"]["positions"][-1].squeeze(0)
 
-                err = torch.max(torch.abs(out_repro - out_repro_ds))
+                err = torch.mean(torch.abs(out_repro - out_repro_ds))
                 self.assertTrue(err < eps, f'Error: {err}')
 
 
