@@ -28,7 +28,7 @@ if ds4s_is_installed:
 fa_is_installed = importlib.util.find_spec("flash_attn") is not None
 if fa_is_installed:
     from flash_attn.bert_padding import unpad_input
-    from flash_attn.flash_attn_interface import flash_attn_unpadded_kvpacked_func
+    from flash_attn.flash_attn_interface import flash_attn_varlen_kvpacked_func
 
 import torch
 import torch.nn as nn
@@ -811,7 +811,7 @@ def _flash_attn(q, k, v, kv_mask):
     kv_unpad, _, kv_cu_seqlens, kv_max_s = unpad_input(kv, kv_mask)
     kv_unpad = kv_unpad.reshape(-1, *kv_shape[-3:])
    
-    out = flash_attn_unpadded_kvpacked_func(
+    out = flash_attn_varlen_kvpacked_func(
         q,
         kv_unpad,
         q_cu_seqlens,
