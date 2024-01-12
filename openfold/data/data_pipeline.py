@@ -110,12 +110,12 @@ def make_sequence_features(
     )
     features["between_segment_residues"] = np.zeros((num_res,), dtype=np.int32)
     features["domain_name"] = np.array(
-        [description.encode("utf-8")], dtype=np.object_
+        [description.encode("utf-8")], dtype=object
     )
     features["residue_index"] = np.array(range(num_res), dtype=np.int32)
     features["seq_length"] = np.array([num_res] * num_res, dtype=np.int32)
     features["sequence"] = np.array(
-        [sequence.encode("utf-8")], dtype=np.object_
+        [sequence.encode("utf-8")], dtype=object
     )
     return features
 
@@ -148,7 +148,7 @@ def make_mmcif_features(
     )
 
     mmcif_feats["release_date"] = np.array(
-        [mmcif_object.header["release_date"].encode("utf-8")], dtype=np.object_
+        [mmcif_object.header["release_date"].encode("utf-8")], dtype=object
     )
 
     mmcif_feats["is_distillation"] = np.array(0., dtype=np.float32)
@@ -247,7 +247,7 @@ def make_msa_features(msas: Sequence[parsers.Msa]) -> FeatureDict:
     features["num_alignments"] = np.array(
         [num_alignments] * num_res, dtype=np.int32
     )
-    features["msa_species_identifiers"] = np.array(species_ids, dtype=np.object_)
+    features["msa_species_identifiers"] = np.array(species_ids, dtype=object)
     return features
 
 
@@ -593,7 +593,7 @@ def convert_monomer_features(
 ) -> FeatureDict:
     """Reshapes and modifies monomer features for multimer models."""
     converted = {}
-    converted['auth_chain_id'] = np.asarray(chain_id, dtype=np.object_)
+    converted['auth_chain_id'] = np.asarray(chain_id, dtype=object)
     unnecessary_leading_dim_feats = {
         'sequence', 'domain_name', 'num_alignments', 'seq_length'
     }
@@ -1290,7 +1290,7 @@ class DataPipelineMultimer:
         )
 
         mmcif_feats["release_date"] = np.array(
-            [mmcif_object.header["release_date"].encode("utf-8")], dtype=np.object_
+            [mmcif_object.header["release_date"].encode("utf-8")], dtype=object
         )
 
         mmcif_feats["is_distillation"] = np.array(0., dtype=np.float32)
