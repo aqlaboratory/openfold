@@ -193,13 +193,15 @@ class Linear(nn.Linear):
         )
         if self.precision is not None:
             with torch.cuda.amp.autocast(enabled=False):
+                bias = self.bias.to(dtype=self.precision) if self.bias is not None else None
                 return nn.functional.linear(input.to(dtype=self.precision),
                                             self.weight.to(dtype=self.precision),
-                                            self.bias.to(dtype=self.precision)).to(dtype=d)
+                                            bias).to(dtype=d)
 
         if d is torch.bfloat16 and not deepspeed_is_initialized:
             with torch.cuda.amp.autocast(enabled=False):
-                return nn.functional.linear(input, self.weight.to(dtype=d), self.bias.to(dtype=d))
+                bias = self.bias.to(dtype=d) if self.bias is not None else None
+                return nn.functional.linear(input, self.weight.to(dtype=d), bias)
 
         return nn.functional.linear(input, self.weight, self.bias)
 

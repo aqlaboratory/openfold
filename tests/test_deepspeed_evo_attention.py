@@ -236,19 +236,28 @@ class TestDeepSpeedKernel(unittest.TestCase):
         n_res = 20
         eps = 2e-2
 
-        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         batch = random_template_feats(n_templ, n_res)
         batch["template_all_atom_masks"] = batch["template_all_atom_mask"]
+        if consts.is_multimer:
+            batch["asym_id"] = batch['asym_id'][0]
+
+        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
 
         inds = np.random.randint(0, 21, (n_res,))
         batch["target_feat"] = np.eye(22)[inds]
 
+        batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
+        template_feats = {
+            k: v for k, v in batch.items() if k.startswith("template_")
+        }
+
         with torch.no_grad():
             model = compare_utils.get_global_pretrained_openfold()
             model.globals.use_deepspeed_evo_attention = False
             out_repro = model.embed_templates(
-                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                template_feats,
+                batch,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
@@ -258,7 +267,8 @@ class TestDeepSpeedKernel(unittest.TestCase):
 
             model.globals.use_deepspeed_evo_attention = True
             out_repro_ds = model.embed_templates(
-                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                template_feats,
+                batch,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
