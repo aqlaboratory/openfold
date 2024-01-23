@@ -74,7 +74,7 @@ class TestOuterProductMean(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/"
             + "evoformer_iteration/outer_product_mean"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
