@@ -27,6 +27,7 @@ from tests.config import consts
 from tests.data_utils import (
     random_template_feats,
     random_extra_msa_feats,
+    random_asym_ids
 )
 
 if compare_utils.alphafold_is_installed():
@@ -85,9 +86,9 @@ class TestModel(unittest.TestCase):
         batch["no_recycling_iters"] = torch.tensor(2.)
 
         if consts.is_multimer:
-            batch["asym_id"] = torch.randint(0, 1, size=(n_res,))
-            batch["entity_id"] = torch.randint(0, 1, size=(n_res,))
-            batch["sym_id"] = torch.randint(0, 1, size=(n_res,))
+            batch["asym_id"] = torch.as_tensor(random_asym_ids(n_res))
+            batch["entity_id"] = batch["asym_id"].clone()
+            batch["sym_id"] = torch.ones(n_res)
             batch["extra_deletion_matrix"] = torch.randint(0, 2, size=(n_extra_seq, n_res))
 
         add_recycling_dims = lambda t: (

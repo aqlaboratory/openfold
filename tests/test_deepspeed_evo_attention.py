@@ -293,6 +293,15 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["atom14_atom_exists"] = batch["atom14_atom_exists"][0]
 
         batch["no_recycling_iters"] = np.array([3., 3., 3., 3., ])
+
+        if consts.is_multimer:
+            n_res = batch['aatype'].shape[1]
+            n_extra_seq = batch['extra_msa'].shape[1]
+            batch["asym_id"] = np.ones((4, n_res))
+            batch["entity_id"] = np.ones((4, n_res))
+            batch["sym_id"] = np.ones((4, n_res))
+            batch["extra_deletion_matrix"] = np.random.randint(0, 2, size=(4, n_extra_seq, n_res))
+        
         batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
 
         batch["aatype"] = batch["aatype"].long()
@@ -301,6 +310,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["residx_atom37_to_atom14"] = batch[
             "residx_atom37_to_atom14"
         ].long()
+        batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], 21).to(torch.float32)
         batch["template_all_atom_mask"] = batch["template_all_atom_masks"]
         batch.update(
             data_transforms.atom37_to_torsion_angles("template_")(batch)
@@ -309,7 +319,6 @@ class TestDeepSpeedKernel(unittest.TestCase):
         # Move the recycling dimension to the end
         move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
         batch = tensor_tree_map(move_dim, batch)
-
         with torch.no_grad():
             with torch.cuda.amp.autocast(dtype=torch.bfloat16):
                 model = compare_utils.get_global_pretrained_openfold()
