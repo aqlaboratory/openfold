@@ -178,7 +178,7 @@ class TestEvoformerStack(unittest.TestCase):
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         key = jax.random.PRNGKey(42)
         out_gt = f.apply(params, key, activations, masks)
@@ -339,7 +339,7 @@ class TestMSATransition(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_transition"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))

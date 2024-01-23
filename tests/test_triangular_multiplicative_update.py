@@ -85,7 +85,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + name
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))

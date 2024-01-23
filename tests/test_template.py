@@ -191,7 +191,9 @@ class TestTemplatePairStack(unittest.TestCase):
             _mask_trans=False,
         ).cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+        diff = torch.max(torch.abs(out_gt - out_repro))
+        self.assertTrue(diff < consts.eps, 
+                msg=f"Found difference between ground truth and reproduction of {diff}")
 
 
 class Template(unittest.TestCase):
