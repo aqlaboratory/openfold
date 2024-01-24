@@ -92,7 +92,7 @@ class TestOuterProductMean(unittest.TestCase):
 
         # Even when correct, OPM has large, precision-related errors. It gets
         # a special pass from consts.eps.
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 5e-4)
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, 5e-4)
 
 
 if __name__ == "__main__":

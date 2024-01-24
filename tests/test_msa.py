@@ -96,7 +96,7 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
             )
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestMSAColumnAttention(unittest.TestCase):
@@ -158,7 +158,7 @@ class TestMSAColumnAttention(unittest.TestCase):
             )
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestMSAColumnGlobalAttention(unittest.TestCase):
@@ -222,7 +222,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 if __name__ == "__main__":

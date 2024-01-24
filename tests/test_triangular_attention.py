@@ -102,7 +102,7 @@ class TestTriangularAttention(unittest.TestCase):
             chunk_size=None,
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_tri_att_end_compare(self):

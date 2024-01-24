@@ -103,7 +103,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
             inplace_safe=True, _inplace_chunk_size=4,
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_tri_mul_out_compare(self):

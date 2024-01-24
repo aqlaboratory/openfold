@@ -386,7 +386,7 @@ class TestFeats(unittest.TestCase):
             torch.tensor(restype_atom14_rigid_group_positions).cuda(),
         ).cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 if __name__ == "__main__":

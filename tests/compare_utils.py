@@ -6,6 +6,7 @@ import sys
 import unittest
 
 import numpy as np
+import torch
 
 from openfold.config import model_config
 from openfold.model.model import AlphaFold
@@ -119,3 +120,20 @@ def fetch_alphafold_module_weights(weight_path):
             "Make sure to call import_alphafold before running this function"
         )
     return params
+
+
+def _assert_abs_diff_small_base(compare_func, expected, actual, eps):
+    # Helper function for comparing absolute differences of two torch tensors.
+    abs_diff = torch.abs(expected - actual)
+    err = compare_func(abs_diff)
+    zero_tensor = torch.tensor(0, dtype=err.dtype)
+    rtol = 1.6e-2 if err.dtype == torch.bfloat16 else 1.3e-6  
+    torch.testing.assert_close(err, zero_tensor, atol=eps, rtol=rtol)
+
+
+def assert_max_abs_diff_small(expected, actual, eps):
+    _assert_abs_diff_small_base(torch.max, expected, actual, eps)
+
+
+def assert_mean_abs_diff_small(expected, actual, eps):
+    _assert_abs_diff_small_base(torch.mean, expected, actual, eps)
