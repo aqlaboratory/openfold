@@ -200,8 +200,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
         # Inplace version
         out_repro_msa, out_repro_pair = model.evoformer.blocks[0](
@@ -217,8 +217,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
 
 class TestExtraMSAStack(unittest.TestCase):
@@ -354,8 +354,7 @@ class TestMSATransition(unittest.TestCase):
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
-
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 if __name__ == "__main__":
     unittest.main()

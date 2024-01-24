@@ -197,7 +197,7 @@ class TestStructureModule(unittest.TestCase):
         # The structure module, thanks to angle normalization, is very volatile
         # We only assess the mean here. Heuristically speaking, it seems to
         # have lower error in general on real rather than synthetic data.
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.05)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, 0.05)
 
 
 class TestInvariantPointAttention(unittest.TestCase):
@@ -321,7 +321,7 @@ class TestInvariantPointAttention(unittest.TestCase):
                 torch.as_tensor(sample_mask.squeeze(-1)).float().cuda(),
             ).cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestAngleResnet(unittest.TestCase):

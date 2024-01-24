@@ -191,9 +191,7 @@ class TestTemplatePairStack(unittest.TestCase):
             _mask_trans=False,
         ).cpu()
 
-        diff = torch.max(torch.abs(out_gt - out_repro))
-        self.assertTrue(diff < consts.eps, 
-                msg=f"Found difference between ground truth and reproduction of {diff}")
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class Template(unittest.TestCase):
@@ -286,7 +284,7 @@ class Template(unittest.TestCase):
         out_repro = out_repro_all["template_pair_embedding"]
         out_repro = out_repro.cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 if __name__ == "__main__":

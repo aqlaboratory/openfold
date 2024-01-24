@@ -276,8 +276,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
             )
             out_repro_ds = out_repro_ds["template_pair_embedding"].cpu()
 
-            err = torch.max(torch.abs(out_repro - out_repro_ds))
-            self.assertTrue(err < eps, f'Error {err}')
+            compare_utils.assert_max_abs_diff_small(out_repro, out_repro_ds, eps)
 
     def test_compare_model(self):
         """
@@ -335,8 +334,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
                 out_repro = out_repro["sm"]["positions"][-1].squeeze(0)
                 out_repro_ds = out_repro_ds["sm"]["positions"][-1].squeeze(0)
 
-                err = torch.mean(torch.abs(out_repro - out_repro_ds))
-                self.assertTrue(err < eps, f'Error: {err}')
+                compare_utils.assert_mean_abs_diff_small(out_repro, out_repro_ds, eps)
 
 
 if __name__ == "__main__":
