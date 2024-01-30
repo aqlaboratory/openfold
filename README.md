@@ -351,7 +351,7 @@ python3 run_pretrained_openfold.py \
     --output_dir ./ \
     --model_device "cuda:0" \
     --config_preset "seq_model_esm1b_ptm" \
-    --openfold_checkpoint_path openfold/resources/openfold_soloseq-params/seq_model_esm1b_ptm.pt \
+    --openfold_checkpoint_path openfold/resources/openfold_soloseq_params/seq_model_esm1b_ptm.pt \
     --uniref90_database_path data/uniref90/uniref90.fasta \
     --pdb70_database_path data/pdb70/pdb70 \
     --jackhmmer_binary_path lib/conda/envs/openfold_venv/bin/jackhmmer \
