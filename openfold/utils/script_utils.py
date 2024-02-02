@@ -123,7 +123,7 @@ def parse_fasta(data):
     ][1:]
     tags, seqs = lines[::2], lines[1::2]
 
-    tags = [t.split()[0] for t in tags]
+    tags = [re.split('\W| \|', t)[0] for t in tags]
 
     return tags, seqs
 
