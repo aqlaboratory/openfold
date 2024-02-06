@@ -21,7 +21,7 @@ from openfold.utils.multi_chain_permutation import (pad_features, get_least_asym
                                                     merge_labels)
 
 
-@unittest.skip("Tests need to be fixed post-refactor")
+# @unittest.skip("Tests need to be fixed post-refactor")
 class TestPermutation(unittest.TestCase):
     def setUp(self):
         """
@@ -65,10 +65,39 @@ class TestPermutation(unittest.TestCase):
             'seq_length': torch.tensor([57])
         }
         anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch, batch['asym_id'])
-        self.assertIn(int(anchor_gt_asym), [1, 2])
-        self.assertNotIn(int(anchor_gt_asym), [3, 4, 5])
-        self.assertIn(int(anchor_pred_asym), [1, 2])
-        self.assertNotIn(int(anchor_pred_asym), [3, 4, 5])
+        anchor_gt_asym = int(anchor_gt_asym)
+        anchor_pred_asym = {int(i) for i in anchor_pred_asym}
+        expected_anchors = {1, 2}
+        expected_non_anchors = {3, 4, 5}
+
+        self.assertIn(anchor_gt_asym, expected_anchors) 
+        self.assertNotIn(anchor_gt_asym, expected_non_anchors)
+        # Check that predicted anchors are within expected anchor set
+        self.assertEqual(anchor_pred_asym, expected_anchors & anchor_pred_asym)
+        self.assertEqual(set(), anchor_pred_asym & expected_non_anchors) 
+
+    def test_1_selecting_anchors_with_padding(self):
+        # This test fails because it's looking for 0 as the 
+        nres_pad = 325 - 57  # suppose the cropping size is 325
+        batch = {
+            'asym_id': pad_features(self.asym_id, nres_pad, pad_dim=1),
+            'sym_id': pad_features(self.sym_id, nres_pad, pad_dim=1),
+            'entity_id': pad_features(self.entity_id, nres_pad, pad_dim=1),
+            'aatype': torch.randint(21, size=(1, 325)),
+            'seq_length': torch.tensor([57])
+        }
+        anchor_gt_asym, anchor_pred_asym = get_least_asym_entity_or_longest_length(batch, batch['asym_id'])
+        anchor_gt_asym = int(anchor_gt_asym)
+        anchor_pred_asym = {int(i) for i in anchor_pred_asym}
+        expected_anchors = {1, 2}
+        expected_non_anchors = {3, 4, 5}
+
+        self.assertIn(anchor_gt_asym, expected_anchors) 
+        self.assertNotIn(anchor_gt_asym, expected_non_anchors)
+        # Check that predicted anchors are within expected anchor set
+        self.assertEqual(anchor_pred_asym, expected_anchors & anchor_pred_asym)
+        self.assertEqual(set(), anchor_pred_asym & expected_non_anchors) 
+
 
     def test_2_permutation_pentamer(self):
         batch = {
