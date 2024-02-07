@@ -234,6 +234,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         lr_scheduler = AlphaFoldLRScheduler(
             optimizer,
+            last_epoch=self.last_lr_step
         )
 
         return {
