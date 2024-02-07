@@ -244,9 +244,6 @@ class TestDeepSpeedKernel(unittest.TestCase):
         pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
 
-        inds = np.random.randint(0, 21, (n_res,))
-        batch["target_feat"] = np.eye(22)[inds]
-
         batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
         template_feats = {
             k: v for k, v in batch.items() if k.startswith("template_")
@@ -276,8 +273,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
             )
             out_repro_ds = out_repro_ds["template_pair_embedding"].cpu()
 
-            err = torch.max(torch.abs(out_repro - out_repro_ds))
-            self.assertTrue(err < eps, f'Error {err}')
+            compare_utils.assert_max_abs_diff_small(out_repro, out_repro_ds, eps)
 
     def test_compare_model(self):
         """
@@ -310,7 +306,8 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["residx_atom37_to_atom14"] = batch[
             "residx_atom37_to_atom14"
         ].long()
-        batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], 21).to(torch.float32)
+        # print(batch["target_feat"].shape)
+        batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], consts.msa_logits - 1).to(torch.float32)
         batch["template_all_atom_mask"] = batch["template_all_atom_masks"]
         batch.update(
             data_transforms.atom37_to_torsion_angles("template_")(batch)
@@ -335,8 +332,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
                 out_repro = out_repro["sm"]["positions"][-1].squeeze(0)
                 out_repro_ds = out_repro_ds["sm"]["positions"][-1].squeeze(0)
 
-                err = torch.mean(torch.abs(out_repro - out_repro_ds))
-                self.assertTrue(err < eps, f'Error: {err}')
+                compare_utils.assert_mean_abs_diff_small(out_repro, out_repro_ds, eps)
 
 
 if __name__ == "__main__":

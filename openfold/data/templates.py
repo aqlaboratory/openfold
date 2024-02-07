@@ -83,8 +83,8 @@ TEMPLATE_FEATURES = {
     "template_aatype": np.int64,
     "template_all_atom_mask": np.float32,
     "template_all_atom_positions": np.float32,
-    "template_domain_names": np.object,
-    "template_sequence": np.object,
+    "template_domain_names": object,
+    "template_sequence": object,
     "template_sum_probs": np.float32,
 }
 
@@ -101,8 +101,8 @@ def empty_template_feats(n_res):
         "template_all_atom_positions": np.zeros(
             (0, n_res, residue_constants.atom_type_num, 3), np.float32
         ),
-        "template_domain_names": np.array([''.encode()], dtype=np.object),
-        "template_sequence": np.array([''.encode()], dtype=np.object),
+        "template_domain_names": np.array([''.encode()], dtype=object),
+        "template_sequence": np.array([''.encode()], dtype=object),
         "template_sum_probs": np.zeros((0, 1), dtype=np.float32),
     }
 

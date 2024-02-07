@@ -79,7 +79,7 @@ class TestTriangularAttention(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + name
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -102,7 +102,7 @@ class TestTriangularAttention(unittest.TestCase):
             chunk_size=None,
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
     @compare_utils.skip_unless_alphafold_installed()
     def test_tri_att_end_compare(self):

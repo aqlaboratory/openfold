@@ -595,4 +595,4 @@ If you use OpenProteinSet, please also cite:
       primaryClass={q-bio.BM}
 }
 ```
-Any work that cites OpenFold should also cite AlphaFold.
+Any work that cites OpenFold should also cite [AlphaFold](https://www.nature.com/articles/s41586-021-03819-2) and [AlphaFold-Multimer](https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1) if applicable.

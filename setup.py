@@ -113,10 +113,10 @@ else:
 
 setup(
     name='openfold',
-    version='1.0.1',
+    version='2.0.0',
     description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
-    author='Gustaf Ahdritz & DeepMind',
-    author_email='gahdritz@gmail.com',
+    author='OpenFold Team',
+    author_email='jennifer.wei@omsf.io',
     license='Apache License, Version 2.0',
     url='https://github.com/aqlaboratory/openfold',
     packages=find_packages(exclude=["tests", "scripts"]),

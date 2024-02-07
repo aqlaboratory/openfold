@@ -74,7 +74,7 @@ class TestOuterProductMean(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/"
             + "evoformer_iteration/outer_product_mean"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -92,7 +92,7 @@ class TestOuterProductMean(unittest.TestCase):
 
         # Even when correct, OPM has large, precision-related errors. It gets
         # a special pass from consts.eps.
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 5e-4)
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, 5e-4)
 
 
 if __name__ == "__main__":

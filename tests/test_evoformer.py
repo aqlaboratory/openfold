@@ -178,7 +178,7 @@ class TestEvoformerStack(unittest.TestCase):
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         key = jax.random.PRNGKey(42)
         out_gt = f.apply(params, key, activations, masks)
@@ -200,8 +200,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
         # Inplace version
         out_repro_msa, out_repro_pair = model.evoformer.blocks[0](
@@ -217,8 +217,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
 
 class TestExtraMSAStack(unittest.TestCase):
@@ -339,7 +339,7 @@ class TestMSATransition(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_transition"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -354,8 +354,7 @@ class TestMSATransition(unittest.TestCase):
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
-
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 if __name__ == "__main__":
     unittest.main()
