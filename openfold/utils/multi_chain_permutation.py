@@ -90,15 +90,15 @@ def get_optimal_transform(
 
 def get_least_asym_entity_or_longest_length(batch, input_asym_id):
     """
-    First check how many subunit(s) one sequence has, if there is no tie, e.g. AABBB then select
-    one of the A as anchor
+    First check how many subunit(s) one sequence has. Select the subunit that is less
+    common, e.g. if the protein was AABBB then select one of the A as anchor
 
     If there is a tie, e.g. AABB, first check which sequence is the longer/longest,
     then choose one of the corresponding subunits as anchor
 
     Args:
-    batch: in this funtion batch is the full ground truth features
-    input_asym_id: A list of aym_ids that are in the cropped input features
+    batch: in this function batch is the full ground truth features
+    input_asym_id: A list of asym_ids that are in the cropped input features
 
     Return:
     anchor_gt_asym_id: Tensor(int) selected ground truth asym_id
@@ -126,7 +126,7 @@ def get_least_asym_entity_or_longest_length(batch, input_asym_id):
     min_asym_count = min(entity_asym_count.values())
     least_asym_entities = [entity for entity, count in entity_asym_count.items() if count == min_asym_count]
 
-    # If multiple entities have the least asym_id count, return those with the shortest length
+    # If multiple entities have the least asym_id count, return those with the longest length
     if len(least_asym_entities) > 1:
         max_length = max([entity_length[entity] for entity in least_asym_entities])
         least_asym_entities = [entity for entity in least_asym_entities if entity_length[entity] == max_length]
