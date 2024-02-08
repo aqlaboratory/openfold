@@ -688,8 +688,9 @@ def convert_deprecated_v1_keys(state_dict):
         new_key = convert_key_re.sub(lambda m: replacements[m.group()], key)
 
         # Add prefix for template modules
-        if new_key.startswith('template'):
-            new_key = f'template_embedder.{new_key}'
+        subheader = re.search('(?<=model.).*$', new_key).group()
+        if subheader.startswith('template'):
+            new_key = f'model.template_embedder.{subheader}'
 
         converted_state_dict[new_key] = value
 
