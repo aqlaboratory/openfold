@@ -18,21 +18,19 @@ import unittest
 
 from openfold.data.data_transforms import make_atom14_masks_np
 from openfold.np.residue_constants import (
-    restype_rigid_group_default_frame,
-    restype_atom14_to_rigid_group,
     restype_atom14_mask,
-    restype_atom14_rigid_group_positions,
     restype_atom37_mask,
 )
 from openfold.model.structure_module import (
     StructureModule,
     StructureModuleTransition,
-    BackboneUpdate,
     AngleResnet,
     InvariantPointAttention,
 )
-import openfold.utils.feats as feats
 from openfold.utils.rigid_utils import Rotation, Rigid
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.rotation_matrix import Rot3Array
+from openfold.utils.geometry.vector import Vec3Array
 import tests.compare_utils as compare_utils
 from tests.config import consts
 from tests.data_utils import (
@@ -46,6 +44,20 @@ if compare_utils.alphafold_is_installed():
 
 
 class TestStructureModule(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if compare_utils.alphafold_is_installed():
+            if consts.is_multimer:
+                cls.am_atom = alphafold.model.all_atom_multimer
+                cls.am_fold = alphafold.model.folding_multimer
+                cls.am_modules = alphafold.model.modules_multimer
+                cls.am_rigid = alphafold.model.geometry
+            else:
+                cls.am_atom = alphafold.model.all_atom
+                cls.am_fold = alphafold.model.folding
+                cls.am_modules = alphafold.model.modules
+                cls.am_rigid = alphafold.model.r3
+
     def test_structure_module_shape(self):
         batch_size = consts.batch_size
         n = consts.n_res
@@ -81,6 +93,7 @@ class TestStructureModule(unittest.TestCase):
             trans_scale_factor,
             ar_epsilon,
             inf,
+            is_multimer=consts.is_multimer
         )
 
         s = torch.rand((batch_size, n, c_s))
@@ -89,7 +102,11 @@ class TestStructureModule(unittest.TestCase):
 
         out = sm({"single": s, "pair": z}, f)
 
-        self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 7))
+        if consts.is_multimer:
+            self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 4, 4))
+        else:
+            self.assertTrue(out["frames"].shape == (no_layers, batch_size, n, 7))
+
         self.assertTrue(
             out["angles"].shape == (no_layers, batch_size, n, no_angles, 2)
         )
@@ -121,11 +138,14 @@ class TestStructureModule(unittest.TestCase):
         c_global = config.model.global_config
 
         def run_sm(representations, batch):
-            sm = alphafold.model.folding.StructureModule(c_sm, c_global)
+            sm = self.am_fold.StructureModule(c_sm, c_global)
             representations = {
                 k: jax.lax.stop_gradient(v) for k, v in representations.items()
             }
             batch = {k: jax.lax.stop_gradient(v) for k, v in batch.items()}
+
+            if consts.is_multimer:
+                return sm(representations, batch, is_training=False, compute_loss=True)
             return sm(representations, batch, is_training=False)
 
         f = hk.transform(run_sm)
@@ -177,10 +197,24 @@ class TestStructureModule(unittest.TestCase):
         # The structure module, thanks to angle normalization, is very volatile
         # We only assess the mean here. Heuristically speaking, it seems to
         # have lower error in general on real rather than synthetic data.
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < 0.05)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, 0.05)
 
 
 class TestInvariantPointAttention(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if compare_utils.alphafold_is_installed():
+            if consts.is_multimer:
+                cls.am_atom = alphafold.model.all_atom_multimer
+                cls.am_fold = alphafold.model.folding_multimer
+                cls.am_modules = alphafold.model.modules_multimer
+                cls.am_rigid = alphafold.model.geometry
+            else:
+                cls.am_atom = alphafold.model.all_atom
+                cls.am_fold = alphafold.model.folding
+                cls.am_modules = alphafold.model.modules
+                cls.am_rigid = alphafold.model.r3
+
     def test_shape(self):
         c_m = 13
         c_z = 17
@@ -197,13 +231,18 @@ class TestInvariantPointAttention(unittest.TestCase):
         mask = torch.ones((batch_size, n_res))
 
         rot_mats = torch.rand((batch_size, n_res, 3, 3))
-        rots = Rotation(rot_mats=rot_mats, quats=None)
         trans = torch.rand((batch_size, n_res, 3))
 
-        r = Rigid(rots, trans)
+        if consts.is_multimer:
+            rotation = Rot3Array.from_array(rot_mats)
+            translation = Vec3Array.from_array(trans)
+            r = Rigid3Array(rotation, translation)
+        else:
+            rots = Rotation(rot_mats=rot_mats, quats=None)
+            r = Rigid(rots, trans)
 
         ipa = InvariantPointAttention(
-            c_m, c_z, c_hidden, no_heads, no_qp, no_vp
+            c_m, c_z, c_hidden, no_heads, no_qp, no_vp, is_multimer=consts.is_multimer
         )
 
         shape_before = s.shape
@@ -215,16 +254,26 @@ class TestInvariantPointAttention(unittest.TestCase):
     def test_ipa_compare(self):
         def run_ipa(act, static_feat_2d, mask, affine):
             config = compare_utils.get_alphafold_config()
-            ipa = alphafold.model.folding.InvariantPointAttention(
+            ipa = self.am_fold.InvariantPointAttention(
                 config.model.heads.structure_module,
                 config.model.global_config,
             )
-            attn = ipa(
-                inputs_1d=act,
-                inputs_2d=static_feat_2d,
-                mask=mask,
-                affine=affine,
-            )
+
+            if consts.is_multimer:
+                attn = ipa(
+                    inputs_1d=act,
+                    inputs_2d=static_feat_2d,
+                    mask=mask,
+                    rigid=affine
+                )
+            else:
+                attn = ipa(
+                    inputs_1d=act,
+                    inputs_2d=static_feat_2d,
+                    mask=mask,
+                    affine=affine
+                )
+
             return attn
 
         f = hk.transform(run_ipa)
@@ -238,13 +287,20 @@ class TestInvariantPointAttention(unittest.TestCase):
         sample_mask = np.ones((n_res, 1))
 
         affines = random_affines_4x4((n_res,))
-        rigids = alphafold.model.r3.rigids_from_tensor4x4(affines)
-        quats = alphafold.model.r3.rigids_to_quataffine(rigids)
-        transformations = Rigid.from_tensor_4x4(
-            torch.as_tensor(affines).float().cuda()
-        )
 
-        sample_affine = quats
+        if consts.is_multimer:
+            rigids = self.am_rigid.Rigid3Array.from_array4x4(affines)
+            transformations = Rigid3Array.from_tensor_4x4(
+                torch.as_tensor(affines).float().cuda()
+            )
+            sample_affine = rigids
+        else:
+            rigids = self.am_rigid.rigids_from_tensor4x4(affines)
+            quats = self.am_rigid.rigids_to_quataffine(rigids)
+            transformations = Rigid.from_tensor_4x4(
+                torch.as_tensor(affines).float().cuda()
+            )
+            sample_affine = quats
 
         ipa_params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/structure_module/"
@@ -265,7 +321,7 @@ class TestInvariantPointAttention(unittest.TestCase):
                 torch.as_tensor(sample_mask.squeeze(-1)).float().cuda(),
             ).cpu()
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestAngleResnet(unittest.TestCase):

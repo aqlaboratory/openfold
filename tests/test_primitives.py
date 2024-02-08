@@ -30,7 +30,7 @@ class TestLMA(unittest.TestCase):
 
         q, kv, _, biases = random_attention_inputs(batch_size=consts.batch_size,
                                                    n_seq=consts.n_seq,
-                                                   n=2**12,
+                                                   n=2 ** 12,
                                                    no_heads=no_heads,
                                                    c_hidden=c_hidden)
 
@@ -44,10 +44,10 @@ class TestLMA(unittest.TestCase):
 
             l = a(q, kv, biases=biases, use_lma=True).cpu()
             real = a(q, kv, biases=biases).cpu()
-       
+
         err = torch.max(torch.abs(l - real))
         self.assertTrue(err < consts.eps, f'Error: {err}')
 
- 
+
 if __name__ == "__main__":
     unittest.main()

@@ -79,7 +79,7 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_row_attention"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(
             params, None, msa_act, msa_mask, pair_act
@@ -96,7 +96,7 @@ class TestMSARowAttentionWithPairBias(unittest.TestCase):
             )
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestMSAColumnAttention(unittest.TestCase):
@@ -144,7 +144,7 @@ class TestMSAColumnAttention(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_column_attention"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -158,7 +158,7 @@ class TestMSAColumnAttention(unittest.TestCase):
             )
         ).cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_gt - out_repro)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 class TestMSAColumnGlobalAttention(unittest.TestCase):
@@ -207,7 +207,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/extra_msa_stack/"
             + "msa_column_global_attention"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
@@ -222,7 +222,7 @@ class TestMSAColumnGlobalAttention(unittest.TestCase):
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro) < consts.eps))
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 
 if __name__ == "__main__":

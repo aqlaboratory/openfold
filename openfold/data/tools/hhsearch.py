@@ -18,8 +18,9 @@ import glob
 import logging
 import os
 import subprocess
-from typing import Sequence
+from typing import Sequence, Optional
 
+from openfold.data import parsers
 from openfold.data.tools import utils
 
 
@@ -62,11 +63,20 @@ class HHSearch:
                     f"Could not find HHsearch database {database_path}"
                 )
 
-    def query(self, a3m: str) -> str:
+    @property
+    def output_format(self) -> str:
+        return 'hhr'
+
+    @property
+    def input_format(self) -> str:
+        return 'a3m'
+
+    def query(self, a3m: str, output_dir: Optional[str] = None) -> str:
         """Queries the database using HHsearch using a given a3m."""
-        with utils.tmpdir_manager(base_dir="/tmp") as query_tmp_dir:
+        with utils.tmpdir_manager() as query_tmp_dir:
             input_path = os.path.join(query_tmp_dir, "query.a3m")
-            hhr_path = os.path.join(query_tmp_dir, "output.hhr")
+            output_dir = query_tmp_dir if output_dir is None else output_dir
+            hhr_path = os.path.join(output_dir, "hhsearch_output.hhr")
             with open(input_path, "w") as f:
                 f.write(a3m)
 
@@ -104,3 +114,12 @@ class HHSearch:
             with open(hhr_path) as f:
                 hhr = f.read()
         return hhr
+
+    @staticmethod
+    def get_template_hits(
+        output_string: str,
+        input_sequence: str
+    ) -> Sequence[parsers.TemplateHit]:
+        """Gets parsed template hits from the raw string output by the tool"""
+        del input_sequence # Used by hmmsearch but not needed for hhsearch
+        return parsers.parse_hhr(output_string)

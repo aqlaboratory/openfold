@@ -1,4 +1,5 @@
 .vscode/
+.idea/
 __pycache__/
 *.egg-info
 build
@@ -8,3 +9,4 @@ dist
 data
 openfold/resources/
 tests/test_data/
+cutlass/

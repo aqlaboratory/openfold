@@ -978,6 +978,16 @@ class Rigid:
         """
         return self._trans.device
 
+    @property
+    def dtype(self) -> torch.dtype:
+        """
+            Returns the dtype of the Rigid tensors.
+
+            Returns:
+                The dtype of the Rigid tensors
+        """
+        return self._rots.dtype
+
     def get_rots(self) -> Rotation:
         """
             Getter for the rotation.

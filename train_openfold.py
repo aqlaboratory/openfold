@@ -1,34 +1,28 @@
 import argparse
 import logging
 import os
-import random
 import sys
-import time
 
-import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins.training_type import DeepSpeedPlugin, DDPPlugin
-from pytorch_lightning.plugins.environments import SLURMEnvironment
 import torch
 
 from openfold.config import model_config
-from openfold.data.data_modules import (
-    OpenFoldDataModule,
-    DummyDataLoader,
-)
+from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataModule
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse import remove_arguments
+from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
 from openfold.utils.exponential_moving_average import ExponentialMovingAverage
 from openfold.utils.loss import AlphaFoldLoss, lddt_ca
 from openfold.utils.lr_schedulers import AlphaFoldLRScheduler
+from openfold.utils.multi_chain_permutation import multi_chain_permutation_align
 from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
@@ -39,6 +33,7 @@ from openfold.utils.validation_metrics import (
 )
 from openfold.utils.import_weights import (
     import_jax_weights_,
+    import_openfold_weights_
 )
 from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
@@ -53,7 +48,10 @@ class OpenFoldWrapper(pl.LightningModule):
         super(OpenFoldWrapper, self).__init__()
         self.config = config
         self.model = AlphaFold(config)
+        self.is_multimer = self.config.globals.is_multimer
+
         self.loss = AlphaFoldLoss(config.loss)
+
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
         )
@@ -98,11 +96,18 @@ class OpenFoldWrapper(pl.LightningModule):
         if(self.ema.device != batch["aatype"].device):
             self.ema.to(batch["aatype"].device)
 
+        ground_truth = batch.pop('gt_features', None)
+
         # Run the model
         outputs = self(batch)
 
         # Remove the recycling dimension
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
+
+        if self.is_multimer:
+            batch = multi_chain_permutation_align(out=outputs,
+                                                  features=batch,
+                                                  ground_truth=ground_truth)
 
         # Compute loss
         loss, loss_breakdown = self.loss(
@@ -126,13 +131,21 @@ class OpenFoldWrapper(pl.LightningModule):
             clone_param = lambda t: t.detach().clone()
             self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
             self.model.load_state_dict(self.ema.state_dict()["params"])
-       
+
+        ground_truth = batch.pop('gt_features', None)
+
         # Run the model
         outputs = self(batch)
         batch = tensor_tree_map(lambda t: t[..., -1], batch)
 
-        # Compute loss and other metrics
         batch["use_clamped_fape"] = 0.
+
+        if self.is_multimer:
+            batch = multi_chain_permutation_align(out=outputs,
+                                                  features=batch,
+                                                  ground_truth=ground_truth)
+
+        # Compute loss and other metrics
         _, loss_breakdown = self.loss(
             outputs, batch, _return_breakdown=True
         )
@@ -221,6 +234,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         lr_scheduler = AlphaFoldLRScheduler(
             optimizer,
+            last_epoch=self.last_lr_step
         )
 
         return {
@@ -265,8 +279,8 @@ def main(args):
         train=True, 
         low_prec=(str(args.precision) == "16")
     ) 
-    
     model_module = OpenFoldWrapper(config)
+
     if(args.resume_from_ckpt):
         if(os.path.isdir(args.resume_from_ckpt)):  
             last_global_step = get_global_step_from_zero_checkpoint(args.resume_from_ckpt)
@@ -281,7 +295,7 @@ def main(args):
         else:
             sd = torch.load(args.resume_from_ckpt)
         sd = {k[len("module."):]:v for k,v in sd.items()}
-        model_module.load_state_dict(sd)
+        import_openfold_weights_(model=model_module, state_dict=sd)
         logging.info("Successfully loaded model weights...")
     if(args.resume_from_jax_params):
         model_module.load_from_jax(args.resume_from_jax_params)
@@ -291,12 +305,18 @@ def main(args):
     if(args.script_modules):
         script_preset_(model_module)
 
-    #data_module = DummyDataLoader("new_batch.pickle")
-    data_module = OpenFoldDataModule(
+    if "multimer" in args.config_preset:
+        data_module = OpenFoldMultimerDataModule(
         config=config.data, 
         batch_seed=args.seed,
         **vars(args)
     )
+    else:
+        data_module = OpenFoldDataModule(
+            config=config.data, 
+            batch_seed=args.seed,
+            **vars(args)
+        )
 
     data_module.prepare_data()
     data_module.setup()
@@ -417,6 +437,10 @@ if __name__ == "__main__":
                 filtered by the release date of the target'''
     )
     parser.add_argument(
+        "--train_mmcif_data_cache_path", type=str, default=None,
+        help="Path to the json file which records all the information of mmcif structures used during training"
+    )
+    parser.add_argument(
         "--use_single_seq_mode", type=str, default=False,
         help="Use single sequence embeddings instead of MSAs."
     )
@@ -435,6 +459,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--val_alignment_dir", type=str, default=None,
         help="Directory containing precomputed validation alignments"
+    )
+    parser.add_argument(
+        "--val_mmcif_data_cache_path", type=str, default=None,
+        help="path to the json file which records all the information of mmcif structures used during validation"
     )
     parser.add_argument(
         "--kalign_binary_path", type=str, default='/usr/bin/kalign',

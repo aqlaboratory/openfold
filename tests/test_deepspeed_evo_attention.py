@@ -236,19 +236,25 @@ class TestDeepSpeedKernel(unittest.TestCase):
         n_res = 20
         eps = 2e-2
 
-        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         batch = random_template_feats(n_templ, n_res)
         batch["template_all_atom_masks"] = batch["template_all_atom_mask"]
+        if consts.is_multimer:
+            batch["asym_id"] = batch['asym_id'][0]
+
+        pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
         pair_mask = np.random.randint(0, 2, (n_res, n_res)).astype(np.float32)
 
-        inds = np.random.randint(0, 21, (n_res,))
-        batch["target_feat"] = np.eye(22)[inds]
+        batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
+        template_feats = {
+            k: v for k, v in batch.items() if k.startswith("template_")
+        }
 
         with torch.no_grad():
             model = compare_utils.get_global_pretrained_openfold()
             model.globals.use_deepspeed_evo_attention = False
             out_repro = model.embed_templates(
-                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                template_feats,
+                batch,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
@@ -258,7 +264,8 @@ class TestDeepSpeedKernel(unittest.TestCase):
 
             model.globals.use_deepspeed_evo_attention = True
             out_repro_ds = model.embed_templates(
-                {k: torch.as_tensor(v).cuda() for k, v in batch.items()},
+                template_feats,
+                batch,
                 torch.as_tensor(pair_act).cuda(),
                 torch.as_tensor(pair_mask).cuda(),
                 templ_dim=0,
@@ -266,15 +273,14 @@ class TestDeepSpeedKernel(unittest.TestCase):
             )
             out_repro_ds = out_repro_ds["template_pair_embedding"].cpu()
 
-            err = torch.max(torch.abs(out_repro - out_repro_ds))
-            self.assertTrue(err < eps, f'Error {err}')
+            compare_utils.assert_max_abs_diff_small(out_repro, out_repro_ds, eps)
 
     def test_compare_model(self):
         """
         Run full model with and without using DeepSpeed Evoformer attention kernel
         and compare output coordinates.
         """
-        eps = 0.5
+        eps = 0.2
         with open("tests/test_data/sample_feats.pickle", "rb") as fp:
             batch = pickle.load(fp)
 
@@ -283,6 +289,15 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["atom14_atom_exists"] = batch["atom14_atom_exists"][0]
 
         batch["no_recycling_iters"] = np.array([3., 3., 3., 3., ])
+
+        if consts.is_multimer:
+            n_res = batch['aatype'].shape[1]
+            n_extra_seq = batch['extra_msa'].shape[1]
+            batch["asym_id"] = np.ones((4, n_res))
+            batch["entity_id"] = np.ones((4, n_res))
+            batch["sym_id"] = np.ones((4, n_res))
+            batch["extra_deletion_matrix"] = np.random.randint(0, 2, size=(4, n_extra_seq, n_res))
+        
         batch = {k: torch.as_tensor(v).cuda() for k, v in batch.items()}
 
         batch["aatype"] = batch["aatype"].long()
@@ -291,6 +306,8 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["residx_atom37_to_atom14"] = batch[
             "residx_atom37_to_atom14"
         ].long()
+        # print(batch["target_feat"].shape)
+        batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], consts.msa_logits - 1).to(torch.float32)
         batch["template_all_atom_mask"] = batch["template_all_atom_masks"]
         batch.update(
             data_transforms.atom37_to_torsion_angles("template_")(batch)
@@ -299,7 +316,6 @@ class TestDeepSpeedKernel(unittest.TestCase):
         # Move the recycling dimension to the end
         move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
         batch = tensor_tree_map(move_dim, batch)
-
         with torch.no_grad():
             with torch.cuda.amp.autocast(dtype=torch.bfloat16):
                 model = compare_utils.get_global_pretrained_openfold()
@@ -316,8 +332,7 @@ class TestDeepSpeedKernel(unittest.TestCase):
                 out_repro = out_repro["sm"]["positions"][-1].squeeze(0)
                 out_repro_ds = out_repro_ds["sm"]["positions"][-1].squeeze(0)
 
-                err = torch.max(torch.abs(out_repro - out_repro_ds))
-                self.assertTrue(err < eps, f'Error: {err}')
+                compare_utils.assert_mean_abs_diff_small(out_repro, out_repro_ds, eps)
 
 
 if __name__ == "__main__":

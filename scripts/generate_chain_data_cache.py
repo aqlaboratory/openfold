@@ -4,10 +4,11 @@ import json
 import logging
 from multiprocessing import Pool
 import os
-
+import string
 import sys
 sys.path.append(".") # an innocent hack to get this to run from the top level
 
+from collections import defaultdict
 from tqdm import tqdm
 
 from openfold.data.mmcif_parsing import parse 
@@ -49,20 +50,27 @@ def parse_file(
             pdb_string = fp.read()
           
         protein_object = protein.from_pdb_string(pdb_string, None)
+        aatype = protein_object.aatype
+        chain_index = protein_object.chain_index
 
-        chain_dict = {} 
-        chain_dict["seq"] = residue_constants.aatype_to_str_sequence(
-            protein_object.aatype,
-        )
-        chain_dict["resolution"] = 0.
+        chain_dict = defaultdict(list)
+        for i in range(aatype.shape[0]):
+            chain_dict[chain_index[i]].append(residue_constants.restypes_with_x[aatype[i]])
+
+        out = {}
+        chain_tags = string.ascii_uppercase
+        for chain, seq in chain_dict.items():
+            full_name = "_".join([file_id, chain_tags[chain]])
+            out[full_name] = {}
+            local_data = out[full_name]
+            local_data["resolution"] = 0.
+            local_data["seq"] = ''.join(seq)
         
-        if(chain_cluster_size_dict is not None):
-            cluster_size = chain_cluster_size_dict.get(
-                full_name.upper(), -1
-            )
-            chain_dict["cluster_size"] = cluster_size
-
-        out = {file_id: chain_dict}
+            if(chain_cluster_size_dict is not None):
+                cluster_size = chain_cluster_size_dict.get(
+                    full_name.upper(), -1
+                )
+                local_data["cluster_size"] = cluster_size
 
     return out
 

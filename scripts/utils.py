@@ -15,7 +15,16 @@ def add_data_args(parser: argparse.ArgumentParser):
         '--pdb70_database_path', type=str, default=None,
     )
     parser.add_argument(
+        '--pdb_seqres_database_path', type=str, default=None,
+    )
+    parser.add_argument(
+        '--uniref30_database_path', type=str, default=None,
+    )
+    parser.add_argument(
         '--uniclust30_database_path', type=str, default=None,
+    )
+    parser.add_argument(
+        '--uniprot_database_path', type=str, default=None,
     )
     parser.add_argument(
         '--bfd_database_path', type=str, default=None,
@@ -28,6 +37,12 @@ def add_data_args(parser: argparse.ArgumentParser):
     )
     parser.add_argument(
         '--hhsearch_binary_path', type=str, default='/usr/bin/hhsearch'
+    )
+    parser.add_argument(
+        '--hmmsearch_binary_path', type=str, default='/usr/bin/hmmsearch'
+    )
+    parser.add_argument(
+        '--hmmbuild_binary_path', type=str, default='/usr/bin/hmmbuild'
     )
     parser.add_argument(
         '--kalign_binary_path', type=str, default='/usr/bin/kalign'

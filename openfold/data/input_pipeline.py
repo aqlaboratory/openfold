@@ -107,7 +107,8 @@ def ensembled_transform_fns(common_cfg, mode_cfg, ensemble_seed):
         # the masked locations and secret corrupted locations.
         transforms.append(
             data_transforms.make_masked_msa(
-                common_cfg.masked_msa, mode_cfg.masked_msa_replace_fraction
+                common_cfg.masked_msa, mode_cfg.masked_msa_replace_fraction,
+                seed=(msa_seed + 1) if msa_seed else None,
             )
         )
 

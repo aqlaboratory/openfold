@@ -11,6 +11,7 @@ import tempfile
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
 from openfold.data.parsers import parse_fasta
+from openfold.data.tools import hhsearch, hmmsearch
 from openfold.np import protein, residue_constants
 
 from utils import add_data_args
@@ -39,7 +40,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
             alignment_runner.run(
                 fasta_path, alignment_dir
             )
-        except:
+        except Exception as e:
+            logging.warning(e)
             logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
             os.remove(fasta_path)
             os.rmdir(alignment_dir)
@@ -114,15 +116,30 @@ def parse_and_align(files, alignment_runner, args):
 
 def main(args):
     # Build the alignment tool runner
+    if args.hmmsearch_binary_path is not None and args.pdb_seqres_database_path is not None:
+        template_searcher = hmmsearch.Hmmsearch(
+            binary_path=args.hmmsearch_binary_path,
+            hmmbuild_binary_path=args.hmmbuild_binary_path,
+            database_path=args.pdb_seqres_database_path,
+        )
+    elif args.hhsearch_binary_path is not None and args.pdb70_database_path is not None:
+        template_searcher = hhsearch.HHSearch(
+            binary_path=args.hhsearch_binary_path,
+            databases=[args.pdb70_database_path],
+        )
+    else:
+        template_searcher = None
+
     alignment_runner = AlignmentRunner(
         jackhmmer_binary_path=args.jackhmmer_binary_path,
         hhblits_binary_path=args.hhblits_binary_path,
-        hhsearch_binary_path=args.hhsearch_binary_path,
         uniref90_database_path=args.uniref90_database_path,
         mgnify_database_path=args.mgnify_database_path,
         bfd_database_path=args.bfd_database_path,
+        uniref30_database_path=args.uniref30_database_path,
         uniclust30_database_path=args.uniclust30_database_path,
-        pdb70_database_path=args.pdb70_database_path,
+        uniprot_database_path=args.uniprot_database_path,
+        template_searcher=template_searcher,
         use_small_bfd=args.bfd_database_path is None,
         no_cpus=args.cpus_per_task,
     )

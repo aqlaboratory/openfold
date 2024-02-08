@@ -12,6 +12,7 @@ from openfold.np import residue_constants, protein
 from openfold.np.relax import relax
 from openfold.utils.import_weights import (
     import_jax_weights_,
+    import_openfold_weights_
 )
 
 from pytorch_lightning.utilities.deepspeed import (
@@ -90,7 +91,7 @@ def load_models_from_command_line(config, model_device, openfold_checkpoint_path
                         ckpt_path,
                     )
                 d = torch.load(ckpt_path)
-                model.load_state_dict(d["ema"]["params"])
+                import_openfold_weights_(model=model, state_dict=d["ema"]["params"])
             else:
                 ckpt_path = path
                 d = torch.load(ckpt_path)
@@ -98,7 +99,7 @@ def load_models_from_command_line(config, model_device, openfold_checkpoint_path
                 if "ema" in d:
                     # The public weights have had this done to them already
                     d = d["ema"]["params"]
-                model.load_state_dict(d)
+                import_openfold_weights_(model=model, state_dict=d)
 
             model = model.to(model_device)
             logger.info(
@@ -122,7 +123,7 @@ def parse_fasta(data):
     ][1:]
     tags, seqs = lines[::2], lines[1::2]
 
-    tags = [t.split()[0] for t in tags]
+    tags = [re.split('\W| \|', t)[0] for t in tags]
 
     return tags, seqs
 
@@ -219,7 +220,7 @@ def prep_output(out, batch, feature_dict, feature_processor, config_preset, mult
         features=batch,
         result=out,
         b_factors=plddt_b_factors,
-        chain_index=chain_index,
+        remove_leading_feature_dimension=False,
         remark=remark,
         parents=template_domain_names,
         parents_chain_index=template_chain_index,

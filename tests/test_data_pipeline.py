@@ -15,19 +15,13 @@
 import pickle
 import shutil
 
-import torch
 import numpy as np
 import unittest
 
 from openfold.data.data_pipeline import DataPipeline
-from openfold.data.templates import TemplateHitFeaturizer
-from openfold.model.embedders import (
-    InputEmbedder,
-    RecyclingEmbedder,
-    TemplateAngleEmbedder,
-    TemplatePairEmbedder,
-)
+from openfold.data.templates import HhsearchHitFeaturizer, HmmsearchHitFeaturizer
 import tests.compare_utils as compare_utils
+from tests.config import consts
 
 if compare_utils.alphafold_is_installed():
     alphafold = compare_utils.import_alphafold()
@@ -45,13 +39,29 @@ class TestDataPipeline(unittest.TestCase):
         with open("tests/test_data/alphafold_feature_dict.pickle", "rb") as fp:
             alphafold_feature_dict = pickle.load(fp)
 
-        template_featurizer = TemplateHitFeaturizer(
-            mmcif_dir="tests/test_data/mmcifs",
-            max_template_date="2021-12-20",
-            max_hits=20,
-            kalign_binary_path=shutil.which("kalign"),
-            _zero_center_positions=False,
-        )
+        if consts.is_multimer:
+            # template_featurizer = HmmsearchHitFeaturizer(
+            #     mmcif_dir="tests/test_data/mmcifs",
+            #     max_template_date="2021-12-20",
+            #     max_hits=20,
+            #     kalign_binary_path=shutil.which("kalign"),
+            #     _zero_center_positions=False,
+            # )
+            template_featurizer = HhsearchHitFeaturizer(
+                mmcif_dir="tests/test_data/mmcifs",
+                max_template_date="2021-12-20",
+                max_hits=20,
+                kalign_binary_path=shutil.which("kalign"),
+                _zero_center_positions=False,
+            )
+        else:
+            template_featurizer = HhsearchHitFeaturizer(
+                mmcif_dir="tests/test_data/mmcifs",
+                max_template_date="2021-12-20",
+                max_hits=20,
+                kalign_binary_path=shutil.which("kalign"),
+                _zero_center_positions=False,
+            )
 
         data_pipeline = DataPipeline(
             template_featurizer=template_featurizer,

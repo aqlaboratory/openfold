@@ -76,9 +76,17 @@ class AuxiliaryHeads(nn.Module):
         if self.config.tm.enabled:
             tm_logits = self.tm(outputs["pair"])
             aux_out["tm_logits"] = tm_logits
-            aux_out["predicted_tm_score"] = compute_tm(
+            aux_out["ptm_score"] = compute_tm(
                 tm_logits, **self.config.tm
             )
+            asym_id = outputs.get("asym_id")
+            if asym_id is not None:
+                aux_out["iptm_score"] = compute_tm(
+                    tm_logits, asym_id=asym_id, interface=True, **self.config.tm
+                )
+                aux_out["weighted_ptm_score"] = (self.config.tm["iptm_weight"] * aux_out["iptm_score"]
+                                                 + self.config.tm["ptm_weight"] * aux_out["ptm_score"])
+
             aux_out.update(
                 compute_predicted_aligned_error(
                     tm_logits,

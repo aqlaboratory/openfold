@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import torch
 import numpy as np
 import unittest
@@ -48,6 +49,8 @@ class TestEvoformerStack(unittest.TestCase):
         transition_n = 2
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -65,8 +68,10 @@ class TestEvoformerStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
-            blocks_per_ckpt=None,
             no_column_attention=False,
+            opm_first=opm_first,
+            fuse_projection_weights=fuse_projection_weights,
+            blocks_per_ckpt=None,
             inf=inf,
             eps=eps,
         ).eval()
@@ -121,8 +126,10 @@ class TestEvoformerStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
-            blocks_per_ckpt=None,
             no_column_attention=True,
+            opm_first=False,
+            fuse_projection_weights=False,
+            blocks_per_ckpt=None,
             inf=inf,
             eps=eps,
         ).eval()
@@ -171,7 +178,7 @@ class TestEvoformerStack(unittest.TestCase):
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         key = jax.random.PRNGKey(42)
         out_gt = f.apply(params, key, activations, masks)
@@ -193,8 +200,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
         # Inplace version
         out_repro_msa, out_repro_pair = model.evoformer.blocks[0](
@@ -210,8 +217,8 @@ class TestEvoformerStack(unittest.TestCase):
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        self.assertTrue(torch.mean(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        self.assertTrue(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
 
 class TestExtraMSAStack(unittest.TestCase):
@@ -231,6 +238,8 @@ class TestExtraMSAStack(unittest.TestCase):
         transition_n = 5
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -247,6 +256,8 @@ class TestExtraMSAStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
+            opm_first,
+            fuse_projection_weights,
             ckpt=False,
             inf=inf,
             eps=eps,
@@ -328,7 +339,7 @@ class TestMSATransition(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_transition"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -336,15 +347,14 @@ class TestMSATransition(unittest.TestCase):
         model = compare_utils.get_global_pretrained_openfold()
         
         out_repro = (
-            model.evoformer.blocks[0].core.msa_transition(
+            model.evoformer.blocks[0].msa_transition(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
             )
             .cpu()
         )
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
-
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 if __name__ == "__main__":
     unittest.main()
