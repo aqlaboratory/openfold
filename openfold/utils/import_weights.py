@@ -681,16 +681,22 @@ def convert_deprecated_v1_keys(state_dict):
     }
 
     convert_key_re = re.compile("(%s)" % "|".join(map(re.escape, replacements.keys())))
+    template_emb_re = re.compile("((module\\.)?(model\\.))?(template(?!_embedder).*)")
 
     converted_state_dict = {}
     for key, value in state_dict.items():
         # For each match, look-up replacement value in the dictionary
         new_key = convert_key_re.sub(lambda m: replacements[m.group()], key)
+        if key == 'template_angle_embedder.linear_1.weight':
+            print(f'old key: {key}, new_key: {new_key}')
 
-        # Add prefix for template modules
-        subheader = re.search('(?<=model.).*$', new_key).group()
-        if subheader.startswith('template'):
-            new_key = f'model.template_embedder.{subheader}'
+        # Add prefix for template layers 
+        template_match = re.match(template_emb_re, new_key)
+        if template_match:
+            prefix = template_match.group(1)
+            new_key = f'{prefix if prefix else ""}template_embedder.{template_match.group(4)}'
+        if key == 'template_angle_embedder.linear_1.weight':
+            print(f'old key: {key}, new_key: {new_key}')
 
         converted_state_dict[new_key] = value
 
