@@ -39,6 +39,7 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
     get_global_step_from_zero_checkpoint
 )
+from scripts.zero_to_fp32 import get_optim_files, parse_optim_states, get_model_state_file
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
@@ -288,6 +289,16 @@ def main(args):
             sd = torch.load(args.resume_from_ckpt)
             last_global_step = int(sd['global_step'])
         model_module.resume_last_lr_step(last_global_step)
+
+        ### DEBUG:
+        ds_checkpoint_dir = os.path.join(args.resume_from_ckpt, 'global_step210')
+        optim_files = get_optim_files(ds_checkpoint_dir)
+        zero_stage, _, _ = parse_optim_states(optim_files, ds_checkpoint_dir)
+        model_file = get_model_state_file(ds_checkpoint_dir, zero_stage)
+
+        model_dict = torch.load(model_file, map_location=torch.device('cpu'))
+        ###
+
         logging.info("Successfully loaded last lr step...")
     if(args.resume_from_ckpt and args.resume_model_weights_only):
         if(os.path.isdir(args.resume_from_ckpt)):

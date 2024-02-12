@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import re
+import logging
 from enum import Enum
 from dataclasses import dataclass
 from functools import partial
@@ -669,6 +670,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
 
 def convert_deprecated_v1_keys(state_dict):
     """Update older OpenFold model weight names to match the current model code."""
+    logging.warning('converting keys...')
 
     replacements = {
         'template_angle_embedder': 'template_single_embedder',
@@ -686,17 +688,22 @@ def convert_deprecated_v1_keys(state_dict):
     converted_state_dict = {}
     for key, value in state_dict.items():
         # For each match, look-up replacement value in the dictionary
-        new_key = convert_key_re.sub(lambda m: replacements[m.group()], key)
+        new_key = convert_key_re.sub(lambda m: replacements[m.group(1)], key)
+        ### DEBUG: remove before final commit
         if key == 'template_angle_embedder.linear_1.weight':
-            print(f'old key: {key}, new_key: {new_key}')
+            logging.warning(f'old key: {key}, new_key: {new_key}')
+        ### DEBUG: remove before final commit
 
         # Add prefix for template layers 
         template_match = re.match(template_emb_re, new_key)
         if template_match:
             prefix = template_match.group(1)
             new_key = f'{prefix if prefix else ""}template_embedder.{template_match.group(4)}'
+        # DEBUG: remove before final commit
         if key == 'template_angle_embedder.linear_1.weight':
-            print(f'old key: {key}, new_key: {new_key}')
+            breakpoint()
+            logging.warning(f'old key: {key}, new_key: {new_key}')
+        ### DEBUG: remove before final commit
 
         converted_state_dict[new_key] = value
 
