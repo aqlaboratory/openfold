@@ -670,6 +670,7 @@ def import_jax_weights_(model, npz_path, version="model_1"):
 
 def convert_deprecated_v1_keys(state_dict):
     """Update older OpenFold model weight names to match the current model code."""
+    logging.warning('converting keys...')
 
     replacements = {
         'template_angle_embedder': 'template_single_embedder',
