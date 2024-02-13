@@ -31,7 +31,7 @@ def convert_v1_to_v2_weights(args):
     if is_dir:
         # A DeepSpeed checkpoint
         logging.info(
-            'Converting checkpoint found at {args.input_checkpoint_path}')
+            'Converting deepspeed checkpoint found at {args.input_checkpoint_path}')
         state_dict_key = 'module'
         latest_path = os.path.join(checkpoint_path, 'latest')
         if os.path.isfile(latest_path):
@@ -47,6 +47,8 @@ def convert_v1_to_v2_weights(args):
         model_file = get_model_state_file(ds_checkpoint_dir, zero_stage)
     else:
         # A Pytorch Lightning checkpoint
+        logging.info(
+            'Converting pytorch lightning checkpoint found at {args.input_checkpoint_path}')
         state_dict_key = 'state_dict'
         model_output_path = args.output_ckpt_path
         model_file = checkpoint_path
