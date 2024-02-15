@@ -189,5 +189,5 @@ class TestPermutation(unittest.TestCase):
 
         expected_permutated_gt_pos = torch.cat((chain_a2_pos, chain_a1_pos, chain_b2_pos, chain_b3_pos, chain_b1_pos),
                                                dim=1)
-        # expected_permutated_gt_pos = pad_features(expected_permutated_gt_pos, nres_pad, pad_dim=1)
+        
         self.assertTrue(torch.equal(labels['all_atom_positions'], expected_permutated_gt_pos))
