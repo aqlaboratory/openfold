@@ -186,8 +186,15 @@ def main(args):
             )
 
     is_multimer = "multimer" in args.config_preset
-
-    if is_multimer:
+    is_custom_template = "use_custom_template" in args
+    if is_custom_template:
+        template_featurizer = templates.CustomHitFeaturizer(
+            mmcif_dir=args.template_mmcif_dir,
+            max_template_date="9999-12-31", # just dummy, not used
+            max_hits=-1, # just dummy, not used
+            kalign_binary_path=args.kalign_binary_path
+            )
+    elif is_multimer:
         template_featurizer = templates.HmmsearchHitFeaturizer(
             mmcif_dir=args.template_mmcif_dir,
             max_template_date=args.max_template_date,
@@ -205,11 +212,9 @@ def main(args):
             release_dates_path=args.release_dates_path,
             obsolete_pdbs_path=args.obsolete_pdbs_path
         )
-
     data_processor = data_pipeline.DataPipeline(
         template_featurizer=template_featurizer,
     )
-
     if is_multimer:
         data_processor = data_pipeline.DataPipelineMultimer(
             monomer_data_pipeline=data_processor,
@@ -222,7 +227,6 @@ def main(args):
 
     np.random.seed(random_seed)
     torch.manual_seed(random_seed + 1)
-
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
@@ -292,7 +296,6 @@ def main(args):
                     )
 
                 feature_dicts[tag] = feature_dict
-
             processed_feature_dict = feature_processor.process_features(
                 feature_dict, mode='predict', is_multimer=is_multimer
             )
@@ -378,6 +381,10 @@ if __name__ == "__main__":
         "--use_precomputed_alignments", type=str, default=None,
         help="""Path to alignment directory. If provided, alignment computation 
                 is skipped and database path arguments are ignored."""
+    )
+    parser.add_argument(
+        "--use_custom_template", action="store_true", default=False,
+        help="""Use mmcif given with "template_mmcif_dir" argument as template input."""
     )
     parser.add_argument(
         "--use_single_seq_mode", action="store_true", default=False,
@@ -466,5 +473,4 @@ if __name__ == "__main__":
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""
         )
-
     main(args)
