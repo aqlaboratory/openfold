@@ -36,6 +36,9 @@ DoStaging=1
 # Convert small BFD MSAs from the sto format to a3m format to improve I/O performance in training/inference
 ConvertSmallBFDToA3M=0
 
+# Create output directories just before alignment file is created
+CreateDirOnDemand=1
+
 #---------- Job configurations ----------#
 
 # Whether or not each job is submitted
@@ -111,6 +114,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 		 LimitMaxMem=$LimitMaxMemJackhmmer \
 		 StreamSTOSize=$StreamSTOSize \
 		 ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
+		 CreateDirOnDemand=$CreateDirOnDemand \
 		 MaxHits=${!MaxHitsVar} \
 		 ScriptArgs="" \
 		 $SubmitScript
@@ -141,6 +145,7 @@ if (( $Do_pdb70  == 1 )); then
 	     LimitMaxMem=$LimitMaxMemHHsearch \
 	     StreamSTOSize=$StreamSTOSize \
 	     ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
+	     CreateDirOnDemand=$CreateDirOnDemand \
 	     MaxHits="" \
 	     ScriptArgs="" \
 	     $SubmitScript

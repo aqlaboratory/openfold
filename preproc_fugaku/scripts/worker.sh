@@ -39,6 +39,7 @@ echo DoStaging=$DoStaging
 echo LimitMaxMem=$LimitMaxMem
 echo StreamSTOSize=$StreamSTOSize
 echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
+echo CreateDirOnDemand=$CreateDirOnDemand
 echo MaxHits=$MaxHits
 echo "--- worker.sh arguments end ---"
 
@@ -199,6 +200,11 @@ while (( $NumProcs > 0 )); do
 	ConvertSmallBFDToA3MArg="--convert-small-bfd-to-a3m"
     fi
 
+    CreateDirOnDemandArg=""
+    if [[ $CreateDirOnDemand = 1 ]]; then
+	CreateDirOnDemandArg="--create-dir-on-demand"
+    fi
+
     export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
     export PARALLEL=$OMP_NUM_THREADS
 
@@ -232,6 +238,7 @@ while (( $NumProcs > 0 )); do
 	$DatabaseArgs \
 	$MaxMemArg \
 	$ConvertSmallBFDToA3MArg \
+	$CreateDirOnDemandArg \
 	$ScriptArgs
 
     RemainingCount=`cat $ReportOutPath`

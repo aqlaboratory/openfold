@@ -493,6 +493,7 @@ class AlignmentRunner:
         input_label: str,
         ignore_if_exists: bool=False,
         max_memory: int=None,
+        create_dir_on_demand: bool=False,
     ):
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
 
@@ -520,6 +521,8 @@ class AlignmentRunner:
                 timeout=self.timeout,
                 preexec_fn=preexec_fn,
             )[0]
+            if create_dir_on_demand:
+                os.makedirs(output_dir, exist_ok=True)
             self.convert_stockholm_to_a3m_safely(
                 uniref90_out_path,
                 self.uniref_max_hits,
@@ -541,6 +544,8 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )
+                if create_dir_on_demand:
+                    os.makedirs(output_dir, exist_ok=True)
                 self.write_safely(pdb70_out_path, hhsearch_result)
                 generated.append(PDB70_OUT_FILENAME)
 
@@ -553,6 +558,8 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
+                if create_dir_on_demand:
+                    os.makedirs(output_dir, exist_ok=True)
                 self.convert_stockholm_to_a3m_safely(
                     mgnify_out_path,
                     self.mgnify_max_hits,
@@ -576,6 +583,8 @@ class AlignmentRunner:
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
+                if create_dir_on_demand:
+                    os.makedirs(output_dir, exist_ok=True)
                 if self.convert_small_bfd_to_a3m:
                     self.convert_stockholm_to_a3m_safely(
                         bfd_out_path,
@@ -598,6 +607,8 @@ class AlignmentRunner:
                         preexec_fn=preexec_fn,
                     )
                 )
+                if create_dir_on_demand:
+                    os.makedirs(output_dir, exist_ok=True)
                 if output_dir is not None:
                     self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result["a3m"])
                     generated.append(BFD_OUT_FILENAME)

@@ -57,13 +57,14 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
             total_count += 1
             alignment_dir = os.path.join(args.output_dir, name)
 
-            if not os.path.exists(alignment_dir):
-                try:
-                    os.makedirs(alignment_dir)
-                except Exception as e:
-                    if not os.path.exists(alignment_dir):
-                        logging.warning(f"Failed to create directory for {name} with exception {e}...")
-                        continue
+            if not args.create_dir_on_demand:
+                if not os.path.exists(alignment_dir):
+                    try:
+                        os.makedirs(alignment_dir, exist_ok=True)
+                    except Exception as e:
+                        if not os.path.exists(alignment_dir):
+                            logging.warning(f"Failed to create directory for {name} with exception {e}...")
+                            continue
 
             if i_name == 0:
                 fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
@@ -78,6 +79,7 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
                         input_label=name,
                         ignore_if_exists=True,
                         max_memory=args.max_memory,
+                        create_dir_on_demand=args.create_dir_on_demand,
                     )
                     if i_name == 0:
                         first_generated = generated
@@ -388,6 +390,14 @@ if __name__ == "__main__":
         const=True,
         action="store_const",
         help="Convert small BFD MSAs from STO to A3M",
+    )
+    parser.add_argument(
+        "--create-dir-on-demand",
+        dest="create_dir_on_demand",
+        default=False,
+        const=True,
+        action="store_const",
+        help="Create output directories only if alignment is succeeded",
     )
     parser.add_argument(
         "--uniref90-max-hits", type=int, default=10000,
