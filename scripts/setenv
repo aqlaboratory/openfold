@@ -47,5 +47,7 @@ export WORKDIR=$OPENFOLDDIR/third_party
 export TEST_TMPDIR=$TMPDIR     # for bazel
 export XDG_CACHE_HOME=$TMPDIR  # for cache
 
+export PYTHONNOUSERSITE=1      # disable user site (~/.local/lib/pythonX.Y/site-packages)
+
 export PATH=$PREFIX/bin:$PATH
 export LD_LIBRARY_PATH=/lib64:$PREFIX/lib:$LD_LIBRARY_PATH

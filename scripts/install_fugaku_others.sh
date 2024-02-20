@@ -107,6 +107,7 @@ patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
 popd
 
 # DeepSpeed
+rm -rf DeepSpeed
 git clone https://github.com/microsoft/DeepSpeed.git
 pushd DeepSpeed
 git checkout b4e5826a
