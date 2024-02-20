@@ -120,7 +120,7 @@ def get_least_asym_entity_or_longest_length(batch:dict, input_asym_id:list)->Tup
         anchor_pred_asym_ids: list(Tensor(int)) a list of all possible pred anchor candidates
     """
     entity_2_asym_list = get_entity_2_asym_list(batch)
-    unique_entity_ids = torch.unique(batch["entity_id"])
+    unique_entity_ids = [i for i in torch.unique(batch["entity_id"]) if i !=0]# if entity_id is 0, that means this entity_id comes from padding
     entity_asym_count = {}
     entity_length = {}
 
