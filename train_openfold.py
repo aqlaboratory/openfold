@@ -39,6 +39,7 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
     get_global_step_from_zero_checkpoint
 )
+from scripts.zero_to_fp32 import get_optim_files, parse_optim_states, get_model_state_file
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
@@ -294,8 +295,13 @@ def main(args):
             sd = get_fp32_state_dict_from_zero_checkpoint(args.resume_from_ckpt)
         else:
             sd = torch.load(args.resume_from_ckpt)
-        sd = {k[len("module."):]:v for k,v in sd.items()}
-        import_openfold_weights_(model=model_module, state_dict=sd)
+        if 'module' in sd:
+            module_sd = {k[len("module."):]:v for k,v in sd['module'].items()}
+            import_openfold_weights_(model=model_module, state_dict=module_sd)
+        elif 'state_dict' in sd:
+            import_openfold_weights_(model=model_module, state_dict=sd['state_dict'])
+        else:
+            import_openfold_weights_(model=model_module, state_dict=sd)
         logging.info("Successfully loaded model weights...")
     if(args.resume_from_jax_params):
         model_module.load_from_jax(args.resume_from_jax_params)
