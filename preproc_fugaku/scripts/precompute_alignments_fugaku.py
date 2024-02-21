@@ -45,7 +45,7 @@ UNCOMPLETED_FLAG_DTYPE = bool
 UNCOMPLETED_FLAG_AR_OP = MPI.LOR
 
 
-def run_seq_group_alignments(seqs, alignment_runner, args):
+def run_seq_group_alignments(seqs, alignment_runner, args, subdir_map=None):
     completed_count = 0
     total_count = 0
     for seq, names in seqs:
@@ -55,7 +55,12 @@ def run_seq_group_alignments(seqs, alignment_runner, args):
         first_generated = None
         for i_name, name in enumerate(names):
             total_count += 1
-            alignment_dir = os.path.join(args.output_dir, name)
+
+            if subdir_map is None:
+                alignment_dir = os.path.join(args.output_dir, name)
+            else:
+                alignment_dir = os.path.join(args.output_dir, subdir_map[name], name)
+                logging.info(f"Sub-directory of {name}: {subdir_map[name]}")
 
             if not args.create_dir_on_demand:
                 if not os.path.exists(alignment_dir):
@@ -276,6 +281,15 @@ def main(args):
     input_seq_chains = list(zip(input_seqs, input_chains)) # [(AAAAA, name1), (BBBB, name2), ..]
     orig_total_count = len(input_seq_chains)
 
+    # Compute sub-directory mapping
+    if args.sub_directory_size > 0:
+        subdir_map = {}
+        for i, (_, name) in enumerate(input_seq_chains):
+            subdir_map[name] = str(i//args.sub_directory_size)
+            
+    else:
+        subdir_map = None
+
     # Remove completed chains
     input_seq_chains = get_uncompleted_seqs(input_seq_chains, comm, alignment_runner)
 
@@ -302,7 +316,8 @@ def main(args):
     completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
         alignment_runner,
-        args)
+        args,
+        subdir_map=subdir_map)
 
     logging.info(f"DONE! "
                  f"host={host}, rank={mpi_rank}/{mpi_size}, "
@@ -361,6 +376,10 @@ if __name__ == "__main__":
     parser.add_argument(
         '--stream-sto-size', type=int, default=1024*1024*1024,
         help="Use the stream version of sto-to-a3m conversion if sto file size is larger than this size (default: 1 GiB)",
+    )
+    parser.add_argument(
+        '--sub-directory-size', type=int, default=0,
+        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0)",
     )
     parser.add_argument(
         '--report_out_path', type=str, default=None,

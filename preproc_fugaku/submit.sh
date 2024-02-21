@@ -39,6 +39,9 @@ ConvertSmallBFDToA3M=0
 # Create output directories just before alignment file is created
 CreateDirOnDemand=1
 
+# If SubDirectorySize > 0, create subdirectories for each number of sequences specified by this
+SubDirectorySize=0
+
 #---------- Job configurations ----------#
 
 # Whether or not each job is submitted
@@ -115,6 +118,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 		 StreamSTOSize=$StreamSTOSize \
 		 ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
 		 CreateDirOnDemand=$CreateDirOnDemand \
+		 SubDirectorySize=$SubDirectorySize \
 		 MaxHits=${!MaxHitsVar} \
 		 ScriptArgs="" \
 		 $SubmitScript
@@ -146,6 +150,7 @@ if (( $Do_pdb70  == 1 )); then
 	     StreamSTOSize=$StreamSTOSize \
 	     ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
 	     CreateDirOnDemand=$CreateDirOnDemand \
+	     SubDirectorySize=$SubDirectorySize \
 	     MaxHits="" \
 	     ScriptArgs="" \
 	     $SubmitScript

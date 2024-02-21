@@ -40,6 +40,7 @@ echo LimitMaxMem=$LimitMaxMem
 echo StreamSTOSize=$StreamSTOSize
 echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
 echo CreateDirOnDemand=$CreateDirOnDemand
+echo SubDirectorySize=$SubDirectorySize
 echo MaxHits=$MaxHits
 echo "--- worker.sh arguments end ---"
 
@@ -235,6 +236,7 @@ while (( $NumProcs > 0 )); do
 	--report_out_path $ReportOutPath \
 	--stream-sto-size $StreamSTOSize \
 	--temp-dir $JobTempDir \
+	--sub-directory-size $SubDirectorySize \
 	$DatabaseArgs \
 	$MaxMemArg \
 	$ConvertSmallBFDToA3MArg \

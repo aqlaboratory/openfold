@@ -3,6 +3,7 @@
 ## 出力フォーマットについて
 各データベースについて検索を実行した場合、以下のファイルが出力されます。
 
+### `SubDirectorySize=0`の場合
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
@@ -11,6 +12,18 @@
 　   ├── small_bfd_hits.a3m : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
 　   ├── small_bfd_hits.sto : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
 　   └── uniref90_hits.a3m  : UniRef90から検索したMSA
+```
+
+### `SubDirectorySize>0`の場合
+```
+（$OutputDirのパス）
+└──（サブディレクトリ）
+　 └──（タンパク質名）
+　 　   ├── mgnify_hits.a3m    : MGnifyから検索したMSA
+　 　   ├── pdb70_hits.hhr     : PDB70から検索したテンプレート
+　 　   ├── small_bfd_hits.a3m : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　 　   ├── small_bfd_hits.sto : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　 　   └── uniref90_hits.a3m  : UniRef90から検索したMSA
 ```
 
 `small_bfd_hits.a3m`と`small_bfd_hits.sto`には以下の違いがあります。
@@ -42,6 +55,8 @@
     * `$DoStaging`: Pythonモジュール、実行ファイル、データベースについてLLIO transfer（富岳）またはメモリステージング（それ以外）を行うかどうか。富岳では各SIO（87 GiB/ノード）が使用するデータベース全体を保持する必要があるため、十分なノード数（例えば>=12ノード以上）を使用する場合に有効にする
     * `$ConvertSmallBFDToA3M`: small BFDについて、出力ファイルをstoからa3mに変換する
     * `$CreateDirOnDemand`: 各配列の出力ディレクトリについて、ジョブ開始時ではなく前処理ファイルを書き出す直前に作成する。配列数が多くファイル操作に時間がかかる場合に有効
+        * 後述の`$SubDirectorySize`と同時に使用する場合、サブディレクトリも書き出す直前に作成する
+    * `$SubDirectorySize`: 入力FASTAファイルの先頭から指定された配列の個数ごとに"0"から始まるサブディレクトリに分割して出力を行う。0の場合はサブディレクトリを作成しない
     * `$LimitMaxMem*`: プロセスあたりの最大メモリ量を（ノードメモリ量）/（ノード内プロセス数）に制限するかどうか
     * `$NumNodes`: 各ジョブのノード数
     * `$JobTime_*`: 各ジョブの制限時間

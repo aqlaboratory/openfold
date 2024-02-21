@@ -38,6 +38,7 @@ echo LimitMaxMem=$LimitMaxMem
 echo StreamSTOSize=$StreamSTOSize
 echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
 echo CreateDirOnDemand=$CreateDirOnDemand
+echo SubDirectorySize=$SubDirectorySize
 echo MaxHits=$MaxHits
 echo ScriptArgs=$ScriptArgs
 
@@ -132,6 +133,7 @@ InputDir=$InputFile \
     StreamSTOSize=$StreamSTOSize \
     ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
     CreateDirOnDemand=$CreateDirOnDemand \
+    SubDirectorySize=$SubDirectorySize \
     MaxHits=$MaxHits \
     ScriptArgs="$ScriptArgs" \
     $LogDir/$WORKER \
