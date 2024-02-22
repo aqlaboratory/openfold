@@ -248,7 +248,7 @@ def main(args):
 
     assert len(args.temp_dir) > 0
     my_temp_dir = os.path.join(args.temp_dir, f"{mpi_rank}")
-    os.makedirs(my_temp_dir)
+    os.makedirs(my_temp_dir, exist_ok=True)
 
     # Build the alignment tool runner
     alignment_runner = AlignmentRunner(
