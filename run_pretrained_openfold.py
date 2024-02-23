@@ -131,7 +131,16 @@ def generate_feature_dict(
     args,
 ):
     tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
-    if len(seqs) == 1:
+
+    if "multimer" in args.config_preset:
+        with open(tmp_fasta_path, "w") as fp:
+            fp.write(
+                '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
+            )
+        feature_dict = data_processor.process_fasta(
+            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
+        )
+    elif len(seqs) == 1:
         tag = tags[0]
         seq = seqs[0]
         with open(tmp_fasta_path, "w") as fp:
@@ -142,14 +151,6 @@ def generate_feature_dict(
             fasta_path=tmp_fasta_path,
             alignment_dir=local_alignment_dir,
             seqemb_mode=args.use_single_seq_mode,
-        )
-    elif "multimer" in args.config_preset:
-        with open(tmp_fasta_path, "w") as fp:
-            fp.write(
-                '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
-            )
-        feature_dict = data_processor.process_fasta(
-            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
         )
     else:
         with open(tmp_fasta_path, "w") as fp:
