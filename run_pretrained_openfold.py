@@ -186,7 +186,7 @@ def main(args):
             )
 
     is_multimer = "multimer" in args.config_preset
-    is_custom_template = "use_custom_template" in args
+    is_custom_template = "use_custom_template" in args and args.use_custom_template
     if is_custom_template:
         template_featurizer = templates.CustomHitFeaturizer(
             mmcif_dir=args.template_mmcif_dir,
