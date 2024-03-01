@@ -26,6 +26,7 @@ import tempfile
 import traceback
 from mpi4py import MPI
 import numpy as np
+import resource
 
 import os
 os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
@@ -83,7 +84,7 @@ def run_seq_group_alignments(seqs, alignment_runner, args, subdir_map=None):
                         alignment_dir,
                         input_label=name,
                         ignore_if_exists=True,
-                        max_memory=args.max_memory,
+                        max_memory=None, # setrlimit is no longer applied in each process
                         create_dir_on_demand=args.create_dir_on_demand,
                     )
                     if i_name == 0:
@@ -239,6 +240,13 @@ def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
 
 
 def main(args):
+
+    # Apply memory limit
+    if args.max_memory is not None:
+        logging.info(f"Applying RLIMIT_AS to {args.max_memory}")
+        resource.setrlimit(
+            resource.RLIMIT_AS,
+            (args.max_memory, resource.RLIM_INFINITY))
 
     comm = MPI.COMM_WORLD
     mpi_rank = comm.Get_rank()

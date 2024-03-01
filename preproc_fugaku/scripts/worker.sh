@@ -221,6 +221,7 @@ while (( $NumProcs > 0 )); do
 
     ReportOutPath=`mktemp`
 
+    set +e
     $MpiExecTask \
 	$MpiArgs \
 	-x PARALLEL \
@@ -242,6 +243,7 @@ while (( $NumProcs > 0 )); do
 	$ConvertSmallBFDToA3MArg \
 	$CreateDirOnDemandArg \
 	$ScriptArgs
+    set -e
 
     RemainingCount=`cat $ReportOutPath`
     rm ${ReportOutPath}

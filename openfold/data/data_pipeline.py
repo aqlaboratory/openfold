@@ -498,6 +498,8 @@ class AlignmentRunner:
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
 
         if max_memory is not None:
+            logging.warning("Using preexec_fn might cause deadlock.")
+            
             def preexec_fn():
                 resource.setrlimit(
                     resource.RLIMIT_AS,
