@@ -992,7 +992,7 @@ def get_custom_template_features(
             curr_name: template_features.get(curr_name, []) + [curr_item]
             for curr_name, curr_item in curr_features.items()
         }
-        warnings = warnings.append(curr_warnings)
+        warnings.append(curr_warnings)
 
     template_features = {
         template_feature_name: np.stack(
