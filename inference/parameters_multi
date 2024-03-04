@@ -22,6 +22,8 @@ Timeout=3600
 
 ModelNum=1
 
+SubDirectorySize=2
+
 PARAMS=(
     python3
     $OPENFOLDDIR/run_pretrained_openfold_multi.py
@@ -38,6 +40,7 @@ PARAMS=(
     --release_dates_path $MMCIFCache
     --timeout $Timeout
     --max_memory $OPENFOLD_MAX_MEM
+    --sub_directory_size $SubDirectorySize
 )
 
 # for Torch Extensions

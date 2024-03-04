@@ -47,6 +47,7 @@ class OpenFoldInference:
             self,
             fasta_dir: str,
             template_mmcif_dir: str,
+            subdir: str,
             args: object,
             timeout: float=None):
         """Run inference.
@@ -94,6 +95,9 @@ class OpenFoldInference:
         if args.data_random_seed is not None:
             cmd.append("--data_random_seed")
             cmd.append(args.data_random_seed)
+        if subdir is not None:
+            cmd.append("--sub_directory")
+            cmd.append(subdir)
 
         def preexec_fn():
             os.setpgrp()

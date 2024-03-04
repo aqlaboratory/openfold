@@ -260,7 +260,10 @@ def main(args):
         alignment_dir = args.use_precomputed_alignments
         logger.info(f"Using precomputed alignments at {alignment_dir}...")
 
-    prediction_dir = os.path.join(args.output_dir, "predictions") 
+    if args.sub_directory is not None:
+        prediction_dir = os.path.join(args.output_dir, "predictions", args.sub_directory)
+    else:
+        prediction_dir = os.path.join(args.output_dir, "predictions")
     os.makedirs(prediction_dir, exist_ok=True)
 
     for fasta_file in os.listdir(args.fasta_dir):
@@ -450,6 +453,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "--use_small_bfd", action="store_true", default=False,
     )
+    parser.add_argument(
+        "--sub_directory", type=str, default=None,
+        help="""Name of the sub directory of alignemnt and prediction""",
+    )
     add_data_args(parser)
     args = parser.parse_args()
 
@@ -464,5 +471,11 @@ if __name__ == "__main__":
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""
         )
+
+    if(args.sub_directory is not None):
+        assert args.use_precomputed_alignments is not None, \
+               "--sub_directory must be specified with --use_precomputed_alignments"
+        args.use_precomputed_alignments = os.path.join(args.use_precomputed_alignments,
+                                                       args.sub_directory)
 
     main(args)

@@ -42,7 +42,7 @@ def is_inferred(name, pred_dir, args):
 
     return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
 
-def run_inference(runner, name, seq, pred_dir, args):
+def run_inference(runner, name, seq, subdir, args):
     with tempfile.TemporaryDirectory() as fasta_dir:
         logging.info(f"Temporal fasta dir {fasta_dir}")
         fd, fasta_path = tempfile.mkstemp(dir=fasta_dir, suffix=".fasta")
@@ -50,23 +50,31 @@ def run_inference(runner, name, seq, pred_dir, args):
             fp.write(f'>{name}\n{seq}')
 
         logging.info(f"Processing for {name} on {fasta_path}")
-        ret = runner.run(fasta_dir, args.template_mmcif_dir, args, timeout=args.timeout)
+        ret = runner.run(fasta_dir, args.template_mmcif_dir, subdir, args, timeout=args.timeout)
         logging.info(f"Processing for {name} done!")
     return ret
 
-def run_seq_group_inference(seq_groups, args):
+def run_seq_group_inference(seq_groups, subdir_map, args):
     dirs = set(os.listdir(args.output_dir))
-    pred_dir = os.path.join(args.output_dir, 'predictions')
+    pred_dir_base = os.path.join(args.output_dir, 'predictions')
     runner = OpenFoldInference(os.path.join(os.environ.get('OPENFOLDDIR'), 'run_pretrained_openfold.py'))
 
     for seq, names in seq_groups:
         print("seq, names", seq, names)
         first_name = names[0]
 
+        if subdir_map is None:
+            pred_dir = pred_dir_base
+            subdir = None
+        else:
+            subdir = subdir_map[first_name]
+            logging.info(f"Sub-directory of {first_name}: {subdir}")
+            pred_dir = os.path.join(pred_dir_base, subdir)
+
         if not is_inferred(first_name, pred_dir, args):
             begin_time = time.time()
             try:
-                ret = run_inference(runner, first_name, seq, pred_dir, args)
+                ret = run_inference(runner, first_name, seq, subdir, args)
             except Exception as e:
                 duration = time.time() - begin_time
                 traceback.print_exc()
@@ -90,10 +98,12 @@ def run_seq_group_inference(seq_groups, args):
                 raise Exception(f'{gen_file} is not exist')
 
         for name in names[1:]:
-            if not is_inferred(name, pred_dir, args):
+            another_pred_dir = os.path.join(pred_dir_base, subdir_map[name])
+            if not is_inferred(name, another_pred_dir, args):
                 for f in generated_pdbs:
-                        copy_file = os.path.join(pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
+                        copy_file = os.path.join(another_pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
                         logging.info(f"Copying result from {f} to {copy_file}")
+                        os.makedirs(another_pred_dir, exist_ok=True)
                         copyfile(f, copy_file)
 
 
@@ -125,12 +135,6 @@ def main(args):
     input_seqs, input_chains = parse_fasta(fasta_str)
     orig_total_count = len(input_seqs)
 
-    if not args.ignore_unique:
-        input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
-    else:
-        logging.warning(f"--ignore_unique is enabled. The process might be redundant")
-        input_chains = [[x] for x in input_chains]
-
     def to_first_lower(s):
         x = s.split(sep='_')
         x[0] = x[0].lower()
@@ -138,6 +142,21 @@ def main(args):
 
     if args.first_lower:
         input_chains = [list(map(to_first_lower, g)) for g in input_chains]
+
+    # Compute sub-directory mapping
+    if args.sub_directory_size > 0:
+        logging.info(f"Sub directory input/output is enabled")
+        subdir_map = {}
+        for i, name in enumerate(input_chains):
+            subdir_map[name] = str(i//args.sub_directory_size)
+    else:
+        subdir_map = None
+
+    if not args.ignore_unique:
+        input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
+    else:
+        logging.warning(f"--ignore_unique is enabled. The process might be redundant")
+        input_chains = [[x] for x in input_chains]
 
     # sort by sequence length
     zip_seqs_chains = zip(input_seqs, input_chains)
@@ -181,6 +200,7 @@ def main(args):
 
     run_seq_group_inference(
         zip(input_seqs, input_chains),
+        subdir_map,
         args)
 
     logging.info("DONE!")
@@ -271,6 +291,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_memory", type=int, default=None,
         help="""Limit memory consumption"""
+    )
+    parser.add_argument(
+        '--sub_directory_size', type=int, default=0,
+        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0)",
     )
 
     args = parser.parse_args()
