@@ -45,6 +45,15 @@ def is_inferred(name, pred_dir, args):
 
     return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
 
+def has_alignment(name, alignment_dir):
+    alignment_files = [
+        'mgnify_hits.a3m',
+        'pdb70_hits.hhr',
+        'small_bfd_hits.sto',
+        'uniref90_hits.a3m'
+    ]
+    return all([os.path.isfile(os.path.join(alignment_dir, name, f)) for f in alignment_files])
+
 def run_inference(runner, name, seq, subdir, args):
     with tempfile.TemporaryDirectory() as fasta_dir:
         logging.info(f"Temporal fasta dir {fasta_dir}")
@@ -77,12 +86,20 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
         if subdir_map is None:
             pred_dir = pred_dir_base
             subdir = None
+            alignment_dir = args.use_precomputed_alignments
         else:
             subdir = subdir_map[first_name]
             logging.info(f"Sub-directory of {first_name}: {subdir}")
             pred_dir = os.path.join(pred_dir_base, subdir)
+            alignment_dir = os.path.join(args.use_precomputed_alignments, subdir) if args.use_precomputed_alignments else None
 
-        if not is_inferred(first_name, pred_dir, args):
+        if is_inferred(first_name, pred_dir, args):
+            state = 'OK'
+            duration = time_inference = time_relaxation = 0
+        elif alignment_dir and (not has_alignment(first_name, alignment_dir)):
+            state = 'NG_noalignment'
+            duration = time_inference = time_relaxation = 0
+        else:
             begin_time = time.time()
             try:
                 ret = run_inference(runner, first_name, seq, subdir, args)
@@ -101,9 +118,6 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
                 state = 'OK'
                 time_inference = ret['inference_time']
                 time_relaxation = ret['relaxation_time']
-        else:
-            state = 'OK'
-            duration = time_inference = time_relaxation = 0
 
         logging.info(f"inference_stat {first_name} {len(seq)} {state} {duration:.1f} {time_inference:.1f} {time_relaxation:.1f}")
 
