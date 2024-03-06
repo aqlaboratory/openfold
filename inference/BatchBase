@@ -59,6 +59,7 @@ time $DirTransfer \
 echo "`date +%s.%N` #mpiexec"
 Exec $FJSVXTCLANGA/bin/mpiexec -np ${NumProc} \
 	 --mca orte_abort_print_stack 1 \
+	 --mca common_tofu_use_memory_pool 1 \
 	 --of-proc ${LogDir}/output/%/1000r/out \
 	 -mca plm_ple_cpu_affinity 0 \
 	 -x ParameterFile="$ParamFile" \

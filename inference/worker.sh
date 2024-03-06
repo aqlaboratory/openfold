@@ -38,6 +38,8 @@ LogDir=${LOGDIR}
 
 . "$ParameterFile"
 
+export LD_PRELOAD=/usr/lib/FJSVtcs/ple/lib64/libpmix.so:$LD_PRELOAD
+
 ulimit -s 16384
 ulimit -c 0
 

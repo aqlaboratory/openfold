@@ -21,6 +21,8 @@ import traceback
 import time
 import subprocess
 
+from mpi4py import MPI
+
 from openfold.data.parsers import parse_fasta
 from scripts.utils import add_data_args
 from scripts.openfold_runner import OpenFoldInference
@@ -59,6 +61,14 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
     pred_dir_base = os.path.join(args.output_dir, 'predictions')
     runner = OpenFoldInference(os.path.join(os.environ.get('OPENFOLDDIR'), 'run_pretrained_openfold.py'))
 
+    comm = MPI.COMM_WORLD
+    jobid = int(os.environ.get('PJM_JOBID', '0'))
+    result_dir = os.path.join(args.output_dir, 'result')
+    os.makedirs(result_dir, exist_ok=True)
+    result_file_path = os.path.join(result_dir, f'job_{jobid}.csv')
+    result_file = MPI.File.Open(comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
+    result_file.Set_atomicity(True)
+
     for seq, names in seq_groups:
         print("seq, names", seq, names)
         first_name = names[0]
@@ -83,11 +93,25 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
                     state = 'NG_timeout'
                 else:
                     state = 'NG_unknown'
-                logging.info(f"inference_stat {first_name} {len(seq)} {state} {duration:.1f} 0 0")
-                continue
+                time_inference = 0
+                time_relaxation = 0
             else:
                 duration = time.time() - begin_time
-                logging.info(f"inference_stat {first_name} {len(seq)} OK {duration:.1f} {ret['inference_time']:.1f} {ret['relaxation_time']:.1f}")
+                state = 'OK'
+                time_inference = ret['inference_time']
+                time_relaxation = ret['relaxation_time']
+        else:
+            state = 'OK'
+            duration = time_inference = time_relaxation = 0
+
+        logging.info(f"inference_stat {first_name} {len(seq)} {state} {duration:.1f} {time_inference:.1f} {time_relaxation:.1f}")
+
+        write_line = f'{first_name},{len(seq)},{state},{duration:.1f},{time_inference:.1f},{time_relaxation:.1f}\n'
+        result_file.Write_shared(write_line.encode('utf-8'))
+        result_file.Sync()
+
+        if state != 'OK':
+            continue
 
         generated_pdbs = [pdb_path(pred_dir, first_name, args.config_preset, False)]
         if not args.skip_relaxation:
@@ -106,6 +130,7 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
                         os.makedirs(another_pred_dir, exist_ok=True)
                         copyfile(f, copy_file)
 
+    result_file.Close()
 
 def make_uniq_seq_groups(input_seqs, input_chains):
     assert len(input_seqs) == len(input_chains)
