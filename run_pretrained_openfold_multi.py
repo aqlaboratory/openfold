@@ -21,6 +21,7 @@ import traceback
 import time
 import subprocess
 
+import glob
 from mpi4py import MPI
 
 from openfold.data.parsers import parse_fasta
@@ -153,6 +154,19 @@ def make_uniq_seq_groups(input_seqs, input_chains):
 
     return [x[0] for x in items], [x[1] for x in items]
 
+def remove_non_target_seqs(input_seqs, input_chains, args):
+    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', f'*.csv'))
+    non_targets = set()
+    for result_file_path in result_file_paths:
+        with open(result_file_path, 'r') as result_file:
+            lines = result_file.readlines()
+            non_targets |= set( [x.strip().split(',')[0] for x in lines] )
+
+    logging.info(f'non_targets: {non_targets}')
+    items = [(seq, chain) for seq, chain in zip(input_seqs, input_chains) if chain not in non_targets]
+
+    return [x[0] for x in items], [x[1] for x in items]
+
 def main(args):
     input_file = args.input_file
     with open(input_file, 'r') as fp:
@@ -176,6 +190,8 @@ def main(args):
             subdir_map[name] = str(i//args.sub_directory_size)
     else:
         subdir_map = None
+
+    input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args)
 
     if not args.ignore_unique:
         input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
