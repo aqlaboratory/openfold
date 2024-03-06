@@ -155,8 +155,15 @@ def make_uniq_seq_groups(input_seqs, input_chains):
     return [x[0] for x in items], [x[1] for x in items]
 
 def remove_non_target_seqs(input_seqs, input_chains, args):
-    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', f'*.csv'))
+
     non_targets = set()
+
+    if args.ignore_file:
+        with open(args.ignore_file, 'r') as ignore_file:
+            lines = ignore_file.readlines()
+            non_targets |= set( [x.strip() for x in lines] )
+
+    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', f'*.csv'))
     for result_file_path in result_file_paths:
         with open(result_file_path, 'r') as result_file:
             lines = result_file.readlines()
@@ -336,6 +343,10 @@ if __name__ == "__main__":
     parser.add_argument(
         '--sub_directory_size', type=int, default=0,
         help="If this is set, create subdirectories for each number of sequences specified by this (default: 0)",
+    )
+    parser.add_argument(
+        "--ignore_file", type=str, default=None,
+        help="""The file of chain name list to ignore"""
     )
 
     args = parser.parse_args()
