@@ -43,7 +43,6 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
     get_global_step_from_zero_checkpoint
 )
-from scripts.zero_to_fp32 import get_optim_files, parse_optim_states, get_model_state_file
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
