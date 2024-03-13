@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import json
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
@@ -39,7 +40,6 @@ from scripts.zero_to_fp32 import (
     get_fp32_state_dict_from_zero_checkpoint,
     get_global_step_from_zero_checkpoint
 )
-from scripts.zero_to_fp32 import get_optim_files, parse_optim_states, get_model_state_file
 
 from openfold.utils.logger import PerformanceLoggingCallback
 
@@ -59,6 +59,7 @@ class OpenFoldWrapper(pl.LightningModule):
         
         self.cached_weights = None
         self.last_lr_step = -1
+        self.save_hyperparameters
 
     def forward(self, batch):
         return self.model(batch)
@@ -280,6 +281,11 @@ def main(args):
         train=True, 
         low_prec=(str(args.precision) == "16")
     ) 
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
+
     model_module = OpenFoldWrapper(config)
 
     if args.resume_from_ckpt:
@@ -610,6 +616,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--distillation_alignment_index_path", type=str, default=None,
         help="Distillation alignment index. See the README for instructions."
+    )
+    parser.add_argument(
+        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
     parser = pl.Trainer.add_argparse_args(parser)
    

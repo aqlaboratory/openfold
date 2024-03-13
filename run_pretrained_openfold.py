@@ -20,6 +20,7 @@ import os
 import pickle
 import random
 import time
+import json
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -179,6 +180,11 @@ def main(args):
         args.use_single_seq_mode = True
 
     config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
+
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
 
     if args.trace_model:
         if not config.data.predict.fixed_size:
@@ -452,6 +458,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cif_output", action="store_true", default=False,
         help="Output predicted models in ModelCIF format instead of PDB format (default)"
+    )
+    parser.add_argument(
+        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
     add_data_args(parser)
     args = parser.parse_args()
