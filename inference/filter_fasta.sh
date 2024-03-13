@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#set -ex
+#set -x
 
 InputFasta=$1
 OutputFasta=$2
@@ -49,11 +49,10 @@ if [ "$NGList" != "" ] && [ ! -f $NGList ]; then
 fi
 
 function num_exist_output() {
-    Dir=$1
+    ListFile=$1
     Name=$2
-    #1awi_A_model_1_unrelaxed.pdb
-    Result=(`find $Dir -maxdepth 1 -name ${Name}_*.pdb`)
-    echo ${#Result[@]}
+    Result=$(grep -c "^${Name}_.*\.pdb$" $ListFile)
+    echo $Result
 }
 
 NumNoAlignment=0
@@ -62,30 +61,60 @@ NumProcessed=0
 NumNG=0
 NumOutput=0
 
-NameLines=(`grep -E "^>" $InputFasta`)
-Seqs=(`grep -E "^[^>]" $InputFasta`)
+Names=()
+Seqs=()
 
-NumInput=${#NameLines[@]}
+while true ; do
+    read NameLine || break
+    if [[ ${NameLine} =~ ^\>.*$ ]]; then
+        Name=${NameLine:1}
+        read Seq || break
+
+        #echo "Name: $Name, Seq: $Seq"
+        Names+=("$Name")
+        Seqs+=("$Seq")
+    fi
+done < $InputFasta
+
+if [ "${#Names[@]}" != "${#Seqs[@]}" ]; then
+    echo "The number of Names ${#Names[@]} is not match with that of Seqs ${#Seqs[@]}"
+    exit 1
+fi
+
+NumInput=${#Names[@]}
+
+OutputFastaNG="${OutputFasta}.ng"
+
+if [ "$ProcessedDir" != "" ] ; then
+    ProcessedPDBFiles=$(mktemp)
+    ls -1 $PredictionDir >> $ProcessedPDBFiles
+fi
 
 for ((i=0; i<$NumInput; i++)); do
-    NameLine=${NameLines[$i]}
-    Name=${NameLine:1}
+    Name=${Names[$i]}
     Seq=${Seqs[$i]}
 
     NameFirst=${Name%%_*}
     NameLast=${Name##*_}
     NameLower=${NameFirst,,}_${NameLast}
 
+    if [[ "$Seq" = "" ]] ; then
+        echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
+        ((NumEmpty++))
+        continue
+    fi
     if [[ "$Seq" =~ "X" ]] ; then
-	((NumContainX++))
-	continue
+        echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
+        ((NumContainX++))
+        continue
     fi
 
     if [ "$NGList" != "" ]; then
         grepNG=`grep -E "^${NameLower}$" $NGList`
         if [ "$grepNG" != "" ]; then
-        ((NumNG++))
-        continue
+            echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
+            ((NumNG++))
+            continue
         fi
     fi
 
@@ -94,22 +123,29 @@ for ((i=0; i<$NumInput; i++)); do
        [ ! -f $AlignmentDir/$NameLower/pdb70_hits.hhr ] ||\
        [ ! -f $AlignmentDir/$NameLower/small_bfd_hits.sto ] ||\
        [ ! -f $AlignmentDir/$NameLower/uniref90_hits.a3m ]; then
-	#echo "no alignment:" $NameLower
-	((NumNoAlignment++))
-	continue
+        #echo "no alignment:" $NameLower
+        echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
+        ((NumNoAlignment++))
+        continue
     fi
     if [ "$ProcessedDir" != "" ]; then
-	if [ `num_exist_output $PredictionDir $NameLower` -eq 2 ]; then
-	    #echo "already exist output:" $NameLower
-	    ((NumProcessed++))
-	    continue
-	fi
+        if [ `num_exist_output $ProcessedPDBFiles $NameLower` -eq 2 ]; then
+            #echo "already exist output:" $NameLower
+            echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
+            ((NumProcessed++))
+            continue
+        fi
     fi
-    grep -E "^>$Name$" -A 1 $InputFasta >> $OutputFasta
+    echo -e ">${Name}\n${Seq}" >> $OutputFasta
     ((NumOutput++))
 done
 
+if [ "$ProcessedDir" != "" ] ; then
+    rm -f $ProcessedPDBFiles
+fi
+
 echo "NumInput:" $NumInput
+echo "NumEmpty:" $NumEmpty
 echo "NumContainX:" $NumContainX
 echo "NumNoAlignment:" $NumNoAlignment
 echo "NumProcessed:" $NumProcessed
