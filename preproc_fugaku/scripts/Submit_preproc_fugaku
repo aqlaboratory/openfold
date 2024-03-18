@@ -122,6 +122,7 @@ source ../scripts/setenv
 
 InputDir=$InputFile \
     OutputDir=$OutputDir \
+    LogDir=$LogDir \
     TempDir=$TempDir \
     ToolTimeLimit=$ToolTimeLimit \
     NumNodes=$NumNodes \

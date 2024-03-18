@@ -294,6 +294,14 @@ def main(args):
         subdir_map = {}
         for i, (_, name) in enumerate(input_seq_chains):
             subdir_map[name] = str(i//args.sub_directory_size)
+
+        # Write the map as a CSV file
+        path = os.path.join(args.log_dir, "subdir_map.csv")
+        if mpi_rank == 0 and not os.path.exists(path):
+            logging.info(f"Writing subdir_map to {path}")
+            with open(path, "w") as f:
+                for name, subdir in subdir_map.items():
+                    f.write(f"{name},{subdir}\n")
             
     else:
         subdir_map = None
@@ -437,6 +445,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--small-bfd-max-hits", type=int, default=None,
         help="The maximum number of MSA hits on small BFD (default: unlimited)",
+    )
+    parser.add_argument(
+        "--log-dir", type=str, default=".",
+        help="Path to the log directory (default: .)",
     )
     parser.add_argument(
         "--temp-dir", type=str, default="/tmp",

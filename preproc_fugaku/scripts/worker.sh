@@ -27,6 +27,7 @@ NumTotalThreads=$(($NumProcs * $NumThreads))
 echo "---- worker.sh arguments -----"
 echo InputDir=$InputDir
 echo OutputDir=$OutputDir
+echo LogDir=$LogDir
 echo TempDir=$TempDir
 echo ToolTimeLimit=$ToolTimeLimit
 echo NumNodes=$NumNodes
@@ -236,6 +237,7 @@ while (( $NumProcs > 0 )); do
 	--timeout $ToolTimeLimit \
 	--report_out_path $ReportOutPath \
 	--stream-sto-size $StreamSTOSize \
+	--log-dir $LogDir \
 	--temp-dir $JobTempDir \
 	--sub-directory-size $SubDirectorySize \
 	$DatabaseArgs \
