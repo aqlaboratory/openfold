@@ -11,6 +11,7 @@ import json
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from math import ceil
+from multiprocessing import cpu_count
 from pathlib import Path
 
 from tqdm import tqdm
@@ -132,6 +133,13 @@ def main(args):
     output_db_name = args.output_db_name
     n_shards = args.n_shards
 
+    n_cpus = cpu_count()
+    if n_shards > n_cpus:
+        print(
+            f"Warning: Your number of shards ({n_shards}) is greater than the number of cores on your machine ({n_cpus}). "
+            "This may result in slower performance. Consider using a smaller number of shards."
+        )
+
     # get all chain dirs in alignment_dir
     print("Getting chain directories...")
     all_chain_dirs = sorted([f for f in tqdm(alignment_dir.iterdir())])
@@ -189,7 +197,10 @@ if __name__ == "__main__":
     parser.add_argument("output_db_path", type=Path)
     parser.add_argument("output_db_name", type=str)
     parser.add_argument(
-        "n_shards", type=int, help="Number of shards to split the database into"
+        "--n_shards",
+        type=int,
+        help="Number of shards to split the database into",
+        default=10,
     )
 
     args = parser.parse_args()
