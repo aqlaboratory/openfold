@@ -306,7 +306,6 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["residx_atom37_to_atom14"] = batch[
             "residx_atom37_to_atom14"
         ].long()
-        # print(batch["target_feat"].shape)
         batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], consts.msa_logits - 1).to(torch.float32)
         batch["template_all_atom_mask"] = batch["template_all_atom_masks"]
         batch.update(
