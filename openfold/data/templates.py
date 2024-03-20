@@ -962,6 +962,7 @@ def get_custom_template_features(
     else:
         logging.error("Custom template path %s does not exist", mmcif_path)
         raise ValueError(f"Custom template path {mmcif_path} does not exist")
+    
     warnings = []
     template_features = dict()
     for template_path in template_paths:
@@ -973,7 +974,6 @@ def get_custom_template_features(
         mmcif_parse_result = mmcif_parsing.parse(
             file_id=pdb_id, mmcif_string=cif_string
         )
-        # chain_id defaults to A, should be changed?
         template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
         mapping = {x: x for x, _ in enumerate(template_sequence)}
 
@@ -1200,7 +1200,7 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
 
 class CustomHitFeaturizer(TemplateHitFeaturizer):
     """Featurizer for templates given in folder.
-     Chain of interest has to be chain A and of same residue size as input sequence."""
+     Chain of interest has to be chain A and of same sequence length as input sequence."""
     def get_templates(
         self,
         query_sequence: str,
