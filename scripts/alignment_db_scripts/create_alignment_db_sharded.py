@@ -130,6 +130,7 @@ def create_shard(
 def main(args):
     alignment_dir = args.alignment_dir
     output_dir = args.output_db_path
+    output_dir.mkdir(exist_ok=True, parents=True)
     output_db_name = args.output_db_name
     n_shards = args.n_shards
 
@@ -165,6 +166,30 @@ def main(args):
             super_index.update(shard_index)
     print("\nCreated all shards.")
 
+    if args.duplicate_chains_file:
+        print("Extending super index with duplicate chains...")
+        duplicates_added = 0
+        with open(args.duplicate_chains_file, "r") as fp:
+            duplicate_chains = [line.strip().split() for line in fp]
+
+        for chains in duplicate_chains:
+            # find representative with alignment
+            for chain in chains:
+                if chain in super_index:
+                    representative_chain = chain
+                    break
+            else:
+                print(f"No representative chain found for {chains}, skipping...")
+                continue
+
+            # add duplicates to index
+            for chain in chains:
+                if chain != representative_chain:
+                    super_index[chain] = super_index[representative_chain]
+                    duplicates_added += 1
+
+        print(f"Added {duplicates_added} duplicate chains to index.")
+
     # write super index to file
     print("\nWriting super index...")
     index_path = output_dir / f"{output_db_name}.index"
@@ -191,8 +216,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "alignment_dir",
         type=Path,
-        help="""Path to precomputed alignment directory, with one subdirectory 
-                per chain.""",
+        help="""Path to precomputed flattened alignment directory, with one
+                subdirectory per chain.""",
     )
     parser.add_argument("output_db_path", type=Path)
     parser.add_argument("output_db_name", type=str)
@@ -201,6 +226,17 @@ if __name__ == "__main__":
         type=int,
         help="Number of shards to split the database into",
         default=10,
+    )
+    parser.add_argument(
+        "--duplicate_chains_file",
+        type=Path,
+        help="""
+        Optional path to file containing duplicate chain information, where each
+        line contains chains that are 100% sequence identical. If provided,
+        duplicate chains will be added to the index and point to the same
+        underlying database entry as their representatives in the alignment dir.
+        """,
+        default=None,
     )
 
     args = parser.parse_args()
