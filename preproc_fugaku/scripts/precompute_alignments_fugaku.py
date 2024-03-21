@@ -175,13 +175,15 @@ def get_unique_seqs(input_seq_chains):
     return list(sorted(s2c.items(), key=lambda x: x[0]))
 
 
-def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
+def get_uncompleted_flags(input_seq_chains, subdir_map, output_dir, alignment_runner):
     """
     Returns flags each of which means the search for the corresponding input sequence is already completed.
 
     Args:
         input_seq_chains:
             A list of (seq., chain_name) tuples. Must be identical among all ranks
+        subdir_map:
+            A dictionary from chain name to sub-directory name. Set None to disable sub-directories
         output_dir:
             Path to the root output directory
         alignment_runner:
@@ -191,7 +193,11 @@ def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
     """
     flags = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
     for i, (seq, chain) in enumerate(input_seq_chains):
-        alignment_dir = os.path.join(output_dir, chain)
+        if subdir_map is None:
+            alignment_dir = os.path.join(output_dir, chain)
+        else:
+            alignment_dir = os.path.join(output_dir, subdir_map[chain], chain)
+            
         dry_run = alignment_runner.dry_run(
             alignment_dir,
             input_label=chain,
@@ -203,7 +209,7 @@ def get_uncompleted_flags(input_seq_chains, output_dir, alignment_runner):
     return flags
 
 
-def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
+def get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner):
     """
     Check whether search for each input sequence is already completed,
     and returns equally-split uncompleted sequences.
@@ -211,6 +217,8 @@ def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
     Args:
         input_seq_chains:
             A list of (seq., chain_name) tuples. Must be identical among all ranks
+        subdir_map:
+            A dictionary from chain name to sub-directory name. Set None to disable sub-directories
         comm:
             mpi4py communicator
         alignment_runner:
@@ -225,6 +233,7 @@ def get_uncompleted_seqs(input_seq_chains, comm, alignment_runner):
     proc_end   = int(len(input_seq_chains)*(mpi_rank+1)/mpi_size)
     proc_uncompleted_flags = get_uncompleted_flags(
         input_seq_chains[proc_begin:proc_end],
+        subdir_map,
         args.output_dir,
         alignment_runner)
     send_uncomplted_flags = np.zeros([len(input_seq_chains)], dtype=UNCOMPLETED_FLAG_DTYPE)
@@ -307,7 +316,7 @@ def main(args):
         subdir_map = None
 
     # Remove completed chains
-    input_seq_chains = get_uncompleted_seqs(input_seq_chains, comm, alignment_runner)
+    input_seq_chains = get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner)
 
     # Remove duplicated seqs.
     if args.unique:
