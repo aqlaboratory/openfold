@@ -424,8 +424,11 @@ def compute_permutation_alignment(out: Dict[str,torch.Tensor],
                                   features: Dict[str,torch.Tensor], 
                                   ground_truth: List[Dict[str, torch.Tensor]]) -> Tuple[List[Tuple[int, int]], Dict[int, List[int]]]:
     """
-    A method that permutes chains in ground truth 
-    before calculating the loss.
+    A method that permutes chains in ground truth before calculating the loss 
+    because the mapping between the predicted and ground-truth will become arbitrary.
+    The model cannot be assumed to predict chains in the same order as the ground truth. 
+    Thus, this function pick the optimal permutaion of predicted chains that best matches the ground truth,
+    by minimising the RMSD.
 
     Args:
         out: a dictionary of output tensors from model.forward()
