@@ -46,7 +46,13 @@ UNCOMPLETED_FLAG_DTYPE = bool
 UNCOMPLETED_FLAG_AR_OP = MPI.LOR
 
 
-def run_seq_group_alignments(seqs, alignment_runner, args, subdir_map=None):
+def run_seq_group_alignments(
+        seqs,
+        alignment_runner,
+        args,
+        success_result_file,
+        failure_result_file,
+        subdir_map=None):
     completed_count = 0
     total_count = 0
     for seq, names in seqs:
@@ -72,6 +78,7 @@ def run_seq_group_alignments(seqs, alignment_runner, args, subdir_map=None):
                             logging.warning(f"Failed to create directory for {name} with exception {e}...")
                             continue
 
+            success = False
             if i_name == 0:
                 fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
                 with os.fdopen(fd, 'w') as fp:
@@ -90,29 +97,33 @@ def run_seq_group_alignments(seqs, alignment_runner, args, subdir_map=None):
                     if i_name == 0:
                         first_generated = generated
 
-                    logging.info(f"Processing for {name} done!")
-                    completed_count += 1
+                    success = True
 
                 except:
                     traceback.print_exc()
-                    logging.warning(f"Failed to run alignments for {name}. Skipping...")
 
                 os.remove(fasta_path)
 
             else:
-                if first_generated is None:
-                    logging.warning(f"Failed to run alignments for {name}. Skipping...")
-                    continue
+                if first_generated is not None:
+                    first_name = names[0]
+                    logging.info(f"Linking already generated alignment for {name} from {first_name}")
+                    for f in first_generated:
+                        os.symlink(
+                            os.path.join("..", first_name, f),
+                            os.path.join(alignment_dir, f))
 
-                first_name = names[0]
-                logging.info(f"Linking already generated alignment for {name} from {first_name}")
-                for f in first_generated:
-                    os.symlink(
-                        os.path.join("..", first_name, f),
-                        os.path.join(alignment_dir, f))
+                    success = True
 
+            if success:
                 logging.info(f"Processing for {name} done!")
                 completed_count += 1
+                success_result_file.Write_shared(f"{name}\n".encode("utf-8"))
+                success_result_file.Sync()
+            else:
+                logging.warning(f"Failed to run alignments for {name}. Skipping...")
+                failure_result_file.Write_shared(f"{name}\n".encode("utf-8"))
+                failure_result_file.Sync()
 
     return completed_count, total_count
 
@@ -250,6 +261,9 @@ def get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner):
 
 def main(args):
 
+    if args.proc_id < 0:
+        raise ValueError(f"proc_id must be 0 or more: proc_id={args.proc_id}")
+
     # Apply memory limit
     if args.max_memory is not None:
         logging.info(f"Applying RLIMIT_AS to {args.max_memory}")
@@ -316,7 +330,21 @@ def main(args):
         subdir_map = None
 
     # Remove completed chains
+    orig_seq_chains = input_seq_chains
     input_seq_chains = get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner)
+
+    # write completed/uncompleted chains
+    if mpi_rank == 0:
+        uncompleted_chains = [x[1] for x in input_seq_chains]
+        orig_chains = [x[1] for x in orig_seq_chains]
+        uncompleted_chain_set = set(uncompleted_chains)
+        completed_chains = [x for x in orig_chains if x not in uncompleted_chain_set]
+        for label, chains in [
+                ("completed", completed_chains),
+                ("uncompleted", uncompleted_chains)]:
+            with open(os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}_before.csv"), "w") as f:
+                for x in chains:
+                    f.write(x+"\n")
 
     # Remove duplicated seqs.
     if args.unique:
@@ -338,10 +366,22 @@ def main(args):
                  f"my_count={len(input_seq_chains)}, "
                  f"my_temp_dir={my_temp_dir}")
 
+    def open_result_file(label: str):
+        result_file_path = os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}.csv")
+        result_file = MPI.File.Open(
+            comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
+        result_file.Set_atomicity(True)
+        return result_file
+    
+    success_result_file = open_result_file("success")
+    failure_result_file = open_result_file("failure")
+    
     completed_count, total_count = run_seq_group_alignments(
         input_seq_chains,
         alignment_runner,
         args,
+        success_result_file,
+        failure_result_file,
         subdir_map=subdir_map)
 
     logging.info(f"DONE! "
@@ -462,6 +502,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--temp-dir", type=str, default="/tmp",
         help="Path to the temporary directory (default: /tmp)",
+    )
+    parser.add_argument(
+        "--proc-id", type=int, default=-1,
+        help="Unique process ID throughout the job"
     )
 
     args = parser.parse_args()
