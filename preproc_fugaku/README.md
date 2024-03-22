@@ -33,18 +33,18 @@
 
 ### 前処理完了・未完了リスト
 
-ジョブごとに生成される`log/Submit_preproc_fugaku.(整数)`に以下の形式で配列名のリストが出力される。
+ジョブごとに生成される`log/Submit_preproc_fugaku.(整数).(DB名)`に以下の形式で配列名のリストが出力される。
 
 ```
-chains_(ステップ数)_completed_before.csv   : そのステップの開始時に前処理完了済の全配列
-chains_(ステップ数)_uncompleted_before.csv : そのステップの開始時に前処理未完了の全配列
-chains_(ステップ数)_failure.csv            : そのステップで前処理に失敗した配列
-chains_(ステップ数)_success.csv            : そのステップで前処理に成功した配列
-chains_(ステップ数)_completed_after.csv    : そのステップの終了時に前処理完了済の全配列
-chains_(ステップ数)_uncompleted_after.csv  : そのステップの終了時に前処理未完了の全配列
+chains_(DB名)_(ステップ数)_completed_before.csv   : そのステップの開始時に前処理完了済の全配列
+chains_(DB名)_(ステップ数)_uncompleted_before.csv : そのステップの開始時に前処理未完了の全配列
+chains_(DB名)_(ステップ数)_failure.csv            : そのステップで前処理に失敗した配列
+chains_(DB名)_(ステップ数)_success.csv            : そのステップで前処理に成功した配列
+chains_(DB名)_(ステップ数)_completed_after.csv    : そのステップの終了時に前処理完了済の全配列
+chains_(DB名)_(ステップ数)_uncompleted_after.csv  : そのステップの終了時に前処理未完了の全配列
 ```
 
-* `chains_(ステップ数)_failure.csv`と`同_success.csv`は前処理が成功または失敗し次第更新される。
+* `chains_(DB名)_(ステップ数)_failure.csv`と`同_success.csv`は前処理が成功または失敗し次第更新される。
     * そのため、ジョブやプロセスが時間超過終了や異常終了した場合は処理中・処理待ちの配列がいずれにも含まれない可能性がある。
 
 ## 使用方法

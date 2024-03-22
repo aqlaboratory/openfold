@@ -265,6 +265,7 @@ def write_chain_status(
         orig_seq_chains,
         input_seq_chains,
         suffix: str,
+        database: str,
         args):
     uncompleted_chains = [x[1] for x in input_seq_chains]
     orig_chains = [x[1] for x in orig_seq_chains]
@@ -273,14 +274,35 @@ def write_chain_status(
     for label, chains in [
             ("completed", completed_chains),
             ("uncompleted", uncompleted_chains)]:
-        with open(os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}_{suffix}.csv"), "w") as f:
+        with open(os.path.join(args.log_dir, f"chains_{database}_{args.proc_id}_{label}_{suffix}.csv"), "w") as f:
             for x in chains:
                 f.write(x+"\n")
 
 def main(args):
 
+    # Check process id
     if args.proc_id < 0:
         raise ValueError(f"proc_id must be 0 or more: proc_id={args.proc_id}")
+
+    # Check database args
+    available_databases = []
+    if args.uniref90_database_path is not None:
+        available_databases.append("uniref90")
+    if args.mgnify_database_path is not None:
+        available_databases.append("mgnify")
+    if args.bfd_database_path is not None:
+        available_databases.append("small_bfd")
+    if args.uniclust30_database_path is not None:
+        available_databases.append("uniclust30")
+    if args.pdb70_database_path is not None:
+        available_databases.append("pdb70")
+
+    if len(available_databases) == 0:
+        raise ValueError("No database path is provided")
+    elif len(available_databases) > 1:
+        raise ValueError(f"Using more than one database in script is not expected: {available_databases}")
+
+    database = available_databases[0]
 
     # Apply memory limit
     if args.max_memory is not None:
@@ -353,7 +375,7 @@ def main(args):
 
     # write completed/uncompleted chains
     if mpi_rank == 0:
-        write_chain_status(orig_seq_chains, input_seq_chains, "before", args)
+        write_chain_status(orig_seq_chains, input_seq_chains, "before", database, args)
 
     # Remove duplicated seqs.
     if args.unique:
@@ -376,7 +398,7 @@ def main(args):
                  f"my_temp_dir={my_temp_dir}")
 
     def open_result_file(label: str):
-        result_file_path = os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}.csv")
+        result_file_path = os.path.join(args.log_dir, f"chains_{database}_{args.proc_id}_{label}.csv")
         result_file = MPI.File.Open(
             comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
         result_file.Set_atomicity(True)
@@ -400,12 +422,12 @@ def main(args):
 
     success_result_file.Close()
     failure_result_file.Close()
-    
+
     # write completed/uncompleted chains
     uncompleted_seq_chains = \
         get_uncompleted_seqs(orig_seq_chains, subdir_map, comm, alignment_runner)
     if mpi_rank == 0:
-        write_chain_status(orig_seq_chains, uncompleted_seq_chains, "after", args)
+        write_chain_status(orig_seq_chains, uncompleted_seq_chains, "after", database, args)
 
     completed_count = comm.allreduce(completed_count)
     total_count = comm.allreduce(total_count)

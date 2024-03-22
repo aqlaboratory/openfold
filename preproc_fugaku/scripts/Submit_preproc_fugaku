@@ -72,7 +72,7 @@ MyDir=`dirname $MyDir` # preproc_fugaku
 MyName=`basename "$0"`
 Time=`date "+%y%m%d%H%M%S%3N"`
 HostName=`hostname | awk -F . '{ print $1; }'`
-JobName="$MyName.$Time"
+JobName="$MyName.$Time.$Mode"
 
 LogDir="$MyDir/log"/"$JobName"
 mkdir -p "$LogDir" || exit
