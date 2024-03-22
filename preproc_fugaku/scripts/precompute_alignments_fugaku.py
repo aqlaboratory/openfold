@@ -240,6 +240,8 @@ def get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner):
     mpi_rank = comm.Get_rank()
     mpi_size = comm.Get_size()
 
+    comm.Barrier()
+
     proc_begin = int(len(input_seq_chains)*mpi_rank/mpi_size)
     proc_end   = int(len(input_seq_chains)*(mpi_rank+1)/mpi_size)
     proc_uncompleted_flags = get_uncompleted_flags(
@@ -258,6 +260,22 @@ def get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner):
     return [x[0] for x in zip(input_seq_chains, recv_uncomplted_flags) \
             if x[1] > 0]
 
+
+def write_chain_status(
+        orig_seq_chains,
+        input_seq_chains,
+        suffix: str,
+        args):
+    uncompleted_chains = [x[1] for x in input_seq_chains]
+    orig_chains = [x[1] for x in orig_seq_chains]
+    uncompleted_chain_set = set(uncompleted_chains)
+    completed_chains = [x for x in orig_chains if x not in uncompleted_chain_set]
+    for label, chains in [
+            ("completed", completed_chains),
+            ("uncompleted", uncompleted_chains)]:
+        with open(os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}_{suffix}.csv"), "w") as f:
+            for x in chains:
+                f.write(x+"\n")
 
 def main(args):
 
@@ -331,20 +349,11 @@ def main(args):
 
     # Remove completed chains
     orig_seq_chains = input_seq_chains
-    input_seq_chains = get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner)
+    input_seq_chains = get_uncompleted_seqs(orig_seq_chains, subdir_map, comm, alignment_runner)
 
     # write completed/uncompleted chains
     if mpi_rank == 0:
-        uncompleted_chains = [x[1] for x in input_seq_chains]
-        orig_chains = [x[1] for x in orig_seq_chains]
-        uncompleted_chain_set = set(uncompleted_chains)
-        completed_chains = [x for x in orig_chains if x not in uncompleted_chain_set]
-        for label, chains in [
-                ("completed", completed_chains),
-                ("uncompleted", uncompleted_chains)]:
-            with open(os.path.join(args.log_dir, f"chains_{args.proc_id}_{label}_before.csv"), "w") as f:
-                for x in chains:
-                    f.write(x+"\n")
+        write_chain_status(orig_seq_chains, input_seq_chains, "before", args)
 
     # Remove duplicated seqs.
     if args.unique:
@@ -388,6 +397,15 @@ def main(args):
                  f"host={host}, rank={mpi_rank}/{mpi_size}, "
                  f"my_completed_count={completed_count}, "
                  f"my_count={total_count}")
+
+    success_result_file.Close()
+    failure_result_file.Close()
+    
+    # write completed/uncompleted chains
+    uncompleted_seq_chains = \
+        get_uncompleted_seqs(orig_seq_chains, subdir_map, comm, alignment_runner)
+    if mpi_rank == 0:
+        write_chain_status(orig_seq_chains, uncompleted_seq_chains, "after", args)
 
     completed_count = comm.allreduce(completed_count)
     total_count = comm.allreduce(total_count)
