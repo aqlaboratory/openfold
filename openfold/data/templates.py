@@ -962,7 +962,7 @@ def get_custom_template_features(
     else:
         logging.error("Custom template path %s does not exist", mmcif_path)
         raise ValueError(f"Custom template path {mmcif_path} does not exist")
-    
+
     warnings = []
     template_features = dict()
     for template_path in template_paths:
@@ -974,26 +974,35 @@ def get_custom_template_features(
         mmcif_parse_result = mmcif_parsing.parse(
             file_id=pdb_id, mmcif_string=cif_string
         )
-        template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
-        mapping = {x: x for x, _ in enumerate(template_sequence)}
-
+        # mapping skipping "-"
+        mapping = {
+            x: x for x, curr_char in enumerate(query_sequence) if curr_char.isalnum()
+        }
+        realigned_sequence, realigned_mapping = _realign_pdb_template_to_query(
+            old_template_sequence=query_sequence,
+            template_chain_id=chain_id,
+            mmcif_object=mmcif_parse_result.mmcif_object,
+            old_mapping=mapping,
+            kalign_binary_path=kalign_binary_path,
+        )
         curr_features, curr_warnings = _extract_template_features(
             mmcif_object=mmcif_parse_result.mmcif_object,
             pdb_id=pdb_id,
-            mapping=mapping,
-            template_sequence=template_sequence,
+            mapping=realigned_mapping,
+            template_sequence=realigned_sequence,
             query_sequence=query_sequence,
             template_chain_id=chain_id,
             kalign_binary_path=kalign_binary_path,
             _zero_center_positions=True,
         )
-        curr_features["template_sum_probs"] = [1.0]
+        curr_features["template_sum_probs"] = [
+            1.0
+        ]  # template given by user, 100% confident
         template_features = {
             curr_name: template_features.get(curr_name, []) + [curr_item]
             for curr_name, curr_item in curr_features.items()
         }
         warnings.append(curr_warnings)
-
     template_features = {
         template_feature_name: np.stack(
             template_features[template_feature_name], axis=0
@@ -1003,8 +1012,6 @@ def get_custom_template_features(
     return TemplateSearchResult(
         features=template_features, errors=None, warnings=warnings
     )
-
-
 
 @dataclasses.dataclass(frozen=True)
 class TemplateSearchResult:
