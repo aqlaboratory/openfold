@@ -21,7 +21,6 @@ from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataM
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
@@ -653,6 +652,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
+    # Trainer additional arguments
+    # Ideally we'd want something like config.add_trainer_args()
     parser.add_argument(
         "--gpus", type=int, default=1, help='For determining optimal strategy and effective batch size.'
     )
