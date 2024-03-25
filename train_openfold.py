@@ -17,7 +17,6 @@ from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataM
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
@@ -70,13 +69,14 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{loss_name}",
                 indiv_loss,
+                prog_bar=(loss_name == 'loss'),
                 on_step=train, on_epoch=(not train), logger=True,
             )
 
             if (train):
                 self.log(
                     f"{phase}/{loss_name}_epoch",
-                    indiv_loss,
+                    indiv_loss, 
                     on_step=False, on_epoch=True, logger=True,
                 )
 
@@ -91,7 +91,8 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
-                on_step=False, on_epoch=True, logger=True
+                prog_bar = (k == 'loss'),
+                on_step=False, on_epoch=True, logger=True,
             )
 
     def training_step(self, batch, batch_idx):
@@ -629,11 +630,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
+    # Trainer additional arguments
+    # Ideally we'd want something like config.add_trainer_args()
     parser.add_argument(
         "--num_nodes", type=int, default=1,
     )
     parser.add_argument(
         "--gpus", type=int, default=1,
+    )
+    parser.add_argument(
+        "--num_workers", type=int, default=4, # interaction with num_data_workers? 
     )
     parser.add_argument(
         "--precision", type=str, default=None,
@@ -646,6 +652,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--log_every_n_steps", type=int, default=25,
+    )
+    parser.add_argument(
+        "--flush_logs_every_n_steps", type=int, default=5,
     )
     parser.add_argument(
         "--num_sanity_val_steps", type=int, default=0,
