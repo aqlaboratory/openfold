@@ -205,14 +205,30 @@ def main(args):
 
     # Compute sub-directory mapping
     if args.sub_directory_size > 0:
-        logging.info(f"Sub directory input/output is enabled")
+        logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
         subdir_map = {}
         for i, name in enumerate(input_chains):
             subdir_map[name] = str(i//args.sub_directory_size)
+    elif args.sub_directory_info is not None:
+        logging.info(f"Sub directory input/output is enabled (info: {args.sub_directory_info}")
+        subdir_map = {}
+        with open(args.sub_directory_info, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                l = line.strip()
+                l_sp = l.split(',')
+                subdir_map[l_sp[0]] = l_sp[1]
     else:
         subdir_map = None
 
     input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args)
+
+    # check whehter subdir_map contains all input_chains
+    if args.sub_directory_info is not None:
+        if (not set(input_chains).issubset(set(subdir_map.keys()))):
+            raise Exception(
+                "The csv file specified with --sub_directory_info must contains all input_chains sub directory info."
+            )
 
     if not args.ignore_unique:
         input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
@@ -356,7 +372,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--sub_directory_size', type=int, default=0,
-        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0)",
+        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0). This cannot be used with --sub_directory_info option.",
+    )
+    parser.add_argument(
+        '--sub_directory_info', type=str, default=None,
+        help="If this is set, create subdirectories for each number of sequences specified by this. This cannot be used with --sub_directory_size option.",
     )
     parser.add_argument(
         "--ignore_file", type=str, default=None,
@@ -364,5 +384,8 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if (args.sub_directory_size > 0) and (args.sub_directory_info is not None):
+        raise Exception('--sub_directory_size and --sub_directory_info must not be specified in the same time')
 
     main(args)
