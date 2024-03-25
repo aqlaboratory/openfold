@@ -264,7 +264,7 @@ def get_uncompleted_seqs(input_seq_chains, subdir_map, comm, alignment_runner):
 def write_chain_status(
         orig_seq_chains,
         input_seq_chains,
-        suffix: str,
+        prefix: str,
         database: str,
         args):
     uncompleted_chains = [x[1] for x in input_seq_chains]
@@ -272,9 +272,9 @@ def write_chain_status(
     uncompleted_chain_set = set(uncompleted_chains)
     completed_chains = [x for x in orig_chains if x not in uncompleted_chain_set]
     for label, chains in [
-            ("completed", completed_chains),
-            ("uncompleted", uncompleted_chains)]:
-        with open(os.path.join(args.log_dir, f"chains_{database}_{args.proc_id}_{label}_{suffix}.csv"), "w") as f:
+            ("complete", completed_chains),
+            ("incomplete", uncompleted_chains)]:
+        with open(os.path.join(args.log_dir, f"chains_{database}_{args.proc_id}_{prefix}_{label}.csv"), "w") as f:
             for x in chains:
                 f.write(x+"\n")
 
