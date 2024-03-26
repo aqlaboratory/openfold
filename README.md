@@ -36,10 +36,12 @@ latter.
 
 OpenFold is trainable in full precision, half precision, or `bfloat16` with or without DeepSpeed, 
 and we've trained it from scratch, matching the performance of the original. 
+In addition, we have trained new models for single sequence inference.
 We've publicly released model weights and our training data &mdash; some 400,000 
-MSAs and PDB70 template hit files &mdash; under a permissive license. Model weights 
-are available via scripts in this repository while the MSAs are hosted by the 
-[Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold). 
+MSAs and PDB70 template hit files &mdash; under a permissive license. Model weights, MSAs, and 
+embeddings (for the single sequence model) are hosted by the 
+[Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold) and 
+are available for download via scripts in this repository.
 Try out running inference for yourself with our [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb).
 
 OpenFold also supports inference using AlphaFold's official parameters, and 
@@ -129,6 +131,21 @@ For both inference and training, the model's hyperparameters can be tuned from
 DeepMind's pretrained parameters, you will only be able to make changes that
 do not affect the shapes of model parameters. For an example of initializing
 the model, consult `run_pretrained_openfold.py`.
+
+## Download Embeddings for SoloSeq
+ESM embeddings for the PDB set and the distillation set are available for download 
+at RODA. These embeddings were used to train the single sequence SoloSeq model, 
+and can be used to retrain the model, if desired.
+The dataset is composed of two separate directories of ESM-1b embeddings- one 
+containing embeddings for the 120,450 unique PDB chains and the other for the 
+268,699 chains of the distillation set generated from UniClust30 clusters. 
+The chains and sequences are the same as OpenProteinSet except for being capped 
+at 1022 residues because of the limitations of the ESM-1b model. The chains 
+filtered out were a small fraction of the total unique sequences derived from 
+the OpenProteinSet PDB chains (<10%).
+
+For more information, and for instructions on generating embeddings for more chains,
+see the README file on RODA.
 
 ## Inference
 
