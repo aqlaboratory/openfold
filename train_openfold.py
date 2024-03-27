@@ -410,9 +410,7 @@ def main(args):
         wdb_logger.experiment.save(f"{freeze_path}")
 
     # Raw dump of all args from pl.Trainer constructor
-    trainer_kws = set([
-        'accelerator', 'strategy', 'devices', 'num_nodes', 'precision', 'logger', 'callbacks', 'fast_dev_run', 'max_epochs', 'min_epochs', 'max_steps', 'min_steps', 'max_tim', 'limit_train_batches', 'limit_val_batches', 'limit_test_batches', 'limit_predict_batches', 'overfit_batches', 'val_check_interval', 'check_val_every_n_epoch', 'num_sanity_val_steps', 'log_every_n_steps', 'enable_checkpointing', 'enable_progress_bar', 'enable_model_summary', 'accumulate_grad_batches', 'gradient_clip_val', 'gradient_clip_algorithm', 'deterministic', 'benchmark', 'inference_mode', 'use_distributed_sampler', 'profiler', 'detect_anomaly', 'barebones', 'plugins', 'sync_batchnorm', 'reload_dataloaders_every_n_epochs', 'default_root_dir',
-    ])
+    trainer_kws = ['num_nodes', 'precision', 'max_epochs', 'log_every_n_steps', 'flush_logs_ever_n_steps', 'num_sanity_val_steps']
     trainer_args = {k: v for k, v in vars(args).items() if k in trainer_kws}
     trainer_args.update({
         'default_root_dir': args.output_dir,
@@ -630,53 +628,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
-    # Trainer additional arguments
-    # Ideally we'd want something like config.add_trainer_args()
     parser.add_argument(
+        "--gpus", type=int, default=1, help='For determining optimal strategy and effective batch size.'
+    )
+
+    trainer_group = parser.add_argument_group('PyTorch Lightning Trainer Args') 
+    trainer_group.add_argument(
         "--num_nodes", type=int, default=1,
     )
-    parser.add_argument(
-        "--gpus", type=int, default=1,
+    trainer_group.add_argument(
+        "--precision", type=str, default='bf16', help='Sets precision, lower precision improves runtime performance.'
     )
-    parser.add_argument(
-        "--num_workers", type=int, default=4, # interaction with num_data_workers? 
-    )
-    parser.add_argument(
-        "--precision", type=str, default=None,
-    )
-    parser.add_argument(
-        "--replace_sampler_ddp", type=bool_type, default=True,
-    )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--max_epochs", type=int, default=1,
     )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--log_every_n_steps", type=int, default=25,
     )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--flush_logs_every_n_steps", type=int, default=5,
     )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--num_sanity_val_steps", type=int, default=0,
     )
-
-    #  parser = pl.Trainer.add_argparse_args(parser)
-    #
-    #  # Disable the initial validation pass
-    #  parser.set_defaults(
-    #      num_sanity_val_steps=0,
-    #  )
-
-    #  # Remove some buggy/redundant arguments introduced by the Trainer
-    #  remove_arguments(
-    #      parser,
-    #      [
-    #          "--accelerator",
-    #          "--resume_from_checkpoint",
-    #          "--reload_dataloaders_every_epoch",
-    #          "--reload_dataloaders_every_n_epochs",
-    #      ]
-    #  )
 
     args = parser.parse_args()
 
