@@ -652,8 +652,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
-    # Trainer additional arguments
-    # Ideally we'd want something like config.add_trainer_args()
     parser.add_argument(
         "--gpus", type=int, default=1, help='For determining optimal strategy and effective batch size.'
     )
