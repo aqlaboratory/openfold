@@ -6,6 +6,7 @@ import json
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
+from pytorch_lightning.callbacks import DeviceStatsMonitor
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins.training_type import DeepSpeedPlugin, DDPPlugin
@@ -411,9 +412,10 @@ def main(args):
         strategy=strategy,
         callbacks=callbacks,
         logger=loggers,
+        profiler='simple',
     )
 
-    if(args.resume_model_weights_only):
+    if (args.resume_model_weights_only):
         ckpt_path = None
     else:
         ckpt_path = args.resume_from_ckpt
@@ -622,7 +624,7 @@ if __name__ == "__main__":
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
     parser = pl.Trainer.add_argparse_args(parser)
-   
+
     # Disable the initial validation pass
     parser.set_defaults(
         num_sanity_val_steps=0,
