@@ -435,6 +435,7 @@ def main(args):
         strategy=strategy,
         callbacks=callbacks,
         logger=loggers,
+        profiler='simple',
     )
 
     if (args.resume_model_weights_only):
