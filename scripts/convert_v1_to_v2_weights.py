@@ -22,7 +22,9 @@ import shutil
 import torch
 
 from openfold.utils.import_weights import convert_deprecated_v1_keys
-from zero_to_fp32 import get_optim_files, parse_optim_states, get_model_state_file
+from deepspeed.utils.zero_to_fp32 import (
+    get_optim_files, parse_optim_states, get_model_state_file
+)
 
 
 def convert_v1_to_v2_weights(args):
