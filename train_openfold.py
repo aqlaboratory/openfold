@@ -58,7 +58,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         self.cached_weights = None
         self.last_lr_step = -1
-        self.save_hyperparameters
+        self.save_hyperparameters()
 
     def forward(self, batch):
         return self.model(batch)
