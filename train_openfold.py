@@ -700,5 +700,4 @@ if __name__ == "__main__":
         raise ValueError(
             "Choose between loading pretrained Jax-weights and a checkpoint-path")
 
-
     main(args)
