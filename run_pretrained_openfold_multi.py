@@ -20,6 +20,7 @@ import tempfile
 import traceback
 import time
 import subprocess
+import re
 
 import glob
 from mpi4py import MPI
@@ -72,10 +73,10 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
     runner = OpenFoldInference(os.path.join(os.environ.get('OPENFOLDDIR'), 'run_pretrained_openfold.py'))
 
     comm = MPI.COMM_WORLD
-    jobid = int(os.environ.get('PJM_JOBID', '0'))
-    result_dir = os.path.join(args.output_dir, 'result')
+    jobid = os.environ.get('PJM_JOBID', '0')
+    result_dir = os.path.join(args.output_dir, 'result', jobid)
     os.makedirs(result_dir, exist_ok=True)
-    result_file_path = os.path.join(result_dir, f'job_{jobid}.csv')
+    result_file_path = os.path.join(result_dir, f'processed.csv')
     result_file = MPI.File.Open(comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
     result_file.Set_atomicity(True)
 
@@ -168,27 +169,142 @@ def make_uniq_seq_groups(input_seqs, input_chains):
 
     return [x[0] for x in items], [x[1] for x in items]
 
-def remove_non_target_seqs(input_seqs, input_chains, args):
 
-    non_targets = set()
+def intersection_of_sets(set_map):
+    if not set_map:
+        return set()
 
+    set_list = list(set_map.values())
+    result_set = set_list[0]
+    for s in set_list[1:]:
+        result_set = result_set.intersection(s)
+    return result_set
+
+def get_chains(csv_file):
+    with open(csv_file) as f:
+        chains = f.read().strip().split("\n")
+
+    return set(filter(None, chains))
+
+def get_success_chains(root_dir, search_task):
+    log_dirs = [x for x in os.listdir(root_dir) \
+                if os.path.isdir(os.path.join(root_dir, x)) and x.endswith(f'.{search_task}')]
+    log_dirs.sort(reverse=True)
+
+    for log_dir in log_dirs:
+        matcher = re.compile(r"chains_(.+)_(\d+)_(.+)\.csv")
+        chain_files = [(x, matcher.match(x)) for x in os.listdir(os.path.join(root_dir, log_dir))]
+        chain_files = [(x[0], x[1].groups()) for x in chain_files if x[1] is not None]
+
+        # 何もなければこのディレクトリはスキップ
+        if not chain_files:
+            continue
+
+        steps = {}
+        for chain_file, (_, step, mode) in chain_files:
+            info = steps.get(step, dict())
+            info[mode] = chain_file
+            steps[step] = info
+
+        max_step = max(steps.keys())
+
+        # 最新ステップの after_complete があれば、それを利用
+        if 'after_complete' in steps[max_step]:
+            return get_chains(os.path.join(root_dir, log_dir, steps[max_step]['after_complete']))
+
+        # 最新ステップの after_complete が無ければ、before_complete + (あれば)success
+        if 'before_complete' in steps[max_step]:
+            chains = get_chains(os.path.join(root_dir, log_dir, steps[max_step]['before_complete']))
+            if 'success' in steps[max_step]:
+                chains |= get_chains(os.path.join(root_dir, log_dir, steps[max_step]['success']))
+            return chains
+
+    return set()
+
+def get_subdir_map(root_dir):
+    if not root_dir:
+        return None
+
+    log_dirs = [x for x in os.listdir(root_dir) \
+                if os.path.isdir(os.path.join(root_dir, x))]
+    log_dirs.sort(reverse=True)
+
+    for log_dir in log_dirs:
+        subdir_map_file = os.path.join(root_dir, log_dir, 'subdir_map.csv')
+        if os.path.isfile(subdir_map_file):
+            with open(subdir_map_file, 'r') as f:
+                lines = f.read().strip().split("\n")
+            lines = list(filter(None, lines))
+            subdir_map = {k: v for k, v in [l.split(',') for l in lines]}
+
+            logging.info(f'subdir_map.csv is found in alignment log directory. ({subdir_map_file})')
+            return subdir_map
+    return None
+
+def get_alignment_completed_chains(root_dir):
+    search_tasks = ['uniref90', 'small_bfd', 'pdb70', 'mgnify']
+    completed_chains_map = {}
+
+    for search_task in search_tasks:
+        completed_chains_map[search_task] = get_success_chains(root_dir, search_task)
+
+    all_completed_chains = intersection_of_sets(completed_chains_map)
+    return all_completed_chains
+
+def write_chains(args, timing, kind, chains):
+    jobid = os.environ.get('PJM_JOBID', '0')
+    result_dir = os.path.join(args.output_dir, 'result', jobid)
+    os.makedirs(result_dir, exist_ok=True)
+    result_file_path = os.path.join(result_dir, f'{timing}_{kind}.csv')
+
+    with open(result_file_path, 'w') as f:
+        f.writelines([f'{chain}\n' for chain in chains])
+
+def remove_non_target_seqs(input_seqs, input_chains, args, rank):
+    ignore_chains = set()
     if args.ignore_file:
         with open(args.ignore_file, 'r') as ignore_file:
             lines = ignore_file.readlines()
-            non_targets |= set( [x.strip() for x in lines] )
+            ignore_chains |= set( [x.strip() for x in lines] )
 
-    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', f'*.csv'))
+    completed_chains = set()
+    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', '*', f'processed.csv'))
+    print("result_file_paths", result_file_paths) #けす
     for result_file_path in result_file_paths:
         with open(result_file_path, 'r') as result_file:
             lines = result_file.readlines()
-            non_targets |= set( [x.strip().split(',')[0] for x in lines] )
+            for l in lines:
+                cols = l.strip().split(',')
+                if cols[2] in ['OK', 'NG_timeout', 'NG_unknown']:
+                    completed_chains.add(cols[0])
 
-    logging.info(f'non_targets: {non_targets}')
+    non_targets = set()
+    non_targets |= ignore_chains
+    non_targets |= completed_chains
+
     items = [(seq, chain) for seq, chain in zip(input_seqs, input_chains) if chain not in non_targets]
+
+    # Get alignemnt status
+    if args.alignment_log_dir:
+        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
+        items = [(seq, chain) for seq, chain in items if chain in alignment_completed_chains]
+
+
+    if rank == 0:
+        # all target = chinas - ignore_chains
+        target_chains = set([c for c in input_chains if c not in ignore_chains])
+        incompleted_chains = target_chains - completed_chains
+        noalignment_chains = incompleted_chains - alignment_completed_chains
+        write_chains(args, 'before', 'complete', completed_chains)
+        write_chains(args, 'before', 'incomplete', incompleted_chains)
+        write_chains(args, 'before', 'noalign', noalignment_chains)
 
     return [x[0] for x in items], [x[1] for x in items]
 
 def main(args):
+    mpi_rank = MPI.COMM_WORLD.Get_rank()
+    mpi_size = MPI.COMM_WORLD.Get_size()
+
     input_file = args.input_file
     with open(input_file, 'r') as fp:
         fasta_str = fp.read()
@@ -203,32 +319,29 @@ def main(args):
     if args.first_lower:
         input_chains = [list(map(to_first_lower, g)) for g in input_chains]
 
-    # Compute sub-directory mapping
-    if args.sub_directory_size > 0:
-        logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
-        subdir_map = {}
-        for i, name in enumerate(input_chains):
-            subdir_map[name] = str(i//args.sub_directory_size)
-    elif args.sub_directory_info is not None:
-        logging.info(f"Sub directory input/output is enabled (info: {args.sub_directory_info}")
-        subdir_map = {}
-        with open(args.sub_directory_info, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                l = line.strip()
-                l_sp = l.split(',')
-                subdir_map[l_sp[0]] = l_sp[1]
-    else:
-        subdir_map = None
+    # Get or compute sub-directory mapping
+    subdir_map = get_subdir_map(args.alignment_log_dir)
 
-    input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args)
+    if args.sub_directory_size > 0:
+        if subdir_map:
+            logging.info('subdir_map.csv in alignment log directory is used instead of --sub_directory_size')
+        else:
+            logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
+            subdir_map = {name: str(i//args.sub_directory_size) \
+                          for i, name in enumerate(input_chains)}
+
+    input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args, mpi_rank)
+
+    # there is no target seqs, exit
+    if len(input_seqs) == 0:
+        logging.info("There is no sequences to be processed. DONE!")
+        return
 
     # check whehter subdir_map contains all input_chains
-    if args.sub_directory_info is not None:
-        if (not set(input_chains).issubset(set(subdir_map.keys()))):
-            raise Exception(
-                "The csv file specified with --sub_directory_info must contains all input_chains sub directory info."
-            )
+    if (not set(input_chains).issubset(set(subdir_map.keys()))):
+        raise Exception(
+            "The sub directory map must contain all input_chains sub directory."
+        )
 
     if not args.ignore_unique:
         input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
@@ -244,21 +357,6 @@ def main(args):
     # input_seqs   = [AAA, BBB, ...]
     # input_chains = [[A_1, A_2], [B_1], ...]
 
-    if "OMPI_COMM_WORLD_RANK" in os.environ:
-        # ABCI (OpenMPI)
-        mpi_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
-        mpi_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
-
-    elif "PMIX_RANK" in os.environ:
-        # Fugaku (Fujitsu MPI)
-        mpi_rank = int(os.environ["PMIX_RANK"])
-        mpi_size = int(os.environ["OMPI_UNIVERSE_SIZE"])
-
-    else:
-        logging.warning("MPI rank/size environment variables not found")
-        mpi_rank = 0
-        mpi_size = 1
-
     if args.weak_scale:
         logging.warning(f"--weak_scale is enabled. The process might be redundant")
         assert len(input_seqs) == 1
@@ -267,8 +365,6 @@ def main(args):
         input_seqs = [input_seqs[0]]*mpi_size
         input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
 
-    assert mpi_size > 0
-    assert mpi_rank >= 0 and mpi_rank < mpi_size
     total_count  = len(input_seqs)
     input_seqs   =   input_seqs[mpi_rank::mpi_size]
     input_chains = input_chains[mpi_rank::mpi_size]
@@ -372,11 +468,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--sub_directory_size', type=int, default=0,
-        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0). This cannot be used with --sub_directory_info option.",
+        help="If this is set, create subdirectories for each number of sequences specified by this (default: 0).",
     )
     parser.add_argument(
-        '--sub_directory_info', type=str, default=None,
-        help="If this is set, create subdirectories for each number of sequences specified by this. This cannot be used with --sub_directory_size option.",
+        '--alignment_log_dir', type=str, default=None,
+        help="The log directory of alignment",
     )
     parser.add_argument(
         "--ignore_file", type=str, default=None,
@@ -384,8 +480,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    if (args.sub_directory_size > 0) and (args.sub_directory_info is not None):
-        raise Exception('--sub_directory_size and --sub_directory_info must not be specified in the same time')
 
     main(args)
