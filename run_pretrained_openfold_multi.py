@@ -47,13 +47,20 @@ def is_inferred(name, pred_dir, args):
     return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
 
 def has_alignment(name, alignment_dir):
-    alignment_files = [
-        'mgnify_hits.a3m',
-        'pdb70_hits.hhr',
-        'small_bfd_hits.sto',
-        'uniref90_hits.a3m'
+    other_basenames = [
+        'mgnify_hits',
+        'pdb70_hits',
+        'uniref90_hits'
     ]
-    return all([os.path.isfile(os.path.join(alignment_dir, name, f)) for f in alignment_files])
+    bfd_basenames = [
+        'small_bfd_hits',
+        'bfd_uniclust_hits'
+    ]
+
+    basenames = [os.path.splitext(x)[0] for x in os.listdir(os.path.join(alignment_dir, name)) \
+                 if os.path.isfile(os.path.join(alignment_dir, name, x))]
+
+    return all([x in basenames for x in other_basenames]) and any([x in basenames for x in bfd_basenames])
 
 def run_inference(runner, name, seq, subdir, args):
     with tempfile.TemporaryDirectory() as fasta_dir:
@@ -261,6 +268,8 @@ def write_chains(args, timing, kind, chains):
         f.writelines([f'{chain}\n' for chain in chains])
 
 def remove_non_target_seqs(input_seqs, input_chains, args, rank):
+    assert rank == 0
+
     ignore_chains = set()
     if args.ignore_file:
         with open(args.ignore_file, 'r') as ignore_file:
@@ -268,6 +277,7 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
             ignore_chains |= set( [x.strip() for x in lines] )
 
     result_dir = os.path.join(args.output_dir, 'result')
+    os.makedirs(result_dir, exist_ok=True)
 
     def is_jobid(s):
         return True if re.fullmatch('[0-9]+', s, re.ASCII) else False
@@ -299,26 +309,28 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
         if job_id > args.ignore_failed_chain_history:
             skip_chains |= proc_chains['NG_unknown']
 
-    if rank == 0:
-        target_chains = set([c for c in input_chains if c not in ignore_chains])
-        incompleted_chains = target_chains - completed_chains
-        noalignment_chains = incompleted_chains - alignment_completed_chains
-        write_chains(args, 'before', 'complete', completed_chains)
-        write_chains(args, 'before', 'incomplete', incompleted_chains)
-        write_chains(args, 'before', 'noalign', noalignment_chains)
-        write_chains(args, 'before', 'skip', skip_chains)
+    # Get alignemnt status
+    if args.alignment_log_dir:
+        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
+    else:
+        alignment_completed_chains = set()
+
+    target_chains = set([c for c in input_chains if c not in ignore_chains])
+    incompleted_chains = target_chains - completed_chains
+    noalignment_chains = incompleted_chains - alignment_completed_chains
+    write_chains(args, 'before', 'complete', completed_chains)
+    write_chains(args, 'before', 'incomplete', incompleted_chains)
+    write_chains(args, 'before', 'noalign', noalignment_chains)
+    write_chains(args, 'before', 'skip', skip_chains)
 
     non_targets = set()
     non_targets |= ignore_chains
     non_targets |= completed_chains
     non_targets |= skip_chains
+    non_targets |= noalignment_chains
 
-    items = [(seq, chain) for seq, chain in zip(input_seqs, input_chains) if chain not in non_targets]
-
-    # Get alignemnt status
-    if args.alignment_log_dir:
-        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
-        items = [(seq, chain) for seq, chain in items if chain in alignment_completed_chains]
+    items = [(seq, chain) for seq, chain in zip(input_seqs, input_chains) \
+             if chain not in non_targets]
 
     return [x[0] for x in items], [x[1] for x in items]
 
@@ -326,65 +338,87 @@ def main(args):
     mpi_rank = MPI.COMM_WORLD.Get_rank()
     mpi_size = MPI.COMM_WORLD.Get_size()
 
-    input_file = args.input_file
-    with open(input_file, 'r') as fp:
-        fasta_str = fp.read()
-    input_seqs, input_chains = parse_fasta(fasta_str)
-    orig_total_count = len(input_seqs)
+    if mpi_rank == 0:
+        input_file = args.input_file
+        with open(input_file, 'r') as fp:
+            fasta_str = fp.read()
+        input_seqs, input_chains = parse_fasta(fasta_str)
+        orig_total_count = len(input_seqs)
 
-    def to_first_lower(s):
-        x = s.split(sep='_')
-        x[0] = x[0].lower()
-        return '_'.join(x)
+        def to_first_lower(s):
+            x = s.split(sep='_')
+            x[0] = x[0].lower()
+            return '_'.join(x)
 
-    if args.first_lower:
-        input_chains = [list(map(to_first_lower, g)) for g in input_chains]
+        if args.first_lower:
+            input_chains = [list(map(to_first_lower, g)) for g in input_chains]
 
-    # Get or compute sub-directory mapping
-    subdir_map = get_subdir_map(args.alignment_log_dir)
+        # Get or compute sub-directory mapping
+        subdir_map = get_subdir_map(args.alignment_log_dir)
 
-    if args.sub_directory_size > 0:
-        if subdir_map:
-            logging.info('subdir_map.csv in alignment log directory is used instead of --sub_directory_size')
-        else:
-            logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
-            subdir_map = {name: str(i//args.sub_directory_size) \
-                          for i, name in enumerate(input_chains)}
+        if args.sub_directory_size > 0:
+            if subdir_map:
+                logging.info('subdir_map.csv in alignment log directory is used instead of --sub_directory_size')
+            else:
+                logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
+                subdir_map = {name: str(i//args.sub_directory_size) \
+                              for i, name in enumerate(input_chains)}
 
-    input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args, mpi_rank)
+        input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args, mpi_rank)
+
+        n_input_seqs = len(input_seqs)
+        is_valid_subdir_map = set(input_chains).issubset(set(subdir_map.keys()))
+    else:
+        orig_total_count = None
+        n_input_seqs = None
+        is_valid_subdir_map = None
+        subdir_map = None
+
+    orig_total_count = MPI.COMM_WORLD.bcast(orig_total_count, root=0)
+    n_input_seqs = MPI.COMM_WORLD.bcast(n_input_seqs, root=0)
+    subdir_map = MPI.COMM_WORLD.bcast(subdir_map, root=0)
 
     # there is no target seqs, exit
-    if len(input_seqs) == 0:
+    if n_input_seqs == 0:
         logging.info("There is no sequences to be processed. DONE!")
         return
 
+    is_valid_subdir_map = MPI.COMM_WORLD.bcast(is_valid_subdir_map, root=0)
+
     # check whehter subdir_map contains all input_chains
-    if (not set(input_chains).issubset(set(subdir_map.keys()))):
+    if not is_valid_subdir_map:
         raise Exception(
             "The sub directory map must contain all input_chains sub directory."
         )
 
-    if not args.ignore_unique:
-        input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
+    if mpi_rank == 0:
+        if not args.ignore_unique:
+            input_seqs, input_chains = make_uniq_seq_groups(input_seqs, input_chains)
+        else:
+            logging.warning(f"--ignore_unique is enabled. The process might be redundant")
+            input_chains = [[x] for x in input_chains]
+
+        # sort by sequence length
+        zip_seqs_chains = zip(input_seqs, input_chains)
+        zip_seqs_chains_sorted = sorted(zip_seqs_chains, key=lambda x: len(x[0]))
+        input_seqs, input_chains = zip(*zip_seqs_chains_sorted)
+
+        # input_seqs   = [AAA, BBB, ...]
+        # input_chains = [[A_1, A_2], [B_1], ...]
+
+        if args.weak_scale:
+            logging.warning(f"--weak_scale is enabled. The process might be redundant")
+            assert len(input_seqs) == 1
+            assert len(input_chains) == 1
+            assert len(input_chains[0]) == 1
+            input_seqs = [input_seqs[0]]*mpi_size
+            input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
     else:
-        logging.warning(f"--ignore_unique is enabled. The process might be redundant")
-        input_chains = [[x] for x in input_chains]
+        input_seqs = None
+        input_chains = None
 
-    # sort by sequence length
-    zip_seqs_chains = zip(input_seqs, input_chains)
-    zip_seqs_chains_sorted = sorted(zip_seqs_chains, key=lambda x: len(x[0]))
-    input_seqs, input_chains = zip(*zip_seqs_chains_sorted)
-
-    # input_seqs   = [AAA, BBB, ...]
-    # input_chains = [[A_1, A_2], [B_1], ...]
-
-    if args.weak_scale:
-        logging.warning(f"--weak_scale is enabled. The process might be redundant")
-        assert len(input_seqs) == 1
-        assert len(input_chains) == 1
-        assert len(input_chains[0]) == 1
-        input_seqs = [input_seqs[0]]*mpi_size
-        input_chains = [[f"{input_chains[0][0]}_{i}"] for i in range(mpi_size)]
+    input_seqs = MPI.COMM_WORLD.bcast(input_seqs, root=0)
+    input_chains = MPI.COMM_WORLD.bcast(input_chains, root=0)
 
     total_count  = len(input_seqs)
     input_seqs   =   input_seqs[mpi_rank::mpi_size]

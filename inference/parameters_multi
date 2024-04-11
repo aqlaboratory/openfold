@@ -16,13 +16,12 @@ source $OPENFOLDDIR/scripts/setenv
 
 MMCIFCache=example/mmcif_cache.json
 InputFasta=example/input/short.fasta
-AlignmentDir=example/alignment
+AlignmentDir=example/alignment_subdir
+AlignmentLogDir=example/alignment_log_subdir
 OutputDir=$LOGDIR
 Timeout=3600
 
 ModelNum=1
-
-SubDirectorySize=2
 
 PARAMS=(
     python3
@@ -40,7 +39,7 @@ PARAMS=(
     --release_dates_path $MMCIFCache
     --timeout $Timeout
     --max_memory $OPENFOLD_MAX_MEM
-    --sub_directory_size $SubDirectorySize
+    --alignment_log_dir ${AlignmentLogDir}
 )
 
 # for Torch Extensions
