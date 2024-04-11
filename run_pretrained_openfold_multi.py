@@ -267,20 +267,51 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
             lines = ignore_file.readlines()
             ignore_chains |= set( [x.strip() for x in lines] )
 
+    result_dir = os.path.join(args.output_dir, 'result')
+
+    def is_jobid(s):
+        return True if re.fullmatch('[0-9]+', s, re.ASCII) else False
+    job_dirs = [x for x in os.listdir(result_dir) \
+                if os.path.isdir(os.path.join(result_dir, x)) and is_jobid(x)]
+
+    jobids_with_result = [int(job_dir) for job_dir in job_dirs \
+                          if os.path.isfile(os.path.join(result_dir, job_dir, 'processed.csv'))]
+
     completed_chains = set()
-    result_file_paths = glob.glob(os.path.join(args.output_dir, 'result', '*', f'processed.csv'))
-    print("result_file_paths", result_file_paths) #けす
-    for result_file_path in result_file_paths:
+    skip_chains = set()
+
+    for job_id in jobids_with_result:
+        result_file_path = os.path.join(result_dir, str(job_id), 'processed.csv')
+        proc_chains = {'OK': set(),
+                       'NG_timeout': set(),
+                       'NG_unknown': set(),
+                       'NG_noalignment': set(),}
+
         with open(result_file_path, 'r') as result_file:
             lines = result_file.readlines()
-            for l in lines:
-                cols = l.strip().split(',')
-                if cols[2] in ['OK', 'NG_timeout', 'NG_unknown']:
-                    completed_chains.add(cols[0])
+        for l in lines:
+            cols = l.strip().split(',')
+            proc_chains[cols[2]].add(cols[0])
+
+        completed_chains |= proc_chains['OK']
+        if job_id > args.ignore_timeout_chain_history:
+            skip_chains |= proc_chains['NG_timeout']
+        if job_id > args.ignore_failed_chain_history:
+            skip_chains |= proc_chains['NG_unknown']
+
+    if rank == 0:
+        target_chains = set([c for c in input_chains if c not in ignore_chains])
+        incompleted_chains = target_chains - completed_chains
+        noalignment_chains = incompleted_chains - alignment_completed_chains
+        write_chains(args, 'before', 'complete', completed_chains)
+        write_chains(args, 'before', 'incomplete', incompleted_chains)
+        write_chains(args, 'before', 'noalign', noalignment_chains)
+        write_chains(args, 'before', 'skip', skip_chains)
 
     non_targets = set()
     non_targets |= ignore_chains
     non_targets |= completed_chains
+    non_targets |= skip_chains
 
     items = [(seq, chain) for seq, chain in zip(input_seqs, input_chains) if chain not in non_targets]
 
@@ -288,16 +319,6 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
     if args.alignment_log_dir:
         alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
         items = [(seq, chain) for seq, chain in items if chain in alignment_completed_chains]
-
-
-    if rank == 0:
-        # all target = chinas - ignore_chains
-        target_chains = set([c for c in input_chains if c not in ignore_chains])
-        incompleted_chains = target_chains - completed_chains
-        noalignment_chains = incompleted_chains - alignment_completed_chains
-        write_chains(args, 'before', 'complete', completed_chains)
-        write_chains(args, 'before', 'incomplete', incompleted_chains)
-        write_chains(args, 'before', 'noalign', noalignment_chains)
 
     return [x[0] for x in items], [x[1] for x in items]
 
@@ -477,6 +498,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ignore_file", type=str, default=None,
         help="""The file of chain name list to ignore"""
+    )
+    parser.add_argument(
+        '--ignore_timeout_chain_history', type=int, default=0,
+        help="Ignores the history of timed out chains in jobs before the specified job ID. (default: 0).",
+    )
+    parser.add_argument(
+        '--ignore_failed_chain_history', type=int, default=0,
+        help="Ignores the history of failed chains in jobs before the specified job ID. (default: 0).",
     )
 
     args = parser.parse_args()

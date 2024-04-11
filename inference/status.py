@@ -25,7 +25,6 @@ def get_chains(csv_file):
     return set(filter(None, chains))
 
 def get_log_info(path: str) -> pd.DataFrame:
-    print("get_log_info")
 
     job_id = os.path.basename(path)
 
@@ -35,20 +34,24 @@ def get_log_info(path: str) -> pd.DataFrame:
     complete_path   = os.path.join(path, 'before_complete.csv')
     incomplete_path = os.path.join(path, 'before_incomplete.csv')
     noalign_path    = os.path.join(path, 'before_noalign.csv')
+    skip_path       = os.path.join(path, 'before_skip.csv')
     processed_path  = os.path.join(path, 'processed.csv')
 
     complete_chains   = get_chains(complete_path)
     incomplete_chains = get_chains(incomplete_path)
     noalign_chains    = get_chains(noalign_path)
+    skip_chains       = get_chains(skip_path)
 
     if (complete_chains is None) or \
        (incomplete_chains is None) or \
-       (noalign_chains is None):
+       (noalign_chains is None) or \
+       (skip_chains is None):
         data = {'Job ID'      : job_id,
                 'Last update' : last_update,
                 '#Compl.(b)'  : len(complete_chains) if complete_chains else None,
                 '#Incompl.(b)': len(incomplete_chains) if incomplete_chains else None,
                 '#NoAlign.'   : len(noalign_chains) if noalign_chains else None,
+                '#Skip'       : len(skip_chains) if noalign_chains else None,
                 '#Success'    : None,
                 '#Failure'    : None}
         return pd.DataFrame([data])
@@ -73,6 +76,7 @@ def get_log_info(path: str) -> pd.DataFrame:
             '#Compl.(b)'  : n_compl,
             '#Incompl.(b)': n_incompl,
             '#NoAlign.'   : len(noalign_chains) + status_count['NG_noalignment'],
+            '#Skip'       : len(skip_chains),
             '#Success'    : status_count['OK'],
             '#Failure'    : status_count['NG_timeout'] + status_count['NG_unknown'],
     }
