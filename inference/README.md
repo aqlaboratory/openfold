@@ -33,13 +33,15 @@
     - `MMCIFCache`: 事前準備で作成したmmcifキャッシュのパス
     - `InputFasta`: (フィルタ済みの) 入力シーケンスのfastaファイルのパス
     - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス
+    - `AlignmentLogDir`: 前処理で出力されたログディレクトリのパス
     - `OutputDir`: 出力ディレクトリのパス。`$LOGDIR`とした場合はジョブ毎に生成されるログディレクトリとなる。
     - `Timeout`: 入力シーケンスごとのタイムアウト時間 [秒]
-    - `SubDirectorySize`: 入力のalignmentディレクトリと同じ設定値を指定する。`0`であればサブディレクトリを生成しない
 
 2. 必要があれば`inference/parameters_multi`の以下の項目を変更する
     - `--jax_param_path`: 使用するAlphaFold2パラメータ
     - `max_template_date`: 指定した日付以前のタンパク質構造をテンプレートとして使用する
+    - `--ignore_timeout_chain_history`: 指定したjobid以前のジョブでタイムアウトで失敗した履歴を無視し、再実行する
+    - `--ignore_failed_chain_history`: 指定したjobid以前のジョブでメモリ不足などで失敗した履歴を無視し、再実行する
 
 3. ノード数と制限時間を決める
     - ノード数: 入力シーケンス数以下の数

@@ -15,7 +15,7 @@
 source $OPENFOLDDIR/scripts/setenv
 
 MMCIFCache=example/mmcif_cache.json
-InputFasta=example/input/short.fasta
+InputFasta=example/input/short_4.fasta
 AlignmentDir=example/alignment_subdir
 AlignmentLogDir=example/alignment_log_subdir
 OutputDir=$LOGDIR
