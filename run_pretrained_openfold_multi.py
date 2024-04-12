@@ -550,4 +550,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args)
+    try:
+        main(args)
+    except:
+        MPI.COMM_WORLD.Abort(errorcode=1)

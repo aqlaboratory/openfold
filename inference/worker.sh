@@ -52,12 +52,12 @@ if [ $RANK -eq "0" ]; then
 fi
 
 #         strace -ff -e trace=open,openat -o ${LogDir}/strace.${PMIX_RANK} 
-time -p numactl --cpunodebind 4-7 --membind 4-7 \
+numactl --cpunodebind 4-7 --membind 4-7 \
     "${PARAMS[@]}"
 
-if [ $RANK -eq "0" ]; then
-    #kill -9 $PID_VMSTAT
-    :
+if [ $? -ne 0 ]; then
+    echo "Program terminated abnormally"
+    exit 1
 fi
 
 unset LD_PRELOAD
