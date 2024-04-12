@@ -401,7 +401,6 @@ def main(args):
             save_dir=args.output_dir,
             id=args.wandb_id,
             project=args.wandb_project,
-            config=config.to_dict(),
             **{"entity": args.wandb_entity}
         )
         loggers.append(wdb_logger)
