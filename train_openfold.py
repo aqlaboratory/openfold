@@ -9,9 +9,11 @@ from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
 from pytorch_lightning.callbacks import DeviceStatsMonitor
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.plugins.training_type import DeepSpeedPlugin, DDPPlugin
-from pytorch_lightning.utilities.seed import seed_everything
+from pytorch_lightning.strategies import DDPStrategy, DeepSpeedStrategy
+from pytorch_lightning.plugins.environments import MPIEnvironment
+from pytorch_lightning import seed_everything
 import torch
+import wandb
 
 from openfold.config import model_config
 from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataModule
@@ -60,7 +62,7 @@ class OpenFoldWrapper(pl.LightningModule):
         
         self.cached_weights = None
         self.last_lr_step = -1
-        self.save_hyperparameters
+        self.save_hyperparameters()
 
     def forward(self, batch):
         return self.model(batch)
@@ -71,14 +73,15 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{loss_name}", 
                 indiv_loss, 
-                on_step=train, on_epoch=(not train), logger=True,
+                prog_bar=(loss_name == 'loss'),
+                on_step=train, on_epoch=(not train), logger=True, sync_dist=False,
             )
 
             if(train):
                 self.log(
                     f"{phase}/{loss_name}_epoch",
                     indiv_loss,
-                    on_step=False, on_epoch=True, logger=True,
+                    on_step=False, on_epoch=True, logger=True, sync_dist=False,
                 )
 
         with torch.no_grad():
@@ -92,7 +95,8 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
-                on_step=False, on_epoch=True, logger=True
+                prog_bar = (k == 'loss'),
+                on_step=False, on_epoch=True, logger=True, sync_dist=False,
             )
 
     def training_step(self, batch, batch_idx):
@@ -155,7 +159,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         self._log(loss_breakdown, batch, outputs, train=False)
         
-    def validation_epoch_end(self, _):
+    def on_validation_epoch_end(self):
         # Restore the model weights to normal
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
@@ -378,41 +382,58 @@ def main(args):
         callbacks.append(lr_monitor)
 
     loggers = []
+    is_rank_zero = int(os.environ.get("PMI_RANK")) == 0
     if(args.wandb):
+        if args.mpi_plugin and is_rank_zero:
+            wandb_init_dict = dict(
+                name=args.experiment_name,
+                project=args.wandb_project,
+                id=args.wandb_id,
+                dir=args.output_dir,
+                resume="allow",
+                anonymous=None,
+                entity=args.wandb_entity
+            )
+            wandb.run = wandb.init(**wandb_init_dict)
+
         wdb_logger = WandbLogger(
             name=args.experiment_name,
             save_dir=args.output_dir,
             id=args.wandb_id,
             project=args.wandb_project,
-            config=config.to_dict(),
             **{"entity": args.wandb_entity}
         )
         loggers.append(wdb_logger)
 
+    cluster_environment = MPIEnvironment() if args.mpi_plugin else None
     if(args.deepspeed_config_path is not None):
-        strategy = DeepSpeedPlugin(
+        strategy = DeepSpeedStrategy(
             config=args.deepspeed_config_path,
+            cluster_environment=cluster_environment,
         )
-        if(args.wandb):
+        if(args.wandb and is_rank_zero):
             wdb_logger.experiment.save(args.deepspeed_config_path)
             wdb_logger.experiment.save("openfold/config.py")
     elif (args.gpus is not None and args.gpus > 1) or args.num_nodes > 1:
-        strategy = DDPPlugin(find_unused_parameters=False)
+        strategy = DDPStrategy(find_unused_parameters=False,
+                               cluster_environment=cluster_environment)
     else:
         strategy = None
  
-    if(args.wandb):
+    if(args.wandb and is_rank_zero):
         freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
         os.system(f"{sys.executable} -m pip freeze > {freeze_path}")
         wdb_logger.experiment.save(f"{freeze_path}")
 
-    trainer = pl.Trainer.from_argparse_args(
-        args,
+    trainer = pl.Trainer(
+        num_nodes=args.num_nodes,
+        devices=args.gpus,
+        precision=args.precision,
+        max_epochs=args.max_epochs,
         default_root_dir=args.output_dir,
         strategy=strategy,
         callbacks=callbacks,
         logger=loggers,
-        profiler='simple',
     )
 
     if (args.resume_model_weights_only):
@@ -623,8 +644,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
     )
-    parser = pl.Trainer.add_argparse_args(parser)
-
+    parser.add_argument("--num_nodes", type=int, default=1)
+    parser.add_argument("--gpus", type=int, default=None)
+    parser.add_argument("--max_epochs", type=int, default=None)
+    parser.add_argument("--precision", type=str, default="32")
+    parser.add_argument("--log_every_n_steps", type=int, default=50)
+    parser.add_argument("--accumulate_grad_batches", type=int, default=1)
+    parser.add_argument("--flush_logs_every_n_steps", type=int, default=5)
+    parser.add_argument("--num_sanity_val_steps", type=int, default=0)
+    parser.add_argument("--mpi_plugin", action="store_true", default=False)
+    # parser = pl.Trainer.add_argparse_args(parser)
+   
     # Disable the initial validation pass
     parser.set_defaults(
         num_sanity_val_steps=0,
