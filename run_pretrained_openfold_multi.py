@@ -148,10 +148,14 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
             another_pred_dir = os.path.join(pred_dir_base, subdir_map[name])
             if not is_inferred(name, another_pred_dir, args):
                 for f in generated_pdbs:
-                        copy_file = os.path.join(another_pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
-                        logging.info(f"Copying result from {f} to {copy_file}")
-                        os.makedirs(another_pred_dir, exist_ok=True)
-                        copyfile(f, copy_file)
+                    copy_file = os.path.join(another_pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
+                    logging.info(f"Copying result from {f} to {copy_file}")
+                    os.makedirs(another_pred_dir, exist_ok=True)
+                    copyfile(f, copy_file)
+                write_line = f'{name},{len(seq)},OK,0,0,0\n'
+                result_file.Write_shared(write_line.encode('utf-8'))
+                result_file.Sync()
+
 
     result_file.Close()
 
@@ -364,10 +368,12 @@ def main(args):
                 subdir_map = {name: str(i//args.sub_directory_size) \
                               for i, name in enumerate(input_chains)}
 
+        if subdir_map is None:
+            logging.info("no subdir_map")
         input_seqs, input_chains = remove_non_target_seqs(input_seqs, input_chains, args, mpi_rank)
 
         n_input_seqs = len(input_seqs)
-        is_valid_subdir_map = set(input_chains).issubset(set(subdir_map.keys()))
+        is_valid_subdir_map = set(input_chains).issubset(set(subdir_map.keys())) if subdir_map is not None else True
     else:
         orig_total_count = None
         n_input_seqs = None
