@@ -71,7 +71,7 @@ def main(args):
         cmd = [
             "scripts/colabfold_search.sh",
             args.mmseqs_binary_path,
-            threads,
+            f"{threads}",
             chunk_fasta_path,
             args.mmseqs_db_dir,
             args.output_dir,
