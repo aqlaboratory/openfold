@@ -1,4 +1,4 @@
-name: openfold-venv
+name: pytorch1-plupgrade 
 channels:
   - conda-forge
   - bioconda
@@ -11,7 +11,7 @@ dependencies:
   - openmm=7.7
   - pdbfixer
   - cudatoolkit==11.3.*
-  - pytorch-lightning==1.5.10
+  - pytorch-lightning==2.0.9
   - biopython==1.79
   - numpy==1.21
   - pandas==2.0
@@ -19,11 +19,12 @@ dependencies:
   - requests
   - scipy==1.7
   - tqdm==4.62.2
-  - typing-extensions==3.10
+  - typing-extensions==4.0
   - wandb==0.12.21
   - modelcif==0.7
   - awscli
   - ml-collections
+  - mkl==2024.0.0
   - aria2
   - git
   - bioconda::hmmer==3.3.2

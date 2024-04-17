@@ -937,7 +937,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
             with open(distillation_alignment_index_path, "r") as fp:
                 self.distillation_alignment_index = json.load(fp)
 
-    def setup(self):
+    def setup(self, stage=None):
         # Most of the arguments are the same for the three datasets 
         dataset_gen = partial(OpenFoldSingleDataset,
                               template_mmcif_dir=self.template_mmcif_dir,
@@ -1016,7 +1016,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
                 mode="predict",
             )
 
-    def _gen_dataloader(self, stage):
+    def _gen_dataloader(self, stage=None):
         generator = None
         if self.batch_seed is not None:
             generator = torch.Generator()
@@ -1053,7 +1053,7 @@ class OpenFoldDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         if self.eval_dataset is not None:
             return self._gen_dataloader("eval")
-        return None
+        return [] 
 
     def predict_dataloader(self):
         return self._gen_dataloader("predict")
@@ -1085,7 +1085,7 @@ class OpenFoldMultimerDataModule(OpenFoldDataModule):
         self.training_mode = self.train_data_dir is not None
         self.val_mmcif_data_cache_path = val_mmcif_data_cache_path
 
-    def setup(self):
+    def setup(self, setup=None):
         # Most of the arguments are the same for the three datasets 
         dataset_gen = partial(OpenFoldSingleMultimerDataset,
                               template_mmcif_dir=self.template_mmcif_dir,
