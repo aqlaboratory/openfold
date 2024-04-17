@@ -19,6 +19,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+function my_wget () {
+    local MAX_RETRY=50
+    for i in `seq $MAX_RETRY`; do
+        ret=$(wget "$@"; echo $?)
+        if [ $ret -eq 0 ] ; then
+            return
+        fi
+        sleep 5
+    done
+    echo "Failed to download file (wget $@)"
+    exit 1
+}
+
 . scripts/setenv
 
 set -eu
@@ -27,7 +40,7 @@ mkdir -p $WORKDIR
 cd $WORKDIR
 
 # Bazel
-wget -O $PREFIX/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-arm64
+my_wget -O $PREFIX/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-arm64
 chmod +x $PREFIX/bin/bazel
 export USE_BAZEL_VERSION=5.4.0
 
@@ -88,7 +101,7 @@ popd
 rm -rf kalign2
 mkdir kalign2
 pushd kalign2
-wget http://msa.sbc.su.se/downloads/kalign/current.tar.gz
+my_wget http://msa.sbc.su.se/downloads/kalign/current.tar.gz
 tar xf current.tar.gz
 sed -i 's/=\ gcc/=\ @CC@/g' Makefile.in
 sed -i 's/-O9\ \ -Wall/@CFLAGS@/g' Makefile.in
