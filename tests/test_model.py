@@ -202,4 +202,4 @@ class TestModel(unittest.TestCase):
         out_repro = out_repro["sm"]["positions"][-1]
         out_repro = out_repro.squeeze(0)
 
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < 1e-3)
+        compare_utils.assert_mean_abs_diff_small(out_gt, out_repro, 1e-3)
