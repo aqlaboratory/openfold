@@ -44,6 +44,11 @@ def main(args):
     else:
         chunk_size = args.fasta_chunk_size
 
+    if (args.threads is None):
+        threads = 1
+    else:
+        threads = args.threads
+
     # Make the output directory
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
@@ -66,6 +71,7 @@ def main(args):
         cmd = [
             "scripts/colabfold_search.sh",
             args.mmseqs_binary_path,
+            threads,
             chunk_fasta_path,
             args.mmseqs_db_dir,
             args.output_dir,
@@ -100,7 +106,7 @@ def main(args):
 
 
     hhsearch_pdb70_runner = hhsearch.HHSearch(
-        binary_path=args.hhsearch_binary_path, databases=[args.pdb70]
+        binary_path=args.hhsearch_binary_path, databases=[args.pdb70], n_cpu=threads
     )
 
 
@@ -145,6 +151,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "mmseqs_binary_path", type=str,
         help="Path to mmseqs binary"
+    )
+    parser.add_argument(
+        "--threads", type=int, default=1,
+        help="""How many threads should mmseqs use. (Default 1)"""
     )
     parser.add_argument(
         "--hhsearch_binary_path", type=str, default=None,
