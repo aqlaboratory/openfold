@@ -306,7 +306,7 @@ def main(args):
         if args.resume_model_weights_only:
             # Load the checkpoint
             if os.path.isdir(args.resume_from_ckpt):
-                sd = get_fp32_state_dict_from_zero_checkpoint(
+                sd = zero_to_fp32.get_fp32_state_dict_from_zero_checkpoint(
                     args.resume_from_ckpt)
             else:
                 sd = torch.load(args.resume_from_ckpt)
