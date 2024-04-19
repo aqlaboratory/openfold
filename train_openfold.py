@@ -287,10 +287,13 @@ def main(args):
     if (args.seed is not None):
         seed_everything(args.seed, workers=True)
 
+    is_low_precision = args.precision in [
+        "bf16-mixed", "16", "bf16", "16-true", "16-mixed", "bf16-mixed"]
+
     config = model_config(
         args.config_preset,
         train=True,
-        low_prec=(str(args.precision) == "16")
+        low_prec=is_low_precision,
     ) 
     if args.experiment_config_json: 
         with open(args.experiment_config_json, 'r') as f:
@@ -643,7 +646,8 @@ if __name__ == "__main__":
         "--num_nodes", type=int, default=1,
     )
     trainer_group.add_argument(
-        "--precision", type=str, default='bf16', help='Sets precision, lower precision improves runtime performance.'
+        "--precision", type=str, default='bf16',
+        help='Sets precision, lower precision improves runtime performance.',
     )
     trainer_group.add_argument(
         "--max_epochs", type=int, default=1,
