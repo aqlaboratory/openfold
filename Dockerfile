@@ -7,6 +7,9 @@ LABEL org.opencontainers.image.source = "https://github.com/aqlaboratory/openfol
 LABEL org.opencontainers.image.licenses = "Apache License 2.0"
 LABEL org.opencontainers.image.base.name="docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04"
 
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+RUN sudo dpkg -i cuda-keyring_1.0-1_all.deb
+
 RUN apt-get update && apt-get install -y wget libxml2 cuda-minimal-build-12-4 libcusparse-dev-12-4 libcublas-dev-12-4 libcusolver-dev-12-4 git
 
 RUN wget -P /tmp \
