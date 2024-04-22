@@ -37,17 +37,22 @@ def main(args):
         lines = [l.strip() for l in f.readlines()]
 
     names = lines[::2]
-    seqs =  lines[1::2]
+    seqs = lines[1::2]
+
+    print(f"name: {names}")
+    print(f"seqs: {seqs}")
 
     if(args.fasta_chunk_size is None):
         chunk_size = len(seqs)
     else:
         chunk_size = args.fasta_chunk_size
 
+    print(f"chunk_size: {chunk_size}")
     if (args.threads is None):
         threads = 1
     else:
         threads = args.threads
+    print(f"threads: {threads}")
 
     # Make the output directory
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
@@ -56,6 +61,7 @@ def main(args):
     s = 0
     while(s < len(seqs)):
         e = s + chunk_size
+        print(f"running chunk: {s} - {e}")
         chunk_fasta = [el for tup in zip(names[s:e], seqs[s:e]) for el in tup] 
         s = e
         
@@ -181,5 +187,5 @@ if __name__ == "__main__":
         raise ValueError(
             "pdb70 must be specified along with hhsearch_binary_path"
         )
-
+    print("will start pipeline")
     main(args)
