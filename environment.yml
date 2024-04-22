@@ -10,11 +10,10 @@ dependencies:
   - pip
   - openmm=7.7
   - pdbfixer
-  - cudatoolkit==11.3.*
-  - pytorch-lightning==2.0.9
-  - biopython==1.79
-  - numpy==1.21
-  - pandas==2.0
+  - pytorch-lightning
+  - biopython
+  - numpy
+  - pandas
   - PyYAML==5.4.1
   - requests
   - scipy==1.7
