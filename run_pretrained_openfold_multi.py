@@ -145,7 +145,7 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
                 raise Exception(f'{gen_file} is not exist')
 
         for name in names[1:]:
-            another_pred_dir = os.path.join(pred_dir_base, subdir_map[name])
+            another_pred_dir = os.path.join(pred_dir_base, subdir_map[name]) if subdir_map else pred_dir_base
             if not is_inferred(name, another_pred_dir, args):
                 for f in generated_pdbs:
                     copy_file = os.path.join(another_pred_dir, '{}{}'.format(name, os.path.basename(f)[len(first_name):]))
@@ -431,7 +431,7 @@ def main(args):
     input_chains = input_chains[mpi_rank::mpi_size]
 
     logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, total_count={total_count}, my_count={len(input_seqs)}")
-    logging.info(f"my chains: {input_chains}")
+    # logging.info(f"my chains: {input_chains}")
 
     run_seq_group_inference(
         zip(input_seqs, input_chains),
