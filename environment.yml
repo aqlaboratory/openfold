@@ -27,9 +27,9 @@ dependencies:
   - mkl=2022.1
   - aria2
   - git
-  - bioconda::hmmer==3.3.2
-  - bioconda::hhsuite==3.3.0
-  - bioconda::kalign2==2.04
+  - bioconda::hmmer
+  - bioconda::hhsuite
+  - bioconda::kalign2
   - pytorch::pytorch=2.1
   - pytorch::pytorch-cuda=12.1
   - pip:
