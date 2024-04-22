@@ -31,7 +31,7 @@ dependencies:
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04
-  - pytorch::pytorch=2.2
+  - pytorch::pytorch=2.1
   - pytorch::pytorch-cuda=12.1
   - pip:
       - mpi4py==3.1.5
