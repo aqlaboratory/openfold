@@ -12,7 +12,7 @@ dependencies:
   - openmm=7.7
   - pdbfixer
   - pytorch-lightning
-  - biopython==1.79
+  - biopython
   - numpy
   - pandas
   - PyYAML==5.4.1
@@ -24,13 +24,13 @@ dependencies:
   - modelcif==0.7
   - awscli
   - ml-collections
-  - mkl=2024.0
+  - mkl=2022.1
   - aria2
   - git
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04
-  - pytorch::pytorch=2.2
+  - pytorch::pytorch=2.1
   - pytorch::pytorch-cuda=12.1
   - pip:
       - deepspeed==0.12.4
