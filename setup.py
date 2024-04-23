@@ -52,7 +52,6 @@ def get_cuda_bare_metal_version(cuda_dir):
         return raw_output, bare_metal_major, bare_metal_minor
 
 compute_capabilities = set([
-    (3, 7), # K80, e.g.
     (5, 2), # Titan X
     (6, 1), # GeForce 1000-series
 ])
@@ -130,7 +129,7 @@ setup(
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.9,'
+        'Programming Language :: Python :: 3.10,'
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
 )
