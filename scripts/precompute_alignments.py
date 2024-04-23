@@ -22,13 +22,13 @@ logging.basicConfig(level=logging.WARNING)
 
 def run_seq_group_alignments(seq_groups, alignment_runner, args):
     dirs = set(os.listdir(args.output_dir))
-    print(f"seq_groups: {seq_groups}")
+    # print(f"seq_groups: {seq_groups}")
     print(f"dirs: {dirs}")
     for seq, name in seq_groups:
         # first_name = names[0]
         print(f"name: {name}")
         print(f"seq: {seq}")
-        print(f"args.output_dir: {args.output_dir}")
+        # print(f"args.output_dir: {args.output_dir}")
         alignment_dir = os.path.join(args.output_dir, name)
         
         # try:
@@ -100,7 +100,7 @@ def parse_and_align(files, alignment_runner, args):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
             #input_seqs, _ = parse_fasta(fasta_str)
-            # input_seqs, input_tags = parse_fasta(fasta_str)
+            input_seqs, input_tags = parse_fasta(fasta_str)
             # print(f"input_seqs: {input_seqs}")
             # print(f"input_tags: {input_tags}")
             # if len(input_seqs) != 1:
@@ -109,9 +109,11 @@ def parse_and_align(files, alignment_runner, args):
             #         raise ValueError(msg)
             #     else:
             #         logging.warning(msg)
-            for input_sequence, input_tag in parse_fasta(fasta_str):
-                # input_sequence = input_seqs[0]
-                seq_group_dict[input_sequence] = [input_tag]
+            for index in range(len(input_seqs)):
+                seq_group_dict[input_seqs[index]] = [input_tags[index]]
+            # for input_sequence, input_tag in parse_fasta(fasta_str):
+            #     # input_sequence = input_seqs[0]
+            #     seq_group_dict[input_sequence] = [input_tag]
         elif(f.endswith('.core')):
             with open(path, 'r') as fp:
                 core_str = fp.read()
