@@ -88,8 +88,11 @@ def parse_and_align(files, alignment_runner, args):
         elif(f.endswith('.fasta') or f.endswith('.fa')):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
-            input_seqs, _ = parse_fasta(fasta_str)
-            if len(input_seqs) != 1: 
+            #input_seqs, _ = parse_fasta(fasta_str)
+            input_seqs, input_tags = parse_fasta(fasta_str)
+            print(f"input_seqs: {input_seqs}")
+            print(f"input_tags: {input_tags}")
+            if len(input_seqs) != 1:
                 msg = f'More than one input_sequence found in {f}'
                 if(args.raise_errors):
                     raise ValueError(msg)
