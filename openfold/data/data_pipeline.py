@@ -468,6 +468,7 @@ class AlignmentRunner:
     ):
         """Runs alignment tools on a sequence"""
         if(self.jackhmmer_uniref90_runner is not None):
+            print("running jackhmmer_uniref90_runner")
             uniref90_out_path = os.path.join(output_dir, "uniref90_hits.sto")
 
             jackhmmer_uniref90_result = run_msa_tool(
@@ -505,6 +506,7 @@ class AlignmentRunner:
                     )
 
         if(self.jackhmmer_mgnify_runner is not None):
+            print("running jackhmmer_mgnify_runner")
             mgnify_out_path = os.path.join(output_dir, "mgnify_hits.sto")
             jackhmmer_mgnify_result = run_msa_tool(
                 msa_runner=self.jackhmmer_mgnify_runner,
@@ -515,6 +517,7 @@ class AlignmentRunner:
             )
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
+            print("running jackhmmer_small_bfd_runner")
             bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
             jackhmmer_small_bfd_result = run_msa_tool(
                 msa_runner=self.jackhmmer_small_bfd_runner,
@@ -523,6 +526,7 @@ class AlignmentRunner:
                 msa_format="sto",
             )
         elif(self.hhblits_bfd_unirefclust_runner is not None):
+            print("running hhblits_bfd_unirefclust_runner")
             uni_name = "uni"
             for db_name in self.hhblits_bfd_unirefclust_runner.databases:
                 if "uniref" in db_name.lower():
@@ -539,6 +543,7 @@ class AlignmentRunner:
             )
 
         if(self.jackhmmer_uniprot_runner is not None):
+            print("running jackhmmer_uniprot_runner")
             uniprot_out_path = os.path.join(output_dir, 'uniprot_hits.sto')
             result = run_msa_tool(
                 self.jackhmmer_uniprot_runner,
