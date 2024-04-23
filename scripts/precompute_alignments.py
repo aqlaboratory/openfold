@@ -110,7 +110,7 @@ def parse_and_align(files, alignment_runner, args):
             #     else:
             #         logging.warning(msg)
             for index in range(len(input_seqs)):
-                seq_group_dict[input_seqs[index]] = [input_tags[index]]
+                seq_group_dict[input_seqs[index]] = input_tags[index]
             # for input_sequence, input_tag in parse_fasta(fasta_str):
             #     # input_sequence = input_seqs[0]
             #     seq_group_dict[input_sequence] = [input_tag]
