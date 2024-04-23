@@ -125,6 +125,7 @@ def parse_and_align(files, alignment_runner, args):
         else:
             continue
 
+        print(f"seq_group_dict: {seq_group_dict}")
         seq_group_tuples = [(k,v) for k,v in seq_group_dict.items()]
         run_seq_group_alignments(seq_group_tuples, alignment_runner, args)
 
