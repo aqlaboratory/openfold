@@ -139,6 +139,7 @@ def generate_feature_dict(
             )
         print(f"tmp_fasta_path: {tmp_fasta_path}")
         print(f"alignment_dir: {alignment_dir}")
+        print(f"data_processor: {data_processor}")
         feature_dict = data_processor.process_fasta(
             fasta_path=tmp_fasta_path,
             alignment_dir=alignment_dir
