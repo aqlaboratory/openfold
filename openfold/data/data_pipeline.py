@@ -1183,6 +1183,8 @@ class DataPipelineMultimer:
             # We only construct the pairing features if there are 2 or more unique
             # sequences.
             if not is_homomer_or_monomer:
+                print(f"chain_alignment_dir: {chain_alignment_dir}")
+                print(f"chain_alignment_index: {chain_alignment_index}")
                 all_seq_msa_features = self._all_seq_msa_features(
                     chain_alignment_dir,
                     chain_alignment_index
@@ -1190,7 +1192,6 @@ class DataPipelineMultimer:
                 chain_features.update(all_seq_msa_features)
         return chain_features
 
-    print(f"chain_features: {chain_features}")
     @staticmethod
     def _all_seq_msa_features(alignment_dir, alignment_index):
         """Get MSA features for unclustered uniprot, for pairing."""
