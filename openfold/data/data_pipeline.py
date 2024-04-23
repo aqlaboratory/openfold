@@ -466,6 +466,7 @@ class AlignmentRunner:
         fasta_path: str,
         output_dir: str,
     ):
+        print("running alignment_runner")
         """Runs alignment tools on a sequence"""
         if(self.jackhmmer_uniref90_runner is not None):
             print("running jackhmmer_uniref90_runner")
