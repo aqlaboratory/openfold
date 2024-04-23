@@ -188,7 +188,7 @@ python3 run_pretrained_openfold.py \
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
 `hhblits`, `hhsearch` and `kalign` are available at the default path of 
-`/usr/bin`, their `binary_path` command-line arguments can be dropped.
+your conda environment's `bin` directory, their `binary_path` command-line arguments can be dropped.
 If you've already computed alignments for the query, you have the option to 
 skip the expensive alignment computation here with 
 `--use_precomputed_alignments`.
