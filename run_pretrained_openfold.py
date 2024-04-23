@@ -190,7 +190,7 @@ def main(args):
 
     print(f"mmcif_dir: {args.template_mmcif_dir}")
     print(f"max_template_date: {args.max_template_date}")
-    print(f"max_hits: {args.max_hits}")
+    print(f"max_hits: {config.data.predict.max_templates}")
     print(f"release_dates_path: {args.release_dates_path}")
     print(f"obsolete_pdbs_path: {args.obsolete_pdbs_path}")
 
