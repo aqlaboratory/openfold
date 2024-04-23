@@ -26,6 +26,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
     for seq, name in seq_groups:
         # first_name = names[0]
         print(f"name: {name}")
+        print(f"seq: {seq}")
         print(f"args.output_dir: {args.output_dir}")
         alignment_dir = os.path.join(args.output_dir, name)
         
