@@ -22,45 +22,52 @@ logging.basicConfig(level=logging.WARNING)
 
 def run_seq_group_alignments(seq_groups, alignment_runner, args):
     dirs = set(os.listdir(args.output_dir))
-    for seq, names in seq_groups:
-        first_name = names[0]
-        alignment_dir = os.path.join(args.output_dir, first_name)
+    print(f"dirs: {dirs}")
+    for seq, name in seq_groups:
+        # first_name = names[0]
+        alignment_dir = os.path.join(args.output_dir, name)
         
-        try:
-            os.makedirs(alignment_dir)
-        except Exception as e:
-            logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
-            continue
+        # try:
+        #     os.makedirs(alignment_dir)
+        # except Exception as e:
+        #     logging.warning(f"Failed to create directory for {first_name} with exception {e}...")
+        #     continue
+        os.makedirs(alignment_dir, exist_ok=True)
 
         fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
+        print(f"fd: {fd}")
+        print(f"fasta_path: {fasta_path}")
         with os.fdopen(fd, 'w') as fp:
             fp.write(f'>query\n{seq}')
 
         try:
+            print(f"running alignement fasta_path: {fasta_path}")
+            print(f"running alignement alignment_dir: {alignment_dir}")
             alignment_runner.run(
                 fasta_path, alignment_dir
             )
         except Exception as e:
             logging.warning(e)
-            logging.warning(f"Failed to run alignments for {first_name}. Skipping...")
+            logging.warning(f"Failed to run alignments for {name}. Skipping...")
             os.remove(fasta_path)
             os.rmdir(alignment_dir)
             continue
 
         os.remove(fasta_path)
 
-        for name in names[1:]:
-            if(name in dirs):
-                logging.warning(
-                    f'{name} has already been processed. Skipping...'
-                )
-                continue
+        # for name in names[1:]:
+        #     if(name in dirs):
+        #         logging.warning(
+        #             f'{name} has already been processed. Skipping...'
+        #         )
+        #         continue
             
-            cp_dir = os.path.join(args.output_dir, name)
-            os.makedirs(cp_dir, exist_ok=True)
-            
-            for f in os.listdir(alignment_dir):
-                copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
+        cp_dir = os.path.join(args.output_dir, name)
+        os.makedirs(cp_dir, exist_ok=True)
+
+        for f in os.listdir(alignment_dir):
+            print(f"copying align results to: {cp_dir}")
+            copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
 
 
 def parse_and_align(files, alignment_runner, args):
@@ -89,17 +96,18 @@ def parse_and_align(files, alignment_runner, args):
             with open(path, 'r') as fp:
                 fasta_str = fp.read()
             #input_seqs, _ = parse_fasta(fasta_str)
-            input_seqs, input_tags = parse_fasta(fasta_str)
-            print(f"input_seqs: {input_seqs}")
-            print(f"input_tags: {input_tags}")
-            if len(input_seqs) != 1:
-                msg = f'More than one input_sequence found in {f}'
-                if(args.raise_errors):
-                    raise ValueError(msg)
-                else:
-                    logging.warning(msg)
-            input_sequence = input_seqs[0]
-            seq_group_dict[input_sequence] = [file_id]
+            # input_seqs, input_tags = parse_fasta(fasta_str)
+            # print(f"input_seqs: {input_seqs}")
+            # print(f"input_tags: {input_tags}")
+            # if len(input_seqs) != 1:
+            #     msg = f'More than one input_sequence found in {f}'
+            #     if(args.raise_errors):
+            #         raise ValueError(msg)
+            #     else:
+            #         logging.warning(msg)
+            for input_sequence, input_tag in parse_fasta(fasta_str):
+                input_sequence = input_seqs[0]
+                seq_group_dict[input_sequence] = [input_tag]
         elif(f.endswith('.core')):
             with open(path, 'r') as fp:
                 core_str = fp.read()
