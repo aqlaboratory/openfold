@@ -1235,11 +1235,17 @@ class DataPipelineMultimer:
             input_fasta_str = f.read()
 
         input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
+        print(f"input_seqs: {input_seqs}")
+        print(f"input_descs: {input_descs}")
+        print(f"alignment_index: {alignment_index}")
 
         all_chain_features = {}
         sequence_features = {}
         is_homomer_or_monomer = len(set(input_seqs)) == 1
+        print(f"is_homomer_or_monomer: {is_homomer_or_monomer}")
         for desc, seq in zip(input_descs, input_seqs):
+            print(f"current desc: {desc}")
+            print(f"current seq: {seq}")
             if seq in sequence_features:
                 all_chain_features[desc] = copy.deepcopy(
                     sequence_features[seq]
@@ -1252,6 +1258,9 @@ class DataPipelineMultimer:
             else:
                 chain_alignment_index = None
                 chain_alignment_dir = os.path.join(alignment_dir, desc)
+
+            print(f"chain_alignment_index: {chain_alignment_index}")
+            print(f"chain_alignment_dir: {chain_alignment_dir}")
 
             chain_features = self._process_single_chain(
                 chain_id=desc,
