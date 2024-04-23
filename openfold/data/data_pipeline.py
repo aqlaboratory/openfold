@@ -1190,6 +1190,7 @@ class DataPipelineMultimer:
                 chain_features.update(all_seq_msa_features)
         return chain_features
 
+    print(f"chain_features: {chain_features}")
     @staticmethod
     def _all_seq_msa_features(alignment_dir, alignment_index):
         """Get MSA features for unclustered uniprot, for pairing."""
