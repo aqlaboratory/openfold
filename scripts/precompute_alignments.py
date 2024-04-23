@@ -22,6 +22,7 @@ logging.basicConfig(level=logging.WARNING)
 
 def run_seq_group_alignments(seq_groups, alignment_runner, args):
     dirs = set(os.listdir(args.output_dir))
+    print(f"seq_groups: {seq_groups}")
     print(f"dirs: {dirs}")
     for seq, name in seq_groups:
         # first_name = names[0]
