@@ -264,7 +264,7 @@ def main(args):
         seq_list.append(seqs)
 
     print(f"header list: {tag_list}")
-    print(f"seq list: {args.seq_list}")
+    print(f"seq list: {seq_list}")
 
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
