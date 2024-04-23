@@ -188,6 +188,12 @@ def main(args):
 
     is_multimer = "multimer" in args.config_preset
 
+    print(f"mmcif_dir: {args.template_mmcif_dir}")
+    print(f"max_template_date: {args.max_template_date}")
+    print(f"max_hits: {args.max_hits}")
+    print(f"release_dates_path: {args.release_dates_path}")
+    print(f"obsolete_pdbs_path: {args.obsolete_pdbs_path}")
+
     if is_multimer:
         template_featurizer = templates.HmmsearchHitFeaturizer(
             mmcif_dir=args.template_mmcif_dir,
@@ -216,6 +222,7 @@ def main(args):
             monomer_data_pipeline=data_processor,
         )
 
+    print(f"output: {args.output_dir}")
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
@@ -232,6 +239,7 @@ def main(args):
     else:
         alignment_dir = args.use_precomputed_alignments
 
+    print(f"alignment_dir: {args.use_precomputed_alignments}")
     tag_list = []
     seq_list = []
     for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
@@ -255,15 +263,24 @@ def main(args):
         tag_list.append((tag, tags))
         seq_list.append(seqs)
 
+    print(f"header list: {tag_list}")
+    print(f"seq list: {args.seq_list}")
+
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
+
+    print(f"sorted_targets: {sorted_targets}")
+    print(f"model_device: {args.model_device}")
+    print(f"openfold_checkpoint_path: {args.openfold_checkpoint_path}")
+    print(f"jax_param_path: {args.jax_param_path}")
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
         args.openfold_checkpoint_path,
         args.jax_param_path,
-        args.output_dir)
+        args.output_dir
+    )
 
     for model, output_directory in model_generator:
         cur_tracing_interval = 0
@@ -272,11 +289,16 @@ def main(args):
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
 
+            print(f"tag: {tag}")
+            print(f"tags: {tags}")
+            print(f"seqs: {seqs}")
+            print(f"alignment_dir: {alignment_dir}")
             # Does nothing if the alignments have already been computed
             precompute_alignments(tags, seqs, alignment_dir, args)
 
             feature_dict = feature_dicts.get(tag, None)
             if feature_dict is None:
+                print(f"generate_feature_dict")
                 feature_dict = generate_feature_dict(
                     tags,
                     seqs,
