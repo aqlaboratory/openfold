@@ -1168,6 +1168,8 @@ class DataPipelineMultimer:
         """Runs the monomer pipeline on a single chain."""
         chain_fasta_str = f'>{chain_id}\n{sequence}\n'
 
+        print(f"chain_alignment_index: {chain_alignment_index}")
+        print(f"chain_alignment_dir: {chain_alignment_dir}")
         if chain_alignment_index is None and not os.path.exists(chain_alignment_dir):
             raise ValueError(f"Alignments for {chain_id} not found...")
 
@@ -1259,9 +1261,12 @@ class DataPipelineMultimer:
                 chain_alignment_index = None
                 chain_alignment_dir = os.path.join(alignment_dir, desc)
 
-            print(f"chain_alignment_index: {chain_alignment_index}")
+            print(f"chain_id: {desc}")
+            print(f"sequence: {seq}")
+            print(f"description: {desc}")
             print(f"chain_alignment_dir: {chain_alignment_dir}")
-
+            print(f"chain_alignment_index: {chain_alignment_index}")
+            print(f"is_homomer_or_monomer: {is_homomer_or_monomer}")
             chain_features = self._process_single_chain(
                 chain_id=desc,
                 sequence=seq,
