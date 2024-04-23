@@ -27,7 +27,7 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
     for seq, name in seq_groups:
         # first_name = names[0]
         print(f"name: {name}")
-        print(f"seq: {seq}")
+        # print(f"seq: {seq}")
         # print(f"args.output_dir: {args.output_dir}")
         alignment_dir = os.path.join(args.output_dir, name)
         
@@ -39,8 +39,8 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         os.makedirs(alignment_dir, exist_ok=True)
 
         fd, fasta_path = tempfile.mkstemp(suffix=".fasta")
-        print(f"fd: {fd}")
-        print(f"fasta_path: {fasta_path}")
+        # print(f"fd: {fd}")
+        # print(f"fasta_path: {fasta_path}")
         with os.fdopen(fd, 'w') as fp:
             fp.write(f'>query\n{seq}')
 
@@ -66,12 +66,12 @@ def run_seq_group_alignments(seq_groups, alignment_runner, args):
         #         )
         #         continue
             
-        cp_dir = os.path.join(args.output_dir, name)
-        os.makedirs(cp_dir, exist_ok=True)
-
-        for f in os.listdir(alignment_dir):
-            print(f"copying align results to: {cp_dir}")
-            copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
+        # cp_dir = os.path.join(args.output_dir, name)
+        # os.makedirs(cp_dir, exist_ok=True)
+        #
+        # for f in os.listdir(alignment_dir):
+        #     print(f"copying align results to: {cp_dir}")
+        #     copyfile(os.path.join(alignment_dir, f), os.path.join(cp_dir, f))
 
 
 def parse_and_align(files, alignment_runner, args):
@@ -127,7 +127,7 @@ def parse_and_align(files, alignment_runner, args):
         else:
             continue
 
-        print(f"seq_group_dict: {seq_group_dict}")
+        # print(f"seq_group_dict: {seq_group_dict}")
         seq_group_tuples = [(k,v) for k,v in seq_group_dict.items()]
         run_seq_group_alignments(seq_group_tuples, alignment_runner, args)
 

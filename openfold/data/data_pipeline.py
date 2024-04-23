@@ -409,6 +409,7 @@ class AlignmentRunner:
         if(jackhmmer_binary_path is not None and
             uniref90_database_path is not None
         ):
+            print("init jackhmmer_uniref90_runner")
             self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
                 database_path=uniref90_database_path,
@@ -419,6 +420,7 @@ class AlignmentRunner:
         self.hhblits_bfd_unirefclust_runner = None
         if(bfd_database_path is not None):
             if use_small_bfd:
+                print("init jackhmmer_small_bfd_runner")
                 self.jackhmmer_small_bfd_runner = jackhmmer.Jackhmmer(
                     binary_path=jackhmmer_binary_path,
                     database_path=bfd_database_path,
@@ -430,6 +432,7 @@ class AlignmentRunner:
                     dbs.append(uniref30_database_path)
                 if (uniclust30_database_path is not None):
                     dbs.append(uniclust30_database_path)
+                print("init hhblits_bfd_unirefclust_runner")
                 self.hhblits_bfd_unirefclust_runner = hhblits.HHBlits(
                     binary_path=hhblits_binary_path,
                     databases=dbs,
@@ -438,6 +441,7 @@ class AlignmentRunner:
 
         self.jackhmmer_mgnify_runner = None
         if(mgnify_database_path is not None):
+            print("init jackhmmer_mgnify_runner")
             self.jackhmmer_mgnify_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
                 database_path=mgnify_database_path,
@@ -446,6 +450,7 @@ class AlignmentRunner:
 
         self.jackhmmer_uniprot_runner = None
         if(uniprot_database_path is not None):
+            print("init jackhmmer_uniprot_runner")
             self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
                 binary_path=jackhmmer_binary_path,
                 database_path=uniprot_database_path,
