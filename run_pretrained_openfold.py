@@ -339,6 +339,10 @@ def main(args):
 
                 feature_dicts[tag] = feature_dict
 
+            print("Storing feature dict...")
+            with open(os.path.join(args.output_dir, f"{output_name}_feature_dict.pickle"), "wb") as fp:
+                pickle.dump(feature_dict, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
             processed_feature_dict = feature_processor.process_features(
                 feature_dict, mode='predict', is_multimer=is_multimer
             )
