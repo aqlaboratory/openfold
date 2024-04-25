@@ -180,6 +180,8 @@ def main(args):
         args.use_single_seq_mode = True
 
     config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
+
+    print("")
     print("#### INPUT / OUTPUT ####")
     print(f"fasta_dir: {args.fasta_dir}")
     print(f"output_dir: {args.output_dir}")
@@ -187,6 +189,7 @@ def main(args):
     print(f"output prediction filenames: {args.cif_output}")
     print(f"save embedded outputs: {args.save_outputs}")
 
+    print("")
     print("#### PRESETS ####")
     print(f"skip_relaxation: {args.skip_relaxation}")
     print(f"use_precomputed_alignments: {args.use_precomputed_alignments}")
@@ -196,10 +199,12 @@ def main(args):
     print(f"multimer_ri_gap: {args.multimer_ri_gap}")
     print(f"subtract_plddt: {args.subtract_plddt}")
 
+    print("")
     print("#### MODEL PARAMS ####")
     print(f"Model: {args.config_preset}")
     print(f"trace_model: {args.trace_model}")
 
+    print("")
     print("#### DATABASE PARAMS ####")
     print(f"template_mmcif_dir: {args.template_mmcif_dir}")
     print(f"max_template_date: {args.max_template_date}")
@@ -207,10 +212,13 @@ def main(args):
     print(f"release_dates_path: {args.release_dates_path}")
     print(f"obsolete_pdbs_path: {args.obsolete_pdbs_path}")
 
+    print("")
     print("#### GPU / AI PARAMS ####")
     print(f"model_device: {args.model_device}")
     print(f"openfold_checkpoint_path: {args.openfold_checkpoint_path}")
     print(f"jax_param_path: {args.jax_param_path}")
+
+    print("")
 
     if args.trace_model:
         if not config.data.predict.fixed_size:
@@ -269,6 +277,7 @@ def main(args):
     for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
         # Gather input sequences
         fasta_path = os.path.join(args.fasta_dir, fasta_file)
+        print(f"reading fasta: {fasta_path}")
         with open(fasta_path, "r") as fp:
             data = fp.read()
 
@@ -291,6 +300,7 @@ def main(args):
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
 
+    logger.info(f"loading model information...")
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
@@ -307,6 +317,7 @@ def main(args):
                 output_name = f'{output_name}_{args.output_postfix}'
 
             # Does nothing if the alignments have already been computed
+            logger.info(f"Perform alignment if not already done...")
             precompute_alignments(tags, seqs, alignment_dir, args)
 
             feature_dict = feature_dicts.get(tag, None)
@@ -350,6 +361,7 @@ def main(args):
                     )
                     cur_tracing_interval = rounded_seqlen
 
+            logger.info(f"Running fold...")
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
             # Toss out the recycling dimensions --- we don't need them anymore
