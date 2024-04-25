@@ -186,7 +186,7 @@ def main(args):
     print(f"fasta_dir: {args.fasta_dir}")
     print(f"output_dir: {args.output_dir}")
     print(f"output prediction filenames: {args.output_postfix}")
-    print(f"output prediction filenames: {args.cif_output}")
+    print(f"cif_output: {args.cif_output}")
     print(f"save embedded outputs: {args.save_outputs}")
 
     print("")
@@ -300,7 +300,7 @@ def main(args):
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
 
-    logger.info(f"loading model information...")
+    logger.info(f"Loading model information...")
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
@@ -361,7 +361,6 @@ def main(args):
                     )
                     cur_tracing_interval = rounded_seqlen
 
-            logger.info(f"Running fold...")
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
             # Toss out the recycling dimensions --- we don't need them anymore
