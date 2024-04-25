@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # is_multimer = ('result_model_1_multimer.pkl' in [os.path.basename(f) for f in os.listdir(path=args.input_dir)])
     # is_ptm = ('result_model_1_ptm.pkl' in [os.path.basename(f) for f in os.listdir(path=args.input_dir)])
     # model_names = [f'{args.input_dir}/result_model_{f}{"_multimer" if is_multimer else "_ptm" if is_ptm else ""}.pkl' for f in range(1,6)]
-    model_names = sorted(glob.glob(f'{args.input_dir}/result_*.pkl'))
+    model_names = sorted(glob.glob(f'{args.input_dir}/*.pkl'))
 
     pae_plddt_per_model = get_pae_plddt(model_names)
     generate_output_images(feature_dict, args.output_dir if args.output_dir else args.input_dir, args.name,
