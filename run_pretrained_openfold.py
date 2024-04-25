@@ -137,9 +137,6 @@ def generate_feature_dict(
             fp.write(
                 '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
             )
-        print(f"tmp_fasta_path: {tmp_fasta_path}")
-        print(f"alignment_dir: {alignment_dir}")
-        print(f"data_processor: {data_processor}")
         feature_dict = data_processor.process_fasta(
             fasta_path=tmp_fasta_path,
             alignment_dir=alignment_dir
@@ -183,6 +180,37 @@ def main(args):
         args.use_single_seq_mode = True
 
     config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
+    logger.info("#### INPUT / OUTPUT ####")
+    logger.info(f"fasta_dir: {args.fasta_dir}")
+    logger.info(f"output_dir: {args.output_dir}")
+    logger.info(f"output prediction filenames: {args.output_postfix}")
+    logger.info(f"output prediction filenames: {args.cif_output}")
+    logger.info(f"save embedded outputs: {args.save_outputs}")
+
+    logger.info("#### PRESETS ####")
+    logger.info(f"skip_relaxation: {args.skip_relaxation}")
+    logger.info(f"use_precomputed_alignments: {args.use_precomputed_alignments}")
+    logger.info(f"use_single_seq_mode: {args.use_single_seq_mode}")
+    logger.info(f"long_sequence_inference: {args.long_sequence_inference}")
+    logger.info(f"Threads: {args.cpus}")
+    logger.info(f"multimer_ri_gap: {args.multimer_ri_gap}")
+    logger.info(f"subtract_plddt: {args.subtract_plddt}")
+
+    logger.info("#### MODEL PARAMS ####")
+    logger.info(f"Model: {args.config_preset}")
+    logger.info(f"trace_model: {args.trace_model}")
+
+    logger.info("#### DATABASE PARAMS ####")
+    logger.info(f"template_mmcif_dir: {args.template_mmcif_dir}")
+    logger.info(f"max_template_date: {args.max_template_date}")
+    logger.info(f"max_templates: {config.data.predict.max_templates}")
+    logger.info(f"release_dates_path: {args.release_dates_path}")
+    logger.info(f"obsolete_pdbs_path: {args.obsolete_pdbs_path}")
+
+    logger.info("#### GPU / AI PARAMS ####")
+    logger.info(f"model_device: {args.model_device}")
+    logger.info(f"openfold_checkpoint_path: {args.openfold_checkpoint_path}")
+    logger.info(f"jax_param_path: {args.jax_param_path}")
 
     if args.trace_model:
         if not config.data.predict.fixed_size:
@@ -191,12 +219,6 @@ def main(args):
             )
 
     is_multimer = "multimer" in args.config_preset
-
-    print(f"mmcif_dir: {args.template_mmcif_dir}")
-    print(f"max_template_date: {args.max_template_date}")
-    print(f"max_hits: {config.data.predict.max_templates}")
-    print(f"release_dates_path: {args.release_dates_path}")
-    print(f"obsolete_pdbs_path: {args.obsolete_pdbs_path}")
 
     if is_multimer:
         template_featurizer = templates.HmmsearchHitFeaturizer(
@@ -226,7 +248,6 @@ def main(args):
             monomer_data_pipeline=data_processor,
         )
 
-    print(f"output: {args.output_dir}")
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
@@ -243,7 +264,6 @@ def main(args):
     else:
         alignment_dir = args.use_precomputed_alignments
 
-    print(f"alignment_dir: {args.use_precomputed_alignments}")
     tag_list = []
     seq_list = []
     for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
@@ -267,17 +287,10 @@ def main(args):
         tag_list.append((tag, tags))
         seq_list.append(seqs)
 
-    print(f"header list: {tag_list}")
-    print(f"seq list: {seq_list}")
-
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
 
-    print(f"sorted_targets: {sorted_targets}")
-    print(f"model_device: {args.model_device}")
-    print(f"openfold_checkpoint_path: {args.openfold_checkpoint_path}")
-    print(f"jax_param_path: {args.jax_param_path}")
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
@@ -293,16 +306,11 @@ def main(args):
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
 
-            print(f"tag: {tag}")
-            print(f"tags: {tags}")
-            print(f"seqs: {seqs}")
-            print(f"alignment_dir: {alignment_dir}")
             # Does nothing if the alignments have already been computed
             precompute_alignments(tags, seqs, alignment_dir, args)
 
             feature_dict = feature_dicts.get(tag, None)
             if feature_dict is None:
-                print(f"generate_feature_dict")
                 feature_dict = generate_feature_dict(
                     tags,
                     seqs,
