@@ -109,4 +109,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # generate_coverage(args.input_pkl, args.output_dir, args.basename)
+    print("gen coverage plot")
     generate_coverage(args.feature_dict_pkl, args.output_dir, args.basename)
