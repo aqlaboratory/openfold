@@ -339,9 +339,9 @@ def main(args):
 
                 feature_dicts[tag] = feature_dict
 
-            print("Storing feature dict...")
-            with open(os.path.join(args.output_dir, f"{output_name}_feature_dict.pickle"), "wb") as fp:
-                pickle.dump(feature_dict, fp, protocol=pickle.HIGHEST_PROTOCOL)
+            # print("Storing feature dict...")
+            # with open(os.path.join(args.output_dir, f"{output_name}_feature_dict.pickle"), "wb") as fp:
+            #     pickle.dump(feature_dict, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
             processed_feature_dict = feature_processor.process_features(
                 feature_dict, mode='predict', is_multimer=is_multimer
@@ -364,6 +364,10 @@ def main(args):
                         f"Tracing time: {tracing_time}"
                     )
                     cur_tracing_interval = rounded_seqlen
+
+            print("Storing feature dict...")
+            with open(os.path.join(args.output_dir, f"{output_name}_feature_dict.pickle"), "wb") as fp:
+                pickle.dump(feature_dict, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
