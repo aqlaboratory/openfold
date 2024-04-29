@@ -88,7 +88,7 @@ def generate_coverage(fd_pkl, output_dir, name, dpi=500):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--feature_dict_pkl', dest='feature_dict_pkl', required=True)
+    parser.add_argument('--input_pkl', dest='feature_dict_pkl', required=True)
     parser.add_argument('--output_dir', dest='output_dir', required=True)
     parser.add_argument('--basename', dest='basename', required=True)
     args = parser.parse_args()
