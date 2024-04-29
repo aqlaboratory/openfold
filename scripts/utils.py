@@ -34,22 +34,22 @@ def add_data_args(parser: argparse.ArgumentParser):
         '--bfd_database_path', type=str, default=None,
     )
     parser.add_argument(
-        '--jackhmmer_binary_path', type=Path, default=CONDA_ENV_BINARY_PATH / 'jackhmmer',
+        '--jackhmmer_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'jackhmmer'),
     )
     parser.add_argument(
-        '--hhblits_binary_path', type=Path, default=CONDA_ENV_BINARY_PATH / 'hhblits',
+        '--hhblits_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'hhblits'),
     )
     parser.add_argument(
-        '--hhsearch_binary_path', type=str, default=CONDA_ENV_BINARY_PATH / 'hhsearch',
+        '--hhsearch_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'hhsearch'),
     )
     parser.add_argument(
-        '--hmmsearch_binary_path', type=str, default=CONDA_ENV_BINARY_PATH / 'hmmsearch',
+        '--hmmsearch_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'hmmsearch'),
     )
     parser.add_argument(
-        '--hmmbuild_binary_path', type=str, default=CONDA_ENV_BINARY_PATH / 'hmmbuild',
+        '--hmmbuild_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'hmmbuild'),
     )
     parser.add_argument(
-        '--kalign_binary_path', type=str, default=CONDA_ENV_BINARY_PATH / 'kalign',
+        '--kalign_binary_path', type=str, default=str(CONDA_ENV_BINARY_PATH / 'kalign'),
     )
     parser.add_argument(
         '--max_template_date', type=str,

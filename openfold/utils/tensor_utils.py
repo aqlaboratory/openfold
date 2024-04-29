@@ -114,8 +114,7 @@ def tree_map(fn, tree, leaf_type):
     elif isinstance(tree, leaf_type):
         return fn(tree)
     else:
-        print(type(tree))
-        raise ValueError("Not supported")
+        raise ValueError(f"Tree of type {type(tree)} not supported")
 
 
 tensor_tree_map = partial(tree_map, leaf_type=torch.Tensor)
