@@ -8,23 +8,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def plot_predicted_alignment_error(
-        jobname: str, num_models: int, outs: dict, result_dir: Path, show: bool = False
-):
-    plt.figure(figsize=(3 * num_models, 2), dpi=100)
-    for n, (model_name, value) in enumerate(outs.items()):
-        plt.subplot(1, num_models, n + 1)
-        plt.title(model_name)
-        plt.imshow(value["pae"], label=model_name, cmap="bwr", vmin=0, vmax=30)
-        plt.colorbar()
-    plt.savefig(result_dir.joinpath(jobname + "_PAE.png"))
-    if show:
-        plt.show()
-    plt.close()
-
-
 def plot_msa_v2(feature_dict, sort_lines=True, dpi=100):
-    seq = feature_dict["msa"]
+    seq = feature_dict["msa"][0]
     if "asym_id" in feature_dict:
         Ls = [0]
         k = feature_dict["asym_id"][0]
@@ -85,7 +70,7 @@ def plot_msa_v2(feature_dict, sort_lines=True, dpi=100):
     return plt
 
 
-def generate_coverage(fd_pkl, output_dir, name, dpi=100):
+def generate_coverage(fd_pkl, output_dir, name, dpi=500):
     feature_dict_pkl = []
     with (open("{}".format(fd_pkl), "rb")) as openfile:
         while True:
@@ -94,7 +79,7 @@ def generate_coverage(fd_pkl, output_dir, name, dpi=100):
             except EOFError:
                 break
     feature_dict = feature_dict_pkl[0]
-    msa_plot = plot_msa_v2(feature_dict, dpi=dpi)
+    msa_plot = plot_msa_v2(feature_dict, sort_lines=True, dpi=dpi)
     coverage_png = os.path.join(output_dir,f"{name}_coverage.png")
     msa_plot.savefig(str(coverage_png), bbox_inches='tight')
     msa_plot.close()

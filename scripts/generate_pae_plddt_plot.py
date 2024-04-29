@@ -5,12 +5,14 @@ import pickle as pkl
 #from zipfile import Path
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt, colors as cols, cm as cm
+from matplotlib import pyplot as plt, colors as cols, cm as cm, rcParams, font_manager
 import json
 from sys import exit
 import os
 from Bio import PDB as pdb
 import io
+
+
 
 # plot size, in inches.
 plot_size = 16
@@ -22,8 +24,9 @@ plot_increment = int(plot_increment)
 
 # Define class for AlphaFold metadata file and class methods
 class AlphaFoldMetaData(object):
-    def __init__(self, PathToFile, FastaSequence=None, ranking=None):
+    def __init__(self, name, PathToFile, FastaSequence=None, ranking=None):
         # Define attributes
+        self.name = name
         self.PathToFile = PathToFile
         self.FastaSequence = FastaSequence
         self.saving_filename = self.PathToFile.split("/")[-1].split(".")[0]
@@ -32,7 +35,7 @@ class AlphaFoldMetaData(object):
             self.saving_filename = "ranked_{}".format(ranking)
 
     # Generate a plot of pLDDT value
-    def plot_pLDDT(self, size_in_inches=12, axis_label_increment=100):
+    def plot_pLDDT(self, size_in_inches=3.5, axis_label_increment=100):
         x = list(range(0, len(self.pLDDT), 1))
         y = list(self.pLDDT)
 
@@ -41,29 +44,31 @@ class AlphaFoldMetaData(object):
 
         plt.figure(figsize=(size_in_inches, (size_in_inches / 2)))
         ticks = np.arange(0, len(self.pLDDT), axis_label_increment)
-        plt.xticks(ticks, fontname="Helvetica")
-        plt.yticks(fontname="Helvetica")
-        plt.xlabel("Residue index", size=14, fontweight="bold", fontname="Helvetica")
-        plt.ylabel("Predicted LDDT", size=14, fontweight="bold", fontname="Helvetica")
+        plt.xticks(ticks, fontname="Times New Roman")
+        plt.yticks(fontname="Times New Roman")
+        plt.title(self.name, size=20, fontweight="bold", fontname="Times New Roman")
+        plt.xlabel("Residue index", size=16, fontweight="bold", fontname="Times New Roman")
+        plt.ylabel("Predicted LDDT", size=16, fontweight="bold", fontname="Times New Roman")
         plt.scatter(x, y, c=y, cmap=cmap, s=5)
         plt.clim(0, 100)
         scale = plt.colorbar(shrink=0.5)
-        scale.set_label(label="Predicted LDDT", size=12, fontweight="bold", fontname="Helvetica")
+        scale.set_label(label="Predicted LDDT", size=12, fontweight="bold", fontname="Times New Roman")
         # Save to directory with pickle file in
         plt.savefig('{}/{}_pLDDT.png'.format(self.saving_pathname, self.saving_filename), dpi=300)
 
         # Generate a plot from PAE measurements
 
-    def plot_PAE(self, size_in_inches=12, axis_label_increment=100):
+    def plot_PAE(self, size_in_inches=3.5, axis_label_increment=100):
         ticks = np.arange(0, self.PAE[1].size, axis_label_increment)
         plt.figure(figsize=(size_in_inches, size_in_inches))
-        PAE = plt.imshow(self.PAE)
-        plt.xticks(ticks, fontname="Helvetica")
-        plt.yticks(ticks, fontname="Helvetica")
-        plt.xlabel("Residue index", size=14, fontweight="bold", fontname="Helvetica")
-        plt.ylabel("Residue index", size=14, fontweight="bold", fontname="Helvetica")
+        PAE = plt.imshow(self.PAE, cmap="bwr")
+        plt.xticks(ticks, fontname="Times New Roman")
+        plt.yticks(ticks, fontname="Times New Roman")
+        plt.title(self.name, size=20, fontweight="bold", fontname="Times New Roman")
+        plt.xlabel("Residue index", size=16, fontweight="bold", fontname="Times New Roman")
+        plt.ylabel("Residue index", size=16, fontweight="bold", fontname="Times New Roman")
         scale = plt.colorbar(PAE, shrink=0.5)
-        scale.set_label(label="Predicted error (Å)", size=12, fontweight="bold", fontname="Helvetica")
+        scale.set_label(label="Predicted error (Å)", size=14, fontweight="bold", fontname="Times New Roman")
 
         # Save plot
         plt.savefig('{}/{}_PAE.png'.format(self.saving_pathname, self.saving_filename), dpi=300)
@@ -298,14 +303,14 @@ class AlphaFoldPAEJson(AlphaFoldMetaData):
 #         path_to_pLDDT_file_in_drive = [path_to_pLDDT_file_in_drive]
 
 def generate_plots(pkl, outdir, name):
-    results = AlphaFoldPickle(pkl, None)
+    results = AlphaFoldPickle(name,pkl, None)
     results.saving_pathname = outdir
     results.saving_filename = name
     if type(results.PAE) == np.ndarray:
         print("Plotting PAE for {} and saving to csv".format(pkl))
         results.plot_PAE(size_in_inches=plot_size, axis_label_increment=plot_increment)
 
-    results = AlphaFoldPickle(pkl, None)
+    results = AlphaFoldPickle(name,pkl, None)
     results.saving_filename = name
     results.saving_pathname = outdir
     results.write_pLDDT_file()
