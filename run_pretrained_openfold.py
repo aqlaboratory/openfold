@@ -343,6 +343,10 @@ def main(args):
                 feature_dict, mode='predict', is_multimer=is_multimer
             )
 
+            # print("Storing feature dict...")
+            # with open(os.path.join(args.output_dir, f"{output_name}_feature_dict.pickle"), "wb") as fp:
+            #     pickle.dump(processed_feature_dict, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
             processed_feature_dict = {
                 k: torch.as_tensor(v, device=args.model_device)
                 for k, v in processed_feature_dict.items()
