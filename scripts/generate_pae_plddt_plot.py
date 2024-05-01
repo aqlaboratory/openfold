@@ -76,7 +76,7 @@ class AlphaFoldMetaData(object):
         # Generate dataframe from PAE data and save to csv
         pd_PAE = pd.DataFrame(self.PAE)
         pd_PAE.to_csv('{}/{}_PAE.csv'.format(self.saving_pathname, self.saving_filename))
-
+        pd_PAE.to_json('{}/{}_PAE.json'.format(self.saving_pathname, self.saving_filename))
 
 class AlphaFoldPickle(AlphaFoldMetaData):
 
