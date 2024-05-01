@@ -12,8 +12,6 @@ import os
 from Bio import PDB as pdb
 import io
 
-
-
 # plot size, in inches.
 plot_size = 16
 
@@ -29,7 +27,7 @@ class AlphaFoldMetaData(object):
         self.name = name
         self.PathToFile = PathToFile
         self.FastaSequence = FastaSequence
-        self.saving_filename = self.PathToFile.split("/")[-1].split(".")[0]
+        self.saving_filename = name  #self.PathToFile.split("/")[-1].split(".")[0]
         self.saving_pathname = self.PathToFile.split(self.saving_filename)[0]
         if ranking:
             self.saving_filename = "ranked_{}".format(ranking)
@@ -77,6 +75,7 @@ class AlphaFoldMetaData(object):
         pd_PAE = pd.DataFrame(self.PAE)
         pd_PAE.to_csv('{}/{}_PAE.csv'.format(self.saving_pathname, self.saving_filename))
         pd_PAE.to_json('{}/{}_PAE.json'.format(self.saving_pathname, self.saving_filename))
+
 
 class AlphaFoldPickle(AlphaFoldMetaData):
 
@@ -303,14 +302,14 @@ class AlphaFoldPAEJson(AlphaFoldMetaData):
 #         path_to_pLDDT_file_in_drive = [path_to_pLDDT_file_in_drive]
 
 def generate_plots(pkl, outdir, name):
-    results = AlphaFoldPickle(name,pkl, None)
+    results = AlphaFoldPickle(name, pkl, None)
     results.saving_pathname = outdir
     results.saving_filename = name
     if type(results.PAE) == np.ndarray:
         print("Plotting PAE for {} and saving to csv".format(pkl))
         results.plot_PAE(size_in_inches=plot_size, axis_label_increment=plot_increment)
 
-    results = AlphaFoldPickle(name,pkl, None)
+    results = AlphaFoldPickle(name, pkl, None)
     results.saving_filename = name
     results.saving_pathname = outdir
     results.write_pLDDT_file()
