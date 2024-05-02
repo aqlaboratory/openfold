@@ -190,6 +190,11 @@ def main(args):
             custom_config_dict = json.load(f)
         config.update_from_flattened_dict(custom_config_dict)
 
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
+
     if args.trace_model:
         if not config.data.predict.fixed_size:
             raise ValueError(

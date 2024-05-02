@@ -382,7 +382,7 @@ def main(args):
         callbacks.append(lr_monitor)
 
     loggers = []
-    is_rank_zero = int(os.environ.get("PMI_RANK")) == 0
+    is_rank_zero = args.mpi_plugin and (int(os.environ.get("PMI_RANK")) == 0)
     if(args.wandb):
         if args.mpi_plugin and is_rank_zero:
             wandb_init_dict = dict(

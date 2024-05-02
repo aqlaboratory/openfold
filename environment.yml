@@ -23,6 +23,7 @@ dependencies:
   - modelcif==0.7
   - awscli
   - ml-collections
+  - mkl==2024.0.0
   - aria2
   - mkl==2024.0
   - git
