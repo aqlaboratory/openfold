@@ -5,12 +5,16 @@ import pickle as pkl
 #from zipfile import Path
 import numpy as np
 import pandas as pd
+
 from matplotlib import pyplot as plt, colors as cols, cm as cm, rcParams, font_manager
 import json
 from sys import exit
 import os
 from Bio import PDB as pdb
 import io
+import json
+from json import encoder
+encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 # plot size, in inches.
 plot_size = 16
@@ -74,7 +78,7 @@ class AlphaFoldMetaData(object):
         # Generate dataframe from PAE data and save to csv
         pd_PAE = pd.DataFrame(self.PAE)
         pd_PAE.to_csv('{}/{}.csv'.format(self.saving_pathname, self.saving_filename))
-        pd_PAE.to_json('{}/{}.json'.format(self.saving_pathname, self.saving_filename))
+        # pd_PAE.to_json('{}/{}.json'.format(self.saving_pathname, self.saving_filename))
 
 
 class AlphaFoldPickle(AlphaFoldMetaData):
@@ -96,13 +100,34 @@ class AlphaFoldPickle(AlphaFoldMetaData):
 
         # Try statement accounts for data run using non-pTM models, with no PAE output
         try:
-            self.PAE = self.data[0]['predicted_aligned_error']
+            self.PAE = self.data[0]['predicted_aligned_error'].round(2)
         except:
             print("PAE model data not present. To access this performance metric, run AlphaFold"
                   "using pTM-enabled models.")
 
         # Define pLDDT
-        self.pLDDT = self.data[0]['plddt']
+        self.pLDDT = self.data[0]['plddt'].round(2)
+        self.max_pae = self.data[0]['max_predicted_aligned_error']
+        self.ptm = self.data[0]['ptm_score']
+        self.iptm = self.data[0]['iptm_score']
+
+    def save_to_json(self):
+        # save pkl to json format as colabfold
+        colab_data = {}
+        colab_data['plddt'] = list(np.around(np.array(self.pLDDT.tolist()),2))
+        colab_data['pae'] = list(np.around(np.array(self.PAE.tolist()),2))
+        colab_data['max_pae'] = self.max_pae
+        colab_data['ptm'] = self.ptm
+        colab_data['iptm'] = self.iptm
+
+        class NumpyEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, np.ndarray):
+                    return obj.tolist()
+                return json.JSONEncoder.default(self, obj)
+
+        with open('{}/{}.json'.format(self.saving_pathname, self.saving_filename), "w") as outfile:
+            outfile.write(json.dumps(colab_data, cls=NumpyEncoder))
 
     # Generate a ChimeraX attribute file from pLDDT measurements
     def write_pLDDT_file(self):
@@ -309,12 +334,15 @@ def generate_plots(pkl, outdir, name):
         print("Plotting PAE for {} and saving to csv".format(pkl))
         results.plot_PAE(size_in_inches=plot_size, axis_label_increment=plot_increment)
 
-    results = AlphaFoldPickle(name, pkl, None)
-    results.saving_filename = name
-    results.saving_pathname = outdir
+    # results = AlphaFoldPickle(name, pkl, None)
+    # results.saving_filename = name
+    # results.saving_pathname = outdir
     results.write_pLDDT_file()
     print("Plotting pLDDT for {} and saving to csv".format(pkl))
     results.plot_pLDDT(size_in_inches=plot_size, axis_label_increment=plot_increment)
+
+    print("Saving pickle {} in json format".format(pkl))
+    results.save_to_json()
 
 
 if __name__ == "__main__":
