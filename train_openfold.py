@@ -682,9 +682,9 @@ if __name__ == "__main__":
     trainer_group.add_argument(
         "--reload_dataloaders_every_n_epochs", type=int, default=1,
     )
-
-    trainer_group.add_argument("--accumulate_grad_batches", type=int, default=1,
-                               help="Accumulate gradients over k batches before next optimizer step.")
+    trainer_group.add_argument(
+        "--accumulate_grad_batches", type=int, default=1,
+        help="Accumulate gradients over k batches before next optimizer step.")
 
     args = parser.parse_args()
 
@@ -699,6 +699,5 @@ if __name__ == "__main__":
     if (args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
         raise ValueError(
             "Choose between loading pretrained Jax-weights and a checkpoint-path")
-
 
     main(args)
