@@ -93,7 +93,7 @@ def create_shard(
     CHUNK_SIZE = 200
     shard_index = defaultdict(
         create_index_default_dict
-    )  # {chain_name: {db: str, files: [(file_name, db_offset, file_length)]}, ...}
+    )  # e.g. {chain_name: {db: str, files: [(file_name, db_offset, file_length)]}, ...}
     chunk_iter = chunked_iterator(shard_files, CHUNK_SIZE)
 
     pbar_desc = f"Shard {shard_num}"
