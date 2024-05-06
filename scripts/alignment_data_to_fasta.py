@@ -3,12 +3,13 @@ This script generates a FASTA file for all chains in an alignment directory or
 alignment DB.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+from argparse import ArgumentParser
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
+
 from tqdm import tqdm
-from argparse import ArgumentParser
 
 
 def chain_dir_to_fasta(dir: Path) -> str:
