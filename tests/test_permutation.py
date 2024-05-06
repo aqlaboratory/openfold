@@ -113,7 +113,6 @@ class TestPermutation(unittest.TestCase):
 
         aligns, _ = compute_permutation_alignment(out, batch,
                                                   batch)
-        print(f"##### aligns is {aligns}")
         possible_outcome = [[(0, 1), (1, 0), (2, 3), (3, 4), (4, 2)], [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2)]]
         wrong_outcome = [[(0, 1), (1, 0), (2, 4), (3, 2), (4, 3)], [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]]
         self.assertIn(aligns, possible_outcome)
@@ -163,7 +162,6 @@ class TestPermutation(unittest.TestCase):
         aligns, per_asym_residue_index = compute_permutation_alignment(out,
                                                                        batch,
                                                                        batch)
-        print(f"##### aligns is {aligns}")
         labels = split_ground_truth_labels(batch)
 
         labels = merge_labels(per_asym_residue_index, labels, aligns,
