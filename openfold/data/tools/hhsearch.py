@@ -109,8 +109,8 @@ class HHSearch:
                 print(f"hhsearch command: {' '.join(cmd)}")
                 # Stderr is truncated to prevent proto size errors in Beam.
                 raise RuntimeError(
-                    "HHSearch failed:\nstdout:\n%s\n\nstderr:\n%s\n"
-                    % (stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
+                    "HHSearch failed:\ncommand:\n%s\n\nstdout:\n%s\n\nstderr:\n%s\n"
+                    % (f"hhsearch command: {' '.join(cmd)}", stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
                 )
 
             with open(hhr_path) as f:
