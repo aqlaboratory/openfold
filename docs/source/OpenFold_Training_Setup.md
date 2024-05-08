@@ -1,6 +1,10 @@
 # Setting up the OpenFold PDB training set from RODA
 
-The multiple sequence alignments of OpenProteinSet and mmCIF structure files required to train OpenFold are freely available at the [Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold/). Additionally, OpenFold requires some postprocessing and [auxiliary files](Aux_seq_files.md) for training that need to be generated from the AWS data manually. This documentation is intended to give a full overview of those steps starting from the data download, assuming that the OpenFold codebase has already been set up on your system previously at the path `$OF_DIR` and the `openfold` environment is activated.
+The multiple sequence alignments of OpenProteinSet and mmCIF structure files required to train OpenFold are freely available at the [Registry of Open Data on AWS (RODA)](https://registry.opendata.aws/openfold/). Additionally, OpenFold requires some postprocessing and [auxiliary files](Aux_seq_files.md) for training that need to be generated from the AWS data manually. This documentation is intended to give a full overview of those steps starting from the data download.
+
+### Pre-Requisites:
+- OpenFold conda environment. See [OpenFold Installation](Installation.md) for instructions on how to build this environment. 
+- For this guide, we assume that the OpenFold codebase is located at `$OF_DIR`.
 
 ## 1. Downloading alignments and structure files
 To fetch all the alignments corresponding to the original PDB training set of OpenFold alongside their mmCIF 3D structures, you can run the following commands:
@@ -60,14 +64,13 @@ python $OF_DIR/scripts/expand_alignment_duplicates.py \
     pdb_data/duplicate_pdb_chains.txt
 ```
 
-As an optional check, the following command should return 634,434:
+As an optional check, the following command should return $634,434$:
 
 ```bash
 ls alignment_data/alignments/ | wc -l
 ```
 
 ## 4. Generating cluster-files
-[JENNIFER: We could simply upload this cluster file as well and having it set up by the user is pretty unnecessary, but the scripts would still be useful to have for setup of new datasets]\
 The AlphaFold dataloader adjusts the sampling probability of chains by their inverse cluster size, so we need to generate these sequence clusters for our training set.
 
 As a first step, we'll need a `.fasta` file of all sequences in the training set. This can be generated with the following scripts, depending on how you set up your alignment data in the previous steps:
@@ -79,8 +82,6 @@ python $OF_DIR/scripts/alignment_data_to_fasta.py \
     --alignment_dir alignment_data/alignments
 ```
 
-[JENNIFER: These scripts replace `data_dir_to_fasta.py` which is horribly slow as it reparses all mmCIF structure files. What those scripts do instead is fetch the sequence information from the >query line in the MSA files which is a lot faster. Technically this means that the chains in the generated .fasta may not 100% mirror the available mmCIF files in the PDB directory if there were some MSA generation errors for some of those structures. However as OF only trains on the structures with alignments available this is fine in practice, but I just wanted to note that the output of `data_dir_to_fasta.py` may technically not be 100% identical.]
-
 **Use this if you set up the `alignment_db` files:**
 ```bash
 python $OF_DIR/scripts/alignment_data_to_fasta.py \
@@ -88,7 +89,7 @@ python $OF_DIR/scripts/alignment_data_to_fasta.py \
     --alignment_db_index alignment_data/alignment_dbs/alignment_db.index
 ```
 
-Next, we need to generate a cluster file at 40% sequence identity, which will contain all chains in a particular cluster on the same line. You'll need [MMSeqs2](https://github.com/soedinglab/MMseqs2?tab=readme-ov-file#installation) for this as well, which can be set up either in a conda environment or as a binary. (JENNIFER: do we want to add that as a dependency?)
+Next, we need to generate a cluster file at 40% sequence identity, which will contain all chains in a particular cluster on the same line. You'll need [MMSeqs2](https://github.com/soedinglab/MMseqs2?tab=readme-ov-file#installation) for this as well, which can be set up either in a conda environment or as a binary.
 
 ```bash
 python $OF_DIR/scripts/fasta_to_clusterfile.py \
@@ -99,7 +100,7 @@ python $OF_DIR/scripts/fasta_to_clusterfile.py \
 ```
 
 ## 5. Generating cluster-files
-As a last step, OpenFold requires "cache" files (JENNIFER: insert cross-link here) with metadata information for each chain that are used for choosing templates and samples during training.
+As a last step, OpenFold requires ["cache" files](Aux_seq_files.md#chain-cache-files-and-mmcif-cache-files) with metadata information for each chain that are used for choosing templates and samples during training.
 
 The mmCIF-cache is used for filtering templates and can be generated with the following script:
 

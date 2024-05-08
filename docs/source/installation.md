@@ -4,7 +4,7 @@ In this guide, we will OpenFold and its dependencies.
 
 **Pre-requisites**
 
-This package is currently supported for CUDA 12 and Pytorch 2.1. All dependencies are listed in the `environment.yml`
+This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml)
 
 ## Instructions
 :::

@@ -9,7 +9,6 @@
 project = 'OpenFold'
 copyright = '2024, OpenFold Team'
 author = 'OpenFold Team'
-release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -28,5 +27,5 @@ exclude_patterns = []
 
 html_theme = 'furo'
 html_static_path = ['_static']
-myst_enable_extensions = ["colon_fence"]
+myst_enable_extensions = ["colon_fence", "dollarmath", "amsmath"]
 
