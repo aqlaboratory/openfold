@@ -14,6 +14,8 @@ Here, you will find guides for:
 - Learn how to [run inference with OpenFold](Inference.md)
 - [Train your own OpenFold models](Training_OpenFold.md)
 
+Some portions of the documentation are still under migration from the original README, which can be found [here](original_readme.md)
+
 # Features
 
 OpenFold carefully reproduces (almost) all of the features of the original open
@@ -98,7 +100,9 @@ Any work that cites OpenFold should also cite [AlphaFold](https://www.nature.com
 :caption: Guides
 Installation.md
 Inference.md
-OpenFold_Training_setup.md
+Single_Sequence_Inference.md
+Multimer_Inference.md
+OpenFold_Training_Setup.md
 Training_OpenFold.md
 ```
 

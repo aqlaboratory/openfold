@@ -6,7 +6,7 @@ This guide covers how to train an OpenFold model. These instructions focus on tr
 ### Pre-requisites: 
 
 This guide requires the following:
-- [Installation of OpenFold and dependencies](installation.md) (Including jackhmmer and hhblits depedencies)
+- [Installation of OpenFold and dependencies](Installation.md) (Including jackhmmer and hhblits depedencies)
 - A preprocessed dataset:
 	- For this guide, we will use the original OpenFold dataset which is available on RODA. This dataset can be downloaded with the following command:
 		`./scripts/download_roda_dbs.sh <dst_path>`[Download the dataset used to train the OpenFold model]  
