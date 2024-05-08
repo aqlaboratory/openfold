@@ -1,4 +1,4 @@
-# Setup Guide
+# Setting Up OpenFold 
 
 In this guide, we will OpenFold and its dependencies.
 
@@ -42,16 +42,12 @@ The script is a thin wrapper around Python's `unittest` suite, and recognizes�
 **Alphafold Comparison tests:**
 Certain tests perform equivalence comparisons with the AlphaFold implementation. Instructions to run this level of tests requires an environment with both AlphaFold 2.0.1 and OpenFold installed, and is not covered in this guide. These tests are skipped by default if no installation of AlphaFold is found. 
 
-## Modifications
+## Environment specific modifications 
 
-### CUDA 11 environment
-To use OpenFold on CUDA 11 environment rather than a CUDA 12 environment.
-	In step 1, replace the github repository link with [OpenFold version v2](https://github.com/aqlaboratory/openfold/tree/v2.0.0)
-	Follow the rest of the steps of [Installation Guide](#installation)
-
-```{note}
-Replace with link to last stable pre-update version
-```
+### CUDA 12
+To use OpenFold on CUDA 12 environment rather than a CUDA 11 environment.
+	In step 1, use the branch [`pl_upgrades`](https://github.com/aqlaboratory/openfold/tree/pl_upgrades) rather than the main branch, i.e. replace the URL in step 1 with https://github.com/aqlaboratory/openfold/tree/pl_upgrades
+	Follow the rest of the steps of [Installation Guide](#Installation)
 
 ### Install OpenFold parameters without aws
 If you don't have access to `aws` on your system, you can use a different download source:
@@ -61,9 +57,7 @@ If you don't have access to `aws` on your system, you can use a different downlo
 
 ### Docker setup
 
-```{note}
-Add / check docker installation instructions 
-```
+A [`Dockerfile`] is provided to build an OpenFold Docker image. Additional notes for setting up a docker container for OpenFold and running inference can be found [here](original_readme.md#building-and-using-the-docker-container).
 
 ## Troubleshooting FAQ
 

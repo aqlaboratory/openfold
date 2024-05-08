@@ -13,7 +13,7 @@ This guide will focus on monomer prediction, the next sections will describe Mul
 
 ### Pre-requisites: 
 
-- OpenFold Conda Environment. See [OpenFold Installation](installation.md) for instructions on how to build this environment. 
+- OpenFold Conda Environment. See [OpenFold Installation](Installation.md) for instructions on how to build this environment. 
 - Downloading sequence databases for performing multiple sequence alignments. We provide a script to download the AlphaFold databases [here](https://github.com/aqlaboratory/openfold/blob/main/scripts/download_alphafold_dbs.sh).
    
 

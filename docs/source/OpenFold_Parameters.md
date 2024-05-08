@@ -1,15 +1,17 @@
+# Notes on OpenFold Training and Parameters
+
 For OpenFold model parameters, v. 06_22.
 
-# Training details:
+## Training details
 
-Trained using OpenFold on 44 A100s using the training schedule from Table 4 in
+OpenFold was trained using OpenFold on 44 A100s using the training schedule from Table 4 in
 the AlphaFold supplement. AlphaFold was used as the pre-distillation model.
 Training data is hosted publicly in the "OpenFold Training Data" RODA repository.
 
 To improve model diversity, we forked training after the initial training phase
 and finetuned an additonal branch without templates.
 
-# Parameter files:
+## Parameter files
 
 Parameter files fall into the following categories:
 
