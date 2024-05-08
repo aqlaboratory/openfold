@@ -1,4 +1,4 @@
-# Inference OpenFold
+# OpenFold Inference 
 
 In this guide, we will cover how to use OpenFold to make structure predictions.
 ## Background
@@ -9,44 +9,47 @@ We currently offer three modes of inference prediction:
 - Multimer
 - Single Sequence (Soloseq) 
 
-This guide will focus on monomer mode prediction, the next sections will describe Multimer and Single Sequence prediction. 
+This guide will focus on monomer prediction, the next sections will describe Multimer and Single Sequence prediction. 
 
 ### Pre-requisites: 
 
-- OpenFold Conda Environment. Instructions to create this environment are here [[OpenFold installation]] 
-- Sequence databases for performing multiple sequence alignments. Instructions here [  TODO add link]
+- OpenFold Conda Environment. See [OpenFold Installation](installation.md) for instructions on how to build this environment. 
+- Downloading sequence databases for performing multiple sequence alignments. We provide a script to download the AlphaFold databases [here](https://github.com/aqlaboratory/openfold/blob/main/scripts/download_alphafold_dbs.sh).
+   
 
 ## Running AlphaFold Model Inference 
 
 The script `run_pretrained_openfold.py` performs model inference. We will go through the steps of how to use this script.
 
+
 ### Download Model Parameters 
 
-For monomer inference, you may either use the model parameters provided by Deepmind, or you may use the OpenFold trained parameters. Both models should give similar performance, please see [TODO: link to nature paper] for further reference.
+For monomer inference, you may either use the model parameters provided by Deepmind, or you may use the OpenFold trained parameters. Both models should give similar performance, please see [our main paper](https://www.biorxiv.org/content/10.1101/2022.11.20.517210v3) for further reference.
 
 The model parameters provided by Deepmind can be downloaded with the following script located in this repository's `scripts/` directory:
 
 ```
-$ bash scripts/download_alphafold_params.sh ${PARAMS_DIR}
+$ bash scripts/download_alphafold_params.sh $PARAMS_DIR
 ```
 
 To use the OpenFold trained parameters, you can use the following script
 
 ```
-$ bash scripts/download_openfold_params.sh ${PARAMS_DIR}
+$ bash scripts/download_openfold_params.sh $PARAMS_DIR
 ```
 
 We recommend selecting `openfold/resources` as the params directory as this is the default directory used by the `run_pretrained_openfold.py` to locate parameters. 
 
 If you choose to use a different directory, you may make a symlink to the `openfold/resources` directory, or specify an alternate parameter path with the command line argument `--jax_path` for AlphaFold parameters or `--openfold_checkpoint_path` for OpenFold parameters. 
 
+
 ### Model Inference 
 
 The input to `run_pretrained_openfold.py` is a directory of FASTA files. AlphaFold-style models also require a sequence alignment to perform inference.
 
-If you do not have sequence alignments for your input sequences, you can compute them using the inference script directly by following the instructions in [[Inference#Model inference without pre-computed alignments|Model inference without pre-computed alignments]]
+If you do not have sequence alignments for your input sequences, you can compute them using the inference script directly by following the instructions for the following section [inference without pre-computed alignments](#model-inference-without-pre-computed-alignments).
 
-Otherwise, if you already have alignments for your input FASTA sequences, skip ahead to [[Inference#Model inference with pre-compute alignments|Model inference with pre-computed alignments]]. 
+Otherwise, if you already have alignments for your input FASTA sequences, skip ahead to the [inference with pre-computed alignments](#model-inference-with-pre-computed-alignments) section. 
 
 #### Model inference without pre-computed alignments 
 The following command performs a sequence alignment against the OpenProteinSet databases and performs model inference. 
@@ -85,7 +88,7 @@ python3 run_pretrained_openfold.py ${INPUT_FASTA_DIR} \
   --model_device "cuda:0" \
 ```
 
-where `${PRECOMPUTED_ALIGNMENTS}` is a directory that contains alignments. A sample alignments directory structure for a single query is.
+where `${PRECOMPUTED_ALIGNMENTS}` is a directory that contains alignments. A sample alignments directory structure for a single query is:
 
 ```
 alignments
@@ -96,7 +99,8 @@ alignments
     └── uniref90_hits.sto
 ```
 
-!!JB NOTE!! Can you add some information about what each type of file contains or what would happen if only 3/4 were present? I'm not knowledgeable on alignments, but when I was first running things w OF it felt like there may be different ways that some people generate alignments. And, having 4 sets seemed a bit confusing to me. Adding some optional details here might make this a bit more user friendly in case they're not sure if they're alignments will work.
+`bfd_uniclust_hits.a3m`, `mgnify_hits.sto`, and `uniref90_hits.sto` are all alignments of the query structure against the BFD, Mgnify, and Uniref90 datasets respsectively. `hhsearch_output.hhr` contains hits against the PDB70 database used for template matching.
+
 
 #### Configuration settings for template modeling / pTM scoring 
 There are a few configuration settings available for template based and template-free modeling, and for the option to estimate a predicted template modeling score (pTM). 
@@ -108,11 +112,12 @@ This table provides guidance on which setting to use for each set of predictions
 |      With template, no ptm |                        model_1<br>model_2 | `parms_model_1.npz`<br>`parms_model_2.npz`                                        | `finetuning_[2-5].pt`              |
 |    With template, with ptm |                model_1_ptm<br>model_2_ptm | `params_model_1_ptm.npz`<br>`params_model_2_ptm.npz`                              | `finetuning_ptm_[1-2].pt`          |
 |   Without template, no ptm |             model_3<br>model_4<br>model_5 | `parms_model_3.npz`<br>`parms_model_4.npz`<br>`parms_model_5.npz`                 | `finetuning_no_templ_[1-2].pt`     |
-| Without template, with ptm | model_3_ptm<br>model_4_ptm<br>model_5_ptm | `parms_model_3_ptm.npz`<br>`parms_model_4_ptm.npz`<br>`parms_model_5_ptm.npz`<br> | `finetuning_no_templ_ptm_[1-2].pt` |
+| Without template, with ptm | model_3_ptm<br>model_4_ptm<br>model_5_ptm | `parms_model_3_ptm.npz`<br>`parms_model_4_ptm.npz`<br>`parms_model_5_ptm.npz`<br> | `finetuning_no_templ_ptm_1.pt` |
 
 If you use AlphaFold parameters, and the AlphaFold parameters are located in the default parameter directory (e.g. `openfold/resources`) the parameters that match the `--config_preset` will be selected.
 
-The full set of configurations available for all 5 AlphaFold model presets can be viewed in [`config.py`](https://github.com/aqlaboratory/openfold/blob/main/openfold/config.py#L105). The [[OpenFold Parameters]] page contains more information about the individual OpenFold parameter files.
+The full set of configurations available for all 5 AlphaFold model presets can be viewed in [`config.py`](https://github.com/aqlaboratory/openfold/blob/main/openfold/config.py#L105). The [OpenFold Parameters](OpenFold_Parameters.md) page contains more information about the individual OpenFold parameter files.
+
 
 #### Model outputs 
 
@@ -120,6 +125,7 @@ The expected output contents are as follows:
 - `alignments`: Directory of alignments. One directory is made per query sequence, and each directory contains alignments against each of the databases used.
 - `predictions`: PDB files for predicted structures
 - `timings.json`: Json with timings for inference and relaxation, if specified 
+
 
 ### Optional Flags 
 
@@ -131,6 +137,7 @@ Some commonly used command line flags are here. A full list of flags can be view
 - `--data_random_seed`: Specifies a random seed to use.
 - `--save_outputs`: Saves a copy of all outputs from the model, e.g. the output of the msa track, ptm heads.
 - `--experiment_config_json`: Specify configuration settings using a json file. For example, passing a json with `{globals.relax.max_iterations = 10}` specifies 10 as the maximum number of relaxation iterations. See for  [`openfold/config.py`](https://github.com/aqlaboratory/openfold/blob/main/openfold/config.py#L283) the full dictionary of configuration settings. Any parameters that are not manually set in these configuration settings will refer to the defaults specified by your `config_preset`.
+
 
 ### Advanced Options for Increasing Efficiency
 
