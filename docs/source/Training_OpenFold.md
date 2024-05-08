@@ -145,14 +145,3 @@ If MPI is configured on your system, and you would like to use MPI to train Open
 
  1. Add the `mpi4py` package, which are available through pip and conda. Please see [mpi4py documentation](https://pypi.org/project/mpi4py/) for more instructions on installation.
 2. Add the `--mpi_plugin` flag to your training command.
-
-
-## Troubleshooting FAQ
-
-My model training is hanging on the data loading step:
-	 While each system is different, a few general suggestions:
-		 Check your `$KMP_AFFINITY` environment setting
-		 Adjust the number of data workers used to prepare data with the `--num_workers` setting. Increasing the number could help with dataset processing speed. However, to many workers could cause an OOM issue. 
-
-When I reload my pretrained model weights or checkpoints, I get `RuntimeError: Error(s) in loading state_dict for OpenFoldWrapper: Unexpected key(s) in state_dict:`
-	This suggests that your checkpoint / model weights are in OpenFold v1 format with outdated model layer names. Convert your weights/checkpoints following [this guide](convert_of_v1_weights.md).
