@@ -1,10 +1,10 @@
 # FAQ
 
-Frequently asked questions or encountered issues in OpenFold Setup and training.
+Frequently asked questions or encountered issues when running OpenFold. 
 
 ## Setup
 
-- In the unit tests, I see an error such as  
+- When running unit tests (e.g. [`./scripts/run_unit_tests.sh`](https://github.com/aqlaboratory/openfold/blob/main/scripts/run_unit_tests.sh)), I see an error such as  
 	```
 	ImportError: version GLIBCXX_3.4.30 not found
 	```
