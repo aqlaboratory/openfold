@@ -84,6 +84,7 @@ class HHSearch:
             for db_path in self.databases:
                 db_cmd.append("-d")
                 db_cmd.append(db_path)
+
             cmd = [
                 self.binary_path,
                 "-i",
@@ -95,6 +96,10 @@ class HHSearch:
                 "-cpu",
                 str(self.n_cpu),
             ] + db_cmd
+
+            raise RuntimeError(
+                f"HHSearch failed:\ncommand:\n{cmd}\n\n"
+            )
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
             print(f"hhsearch command: {' '.join(cmd)}")
