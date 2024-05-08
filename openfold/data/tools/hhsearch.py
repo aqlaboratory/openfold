@@ -106,6 +106,7 @@ class HHSearch:
                 retcode = process.wait()
 
             if retcode:
+                print(f"hhsearch command: {' '.join(cmd)}")
                 # Stderr is truncated to prevent proto size errors in Beam.
                 raise RuntimeError(
                     "HHSearch failed:\nstdout:\n%s\n\nstderr:\n%s\n"
