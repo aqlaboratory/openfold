@@ -5,11 +5,14 @@
 :align: center
 :alt: Comparison of OpenFold and AlphaFold2 predictions to the experimental structure of PDB 7KDX, chain B._
 ```
-
-A faithful but trainable PyTorch reproduction of DeepMind's 
+Welcome to the Documentation for OpenFold, the fully open source, trainable, PyTorch-based reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
 Get started with OpenFold with our [Setup Guide](installation.md)!
+
+Here, you will find guides for:
+- Learn how to [run inference with OpenFold](Inference.md)
+- [Train your own OpenFold models](Training_OpenFold.md)
 
 # Features
 
@@ -44,10 +47,6 @@ implementations, respectively.
 - **Efficient alignment scripts** using the original AlphaFold HHblits/JackHMMER pipeline or [ColabFold](https://github.com/sokrypton/ColabFold)'s, which uses the faster MMseqs2 instead. We've used them to generate millions of alignments.
 - **FlashAttention** support greatly speeds up MSA attention.
 - **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a collaboration between OpenFold and the DeepSpeed4Science initiative. The kernel provides substantial speedups for training and inference, and significantly reduces the model's peak device memory requirement by 13X. The model is 15% faster during the initial training and finetuning stages, and up to 4x faster during inference.
-
-```{note}
-TODO: Eventually replace this with some figures / results?
-```
 
 # Copyright Notice
 
@@ -94,7 +93,18 @@ If you use OpenProteinSet, please also cite:
 Any work that cites OpenFold should also cite [AlphaFold](https://www.nature.com/articles/s41586-021-03819-2) and [AlphaFold-Multimer](https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1) if applicable.
 
 
+```{toctree}
+:hidden: 
+:caption: Guides
+Installation.md
+Inference.md
+OpenFold_Training_setup.md
+Training_OpenFold.md
+```
 
-```{note}
-TODO: Replace with final versions of both papers 
+```{toctree}
+:hidden: 
+:caption: Reference 
+Aux_seq_files.md
+OpenFold_Parameters.md
 ```
