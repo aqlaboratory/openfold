@@ -97,6 +97,7 @@ class HHSearch:
             ] + db_cmd
 
             logging.info('Launching subprocess "%s"', " ".join(cmd))
+            print(f"hhsearch command: {' '.join(cmd)}")
             process = subprocess.Popen(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
