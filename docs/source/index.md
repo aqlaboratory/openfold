@@ -10,9 +10,10 @@ Welcome to the Documentation for OpenFold, the fully open source, trainable, PyT
 
 Get started with OpenFold with our [Setup Guide](installation.md)!
 
-Here, you will find guides for:
+Here, you will find guides and documentation for:
 - Learn how to [run inference with OpenFold](Inference.md)
 - [Train your own OpenFold models](Training_OpenFold.md)
+- Find guidance for setup and running OpenFold in the [FAQ](FAQ.md).
 
 Some portions of the documentation are still under migration from the original README, which can be found [here](original_readme.md)
 
