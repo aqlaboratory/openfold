@@ -3,6 +3,5 @@ channels:
   - conda-forge
 dependencies:
   - sphinx=7
-  - pip:
-    - myst-parser=3
-    - furo
+  - myst-parser=3
+  - furo
