@@ -101,29 +101,29 @@ class HHSearch:
                 f"HHSearch failed:\ncommand:\n{cmd}\n\n"
             )
 
-            logging.info('Launching subprocess "%s"', " ".join(cmd))
-            print(f"hhsearch command: {' '.join(cmd)}")
-            process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            with utils.timing("HHsearch query"):
-                stdout, stderr = process.communicate()
-                retcode = process.wait()
-
-            if retcode:
-                print(f"hhsearch command: {' '.join(cmd)}")
-                # Stderr is truncated to prevent proto size errors in Beam.
-                # raise RuntimeError(
-                #     "HHSearch failed:\ncommand:\n%s\n\nstdout:\n%s\n\nstderr:\n%s\n"
-                #     % (f"hhsearch command: {cmd}", stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
-                # )
-                raise RuntimeError(
-                    f"HHSearch failed:\ncommand:\n{cmd}\n\n"
-                )
-
-            with open(hhr_path) as f:
-                hhr = f.read()
-        return hhr
+            # logging.info('Launching subprocess "%s"', " ".join(cmd))
+            # print(f"hhsearch command: {' '.join(cmd)}")
+            # process = subprocess.Popen(
+            #     cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            # )
+            # with utils.timing("HHsearch query"):
+            #     stdout, stderr = process.communicate()
+            #     retcode = process.wait()
+            #
+            # if retcode:
+            #     print(f"hhsearch command: {' '.join(cmd)}")
+            #     # Stderr is truncated to prevent proto size errors in Beam.
+            #     # raise RuntimeError(
+            #     #     "HHSearch failed:\ncommand:\n%s\n\nstdout:\n%s\n\nstderr:\n%s\n"
+            #     #     % (f"hhsearch command: {cmd}", stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
+            #     # )
+            #     raise RuntimeError(
+            #         f"HHSearch failed:\ncommand:\n{cmd}\n\n"
+            #     )
+            #
+            # with open(hhr_path) as f:
+            #     hhr = f.read()
+        # return hhr
 
     @staticmethod
     def get_template_hits(
