@@ -1,16 +1,12 @@
-![header ](imgs/of_banner.png)
-_Figure: Comparison of OpenFold and AlphaFold2 predictions to the experimental structure of PDB 7KDX, chain B._
-
-
-# OpenFold
+# Original OpenFold README 
 
 A faithful but trainable PyTorch reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
 ## Contents
 
-- [OpenFold](#openfold)
-  - [Contents](#contents)
+- [OpenFold]
+  - [Contents]
   - [Features](#features)
   - [Installation (Linux)](#installation-linux)
   - [Download Alignment Databases](#download-alignment-databases)
