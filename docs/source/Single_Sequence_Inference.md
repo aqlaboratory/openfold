@@ -4,7 +4,7 @@ MSA-free sequence to structure prediction using the [ESM-1b model](https://githu
 
 To run inference for a sequence using the SoloSeq single-sequence model, you can either precompute ESM-1b embeddings in bulk, or you can generate them during inference.
 
-For generating ESM-1b embeddings in bulk, use the provided script: `scripts/precompute_embeddings.py`. The script takes a directory of FASTA files (one sequence per file) and generates ESM-1b embeddings in the same format and directory structure as required by SoloSeq. Following is an example command to use the script:
+For generating ESM-1b embeddings in bulk, use the provided script: [`scripts/precompute_embeddings.py`](https://github.com/aqlaboratory/openfold/blob/main/scripts/precompute_embeddings.py). The script takes a directory of FASTA files (one sequence per file) and generates ESM-1b embeddings in the same format and directory structure as required by SoloSeq. Following is an example command to use the script:
 
 ```shell
 python scripts/precompute_embeddings.py fasta_dir/ embeddings_output_dir/

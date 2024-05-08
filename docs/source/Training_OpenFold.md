@@ -8,12 +8,11 @@ This guide covers how to train an OpenFold model. These instructions focus on tr
 This guide requires the following:
 - [Installation of OpenFold and dependencies](Installation.md) (Including jackhmmer and hhblits depedencies)
 - A preprocessed dataset:
-	- For this guide, we will use the original OpenFold dataset which is available on RODA. This dataset can be downloaded with the following command:
-		`./scripts/download_roda_dbs.sh <dst_path>`[Download the dataset used to train the OpenFold model]  
+	- For this guide, we will use the original OpenFold dataset which is available on RODA (TODO: add link to processed dataset).
 	- If you wish to construct your own dataset, [these instructions](OpenFold_Training_Setup.md) provide guidance for preprocessing alignments into an OpenFold format. 
 - GPUs configured with CUDA. Training OpenFold with CPUs only is not supported. 
 
-Expected directory structure:
+Expected data directory structure:
 ```
 - OpenProteinSet 
   └── alignments 
@@ -156,4 +155,4 @@ My model training is hanging on the data loading step:
 		 Adjust the number of data workers used to prepare data with the `--num_workers` setting. Increasing the number could help with dataset processing speed. However, to many workers could cause an OOM issue. 
 
 When I reload my pretrained model weights or checkpoints, I get `RuntimeError: Error(s) in loading state_dict for OpenFoldWrapper: Unexpected key(s) in state_dict:`
-	This suggests that your checkpoint / model weights are in OpenFold v1 format with outdated model layer names. Convert your weights/checkpoints following the [[Converting OpenFold v1 Weights]] 
+	This suggests that your checkpoint / model weights are in OpenFold v1 format with outdated model layer names. Convert your weights/checkpoints following [this guide](convert_of_v1_weights.md).

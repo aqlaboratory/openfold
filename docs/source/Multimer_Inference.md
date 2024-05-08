@@ -48,7 +48,9 @@ and [UniRef30](https://uniclust.mmseqs.com/) (previously UniClust30) databases. 
 Multimer inference can also run with the older database versions if desired. 
 ```
 
-## Inference command
+## Running Multimer Inference 
+
+The [`run_pretrained_openfold.py`](https://github.com/aqlaboratory/openfold/blob/main/run_pretrained_openfold.py) script can be used to run multimer inference with the follwoing command.
 
 ```bash
 python3 run_pretrained_openfold.py \
@@ -70,6 +72,8 @@ python3 run_pretrained_openfold.py \
     --output_dir ./ 
 ```
 
-As with monomer inference, if you've already computed alignments for the query, you can use 
-the `--use_precomputed_alignments` option. Note that template searching in the multimer pipeline 
+Note that template searching in the multimer pipeline 
 uses HMMSearch with the PDB SeqRes database, replacing HHSearch and PDB70 used in the monomer pipeline.
+
+As with monomer inference, if you've already computed alignments for the query, you can use 
+the `--use_precomputed_alignments` option.

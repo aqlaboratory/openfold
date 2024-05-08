@@ -1,6 +1,7 @@
 # OpenFold Inference 
 
 In this guide, we will cover how to use OpenFold to make structure predictions.
+
 ## Background
 
 We currently offer three modes of inference prediction:
@@ -9,7 +10,7 @@ We currently offer three modes of inference prediction:
 - Multimer
 - Single Sequence (Soloseq) 
 
-This guide will focus on monomer prediction, the next sections will describe Multimer and Single Sequence prediction. 
+This guide will focus on monomer prediction, the next sections will describe [Multimer](Multimer_Inference.md) and [Single Sequence](Single_Sequence_Inference.md) prediction. 
 
 ### Pre-requisites: 
 
@@ -19,7 +20,7 @@ This guide will focus on monomer prediction, the next sections will describe Mul
 
 ## Running AlphaFold Model Inference 
 
-The script `run_pretrained_openfold.py` performs model inference. We will go through the steps of how to use this script.
+The script [`run_pretrained_openfold.py`](https://github.com/aqlaboratory/openfold/blob/main/run_pretrained_openfold.py) performs model inference. We will go through the steps of how to use this script.
 
 
 ### Download Model Parameters 
@@ -45,7 +46,7 @@ If you choose to use a different directory, you may make a symlink to the `openf
 
 ### Model Inference 
 
-The input to `run_pretrained_openfold.py` is a directory of FASTA files. AlphaFold-style models also require a sequence alignment to perform inference.
+The input to [`run_pretrained_openfold.py`](https://github.com/aqlaboratory/openfold/blob/main/run_pretrained_openfold.py) is a directory of FASTA files. AlphaFold-style models also require a sequence alignment to perform inference.
 
 If you do not have sequence alignments for your input sequences, you can compute them using the inference script directly by following the instructions for the following section [inference without pre-computed alignments](#model-inference-without-pre-computed-alignments).
 
@@ -92,7 +93,7 @@ where `${PRECOMPUTED_ALIGNMENTS}` is a directory that contains alignments. A sam
 
 ```
 alignments
-└── gfp
+└── 6KWC_1 
     ├── bfd_uniclust_hits.a3m
     ├── hhsearch_output.hhr
     ├── mgnify_hits.sto
