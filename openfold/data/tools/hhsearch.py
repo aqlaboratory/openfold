@@ -108,9 +108,12 @@ class HHSearch:
             if retcode:
                 print(f"hhsearch command: {' '.join(cmd)}")
                 # Stderr is truncated to prevent proto size errors in Beam.
+                # raise RuntimeError(
+                #     "HHSearch failed:\ncommand:\n%s\n\nstdout:\n%s\n\nstderr:\n%s\n"
+                #     % (f"hhsearch command: {cmd}", stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
+                # )
                 raise RuntimeError(
-                    "HHSearch failed:\ncommand:\n%s\n\nstdout:\n%s\n\nstderr:\n%s\n"
-                    % (f"hhsearch command: {cmd}", stdout.decode("utf-8"), stderr[:100_000].decode("utf-8"))
+                    f"HHSearch failed:\ncommand:\n{cmd}\n\n"
                 )
 
             with open(hhr_path) as f:
