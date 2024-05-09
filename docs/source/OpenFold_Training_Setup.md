@@ -47,13 +47,13 @@ filesystem health and fast preprocessing, but note that this script will only ru
 optimally if the number of CPUs on your machine is at least as big as the number
 of shards you are creating.
 
-As an optional check, you can run the following command which should return 634,434:
+As an optional check, you can run the following command which should return $634,434$:
 
 ```bash
 grep "files" alignment_data/alignment_dbs/alignment_db.index | wc -l
 ```
 
-## 3. Adding duplicate chains to alignments
+## 3. Adding duplicate chains to alignments (skip if step 2 was used)
 To save space, the OpenProteinSet alignment database is stored without duplicates, meaning that only one representative alignment is stored for all chains with identical sequences in the PDB and duplicate instances are tracked with a [`duplicate_chains.txt`](Aux_seq_files.md#duplicate-pdb-chain-files) file. As OpenFold will select chains during training based on the chains in the alignment directory (or `alignment_db`), we therefore need to add those duplicate chains back in in order to train on the full conformational diversity of chains in the PDB.
 
 If you've followed the optional Step 2, the `.index` file of your `alignment_db` files will have already been adjusted for duplicates and you can proceed to the next step. Otherwise, the standard alignment directory can be expanded to accommodate duplicates by inserting symlinked directories for the duplicate chains that point to their representative alignments:
