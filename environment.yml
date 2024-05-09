@@ -30,6 +30,7 @@ dependencies:
   - bioconda::hmmer==3.3.2
   - bioconda::hhsuite==3.3.0
   - bioconda::kalign2==2.04
+  - bioconda::mmseqs2
   - pytorch::pytorch=1.12.*
   - pip:
       - deepspeed==0.12.4
