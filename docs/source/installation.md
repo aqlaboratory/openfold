@@ -6,6 +6,8 @@ In this guide, we will OpenFold and its dependencies.
 
 This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml)
 
+At this time, only Linux systems are supported.
+
 ## Instructions
 :::
 
@@ -58,24 +60,3 @@ If you don't have access to `aws` on your system, you can use a different downlo
 ### Docker setup
 
 A [`Dockerfile`] is provided to build an OpenFold Docker image. Additional notes for setting up a docker container for OpenFold and running inference can be found [here](original_readme.md#building-and-using-the-docker-container).
-
-## Troubleshooting FAQ
-
-- In the unit tests, I see an error such as  
-	```
-	ImportError: version GLIBCXX_3.4.30 not found
-	```
-
-	> Solution: Make sure that the `$LD_LIBRARY_PATH` environment has been set to include the conda path, e.g. `export $LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`
-
-- I see a CUDA mismatch error, eg. 
-```
-The detected CUDA version (11.8) mismatches the version that was used to compile
-PyTorch (12.1). Please make sure to use the same CUDA versions.
-```
- 
- > 	Solution: Ensure that your system's CUDA driver and toolkit are is 12.x.  You can check the CUDA driver version with a command such as `nvidia-smi`
-
-- I get some error involving `fatal error: cuda_runtime.h: No such file or directory` and or `ninja: build stopped: subcommand failed.`. 
-
-> Solution: Something went wrong with setting up some of the custom kernels. Try running `install_third_party_dependencies.sh` again or try `python3 setup.py install` from inside the OpenFold folder. Make sure to prepend the conda environment as described above before running this.
