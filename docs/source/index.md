@@ -8,14 +8,15 @@
 Welcome to the Documentation for OpenFold, the fully open source, trainable, PyTorch-based reproduction of DeepMind's 
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
-
 Here, you will find guides and documentation for:
 - [Getting started with OpenFold](installation.md)!
 - Learn how to [run inference with OpenFold](Inference.md)
 - [Train your own OpenFold models](Training_OpenFold.md)
 - Find guidance for setup and running OpenFold in the [FAQ](FAQ.md).
 
-Some portions of the documentation are still under migration from the original README, which can be found [here](original_readme.md)
+We also have a [Colab notebook](https://colab.research.google.com/github/aqlaboratory/openfold/blob/main/notebooks/OpenFold.ipynb) that can be used for single structure / multimer prediction.
+
+Some portions of the documentation are still under migration from the original README, which can be found [here](original_readme.md).
 
 # Features
 

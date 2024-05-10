@@ -4,18 +4,20 @@ The multiple sequence alignments of OpenProteinSet and mmCIF structure files req
 
 ### Pre-Requisites:
 - OpenFold conda environment. See [OpenFold Installation](Installation.md) for instructions on how to build this environment. 
+- In particular, the [AWS CLI](https://aws.amazon.com/cli/) is used to download data from RODA.
 - For this guide, we assume that the OpenFold codebase is located at `$OF_DIR`.
 
 ## 1. Downloading alignments and structure files
 To fetch all the alignments corresponding to the original PDB training set of OpenFold alongside their mmCIF 3D structures, you can run the following commands:
 
 ```bash
-mkdir -p alignment_data/alignment_dir_roda --recursive --no-sign-request
+mkdir -p alignment_data/alignment_dir_roda
 aws s3 cp s3://openfold/pdb/ alignment_data/alignment_dir_roda/ --recursive --no-sign-request
 
 mkdir pdb_data
 aws s3 cp s3://openfold/pdb_mmcif.zip pdb_data/ --no-sign-request
-aws s3 cp s3://openfold/duplicate_pdb_chains.txt pdb_data/ --no-sign-request
+aws s3 cp s3://openfold/duplicate_pdb_chains.txt . --no-sign-request
+unzip pdb_mmcif.zip -d pdb_data
 ```
 
 The nested alignment directory structure is not yet exactly what OpenFold expects, so you can run the `flatten_roda.sh` script to convert them to the correct format:
@@ -102,7 +104,12 @@ python $OF_DIR/scripts/fasta_to_clusterfile.py \
 ## 5. Generating cluster-files
 As a last step, OpenFold requires ["cache" files](Aux_seq_files.md#chain-cache-files-and-mmcif-cache-files) with metadata information for each chain that are used for choosing templates and samples during training.
 
-The mmCIF-cache is used for filtering templates and can be generated with the following script:
+The data caches for OpenProteinSet can be downloaded from RODA with the following:
+
+```bash
+aws s3 cp s3://openfold/data_caches/ pdb_data/ --recursive --no-sign-request
+```
+If you wish to create data caches for your own datasets, the steps to generate the cache are as follows:
 
 ```bash
 mkdir pdb_data/data_caches

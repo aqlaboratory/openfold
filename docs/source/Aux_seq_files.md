@@ -14,7 +14,7 @@ For example, consider two protein as a case study
 ```
 - OpenProteinSet
   └── mmcifs 
-	 └── 3lrm.cif
+	 ├── 3lrm.cif
 	 └── 6kwc.cif
 	 ...
 ```
@@ -64,13 +64,13 @@ All together, the file directory would look like:
   └── pdb
 	  ├── mmcif_cache.json 
 	  └── mmcifs 
-		  └── 3lrm.cif
+		  ├── 3lrm.cif
 		  └── 6kwc.cif
 	  └── alignment_db
-		  └── alignment_db_0.db 
-          └── alignment_db_1.db
+		  ├── alignment_db_0.db 
+          ├── alignment_db_1.db
           ...
-          └── alignment_db_9.db
+          ├── alignment_db_9.db
 		  └── alignment_db.index 
 ```
 
