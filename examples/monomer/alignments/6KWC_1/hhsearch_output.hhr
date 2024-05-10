@@ -1,0 +1,1877 @@
+Query         6KWC_1 
+Match_columns 191
+No_of_seqs    118 out of 3259
+Neff          6.12143
+Searched_HMMs 80799
+Date          Fri May  3 07:42:23 2024
+Command       /home/jennifer.wei/miniforge3/envs/sanity-check-setup-improvements-1/bin/hhsearch -i /tmp/tmppltovqxq/query.a3m -o /home/jennifer.wei/update-test/example_monomer/alignments/6KWC_1/hhsearch_output.hhr -maxseq 1000000 -cpu 2 -d /bgfs02/PSIVANT/External/Openfold/Common/Datasets/af_dbs/pdb70/pdb70 
+
+ No Hit                             Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
+  1 2DFB_A Endo-1,4-beta-xylanase  100.0 3.8E-67 4.6E-72  433.5   0.0  189    3-191     2-190 (190)
+  2 3AKQ_A xylanase (E.C.3.2.1.8); 100.0 3.8E-67 4.6E-72  433.5   0.0  189    3-191     2-190 (190)
+  3 1TE1_B xylanase inhibitor prot 100.0 7.3E-66 9.1E-71  426.0   0.0  188    3-191     3-190 (190)
+  4 1H1A_B ENDOXYLANASE 11A (E.C.3 100.0 8.5E-66 1.1E-70  426.0   0.0  188    4-191     4-191 (191)
+  5 5HXV_D Endo-1,4-beta-xylanase  100.0 1.1E-65 1.4E-70  424.9   0.0  188    3-191     3-190 (190)
+  6 1XNK_A endoxylanase 11A (E.C.3 100.0 1.3E-65 1.7E-70  426.2   0.0  188    4-191     4-191 (196)
+  7 1PVX_A PROTEIN (ENDO-1,4-BETA- 100.0 2.4E-65   3E-70  424.1   0.0  188    4-191     3-191 (194)
+  8 3WP3_A Endo-1,4-beta-xylanase  100.0 2.5E-65 3.1E-70  427.5   0.0  187    4-191    21-207 (207)
+  9 1YNA_A ENDO-1,4-BETA-XYLANASE; 100.0 2.7E-65 3.3E-70  423.8   0.0  188    4-191     3-191 (194)
+ 10 3MF9_A Endo-1,4-beta-xylanase  100.0 7.5E-65 9.3E-70  420.9   0.0  185    4-191     7-191 (193)
+ 11 3MF6_A Endo-1,4-beta-xylanase  100.0 8.9E-65 1.1E-69  420.4   0.0  185    4-191     7-191 (193)
+ 12 2VGD_A ENXYN11A (E.C.3.2.1.8); 100.0 6.6E-64 8.2E-69  422.0   0.0  187    4-191    28-215 (218)
+ 13 2VUJ_A GH11 XYLANASE (E.C.3.2. 100.0 7.2E-64   9E-69  421.9   0.0  187    4-191    28-215 (219)
+ 14 1F5J_B BETA-1,4-XYLANASE (E.C. 100.0   5E-63 6.2E-68  411.8   0.0  186    4-191     3-193 (199)
+ 15 1H4G_A XYLANASE (E.C.3.2.1.8); 100.0 7.6E-63 9.5E-68  412.8   0.0  188    3-191     3-197 (207)
+ 16 1QH7_A XYLANASE (E.C.3.2.1.8); 100.0 7.6E-63 9.5E-68  412.8   0.0  188    3-191     3-197 (207)
+ 17 2F6B_A Family 11 Xylanase; Alk 100.0 9.9E-63 1.2E-67  411.9   0.0  188    3-191     3-197 (206)
+ 18 4IXL_A xylanase (E.C.3.2.1.8); 100.0 1.1E-62 1.4E-67  420.1   0.0  187    4-191    37-230 (244)
+ 19 5EJ3_B Endo-1,4-beta-xylanase  100.0 1.2E-62 1.4E-67  417.8   0.0  185    4-191    46-231 (234)
+ 20 2DCZ_A Endo-1,4-beta-xylanase  100.0 1.2E-62 1.5E-67  405.3   0.0  178   12-191     2-185 (185)
+ 21 5VQJ_A exo-beta-1,4-xylanase;  100.0 1.2E-61 1.5E-66  407.4   0.0  186    3-191     6-215 (217)
+ 22 5TVY_B Endo-1,4-beta-xylanase  100.0 1.5E-61 1.9E-66  399.6   0.0  179   11-191     4-188 (188)
+ 23 1T6G_C xylanase inhibitor (E.C 100.0 2.1E-61 2.6E-66  397.5   0.0  179   11-191     2-183 (184)
+ 24 1XYN_A ENDO-1,4-BETA-XYLANASE  100.0 2.8E-61 3.5E-66  395.1   0.0  175   12-191     2-177 (178)
+ 25 2QZ2_A Endo-1,4-beta-xylanase  100.0 3.6E-61 4.5E-66  396.2   0.0  179   11-191     2-183 (184)
+ 26 6QE8_A Endo-1,4-beta-xylanase  100.0   7E-61 8.7E-66  401.5   0.0  182    8-191    26-210 (211)
+ 27 6KKA_B Endo-1,4-beta-xylanase  100.0 2.3E-60 2.9E-65  420.9   0.0  186    4-190     3-195 (327)
+ 28 3M4F_C Endo-1,4-beta-xylanase  100.0 5.2E-60 6.4E-65  394.6   0.0  180    9-191    25-205 (205)
+ 29 2DCJ_B xylanase J (E.C.3.2.1.8 100.0 8.6E-60 1.1E-64  420.9   0.0  187    3-190    29-222 (354)
+ 30 2DCK_A xylanase J (E.C.3.2.1.8 100.0 8.6E-60 1.1E-64  420.9   0.0  187    3-190    29-222 (354)
+ 31 2VG9_A BIFUNCTIONAL ENDO-1,4-B 100.0   6E-59 7.5E-64  391.7   0.0  184    3-191     8-212 (217)
+ 32 2C1F_A BIFUNCTIONAL ENDO-1,4-B 100.0 3.7E-58 4.6E-63  390.6   0.0  184    4-191     9-214 (234)
+ 33 1AXK_B GLUXYN-1; GLUXYN-1, BIF 100.0   1E-57 1.3E-62  411.9   0.0  180   10-191   156-341 (394)
+ 34 3WP5_A CDBFV; xylanase, regula 100.0 1.2E-56 1.4E-61  380.2   0.0  185    3-189    18-219 (227)
+ 35 3WP4_A CDBFV; xylanase, regula 100.0 4.2E-56 5.2E-61  376.9   0.0  184    4-189    20-220 (228)
+ 36 3WP6_A CDBFV; xylanase, regula 100.0 4.6E-56 5.6E-61  376.7   0.0  186    3-190    19-221 (228)
+ 37 5GYC_A Endo-1,4-beta-xylanase  100.0 2.6E-54 3.2E-59  374.5   0.0  181   10-190    40-256 (281)
+ 38 5GYF_A Endo-1,4-beta-xylanase  100.0   6E-54 7.4E-59  372.0   0.0  182    9-190    39-256 (281)
+ 39 5GV1_A Endo-1,4-beta-xylanase  100.0   1E-53 1.2E-58  375.0   0.0  180   10-189    76-291 (322)
+ 40 3LB9_A Endo-1,4-beta-xylanase  100.0 6.3E-36 7.8E-41  246.6   0.0  118   10-129    64-182 (182)
+ 41 3LB9_A Endo-1,4-beta-xylanase   99.6 8.5E-20 1.1E-24  151.3   0.0   59  133-191     1-63  (182)
+ 42 1H8V_F ENDO-BETA-1,4-GLUCANASE  65.8     4.6 5.7E-05   34.8   0.0   93   84-188   113-210 (218)
+ 43 1OA4_A ENDO-BETA-1,4-GLUCANASE  63.7     5.4 6.7E-05   34.6   0.0   91   85-187   118-212 (222)
+ 44 1OA3_C ENDO-BETA-1-4-GLUCANASE  58.3     7.9 9.7E-05   33.4   0.0   93   84-188   113-210 (218)
+ 45 1KS5_A Aspergillus niger Endog  55.4     9.5 0.00012   33.0   0.0   93   84-184   113-210 (223)
+ 46 1KS4_A Aspergillus niger Endog  53.8      10 0.00013   32.8   0.0   93   84-184   113-210 (223)
+ 47 5GM5_C Endoglucanase-1 (E.C.3.  52.3      12 0.00014   32.4   0.0   93   84-188   114-212 (220)
+ 48 1OLR_A ENDO-BETA-1,4-GLUCANASE  49.0      14 0.00017   32.0   0.0   89   84-184   117-211 (224)
+ 49 1UU5_A ENDO-BETA-1,4-GLUCANASE  49.0      14 0.00017   32.0   0.0   89   84-184   117-211 (224)
+ 50 1OA2_D ENDO-BETA-1,4-GLUCANASE  47.6      15 0.00019   31.7   0.0   93   84-188   113-210 (218)
+ 51 5M2D_A Beta-xylanase (E.C.3.2.  46.1      17 0.00021   31.9   0.0   89   84-184   129-222 (235)
+ 52 2NLR_A ENDOGLUCANASE (E.C.3.2.  44.1      19 0.00023   31.7   0.0   92   85-188   118-213 (234)
+ 53 2JEN_A ENDO-BETA-1,4-GLUCANASE  41.8      22 0.00027   31.9   0.0   98   84-188   152-253 (261)
+ 54 5GM4_E Endoglucanase-1 (E.C.3.  40.7      23 0.00029   30.6   0.0   93   84-188   113-211 (219)
+ 55 5GM3_A Endoglucanase-1 (E.C.3.  40.0      24  0.0003   30.5   0.0   89   84-184   113-206 (219)
+ 56 2BW8_A ENDOGLUCANASE (E.C.3.2.  39.3      25 0.00031   30.6   0.0   90   85-187   122-216 (227)
+ 57 4G6T_B Type III chaperone prot  36.8      29 0.00036   26.3   0.0   16  105-120     6-21  (82)
+ 58 3VLB_B EDGP, Xyloglucan-specif  31.6      40  0.0005   29.3   0.0   91   84-184   114-209 (222)
+ 59 3B7M_C CELLULASE (E.C.3.2.1.4)  27.3      53 0.00066   28.4   0.0   92   84-187   111-207 (216)
+ 60 1H0B_B CELLULASE (E.C.3.2.1.4)  26.2      58 0.00071   29.2   0.0   91   84-187   121-216 (256)
+
+No 1
+>2DFB_A Endo-1,4-beta-xylanase 2 (E.C.3.2.1.8); bent beta sheet, HYDROLASE; 1.11A {Hypocrea jecorina} SCOP: b.29.1.11
+Probab=100.00  E-value=3.8e-67  Score=433.53  Aligned_cols=189  Identities=99%  Similarity=1.595  Sum_probs=182.2  Template_Neff=5.600
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   82 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~   82 (191)
+                      +.++++|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||++
+T Consensus         2 ~~~~~~g~~~gy~y~~W~dg~~~~~~t~~~~G~fs~~W~~~~nfv~GkGw~~g~~~r~i~Ysg~~~~~g~syl~vYGWt~   81 (190)
+T 2DFB_A            2 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGNFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   81 (190)
+T ss_dssp             EECSEEEEETTEEEEEEECSCCCEEEEECSTTEEEEEESSCCEEEEEEEESSCCSSCEEEEEEEEEEESSEEEEEEEEEE
+T ss_pred             CCCCCcceecceeeeeEEcCCCeeeEECCCCCceEEEEecCCCeEEeceeCCCCCceEEEEEEEeCCCCCeEEEeeecCC
+Confidence            45678899999999999998777899998999999999999999999999999877999999999999999999999999
+
+
+Q 6KWC_1           83 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        83 nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      +|||||||||+|+.++|+.+++++|++++||++||||++.|.++|||+|+.+|+||||||+++|++|+|++++||+||++
+T Consensus        82 nPlvEyYIve~~g~~~P~~~~~~~Gt~~sDG~tYdiy~~~r~n~PSi~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~  161 (190)
+T 2DFB_A           82 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  161 (190)
+T ss_dssp             TTTEEEEEEEEESSCCTTTTCEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSSEEEEHHHHHHHHHH
+T ss_pred             CcceeEEEEeecceecCCCCceEeeEEEECCCEEEEEEeeecCCCceeCCceeEEEEEecccCCCceEeehHHHHHHHHH
+Confidence            99999999999999999988889999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||+|+||||.|||+|+|||+
+T Consensus       162 ~G~~lG~~~~qi~a~Eg~~ssG~a~vtv~  190 (190)
+T 2DFB_A          162 QGLTLGTMDYQIVAVEGYFSSGSASITVS  190 (190)
+T ss_dssp             TTCCCCEEEEEEEEEEEESCEEEEEEEEC
+T ss_pred             cCCCCCCCceEEEEEEcccccceEEEEeC
+Confidence            99999999999999999999999999986
+
+
+No 2
+>3AKQ_A xylanase (E.C.3.2.1.8); xylanase, HYDROLASE; 0.97A {Trichoderma longibrachiatum}
+Probab=100.00  E-value=3.8e-67  Score=433.53  Aligned_cols=189  Identities=99%  Similarity=1.595  Sum_probs=182.2  Template_Neff=5.600
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   82 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~   82 (191)
+                      +.++++|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||++
+T Consensus         2 ~~~~~~g~~~gy~y~~W~dg~~~~~~t~~~~G~fs~~W~~~~nfv~GkGw~~g~~~r~i~Ysg~~~~~g~syl~vYGWt~   81 (190)
+T 3AKQ_A            2 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGNFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   81 (190)
+T ss_dssp             EECSEEEEETTEEEEEEECSCSCEEEEECSTTEEEEEESSCCEEEEEEEESSCCSSCEEEEEEEEEEESSEEEEEEEEEE
+T ss_pred             CCCCCcceecceeeeeEEcCCCeeeEECCCCCceEEEEecCCCeEEeceeCCCCCceEEEEEEEeCCCCCeEEEeeecCC
+Confidence            45678899999999999998777899998999999999999999999999999877999999999999999999999999
+
+
+Q 6KWC_1           83 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        83 nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      +|||||||||+|+.++|+.+++++|++++||++||||++.|.++|||+|+.+|+||||||+++|++|+|++++||+||++
+T Consensus        82 nPlvEyYIve~~g~~~P~~~~~~~Gt~~sDG~tYdiy~~~r~n~PSi~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~  161 (190)
+T 3AKQ_A           82 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  161 (190)
+T ss_dssp             TTTEEEEEEEEESSCCTTTTCCEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSSEEEEHHHHHHHHHH
+T ss_pred             CcceeEEEEeecceecCCCCceEeeEEEECCCEEEEEEeeecCCCceeCCceeEEEEEecccCCCceEeehHHHHHHHHH
+Confidence            99999999999999999988889999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||+|+||||.|||+|+|||+
+T Consensus       162 ~G~~lG~~~~qi~a~Eg~~ssG~a~vtv~  190 (190)
+T 3AKQ_A          162 QGLTLGTMDYQIVAVEGYFSSGSASITVS  190 (190)
+T ss_dssp             TTCCCCEEEEEEEEEEEESCEEEEEEEEC
+T ss_pred             cCCCCCCCceEEEEEEcccccceEEEEeC
+Confidence            99999999999999999999999999986
+
+
+No 3
+>1TE1_B xylanase inhibitor protein I, endo-1,4-xylanase; BETA/ALPHA BARREL (XIP-I) and BETA; HET: EDO, NAG; 2.5A {Triticum aestivum} SCOP: b.29.1.11
+Probab=100.00  E-value=7.3e-66  Score=425.96  Aligned_cols=188  Identities=60%  Similarity=1.155  Sum_probs=180.8  Template_Neff=5.700
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   82 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~   82 (191)
+                      .++++.|.+++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++. .|+|+|+++|+|+|++||+||||++
+T Consensus         3 ~~~~~~g~~~gy~y~~W~d~~~~~~~~~~~~G~fs~~W~~~~nfv~GkGw~~g~-~~~i~y~g~~~~~g~~yl~vYGWt~   81 (190)
+T 1TE1_B            3 ITTSQTGTNNGYYYSFWTNGGGEVTYTNGDNGEYSVTWVDCGDFTSGKGWNPAN-AQTVTYSGEFNPSGNAYLAVYGWTT   81 (190)
+T ss_dssp             BCSCEEEESSSCEEEEEECSCSEEEEEECSTTEEEEEEESCSEEEEEEEESSCC-SCEEEEEEEEEEESSEEEEEEEEEE
+T ss_pred             eeccccccccceeeeeeecCCCeeEEECCCCCcEEEEEEcCCCEEEeccccCCC-CeEEEEEEEeCCCCceEEEEEeccC
+Confidence            356788899999999999987778999999999999999999999999999998 5899999999999999999999999
+
+
+Q 6KWC_1           83 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        83 nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      +|||||||||+|+.++|+.+.+++|++++||++||||++.|+|+|||+|+.+|+||||||+++|++|+|++++||+||++
+T Consensus        82 nPlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~r~n~PsI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~  161 (190)
+T 1TE1_B           82 DPLVEYYILESYGTYNPSSGLTSLGQVTSDGGTYDIYSTQRVNQPSIEGTSTFNQYWSVRTEKRVGGTVTTANHFAAWKA  161 (190)
+T ss_dssp             TTTEEEEEEEEESSSCSCSSSCCCCCCBCSSSBCCEEEEEEEEECBTTSSEEEEEEEECCSSCCSEEEEEHHHHHHHHHH
+T ss_pred             CcceeEEEEeecccccCCCCceEeeEEEEcCCEEEEEEeeeCCCCcccCCceeEEEEEccCCccCccEEEhHHHHHHHHH
+Confidence            99999999999999999987889999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||+|+||||.|||+|+|||+
+T Consensus       162 ~G~~lG~~~~qi~a~Eg~~ssG~a~~tv~  190 (190)
+T 1TE1_B          162 LGLEMGTYNYMIVSTEGYESSGSSTITVS  190 (190)
+T ss_dssp             TTCCCCEEEEEEEEEEEESCEEEEEEEEC
+T ss_pred             cCCCcCCcceEEEEEeccccceeEEEEeC
+Confidence            99999999999999999999999999986
+
+
+No 4
+>1H1A_B ENDOXYLANASE 11A (E.C.3.2.1.8); HYDROLASE, XYLANASE, GLYCOSYL HYDROLASE, FAMILY; HET: SO4, PCA; 1.75A {Chaetomium thermophilum} SCOP: b.29.1.11
+Probab=100.00  E-value=8.5e-66  Score=425.96  Aligned_cols=188  Identities=64%  Similarity=1.255  Sum_probs=181.0  Template_Neff=5.800
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..+.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||+++
+T Consensus         4 ~~~~~g~~~gy~y~~W~dg~g~~~~t~~~~G~ys~~W~~~~nfv~gkGw~~g~~~r~i~y~~~~~~~g~syl~vYGWt~n   83 (191)
+T 1H1A_B            4 TSSATGTHNGYYYSFWTDGQGNIRFNLESGGQYSVTWSGNGNWVGGKGWNPGTDNRVINYTADYRPNGNSYLAVYGWTRN   83 (191)
+T ss_dssp             SSSEEEEETTEEEEEEECSCSEEEEEECSTTEEEEEEESSCEEEEEEEESSCCTTCEEEEEEEEEEESSEEEEEEEEEET
+T ss_pred             cccceecccCeeeeeEecCCCeEEEEcCCCCeEEEEEeCCCCEEEecccCCCCCceEEEEEEEeCCCCceEEEEEecCCC
+Confidence            46678899999999999987778899989999999999999999999999998679999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+.+++++|++++||++||||++.|+|+|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        84 PlvEYYIve~~g~~~P~~~~~~~Gt~~sDG~tYdiy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~~  163 (191)
+T 1H1A_B           84 PLIEYYVVESFGTYDPSTGATRMGSVTTDGGTYNIYRTQRVNAPSIEGTKTFYQYWSVRTSKRTGGTVTMANHFNAWRQA  163 (191)
+T ss_dssp             TTEEEEEEEEESSSCTTTTSEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHHHHHHHHHT
+T ss_pred             CceeEEEEeecceecCCCCcEEeeEEEEcCCEEEEEEeeeCCCCcccCCceeEEEEEecccccCcceEehhHHHHHHHHh
+Confidence            99999999999999999888899999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||||+||||.|||+|+|||+
+T Consensus       164 G~~lG~~~yqi~a~Eg~~ssG~a~vtv~  191 (191)
+T 1H1A_B          164 GLQLGSHDYQIVATEGYYSSGSATVNVG  191 (191)
+T ss_dssp             TCCCSEEEEEEEEEEEESCEEEEEEEEC
+T ss_pred             CCCCCCCceEEEEEEeccccceEEEEeC
+Confidence            9999999999999999999999999985
+
+
+No 5
+>5HXV_D Endo-1,4-beta-xylanase (E.C.3.2.1.8); Glycoside hydrolase family 11 Endo-xylanase; 2.0A {Talaromyces cellulolyticus CF-2612}
+Probab=100.00  E-value=1.1e-65  Score=424.91  Aligned_cols=188  Identities=59%  Similarity=1.146  Sum_probs=180.8  Template_Neff=5.800
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSR   82 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~   82 (191)
+                      .++++.|.+++|+|++|.|+.+.+++++.++|+|+|+|++.+||++||||+++. .++|+|+++|+|+|++||+||||++
+T Consensus         3 ~~~~~~g~~~gy~y~~w~d~~~~~s~~~~~~G~fs~~W~~~~nfv~GkGw~~g~-~~~i~y~~~~~~~g~syl~vYGWt~   81 (190)
+T 5HXV_D            3 ITTSQTGTHNGYYYSFWTNGGGEVTMCLGPGGEYSVTWVNCGDFTSGKGWNPAN-AQTVTYSGEFNPNGNAYLAVYGWTT   81 (190)
+T ss_dssp             BCSCEEEEETTEEEEEEECSCSEEEEEECSTEEEEEEEESCSEEEEEEEESSCC-CCEEEEEEEEEESSEEEEEEEEEEE
+T ss_pred             eecccceeecceeeeeEecCCCeEeEEcCCCCceEEEEEcCCCEEEeccccCCC-CeEEEEEEEeCCCCceEEEEEeccC
+Confidence            356788899999999999987778899989999999999999999999999998 5899999999999999999999999
+
+
+Q 6KWC_1           83 NPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        83 nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      +|||||||||+|+.++|+.+++++|++++||++||||++.|+++|||+|+.+|+||||||+++|++|+|++++||+||++
+T Consensus        82 nPlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tY~iy~~~r~n~psI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~  161 (190)
+T 5HXV_D           82 DPLVEYYILESYGTYNPSSGLTLLGQVTSDGGTYDIYSTQRVDQPSIEGTSTFNQYWSVRTEKRVGGTVTTANHFAAWKA  161 (190)
+T ss_dssp             TTTEEEEEEEEESSCCTTTTCCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCCSEEEEHHHHHHHHHH
+T ss_pred             CcceeEEEEEecceeCCCCCceEeeEEEECCCEEEEEEEeeCCCCcccCCceeEEEEEecccccCccEEEhHHHHHHHHH
+Confidence            99999999999999999987889999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||+|+||||.|+|+|+|||+
+T Consensus       162 ~G~~lG~~~~qi~a~Eg~~ssG~a~vtv~  190 (190)
+T 5HXV_D          162 LGLEMGTYNYMIVSTEGYESSGSSTITVS  190 (190)
+T ss_dssp             TTCCCCEEEEEEEEEEEESCCEEEEEEEC
+T ss_pred             cCCCcCCcceEEEEEecccccceEEEEeC
+Confidence            99999999999999999999999999996
+
+
+No 6
+>1XNK_A endoxylanase 11A (E.C.3.2.1.8); xylanase, glycoside hydrolase, family 11; HET: PCA, SO4, XS2; 1.55A {Chaetomium thermophilum} SCOP: b.29.1.11
+Probab=100.00  E-value=1.3e-65  Score=426.21  Aligned_cols=188  Identities=64%  Similarity=1.255  Sum_probs=181.0  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..|.+++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||+++
+T Consensus         4 ~~~~~g~~~gy~y~~W~dg~g~~~~t~~~~g~ys~~W~~~gnfv~gkGw~~g~~~r~i~y~~~~~~~g~syl~vYGWt~n   83 (196)
+T 1XNK_A            4 TSSATGTHNGYYYSFWTDGQGNIRFNLESGGQYSVTWSGNGNWVGGKGWNPGTDNRVINYTADYRPNGNSYLAVYGWTRN   83 (196)
+T ss_dssp             CSSEEEEETTEEEEEEECSCSEEEEEECSTTEEEEEEESSCEEEEEEEESSCCTTCEEEEEEEEEEEEEEEEEEEEEEET
+T ss_pred             cccceecccCeeeeeEecCCCeEEEEcCCCCeEEEEEeCCCCEEEeceeCCCCCceEEEEEEEeCCCCceEEEEEecCCC
+Confidence            45678899999999999987788899989999999999999999999999998779999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+.+++++|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        84 PlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~~  163 (196)
+T 1XNK_A           84 PLIEYYVVESFGTYDPSTGATRMGSVTTDGGTYNIYRTQRVNAPSIEGTKTFYQYWSVRTSKRTGGTVTMANHFNAWRQA  163 (196)
+T ss_dssp             TTEEEEEEEEESSCCTTTTCEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHHHHHHHHHT
+T ss_pred             cceeEEEEEecccccCCCCceEeeEEEEcCCEEEEEEeeeCCCCcccCCceeEEEEEecccccCceeEehhHHHHHHHHh
+Confidence            99999999999999999888899999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||||+||||.|||+|+|||+
+T Consensus       164 G~~lG~~~yqi~a~Eg~~ssG~a~vtv~  191 (196)
+T 1XNK_A          164 GLQLGSHDYQIVATEGYYSSGSATVNVG  191 (196)
+T ss_dssp             TCCCCEEEEEEEEEEEEEEEEEEEEEEC
+T ss_pred             CCCCCCCceEEEEEEccccceEEEEEEe
+Confidence            9999999999999999999999999985
+
+
+No 7
+>1PVX_A PROTEIN (ENDO-1,4-BETA-XYLANASE) (3.2.1.8); THERMOPHILIC, XYLANASE, FAMILY-11 OF GLYCOSYL; 1.59A {Paecilomyces variotii} SCOP: b.29.1.11
+Probab=100.00  E-value=2.4e-65  Score=424.10  Aligned_cols=188  Identities=59%  Similarity=1.141  Sum_probs=180.3  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++++|.+++|+|++|.|+.+.++|++.++|.|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||+++
+T Consensus         3 ~~~~~g~~~gy~y~~W~~~~~~~~~t~~~~G~fs~~W~~~~nfv~gkGw~~g~~~r~i~y~~~~~~~g~syl~vYGWt~~   82 (194)
+T 1PVX_A            3 TPNSEGWHDGYYYSWWSDGGGDSTYTNNSGGTYEITWGNGGNLVGGKGWNPGLNARAIHFTGVYQPNGTSYLSVYGWTRN   82 (194)
+T ss_dssp             CCCEEEEETTEEEEEEECSCSCEEEEECSTTEEEEEECSSSEEEEEEEESSCCSSCEEEEEEEEEESSSEEEEEEEEEET
+T ss_pred             CCCccceecCeeeeeEecCCCeeeEEcCCCCceEEEEeCCCCEEEecccCCCCCCceEEEEEEeCCCCceEEEEeecCCC
+Confidence            45678899999999999987778899889999999999999999999999998679999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+.+.+++|++++||++||||++.|.|+|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        83 PlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~r~n~Psi~G~~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~~  162 (194)
+T 1PVX_A           83 PLVEYYIVENFGSSNPSSGSTDLGTVSCDGSTYTLGQSTRYNAPSIDGTQTFNQYWSVRQDKRSSGTVQTGCHFDAWASA  162 (194)
+T ss_dssp             TTEEEEEEEEESSSCTTTTSEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSSEEEEHHHHHHHHHHT
+T ss_pred             CceeEEEEeeccccCCCCCceeceEEEECCCEEEEEEeeecCCCcccCCceeEEEEEecCCCCCceEEEhhHHHHHHHHc
+Confidence            99999999999999999877899999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTL-GTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~l-G~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+| |+++||+|+||||.|||+|+|||+
+T Consensus       163 G~~lgg~~~~qi~a~Eg~~ssG~a~vt~~  191 (194)
+T 1PVX_A          163 GLNVTGDHYYQIVATEGYFSSGYARITVA  191 (194)
+T ss_dssp             TCCCCSEEEEEEEEEEEESSCEEEEEEEE
+T ss_pred             CCCCCCCcceEEEEEEeccceeEEEEEEe
+Confidence            9999 589999999999999999999985
+
+
+No 8
+>3WP3_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); Beta-jelly roll, Glycoside hydrolase, HYDROLASE; 1.98A {Talaromyces funiculosus}
+Probab=100.00  E-value=2.5e-65  Score=427.46  Aligned_cols=187  Identities=59%  Similarity=1.145  Sum_probs=180.0  Template_Neff=5.500
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..+.+++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++. .|+|+|+++|+++|++||+||||+++
+T Consensus        21 ~~~~~g~~~gy~y~~W~d~~~~~~~t~~~~G~fs~~W~~~~nfv~GkGw~~g~-~r~i~y~g~~~~~g~syl~vYGWt~n   99 (207)
+T 3WP3_A           21 TTSQTGTNNGYYYSFWTNGGGEVTYTNGDNGEYSVTWVNCGDFTSGKGWNPAN-AQTVTYSGEFNTSGNAYLAVYGWTTD   99 (207)
+T ss_dssp             CSCEEEEETTEEEEEEECSCSEEEEEECSTTEEEEEEESCSEEEEEEEESSCC-CCEEEEEEEEEESSEEEEEEEEEEET
+T ss_pred             ecccceeecceeeeeEEcCCCeEEEECCCCCcEEEEEEcCCcEEEeccccCCC-CeEEEEEEEecCCCceEEEEEeccCC
+Confidence            45677899999999999987778999989999999999999999999999998 69999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+.+++++|++++||++||||++.|+|+|||+|+.+|+||||||+++|++|+|++++||+||+++
+T Consensus       100 PlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~R~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~~  179 (207)
+T 3WP3_A          100 PLVEYYILESYGTYNPSSGLTLLGQVTSDGGTYDIYSTQRVDQPSIEGTSTFNQYWSVRTEKRVGGTVTTANHFAAWKAL  179 (207)
+T ss_dssp             TTEEEEEEEEESSCCTTTTSEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSSEEEEHHHHHHHHHHT
+T ss_pred             CceeEEEEEecceecCCCCceEeeEEEECCCEEEEEEEeeCCCCcccCCceeEEEEEccccccCccEEEhHHHHHHHHHc
+Confidence            99999999999999999888899999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||+|+||||.|||+|+|||+
+T Consensus       180 Gl~lG~~~~qi~a~Eg~~ssG~a~vtv~  207 (207)
+T 3WP3_A          180 GLEMGTYNYMIVSTEGYESSGSSTITVS  207 (207)
+T ss_dssp             TCCCCEEEEEEEEEEEESCCEEEEEEEC
+T ss_pred             CCCcCCcceEEEEEeccccceeEEEEeC
+Confidence            9999999999999999999999999986
+
+
+No 9
+>1YNA_A ENDO-1,4-BETA-XYLANASE; HYDROLASE, XYLANASE; 1.55A {Thermomyces lanuginosus} SCOP: b.29.1.11
+Probab=100.00  E-value=2.7e-65  Score=423.82  Aligned_cols=188  Identities=59%  Similarity=1.151  Sum_probs=180.3  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      ++++.|.+++|+|++|.|+.+.++|++.++|.|+|+|++.+||++||||+++..+|+|+|+++|+|+|++||+||||+++
+T Consensus         3 ~~~~~g~~~gy~y~~W~~~~~~~~~t~~~~G~ys~~W~~~~~fv~gkGw~~g~~~r~i~y~g~~~~~g~~yl~vYGWt~~   82 (194)
+T 1YNA_A            3 TPNSEGWHDGYYYSWWSDGGAQATYTNLEGGTYEISWGDGGNLVGGKGWNPGLNARAIHFEGVYQPNGNSYLAVYGWTRN   82 (194)
+T ss_dssp             CCCEEEEETTEEEEEEECSSSCEEEEECSTTEEEEEECSSSEEEEEEEESSCCSSCEEEEEEEEEEESSEEEEEEEEEET
+T ss_pred             CCCccceecCeeeeeEeeCCCeeEEEcCCCCeEEEEEeCCCCEEEecccCCCCCCceEEEEEEeCCCCceEEEEEecCCC
+Confidence            46678899999999999987778999989999999999999999999999998779999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+.+++++|++++||++||||+..|.++|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        83 PlvEYYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~r~n~psi~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~~  162 (194)
+T 1YNA_A           83 PLVEYYIVENFGTYDPSSGATDLGTVECDGSIYRLGKTTRVNAPSIDGTQTFDQYWSVRQDKRTSGTVQTGCHFDAWARA  162 (194)
+T ss_dssp             TTEEEEEEEEESSSCTTTTCEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSSEEEEHHHHHHHHHHT
+T ss_pred             CeeeEEEEeeccccCCCCCceEeeEEEECCcEEEEEEeeecCCCcccCCceeEEEEEecCCCCCccEEEhHHHHHHHHHc
+Confidence            99999999999999999888899999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTL-GTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~l-G~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+| ++++||+|+||||.|+|+|+|||+
+T Consensus       163 G~~lgg~~~~qi~a~Eg~~ssG~a~vtv~  191 (194)
+T 1YNA_A          163 GLNVNGDHYYQIVATEGYFSSGYARITVA  191 (194)
+T ss_dssp             TCCCCSEEEEEEEEEEEESCEEEEEEEEE
+T ss_pred             CCCCCCCcceEEEEEEcccceeEEEEEEe
+Confidence            9999 579999999999999999999985
+
+
+No 10
+>3MF9_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); peptide binding, jelly-role, family 11; HET: SO4; 1.7A {Thermopolyspora flexuosa}
+Probab=100.00  E-value=7.5e-65  Score=420.86  Aligned_cols=185  Identities=52%  Similarity=1.031  Sum_probs=177.5  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      ++++.|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||+++. +|+|+|+++|+|+|++||+||||+++
+T Consensus         7 ~~~~~g~~~gy~y~~w~d~~g~~~~t~~~~G~fs~~W~~~~~f~~GkGw~~g~-~r~i~y~~~~~~~g~syl~vYGWt~n   85 (193)
+T 3MF9_A            7 TQNQTGYDNGYFYSFRTDAPGTVSMTLHSGGSYSTSWRNTGLFVAGKGWSTGG-RRTVTYNASFNPSGNARLTLYGWTRN   85 (193)
+T ss_dssp             CSCEEEEETTEEEEEEESSTTSEEEEECSTTEEEEEESSCCEEEEEEEESSCC-SCEEEEEEEEEEEEEEEEEEEEEEET
+T ss_pred             cccccccccceEeEEEecCCCeeEEEccCCceEEEEEEcCCcEEEeeccCCCC-ceEEEEEEEeCCCCceEEEEEeccCC
+Confidence            45677899999999999977778999999999999999999999999999998 58999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+  .+.+|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        86 PlvEYYIve~~g~~~P~--~~~~Gt~tsDG~tYdvy~~~r~n~psI~Gt~tF~Qy~SVR~~~r~~GtIt~~~Hf~aW~~~  163 (193)
+T 3MF9_A           86 PLVSYHIVESWGTYRPT--GTYKGTVTTDGGTYDIYETWRYNAPSIEGTRTYQQFWSVRQQKRTSGTITIGNHFDAWARA  163 (193)
+T ss_dssp             TTEEEEEEEEESSCCCC--CEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHHHHHHHHHT
+T ss_pred             CeeeEEEEEeccccCCC--CceeEEEEEcCCEEEEEEeeeCCCCCccCCceeEEEEEecccccCccEEEehHHHHHHHHh
+Confidence            99999999999999997  4689999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||||+||||.|+|+|+|||+
+T Consensus       164 Gl~lG~~~yqi~a~Eg~~ssG~a~vtv~  191 (193)
+T 3MF9_A          164 GMNLGSHDYQIMATEGYQSSGSSTVSIS  191 (193)
+T ss_dssp             TCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             CcCCCCcceEEEEEEcccccceEEEEEe
+Confidence            9999999999999999999999999986
+
+
+No 11
+>3MF6_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); peptide binding, jelly-role, designed, computational; HET: SO4; 1.28A {Thermopolyspora flexuosa}
+Probab=100.00  E-value=8.9e-65  Score=420.41  Aligned_cols=185  Identities=51%  Similarity=1.029  Sum_probs=177.3  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      ++++.|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||+++. .|+|+|+++|+|+|++||+||||+++
+T Consensus         7 ~~~~~g~~~gy~y~~w~d~~g~~~~t~~~~G~fs~~W~~~~~fv~GkGw~~g~-~r~i~Y~~~~~~~g~syl~vYGWt~n   85 (193)
+T 3MF6_A            7 TQNQTGYDNGYFYSFRTDAPGTVSMTLHSGGSYSTSWRNTGLFLAGKGWSTGG-RRTVTYNASFNPSGNARLTLYGWTRN   85 (193)
+T ss_dssp             CSCEEEEETTEEEEEEESSTTSEEEEECSTTEEEEEESSCCEEEEEEEESSCC-SCEEEEEEEEEEEEEEEEEEEEEEET
+T ss_pred             cccccccccceEeEEEecCCCeeEEEcCCCCeEEEEEEcCCcEEEeeeeCCCC-ceEEEEEEEECCCCceEEEEEeccCC
+Confidence            45677899999999999977778999999999999999999999999999998 58999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+  .+.+|++++||++||||++.|.|+|||+|+.+|+||||||+++|.+|+|++++||+||+++
+T Consensus        86 PliEYYIve~~g~~~P~--~~~~Gt~tsDG~tY~vy~~~r~n~psI~Gt~tF~Qy~SVR~~~r~~GtIt~~~Hf~aW~~~  163 (193)
+T 3MF6_A           86 PLVSYHIVESWGTYRPT--GTYKGTVTTDGGTYDIYETWRYNAPSIEGTRTYQQFWSVRQQKRTSGTITIGNHFDAWARA  163 (193)
+T ss_dssp             TTEEEEEEEEESSCCCC--CEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHHHHHHHHHT
+T ss_pred             CeeeEEEEEeccccCCC--CceeEEEEEcCCEEEEEEeeeCCCCCccCCceeEEEEEecccccCccEEEehHHHHHHHHh
+Confidence            99999999999999997  3579999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||||+||||.|+|+|+|||+
+T Consensus       164 Gl~lG~~~yqi~a~Eg~~ssG~a~vtv~  191 (193)
+T 3MF6_A          164 GMNLGSHDYQIMATEGYQSSGSSTVSIS  191 (193)
+T ss_dssp             TCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             CcCCCCcceEEEEEEcccccceEEEEEe
+Confidence            9999999999999999999999999985
+
+
+No 12
+>2VGD_A ENXYN11A (E.C.3.2.1.8); GLYCOSIDE HYDROLASE, XYLANASE, BETA JELLY; HET: GOL, XYP, FX3; 1.8A {ESCHERICHIA COLI}
+Probab=100.00  E-value=6.6e-64  Score=422.03  Aligned_cols=187  Identities=56%  Similarity=1.105  Sum_probs=178.6  Template_Neff=5.700
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..+.+++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++. .|.|+|+++|+|+|++||+||||+++
+T Consensus        28 ~~~~~g~~~gy~y~~W~d~~g~~~~~~~~~G~fs~~W~~~~nfv~gkGw~~G~-~~~i~Ys~~~~~~g~sYl~vYGWt~n  106 (218)
+T 2VGD_A           28 TSSQTGTNNGFYYSFWKDSPGTVNFCLQSGGRYTSNWSGINNWVGGKGWQTGS-RRNITYSGSFNSPGNGYLALYGWTTN  106 (218)
+T ss_dssp             CSCEEEEETTEEEEEEECSSSEEEEEECSTTEEEEEEESCSEEEEEEEESSCC-SCEEEEEEEEECSSSEEEEEEEEEET
+T ss_pred             ccCccceecceeeeeEecCCCeeeEECCCCcceEEEEecCCCEEEeccccCCC-CceEEEEEEecCCCceEEEEEeccCC
+Confidence            45677889999999999987788999999999999999999999999999998 58999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPST-GATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~-~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      |||||||||+|+.|+|+. +++++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|+|++++||+||++
+T Consensus       107 PlvEYYIve~~g~~~P~~~~~~~~Gt~tsDG~tY~vy~~~r~n~PsI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~  186 (218)
+T 2VGD_A          107 PLVEYYVVDSWGSWRPPGSDGTFLGTVNSDGGTYDIYRAQRVNAPSIIGNATFYQYWSVRQSKRVGGTITTGNHFDAWAS  186 (218)
+T ss_dssp             TTEEEEEEEEESSSCTTGGGSEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCCSEEEEHHHHHHHHHH
+T ss_pred             CceeEEEEEecccCCCCCCCceEEEEEEECCcEEEEEEeeecCCCcccCCceeEEEEEecCCcCCceeEEhhHHHHHHHH
+Confidence            999999999999999964 5688999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||||+||||.|+|+|+|||+
+T Consensus       187 ~Gl~lG~~~~qi~a~Eg~~ssG~a~vtv~  215 (218)
+T 2VGD_A          187 VGLNLGTHNYQIMATEGYQSSGSSDITVS  215 (218)
+T ss_dssp             TTCCCCEEEEEEEEEEEESCCEEEEEEEE
+T ss_pred             cCCCCCCCceEEEEEeccccceeEEEEEe
+Confidence            99999999999999999999999999985
+
+
+No 13
+>2VUJ_A GH11 XYLANASE (E.C.3.2.1.8); GH11, XYLANASE, HYDROLASE, GLYCOSIDASE; 1.8A {ESCHERICHIA COLI}
+Probab=100.00  E-value=7.2e-64  Score=421.94  Aligned_cols=187  Identities=56%  Similarity=1.110  Sum_probs=178.8  Template_Neff=5.600
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..+.+++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++. .++|+|+++|+++|++||+||||+++
+T Consensus        28 ~~~~~g~~~gy~y~~W~d~~g~~~~~~~~~G~fs~~W~~~~nfv~gkGw~~G~-~~~i~Y~g~~~~~g~sYl~vYGWt~n  106 (219)
+T 2VUJ_A           28 TSSQTGTNNGFYYSFWKDSPGTVNFCLQSGGRYTSNWSGINNWVGGKGWQTGS-RRNITYSGSFNSPGNGYLALYGWTTN  106 (219)
+T ss_dssp             CSCEEEEETTEEEEEEECSSSEEEEEECSTTEEEEEEESCSEEEEEEEESSCC-SCEEEEEEEEECSSSEEEEEEEEEET
+T ss_pred             cCCceeeecceeeeeeecCCCeeeEEcCCCcceEEEEeccCcEEEEecccCCC-cceEEEEEEecCCCceEEEEeeccCC
+Confidence            45677899999999999987788999999999999999999999999999998 58999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPS-TGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~-~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      |||||||||+|+.++|+ .+++++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|+|++++||+||++
+T Consensus       107 PlvEYYIve~~g~~~P~~~~~~~~Gt~tsDG~tYdiy~~~r~n~PsI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~  186 (219)
+T 2VUJ_A          107 PLVEYYVVDSWGSWRPPGSDGTFLGTVNSDGGTYDIYRAQRVNAPSIIGNATFYQYWSVRQSKRVGGTITTGNHFDAWAS  186 (219)
+T ss_dssp             TTEEEEEEEEESSSCSSCTTCEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCCSEEEEHHHHHHHHHH
+T ss_pred             CceeEEEEeccCccCCCCCCceEeEEEEECCCEEEEEEeeeCCCCccccCceeEEEEEeccCccCcceEechHHHHHHHH
+Confidence            99999999999999996 35689999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          163 QGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       163 ~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+||+++||||++|||.|+|+|+|||+
+T Consensus       187 ~G~~lG~~~~qi~a~Eg~~ssG~a~vtv~  215 (219)
+T 2VUJ_A          187 VGLNLGTHNYQIMATEGYQSSGSSDITVS  215 (219)
+T ss_dssp             TTCCCCEEEEEEEEEEEESSCEEEEEEEE
+T ss_pred             cCCCcCCCceEEEEEeccccceeEEEEEe
+Confidence            99999999999999999999999999985
+
+
+No 14
+>1F5J_B BETA-1,4-XYLANASE (E.C.3.2.1.8); Xylanase, beta-barrel, HYDROLASE; HET: SO4; 1.8A {Dictyoglomus thermophilum} SCOP: b.29.1.11
+Probab=100.00  E-value=5e-63  Score=411.77  Aligned_cols=186  Identities=54%  Similarity=0.980  Sum_probs=173.8  Template_Neff=5.800
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNS--GEFVGGKGWQPGT---KNKVINFSGSYNPNGNSYLSVY   78 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~--~~~~~gkG~~~g~---~~~~~~y~~~~~~~g~sy~gvY   78 (191)
+                      +++..|.+++|+|++|.|+ +.++|++.++|.|+|+|++.  .+|++||||+++.   .+|+|+|+++|+|+|++||+||
+T Consensus         3 ~~~~~g~~~gy~y~~W~d~-g~~~~t~~~~G~fs~~W~~~~~~~f~~Gkgw~~g~~~~~~~~i~y~~~~~~~G~~yl~vY   81 (199)
+T 1F5J_B            3 TSNASGTFDGYYYELWKDT-GNTTMTVYTQGRFSCQWSNINNALFRTGKKYNQNWQSLGTIRITYSATYNPNGNSYLCIY   81 (199)
+T ss_dssp             CSSEEEEETTEEEEEEESS-SEEEEEECGGGCEEEEEESCSEEEEEEEEEEEEEGGGSCEEEEEEEEEEEESSSEEEEEE
+T ss_pred             cccccccccceeeeeEecC-CCeEEEccCCCceEEEEECCCceEEEeccccCCCCcccccEEEEEEEEEcCCCCeEEEEE
+Confidence            4567788999999999997 46788888899999999986  5677899999764   2589999999999999999999
+
+
+Q 6KWC_1           79 GWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFN  158 (191)
+Q Consensus        79 GWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~  158 (191)
+                      ||+++|||||||||+|+.++|+ +.+++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|||++++||+
+T Consensus        82 GWt~nPlvEYYIve~~g~~~p~-~~~~~Gt~t~DG~tY~iy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~  160 (199)
+T 1F5J_B           82 GWSTNPLVEFYIVESWGNWRPP-GATSLGQVTIDGGTYDIYRTTRVNQPSIVGTATFDQYWSVRTSKRTSGTVTVTDHFR  160 (199)
+T ss_dssp             EEEETTTEEEEEEEEESSSCSC-CSCEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHHHHH
+T ss_pred             eccCCcceeEEEEeeccccCCC-CcceeeEEEECCcEEEEEEeeecCCCcccCCceeEEEEEecCCCCCeeEEEhHHHHH
+Confidence            9999999999999999999998 457899999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          159 AWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       159 aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+++||+||++++|+|+||||+|||+|+|||+
+T Consensus       161 aW~~~G~~lG~~~~~~~~~Eg~~sSG~a~vt~~  193 (199)
+T 1F5J_B          161 AWANRGLNLGTIDQITLCVEGYQSSGSANITQN  193 (199)
+T ss_dssp             HHHHTTCCCCEEEEEEEEEEEESSCEEEEEEEE
+T ss_pred             HHHHcCccCCCccEEEEEEeccccceeEEEEEE
+Confidence            999999999999999999999999999999985
+
+
+No 15
+>1H4G_A XYLANASE (E.C.3.2.1.8); GLYCOSIDE HYDROLASE, XYLANASE, OLIGOSACCHARIDE, TRANSITION-STATE; HET: FXP, PCA, SO4; 1.1A {BACILLUS AGARADHAERENS} SCOP: b.29.1.11
+Probab=100.00  E-value=7.6e-63  Score=412.84  Aligned_cols=188  Identities=46%  Similarity=0.902  Sum_probs=176.3  Template_Neff=5.800
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKG--WQPGTK-----NKVINFSGSYNPNGNSYL   75 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG--~~~g~~-----~~~~~y~~~~~~~g~sy~   75 (191)
+                      .++++.|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++|||  |.++.+     ++.|+|+++|.|+|++||
+T Consensus         3 ~~~~~~g~~~gy~y~~W~d~~~~~~~t~~~gG~fs~~W~~~~nfv~gkG~~~~~g~~~~~~g~~~i~Y~~~~~~~G~syl   82 (207)
+T 1H4G_A            3 VTDNSIGNHDGYDYEFWKDSGGSGTMILNHGGTFSAQWNNVNNILFRKGKKFNETQTHQQVGNMSINYGANFQPNGNAYL   82 (207)
+T ss_dssp             ECSSEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEESCSEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEE
+T ss_pred             cccCccccccCccceeEecCCCeeeEEcCCCcceEEEEECCCCeEEEccccCCCCCceeeecCeEEEEEEEeCCCCceEE
+Confidence            4567888999999999999876788998899999999999999999999  666542     488999999999999999
+
+
+Q 6KWC_1           76 SVYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTAN  155 (191)
+Q Consensus        76 gvYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~  155 (191)
+                      +||||+++|||||||||+|+.++|+ +++++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|+|++++
+T Consensus        83 ~vYGWt~nPliEYYIve~~g~~~p~-~~~~~Gt~tsDG~tY~iy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~  161 (207)
+T 1H4G_A           83 CVYGWTVDPLVEYYIVDSWGNWRPP-GATPKGTITVDGGTYDIYETLRVNQPSIKGIATFKQYWSVRRSKRTSGTISVSN  161 (207)
+T ss_dssp             EEEEEEETTTEEEEEEEEESSSCSC-CSCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHH
+T ss_pred             EEeeccCCCceeEEEEEeccccCCC-CCeeeeEEEECCcEEEEEEeeecCCCCccccceeEEEEEEccCCCCccEEEhHH
+Confidence            9999999999999999999999998 567899999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          156 HFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       156 HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||+||++++|+|+||||.|||+|+||+.
+T Consensus       162 Hf~aW~~~G~~lG~~~~~~~~~Eg~~ssG~a~vt~~  197 (207)
+T 1H4G_A          162 HFRAWENLGMNMGKMYEVALTVEGYQSSGSANVYSN  197 (207)
+T ss_dssp             HHHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHHhCcccCCceEEEeeeeccccccEEEEEEe
+Confidence            999999999999999999999999999999999973
+
+
+No 16
+>1QH7_A XYLANASE (E.C.3.2.1.8); GLYCOSYL HYDROLASE, HYDROLASE; HET: XYP, PCA; 1.78A {Bacillus agaradhaerens} SCOP: b.29.1.11
+Probab=100.00  E-value=7.6e-63  Score=412.84  Aligned_cols=188  Identities=46%  Similarity=0.902  Sum_probs=176.3  Template_Neff=5.800
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKG--WQPGTK-----NKVINFSGSYNPNGNSYL   75 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG--~~~g~~-----~~~~~y~~~~~~~g~sy~   75 (191)
+                      .++++.|.+++|+|++|.|+.+.++|++.++|+|+|+|++.+||++|||  |.++.+     ++.|+|+++|.|+|++||
+T Consensus         3 ~~~~~~g~~~gy~y~~W~d~~~~~~~t~~~gG~fs~~W~~~~nfv~gkG~~~~~g~~~~~~g~~~i~Y~~~~~~~G~syl   82 (207)
+T 1QH7_A            3 VTDNSIGNHDGYDYEFWKDSGGSGTMILNHGGTFSAQWNNVNNILFRKGKKFNETQTHQQVGNMSINYGANFQPNGNAYL   82 (207)
+T ss_dssp             ECSCEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEESCSEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEE
+T ss_pred             cccCccccccCccceeEecCCCeeeEEcCCCcceEEEEECCCCeEEEccccCCCCCceeeecCeEEEEEEEeCCCCceEE
+Confidence            4567888999999999999876788998899999999999999999999  666542     488999999999999999
+
+
+Q 6KWC_1           76 SVYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTAN  155 (191)
+Q Consensus        76 gvYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~  155 (191)
+                      +||||+++|||||||||+|+.++|+ +++++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|+|++++
+T Consensus        83 ~vYGWt~nPliEYYIve~~g~~~p~-~~~~~Gt~tsDG~tY~iy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~  161 (207)
+T 1QH7_A           83 CVYGWTVDPLVEYYIVDSWGNWRPP-GATPKGTITVDGGTYDIYETLRVNQPSIKGIATFKQYWSVRRSKRTSGTISVSN  161 (207)
+T ss_dssp             EEEEEEETTTEEEEEEEEESSSCSC-CSCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEEEHHH
+T ss_pred             EEeeccCCCceeEEEEEeccccCCC-CCeeeeEEEECCcEEEEEEeeecCCCCccccceeEEEEEEccCCCCccEEEhHH
+Confidence            9999999999999999999999998 567899999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          156 HFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       156 HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||+||++++|+|+||||.|||+|+||+.
+T Consensus       162 Hf~aW~~~G~~lG~~~~~~~~~Eg~~ssG~a~vt~~  197 (207)
+T 1QH7_A          162 HFRAWENLGMNMGKMYEVALTVEGYQSSGSANVYSN  197 (207)
+T ss_dssp             HHHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHHhCcccCCceEEEeeeeccccccEEEEEEe
+Confidence            999999999999999999999999999999999973
+
+
+No 17
+>2F6B_A Family 11 Xylanase; Alkaline xylanase, Active site residues; 2.8A {Bacillus}
+Probab=100.00  E-value=9.9e-63  Score=411.95  Aligned_cols=188  Identities=47%  Similarity=0.910  Sum_probs=176.7  Template_Neff=5.900
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKG--WQPGTK-----NKVINFSGSYNPNGNSYL   75 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG--~~~g~~-----~~~~~y~~~~~~~g~sy~   75 (191)
+                      .++++.|.+++|+|++|.|+.+.++|++.++|.|+|+|++.+||+++||  |.++.+     +|.|+|+++|+++|++||
+T Consensus         3 ~~~~~~g~~~gy~y~~W~dg~~~~~~t~~~~G~fs~~W~~~gnfv~gkG~~~~~g~~~~~~~~~~i~ys~~~~~~G~syl   82 (206)
+T 2F6B_A            3 VTDNSTGNHDGYDYEFWKDSGGSGTMILNSGGTFSASWNNVNNILFRKGKKFNETQTHQQVGNMSINYGANFQPNGNAYL   82 (206)
+T ss_dssp             ECSSEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEEEEEEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEE
+T ss_pred             cccCccccccCccceeEecCCCeeeEEcCCCCceEEEEEcCCCeEEEccccCCCCCceeeecCeEEEEEEEeCCCCceEE
+Confidence            4567788999999999999876788999899999999999999999999  666542     588999999999999999
+
+
+Q 6KWC_1           76 SVYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTAN  155 (191)
+Q Consensus        76 gvYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~  155 (191)
+                      +||||+++|||||||||+|+.++|+ +++++|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++
+T Consensus        83 ~vYGWt~nPlvEYYIve~~g~~~p~-~~~~~Gt~tsDG~tY~iy~~~r~n~PSI~Gt~tF~QywSVR~~~r~~GtIt~~~  161 (206)
+T 2F6B_A           83 CVYGWTVDPLVEYYIVDSWGNWRPP-GATPKGTITVDGGTYDIYETLRVNQPSIKGIATFKQYWSVRRSKRTSGTISVSN  161 (206)
+T ss_dssp             EEEEEEETTTEEEEEEEEESSSCTT-CSCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHH
+T ss_pred             EEeeccCCCceeEEEEEeccccCCC-CCeeeeEEEECCcEEEEEEeeecCCCCccccceeEEEEEEccCCCCccEEEhHH
+Confidence            9999999999999999999999998 567899999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          156 HFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       156 HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||+++||+||++++|+|+||||.|||+|+||+.
+T Consensus       162 Hf~aW~~~G~~lG~~~~~~~~~Eg~~ssG~a~vt~~  197 (206)
+T 2F6B_A          162 HFRAWENLGMNMGKMYEVALTVEGYQSSGSANVYSN  197 (206)
+T ss_dssp             HHHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHHcCCCCCCceeEEeeeeccccccEEEEEEe
+Confidence            999999999999999999999999999999999974
+
+
+No 18
+>4IXL_A xylanase (E.C.3.2.1.8); b-sandwich, Hydrolase; 1.49A {Bacillus sp}
+Probab=100.00  E-value=1.1e-62  Score=420.11  Aligned_cols=187  Identities=43%  Similarity=0.850  Sum_probs=177.1  Template_Neff=5.300
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK-------NKVINFSGSYNPNGNSYLS   76 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~-------~~~~~y~~~~~~~g~sy~g   76 (191)
+                      ++++.+..++|+|++|.|+.+.++|++.++|+|+|+|++.+||++||||.++..       ++.|+|+++|+|+|++||+
+T Consensus        37 t~~~~g~~~gy~y~~W~dgg~~~~~t~~~gG~fsv~W~~~gnfv~gkGw~~g~~~~~~~~~~~~i~Ysg~~~~~GnsYl~  116 (244)
+T 4IXL_A           37 TGNEIGTHDGYDYEFWKDEGGYGSMTLNSGGTFSAEWTDVHNILFRKGQKFDTTQTHQQLGNINIDYGVNYQPNGSSYLA  116 (244)
+T ss_dssp             CSCEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEEEEEEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEEE
+T ss_pred             ecCcceeecceeeeeeecCCceeeEEcCCCCceEEEEecCCcEEEEeeecCCCCcceeeccceEEEEEEEecCCCceEEE
+Confidence            456778899999999999877789999899999999999999999999998763       4689999999999999999
+
+
+Q 6KWC_1           77 VYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANH  156 (191)
+Q Consensus        77 vYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~H  156 (191)
+                      ||||+++|||||||||+|+.++|+ +++.+|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++|
+T Consensus       117 vYGWt~nPLvEYYIVE~~g~~~P~-g~~~~GtvtsDG~tYdIy~~~R~nqPSI~Gt~TF~QywSVR~~kR~~GtItv~~H  195 (244)
+T 4IXL_A          117 VYGWTTDPLVEFYIVDSWGTWRPP-GAESKGTIHVDGGTYEIYETTRVQQPSIEGTATFQQYWSVRTDKRTSGTISVSEH  195 (244)
+T ss_dssp             EEEEEETTTEEEEEEEEESSCCSC-CSCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCCEEEEEHHHH
+T ss_pred             EeecCCCCceeEEEEeeCcccCCC-CcceeeEEEEcCcEEEEEEEeecCCCceeCCceeEEEEEeccCCCCccEEEhhHH
+Confidence            999999999999999999999998 4678999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          157 FNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       157 F~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+||+++||+||++++|+|+||||.|||+|+||+.
+T Consensus       196 f~aW~~~Gm~lG~~~~~~~a~Eg~~sSGsa~vt~~  230 (244)
+T 4IXL_A          196 FHAWEAHGMPMGNMYEVALTVEGWQSSGSADVYRN  230 (244)
+T ss_dssp             HHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHcCCCCCCceeeEeEeeccccceEEEEEEE
+Confidence            99999999999999999999999999999999973
+
+
+No 19
+>5EJ3_B Endo-1,4-beta-xylanase B (E.C.3.2.1.8); xylanase B2, xylan, beta-jelly roll; 1.314A {Streptomyces lividans}
+Probab=100.00  E-value=1.2e-62  Score=417.77  Aligned_cols=185  Identities=55%  Similarity=1.111  Sum_probs=176.6  Template_Neff=5.300
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWSRN   83 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt~n   83 (191)
+                      +++..|.+++|+|++|+|+.+.+++++.++|.|+|+|++.+||++||||+++. .++|+|+++|+|+|++||+||||+++
+T Consensus        46 t~~~~g~~~gy~y~~W~dg~g~~s~~~~~gG~ys~~W~~~gnfv~GkGw~~g~-~r~i~Ysg~~~~~G~sYl~vYGWt~n  124 (234)
+T 5EJ3_B           46 TTNQEGTNNGYYYSFWTDSQGTVSMNMGSGGQYSTSWRNTGNFVAGKGWANGG-RRTVQYSGSFNPSGNAYLALYGWTSN  124 (234)
+T ss_dssp             CSSEEEEETTEEEEEEESSTTSEEEEECSTTEEEEEESSCSEEEEEEEESSCC-SCEEEEEEEEEEESSEEEEEEEEEBT
+T ss_pred             eccccccccceeeeeEecCCCeEEEECCCCceeEEEEEcCCCEEEeccccCCC-ceEEEEEEEeCCCCCeEEEEEeccCC
+Confidence            45677889999999999987778899989999999999999999999999998 69999999999999999999999999
+
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQ  163 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~  163 (191)
+                      |||||||||+|+.++|+  .+.+|++++||++||||++.|+++|||+|+.+|+||||||+++|++|||++++||+||+++
+T Consensus       125 PlvEYYIvE~~g~~~P~--~~~~GtvtsDG~tYdiy~~~R~nqPSI~Gt~TF~QywSVR~~~r~~GtIt~~nHf~aW~~~  202 (234)
+T 5EJ3_B          125 PLVEYYIVDNWGTYRPT--GEYKGTVTSDGGTYDIYKTTRVNKPSVEGTRTFDQYWSVRQSKRTGGTITTGNHFDAWARA  202 (234)
+T ss_dssp             TTEEEEEEEEESSCCCC--CEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCCSEEEEHHHHHHHHHHT
+T ss_pred             CeeeEEEEeeccccCCC--CceEEEEEEcCCEEEEEEeeecCCCcccCCcceEEEEEeccCCCCccEEEhhHHHHHHHHc
+Confidence            99999999999999997  3579999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          164 GLTLGTM-DYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       164 Gl~lG~~-~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+||++ +||+|+||||.|+|+|+|||+
+T Consensus       203 Gl~lG~~~~~qi~a~Eg~~ssG~a~itv~  231 (234)
+T 5EJ3_B          203 GMPLGNFSYYMIMATEGYQSSGSSSINVG  231 (234)
+T ss_dssp             TCCCCBCCSCEEEEEEEESCEEEEEEEEE
+T ss_pred             CCCCCCccceEEEEEecccccceeEEEEe
+Confidence            9999997 799999999999999999986
+
+
+No 20
+>2DCZ_A Endo-1,4-beta-xylanase A (E.C.3.2.1.8); ALL BETA, HYDROLASE; 1.9A {Bacillus subtilis}
+Probab=100.00  E-value=1.2e-62  Score=405.32  Aligned_cols=178  Identities=51%  Similarity=1.040  Sum_probs=168.7  Template_Neff=5.600
+
+Q 6KWC_1           12 NGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFS-GSYNPNGNSYLSVYGWSRNPLIEYYI   90 (191)
+Q Consensus        12 ~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~-~~~~~~g~sy~gvYGWt~nPlvEYYI   90 (191)
+                      ++|+|++|+|+.+.++|++.++|+|+|+|++.+||++||||+++.+.|+|+|+ ++|+|+|++||+||||+++|||||||
+T Consensus         2 ~~~~y~~W~dg~~~~~~~~~~~G~fs~~W~~~~nfv~GkGw~~g~~~r~i~y~~g~~~~~g~syl~vYGWt~nPlvEYYI   81 (185)
+T 2DCZ_A            2 STDYWHFWTDGGGIVNAVNGSGGNYSVNWSNTGNFVVGKGWTTGSPFRTINYNAGVWAPNGNGYLTLYGWTRSPLIEYYV   81 (185)
+T ss_dssp             CCCEEEEEECSSSEEEEEECSTTEEEEEEESCSEEEEEEEESSCCTTCEEEEEEEEEEEEEEEEEEEEEEEETTTEEEEE
+T ss_pred             CCccceeeecCCceeEEecCCCCceEEEEecCCCEEEecccCCCCCcEEEEEecceecCCCceEEEeeecCCCCceeEEE
+Confidence            68999999998777899999999999999999999999999999866999999 79999999999999999999999999
+
+
+Q 6KWC_1           91 VENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGT-ATFYQYWSVRRNHRSS---GSVNTANHFNAWAQQGLT  166 (191)
+Q Consensus        91 vE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~-~~f~Qy~SVR~~~r~~---GtI~~~~HF~aW~~~Gl~  166 (191)
+                      ||+|+.++|+  .+.+|++++||++||||++.|+++|||+|+ .+|+||||||+++|.+   |||++++||+||+++||+
+T Consensus        82 ve~~g~~~P~--~~~~Gt~tsDG~tY~iy~~~R~n~psI~G~~~tF~QywSVR~~~r~~g~~GtI~~~~Hf~aW~~~Gl~  159 (185)
+T 2DCZ_A           82 VDSWGTYRPT--GTYKGTVKSDGGTYDIYTTTRYNAPSIDGDRTTFTQYWSVRQSKRPTGSNATITFSNHVNAWKSHGMN  159 (185)
+T ss_dssp             EEEESSCCCC--CEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEEESSCCCCSSCEEEEHHHHHHHHHHTTCC
+T ss_pred             EeeccccCCC--CceeEEEEeCCcEEEEEEeeecCCCcccCCCcceeEEEEeccCCCCCCCCcEEEchHHHHHHHHcCCc
+Confidence            9999999998  357999999999999999999999999987 5999999999999975   599999999999999999
+
+
+Q 6KWC_1          167 LGT-MDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       167 lG~-~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ||+ ++||||+||||.|+|+|+|||+
+T Consensus       160 lG~~~~~qila~Eg~~ssG~a~itv~  185 (185)
+T 2DCZ_A          160 LGSNWAYQVMATEGYQSSGCSNVTVW  185 (185)
+T ss_dssp             CCSEEEEEEEEEEEEEEEEEEEEEEC
+T ss_pred             cCCccceEEEEEEeccccceEEEEeC
+Confidence            998 5799999999999999999986
+
+
+No 21
+>5VQJ_A exo-beta-1,4-xylanase; beta-jelly roll, HYDROLASE; 1.761A {unidentified}
+Probab=100.00  E-value=1.2e-61  Score=407.37  Aligned_cols=186  Identities=38%  Similarity=0.740  Sum_probs=175.6  Template_Neff=5.200
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNS-GEFVGGKGWQPGTKNKVINFSGSYNPNGNSYLSVYGWS   81 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~-~~~~~gkG~~~g~~~~~~~y~~~~~~~g~sy~gvYGWt   81 (191)
+                      ++++.+|.+++|+|++|.|+ +.++|++.++|.|+|+|++. +||++||||+++.++|+|+|++++ ++|++||+||||+
+T Consensus         6 ~~~~~~G~~~gy~y~~W~dg-g~~~~t~~~~G~fs~~W~~~~~nfv~gkGw~~gs~~r~i~Ys~~~-~~GnsYl~vYGWt   83 (217)
+T 5VQJ_A            6 TQTHATGHVGDFFFTHWKDG-GSTSLTLDAEGKFLVTWQGGGYNYVGGPGWHFGDKNRVIRYKLNE-ETGASYIALYGWG   83 (217)
+T ss_dssp             CSSEEEEEETTEEEEEEESS-SSCEEEEETTSEEEEEECCSSCEEEEEEEESSCCTTCEEEEEEEE-ESCCSEEEEEEEE
+T ss_pred             eecCceeeecCeEeeeeecC-ceeeEEcCCCCcEEEEEecCCCCEEEeCCcccCCCccEEEEEeec-CCCceEEEEEeee
+Confidence            46778999999999999997 57889999999999999986 799999999999877999999998 5899999999999
+
+
+Q 6KWC_1           82 RN---------PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRS---SG  149 (191)
+Q Consensus        82 ~n---------PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~---~G  149 (191)
+                      ++         |||||||||+| .++|+.+++++|++++||++|+||+..|+++|||+|+.+|+||||||+.+|.   +|
+T Consensus        84 ~np~~~~~~~~pLiEYYIVe~~-~~~P~~~~~~~Gt~tsDG~tY~iy~~~R~n~PSI~G~~tF~QYwSVR~~~r~~~~~G  162 (217)
+T 5VQJ_A           84 YDKTMSESDPSHLVEYYILQRW-TYDPSQDGIYGKTFVSNGIEYSTYRSIRKVKPSINGPTTFYQYWSKPSAQQELGKDH  162 (217)
+T ss_dssp             ECTTSCTTSTTSEEEEEEEEEE-SSCTTTTSEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCCTTSCE
+T ss_pred             CCccCCCCCCcceEEEEEEEec-eecCCCCceeCeEEEEcCcEEEEEEeeecCCCCCCCCCceeEeEEcCcccCCCCCCC
+Confidence            98         79999999999 8999887789999999999999999999999999999999999999999986   79
+
+
+Q 6KWC_1          150 SVNTANHFNAWAQQGLTLGTM---------DYQIVAVQGYF--SSGSASITVS  191 (191)
+Q Consensus       150 tI~~~~HF~aW~~~Gl~lG~~---------~~~~~~vEgy~--ssG~a~vtvs  191 (191)
+                      +|++++||+||+++||+||++         +||||+||||.  ++|+|+|||+
+T Consensus       163 tIt~~~Hf~aW~~~Gl~lG~~~~~~~~~~~~~qi~avEg~~~~ssG~a~~tv~  215 (217)
+T 5VQJ_A          163 KIIFADHVKAWADTGWILPDMNNFDASDDPTYQVLAVEVFNPQKNGTASGQVW  215 (217)
+T ss_dssp             EEEHHHHHHHHHHTTCCCCCCSCCCSSSCCCCEEEEEEEESCSSCEEEEEEEE
+T ss_pred             EEEhHHHHHHHHHcCCCCCCCCCCCCCCCCCeEEEEEEEecCCCCceEEEEEe
+Confidence            999999999999999999999         69999999999  9999999996
+
+
+No 22
+>5TVY_B Endo-1,4-beta-xylanase A (E.C.3.2.1.8); Computational Design, Fentanyl, HYDROLASE; HET: XPE; 1.0A {Bacillus subtilis (strain 168)}
+Probab=100.00  E-value=1.5e-61  Score=399.56  Aligned_cols=179  Identities=48%  Similarity=0.912  Sum_probs=168.7  Template_Neff=5.500
+
+Q 6KWC_1           11 NNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFS-GSYNPNGNSYLSVYGWSRNPLIEYY   89 (191)
+Q Consensus        11 ~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~-~~~~~~g~sy~gvYGWt~nPlvEYY   89 (191)
+                      .++|+|+.|.|+.+.++|++.++|+|+|+|++.+||++||||+++++.|+|+|+ ++|.|+|++||+||||+++||||||
+T Consensus         4 ~~~~y~~~w~dg~~~~~~t~~~~G~fs~~W~~~~nfv~GkGw~~g~~~r~i~y~~~~~~~~g~syl~vYGWt~nPlvEYY   83 (188)
+T 5TVY_B            4 MSTDYWLNFTDGGGIVNAVNGSGGNYSVNWSNTGSFVVGKGWTTGSPFRTINYNAGVWAPNGWGALALVGWTRSPLIAYY   83 (188)
+T ss_dssp             CCCCEEEEEECSSSEEEEEECSTTEEEEEEESCSEEEEEEEESSCCTTCEEEEEEEEEEECSEEEEEEEEEEETTTEEEE
+T ss_pred             ccccccceeecCCceEEEecCCCCceEEEEEcCCCEEEEeccCCCCCcEEEEEecceecCCcceEEEeeeccCCCceeeE
+Confidence            368999999997777899999999999999999999999999999867999999 7999999999999999999999999
+
+
+Q 6KWC_1           90 IVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGT-ATFYQYWSVRRNHRSS---GSVNTANHFNAWAQQGL  165 (191)
+Q Consensus        90 IvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~-~~f~Qy~SVR~~~r~~---GtI~~~~HF~aW~~~Gl  165 (191)
+                      |||+|+.++|+.  +++|++++||++||||++.|+++|||+|+ .+|+||||||+++|++   |||++++||+||+++||
+T Consensus        84 Ive~~g~~~p~~--~~~Gt~tsDG~tY~iy~~~R~n~PsI~G~~~tF~QywSVR~~~r~~g~~GtIt~~~Hf~aW~~~Gl  161 (188)
+T 5TVY_B           84 VVDSWGTYRWTG--TYKGTVKSDGGTYDIYTTTRYNAPSIDGDRTTFTQYWSVRQSKRPTGSNATITFSNHVNAWKSHGM  161 (188)
+T ss_dssp             EEEEESSSCCCC--EEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEEESSCCCCSSCEEEEHHHHHHHHHHTTC
+T ss_pred             EEEecccccCCc--eeEEEEEEcCCEEEEEEeeecCCCcccCCCcceEEEEEeccCCCCCCcccEEEchHHHHHHHHcCC
+Confidence            999999999873  57999999999999999999999999988 5999999999999975   59999999999999999
+
+
+Q 6KWC_1          166 TLGT-MDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       166 ~lG~-~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+ ++||||+||||.|+|+|+|||+
+T Consensus       162 ~lG~~~~~qi~a~Eg~~ssG~a~vtv~  188 (188)
+T 5TVY_B          162 NLGSNWAYQVMATAGYQSSGSSNVTVW  188 (188)
+T ss_dssp             CCCSEEEEEEEEEEEESCCEEEEEEEC
+T ss_pred             ccCcccceEEEEEEeccccceEEEEeC
+Confidence            9998 6799999999999999999986
+
+
+No 23
+>1T6G_C xylanase inhibitor (E.C.3.2.1.8), Endo-1,4-beta-xylanase I; protein-protein complex, two beta-barrel domain; HET: GOL; 1.8A {Triticum aestivum} SCOP: b.29.1.11
+Probab=100.00  E-value=2.1e-61  Score=397.53  Aligned_cols=179  Identities=46%  Similarity=0.884  Sum_probs=169.5  Template_Neff=5.500
+
+Q 6KWC_1           11 NNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNS--GEFVGGKGWQPGTKNKVINFSGSYNPNG-NSYLSVYGWSRNPLIE   87 (191)
+Q Consensus        11 ~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~--~~~~~gkG~~~g~~~~~~~y~~~~~~~g-~sy~gvYGWt~nPlvE   87 (191)
+                      ++.++++.|+++.+.++++ .++|.|+|+|++.  ++|++||||+++.. ++|+|+++|.|++ ++||+||||+++||||
+T Consensus         2 ~~~~~~~~~~~~~~~~~~~-~~~G~ys~~W~~~~~~~fv~GkGw~~g~~-~~i~y~~~~~~~g~~~yl~vYGWt~nPlvE   79 (184)
+T 1T6G_C            2 AGINYVQNYNGNLGDFTYD-ESAGTFSMYWEDGVSSDFVVGLGWTTGSS-NAITYSAEYSASGSSSYLAVYGWVNYPQAE   79 (184)
+T ss_dssp             CCCCEEEEESGGGSEEEEE-TTTTEEEEEEEEEESSCEEEEEEESSCCS-CCEEEEEEEECTTEEEEEEEEEEETTTTEE
+T ss_pred             CceeeeeccCCccceEEEe-CCCCeEEEEEecCCCCeEEEeeccCCCCc-eeEEEEEEEeCCCCeeEEEEeeecCCceeE
+Confidence            4568899999987778886 6889999999984  89999999999984 8999999999965 8999999999999999
+
+
+Q 6KWC_1           88 YYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTL  167 (191)
+Q Consensus        88 YYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~l  167 (191)
+                      |||||+|+.++|+.+++++|++++||++||||++.|+++|||+|+.+|+||||||+++|++|+|++++||+||+++||+|
+T Consensus        80 yYIve~~g~~~P~~~~~~~Gt~~sDG~tYdiy~~~r~n~PsI~Gt~tF~QywSVR~~~r~~GtIt~~~Hf~aW~~~Gl~l  159 (184)
+T 1T6G_C           80 YYIVEDYGDYNPCSSATSLGTVYSDGSTYQVCTDTRTNEPSITGTSTFTQYFSVRESTRTSGTVTVANHFNFWAQHGFGN  159 (184)
+T ss_dssp             EEEEEEESSCCTTSSSEEEEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHHHHHHHGGGTCCC
+T ss_pred             EEEEeecccCCCCCCceeeeEEEECCCEEEEEEeeecCCCcccCCceeEEEEEeccccCCceEEEhhHHHHHHHHhCCCC
+Confidence            99999999999998788999999999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          168 GTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       168 G~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+++||||+||||.|+|+|+|||+
+T Consensus       160 G~~~~qi~a~Eg~~ssGsa~vtv~  183 (184)
+T 1T6G_C          160 SDFNYQVMAVEAWSGAGSASVTIS  183 (184)
+T ss_dssp             SSEEEEEEEEEEEEEEEEEEEEEC
+T ss_pred             CCcceEEEEEeeecCceEEEEEEc
+Confidence            999999999999999999999985
+
+
+No 24
+>1XYN_A ENDO-1,4-BETA-XYLANASE I; XYLANASE, HYDROLASE; 2.0A {Hypocrea jecorina} SCOP: b.29.1.11
+Probab=100.00  E-value=2.8e-61  Score=395.07  Aligned_cols=175  Identities=52%  Similarity=0.897  Sum_probs=165.6  Template_Neff=5.600
+
+Q 6KWC_1           12 NGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNP-NGNSYLSVYGWSRNPLIEYYI   90 (191)
+Q Consensus        12 ~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~-~g~sy~gvYGWt~nPlvEYYI   90 (191)
+                      ++|+|++|.|+ +.++|++. +|+|+|+|++.+||++||||+++.+ ++|+|+++|.| +|++||+||||+++|||||||
+T Consensus         2 ~~~~~~~w~d~-g~~~~~~~-~g~fs~~W~~~~nfv~gkGw~~g~~-~~i~y~~~~~~~~g~syl~vYGWt~nPliEyYI   78 (178)
+T 1XYN_A            2 SINYDQNYQTG-GQVSYSPS-NTGFSVNWNTQDDFVVGVGWTTGSS-APINFGGSFSVNSGTGLLSVYGWSTNPLVEYYI   78 (178)
+T ss_dssp             CCCEEEEEECS-SEEEEEEC-SSEEEEEEEESSCEEEEEEESSCCS-SCEEEEEEEEESSSEEEEEEEEEEETTTEEEEE
+T ss_pred             CcccccccccC-ceeEEeCC-CCceEEEEecCCCEEEEeeeCCCCC-ceEEEEEEEeCCCCceEEEEeeccCCceeeEEE
+Confidence            57999999995 67888875 6799999999999999999999984 89999999998 799999999999999999999
+
+
+Q 6KWC_1           91 VENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTLGTM  170 (191)
+Q Consensus        91 vE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~lG~~  170 (191)
+                      ||+|+.+.|  +++++|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++||+||+++||+||++
+T Consensus        79 ve~~g~~~~--~~~~~Gt~~~DG~tYdvy~~~r~n~psI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~~G~~lG~~  156 (178)
+T 1XYN_A           79 MEDNHNYPA--QGTVKGTVTSDGATYTIWENTRVNEPSIQGTATFNQYISVRNSPRTSGTVTVQNHFNAWASLGLHLGQM  156 (178)
+T ss_dssp             EEEEESCCC--CSEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSSEEECHHHHHHHHHHTTCCCCEE
+T ss_pred             EeccccCCC--CCeeEEEEEEcCCEEEEEEeeecCCCcccCCceEEEEEEeccCCCCceeEEhhHHHHHHHHhCcccCCc
+Confidence            999999955  357899999999999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          171 DYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       171 ~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      +||+|+||||.|+|+|+|||+
+T Consensus       157 ~~qi~~~Eg~~ssG~a~~tv~  177 (178)
+T 1XYN_A          157 NYQVVAVEGWGGSGSASQSVS  177 (178)
+T ss_dssp             EEEEEEEEEESEEEEEEEEEE
+T ss_pred             ceEEEEEecccCceeEeeEec
+Confidence            999999999999999999996
+
+
+No 25
+>2QZ2_A Endo-1,4-beta-xylanase I (E.C.3.2.1.8); glycoside hydrolase, xylanase, Glycosidase, Xylan; HET: XYP; 2.8A {Aspergillus niger}
+Probab=100.00  E-value=3.6e-61  Score=396.22  Aligned_cols=179  Identities=47%  Similarity=0.884  Sum_probs=169.5  Template_Neff=5.600
+
+Q 6KWC_1           11 NNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNS--GEFVGGKGWQPGTKNKVINFSGSYNPNG-NSYLSVYGWSRNPLIE   87 (191)
+Q Consensus        11 ~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~--~~~~~gkG~~~g~~~~~~~y~~~~~~~g-~sy~gvYGWt~nPlvE   87 (191)
+                      .+.++++.|+++.+.++++ .++|+|+|+|++.  .+|++||||+++.+ ++|+|+++|.|++ ++||+||||+++||||
+T Consensus         2 ~~~~~~~~w~~~~~~~~~~-~~~G~fs~~W~~~~~~~f~~GkGw~~g~~-~~i~y~~~~~~~g~~~yl~vYGWt~nPlvE   79 (184)
+T 2QZ2_A            2 AGINYVQNYNGNLGDFTYD-ESAGTFSMYWEDGVSSDFVVGLGWTTGSS-NAITYSAEYSASGSSSYLAVYGWVNYPQAE   79 (184)
+T ss_dssp             CCCCEEEEESGGGSEEEEE-TTTTEEEEEETTCCSSCEEEEEEESSCCS-CCEEEEEEEECTTEEEEEEEEEEETTTTEE
+T ss_pred             CceeeeeeccCccceEEEe-CCCCeEEEEEecCCCCeEEEeeccCCCcc-eeEEEEEEEeCCCCeeEEEEeeecCCceeE
+Confidence            4568899999987778886 6789999999985  89999999999984 8999999999965 8999999999999999
+
+
+Q 6KWC_1           88 YYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTL  167 (191)
+Q Consensus        88 YYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~l  167 (191)
+                      |||||+|+.++|+.+++++|++++||++||||++.|+++|||+|+.+|+||||||+++|++|+|++++||+||+++||+|
+T Consensus        80 yYIve~~g~~~P~~~~~~~Gt~~sDG~tYdvy~~~r~n~PsI~G~~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~~G~~l  159 (184)
+T 2QZ2_A           80 YYIVEDYGDYNPCSSATSLGTVYSDGSTYQVCTDTRTNEPSITGTSTFTQYFSVRESTRTSGTVTVANHFNFWAQHGFGN  159 (184)
+T ss_dssp             EEEEEEESSCCGGGTSEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSEEEECHHHHHHHHGGGTCCC
+T ss_pred             EEEEeecccCCCCCCceeeeEEEECCCEEEEEEeeecCCCcccCCcceEEEEEeccccCCceEEEhhHHHHHHHHcCCCC
+Confidence            99999999999998788999999999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          168 GTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       168 G~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+++||||+||||.|+|+|+|||+
+T Consensus       160 G~~~~qi~a~Eg~~ssG~a~vtv~  183 (184)
+T 2QZ2_A          160 SDFNYQVVAVAAWSGAGSASVTIS  183 (184)
+T ss_dssp             SSEEEEEEEEEEEEECEEEEEEEC
+T ss_pred             CCCceEEEEEeeccCceEEEEEEe
+Confidence            999999999999999999999985
+
+
+No 26
+>6QE8_A Endo-1,4-beta-xylanase A (E.C.3.2.1.8); HYDROLASE; HET: HZB, SO4, MES; 1.79A {Aspergillus niger}
+Probab=100.00  E-value=7e-61  Score=401.51  Aligned_cols=182  Identities=46%  Similarity=0.868  Sum_probs=169.8  Template_Neff=5.300
+
+Q 6KWC_1            8 TGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNS--GEFVGGKGWQPGTKNKVINFSGSYNPNG-NSYLSVYGWSRNP   84 (191)
+Q Consensus         8 ~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~--~~~~~gkG~~~g~~~~~~~y~~~~~~~g-~sy~gvYGWt~nP   84 (191)
+                      ....+.++|+.|+++.+.+++. .++|.|+|+|++.  +||++||||+++. .++|+|+++|++++ ++||+||||+++|
+T Consensus        26 ~~~~~~~~~~~~~~~~~~~~~~-~~~G~fsv~W~~~~~~~fv~GkGw~~g~-~~~i~y~~~~~~~g~~syl~vYGWt~nP  103 (211)
+T 6QE8_A           26 SRSAGINYVQNYNGNLGDFTYD-ESAGTFSMYWEDGVSSDFVVGLGWTTGS-SNAITYSAEYSASGSSSYLAVYGWVNYP  103 (211)
+T ss_dssp             ---CCCCEEEEESGGGSEEEEE-TTTTEEEEECTTCBSSCEEEEEEESSCC-SCCEEEEEEEECTTSEEEEEEEEEETTT
+T ss_pred             cccCceeeeEeecCCCceEEEe-CCCceEEEEEeCCCCCceEeecccCCCC-CceEEEEEEEcCCCCceEEEEEecCCCc
+Confidence            3466788999999987777776 5789999999985  8999999999998 48999999999964 8999999999999
+
+
+Q 6KWC_1           85 LIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQG  164 (191)
+Q Consensus        85 lvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~G  164 (191)
+                      ||||||||+|+.++|+.+++++|++++||++||||++.|.++|||+|+.+|+||||||+++|.+|+|++++||+||+++|
+T Consensus       104 lvEyYIve~~g~~~P~~~~~~~Gt~tsDG~tYdvy~~~R~n~psI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~~G  183 (211)
+T 6QE8_A          104 QAEYYIVEDYGDYNPCSSATSLGTVYSDGSTYQVCTDTRTNEPSITGTSTFTQYFSVRESTRTSGTVTVANHFNFWAQHG  183 (211)
+T ss_dssp             TEEEEEEEEESSCCHHHHSEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSEEEECHHHHHHHHHTTT
+T ss_pred             ceeEEEEEecccccCCCCceEEEEEEECCCEEEEEEeeecCCCcccCCceeEEEEEecCCcCCcceEEhhHHHHHHHHcC
+Confidence            99999999999999998888999999999999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          165 LTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       165 l~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+||+++||||+||||.|+|+|+|||+
+T Consensus       184 ~~lG~~~yqi~a~Eg~~ssGsa~vtv~  210 (211)
+T 6QE8_A          184 FGNSDFNYQVMAVEAWSGAGSASVTIS  210 (211)
+T ss_dssp             CCCSSEEEEEEEEEEEEBCCEEEEEEC
+T ss_pred             cccCCCceEEEEEecccccceEEEEEc
+Confidence            999999999999999999999999985
+
+
+No 27
+>6KKA_B Endo-1,4-beta-xylanase (E.C.3.2.1.8); GH11, xylanase, enzyme, hydrolase; HET: GOL, EPE, MPD, CIT; 2.36A {Bacillus sp. 41M-1}
+Probab=100.00  E-value=2.3e-60  Score=420.89  Aligned_cols=186  Identities=46%  Similarity=0.873  Sum_probs=176.4  Template_Neff=5.600
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK-------NKVINFSGSYNPNGNSYLS   76 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~-------~~~~~y~~~~~~~g~sy~g   76 (191)
+                      ++++.|.+++|+|++|+|+.+.++|++.++|.|+|+|++.+||++||||.++..       ++.|+|+++|.|+|++||+
+T Consensus         3 t~~~~g~~~gy~y~~W~d~~g~~~~t~~~gG~fs~~W~~~~nfv~gkG~~~~~~~~~~~~g~~~i~Y~~~~~~~GnsYl~   82 (327)
+T 6KKA_B            3 TSNEIGTHDGYDYEFWKDSGGSGSMTLNSGGTFSAQWSNVNNILFRKGKKFDETQTHQQIGNMSINYGATYNPNGNSYLA   82 (327)
+T ss_dssp             CSCEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEESCSEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEEE
+T ss_pred             cccceeeecCeeeeeeecCCCeeeEEcCCCCceEEEEEcCCCEEEEceecCCCCCceeeccceEEEEEEEeCCCCceEEE
+Confidence            466788999999999999767789999899999999999999999999998763       4789999999999999999
+
+
+Q 6KWC_1           77 VYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANH  156 (191)
+Q Consensus        77 vYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~H  156 (191)
+                      ||||+++|||||||||+|+.|+|+. ++++|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|||++++|
+T Consensus        83 vYGWt~nPlvEYYIve~~g~~~P~~-~~~~Gt~t~DG~tYdiy~~~R~nqPSI~Gt~tF~QywSVR~~~r~~GtItv~~H  161 (327)
+T 6KKA_B           83 VYGWTVDPLVEFYIVDSWGTWRPPG-GTPKGTINVDGGTYQIYETTRYNQPSIKGTATFQQYWSVRTSKRTSGTISVSEH  161 (327)
+T ss_dssp             EEEEEETTTEEEEEEEEESSSCSCC-SCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHHH
+T ss_pred             EEeccCCCceeEEEEeeCcccCCCC-CceeeEEEEcCCeEEEEEEeecCCCccccCceEEEEEEeccCCCCcceEEHHHH
+Confidence            9999999999999999999999984 578999999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          157 FNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITV  190 (191)
+Q Consensus       157 F~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtv  190 (191)
+                      |+||+++||+||++++|+|+||||+|||+|+||+
+T Consensus       162 f~aW~~~G~~lG~~~~~~~~~Eg~~ssG~a~vt~  195 (327)
+T 6KKA_B          162 FRAWESLGMNMGNMYEVALTVEGYQSSGSANVYS  195 (327)
+T ss_dssp             HHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHcCcCCCCcceEEeEeeccccccEEEEEE
+Confidence            9999999999999999999999999999999975
+
+
+No 28
+>3M4F_C Endo-1,4-beta-xylanase (E.C.3.2.1.8); family 11 endoxylanase, acidophilic adaptation; HET: CXS; 1.89A {Scytalidium acidophilum}
+Probab=100.00  E-value=5.2e-60  Score=394.63  Aligned_cols=180  Identities=44%  Similarity=0.859  Sum_probs=167.6  Template_Neff=5.200
+
+Q 6KWC_1            9 GYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFSGSYNPNG-NSYLSVYGWSRNPLIE   87 (191)
+Q Consensus         9 G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~~~~~~~g-~sy~gvYGWt~nPlvE   87 (191)
+                      ...+.++++.|+++.+.+++.+ .+|.|+|+|++.+||++||||+++. .|+|+|+++|+|++ ++||+||||+++||||
+T Consensus        25 ~~~~~~~~~~~~~~~~~~~~~~-~~G~ysv~W~~~~nfv~GkGw~~G~-~r~i~Y~~~~~~~g~~sYl~vYGWt~nPlvE  102 (205)
+T 3M4F_C           25 NPGGIDYVQNYNGDVADFQYNE-GAGTYTCGWDGSTDFVVGLGWSTGA-ARDITYSATYNAGGSGSYLAVYGWVNSPQAE  102 (205)
+T ss_dssp             CGGGCCEEEEESGGGGTCEEET-TTTEEEEEEESSSCEEEEEEESSCC-SCEEEEEEEEECTTSEEEEEEEEEETTTTEE
+T ss_pred             CCCccceeecccCCcceEEEeC-CCcceEEEEecCCCEEEEEeecCCC-ceEEEEEEEEcCCCCceEEEEEeccCCcceE
+Confidence            4556777788888766777754 5699999999999999999999998 58999999999976 8999999999999999
+
+
+Q 6KWC_1           88 YYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTL  167 (191)
+Q Consensus        88 YYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~l  167 (191)
+                      |||||+|+.++|+.+++++|++++||++||||++.|+++|||+|+.+|+||||||+++|.+|+|++++||+||+++||++
+T Consensus       103 YYIve~~g~~~P~~~~~~~Gt~tsDG~tYdiy~~~R~n~PSI~Gt~tF~QywSVR~~~r~~GtI~~~~Hf~aW~~~G~~~  182 (205)
+T 3M4F_C          103 YYIVESYGDYNPCSNAEGLGTLESDGSTYTVCTDTRTNEPSITGTSTFTQYWSVRQSERTSGTVTVGNHFNYWAQHGFGD  182 (205)
+T ss_dssp             EEEEEEESSCCTTSSSEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEESSCCSEEEEEHHHHHHHHHTTTCCC
+T ss_pred             EEEEeeccccCCCCCceeeeEEEEcCceEEEEEeeecCCCccccCceeEEEEEeccCCCCceEEEchHHHHHHHHcCCCC
+Confidence            99999999999998888999999999999999999999999999999999999999999999999999999999999997
+
+
+Q 6KWC_1          168 GTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       168 G~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                       .++||||+||||.|+|+|+|||+
+T Consensus       183 -~~~yqila~Eg~~ssGsa~vtv~  205 (205)
+T 3M4F_C          183 -SYNFQVMAVEAFSGSGSASVSVS  205 (205)
+T ss_dssp             -CEEEEEEEEEEEESEEEEEEEEC
+T ss_pred             -CCcEEEEEEEccccceeEEEEeC
+Confidence             68999999999999999999986
+
+
+No 29
+>2DCJ_B xylanase J (E.C.3.2.1.8); family 11, Xylan Binding Domain; HET: GOL, MPD; 2.24A {Bacillus sp.}
+Probab=100.00  E-value=8.6e-60  Score=420.89  Aligned_cols=187  Identities=45%  Similarity=0.868  Sum_probs=176.7  Template_Neff=5.500
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK-------NKVINFSGSYNPNGNSYL   75 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~-------~~~~~y~~~~~~~g~sy~   75 (191)
+                      .+++.+|.+++|+|++|.|+.+.++|++.++|.|+|+|++.+||++||||.++..       ++.|+|+++|+|+|++||
+T Consensus        29 ~t~~~~g~~~gy~y~~W~d~~g~~s~t~~~gG~fs~~W~~~gnf~~gkG~~~~~~~~~~~~g~~~i~Y~~~~~~~GnsYl  108 (354)
+T 2DCJ_B           29 ITSNEIGTHDGYDYEFWKDSGGSGSMTLNSGGTFSAQWSNVNNILFRKGKKFDETQTHQQIGNMSINYGATYNPNGNSYL  108 (354)
+T ss_dssp             BCSCEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEESCSEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEE
+T ss_pred             cCCCccceecceeeeeeecCCCeeeEEcCCCCceEEEEEcCCCEEEEceecCCCCCceeeccceEEEEEEEeCCCCceEE
+Confidence            3466788999999999999877789999899999999999999999999988763       478999999999999999
+
+
+Q 6KWC_1           76 SVYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTAN  155 (191)
+Q Consensus        76 gvYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~  155 (191)
+                      +||||+++|||||||||+|+.|+|+. ++++|++++||++||||++.|+++|||+|+.+|+||||||+++|++|||++++
+T Consensus       109 ~vYGWt~nPlvEYYIve~~g~~~P~~-~~~~Gt~tsDG~tYdiy~~~R~nqPSI~Gt~tF~QywSVR~~~r~~GtItv~~  187 (354)
+T 2DCJ_B          109 TVYGWTVDPLVEFYIVDSWGTWRPPG-GTPKGTINVDGGTYQIYETTRYNQPSIKGTATFQQYWSVRTSKRTSGTISVSE  187 (354)
+T ss_dssp             EEEEEEETTTEEEEEEEEESSSCSCC-SCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHH
+T ss_pred             EEeeccCCCceeEEEEeeCcccCCCC-CceeeEEEEcCCeEEEEEEeecCCCceecCceEEEEEEecCCCCCccEEEhHH
+Confidence            99999999999999999999999984 57899999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          156 HFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITV  190 (191)
+Q Consensus       156 HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtv  190 (191)
+                      ||+||+++||+||++++|+|+||||+|||+|+||+
+T Consensus       188 Hf~aW~~~Gm~lG~~~~~~~~vEg~~ssGsa~vt~  222 (354)
+T 2DCJ_B          188 HFRAWESLGMNMGNMYEVALTVEGYQSSGSANVYS  222 (354)
+T ss_dssp             HHHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHHcCcCCCCcceEEEEeeccccccEEEEEE
+Confidence            99999999999999999999999999999999975
+
+
+No 30
+>2DCK_A xylanase J (E.C.3.2.1.8); family 11, Xylan Binding Domain; HET: GOL; 2.1A {Bacillus sp.}
+Probab=100.00  E-value=8.6e-60  Score=420.89  Aligned_cols=187  Identities=45%  Similarity=0.868  Sum_probs=176.7  Template_Neff=5.500
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK-------NKVINFSGSYNPNGNSYL   75 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~-------~~~~~y~~~~~~~g~sy~   75 (191)
+                      .+++.+|.+++|+|++|.|+.+.++|++.++|.|+|+|++.+||++||||.++..       ++.|+|+++|+|+|++||
+T Consensus        29 ~t~~~~g~~~gy~y~~W~d~~g~~s~t~~~gG~fs~~W~~~gnf~~gkG~~~~~~~~~~~~g~~~i~Y~~~~~~~GnsYl  108 (354)
+T 2DCK_A           29 ITSNEIGTHDGYDYEFWKDSGGSGSMTLNSGGTFSAQWSNVNNILFRKGKKFDETQTHQQIGNMSINYGATYNPNGNSYL  108 (354)
+T ss_dssp             BCSCEEEEETTEEEEEEECSSSEEEEEECSTTCEEEEEEEEEEEEEEEEEECCSCCCHHHHCCEEEEEEEEEEEEEEEEE
+T ss_pred             cCCCccceecceeeeeeecCCCeeeEEcCCCCceEEEEEcCCCEEEEceecCCCCCceeeccceEEEEEEEeCCCCceEE
+Confidence            3466788999999999999877789999899999999999999999999988763       478999999999999999
+
+
+Q 6KWC_1           76 SVYGWSRNPLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGSVNTAN  155 (191)
+Q Consensus        76 gvYGWt~nPlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~GtI~~~~  155 (191)
+                      +||||+++|||||||||+|+.|+|+. ++++|++++||++||||++.|+++|||+|+.+|+||||||+++|++|||++++
+T Consensus       109 ~vYGWt~nPlvEYYIve~~g~~~P~~-~~~~Gt~tsDG~tYdiy~~~R~nqPSI~Gt~tF~QywSVR~~~r~~GtItv~~  187 (354)
+T 2DCK_A          109 TVYGWTVDPLVEFYIVDSWGTWRPPG-GTPKGTINVDGGTYQIYETTRYNQPSIKGTATFQQYWSVRTSKRTSGTISVSE  187 (354)
+T ss_dssp             EEEEEEETTTEEEEEEEEESSSCSCC-SCCCEEEEETTEEEEEEEEEEEEECCTTSSEEEEEEEEEESSCCSEEEECHHH
+T ss_pred             EEeeccCCCceeEEEEeeCcccCCCC-CceeeEEEEcCCeEEEEEEeecCCCceecCceEEEEEEecCCCCCccEEEhHH
+Confidence            99999999999999999999999984 57899999999999999999999999999999999999999999999999999
+
+
+Q 6KWC_1          156 HFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITV  190 (191)
+Q Consensus       156 HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtv  190 (191)
+                      ||+||+++||+||++++|+|+||||+|||+|+||+
+T Consensus       188 Hf~aW~~~Gm~lG~~~~~~~~vEg~~ssGsa~vt~  222 (354)
+T 2DCK_A          188 HFRAWESLGMNMGNMYEVALTVEGYQSSGSANVYS  222 (354)
+T ss_dssp             HHHHHHHTTCCCCEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HHHHHHHcCcCCCCcceEEEEeeccccccEEEEEE
+Confidence            99999999999999999999999999999999975
+
+
+No 31
+>2VG9_A BIFUNCTIONAL ENDO-1,4-BETA-XYLANASE A (E.C.3.2.1.8); XYLANASE, HYDROLASE, GLYCOSIDASE, BETA JELLY; 2.0A {NEOCALLIMASTIX PATRICIARUM}
+Probab=100.00  E-value=6e-59  Score=391.69  Aligned_cols=184  Identities=36%  Similarity=0.761  Sum_probs=167.4  Template_Neff=5.600
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSN---SGEFVGGKGWQPGTKNK-------VINFSGSYNP---   69 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~---~~~~~~gkG~~~g~~~~-------~~~y~~~~~~---   69 (191)
+                      .+++.+|.+++|+|++|.|+ +.+++++.++|.|+|+|++   .+||++||||.++...+       .|+|+++|++   
+T Consensus         8 ~~~~~~g~~~gy~y~~W~dg-g~~~~t~~~~G~fs~~W~~~~n~gnfv~gkGw~~g~~~~~~~~~~~~i~y~~~y~~~~~   86 (217)
+T 2VG9_A            8 GQNQHKGVNDGFSYEIWTNG-GEGSMTLGSGATFKAEWNAAVNRGNFLARRGLDFGSQKKATDYDYIGLDYAATYKQTAS   86 (217)
+T ss_dssp             SCSEEEEEETTEEEEEEEEB-CEEEEEECSTTCEEEEEECCSTTCEEEEEEEEECTTCSBGGGSSCEEEEEEEEEEEEEE
+T ss_pred             CccCccceeCceeeeeeecC-CceeEecCCCCeeEEEEeccCcCCcEEEEeccCCCCCceeeecceeeEEEEEEEeeccC
+Confidence            35677889999999999998 5678888889999999996   48999999999987422       3889888854   
+
+
+Q 6KWC_1           70 -NGNSYLSVYGWSRN------PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGT-ATFYQYWSV  141 (191)
+Q Consensus        70 -~g~sy~gvYGWt~n------PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~-~~f~Qy~SV  141 (191)
+                       +|++||+||||+++      |||||||||+|+.|+|+..   .|++++||++||||+..|. +|+|+|. .+|+|||||
+T Consensus        87 ~~G~syl~vYGWt~n~~~~~~PlvEYYIve~~g~~~P~~~---~gt~tsDG~tY~iy~~~r~-~psi~g~~~tF~QywSV  162 (217)
+T 2VG9_A           87 ASGNSRLCVYGWFQNRGLNGVPLVEYYIIEDWVDWVPDAQ---GKMVTIDGAQYKIFQMDHT-GPTINGGSETFKQYFSV  162 (217)
+T ss_dssp             EEEEEEEEEEEEEECTTCSSCCCEEEEEEEEEESCCCCCS---CEEEEETTEEEEEEEEEEE-EEETTEEEEEEEEEEEE
+T ss_pred             CCCceEEEEEEeecCCCCCCCceEEEEEEEecCCCCCCcC---CcEEEECCeEEEEEEEeec-CCCccCCCcceeeeEEE
+Confidence             89999999999999      9999999999999999853   5799999999999999996 6999875 799999999
+
+
+Q 6KWC_1          142 RRNHRSSGSVNTANHFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       142 R~~~r~~GtI~~~~HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+++|.+|+|++++||+||+++||+||++++|+|+||||.|||+|+|||+
+T Consensus       163 R~~~r~~GtIt~~~Hf~aW~~~G~~lG~~~~~~~a~Eg~~ssG~a~vt~~  212 (217)
+T 2VG9_A          163 RQQKRTSGHITVSDHFKEWAKQGWGIGNLYEVALNAEGWQSSGVADVTLL  212 (217)
+T ss_dssp             ESSCCSEEEEEHHHHHHHHHTTTCCCCEECEEEEEEEEEEEEEEEEEEEE
+T ss_pred             ccccCCCceEEhHHHHHHHHHcCCCCCCceEEEEEEeccccceEEEEEEe
+Confidence            99999999999999999999999999999999999999999999999985
+
+
+No 32
+>2C1F_A BIFUNCTIONAL ENDO-1,4-BETA-XYLANASE A (E.C.3.2.1.8); HYDROLASE, GLYCOSIDASE; 2.1A {NEOCALLIMASTIX PATRICIARUM}
+Probab=100.00  E-value=3.7e-58  Score=390.59  Aligned_cols=184  Identities=36%  Similarity=0.750  Sum_probs=168.3  Template_Neff=5.500
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDG-HGGVTYTNGPGGQFSVNWSN---SGEFVGGKGWQPGTKNK-------VINFSGSYNP---   69 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~-~g~~~~~~~~~g~f~~~W~~---~~~~~~gkG~~~g~~~~-------~~~y~~~~~~---   69 (191)
+                      +++.+|..++|+|++|.|+ .+.++|++.++|.|+|+|++   .+||++||||+++...+       .|+|+++|++   
+T Consensus         9 ~~~~~g~~~gy~y~~W~d~~~g~~~~t~~~gG~fsv~W~~~~~~gnfv~gkGw~~g~~~~~~~~~~~~i~y~~~y~~~~~   88 (234)
+T 2C1F_A            9 QNQHKGVNDGFSYEIWLDNTGGNGSMTLGSGATFKAEWNAAVNRGNFLARRGLDFGSQKKATDYDYIGLDYAATYKQTAS   88 (234)
+T ss_dssp             CCEEEEEETTEEEEEEECTTSCEEEEEECSTTCEEEEEECCSTTCEEEEEEEEECTTCSBGGGSSCEEEEEEEEEEEEEE
+T ss_pred             cccccceeCceeeEeEeCCCCceeEEEcCCCCeeEEEEeccCcCCCEEEEeccCCCCCceeeecceeeEEEEEEEecccC
+Confidence            4667889999999999997 46789999999999999996   58999999999987432       3889888864   
+
+
+Q 6KWC_1           70 -NGNSYLSVYGWSRN------PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGT-ATFYQYWSV  141 (191)
+Q Consensus        70 -~g~sy~gvYGWt~n------PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~-~~f~Qy~SV  141 (191)
+                       +|++||+||||+++      |||||||||+|+.|+|+..   .|++++||++||||+..|. +|||+|. .+|+|||||
+T Consensus        89 ~~G~sYl~vYGWt~n~~~~~~PLvEYYIve~~g~~~P~~~---~gt~tsDG~tYdIy~~~R~-~psi~G~t~tF~QywSV  164 (234)
+T 2C1F_A           89 ASGNSRLCVYGWFQNRGLNGVPLVEYYIIEDWVDWVPDAQ---GKMVTIDGAQYKIFQMDHT-GPTINGGSETFKQYFSV  164 (234)
+T ss_dssp             EEEEEEEEEEEEEECTTCTTCCCEEEEEEEEEESCCCCCS---CEEEEETTEEEEEEEEEEE-EEETTEEEEEEEEEEEE
+T ss_pred             CCCceEEEEEeeeCCCCcCCCceEEEEEEEecccCCCCcC---CcEEEECCcEEEEEEeeec-CCCccCCccceeEeEEE
+Confidence             79999999999999      9999999999999999853   5799999999999999995 6999975 799999999
+
+
+Q 6KWC_1          142 RRNHRSSGSVNTANHFNAWAQQGLTLGTMDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       142 R~~~r~~GtI~~~~HF~aW~~~Gl~lG~~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+++|.+|||++++||+||+++||+||++++|+|+||||.|||+|+|||+
+T Consensus       165 R~~kr~~GtIt~~~Hf~AW~~~Gm~lG~~~~~~~~~Eg~~ssGsa~vt~~  214 (234)
+T 2C1F_A          165 RQQKRTSGHITVSDHFKEWAKQGWGIGNLYEVALNAEGWQSSGVADVTLL  214 (234)
+T ss_dssp             ESSCCSEEEEEHHHHHHHHHHTTCCCCEECEEEEEEEEEEEEEEEEEEEE
+T ss_pred             cccccCccEEEhHHHHHHHHHcCCCCCCceeEEEEEeccccceEEEEEEE
+Confidence            99999999999999999999999999999999999999999999999985
+
+
+No 33
+>1AXK_B GLUXYN-1; GLUXYN-1, BIFUNCTIONAL, FUSION PROTEIN, 1,4-BETA-XYLANASE; 2.1A {Bacillus subtilis} SCOP: b.29.1.2, b.29.1.11
+Probab=100.00  E-value=1e-57  Score=411.93  Aligned_cols=180  Identities=51%  Similarity=1.018  Sum_probs=169.2  Template_Neff=7.700
+
+Q 6KWC_1           10 YNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFS-GSYNPNGNSYLSVYGWSRNPLIEY   88 (191)
+Q Consensus        10 ~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~-~~~~~~g~sy~gvYGWt~nPlvEY   88 (191)
+                      ..++++|+.|.++.+.+++++.++|.|+|+|++.+||++||||+++.+.|+|+|+ ++|+++|++||+||||+++|||||
+T Consensus       156 ~~sg~~~~~w~d~~~~~~~~~~~~G~ysv~W~~~~~~~~g~g~~~g~~~~~i~y~~~~~~~~g~~~~~~ygw~~~pl~ey  235 (394)
+T 1AXK_B          156 NASTDYWQNWTDGGGIVNAVNGSGGNYSVNWSNTGNFVVGKGWTTGSPFRTINYNAGVWAPNGNGYLTLYGWTRSPLIEY  235 (394)
+T ss_dssp             CCCCCEEEEEECSSSEEEEEECSTTEEEEEEESCSEEEEEEEESSCCTTCEEEEEEEEEEEEEEEEEEEEEEEETTTEEE
+T ss_pred             cCCccccccccCCCceEeeecCCCCeeEEEeecCCcEEEeeeecCCCCceEEEEecceeccCCceEEEEeeccCCCceEE
+Confidence            3468999999998777888889999999999999999999999999866999999 799999999999999999999999
+
+
+Q 6KWC_1           89 YIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGT-ATFYQYWSVRRNHRSS---GSVNTANHFNAWAQQG  164 (191)
+Q Consensus        89 YIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~-~~f~Qy~SVR~~~r~~---GtI~~~~HF~aW~~~G  164 (191)
+                      ||||+|+.++|+  ++.+|++++||++||||++.|+|+|||+|+ .+|+||||||+++|.+   |||++++||+||+++|
+T Consensus       236 yive~~~~~~p~--~~~~g~~~~dg~~Y~~~~~~r~~~psi~g~~~tf~qy~svr~~~r~~g~~gti~~~~hf~~w~~~g  313 (394)
+T 1AXK_B          236 YVVDSWGTYRPT--GTYKGTVKSDGGTYDIYTTTRYNAPSIDGDRTTFTQYWSVRQSKRPTGSNATITFSNHVNAWKSHG  313 (394)
+T ss_dssp             EEEEEESSCCCC--CEEEEEEEETTEEEEEEEEEEEEEEETTEEEEEEEEEEEEESSCCCCSSCEEEEHHHHHHHHHHTT
+T ss_pred             EEEeccCCCCCC--CcEEEEEEeCCcEEEEEEEeeeCCCceeCCCcceeEEEEecCCCCCCCCCcEEEchHHHHHHHHcC
+Confidence            999999999998  357999999999999999999999999987 5999999999999975   5999999999999999
+
+
+Q 6KWC_1          165 LTLGT-MDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       165 l~lG~-~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      |+||+ ++||||+||||+|+|+|+|||+
+T Consensus       314 ~~~g~~~~~~~~~~eg~~~~g~~~~~~~  341 (394)
+T 1AXK_B          314 MNLGSNWAYQVMATEGYQSSGSSNVTVW  341 (394)
+T ss_dssp             CCCCSEEEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             CCCCCccceEEEEEEeccCcceEEEEEE
+Confidence            99998 5799999999999999999985
+
+
+No 34
+>3WP5_A CDBFV; xylanase, regulatory N-terminal region, disulfide; 1.32A {Neocallimastix patriciarum}
+Probab=100.00  E-value=1.2e-56  Score=380.18  Aligned_cols=185  Identities=32%  Similarity=0.651  Sum_probs=163.2  Template_Neff=5.700
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK--NKVI-NFSGSYNP-------NGN   72 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~--~~~~-~y~~~~~~-------~g~   72 (191)
+                      .+++..+.+++|+|++|+|+ +..++++.++|.|+|+|++.+||++||||.++..  .+.+ +|+++|.+       +|+
+T Consensus        18 ~~~~~~g~~~gy~y~~W~dg-g~~~~t~~~~G~fsv~W~~~gnfv~gkGw~~g~~~~~~~~g~~~~~y~~~~~~~~~~Gn   96 (227)
+T 3WP5_A           18 VTGNKVGTIGGVGYELWADS-GNNSATFYSDGSFSCTFQNAGDYLCRSGLSFDSTKTPSQIGRMKADFKLVKQNSSNVGY   96 (227)
+T ss_dssp             ECSSEEEEETTEEEEEEESS-SSCEEEEETTSCEEEEEEEESEEEEEEEEECCSCSCHHHHCCEEEEEEEEEEEEESCCE
+T ss_pred             eecCccceecceeeeeEecC-CCceEEecCCCceEEEEEcCCCEEEEEeeCCCCCCCceeeeeeEEEeeeeecCCCCCce
+Confidence            34567789999999999997 4567888889999999999999999999999873  2334 56677764       589
+
+
+Q 6KWC_1           73 SYLSVYGWSRNPLIEYYIVENFGTYNPSTG---ATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSG  149 (191)
+Q Consensus        73 sy~gvYGWt~nPlvEYYIvE~wg~~~P~~~---~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~G  149 (191)
+                      +||+||||+++|||||||||+|+.++|+..   .+++|++++||++||||++.|. +|||+|+.+|+||||||+++|++|
+T Consensus        97 sYl~vYGWt~nPlvEYYIvE~~g~~~P~~~~~~~~~~Gt~tsDG~tYdiy~~~R~-~psi~Gt~tF~QywSVR~~kr~~G  175 (227)
+T 3WP5_A           97 SYVGVYGWTRSPLVAYYIVDNWLSPFPPGDWVGNKKHGSFTIDGAQYTVYENTRT-GPSIDGDTTFNQYFSIRQQARDCG  175 (227)
+T ss_dssp             EEEEEEEEEETTTEEEEEEEECSSSSCCCGGGCSEEEEEEEETTEEEEEEEEEEE-ECCTTSSEEEEEEEEEESSCCSEE
+T ss_pred             eEEEEecCCCCCceeeEEEecccCCCCCCCCCCceeeEEEEEcCcEEEEEEEEec-CCCCCCCceeEEEEEecCccCCcc
+Confidence            999999999999999999999999999853   5789999999999999999997 699999999999999999999999
+
+
+Q 6KWC_1          150 SVNTANHFNAWAQQGLTLGTMD-YQIVAVQGY---FSSGSASIT  189 (191)
+Q Consensus       150 tI~~~~HF~aW~~~Gl~lG~~~-~~~~~vEgy---~ssG~a~vt  189 (191)
+                      +|++++||+||+++||+||++. +++|++|||   .++|+++++
+T Consensus       176 tIt~~~Hf~AW~~~Gm~lG~~~~~~i~~eeg~~~~~~sg~~~~~  219 (227)
+T 3WP5_A          176 TIDISAHFDQWEKLGMTMGKLHEAKVLGEAGNVNGGASGTADFP  219 (227)
+T ss_dssp             EEEHHHHHHHHHHTTCCCCEEEEEEEEEEEECTTSCEEEEEEEE
+T ss_pred             EEEhHHHHHHHHHhCCCCCCceeEEEEEeecccCCCcceEEEec
+Confidence            9999999999999999999965 557777788   477888876
+
+
+No 35
+>3WP4_A CDBFV; xylanase, regulatory N-terminal region, disulfide; 1.27A {Neocallimastix patriciarum}
+Probab=100.00  E-value=4.2e-56  Score=376.91  Aligned_cols=184  Identities=33%  Similarity=0.661  Sum_probs=162.5  Template_Neff=5.600
+
+Q 6KWC_1            4 IQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK--NKVI-NFSGSYNP-------NGNS   73 (191)
+Q Consensus         4 ~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~--~~~~-~y~~~~~~-------~g~s   73 (191)
+                      +++..+.+++|+|++|.|+ +..++++.++|.|+|+|++.+||++||||.++..  .+.+ +|+++|.+       +|++
+T Consensus        20 ~~~~~g~~~gy~y~~W~dg-g~~~~t~~~~G~fsv~W~~~gnfv~gkGw~~g~~~~~~~~g~~s~~y~~~~~~~~~~G~s   98 (228)
+T 3WP4_A           20 TGNKVGTIGGVGYELWADS-GNNSATFYSDGSFSCTFQNAGDYLCRSGLSFDSTKTPSQIGRMKADFKLVKQNSSNVGYS   98 (228)
+T ss_dssp             CSSEEEEETTEEEEEEESS-SSCEEEEETTSCEEEEEEEESEEEEEEEEECCSCSCHHHHCCEEEEEEEEEEEEESCCEE
+T ss_pred             ecCccceecceeeeeEecC-CCceEEecCCCceEEEEEcCCCEEEEEeeCCCCCCCceeeeeeEEEeeeeecCCCCCcee
+Confidence            4567789999999999997 4567787889999999999999999999999873  1333 56677764       5899
+
+
+Q 6KWC_1           74 YLSVYGWSRNPLIEYYIVENFGTYNPSTG---ATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSGS  150 (191)
+Q Consensus        74 y~gvYGWt~nPlvEYYIvE~wg~~~P~~~---~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~Gt  150 (191)
+                      ||+||||+++|||||||||+|+.++|+..   ++++|++++||++||||++.|. +|||+|+.+|+||||||+++|.+|+
+T Consensus        99 Yl~vYGWt~nPlvEYYIvE~~g~~~P~~~~~~~~~~Gt~tsDG~tYdiy~~~R~-~psi~Gt~tF~QywSVR~~kr~~Gt  177 (228)
+T 3WP4_A           99 YVGVYGWTRSPLVEYYIVDNWLSPFPPGDWVGNKKHGSFTIDGAQYTVYENTRT-GPSIDGDTTFNQYFSIRQQARDCGT  177 (228)
+T ss_dssp             EEEEEEEEETTTEEEEEEEECSSSSCCCGGGCSEEEEEEEETTEEEEEEEEEEE-ECCTTSSEEEEEEEEEESSCCSEEE
+T ss_pred             EEEEecCCCCCceeeEEEecccCCCCCCCCCCceeeEEEEEcCcEEEEEEEEec-CCCCCCCCceEEEEEecCccCCccE
+Confidence            99999999999999999999999999853   5789999999999999999997 6999999999999999999999999
+
+
+Q 6KWC_1          151 VNTANHFNAWAQQGLTLGTMD-YQIVAVQGY---FSSGSASIT  189 (191)
+Q Consensus       151 I~~~~HF~aW~~~Gl~lG~~~-~~~~~vEgy---~ssG~a~vt  189 (191)
+                      |++++||+||+++||+||++. +++|++|||   .++|+++++
+T Consensus       178 It~~~Hf~AW~~~Gl~lG~~~~~~i~~~eg~~~~~~sg~~~~~  220 (228)
+T 3WP4_A          178 IDISAHFDQWEKLGMTMGKLHEAKVLGEAGNVNGGASGTADFP  220 (228)
+T ss_dssp             EEHHHHHHHHHHTTCCCCEEEEEEEEEEEECSSSCEEEEEEEE
+T ss_pred             EEhHHHHHHHHHhCCCCCCceeEEEEEeecccCCCcceEEEec
+Confidence            999999999999999999965 557777888   577888876
+
+
+No 36
+>3WP6_A CDBFV; xylanase, regulatory N-terminal region, disulfide; HET: XYP, BXP; 1.43A {Neocallimastix patriciarum}
+Probab=100.00  E-value=4.6e-56  Score=376.70  Aligned_cols=186  Identities=32%  Similarity=0.642  Sum_probs=163.0  Template_Neff=5.600
+
+Q 6KWC_1            3 TIQPGTGYNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTK--NKVI-NFSGSYNP-------NGN   72 (191)
+Q Consensus         3 ~~~~~~G~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~--~~~~-~y~~~~~~-------~g~   72 (191)
+                      .+++..+.+++|+|++|+|+ +..++++.++|.|+|+|++.+||++||||.++..  .+.+ +|+++|.+       +|+
+T Consensus        19 ~~~~~~g~~~gy~y~~W~dg-g~~~~t~~~~G~fsv~W~~~gnfv~gkGw~~g~~~~~~~~g~~~~~y~~~~~~~~~~G~   97 (228)
+T 3WP6_A           19 VTGNKVGTIGGVGYELWADS-GNNSATFYSDGSFSCTFQNAGDYLCRSGLSFDSTKTPSQIGRMKADFKLVKQNSSNVGY   97 (228)
+T ss_pred             eecCccceecceeceeEecC-CCeeEEcCCCcceEEEEEcCCCEEEeeeeCCCCCceeEEEeeeEEEeccccCCCCCCcc
+Confidence            34567789999999999997 4567888889999999999999999999999873  1333 55577764       589
+
+
+Q 6KWC_1           73 SYLSVYGWSRNPLIEYYIVENFGTYNPSTG---ATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRNHRSSG  149 (191)
+Q Consensus        73 sy~gvYGWt~nPlvEYYIvE~wg~~~P~~~---~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~~r~~G  149 (191)
+                      +||+||||+++|||||||||+|+.++|+..   ++++|++++||++||||++.|. +|||+|+.+|+||||||+++|.+|
+T Consensus        98 sYl~vYGWt~nPlvEYYIvE~~g~~~P~~~~~~~~~~Gt~tsDG~tYdiy~~~R~-~psi~Gt~tF~QywSVR~~kr~~G  176 (228)
+T 3WP6_A           98 SYVGVYGWTRSPLVAYYIVDNWLSPFPPGDWVGNKKHGSFTIDGAQYTVYENTRT-GPSIDGDTTFNQYFSIRQQARDCG  176 (228)
+T ss_pred             eEEEeeeCCCCCceeEEEEecccccCCCCCCCCceeeeEEEeCCCEEEEEEEEec-CCCCCCCcceEEEEEecCCCCCcc
+Confidence            999999999999999999999999999853   5789999999999999999997 699999999999999999999999
+
+
+Q 6KWC_1          150 SVNTANHFNAWAQQGLTLGTMDYQ-IVAVQGY---FSSGSASITV  190 (191)
+Q Consensus       150 tI~~~~HF~aW~~~Gl~lG~~~~~-~~~vEgy---~ssG~a~vtv  190 (191)
+                      +|++++||+||+++||+||++.++ +|++|||   .++|+++++.
+T Consensus       177 tIt~~~Hf~AW~~~G~~lG~~~~~~i~~eeg~~~~g~sg~~~~~~  221 (228)
+T 3WP6_A          177 TIDISAHFDQWEKLGMTMGKLHEAKVLGEAGNVNGGASGTADFPY  221 (228)
+T ss_pred             EEEhHHHHHHHHHcCCCCCCceeEEEEEeecccCCCCcEEEEEeE
+Confidence            999999999999999999996655 6667788   5788888874
+
+
+No 37
+>5GYC_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); Endo-1, 4-beta-xylanase, GH11 xylanase, HYDROLASE; 1.4A {termite gut metagenome}
+Probab=100.00  E-value=2.6e-54  Score=374.48  Aligned_cols=181  Identities=40%  Similarity=0.764  Sum_probs=159.3  Template_Neff=4.900
+
+Q 6KWC_1           10 YNNGYFYSYWNDGHGGVTY------TNGPGGQFSVNWSNSGEFVGGKG--WQPGTKN---KV----INFS--GSYNPNGN   72 (191)
+Q Consensus        10 ~~~Gy~y~~W~d~~g~~~~------~~~~~g~f~~~W~~~~~~~~gkG--~~~g~~~---~~----~~y~--~~~~~~g~   72 (191)
+                      .+++|+|++|.|+.+++.+      ++..+|+|+|+|++.+||++|||  |.++.+.   +.    ++|+  ++++++|+
+T Consensus        40 ~~~gy~y~~W~d~~~~~~~~t~y~~~~~~gG~fsv~Wsn~gnfv~GkG~~w~~g~~~~~~~~~~~~~~y~~sg~~~~~Gn  119 (281)
+T 5GYC_A           40 AGSPYGYETWIDTGGGVCSLCWYGADQGGGAAFRATWTNPHDFLGRLGYFWNENKPYSHYENIYCGFNYTRSGRKTAGDY  119 (281)
+T ss_dssp             TTSSCEEEEECCTTSCCEEEEECCSSSTTSCCEEEEEESCSSEEEEEEEECCSSCCGGGGCEEEEEEEEEECCTTSSCSC
+T ss_pred             ccCCceeeeEecCCCceeEEEEecCCCCCCcceEEEEeCCCCeEEEeccccCCCCcceeceeeeeeEEEeccceecCCCc
+Confidence            7899999999997665443      56788999999999999999999  8887632   22    4564  66788999
+
+
+Q 6KWC_1           73 SYLSVYGWSRNP--------LIEYYIVENFG--TYN----PS----TGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTAT  134 (191)
+Q Consensus        73 sy~gvYGWt~nP--------lvEYYIvE~wg--~~~----P~----~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~  134 (191)
+                      +||+||||+++|        ||||||||+|+  .|.    |+    .+++.+|++++||++||||++.|+++|||+|+.+
+T Consensus       120 sYL~vYGWT~nP~~~~~~~~LvEYYIVE~~gg~~~~p~~~P~g~~~sg~~~~GtvtsDG~tYdIy~~~R~nqPSI~Gt~T  199 (281)
+T 5GYC_A          120 SYIGIYGWSRNPSASNSNERLIEYYIVEDWFGNQWQADTSPMGINTTGGTVMGSFTVDGSSYQIIRNTRVNQPSIEGDKT  199 (281)
+T ss_dssp             EEEEEEEEEECTTCSSGGGSEEEEEEEEECCCCSSSCTTSCCCHHHHCSEEEEEEEETTEEEEEEEEEEEEECCTTSSEE
+T ss_pred             eEEEEEeeeCCCCcCCCccceEEEEEEecccCCCccCCCCCCccCCCCCeEEEEEEECCcEEEEEEeeecCCCCccCCcc
+Confidence            999999999999        99999999996  343    42    3457899999999999999999999999999999
+
+
+Q 6KWC_1          135 FYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTLGT-MDYQIVAVQGYFSSGSASITV  190 (191)
+Q Consensus       135 f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~lG~-~~~~~~~vEgy~ssG~a~vtv  190 (191)
+                      |+||||||+++|.+|||++++||+||+++||+||+ +++++|+|||+.++|+++++.
+T Consensus       200 F~QYwSVR~~kRt~GTItvs~HF~AW~~~Gm~lG~~~ye~~~~vE~~~~sG~~d~~~  256 (281)
+T 5GYC_A          200 FVQYFSIRQSPRKSGTISITEHFKKWEKLGMKLGDNMYECKFLIEAGAGEGFFDARL  256 (281)
+T ss_dssp             EEEEEEEESSCCSEEEEEHHHHHHHHHHTTCCCCSEECEEEEEEEESSSEEEEEEEE
+T ss_pred             eEEEEEecCCCCCccEEeHHHHHHHHHHhCCCCCCCceEEEEEeecccccceeEEeE
+Confidence            99999999999999999999999999999999996 667889999999999999874
+
+
+No 38
+>5GYF_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); Endo-1, 4-beta-xylanase, GH11 xylanase, HYDROLASE; 1.94A {termite gut metagenome}
+Probab=100.00  E-value=6e-54  Score=372.01  Aligned_cols=182  Identities=39%  Similarity=0.763  Sum_probs=159.8  Template_Neff=4.800
+
+Q 6KWC_1            9 GYNNGYFYSYWNDGHGGV-TY-----TNGPGGQFSVNWSNSGEFVGGKG--WQPGTKN---K----VINFS--GSYNPNG   71 (191)
+Q Consensus         9 G~~~Gy~y~~W~d~~g~~-~~-----~~~~~g~f~~~W~~~~~~~~gkG--~~~g~~~---~----~~~y~--~~~~~~g   71 (191)
+                      ...++|+|++|.|+.+++ +|     ++.++|+|+|+|++.+||++|||  |.++.+.   +    .++|+  ++++++|
+T Consensus        39 ~~~~gy~y~~W~d~gg~~~~~~~~~~~~~~gG~fs~tWsn~gnfv~gkG~~w~~g~~~~~~~~~~~~~~y~~sg~~~~~G  118 (281)
+T 5GYF_A           39 LAGSPYGYETWIDTGGGVCSFCWYGADQGGGAAFKATWTNPHDFLGRLGYFWNENKPYSHYENIYCGFNYTRSGRKTAGD  118 (281)
+T ss_dssp             CTTSSCEEEEECCTTSCCEEEEECCTTSTTSCCEEEEEESCSSEEEEEEEECCSSCCGGGGCEEEEEEEEEECCTTSSCS
+T ss_pred             CCcCCceeeEEecCCCceeEEEEecCCCCCCccEEEEEeCCCCEEEEeccccCCCCcceeceeeeeeEEEeecceecCCC
+Confidence            378899999999976554 55     56788999999999999999999  8887531   1    14664  6788899
+
+
+Q 6KWC_1           72 NSYLSVYGWSRNP--------LIEYYIVENFG--TYN----PS----TGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTA  133 (191)
+Q Consensus        72 ~sy~gvYGWt~nP--------lvEYYIvE~wg--~~~----P~----~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~  133 (191)
+                      ++||+||||+++|        ||||||||+|+  .|.    |+    .+++.+|++++||++||||++.|+++|||+|+.
+T Consensus       119 nsYL~vYGWt~nP~~~~~~~~LvEYYIVE~~~g~~~~p~~~P~g~~~~g~~~~GtvtsDG~tYdIy~~~R~nqPSI~Gt~  198 (281)
+T 5GYF_A          119 YSYIGIYGWSRNPSASNSNERLIEYYIVEDWFGNQWQADTSPMGINTTGGTVMGSFTVDGSSYQIIKNTRVNQPSIEGDK  198 (281)
+T ss_dssp             CEEEEEEEEEECTTCSSGGGSEEEEEEEEECCCCSSSCTTSCCCHHHHCSEEEEEEEETTEEEEEEEEEEEEECCTTSSE
+T ss_pred             ceEEEEEeeeCCCCcCCCccceEEEEEEeccccCCccCCCCCCccCCCCCeEEEEEEECCcEEEEEEeeecCCCCccCCc
+Confidence            9999999999999        99999999996  343    42    356789999999999999999999999999999
+
+
+Q 6KWC_1          134 TFYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTLGT-MDYQIVAVQGYFSSGSASITV  190 (191)
+Q Consensus       134 ~f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~lG~-~~~~~~~vEgy~ssG~a~vtv  190 (191)
+                      +|+||||||+++|.+|||++++||+||+++||+||+ +++++|+|||+.++|+++++.
+T Consensus       199 TF~QYwSVR~~kRt~GTItvsnHF~AW~~~Gm~lG~~~ye~~~~vEg~~~sG~~~~~~  256 (281)
+T 5GYF_A          199 TFVQYFSIRQSPRKSGTISITEHFKKWEKLGMKLGDNMYECKFLIEAGAGEGFFDARL  256 (281)
+T ss_dssp             EEEEEEEEESSCCSEEEEEHHHHHHHHHHTTCCCCSEECEEEEEEEESSSEEEEEEEE
+T ss_pred             ceEEEEEecCCCCCccEEeHHHHHHHHHHhCCCCCCCceEEEEEeecccccceeEEeE
+Confidence            999999999999999999999999999999999996 668889999999999999874
+
+
+No 39
+>5GV1_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); Endo-1, 4-beta-xylanase, GH11 xylanase, HYDROLASE; 1.5A {termite gut metagenome}
+Probab=100.00  E-value=1e-53  Score=375.05  Aligned_cols=180  Identities=39%  Similarity=0.763  Sum_probs=145.1  Template_Neff=4.300
+
+Q 6KWC_1           10 YNNGYFYSYWNDGHGG-VTYT-----NGPGGQFSVNWSNSGEFVGGKG--WQPGTKN---K----VINFS--GSYNPNGN   72 (191)
+Q Consensus        10 ~~~Gy~y~~W~d~~g~-~~~~-----~~~~g~f~~~W~~~~~~~~gkG--~~~g~~~---~----~~~y~--~~~~~~g~   72 (191)
+                      ..++|+|++|.|+.++ .+|+     ++++|+|+|+|++.+||++|||  |.++.+.   +    .++|+  ++++++|+
+T Consensus        76 ~~~gy~Ye~W~d~gg~~~~~T~~~~~~g~gG~FsvtWsn~gnfv~GkG~~w~~g~~~~~~~~~~~~~~yt~sg~~~~~Gn  155 (322)
+T 5GV1_A           76 AGSPYGYETWIDTGGGVCSLTWYGADQGGGAAFKATWTNPHDFLGRLGYFWNENKPYSHYENIYCGFNYTRSGRKTAGDY  155 (322)
+T ss_dssp             TTCSCEEEEECCTTSCCEEEEECCTTSTTSCCEEEEEESCSSEEEEEEEECCSSCCGGGGCEEEEEEEEEECCTTSSCSC
+T ss_pred             ccCCeEeeEEecCCCceeEEEEecCCCCCCceeEEEeeCCCCEEeeccCCCCCCCCcccceeeEEEEEeCCCceeCCCCC
+Confidence            8899999999997654 3554     5678999999999999999999  8877531   1    14564  56788999
+
+
+Q 6KWC_1           73 SYLSVYGWSRNP--------LIEYYIVENFGT--YN----PS----TGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTAT  134 (191)
+Q Consensus        73 sy~gvYGWt~nP--------lvEYYIvE~wg~--~~----P~----~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~  134 (191)
+                      +||+||||+++|        ||||||||+|+.  |.    |+    .+++.+|++++||++||||++.|+++|||+|+.+
+T Consensus       156 sYL~VYGWT~nP~~~~~~~~LVEYYIVE~wgg~~~~p~~~P~g~~~sg~~~~GtvtsDG~tYdIy~~~R~nqPSI~Gt~T  235 (322)
+T 5GV1_A          156 SYIGIYGWSRNPSASNSNERLIEYYIVEDWFGNQWQADTSPMGINTTGGTVMGSFTVDGSSYQIIKNTRVNQPSIEGDKT  235 (322)
+T ss_dssp             EEEEEEEEEECTTCSSGGGSEEEEEEEEECCCCSSSCTTSCCCHHHHCSEEEEEEEETTEEEEEEEEEEEEECCTTSSEE
+T ss_pred             eEEEEeeeeCCCCCCCCCCCceEEEEEeccCCCCccCCCCCCCCCCCCCeEeEEEEeCCCEEEEEEeeecCCCCcCCCce
+Confidence            999999999999        999999999963  33    42    3457899999999999999999999999999999
+
+
+Q 6KWC_1          135 FYQYWSVRRNHRSSGSVNTANHFNAWAQQGLTLGT-MDYQIVAVQGYFSSGSASIT  189 (191)
+Q Consensus       135 f~Qy~SVR~~~r~~GtI~~~~HF~aW~~~Gl~lG~-~~~~~~~vEgy~ssG~a~vt  189 (191)
+                      |+||||||+++|.+|||++++||+||+++||+||+ +++++|.|||+.++|+++++
+T Consensus       236 F~QYwSVR~skRtsGTItvsnHF~AW~s~Gm~LG~~~Ye~~~~vEg~~~sG~~d~~  291 (322)
+T 5GV1_A          236 FVQYFSIRQSPRKSGTISITEHFKKWEKLGMKLGDNMYECKFLIEAGAGEGFFDAR  291 (322)
+T ss_dssp             EEEEEEEESSCCSEEEEEHHHHHHHHHHTTCCCCSEECEEEE--------------
+T ss_pred             eEEEEEeccCCCCcceEEhhHHHHHHHHcCCCCCCCceEEEEEEecceecceEEee
+Confidence            99999999999999999999999999999999996 67888999999999999886
+
+
+No 40
+>3LB9_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); permutation, BcX, Glycosidase, Xylan degradation; 3.0A {Bacillus circulans}
+Probab=100.00  E-value=6.3e-36  Score=246.64  Aligned_cols=118  Identities=53%  Similarity=1.083  Sum_probs=110.7  Template_Neff=5.800
+
+Q 6KWC_1           10 YNNGYFYSYWNDGHGGVTYTNGPGGQFSVNWSNSGEFVGGKGWQPGTKNKVINFS-GSYNPNGNSYLSVYGWSRNPLIEY   88 (191)
+Q Consensus        10 ~~~Gy~y~~W~d~~g~~~~~~~~~g~f~~~W~~~~~~~~gkG~~~g~~~~~~~y~-~~~~~~g~sy~gvYGWt~nPlvEY   88 (191)
+                      ..++++|++|+|+.+.++|++.++|.|+|+|++.+||++||||+++.+.|+|+|+ ++|.++|++||+||||+++|||||
+T Consensus        64 ~~~g~~y~~w~~~~~~~~~~~~~~G~fs~~W~~~~nfv~GkGw~~g~~~r~i~ys~g~~~~~g~syl~vYGWt~nPlvEy  143 (182)
+T 3LB9_A           64 GASTDYWQNWTDGGGIVNAVNGSGGNYSVNWSNTGNFVVGKGWTTGSPFRTINYNAGVWAPNGNGYLTLYGWTRSPLIEY  143 (182)
+T ss_dssp             CSSCCEEEEEECSSSEEEEEECSTTEEEEEEESCCSEEEEEEESSCCTTCEEEEECSEEEEEEEEEEEEEEEEETTTEEE
+T ss_pred             CCcccceeeeecCCceEEEecCCCCceEEEEecCCCEEEecccCCCCCcEEEEEeeeeecCCCceEEEeeeccCCCcceE
+Confidence            4568999999998777889999999999999999999999999999866999999 799999999999999999999999
+
+
+Q 6KWC_1           89 YIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSI  129 (191)
+Q Consensus        89 YIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi  129 (191)
+                      ||||+|+.++|+  ...+|++++||++||||++.|+|+|||
+T Consensus       144 YIve~~g~~~P~--~~~~Gt~tsDG~tY~iy~~~R~n~psi  182 (182)
+T 3LB9_A          144 YVVDSWGTYRPT--GTYKGTVKSDGGTYDIYTTTRYNAPSI  182 (182)
+T ss_dssp             EEEEEESSCCCC--CEEEEEEEETTEEEEEEEEEEESCCCC
+T ss_pred             EEEeecceeCCC--CcEEEEEEeCCcEEEEEEEEEeCCCCC
+Confidence            999999999998  357999999999999999999999987
+
+
+No 41
+>3LB9_A Endo-1,4-beta-xylanase (E.C.3.2.1.8); permutation, BcX, Glycosidase, Xylan degradation; 3.0A {Bacillus circulans}
+Probab=99.63  E-value=8.5e-20  Score=151.31  Aligned_cols=59  Identities=49%  Similarity=0.915  Sum_probs=55.3  Template_Neff=5.800
+
+Q 6KWC_1          133 ATFYQYWSVRRNHRS---SGSVNTANHFNAWAQQGLTLGT-MDYQIVAVQGYFSSGSASITVS  191 (191)
+Q Consensus       133 ~~f~Qy~SVR~~~r~---~GtI~~~~HF~aW~~~Gl~lG~-~~~~~~~vEgy~ssG~a~vtvs  191 (191)
+                      ++|+||||||+++|.   +|||++++||+||+++||+||+ ++||||+||||+|+|+|+|||+
+T Consensus         1 ~tF~QywSvR~~~r~~g~~gti~~~~Hf~aW~~~G~~~g~~~~yqi~a~Eg~~ssGsa~itv~   63 (182)
+T 3LB9_A            1 ATFTQYWSVRQSKRPTGSNATITFTNHVNAWKSHGMNLGSNWAYQVMATEGYQSSGSSNVTVW   63 (182)
+T ss_dssp             CEEEEEEEEESSCCCCSSEEEEEHHHHHHHHHTTTCCCCSEEEEEEEEEEEEEEEEEEEEEBC
+T ss_pred             CCcceEEEeccCCCCCCCCcEEEhhHHHHHHHHcCCccCCccceEEEEEEccCccceEeeEEc
+Confidence            379999999999996   5799999999999999999998 5799999999999999999985
+
+
+No 42
+>1H8V_F ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, GH; HET: NAG, PCA; 1.9A {TRICHODERMA REESEI} SCOP: b.29.1.11
+Probab=65.83  E-value=4.6  Score=34.84  Aligned_cols=93  Identities=18%  Similarity=0.229  Sum_probs=57.2  Template_Neff=8.000
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|..  .+.++++++|.+|+||+....      +   . ++++.+ +.+..+.++++.+.|+.-.
+T Consensus       113 ~~~EIMIWl~~~g~~~P~G--~~~~~v~i~g~~w~vy~g~~~------~---~-~v~sfv~~~~~~~~~~Dl~~fl~~l~  180 (218)
+T 1H8V_F          113 GDYELMIWLGKYGDIGPIG--SSQGTVNVGGQSWTLYYGYNG------A---M-QVYSFVAQTNTTNYSGDVKNFFNYLR  180 (218)
+T ss_dssp             CSEEEEEEEEEESSCCCSS--EEEEEEEETTEEEEEEEEEET------T---E-EEEEEEESSCCSEEEEEHHHHHHHHH
+T ss_pred             ccEEEEEEecccCCcccce--eceeeEEECCEEEEEEEEecC------C---e-EEEEEEeCCCCcEEEEecHHHHHHHH
+Confidence            44554444433 3444532  346789999999999976531      1   1 244444 3344678999999999555
+
+
+Q 6KWC_1          162 QQ-GLTLGT--MDYQIVAVQGYFSSGSASI  188 (191)
+Q Consensus       162 ~~-Gl~lG~--~~~~~~~vEgy~ssG~a~v  188 (191)
+                      +. |+...+  +..+-+.+|-+.+.|+..+
+T Consensus       181 ~~~~~~~~~~yl~~ve~GtE~~~g~g~~~~  210 (218)
+T 1H8V_F          181 DNKGYNAAGQYVLSYQFGTEPFTGSGTLNV  210 (218)
+T ss_dssp             HHSCCCTTTCEECCCEEEECEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEEEEEEEeeeEEecceEEE
+Confidence            44 454344  3345578888888875443
+
+
+No 43
+>1OA4_A ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, ENDOGLUCANASE; 1.5A {STREPTOMYCES SP. 11AG8} SCOP: b.29.1.11
+Probab=63.69  E-value=5.4  Score=34.57  Aligned_cols=91  Identities=14%  Similarity=0.160  Sum_probs=56.6  Template_Neff=7.900
+
+Q 6KWC_1           85 LIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        85 lvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      ..|--|-=.+ +...|.  +.+.+++++.|.+|+||+....       ..   .++|.+ +.+..+.++++...|+.=.+
+T Consensus       118 ~~EIMIWl~~~g~~~P~--G~~~~~v~i~g~~w~vy~g~~~-------~~---~v~sfv~~~~~~~~~~Dl~~fl~~l~~  185 (222)
+T 1OA4_A          118 RTEIMIWFNRVGPVQPI--GSPVGTAHVGGRSWEVWTGSNG-------SN---DVISFLAPSAISSWSFDVKDFVDQAVS  185 (222)
+T ss_dssp             SEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEECS-------SS---EEEEEECSSCCSEEEEEHHHHHHHHHH
+T ss_pred             cEEEEEEeeccCCCCcc--eEeeEEEEECCEEEEEEeeecC-------Ce---EEEEEEcCCCCcEEEEehHHHHHHHHH
+Confidence            4454443333 344453  2346789999999999976431       11   234443 34456789999999997666
+
+
+Q 6KWC_1          163 QGLTLGT--MDYQIVAVQGYFSSGSAS  187 (191)
+Q Consensus       163 ~Gl~lG~--~~~~~~~vEgy~ssG~a~  187 (191)
+                      .+....+  |..+-+.+|-+.+.|...
+T Consensus       186 ~~~~~~~~yL~~v~~G~E~~~g~~~~~  212 (222)
+T 1OA4_A          186 HGLATPDWYLTSIQAGFEPWEGGTGLA  212 (222)
+T ss_dssp             TTSCCTTSEEEEEEEEEEEEECCTTCE
+T ss_pred             CCCCCcccEEEEEEEEeceEEccCceE
+Confidence            6654444  334457888888877443
+
+
+No 44
+>1OA3_C ENDO-BETA-1-4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, ENDOGLUCANASE; HET: PCA, NAG; 1.7A {HYPOCREA SCHWEINITZII} SCOP: b.29.1.11
+Probab=58.30  E-value=7.9  Score=33.40  Aligned_cols=93  Identities=19%  Similarity=0.223  Sum_probs=58.4  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +.+.++++++|.+|+||+....      +    .++++.+ +.+..++++++...|+.-.
+T Consensus       113 ~~~EIMIWl~~~g~~~P~--G~~~~~v~i~G~~w~vy~g~~~------~----~~v~sfv~~~~~~~~~~Dl~~fl~~l~  180 (218)
+T 1OA3_C          113 GDYELMIWLGKYGDIGPI--GSSQGTVNVGGQTWTLYYGYNG------A----MQVYSFVAQSNTTSYSGDVKNFFNYLR  180 (218)
+T ss_dssp             CSEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEEET------T----EEEEEEEESSCCSEEEEETHHHHHHHH
+T ss_pred             ccEEEEEEecccCCcccc--eeceeeEEECCEEEEEEEEecC------C----eEEEEEEecCCccEEEEecHHHHHHHH
+Confidence            44554444433 334453  2346789999999999976531      1    1244444 3345678999999998665
+
+
+Q 6KWC_1          162 QQG-LTLGTM--DYQIVAVQGYFSSGSASI  188 (191)
+Q Consensus       162 ~~G-l~lG~~--~~~~~~vEgy~ssG~a~v  188 (191)
+                      +.+ +..+++  ..+-+.+|-+.+.|+..+
+T Consensus       181 ~~~~~~~~~~yl~~ve~G~E~~~g~g~~~~  210 (218)
+T 1OA3_C          181 DNKGYNAGGQYVLSYQFGTEPFTGSGTLNV  210 (218)
+T ss_dssp             HHSCCCTTTCEECCCEEEECEEEEEEEEEE
+T ss_pred             HcCCCCCCCcEEEEEEEEeeeEEecceEEE
+Confidence            554 644443  344578888888885544
+
+
+No 45
+>1KS5_A Aspergillus niger Endoglucanase; Aspergillus niger, Endoglucanase, Cellulase, Jelly-roll; 2.1A {Aspergillus niger} SCOP: b.29.1.11
+Probab=55.42  E-value=9.5  Score=33.03  Aligned_cols=93  Identities=13%  Similarity=0.147  Sum_probs=49.6  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSV-RRNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SV-R~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +...++++++|.+|+||+..+...+  .   .. .+++. ++.+..++++++...|+.-.
+T Consensus       113 ~~~EiMIWl~~~g~~~P~--G~~~~~v~i~G~~w~vy~g~~~~~~--~---~~-~v~sfv~~~~~~~~~~Dl~~fl~~l~  184 (223)
+T 1KS5_A          113 GDYELMIWLARYGNIQPI--GKQIATATVGGKSWEVWYGSTTQAG--A---EQ-RTYSFVSESPINSYSGDINAFFSYLT  184 (223)
+T ss_dssp             CSEEEEEEEEEETTCCCS--SEEEEEEEETTEE---------ETT--E---EE-EEEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ccEEEEEEhhhcCCccCc--eecceeEEECCEEEEEEEeecCCCC--C---ce-EEEEEeeCCCCcEEEEecHHHHHHHH
+Confidence            45565554444 344453  2347789999999999987653210  1   11 12333 34455678999999999655
+
+
+Q 6KWC_1          162 QQ-GLTLGTM--DYQIVAVQGYFSSG  184 (191)
+Q Consensus       162 ~~-Gl~lG~~--~~~~~~vEgy~ssG  184 (191)
+                      +. |+.-.++  ..+-+.+|-+.+.|
+T Consensus       185 ~~~~~~~~~~yl~~ve~G~E~~~G~~  210 (223)
+T 1KS5_A          185 QNQGFPASSQYLINLQFGTEAFTGGP  210 (223)
+T ss_dssp             HHSCCCGGGCEEEEEEEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEeEEEEEEeeEEecC
+Confidence            54 3543443  34557888887776
+
+
+No 46
+>1KS4_A Aspergillus niger Endoglucanase; Endoglucanase, Cellulase, Aspergillus niger, family; 2.5A {Aspergillus niger} SCOP: b.29.1.11
+Probab=53.83  E-value=10  Score=32.77  Aligned_cols=93  Identities=13%  Similarity=0.135  Sum_probs=56.0  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWS-VRRNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~S-VR~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +...++++++|.+|+||+......  ..+ .+   ++| |++.+..++++++...|+.-.
+T Consensus       113 ~~~EIMIWl~~~g~~~P~--G~~~~~v~i~G~~w~vy~g~~~~~--~~~-~~---v~sfv~~~~~~~~~~Dl~~fl~~l~  184 (223)
+T 1KS4_A          113 GDYELMIWLARYGNIQPI--GKQIATATVGGKSWEVWYGSTTQA--GAE-QR---TYSFVSESPINSYSGDINAFFSYLT  184 (223)
+T ss_dssp             SSEEEEEEEEEETTCCCS--SEEEEEEEETTEEEEEEEEEEEET--TEE-EE---EEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ccEEEEEEhhhcCCcccc--eeEeEEEEECCEEEEEEEEecCCC--CCe-EE---EEEEEeCCCCcEEEEehHHHHHHHH
+Confidence            45565554444 344454  234778999999999998754311  011 11   233 334455678999999999555
+
+
+Q 6KWC_1          162 QQG-LTLGT--MDYQIVAVQGYFSSG  184 (191)
+Q Consensus       162 ~~G-l~lG~--~~~~~~~vEgy~ssG  184 (191)
+                      +.+ +.-.+  +..+-+.+|-+.+.|
+T Consensus       185 ~~~~~~~~~~yl~~ve~G~E~~~G~~  210 (223)
+T 1KS4_A          185 QNQGFPASSQYLINLQFGTEAFTGGP  210 (223)
+T ss_dssp             HHSCCCGGGCEEEEEEEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEEEEEEEEeeEEecC
+Confidence            543 44344  334557888887766
+
+
+No 47
+>5GM5_C Endoglucanase-1 (E.C.3.2.1.4); substrate binding, HYDROLASE-INHIBITOR complex; HET: CBI, EPE, SO4; 1.73A {Aspergillus aculeatus}
+Probab=52.30  E-value=12  Score=32.45  Aligned_cols=93  Identities=14%  Similarity=0.178  Sum_probs=56.6  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +.+.++++++|.+|+||+....+       .   .++|.+ +.+..++++++.+-|+.-.
+T Consensus       114 ~~~EIMIWl~~~g~~~P~--G~~~~t~~i~G~~w~vy~g~~~~-------~---~v~sfv~~~~~~~~~~Dl~~fl~~l~  181 (220)
+T 5GM5_C          114 GDYELMIWLARYGGVQPI--GSQIATATVDGQTWELWYGANGS-------Q---KTYSFVAPTPITSFQGDVNDFFKYLT  181 (220)
+T ss_dssp             CSEEEEEEEEEETTCCCS--SEEEEEEEETTEEEEEEEEECSS-------C---EEEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ceEEEEEEhhhcCCcccc--eeeeEEEEECCEEEEEEEeecCC-------e---EEEEEecCCCCceEEEehHHHHHHHH
+Confidence            44554444433 344453  24477899999999999875321       1   233433 3445678999999998544
+
+
+Q 6KWC_1          162 QQ-GLTLGT--MDYQIVAVQGYFSSG-SASI  188 (191)
+Q Consensus       162 ~~-Gl~lG~--~~~~~~~vEgy~ssG-~a~v  188 (191)
+                      +. |+.-.+  |..+-+.+|-+.+.| ...+
+T Consensus       182 ~~~~~~~~~~yl~~v~~G~E~~~G~~~~~~~  212 (220)
+T 5GM5_C          182 QNHGFPASSQYLITLQFGTAPFTGGPATLSV  212 (220)
+T ss_dssp             HHHCCCGGGCEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEEEEEEEEceEEecCcEEEE
+Confidence            44 454344  334457888888876 4433
+
+
+No 48
+>1OLR_A ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, ENDOGLUCANASE; 1.2A {HUMICOLA GRISEA} SCOP: b.29.1.11
+Probab=49.03  E-value=14  Score=32.02  Aligned_cols=89  Identities=16%  Similarity=0.119  Sum_probs=55.8  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRR-N-HRSSGSVNTANHFNAW  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~-~-~r~~GtI~~~~HF~aW  160 (191)
+                      +..|--|--.+ +...|. + .+.++++++|.+|+||+....      +    ..+++.+. . +..++++++...|+.-
+T Consensus       117 ~~~EIMIWl~~~g~~~P~-G-~~~~~v~i~G~~w~vy~g~~~------~----w~v~sfv~~~~~~~~~~~Dl~~fl~~l  184 (224)
+T 1OLR_A          117 GDYELMIWLARYGGIYPI-G-TFHSQVNLAGRTWDLWTGYNG------N----MRVYSFLPPSGDIRDFSCDIKDFFNYL  184 (224)
+T ss_dssp             CSEEEEEEEEEETTCCCS-S-EEEEEEEETTEEEEEEEEEET------T----EEEEEEECSSSCCSEEEEEHHHHHHHH
+T ss_pred             ccEEEEEEhhhcCCccCc-c-eeeeeEEECCEEEEEEEeecC------C----eEEEEEcCCCCCccEEEEecHHHHHHH
+Confidence            44554444433 344553 2 346789999999999986531      1    13344443 3 4567899999999966
+
+
+Q 6KWC_1          161 AQQG-LTLGTM--DYQIVAVQGYFSSG  184 (191)
+Q Consensus       161 ~~~G-l~lG~~--~~~~~~vEgy~ssG  184 (191)
+                      .+.+ +..+++  ..+-+.+|-+.+.|
+T Consensus       185 ~~~~~~~~~~~yl~~v~~G~E~~~g~~  211 (224)
+T 1OLR_A          185 ERNHGYPAREQNLIVYQVGTECFTGGP  211 (224)
+T ss_dssp             HHHHCCCTTTCEEEEEEEECCEEEEEE
+T ss_pred             HHhcCCCCccceEeEEEEEEeeEEecC
+Confidence            6664 654443  34457888887765
+
+
+No 49
+>1UU5_A ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, ENDOGLUCANASE; HET: BGC; 1.67A {HUMICOLA GRISEA} SCOP: b.29.1.11
+Probab=49.03  E-value=14  Score=32.02  Aligned_cols=89  Identities=16%  Similarity=0.119  Sum_probs=55.8  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRR-N-HRSSGSVNTANHFNAW  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~-~-~r~~GtI~~~~HF~aW  160 (191)
+                      +..|--|--.+ +...|. + .+.++++++|.+|+||+....      +    ..+++.+. . +..++++++...|+.-
+T Consensus       117 ~~~EIMIWl~~~g~~~P~-G-~~~~~v~i~G~~w~vy~g~~~------~----w~v~sfv~~~~~~~~~~~Dl~~fl~~l  184 (224)
+T 1UU5_A          117 GDYELMIWLARYGGIYPI-G-TFHSQVNLAGRTWDLWTGYNG------N----MRVYSFLPPSGDIRDFSCDIKDFFNYL  184 (224)
+T ss_dssp             CSEEEEEEEEEETTCCCS-S-EEEEEEEETTEEEEEEEEEET------T----EEEEEEECSSSCCSEEEEEHHHHHHHH
+T ss_pred             ccEEEEEEhhhcCCccCc-c-eeeeeEEECCEEEEEEEeecC------C----eEEEEEcCCCCCccEEEEecHHHHHHH
+Confidence            44554444433 344553 2 346789999999999986531      1    13344443 3 4567899999999966
+
+
+Q 6KWC_1          161 AQQG-LTLGTM--DYQIVAVQGYFSSG  184 (191)
+Q Consensus       161 ~~~G-l~lG~~--~~~~~~vEgy~ssG  184 (191)
+                      .+.+ +..+++  ..+-+.+|-+.+.|
+T Consensus       185 ~~~~~~~~~~~yl~~v~~G~E~~~g~~  211 (224)
+T 1UU5_A          185 ERNHGYPAREQNLIVYQVGTECFTGGP  211 (224)
+T ss_dssp             HHHHCCCTTTCEEEEEEEECCEEEEEE
+T ss_pred             HHhcCCCCccceEeEEEEEEeeEEecC
+Confidence            6664 654443  34457888887765
+
+
+No 50
+>1OA2_D ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4); HYDROLASE, CELLULASE, CELLULOSE DEGRADATION, ENDOGLUCANASE; HET: NAG, PCA; 1.5A {TRICHODERMA REESEI} SCOP: b.29.1.11
+Probab=47.58  E-value=15  Score=31.70  Aligned_cols=93  Identities=18%  Similarity=0.235  Sum_probs=56.9  Template_Neff=8.000
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|-=.+ +...|.  +.+.++++++|.+|+||+....      +   . +++|.+ +....+.++++.+-|+.-.
+T Consensus       113 ~~~EIMIWl~~~G~~~P~--G~~~~~v~i~g~~w~vy~g~~~------~---~-~v~sfv~~~~~~~~~~Dl~~fl~~l~  180 (218)
+T 1OA2_D          113 GDYELMIWLGKYGDIGPI--GSSQGTVNVGGQSWTLYYGYNG------A---M-QVYSFVAQTNTTNYSGDVKNFFNYLR  180 (218)
+T ss_dssp             CSEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEEEB------T---E-EEEEEEESSCCSEEEEETHHHHHHHH
+T ss_pred             ccEEEEEEecccCCcccc--eeceeeEEECCEEEEEEEEecC------C---e-EEEEEEeCCCCcEEEEecHHHHHHHH
+Confidence            44554444443 344453  2346789999999999976431      1   1 244444 3344578999999998555
+
+
+Q 6KWC_1          162 QQ-GLTLGT--MDYQIVAVQGYFSSGSASI  188 (191)
+Q Consensus       162 ~~-Gl~lG~--~~~~~~~vEgy~ssG~a~v  188 (191)
+                      +. |+.-.+  +..+-+.+|-+.+.|+..+
+T Consensus       181 ~~~~~~~~~~yl~~ve~G~E~~~g~g~~~~  210 (218)
+T 1OA2_D          181 DNKGYNAAGQYVLSYQFGTEPFTGSGTLNV  210 (218)
+T ss_dssp             HHHCCCTTTCEECCCEEEECEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEEEEEEEeeeEEecceEEE
+Confidence            44 453333  3445578888888875443
+
+
+No 51
+>5M2D_A Beta-xylanase (E.C.3.2.1.8); Endoglucanase-like protein, ALPHA/BETA BARREL, HYDROLASE; HET: GOL; 2.097A {Acremonium chrysogenum ATCC 11550}
+Probab=46.13  E-value=17  Score=31.95  Aligned_cols=89  Identities=11%  Similarity=0.137  Sum_probs=55.6  Template_Neff=7.800
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNA-W  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~a-W  160 (191)
+                      +..|--|-=.+ +...|.  +.+.++++++|.+|+||+....      +    ..++|.+ +.+..+.++++...|+. .
+T Consensus       129 ~~~EIMIWl~~~g~~~P~--G~~~~~v~i~G~~w~vy~g~~~------~----~~v~sfv~~~~~~~~~~Dl~~fl~~l~  196 (235)
+T 5M2D_A          129 GDYELMIWLGRLGDVYPI--GSSVGFVNVGGQQWELFDGYNG------N----MHVFSFVAPQQINNFNTDVKTFFDYLT  196 (235)
+T ss_dssp             CSEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEEET------T----EEEEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ccEEEEEEecccCCcccc--eeeeeEEEECCEEEEEEEeecC------C----eEEEEEecCCCCcEEEEecHHHHHHHH
+Confidence            44555444433 334453  2346789999999999986421      1    1234443 34456789999999985 3
+
+
+Q 6KWC_1          161 AQQGLTLGT--MDYQIVAVQGYFSSG  184 (191)
+Q Consensus       161 ~~~Gl~lG~--~~~~~~~vEgy~ssG  184 (191)
+                      ++.|+...+  +..+-+.+|-+.++|
+T Consensus       197 ~~~g~~~~~~yL~~ve~GtE~~~G~~  222 (235)
+T 5M2D_A          197 WNRGFPADQQHLLILQFGTEPFTGGP  222 (235)
+T ss_dssp             HHSCCCTTTCEEEEEEEEEEEEEEEE
+T ss_pred             HccCCCCcCcEEEEEEEEEeeEeecC
+Confidence            467775454  334557888887665
+
+
+No 52
+>2NLR_A ENDOGLUCANASE (E.C.3.2.1.4); HYDROLASE (ENDOGLUCANASE), GLYCOSYL HYDROLASE, FAMILY; HET: G2F, SHG, BGC; 1.2A {Streptomyces lividans} SCOP: b.29.1.11
+Probab=44.06  E-value=19  Score=31.69  Aligned_cols=92  Identities=14%  Similarity=0.178  Sum_probs=55.3  Template_Neff=7.600
+
+Q 6KWC_1           85 LIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        85 lvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      ..|--|--.+ +...|.  +.+.+++++.|.+++||+.....       .   .++|.+ +.+..+.+++|..-|+.-.+
+T Consensus       118 ~~EIMIWl~~~g~~~P~--G~~~~~~~i~g~~w~vy~g~~~~-------~---~v~sfv~~~~~~~~~~Dl~~fl~~l~~  185 (234)
+T 2NLR_A          118 QTEIMIWFNRVGPIQPI--GSPVGTASVGGRTWEVWSGGNGS-------N---DVLSFVAPSAISGWSFDVMDFVRATVA  185 (234)
+T ss_dssp             SEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEECSS-------S---EEEEEECSSCCCEEEEEHHHHHHHHHH
+T ss_pred             cEEEEEEeeccCCccCc--eEeceeEEECCEEEEEEEecCCC-------e---EEEEEEcCCCCCEEEEehHHHHHHHHH
+Confidence            4454443333 233443  23467899999999999865311       1   233333 34556789999888886555
+
+
+Q 6KWC_1          163 QGLTLGTM--DYQIVAVQGYFSSGSASI  188 (191)
+Q Consensus       163 ~Gl~lG~~--~~~~~~vEgy~ssG~a~v  188 (191)
+                      .+.-..++  ..+-+-+|-+.++|+..+
+T Consensus       186 ~~~~~~~~Yl~~v~~G~E~~~g~g~~~~  213 (234)
+T 2NLR_A          186 RGLAENDWYLTSVQAGFEPWQNGAGLAV  213 (234)
+T ss_dssp             TTSSCTTSEEEEEEEEEEEEECCTTCEE
+T ss_pred             CCCCccccEEEEEEEEEeeEEeCCeEEE
+Confidence            55433333  344578888887775443
+
+
+No 53
+>2JEN_A ENDO-BETA-1,4-GLUCANASE (E.C.3.2.1.4, 3.2.1.151); PLANT CELL WALL, GLYCOSIDASE, XYLOGLUCANASE; HET: DIO, XYS, BGC, GLC, SO4; 1.4A {BACILLUS LICHENIFORMIS}
+Probab=41.81  E-value=22  Score=31.87  Aligned_cols=98  Identities=15%  Similarity=0.125  Sum_probs=56.2  Template_Neff=7.600
+
+Q 6KWC_1           84 PLIEYYIVENFGTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWAQ  162 (191)
+Q Consensus        84 PlvEYYIvE~wg~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~~  162 (191)
+                      +..|--|-=.+....|.  +...+++++.|.+|+||+..+.+.  ..  .. ..++|.+ +....++++++.+-|+.-.+
+T Consensus       152 ~~~EIMIWL~~~g~~P~--G~~~~~v~i~g~~w~vy~g~~~~~--~~--~~-w~v~sfv~~~~~~~~~~Dl~~fl~~l~~  224 (261)
+T 2JEN_A          152 PTDAIMIWLNNTNAGPA--GSYVETVSIGGHSWKVYKGYIDAG--GG--KG-WNVFSFIRTANTQSANLNIRDFTNYLAD  224 (261)
+T ss_dssp             CSEEEEEEEEEESCCCS--SEEEEEEEETTEEEEEEEEEEEEE--TT--EE-EEEEEEEESSCCSEEEEEHHHHHHCCCC
+T ss_pred             CCeEEEEEeeccCCCCC--ceeeeEEEECCEEEEEEEeeecCC--CC--Cc-eEEEEEEeCCCCCEEEEEhHHHHHHHHH
+Confidence            44555554444333443  234678999999999998754211  00  11 1234443 33345788999888886555
+
+
+Q 6KWC_1          163 QG-LTLGTM--DYQIVAVQGYFSSGSASI  188 (191)
+Q Consensus       163 ~G-l~lG~~--~~~~~~vEgy~ssG~a~v  188 (191)
+                      .+ .-.+++  ..+-+.+|-+.++|+..+
+T Consensus       225 ~~~~~~~~~YL~~ie~G~E~~~G~g~~~~  253 (261)
+T 2JEN_A          225 SKQWLSKTKYVSSVEFGTEVFGGTGQINI  253 (261)
+T ss_dssp             CTCCSCTTSEEEEEEEECCEEEEEEEEEE
+T ss_pred             cCCCCCcCcEEEEEEEEEeEEEecCeEEE
+Confidence            44 222333  344578888888775443
+
+
+No 54
+>5GM4_E Endoglucanase-1 (E.C.3.2.1.4); substrate binding, HYDROLASE-INHIBITOR complex; HET: SO4, CTT; 1.92A {Aspergillus aculeatus}
+Probab=40.67  E-value=23  Score=30.60  Aligned_cols=93  Identities=14%  Similarity=0.178  Sum_probs=56.6  Template_Neff=8.100
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +.+.+++++.|.+|+||+....+       .   .+++.+ +.+..++++++..-|+.-.
+T Consensus       113 ~~~EIMIWl~~~g~~~P~--G~~~~~~~i~G~~w~vy~g~~~~-------~---~v~sfv~~~~~~~~~~Dl~~~l~~l~  180 (219)
+T 5GM4_E          113 GDYELMIWLARYGGVQPI--GSQIATATVDGQTWELWYGANGS-------Q---KTYSFVAPTPITSFQGDVNDFFKYLT  180 (219)
+T ss_dssp             CSEEEEEEEEEETTCCCS--SEEEEEEEETTEEEEEEEEECSS-------C---EEEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ceEEEEEEhhhcCCcccc--eeeeEEEEECCEEEEEEEeecCC-------e---EEEEEecCCCCcEEEEehHHHHHHHH
+Confidence            44554444433 344453  23477899999999999875321       1   233333 3445678999999998544
+
+
+Q 6KWC_1          162 QQ-GLTLGT--MDYQIVAVQGYFSSG-SASI  188 (191)
+Q Consensus       162 ~~-Gl~lG~--~~~~~~~vEgy~ssG-~a~v  188 (191)
+                      +. |+.-.+  |..+-+.+|-+.+.| ...+
+T Consensus       181 ~~~~~~~~~~yl~~v~~G~E~~~G~~~~~~~  211 (219)
+T 5GM4_E          181 QNHGFPASSQYLITLQFGTAPFTGGPATLSV  211 (219)
+T ss_dssp             HHSCCCGGGCEEEEEEEEEEEEEEEEEEEEE
+T ss_pred             HcCCCCCcccEEEEEEEEEeeEEecCcEEEE
+Confidence            44 354344  334457888888776 4443
+
+
+No 55
+>5GM3_A Endoglucanase-1 (E.C.3.2.1.4); substrate binding, HYDROLASE-INHIBITOR complex; HET: CAC; 1.59A {Aspergillus aculeatus}
+Probab=40.04  E-value=24  Score=30.45  Aligned_cols=89  Identities=13%  Similarity=0.156  Sum_probs=54.4  Template_Neff=8.200
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAWA  161 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW~  161 (191)
+                      +..|--|--.+ +...|.  +.+.++++++|.+|+||+....      + .   .+++.+ +.+..++++++.+-|+.-.
+T Consensus       113 ~~~EIMIWl~~~g~~~P~--G~~~~~~~i~G~~w~vy~~~~~------~-~---~v~sfv~~~~~~~~~~Dl~~~l~~l~  180 (219)
+T 5GM3_A          113 GDYELMIWLARYGGVQPI--GSQIATATVDGQTWELWYGANG------S-Q---KTYSFVAPTPITSFQGDVNDFFKYLT  180 (219)
+T ss_dssp             CSEEEEEEEEEETTCCCS--SEEEEEEEETTEEEEEEEEEET------T-E---EEEEEECSSCCSEEEEETHHHHHHHH
+T ss_pred             ceEEEEEEhhhcCCcccc--eeeeEEEEECCEEEEEEEeecC------C-e---EEEEEecCCCCcEEEEehHHHHHHHH
+Confidence            44554444443 344453  2347789999999999987532      1 1   133433 3344678999999998544
+
+
+Q 6KWC_1          162 QQ-GLTLGTM--DYQIVAVQGYFSSG  184 (191)
+Q Consensus       162 ~~-Gl~lG~~--~~~~~~vEgy~ssG  184 (191)
+                      +. ++...++  ..+-+.+|-+.+.|
+T Consensus       181 ~~~~~~~~~~yL~~ve~G~E~~~G~~  206 (219)
+T 5GM3_A          181 QNHGFPASSQYLITLQFGTEPFTGGP  206 (219)
+T ss_dssp             HHHCCCGGGCEEEEEEEEEEEEEEEE
+T ss_pred             HccCCCCcccEEEEEEEEEeeEEecC
+Confidence            44 4543443  34457888887765
+
+
+No 56
+>2BW8_A ENDOGLUCANASE (E.C.3.2.1.4); HYDROLASE, ENDOGLUCANASE, CELLULASE, GLYCOSIDE HYDROLASE; 1.54A {RHODOTHERMUS MARINUS} SCOP: b.29.1.11
+Probab=39.33  E-value=25  Score=30.61  Aligned_cols=90  Identities=13%  Similarity=0.203  Sum_probs=52.9  Template_Neff=8.000
+
+Q 6KWC_1           85 LIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRN-HRSS-GSVNTANHFNAWA  161 (191)
+Q Consensus        85 lvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~-~r~~-GtI~~~~HF~aW~  161 (191)
+                      ..|--|-=.+ +...|.  +.+.+++++.|.+|+||+...       + .   .+++.+.. +..+ +++++...|+.-.
+T Consensus       122 ~~EiMIWl~~~g~~~P~--G~~~~~v~i~g~~w~vy~g~~-------~-~---~v~sfv~~~~~~~~~~~Dl~~fl~~l~  188 (227)
+T 2BW8_A          122 GAELMIWLNWNGGVMPG--GSRVATVELAGATWEVWYADW-------D-W---NYIAYRRTTPTTSVSELDLKAFIDDAV  188 (227)
+T ss_dssp             SEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEES-------S-S---EEEEEEESSCCSEEEEEEHHHHHHHHH
+T ss_pred             cEEEEEEEeecCCcccc--ceeeEEEEECCEEEEEEEecC-------C-e---EEEEEEECCCCCcceeeehHHHHHHHH
+Confidence            3444443333 233443  234678999999999998531       1 1   23444432 3223 4899999998766
+
+
+Q 6KWC_1          162 QQGLTLGTM--DYQIVAVQGYFSSGSAS  187 (191)
+Q Consensus       162 ~~Gl~lG~~--~~~~~~vEgy~ssG~a~  187 (191)
+                      +.+....++  ..+-+.+|-+.++|...
+T Consensus       189 ~~~~~~~~~yl~~v~~GtE~~~G~g~~~  216 (227)
+T 2BW8_A          189 ARGYIRPEWYLHAVETGFELWEGGAGLR  216 (227)
+T ss_dssp             HTTSSCTTSEEEEEEEECCEEECCTTCE
+T ss_pred             HCCCCCcccEEEEEEEEeeEEecCCeee
+Confidence            666444443  33447888888777443
+
+
+No 57
+>4G6T_B Type III chaperone protein ShcA; Chaperone Effector, secretion chaperone, CHAPERONE; 1.56A {Pseudomonas syringae pv. tomato}
+Probab=36.81  E-value=29  Score=26.30  Aligned_cols=16  Identities=31%  Similarity=0.565  Sum_probs=13.7  Template_Neff=2.500
+
+Q 6KWC_1          105 KLGEVTSDGSVYDIYR  120 (191)
+Q Consensus       105 ~~G~~t~DG~tYdiy~  120 (191)
+                      ..|.++++|.+|+|--
+T Consensus         6 ahGqlEV~GK~Y~IrA   21 (82)
+T 4G6T_B            6 ANGQLEVDGKRYEIRA   21 (82)
+T ss_dssp             SCEEEEETTEEEEEEE
+T ss_pred             hcCeEEECCEEEEEEE
+Confidence            4689999999999953
+
+
+No 58
+>3VLB_B EDGP, Xyloglucan-specific endo-beta-1,4-glucanase A (E.C.3.2.1.151); cell-wall, PLANT PROTEIN-HYDROLASE complex; 2.7A {Daucus carota}
+Probab=31.57  E-value=40  Score=29.26  Aligned_cols=91  Identities=12%  Similarity=0.103  Sum_probs=54.3  Template_Neff=8.000
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTG-ATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVR-RNHRSSGSVNTANHFNAW  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~-~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR-~~~r~~GtI~~~~HF~aW  160 (191)
+                      +..|--|-=.+ +...|... .....+++++|.+|+||+....      +    ..++|.+ +.+..+.++++...|+.=
+T Consensus       114 ~~~EIMIWl~~~g~~~P~G~~~~~~~~v~i~G~~w~ly~g~~~------~----~~v~sfv~~~~~~~~~~Dl~~fl~~l  183 (222)
+T 3VLB_B          114 SKYEIMVWLAALGGAGPISSTGSTIATPTIAGVNWKLYSGPNG------D----TTVYSFVADSTTESFSGDLNDFFTYL  183 (222)
+T ss_dssp             CSEEEEEEEEEETTBCCCCSSSSCSBCCEETTEEEEEEEEECS------S----CEEEEEEESSCCSEEEEETHHHHHHH
+T ss_pred             CceEEEEEhhhcCCCcccccCCccccccEECCEEEEEEEecCC------C----eEEEEEEeCCCccEEEEehHHHHHHH
+Confidence            45555554433 34455422 1225689999999999976531      1    1234443 334567899999999865
+
+
+Q 6KWC_1          161 AQQGLTLGTM--DYQIVAVQGYFSSG  184 (191)
+Q Consensus       161 ~~~Gl~lG~~--~~~~~~vEgy~ssG  184 (191)
+                      .+.+.-..++  ..+-+.+|-+.++|
+T Consensus       184 ~~~~~~~~~~yl~~ve~G~E~~~G~~  209 (222)
+T 3VLB_B          184 VDNEGVSDELYLTTLEAGTEPFTGSN  209 (222)
+T ss_dssp             HHHSCCCTTSEEEEEEEEEEEEEEEE
+T ss_pred             HHcCCCChhcEEEEEEEEEceEEecC
+Confidence            5555432333  34457888887766
+
+
+No 59
+>3B7M_C CELLULASE (E.C.3.2.1.4); cellulase, hydrolase, endoglucanase, crystal, beta-jelly; 2.1A {Rhodothermus marinus}
+Probab=27.31  E-value=53  Score=28.40  Aligned_cols=92  Identities=12%  Similarity=0.120  Sum_probs=55.4  Template_Neff=8.000
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRN-HRSSG-SVNTANHFNAW  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~-~r~~G-tI~~~~HF~aW  160 (191)
+                      +..|--|-=.+ +...|.  +.+.+++++.|.+++||+....      +    ..++|.+.. +..++ .+++..-|+.=
+T Consensus       111 ~~~EiMIWl~~~g~~~P~--G~~~~~v~i~g~~w~vy~g~~~------~----~~v~sfv~~~~~~~~~~~Dl~~fl~~l  178 (216)
+T 3B7M_C          111 GDAELMIWLNKNGDVMPI--GSRVATVELAGATWEVWYADNG------A----MNVISYVRTTPTTSVTELDLKAFIDDA  178 (216)
+T ss_dssp             CSEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEECS------S----SEEEEEEESSCCSEEEEEEHHHHHHHH
+T ss_pred             CcEEEEEEeeecCCcccc--eeeeEEEEECCEEEEEEEecCC------C----eEEEEEEeCCCCCceeEeehHHHHHHH
+Confidence            44565555444 344453  2357789999999999986421      1    134454433 33344 89999988865
+
+
+Q 6KWC_1          161 AQQGLTLGT--MDYQIVAVQGYFSSGSAS  187 (191)
+Q Consensus       161 ~~~Gl~lG~--~~~~~~~vEgy~ssG~a~  187 (191)
+                      .+.+....+  |..+-+.+|-+.++|...
+T Consensus       179 ~~~~~~~~~~yL~~v~~G~E~~~G~~~~~  207 (216)
+T 3B7M_C          179 VARGYIRPEWYLLSVQTGFELFTGGAGLR  207 (216)
+T ss_dssp             HHTTSSCTTSEEEEEEEEEEEEECCTTCE
+T ss_pred             HHCCCCCcccEEeEEEEEeeEEEccCeeE
+Confidence            555543333  334457888888777443
+
+
+No 60
+>1H0B_B CELLULASE (E.C.3.2.1.4); CELLULASE, ENDOGLUCANASE, HYDROLASE; HET: EPE; 1.8A {RHODOTHERMUS MARINUS} SCOP: b.29.1.11
+Probab=26.21  E-value=58  Score=29.23  Aligned_cols=91  Identities=13%  Similarity=0.195  Sum_probs=52.4  Template_Neff=7.400
+
+Q 6KWC_1           84 PLIEYYIVENF-GTYNPSTGATKLGEVTSDGSVYDIYRTQRVNQPSIIGTATFYQYWSVRRN-HRSS-GSVNTANHFNAW  160 (191)
+Q Consensus        84 PlvEYYIvE~w-g~~~P~~~~~~~G~~t~DG~tYdiy~~~r~~~psi~G~~~f~Qy~SVR~~-~r~~-GtI~~~~HF~aW  160 (191)
+                      +..|--|-=.+ +...|.  +.+.+++++.|.+|+||+...       + .   .++|.+.. +..+ +++++..-|+.-
+T Consensus       121 ~~~EIMIWL~~~g~~~P~--G~~~~~v~i~g~~w~vy~g~~-------g-w---~v~sfv~~~~~~~~~~~Dl~~fl~~l  187 (256)
+T 1H0B_B          121 GGAELMIWLNWNGGVMPG--GSRVATVELAGATWEVWYADW-------D-W---NYIAYRRTTPTTSVSELDLKAFIDDA  187 (256)
+T ss_dssp             TSEEEEEEEEEESSCCCS--SEEEEEEEETTEEEEEEEEES-------S-S---EEEEEEESSCCSEEEEEEHHHHHHHH
+T ss_pred             ccEEEEEEEeecCCcccc--eeeeeeEEECCEEEEEEEecC-------C-c---EEEEEEeCCCCCceeeeehHHHHHHH
+Confidence            34454443333 334453  245778999999999998531       1 1   23444432 3323 479999988876
+
+
+Q 6KWC_1          161 AQQGLTLGTM--DYQIVAVQGYFSSGSAS  187 (191)
+Q Consensus       161 ~~~Gl~lG~~--~~~~~~vEgy~ssG~a~  187 (191)
+                      .+.+.-..++  ..+-+.+|-+.++|...
+T Consensus       188 ~~~~~~~~~~YL~~ve~GtE~~~G~g~~~  216 (256)
+T 1H0B_B          188 VARGYIRPEWYLHAVETGFELWEGGAGLR  216 (256)
+T ss_dssp             HHTTSSCTTSEEEEEEEECCEEECCTTCE
+T ss_pred             HHCCCCCcccEEEEEEEEEeEEEecCeeE
+Confidence            5555433333  33447778877777443
+
+

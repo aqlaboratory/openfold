@@ -11,7 +11,7 @@ We currently offer three modes of inference prediction:
 - Single Sequence (Soloseq) 
 
 This guide will focus on monomer prediction, the next sections will describe [Multimer](Multimer_Inference.md) and [Single Sequence](Single_Sequence_Inference.md) prediction. 
-
+`
 ### Pre-requisites: 
 
 - OpenFold Conda Environment. See [OpenFold Installation](Installation.md) for instructions on how to build this environment. 
@@ -22,6 +22,7 @@ This guide will focus on monomer prediction, the next sections will describe [Mu
 
 The script [`run_pretrained_openfold.py`](https://github.com/aqlaboratory/openfold/blob/main/run_pretrained_openfold.py) performs model inference. We will go through the steps of how to use this script.
 
+An example directory for performing infernce on [PDB:6KWC](https://www.rcsb.org/structure/6KWC) is provided [here](https://github.com/aqlaboratory/openfold/tree/main/examples/monomer). We refer to this example directory for the below examples.
 
 ### Download Model Parameters 
 
@@ -57,24 +58,23 @@ The following command performs a sequence alignment against the OpenProteinSet d
 
 ```
 python3 run_pretrained_openfold.py \
-    ${INPUT_FASTA_DIR} \
-    ${TEMPLATE_MMCIF_DIR} 
-    --output_dir ${OUTPUT_DIR} \
+    $INPUT_FASTA_DIR \
+    $TEMPLATE_MMCIF_DIR 
+    --output_dir $OUTPUT_DIR \
     --config_preset model_1_ptm \
-    --uniref90_database_path ${BASE_DATA_DIR}/uniref90 \
-    --mgnify_database_path ${BASE_DATA_DIR}/mgnify/mgy_clusters_2018_12.fa \
-    --pdb70_database_path ${BASE_DATA_DIR}/pdb70 \
-    --uniclust30_database_path ${BASE_DATA_DIR}/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
-    --output_dir ${OUTPUT_DIR}/output2 \
-    --bfd_database_path ${BASE_DATA_DIR}/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --model_device "cuda:0" \
+    --uniref90_database_path $BASE_DATA_DIR/uniref90 \
+    --mgnify_database_path $BASE_DATA_DIR/mgnify/mgy_clusters_2018_12.fa \
+    --pdb70_database_path $BASE_DATA_DIR/pdb70 \
+    --uniclust30_database_path $BASE_DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
+    --bfd_database_path $BASE_DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
+    --model_device "cuda:0" 
 ```
 
 **Required arguments:**
 - `--output_dir`: specify the output directory
-- `${INPUT_FASTA_DIR}`: Directory of query fasta files, one sequence per file. An example input file is provided under `examples/monomer_inference`
-- `${TEMPLATE_MMCIF_DIR}`: MMCIF files to use for template matching. This directory is required even if using template free inference. 
-- `*_database_path`: Paths to sequence databases for sequence alignments. Instructions on how to download the sequence databases (Uniref90, Mgnify, PDB70, Uniclust, BFD) are provided in [[OpenFold Dataset Download Instructions]].
+- `$INPUT_FASTA_DIR`: Directory of query fasta files, one sequence per file,e.g. `examples/monomer/fasta_dir`
+- `$TEMPLATE_MMCIF_DIR`: MMCIF files to use for template matching. This directory is required even if using template free inference. 
+- `*_database_path`: Paths to sequence databases for sequence alignment.
 - `--model_device`: Specify to use a GPU is one is available.
 
 #### Model inference with pre-computed alignments 
@@ -82,14 +82,14 @@ To perform model inference with pre-computed alignments, use the following comma
 
 ```
 python3 run_pretrained_openfold.py ${INPUT_FASTA_DIR} \
-  ${TEMPLATE_MMCIF_DIR} \
-  --output_dir ${OUTPUT_DIR} \
-  --use_precomputed_alignments ${PRECOMPUTED_ALIGNMENTS} \
+  $TEMPLATE_MMCIF_DIR \
+  --output_dir $OUTPUT_DIR \
+  --use_precomputed_alignments $PRECOMPUTED_ALIGNMENTS \
   --config_preset model_1_ptm \
   --model_device "cuda:0" \
 ```
 
-where `${PRECOMPUTED_ALIGNMENTS}` is a directory that contains alignments. A sample alignments directory structure for a single query is:
+where `$PRECOMPUTED_ALIGNMENTS` is a directory that contains alignments. A sample alignments directory structure for a single query is:
 
 ```
 alignments
@@ -100,7 +100,7 @@ alignments
     └── uniref90_hits.sto
 ```
 
-`bfd_uniclust_hits.a3m`, `mgnify_hits.sto`, and `uniref90_hits.sto` are all alignments of the query structure against the BFD, Mgnify, and Uniref90 datasets respsectively. `hhsearch_output.hhr` contains hits against the PDB70 database used for template matching.
+`bfd_uniclust_hits.a3m`, `mgnify_hits.sto`, and `uniref90_hits.sto` are all alignments of the query structure against the BFD, Mgnify, and Uniref90 datasets respsectively. `hhsearch_output.hhr` contains hits against the PDB70 database used for template matching. The example directory `examples/monomer/alignments` shows examples of expected directories.
 
 
 #### Configuration settings for template modeling / pTM scoring 
