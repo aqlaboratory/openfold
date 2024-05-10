@@ -25,8 +25,7 @@ $ python3 $OPENFOLD_DIR/train_openfold.py test_data_epoch/mmcifs test_data_epoch
 
 ### How do I convert my checkpoints? 
 
-Use the `convert_v1_to_v2_weights.py` script in the `scripts` directory of the OpenFold repo:
-e.g.
+Use [`scripts/convert_v1_to_v2_weights.py`](https://github.com/aqlaboratory/openfold/blob/main/scripts/convert_v1_to_v2_weights.py) e.g.
 
 	`python scripts/convert_v1_to_v2_weights.py checkpoints/6-209.ckpt checkpoints/6-209.ckpt.converted`
 
