@@ -96,7 +96,7 @@ class TestPermutation(unittest.TestCase):
             then the 2 protein A chains are free to be aligned by either order, thus either [(0,1),(1,0)] or [(0,0),(1,1)] is valid.
 
             However, the 3 protein B chains should be strictly aligned in the following order: 
-            [(2,3), (3,4), (4,1)], regardless of how protein A chains are aligned. 
+            [(2,3), (3,4), (4,2)], regardless of how protein A chains are aligned. 
 
             Therefore, the only 2 correct permutations are :
             [(0, 1), (1, 0), (2, 3), (3, 4), (4, 2)] and 
