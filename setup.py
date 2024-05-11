@@ -29,7 +29,7 @@ version_dependent_macros = [
 ]
 
 extra_cuda_flags = [
-    '-std=c++14',
+    '-std=c++17',
     '-maxrregcount=50',
     '-U__CUDA_NO_HALF_OPERATORS__',
     '-U__CUDA_NO_HALF_CONVERSIONS__',
@@ -38,7 +38,7 @@ extra_cuda_flags = [
 ]
 
 def get_cuda_bare_metal_version(cuda_dir):
-    if cuda_dir==None or torch.version.cuda==None:
+    if cuda_dir==None or torch.version.cuda==None or not torch.cuda.is_available():
         print("CUDA is not found, cpu version is installed")
         return None, -1, 0
     else:
