@@ -42,7 +42,7 @@ $ bash scripts/download_openfold_params.sh $PARAMS_DIR
 
 We recommend selecting `openfold/resources` as the params directory as this is the default directory used by the `run_pretrained_openfold.py` to locate parameters. 
 
-If you choose to use a different directory, you may make a symlink to the `openfold/resources` directory, or specify an alternate parameter path with the command line argument `--jax_path` for AlphaFold parameters or `--openfold_checkpoint_path` for OpenFold parameters. 
+If you choose to use a different directory, you may make a symlink to the `openfold/resources` directory, or specify an alternate parameter path with the command line argument `--jax_param_path` for AlphaFold parameters or `--openfold_checkpoint_path` for OpenFold parameters. 
 
 
 ### Model Inference 

@@ -273,6 +273,11 @@ def main(args):
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
+
+    if is_multimer and args.openfold_checkpoint_path:
+        raise ValueError(
+            '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
+
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
