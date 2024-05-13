@@ -51,6 +51,11 @@ To use OpenFold on CUDA 12 environment rather than a CUDA 11 environment.
 	In step 1, use the branch [`pl_upgrades`](https://github.com/aqlaboratory/openfold/tree/pl_upgrades) rather than the main branch, i.e. replace the URL in step 1 with https://github.com/aqlaboratory/openfold/tree/pl_upgrades
 	Follow the rest of the steps of [Installation Guide](#Installation)
 
+
+### MPI
+To use OpenFold with MPI support, you will need to add the package [`mpi4py`](https://pypi.org/project/mpi4py/). This can be done with pip in your OpenFold environment, e.g. `$ pip install mpi4py`. 
+
+
 ### Install OpenFold parameters without aws
 If you don't have access to `aws` on your system, you can use a different download source:
 
