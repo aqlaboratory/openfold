@@ -5,8 +5,10 @@ import os
 import sys
 from pathlib import Path
 
-
-CONDA_ENV_BINARY_PATH= Path(os.environ['CONDA_PREFIX']) / 'bin'
+if 'CONDA_PREFIX' in os.environ:
+    CONDA_ENV_BINARY_PATH= Path(os.environ['CONDA_PREFIX']) / 'bin'
+else:
+    CONDA_ENV_BINARY_PATH = Path('/bin')
 
 def add_data_args(parser: argparse.ArgumentParser):
     parser.add_argument(
