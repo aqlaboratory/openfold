@@ -1053,7 +1053,6 @@ class OpenFoldDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         if self.eval_dataset is not None:
             return self._gen_dataloader("eval")
-        # Temp fix to pass the validation step
         return [] 
 
     def predict_dataloader(self):

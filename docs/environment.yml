@@ -1,0 +1,7 @@
+name: openfold-docs
+channels:
+  - conda-forge
+dependencies:
+  - sphinx=7
+  - myst-parser=3
+  - furo

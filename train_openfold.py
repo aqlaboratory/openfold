@@ -2,20 +2,25 @@ import argparse
 import logging
 import os
 import sys
+import json
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
+from pytorch_lightning.callbacks import DeviceStatsMonitor
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.strategies import DeepSpeedStrategy, DDPStrategy
+from pytorch_lightning.strategies import DDPStrategy, DeepSpeedStrategy
+from pytorch_lightning.plugins.environments import MPIEnvironment
+from pytorch_lightning import seed_everything
 import torch
+import wandb
+from deepspeed.utils import zero_to_fp32 
 
 from openfold.config import model_config
 from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataModule
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
@@ -23,7 +28,6 @@ from openfold.utils.exponential_moving_average import ExponentialMovingAverage
 from openfold.utils.loss import AlphaFoldLoss, lddt_ca
 from openfold.utils.lr_schedulers import AlphaFoldLRScheduler
 from openfold.utils.multi_chain_permutation import multi_chain_permutation_align
-from openfold.utils.seed import seed_everything
 from openfold.utils.superimposition import superimpose
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.validation_metrics import (
@@ -35,11 +39,6 @@ from openfold.utils.import_weights import (
     import_jax_weights_,
     import_openfold_weights_
 )
-from scripts.zero_to_fp32 import (
-    get_fp32_state_dict_from_zero_checkpoint,
-    get_global_step_from_zero_checkpoint
-)
-
 from openfold.utils.logger import PerformanceLoggingCallback
 
 
@@ -58,6 +57,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
         self.cached_weights = None
         self.last_lr_step = -1
+        self.save_hyperparameters()
 
     def forward(self, batch):
         return self.model(batch)
@@ -66,16 +66,17 @@ class OpenFoldWrapper(pl.LightningModule):
         phase = "train" if train else "val"
         for loss_name, indiv_loss in loss_breakdown.items():
             self.log(
-                f"{phase}/{loss_name}",
-                indiv_loss,
-                on_step=train, on_epoch=(not train), logger=True,
+                f"{phase}/{loss_name}", 
+                indiv_loss, 
+                prog_bar=(loss_name == 'loss'),
+                on_step=train, on_epoch=(not train), logger=True, sync_dist=False,
             )
 
             if (train):
                 self.log(
                     f"{phase}/{loss_name}_epoch",
                     indiv_loss,
-                    on_step=False, on_epoch=True, logger=True,
+                    on_step=False, on_epoch=True, logger=True, sync_dist=False,
                 )
 
         with torch.no_grad():
@@ -89,7 +90,8 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
-                on_step=False, on_epoch=True, logger=True
+                prog_bar = (k == 'loss'),
+                on_step=False, on_epoch=True, logger=True, sync_dist=False,
             )
 
     def training_step(self, batch, batch_idx):
@@ -152,8 +154,8 @@ class OpenFoldWrapper(pl.LightningModule):
         )
 
         self._log(loss_breakdown, batch, outputs, train=False)
-
-    def on_validation_epoch_end(self, _):
+        
+    def on_validation_epoch_end(self):
         # Restore the model weights to normal
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
@@ -212,15 +214,10 @@ class OpenFoldWrapper(pl.LightningModule):
 
         return metrics
 
-    def configure_optimizers(self,
-                             learning_rate: float = 1e-3,
-                             eps: float = 1e-5,
-                             ) -> torch.optim.Adam:
-        #        return torch.optim.Adam(
-        #            self.model.parameters(),
-        #            lr=learning_rate,
-        #            eps=eps
-        #        )
+    def configure_optimizers(self, 
+        learning_rate: float = 1e-3,
+        eps: float = 1e-5,
+    ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         optimizer = torch.optim.Adam(
             self.model.parameters(),
@@ -271,37 +268,69 @@ class OpenFoldWrapper(pl.LightningModule):
             self.model, jax_path, version=model_version
         )
 
+def get_model_state_dict_from_ds_checkpoint(checkpoint_dir):
+    latest_path = os.path.join(checkpoint_dir, 'latest')
+    if os.path.isfile(latest_path):
+        with open(latest_path, 'r') as fd:
+            tag = fd.read().strip()
+    else:
+        raise ValueError(f"Unable to find 'latest' file at {latest_path}")
+
+    ds_checkpoint_dir = os.path.join(checkpoint_dir, tag)
+    _DS_CHECKPOINT_VERSION = 2  # based on manual parsing of checkpoint files
+    state_file = zero_to_fp32.get_model_state_file(ds_checkpoint_dir, _DS_CHECKPOINT_VERSION)
+    return torch.load(state_file)
 
 def main(args):
-    if (args.seed is not None):
-        seed_everything(args.seed)
+    if(args.seed is not None):
+        seed_everything(args.seed, workers=True) 
+
+    is_low_precision = args.precision in [
+        "bf16-mixed", "16", "bf16", "16-true", "16-mixed", "bf16-mixed"]
 
     config = model_config(
-        args.config_preset,
-        train=True,
-        low_prec=(str(args.precision) == "16")
-    )
+        args.config_preset, 
+        train=True, 
+        low_prec=is_low_precision,
+    ) 
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
+
     model_module = OpenFoldWrapper(config)
 
-    if (args.resume_from_ckpt):
-        if (os.path.isdir(args.resume_from_ckpt)):
-            last_global_step = get_global_step_from_zero_checkpoint(
-                args.resume_from_ckpt)
-        else:
-            sd = torch.load(args.resume_from_ckpt)
+    if args.resume_from_ckpt:
+        if args.resume_model_weights_only:
+            # Load the checkpoint
+            if os.path.isdir(args.resume_from_ckpt):
+                sd = zero_to_fp32.get_fp32_state_dict_from_zero_checkpoint(
+                    args.resume_from_ckpt)
+            else:
+                sd = torch.load(args.resume_from_ckpt)
+            # Process the state dict
+            if 'module' in sd:
+                sd = {k[len('module.'):]: v for k, v in sd['module'].items()}
+                import_openfold_weights_(model=model_module, state_dict=sd)
+            elif 'state_dict' in sd:
+                import_openfold_weights_(
+                    model=model_module, state_dict=sd['state_dict'])
+            else:
+                # Loading from pre-trained model
+                sd = {'model.'+k: v for k, v in sd.items()}
+                import_openfold_weights_(model=model_module, state_dict=sd)
+            logging.info("Successfully loaded model weights...")
+
+        else:  # Loads a checkpoint to start from a specific time step
+            if os.path.isdir(args.resume_from_ckpt):
+                sd = get_model_state_dict_from_ds_checkpoint(args.resume_from_ckpt)
+            else:
+                sd = torch.load(args.resume_from_ckpt)
             last_global_step = int(sd['global_step'])
-        model_module.resume_last_lr_step(last_global_step)
-        logging.info("Successfully loaded last lr step...")
-    if (args.resume_from_ckpt and args.resume_model_weights_only):
-        if (os.path.isdir(args.resume_from_ckpt)):
-            sd = get_fp32_state_dict_from_zero_checkpoint(
-                args.resume_from_ckpt)
-        else:
-            sd = torch.load(args.resume_from_ckpt)
-        sd = {k[len("module."):]: v for k, v in sd.items()}
-        import_openfold_weights_(model=model_module, state_dict=sd)
-        logging.info("Successfully loaded model weights...")
-    if (args.resume_from_jax_params):
+            model_module.resume_last_lr_step(last_global_step)
+            logging.info("Successfully loaded last lr step...")
+
+    if args.resume_from_jax_params:
         model_module.load_from_jax(args.resume_from_jax_params)
         logging.info(
             f"Successfully loaded JAX parameters at {args.resume_from_jax_params}...")
@@ -360,7 +389,20 @@ def main(args):
         callbacks.append(lr_monitor)
 
     loggers = []
-    if (args.wandb):
+    is_rank_zero = args.mpi_plugin and (int(os.environ.get("PMI_RANK")) == 0)
+    if(args.wandb):
+        if args.mpi_plugin and is_rank_zero:
+            wandb_init_dict = dict(
+                name=args.experiment_name,
+                project=args.wandb_project,
+                id=args.wandb_id,
+                dir=args.output_dir,
+                resume="allow",
+                anonymous=None,
+                entity=args.wandb_entity
+            )
+            wandb.run = wandb.init(**wandb_init_dict)
+
         wdb_logger = WandbLogger(
             name=args.experiment_name,
             save_dir=args.output_dir,
@@ -370,27 +412,28 @@ def main(args):
         )
         loggers.append(wdb_logger)
 
-    if (args.deepspeed_config_path is not None):
+    cluster_environment = MPIEnvironment() if args.mpi_plugin else None
+    if(args.deepspeed_config_path is not None):
         strategy = DeepSpeedStrategy(
             config=args.deepspeed_config_path,
+            cluster_environment=cluster_environment,
         )
-        if (args.wandb):
+        if(args.wandb and is_rank_zero):
             wdb_logger.experiment.save(args.deepspeed_config_path)
             wdb_logger.experiment.save("openfold/config.py")
     elif (args.gpus is not None and args.gpus > 1) or args.num_nodes > 1:
-        strategy = DDPStrategy(find_unused_parameters=False)
+        strategy = DDPStrategy(find_unused_parameters=False,
+                               cluster_environment=cluster_environment)
     else:
         strategy = None
-
-    if (args.wandb):
+ 
+    if(args.wandb and is_rank_zero):
         freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
         os.system(f"{sys.executable} -m pip freeze > {freeze_path}")
         wdb_logger.experiment.save(f"{freeze_path}")
 
-    # Raw dump of all args from pl.Trainer constructor
-    trainer_kws = set([
-        'accelerator', 'strategy', 'devices', 'num_nodes', 'precision', 'logger', 'callbacks', 'fast_dev_run', 'max_epochs', 'min_epochs', 'max_steps', 'min_steps', 'max_tim', 'limit_train_batches', 'limit_val_batches', 'limit_test_batches', 'limit_predict_batches', 'overfit_batches', 'val_check_interval', 'check_val_every_n_epoch', 'num_sanity_val_steps', 'log_every_n_steps', 'enable_checkpointing', 'enable_progress_bar', 'enable_model_summary', 'accumulate_grad_batches', 'gradient_clip_val', 'gradient_clip_algorithm', 'deterministic', 'benchmark', 'inference_mode', 'use_distributed_sampler', 'profiler', 'detect_anomaly', 'barebones', 'plugins', 'sync_batchnorm', 'reload_dataloaders_every_n_epochs', 'default_root_dir',
-    ])
+    trainer_kws = ['num_nodes', 'precision', 'max_epochs', 'log_every_n_steps',
+                   'flush_logs_ever_n_steps', 'num_sanity_val_steps', 'reload_dataloaders_every_n_epochs']
     trainer_args = {k: v for k, v in vars(args).items() if k in trainer_kws}
     trainer_args.update({
         'default_root_dir': args.output_dir,
@@ -399,6 +442,7 @@ def main(args):
         'logger': loggers,
     })
     trainer = pl.Trainer(**trainer_args)
+
 
     if (args.resume_model_weights_only):
         ckpt_path = None
@@ -606,44 +650,41 @@ if __name__ == "__main__":
         help="Distillation alignment index. See the README for instructions."
     )
     parser.add_argument(
+        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
+    )
+    parser.add_argument(
+        "--gpus", type=int, default=1, help='For determining optimal strategy and effective batch size.'
+    )
+    parser.add_argument("--mpi_plugin", action="store_true", default=False,
+                        help="Whether to use MPI for parallele processing")
+
+    trainer_group = parser.add_argument_group(
+        'Arguments to pass to PyTorch Lightning Trainer')
+    trainer_group.add_argument(
         "--num_nodes", type=int, default=1,
     )
-    parser.add_argument(
-        "--gpus", type=int, default=1,
+    trainer_group.add_argument(
+        "--precision", type=str, default='bf16',
+        help='Sets precision, lower precision improves runtime performance.',
     )
-    parser.add_argument(
-        "--precision", type=str, default=None,
-    )
-    parser.add_argument(
-        "--replace_sampler_ddp", type=bool_type, default=True,
-    )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--max_epochs", type=int, default=1,
     )
-    parser.add_argument(
+    trainer_group.add_argument(
         "--log_every_n_steps", type=int, default=25,
     )
-    parser.add_argument(
+    trainer_group.add_argument(
+        "--flush_logs_every_n_steps", type=int, default=5,
+    )
+    trainer_group.add_argument(
         "--num_sanity_val_steps", type=int, default=0,
     )
-
-    #  parser = pl.Trainer.add_argparse_args(parser)
-    #
-    #  # Disable the initial validation pass
-    #  parser.set_defaults(
-    #      num_sanity_val_steps=0,
-    #  )
-
-    #  # Remove some buggy/redundant arguments introduced by the Trainer
-    #  remove_arguments(
-    #      parser,
-    #      [
-    #          "--accelerator",
-    #          "--resume_from_checkpoint",
-    #          "--reload_dataloaders_every_epoch",
-    #          "--reload_dataloaders_every_n_epochs",
-    #      ]
-    #  )
+    trainer_group.add_argument(
+        "--reload_dataloaders_every_n_epochs", type=int, default=1,
+    )
+    trainer_group.add_argument(
+        "--accumulate_grad_batches", type=int, default=1,
+        help="Accumulate gradients over k batches before next optimizer step.")
 
     args = parser.parse_args()
 
@@ -658,8 +699,5 @@ if __name__ == "__main__":
     if (args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
         raise ValueError(
             "Choose between loading pretrained Jax-weights and a checkpoint-path")
-
-    # This re-applies the training-time filters at the beginning of every epoch
-    args.reload_dataloaders_every_n_epochs = 1
 
     main(args)

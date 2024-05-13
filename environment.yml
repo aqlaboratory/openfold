@@ -1,18 +1,18 @@
-name: openfold-venv
+name: openfold-env 
 channels:
   - conda-forge
   - bioconda
   - pytorch
   - nvidia 
 dependencies:
-  - python=3.9
+  - python=3.10
   - libgcc=7.2
   - setuptools=59.5.0
   - pip
   - openmm=7.7
   - pdbfixer
   - pytorch-lightning
-  - biopython==1.79
+  - biopython
   - numpy
   - pandas
   - PyYAML==5.4.1
@@ -24,11 +24,12 @@ dependencies:
   - modelcif==0.7
   - awscli
   - ml-collections
+  - mkl=2022.1
   - aria2
   - git
-  - bioconda::hmmer==3.3.2
-  - bioconda::hhsuite==3.3.0
-  - bioconda::kalign2==2.04
+  - bioconda::hmmer
+  - bioconda::hhsuite
+  - bioconda::kalign2
   - pytorch::pytorch=2.1
   - pytorch::pytorch-cuda=12.1
   - pip:

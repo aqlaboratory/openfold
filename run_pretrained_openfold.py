@@ -20,6 +20,7 @@ import os
 import pickle
 import random
 import time
+import json
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -131,7 +132,16 @@ def generate_feature_dict(
     args,
 ):
     tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
-    if len(seqs) == 1:
+
+    if "multimer" in args.config_preset:
+        with open(tmp_fasta_path, "w") as fp:
+            fp.write(
+                '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
+            )
+        feature_dict = data_processor.process_fasta(
+            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
+        )
+    elif len(seqs) == 1:
         tag = tags[0]
         seq = seqs[0]
         with open(tmp_fasta_path, "w") as fp:
@@ -142,14 +152,6 @@ def generate_feature_dict(
             fasta_path=tmp_fasta_path,
             alignment_dir=local_alignment_dir,
             seqemb_mode=args.use_single_seq_mode,
-        )
-    elif "multimer" in args.config_preset:
-        with open(tmp_fasta_path, "w") as fp:
-            fp.write(
-                '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
-            )
-        feature_dict = data_processor.process_fasta(
-            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
         )
     else:
         with open(tmp_fasta_path, "w") as fp:
@@ -177,7 +179,21 @@ def main(args):
     if args.config_preset.startswith("seq"):
         args.use_single_seq_mode = True
 
-    config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
+    config = model_config(
+        args.config_preset, 
+        long_sequence_inference=args.long_sequence_inference,
+        use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
+        )
+
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
+
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
 
     if args.trace_model:
         if not config.data.predict.fixed_size:
@@ -451,6 +467,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cif_output", action="store_true", default=False,
         help="Output predicted models in ModelCIF format instead of PDB format (default)"
+    )
+    parser.add_argument(
+        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
+    )
+    parser.add_argument(
+        "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
+        help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
     )
     add_data_args(parser)
     args = parser.parse_args()
