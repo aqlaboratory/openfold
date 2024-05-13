@@ -26,7 +26,6 @@ dependencies:
   - ml-collections
   - mkl=2022.1
   - aria2
-  - mkl==2024.0
   - git
   - bioconda::hmmer
   - bioconda::hhsuite
