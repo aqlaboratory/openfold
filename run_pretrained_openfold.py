@@ -20,6 +20,7 @@ import os
 import pickle
 import random
 import time
+import json
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -178,7 +179,21 @@ def main(args):
     if args.config_preset.startswith("seq"):
         args.use_single_seq_mode = True
 
-    config = model_config(args.config_preset, long_sequence_inference=args.long_sequence_inference)
+    config = model_config(
+        args.config_preset, 
+        long_sequence_inference=args.long_sequence_inference,
+        use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
+        )
+
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
+
+    if args.experiment_config_json: 
+        with open(args.experiment_config_json, 'r') as f:
+            custom_config_dict = json.load(f)
+        config.update_from_flattened_dict(custom_config_dict)
 
     if args.trace_model:
         if not config.data.predict.fixed_size:
@@ -258,6 +273,11 @@ def main(args):
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
+
+    if is_multimer and args.openfold_checkpoint_path:
+        raise ValueError(
+            '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
+
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
@@ -452,6 +472,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cif_output", action="store_true", default=False,
         help="Output predicted models in ModelCIF format instead of PDB format (default)"
+    )
+    parser.add_argument(
+        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
+    )
+    parser.add_argument(
+        "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
+        help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
     )
     add_data_args(parser)
     args = parser.parse_args()

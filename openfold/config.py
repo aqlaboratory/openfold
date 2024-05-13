@@ -62,7 +62,8 @@ def model_config(
     name, 
     train=False, 
     low_prec=False, 
-    long_sequence_inference=False
+    long_sequence_inference=False,
+    use_deepspeed_evoformer_attention=False,
 ):
     c = copy.deepcopy(config)
     # TRAINING PRESETS
@@ -236,6 +237,9 @@ def model_config(
         c.model.template.template_pair_stack.tune_chunk_size = False
         c.model.extra_msa.extra_msa_stack.tune_chunk_size = False
         c.model.evoformer_stack.tune_chunk_size = False
+    
+    if use_deepspeed_evoformer_attention:
+        c.globals.use_deepspeed_evo_attention = True 
     
     if train:
         c.globals.blocks_per_ckpt = 1
