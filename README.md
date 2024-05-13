@@ -193,6 +193,12 @@ If you've already computed alignments for the query, you have the option to
 skip the expensive alignment computation here with 
 `--use_precomputed_alignments`.
 
+If you wish to use **custom templates** as input,
+you can use the argument `--use_custom_template`, which then will read all .cif
+files in `template_mmcif_dir`. Make sure the chains of interest have the identifier _A_
+and have the same length as the input sequence. The same templates will be read for
+all sequences that are passed for inference.
+
 `--openfold_checkpoint_path` or `--jax_param_path` accept comma-delineated lists
 of .pt/DeepSpeed OpenFold checkpoints and AlphaFold's .npz JAX parameter files, 
 respectively. For a breakdown of the differences between the different parameter 

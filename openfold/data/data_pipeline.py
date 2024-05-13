@@ -23,8 +23,19 @@ import tempfile
 from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
 import numpy as np
 import torch
-from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
-from openfold.data.templates import get_custom_template_features, empty_template_feats
+from openfold.data import (
+    templates,
+    parsers,
+    mmcif_parsing,
+    msa_identifiers,
+    msa_pairing,
+    feature_processing_multimer,
+)
+from openfold.data.templates import (
+    get_custom_template_features,
+    empty_template_feats,
+    CustomHitFeaturizer,
+)
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.np import residue_constants, protein
 
@@ -38,7 +49,9 @@ def make_template_features(
     template_featurizer: Any,
 ) -> FeatureDict:
     hits_cat = sum(hits.values(), [])
-    if(len(hits_cat) == 0 or template_featurizer is None):
+    if template_featurizer is None or (
+        len(hits_cat) == 0 and not isinstance(template_featurizer, CustomHitFeaturizer)
+    ):
         template_features = empty_template_feats(len(input_sequence))
     else:
         templates_result = template_featurizer.get_templates(

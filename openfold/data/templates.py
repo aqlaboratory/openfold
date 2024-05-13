@@ -22,6 +22,7 @@ import glob
 import json
 import logging
 import os
+from pathlib import Path
 import re
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 
@@ -947,54 +948,70 @@ def _process_single_hit(
 
 
 def get_custom_template_features(
-        mmcif_path: str,
-        query_sequence: str,
-        pdb_id: str,
-        chain_id: str,
-        kalign_binary_path: str):
+    mmcif_path: str,
+    query_sequence: str,
+    pdb_id: str,
+    chain_id: Optional[str] = "A",
+    kalign_binary_path: Optional[str] = None,
+):
+    if os.path.isfile(mmcif_path):
+        template_paths = [Path(mmcif_path)]
 
-    with open(mmcif_path, "r") as mmcif_path:
-        cif_string = mmcif_path.read()
+    elif os.path.isdir(mmcif_path):
+        template_paths = list(Path(mmcif_path).glob("*.cif"))
+    else:
+        logging.error("Custom template path %s does not exist", mmcif_path)
+        raise ValueError(f"Custom template path {mmcif_path} does not exist")
 
-    mmcif_parse_result = mmcif_parsing.parse(
-        file_id=pdb_id, mmcif_string=cif_string
-    )
-    template_sequence = mmcif_parse_result.mmcif_object.chain_to_seqres[chain_id]
-
-
-    mapping = {x:x for x, _ in enumerate(query_sequence)}
-
-
-    features, warnings = _extract_template_features(
-        mmcif_object=mmcif_parse_result.mmcif_object,
-        pdb_id=pdb_id,
-        mapping=mapping,
-        template_sequence=template_sequence,
-        query_sequence=query_sequence,
-        template_chain_id=chain_id,
-        kalign_binary_path=kalign_binary_path,
-        _zero_center_positions=True
-    )
-    features["template_sum_probs"] = [1.0]
-
-    # TODO: clean up this logic
-    template_features = {}
-    for template_feature_name in TEMPLATE_FEATURES:
-        template_features[template_feature_name] = []
-
-    for k in template_features:
-        template_features[k].append(features[k])
-
-    for name in template_features:
-        template_features[name] = np.stack(
-            template_features[name], axis=0
-        ).astype(TEMPLATE_FEATURES[name])
-
+    warnings = []
+    template_features = dict()
+    for template_path in template_paths:
+        logging.info("Featurizing template: %s", template_path)
+        # pdb_id only for error reporting, take file name
+        pdb_id = Path(template_path).stem
+        with open(template_path, "r") as mmcif_path:
+            cif_string = mmcif_path.read()
+        mmcif_parse_result = mmcif_parsing.parse(
+            file_id=pdb_id, mmcif_string=cif_string
+        )
+        # mapping skipping "-"
+        mapping = {
+            x: x for x, curr_char in enumerate(query_sequence) if curr_char.isalnum()
+        }
+        realigned_sequence, realigned_mapping = _realign_pdb_template_to_query(
+            old_template_sequence=query_sequence,
+            template_chain_id=chain_id,
+            mmcif_object=mmcif_parse_result.mmcif_object,
+            old_mapping=mapping,
+            kalign_binary_path=kalign_binary_path,
+        )
+        curr_features, curr_warnings = _extract_template_features(
+            mmcif_object=mmcif_parse_result.mmcif_object,
+            pdb_id=pdb_id,
+            mapping=realigned_mapping,
+            template_sequence=realigned_sequence,
+            query_sequence=query_sequence,
+            template_chain_id=chain_id,
+            kalign_binary_path=kalign_binary_path,
+            _zero_center_positions=True,
+        )
+        curr_features["template_sum_probs"] = [
+            1.0
+        ]  # template given by user, 100% confident
+        template_features = {
+            curr_name: template_features.get(curr_name, []) + [curr_item]
+            for curr_name, curr_item in curr_features.items()
+        }
+        warnings.append(curr_warnings)
+    template_features = {
+        template_feature_name: np.stack(
+            template_features[template_feature_name], axis=0
+        ).astype(template_feature_type)
+        for template_feature_name, template_feature_type in TEMPLATE_FEATURES.items()
+    }
     return TemplateSearchResult(
         features=template_features, errors=None, warnings=warnings
     )
-
-
 
 @dataclasses.dataclass(frozen=True)
 class TemplateSearchResult:
@@ -1188,6 +1205,23 @@ class HhsearchHitFeaturizer(TemplateHitFeaturizer):
         )
 
 
+class CustomHitFeaturizer(TemplateHitFeaturizer):
+    """Featurizer for templates given in folder.
+     Chain of interest has to be chain A and of same sequence length as input sequence."""
+    def get_templates(
+        self,
+        query_sequence: str,
+        hits: Sequence[parsers.TemplateHit],
+    ) -> TemplateSearchResult:
+        """Computes the templates for given query sequence (more details above)."""
+        logging.info("Featurizing mmcif_dir: %s", self._mmcif_dir)
+        return get_custom_template_features(
+            self._mmcif_dir,
+            query_sequence=query_sequence,
+            pdb_id="test",
+            chain_id="A",
+            kalign_binary_path=self._kalign_binary_path,
+        )   
 class HmmsearchHitFeaturizer(TemplateHitFeaturizer):
     def get_templates(
         self,
