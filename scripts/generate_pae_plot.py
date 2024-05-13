@@ -2,7 +2,6 @@
 import argparse
 import sys
 import pickle as pkl
-#from zipfile import Path
 import numpy as np
 import pandas as pd
 
@@ -11,7 +10,6 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import json
 from sys import exit
 import os
-from Bio import PDB as pdb
 from Bio import SeqIO
 import io
 import json
@@ -22,6 +20,7 @@ encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 # plot size, in inches.
 plot_size = 16
 
+# @markdown Input value to increment plot axes by (this may need finetuning based on output)
 plot_increment = "200"  # @param[10,25,50,100,250,500]
 plot_increment = int(plot_increment)
 
@@ -88,42 +87,6 @@ class AlphaFoldPickle(AlphaFoldMetaData):
             outfile.write(json.dumps(colab_data, cls=NumpyEncoder))
 
 
-def plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5, axis_label_increment=100):
-    m1_x = list(range(0, len(model1.pLDDT), 1))
-    m1_y = list(model1.pLDDT)
-    m2_x = list(range(0, len(model2.pLDDT), 1))
-    m2_y = list(model2.pLDDT)
-    m3_x = list(range(0, len(model3.pLDDT), 1))
-    m3_y = list(model3.pLDDT)
-
-    plt.figure(figsize=(size_in_inches, (size_in_inches / 2)))
-    ticks = np.arange(0, len(model1.pLDDT), axis_label_increment)
-    plt.xticks(ticks)
-    plt.yticks()
-    plt.title(name, size=20, fontweight="bold")
-    plt.xlabel("Residue index", size=16, fontweight="bold")
-    plt.ylabel("Predicted LDDT", size=16, fontweight="bold")
-    plt.plot(m1_x, m1_y, '-b', label='model1')
-    plt.plot(m2_x, m2_y, '-m', label='model2')
-    plt.plot(m3_x, m3_y, '-g', label='model3')
-
-    plt.vlines(x=prot1len, ymin=0, ymax=100, colors='k', linestyles='--')
-
-    plt.legend(loc='lower right')
-    plt.savefig('{}/{}_pLDDT.png'.format(outdir, name), dpi=300)
-
-
-# def generate_plddt_plot(fasta, model1, model2, model3, outdir, name):
-#
-#
-#
-#     prot1len = get_multimer_prot1_len(fasta)
-#     # results.write_pLDDT_file()
-#     print("Plotting pLDDT for {}".format(name))
-#     plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=plot_size,
-#                axis_label_increment=plot_increment)
-
-
 def plot_paE(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5, axis_label_increment=200):
     def draw_subplot(name, ax, model, prot1len, display_scale=False):
         ticks = np.arange(0, model.PAE[1].size, axis_label_increment)
@@ -162,31 +125,18 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5,
     plt.savefig('{}/{}_PAE.png'.format(outdir, name), dpi=300)
 
 
-# def generate_pae_plot(fasta, pkl1, pkl2, pkl3, outdir, name, prot1len):
-#
-#     print("Plotting pLDDT for {}".format(name))
-#     plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
-#              axis_label_increment=plot_increment)
-
-def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name):
+def generate_pae_plot(fasta, pkl1, pkl2, pkl3, outdir, name):
     model1_results = AlphaFoldPickle(name, pkl1)
     model1_results.saving_pathname = outdir
-    # "${NAME}_model_${model}_multimer_v3_relaxed"
-    model1_results.saving_filename = f"{name}_model_1_multimer_v3_relaxed"
-    print("Saving model1 in json format")
-    model1_results.save_to_json()
+    model1_results.saving_filename = name
 
     model2_results = AlphaFoldPickle(name, pkl2)
     model2_results.saving_pathname = outdir
-    model2_results.saving_filename = f"{name}_model_2_multimer_v3_relaxed"
-    print("Saving model2 in json format")
-    model2_results.save_to_json()
+    model2_results.saving_filename = name
 
     model3_results = AlphaFoldPickle(name, pkl3)
     model3_results.saving_pathname = outdir
-    model3_results.saving_filename = f"{name}_model_3_multimer_v3_relaxed"
-    print("Saving model3 in json format")
-    model3_results.save_to_json()
+    model3_results.saving_filename = name
 
     def get_multimer_prot1_len(f):
         with open(f) as handle:
@@ -194,11 +144,8 @@ def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name):
                 return len(record.seq)
 
     prot1len = get_multimer_prot1_len(fasta)
-
-    print("Generating plddt plot")
-    plot_pLDDT(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
-               axis_label_increment=plot_increment)
-    print("Generating PAE plot")
+    # results.write_pLDDT_file()
+    print("Plotting pLDDT for {}".format(name))
     plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
              axis_label_increment=plot_increment)
 
@@ -213,7 +160,4 @@ if __name__ == "__main__":
     parser.add_argument('--basename', dest='basename', required=True)
     args = parser.parse_args()
 
-    generate_plots_and_json(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
-                            args.basename)
-    # generate_plddt_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
-    # generate_pae_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
+    generate_pae_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
