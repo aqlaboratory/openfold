@@ -187,25 +187,10 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_
     plt.savefig('{}/{}_PAE.png'.format(outdir, name), dpi=300)
 
 
-def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name, interface):
+def generate_plots(fasta, pkl1, pkl2, pkl3, outdir, name, interface):
     model1_results = AlphaFoldPickle(name, pkl1)
-    model1_results.saving_pathname = outdir
-    # "${NAME}_model_${model}_multimer_v3_relaxed"
-    model1_results.saving_filename = f"{name}_model_1_multimer_v3_relaxed"
-    print("Saving model1 in json format")
-    model1_results.save_to_json()
-
     model2_results = AlphaFoldPickle(name, pkl2)
-    model2_results.saving_pathname = outdir
-    model2_results.saving_filename = f"{name}_model_2_multimer_v3_relaxed"
-    print("Saving model2 in json format")
-    model2_results.save_to_json()
-
     model3_results = AlphaFoldPickle(name, pkl3)
-    model3_results.saving_pathname = outdir
-    model3_results.saving_filename = f"{name}_model_3_multimer_v3_relaxed"
-    print("Saving model3 in json format")
-    model3_results.save_to_json()
 
     def get_multimer_prot1_len(f):
         with open(f) as handle:
@@ -242,7 +227,7 @@ if __name__ == "__main__":
     parser.add_argument('--interface', dest='interface', required=False)
     args = parser.parse_args()
 
-    generate_plots_and_json(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
+    generate_plots(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
                             args.basename, args.interface)
     # generate_plddt_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
     # generate_pae_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
