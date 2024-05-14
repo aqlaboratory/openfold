@@ -8,6 +8,8 @@ import pandas as pd
 
 from matplotlib import pyplot as plt, colors as cols, cm as cm, rcParams, font_manager
 from mpl_toolkits.axes_grid1 import ImageGrid
+from matplotlib.table import table
+from matplotlib.gridspec import GridSpec
 import json
 from sys import exit
 import os
@@ -113,18 +115,23 @@ def plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.
     plt.savefig('{}/{}_pLDDT.png'.format(outdir, name), dpi=300)
 
 
-# def generate_plddt_plot(fasta, model1, model2, model3, outdir, name):
-#
-#
-#
-#     prot1len = get_multimer_prot1_len(fasta)
-#     # results.write_pLDDT_file()
-#     print("Plotting pLDDT for {}".format(name))
-#     plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=plot_size,
-#                axis_label_increment=plot_increment)
+def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_in_inches=3.5, axis_label_increment=200):
+
+    # data = [
+    #     [0.742, 376, 64, 83, 92, 2, 4, 8, 6.0],
+    #     [0.742, 348, 69, 86, 92, 2, 3, 6, 6.0],
+    #     [0.018, 3, 54, 58, 63, 14, 15, 15, 5.7]
+    # ]
+    #
+    # columns = (
+    # 'pdockq', 'ncontacts', 'plddt_min', 'plddt_avg', 'plddt_max', 'pae_min', 'pae_avg', 'pae_max', 'distance_avg')
+    #
+    # df = pd.DataFrame(
+    #     data,
+    #     columns=list(columns)
+    # )
 
 
-def plot_paE(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5, axis_label_increment=200):
     def draw_subplot(name, ax, model, prot1len, display_scale=False):
         ticks = np.arange(0, model.PAE[1].size, axis_label_increment)
         img_ax = ax.imshow(model.PAE, cmap="bwr")
@@ -137,38 +144,50 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5,
         ax.axhline(y=prot1len, color='k', linewidth=4)
         return img_ax
 
-    fig = plt.figure(figsize=(size_in_inches, size_in_inches))
+    nrows = 1
+    height_ratios = [1]
+    if interface_df is not None:
+        nrows = 2
+        height_ratios = [1, 2]
 
-    grid = ImageGrid(fig, 111,  # as in plt.subplot(111)
-                     nrows_ncols=(1, 3),
-                     axes_pad=0.15,
-                     share_all=False,
-                     cbar_location="right",
-                     cbar_mode="single",
-                     cbar_size="7%",
-                     cbar_pad=0.15,
-                     )
+    fig = plt.figure(figsize=(12, 10), layout="constrained")
+    gs1 = GridSpec(nrows, 4, figure=fig, width_ratios=[1,1,1,0.1], height_ratios=height_ratios)
 
     models = [model1, model2, model3]
 
-    cnt = 1
-    for ax, model in zip(grid, models):
-        im = draw_subplot(f'model{cnt}', ax, model, prot1len)
-        cnt += 1
+    ax1 = fig.add_subplot(gs1[0, 0])
+    im1 = draw_subplot(f'model1', ax1, models[0], prot1len)
 
-    scale = ax.cax.colorbar(im, label="Predicted error (Å)")
+    ax2 = fig.add_subplot(gs1[0, 1])
+    im2 = draw_subplot(f'model2', ax2, models[1], prot1len)
+
+    ax3 = fig.add_subplot(gs1[0, 2])
+    im3 = draw_subplot(f'model3', ax3, models[2], prot1len)
+
+    ax4 = fig.add_subplot(gs1[0, 3])
+    mesh = ax4.pcolormesh(models[2].PAE, cmap="bwr")
+    scale = fig.colorbar(mesh, ax4, label="Predicted error (Å)")
     scale.set_label(label="Predicted error (Å)", size=14, fontweight="bold")
+
+    if interface_df is not None:
+        ax5 = fig.add_subplot(gs1[1, :])
+        ax5.axis('off')
+        ax5.axis('tight')
+        rows = ['model %d' % x for x in (1, 2, 3)]
+        tbl = ax5.table(
+            cellText=interface_df.values[:,2:],
+            rowLabels=rows,
+            colLabels=list(interface_df.columns)[2:],
+            loc="upper center")
+        tbl.auto_set_font_size(False)
+        tbl.set_fontsize(14)
+        tbl.auto_set_column_width([0, 1, 2, 3, 4, 5, 6, 7, 8])
+
     # Save plot
     plt.savefig('{}/{}_PAE.png'.format(outdir, name), dpi=300)
 
 
-# def generate_pae_plot(fasta, pkl1, pkl2, pkl3, outdir, name, prot1len):
-#
-#     print("Plotting pLDDT for {}".format(name))
-#     plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
-#              axis_label_increment=plot_increment)
-
-def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name):
+def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name, interface):
     model1_results = AlphaFoldPickle(name, pkl1)
     model1_results.saving_pathname = outdir
     # "${NAME}_model_${model}_multimer_v3_relaxed"
@@ -198,8 +217,17 @@ def generate_plots_and_json(fasta, pkl1, pkl2, pkl3, outdir, name):
     print("Generating plddt plot")
     plot_pLDDT(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
                axis_label_increment=plot_increment)
+
     print("Generating PAE plot")
-    plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
+    df = None
+    if interface is None:
+        print("No interface file provided, will not output interface table")
+    elif os.path.exists(interface):
+        df = pd.read_csv(interface, sep=",")
+    else:
+        print(f"Unable to create pandas dataframe with provided interface file {interface}")
+
+    plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, df, size_in_inches=plot_size,
              axis_label_increment=plot_increment)
 
 
@@ -211,9 +239,10 @@ if __name__ == "__main__":
     parser.add_argument('--model3_pkl', dest='model3_pkl', required=True)
     parser.add_argument('--output_dir', dest='output_dir', required=True)
     parser.add_argument('--basename', dest='basename', required=True)
+    parser.add_argument('--interface', dest='interface', required=False)
     args = parser.parse_args()
 
     generate_plots_and_json(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
-                            args.basename)
+                            args.basename, args.interface)
     # generate_plddt_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
     # generate_pae_plot(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir, args.basename)
