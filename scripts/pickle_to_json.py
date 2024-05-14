@@ -95,7 +95,7 @@ def generate_json(pkl1, outdir, name, model_nbr):
     model1_results.saving_pathname = outdir
     # "${NAME}_model_${model}_multimer_v3_relaxed"
     model1_results.saving_filename = f"{name}_model_{model_nbr}_multimer_v3_relaxed"
-    print("Saving model1 in json format")
+    print(f"Saving model{model_nbr} in json format")
     model1_results.save_to_json()
 
 
