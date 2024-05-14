@@ -101,7 +101,7 @@ def generate_json(pkl1, outdir, name, model_nbr):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_pkl', dest='model1_pkl', required=True)
+    parser.add_argument('--model_pkl', dest='model_pkl', required=True)
     parser.add_argument('--output_dir', dest='output_dir', required=True)
     parser.add_argument('--basename', dest='basename', required=True)
     parser.add_argument('--model_nbr', dest='model_nbr', required=True)
