@@ -107,5 +107,4 @@ if __name__ == "__main__":
     parser.add_argument('--model_nbr', dest='model_nbr', required=True)
     args = parser.parse_args()
 
-    generate_json(args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
-                            args.basename, args.model_nbr)
+    generate_json(args.model_pkl, args.output_dir, args.basename, args.model_nbr)
