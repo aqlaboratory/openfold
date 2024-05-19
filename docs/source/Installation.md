@@ -29,6 +29,8 @@ At this time, only Linux systems are supported.
 		>  ./scripts/download_openfold_params.sh &lt;dest&gt;
 	 - For OpenFold SoloSeq weights, use: 
 		> ./scripts/download_openfold_soloseq_params.sh &lt;dest&gt;
+1. Install OpenFold:
+	> python setup.py install
 
 ### Checking your build with unit tests: 
 
