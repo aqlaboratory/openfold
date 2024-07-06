@@ -283,7 +283,7 @@ def parse(
             author_chain = mmcif_to_author_chain_id[chain_id]
             seq = []
             for monomer in seq_info:
-                code = PDBData.protein_letters_3to1.get(monomer.id, "X")
+                code = PDBData.protein_letters_3to1_extended.get(monomer.id, "X")
                 seq.append(code if len(code) == 1 else "X")
             seq = "".join(seq)
             author_chain_to_sequence[author_chain] = seq
