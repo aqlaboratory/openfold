@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2021 DeepMind Technologies Limited
+# Copyright 2024 AlQuraishi Laboratory
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Downloads OpenFold parameters.
+# Downloads OpenFold SoloSeq (single sequence model) parameters.
 #
-# Usage: bash download_openfold_params_huggingface.sh /path/to/download/directory
+# Usage: bash download_openfold_soloseq_params.sh /path/to/download/directory
 set -e
 
 if [[ $# -eq 0 ]]; then

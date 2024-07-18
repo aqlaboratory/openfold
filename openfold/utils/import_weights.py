@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import re
+import logging
 from enum import Enum
 from dataclasses import dataclass
 from functools import partial
@@ -681,15 +682,18 @@ def convert_deprecated_v1_keys(state_dict):
     }
 
     convert_key_re = re.compile("(%s)" % "|".join(map(re.escape, replacements.keys())))
+    template_emb_re = re.compile(r"^((module\.)?(model\.)?)(template(?!_embedder).*)") 
 
     converted_state_dict = {}
     for key, value in state_dict.items():
         # For each match, look-up replacement value in the dictionary
-        new_key = convert_key_re.sub(lambda m: replacements[m.group()], key)
+        new_key = convert_key_re.sub(lambda m: replacements[m.group(1)], key)
 
-        # Add prefix for template modules
-        if new_key.startswith('template'):
-            new_key = f'template_embedder.{new_key}'
+        # Add prefix for template layers 
+        template_match = re.match(template_emb_re, new_key)
+        if template_match:
+            prefix = template_match.group(1)
+            new_key = f'{prefix if prefix else ""}template_embedder.{template_match.group(4)}'
 
         converted_state_dict[new_key] = value
 
