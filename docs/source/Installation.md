@@ -19,16 +19,18 @@ At this time, only Linux systems are supported.
       Mamba is recommended as the dependencies required by OpenFold are quite large and mamba can speed up the process.
     - Activate the environment, e.g `conda activate openfold_env`
 1. Run the setup script to configure kernels and folding resources.
-	> scripts/install_third_party_dependencies.sh`
+	> scripts/install_third_party_dependencies.sh
 1. Prepend the conda environment to the `$LD_LIBRARY_PATH`., e.g. 
-		`export $LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`. You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
-1. Download parameters. We recommend using a destination as `openfold/resources` as our unittests will look for the weights there.
+		`export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`. You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
+1. Download parameters. We recommend using a destination as `openfold/resources` as our unittests will look for the weights there. You can download all parameters to the same destination folder as the files will not overwrite each other.
 	-  For AlphaFold2 weights, use 
-		> ./scripts/download_alphafold_params.sh <dest>
+		> ./scripts/download_alphafold_params.sh &lt;dest&gt;
 	 - For OpenFold weights, use : 
-		>  ./scripts/download_openfold_params.sh <dest>
+		>  ./scripts/download_openfold_params.sh &lt;dest&gt;
 	 - For OpenFold SoloSeq weights, use: 
-		> ./scripts/download_openfold_soloseq_params.sh <dest>
+		> ./scripts/download_openfold_soloseq_params.sh &lt;dest&gt;
+1. Install OpenFold:
+	> python setup.py install
 
 ### Checking your build with unit tests: 
 
