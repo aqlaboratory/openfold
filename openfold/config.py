@@ -224,7 +224,7 @@ def model_config(
             c.data.eval.max_extra_msa = 1152
             c.data.predict.max_extra_msa = 1152
     else:
-        raise ValueError("Invalid model name")
+        raise ValueError(f"Invalid model name {name}")
 
     if long_sequence_inference:
         assert(not train)

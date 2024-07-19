@@ -1208,7 +1208,7 @@ class DataPipelineMultimer:
             uniprot_msa_path = os.path.join(alignment_dir, "uniprot_hits.sto")
             if not os.path.exists(uniprot_msa_path):
                 chain_id = os.path.basename(os.path.normpath(alignment_dir))
-                raise ValueError(f"Missing 'uniprot_hits.sto' for {chain_id}. "
+                raise ValueError(f"Missing file {uniprot_msa_path} for {chain_id}. "
                                  f"This is required for Multimer MSA pairing.")
 
             with open(uniprot_msa_path, "r") as fp:
