@@ -90,7 +90,7 @@ class AlphaFoldPickle(AlphaFoldMetaData):
             outfile.write(json.dumps(colab_data, cls=NumpyEncoder))
 
 
-def plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.5, axis_label_increment=100):
+def plot_pLDDT(outdir, name, model1, model2, model3, fasta, size_in_inches=3.5, axis_label_increment=100):
     m1_x = list(range(0, len(model1.pLDDT), 1))
     m1_y = list(model1.pLDDT)
     m2_x = list(range(0, len(model2.pLDDT), 1))
@@ -109,7 +109,15 @@ def plot_pLDDT(outdir, name, model1, model2, model3, prot1len, size_in_inches=3.
     plt.plot(m2_x, m2_y, '-m', label='model2')
     plt.plot(m3_x, m3_y, '-g', label='model3')
 
-    plt.vlines(x=prot1len, ymin=0, ymax=100, colors='k', linestyles='--')
+    def get_multimer_prot1_len(f):
+        all_len = []
+        with open(f) as handle:
+            for record in SeqIO.parse(handle, "fasta"):
+                all_len.append(len(record.seq))
+
+    all_len = get_multimer_len(fasta)
+    for l in all_len:
+        plt.vlines(x=l, ymin=0, ymax=100, colors='k', linestyles='--')
 
     plt.legend(loc='lower right')
     plt.savefig('{}/{}_pLDDT.png'.format(outdir, name), dpi=300)
@@ -192,15 +200,10 @@ def generate_plots(fasta, pkl1, pkl2, pkl3, outdir, name, interface):
     model2_results = AlphaFoldPickle(name, pkl2)
     model3_results = AlphaFoldPickle(name, pkl3)
 
-    def get_multimer_prot1_len(f):
-        with open(f) as handle:
-            for record in SeqIO.parse(handle, "fasta"):
-                return len(record.seq)
 
-    prot1len = get_multimer_prot1_len(fasta)
 
     print("Generating plddt plot")
-    plot_pLDDT(outdir, name, model1_results, model2_results, model3_results, prot1len, size_in_inches=plot_size,
+    plot_pLDDT(outdir, name, model1_results, model2_results, model3_results, fasta, size_in_inches=plot_size,
                axis_label_increment=plot_increment)
 
     print("Generating PAE plot")
