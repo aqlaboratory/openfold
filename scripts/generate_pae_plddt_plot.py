@@ -109,7 +109,7 @@ def plot_pLDDT(outdir, name, model1, model2, model3, fasta, size_in_inches=3.5, 
     plt.plot(m2_x, m2_y, '-m', label='model2')
     plt.plot(m3_x, m3_y, '-g', label='model3')
 
-    def get_multimer_prot1_len(f):
+    def get_multimer_len(f):
         all_len = []
         with open(f) as handle:
             for record in SeqIO.parse(handle, "fasta"):
