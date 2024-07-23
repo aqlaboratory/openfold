@@ -117,8 +117,10 @@ def plot_pLDDT(outdir, name, model1, model2, model3, fasta, size_in_inches=3.5, 
         return all_len
 
     all_len = get_multimer_len(fasta)
+    cumul_l = 0
     for l in all_len:
-        plt.vlines(x=l, ymin=0, ymax=100, colors='k', linestyles='--')
+        cumul_l += l
+        plt.vlines(x=cumul_l, ymin=0, ymax=100, colors='k', linestyles='--')
 
     plt.legend(loc='lower right')
     plt.savefig('{}/{}_pLDDT.png'.format(outdir, name), dpi=300)
@@ -158,9 +160,11 @@ def plot_paE(outdir, name, model1, model2, model3, fasta, interface_df, size_in_
             return all_len
 
         all_len = get_multimer_len(fasta)
+        cumul_l = 0
         for l in all_len:
-            ax.axvline(x=l, color='k', linewidth=4)
-            ax.axhline(y=l, color='k', linewidth=4)
+            cumul_l += l
+            ax.axvline(x=cumul_l, color='k', linewidth=4)
+            ax.axhline(y=cumul_l, color='k', linewidth=4)
         return img_ax
 
     nrows = 1
@@ -240,6 +244,17 @@ if __name__ == "__main__":
     parser.add_argument('--basename', dest='basename', required=True)
     parser.add_argument('--interface', dest='interface', required=False)
     args = parser.parse_args()
+
+
+    # def get_multimer_len(f):
+    #     all_len = []
+    #     with open(f) as handle:
+    #         for record in SeqIO.parse(handle, "fasta"):
+    #             all_len.append(len(record.seq))
+    #     return all_len
+    #
+    #
+    # all_len = get_multimer_len(args.fasta)
 
     generate_plots(args.fasta, args.model1_pkl, args.model2_pkl, args.model3_pkl, args.output_dir,
                             args.basename, args.interface)
