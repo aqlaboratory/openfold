@@ -114,6 +114,7 @@ def plot_pLDDT(outdir, name, model1, model2, model3, fasta, size_in_inches=3.5, 
         with open(f) as handle:
             for record in SeqIO.parse(handle, "fasta"):
                 all_len.append(len(record.seq))
+        return all_len
 
     all_len = get_multimer_len(fasta)
     for l in all_len:
