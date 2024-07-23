@@ -124,7 +124,7 @@ def plot_pLDDT(outdir, name, model1, model2, model3, fasta, size_in_inches=3.5, 
     plt.savefig('{}/{}_pLDDT.png'.format(outdir, name), dpi=300)
 
 
-def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_in_inches=3.5, axis_label_increment=200):
+def plot_paE(outdir, name, model1, model2, model3, fasta, interface_df, size_in_inches=3.5, axis_label_increment=200):
 
     # data = [
     #     [0.742, 376, 64, 83, 92, 2, 4, 8, 6.0],
@@ -141,7 +141,7 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_
     # )
 
 
-    def draw_subplot(name, ax, model, prot1len, display_scale=False):
+    def draw_subplot(name, ax, model, fasta, display_scale=False):
         ticks = np.arange(0, model.PAE[1].size, axis_label_increment)
         img_ax = ax.imshow(model.PAE, cmap="bwr")
         ax.set_xticks(ticks)
@@ -149,8 +149,18 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_
         ax.set_title(name, size=20, fontweight="bold")
         ax.set_xlabel("Residue index", size=16, fontweight="bold")
         ax.set_ylabel("Residue index", size=16, fontweight="bold")
-        ax.axvline(x=prot1len, color='k', linewidth=4)
-        ax.axhline(y=prot1len, color='k', linewidth=4)
+
+        def get_multimer_len(f):
+            all_len = []
+            with open(f) as handle:
+                for record in SeqIO.parse(handle, "fasta"):
+                    all_len.append(len(record.seq))
+            return all_len
+
+        all_len = get_multimer_len(fasta)
+        for l in all_len:
+            ax.axvline(x=l, color='k', linewidth=4)
+            ax.axhline(y=l, color='k', linewidth=4)
         return img_ax
 
     nrows = 1
@@ -165,13 +175,13 @@ def plot_paE(outdir, name, model1, model2, model3, prot1len, interface_df, size_
     models = [model1, model2, model3]
 
     ax1 = fig.add_subplot(gs1[0, 0])
-    im1 = draw_subplot(f'model1', ax1, models[0], prot1len)
+    im1 = draw_subplot(f'model1', ax1, models[0], fasta)
 
     ax2 = fig.add_subplot(gs1[0, 1])
-    im2 = draw_subplot(f'model2', ax2, models[1], prot1len)
+    im2 = draw_subplot(f'model2', ax2, models[1], fasta)
 
     ax3 = fig.add_subplot(gs1[0, 2])
-    im3 = draw_subplot(f'model3', ax3, models[2], prot1len)
+    im3 = draw_subplot(f'model3', ax3, models[2], fasta)
 
     ax4 = fig.add_subplot(gs1[0, 3])
     mesh = ax4.pcolormesh(models[2].PAE, cmap="bwr")
@@ -216,7 +226,7 @@ def generate_plots(fasta, pkl1, pkl2, pkl3, outdir, name, interface):
     else:
         print(f"Unable to create pandas dataframe with provided interface file {interface}")
 
-    plot_paE(outdir, name, model1_results, model2_results, model3_results, prot1len, df, size_in_inches=plot_size,
+    plot_paE(outdir, name, model1_results, model2_results, model3_results, fasta, df, size_in_inches=plot_size,
              axis_label_increment=plot_increment)
 
 
