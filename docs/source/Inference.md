@@ -147,7 +147,7 @@ Some commonly used command line flags are here. A full list of flags can be view
 
 The **DeepSpeed DS4Sci_EvoformerAttention kernel** is a memory-efficient attention kernel developed as part of a collaboration between OpenFold and the DeepSpeed4Science initiative. 
 
-If your system supports deepseed, using deepspeed generally leads an inference speedup of 2 - 3x without significant additional memory use. You may specify this option by selecting the `--use_deepspeed_inference` argument. 
+If your system supports deepspeed, using deepspeed generally leads an inference speedup of 2 - 3x without significant additional memory use. You may specify this option by selecting the `--use_deepspeed_evoformer_attention` argument. An additional requirement for this option is the [CUTLASS repository](https://github.com/NVIDIA/cutlass). You will need to clone it and set environment variable `CUTLASS_PATH` to point to it, see [instructions](https://www.deepspeed.ai/tutorials/ds4sci_evoformerattention/).
 
 If DeepSpeed is unavailable for your system, you may also try using [FlashAttention](https://github.com/HazyResearch/flash-attention) by adding `globals.use_flash = True` to the `--experiment_config_json`. Note that FlashAttention appears to work best for sequences with < 1000 residues.
 
