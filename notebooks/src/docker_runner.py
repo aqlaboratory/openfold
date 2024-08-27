@@ -17,8 +17,8 @@ class DockerRunner:
         for log in container.logs(stream=True):
             print(log.decode('utf-8'), end='')
 
-    def run_inference_for_model(self, config_preset, use_precomputed_alignments=True):
-        command = self._build_inference_command(config_preset, use_precomputed_alignments)
+    def run_inference_for_model(self, config_preset, gpu, use_precomputed_alignments=True):
+        command = self._build_inference_command(config_preset, gpu, use_precomputed_alignments)
         self._run_container(command)
 
     def run_msa_alignment(self, cpus_per_task=32, no_tasks=1):
@@ -27,7 +27,7 @@ class DockerRunner:
         command = self._build_msa_alignment_command(cpus_per_task, no_tasks)
         self._run_container(command)
 
-    def _build_inference_command(self, config_preset, use_precomputed_alignments):
+    def _build_inference_command(self, config_preset, gpu, use_precomputed_alignments):
         fasta_dir = f"/run_path/{self.default_fasta_dir_name}/tmp"
         output_dir = "/run_path/output"
         precomputed_alignments_dir = "/run_path/output/alignments"
@@ -50,7 +50,7 @@ class DockerRunner:
             "--uniprot_database_path", "/database/uniprot/uniprot.fasta",
             "--hmmsearch_binary_path", "/opt/conda/bin/hmmsearch",
             "--hmmbuild_binary_path", "/opt/conda/bin/hmmbuild",
-            "--model_device", "cuda:0",
+            "--model_device", gpu,
             "--config_preset", config_preset,
             "--save_outputs",
             "--output_dir", output_dir

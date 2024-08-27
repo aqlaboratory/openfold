@@ -12,13 +12,13 @@ class InferenceClientOpenFold:
         self.docker_client = docker_client
         self.docker_runner = None
 
-    def run_inference(self, weight_set, model_name, inference_input=None, use_precomputed_alignments=False, run_id=None):
+    def run_inference(self, weight_set, model_name, inference_input=None, use_precomputed_alignments=False, run_id=None, gpu="cuda:0"):
         os.makedirs('data', exist_ok=True)
 
         if use_precomputed_alignments:
             if not run_id:
                 raise ValueError("run_id is required when using pre-computed alignments.")
-            return self._run_with_precomputed_alignments(run_id, weight_set, model_name)
+            return self._run_with_precomputed_alignments(run_id, weight_set, model_name, gpu)
         
         if not inference_input:
             raise ValueError("inference_input is required to compute alignments.")
@@ -26,9 +26,9 @@ class InferenceClientOpenFold:
         if not run_id:
             run_id = generate_random_run_id()
         
-        return self._run_new_inference(run_id, weight_set, model_name, inference_input)
+        return self._run_new_inference(run_id, weight_set, model_name, inference_input, gpu)
 
-    def _run_new_inference(self, run_id, weight_set, model_name, inference_input):
+    def _run_new_inference(self, run_id, weight_set, model_name, inference_input, gpu):
         # Get the current date and time in dd_MM_yy_hh_mm_ss format
         current_datetime = datetime.now().strftime('%d_%m_%y_%H_%M_%S')
         run_path = os.path.join(os.getcwd(), 'data', f'run_{current_datetime}_{run_id}')
@@ -40,18 +40,18 @@ class InferenceClientOpenFold:
         generate_individual_sequence_files(run_path)
 
         self.run_msa_alignment()
-        self.run_model_with_preset(run_path, weight_set, model_name)
+        self.run_model_with_preset(run_path, weight_set, model_name, gpu)
         
         return run_id
 
-    def _run_with_precomputed_alignments(self, run_id, weight_set, model_name):
+    def _run_with_precomputed_alignments(self, run_id, weight_set, model_name, gpu):
         run_path = get_run_folder_by_id(run_id)
         print(f"Using pre-computed alignments from: {run_path}")
         if not os.path.isdir(run_path):
             raise ValueError(f"Provided Run ID '{run_id}' does not exist.")
 
         self._initialize_docker_runner(run_path)
-        self.run_model_with_preset(run_path, weight_set, model_name)
+        self.run_model_with_preset(run_path, weight_set, model_name, gpu)
         
         return run_id
 
@@ -77,10 +77,10 @@ class InferenceClientOpenFold:
         fasta_file = write_sequences_to_fasta(validated_sequence.split(':'), fasta_dir_root_path)
         print(f"Sequences written to FASTA file: {fasta_file}")
 
-    def run_model_with_preset(self, run_path, weight_set, model_name):
+    def run_model_with_preset(self, run_path, weight_set, model_name, gpu):
         config_preset_list = get_config_preset_list_for_model(weight_set, model_name)
         for config_preset in config_preset_list:
-            self.docker_runner.run_inference_for_model(config_preset)
+            self.docker_runner.run_inference_for_model(config_preset, gpu)
             
     def run_msa_alignment(self, cpus_per_task=32, no_tasks=1):
         self.docker_runner.run_msa_alignment(cpus_per_task=cpus_per_task, no_tasks=no_tasks)
