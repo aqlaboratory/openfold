@@ -1,7 +1,8 @@
 import os
 import shutil
 from .docker_runner import DockerRunner
-from .utils import validate_sequence, generate_random_run_id, write_sequences_to_fasta, generate_individual_sequence_files
+from datetime import datetime
+from .utils import validate_sequence, generate_random_run_id, write_sequences_to_fasta, generate_individual_sequence_files, get_run_folder_by_id, get_config_preset_list_for_model
 
 class InferenceClientOpenFold:
     default_fasta_dir_name = 'fasta_dir'
@@ -28,7 +29,10 @@ class InferenceClientOpenFold:
         return self._run_new_inference(run_id, weight_set, model_name, inference_input)
 
     def _run_new_inference(self, run_id, weight_set, model_name, inference_input):
-        run_path = os.path.join(os.getcwd(), 'data', f'run_{run_id}')
+        # Get the current date and time in dd_MM_yy_hh_mm_ss format
+        current_datetime = datetime.now().strftime('%d_%m_%y_%H_%M_%S')
+        run_path = os.path.join(os.getcwd(), 'data', f'run_{current_datetime}_{run_id}')
+        # run_path = os.path.join(os.getcwd(), 'data', f'run_{run_id}')
         fasta_dir_root_path = os.path.join(run_path, self.default_fasta_dir_name)
         self._initialize_docker_runner(run_path)
 
@@ -41,7 +45,8 @@ class InferenceClientOpenFold:
         return run_id
 
     def _run_with_precomputed_alignments(self, run_id, weight_set, model_name):
-        run_path = os.path.join(os.getcwd(), 'data', f'run_{run_id}')
+        run_path = get_run_folder_by_id(run_id)
+        print(f"Using pre-computed alignments from: {run_path}")
         if not os.path.isdir(run_path):
             raise ValueError(f"Provided Run ID '{run_id}' does not exist.")
 
@@ -73,28 +78,9 @@ class InferenceClientOpenFold:
         print(f"Sequences written to FASTA file: {fasta_file}")
 
     def run_model_with_preset(self, run_path, weight_set, model_name):
-        config_preset_list = self._get_config_preset_list_for_model(weight_set, model_name)
+        config_preset_list = get_config_preset_list_for_model(weight_set, model_name)
         for config_preset in config_preset_list:
             self.docker_runner.run_inference_for_model(config_preset)
             
     def run_msa_alignment(self, cpus_per_task=32, no_tasks=1):
         self.docker_runner.run_msa_alignment(cpus_per_task=cpus_per_task, no_tasks=no_tasks)
-
-    def _get_config_preset_list_for_model(self, weight_set, model_name):
-        model_configurations = {
-            ("OpenFold", "monomer"): [
-                'finetuning_3.pt',
-                'finetuning_4.pt',
-                'finetuning_5.pt',
-                'finetuning_ptm_2.pt',
-                'finetuning_no_templ_ptm_1.pt'
-            ],
-            ("AlphaFold", "multimer"): [f'model_{i}_multimer_v3' for i in range(1, 6)],
-            ("AlphaFold", "monomer"): [f'model_{i}' for i in range(1, 6)]
-        }
-
-        config_preset_list = model_configurations.get((weight_set, model_name))
-        if not config_preset_list:
-            raise ValueError(f"Invalid combination of weight_set '{weight_set}' and model_name '{model_name}'")
-        
-        return config_preset_list
