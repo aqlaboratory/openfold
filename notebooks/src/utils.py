@@ -2,6 +2,18 @@ import random
 import string
 import os
 
+def get_run_folder_by_id(run_id):
+    base_path = os.path.join(os.getcwd(), 'data')
+    run_folder = next((entry.path for entry in os.scandir(base_path) if entry.is_dir() and entry.name.endswith(f'_{run_id}')), None)
+    if run_folder is None:
+        raise ValueError(f"Run ID '{run_id}' does not exist.")
+    return run_folder
+
+def read_fasta_file(fasta_file_path):
+    with open(fasta_file_path, 'r') as file:
+        lines = file.readlines()
+        sequence = ''.join(line.strip() for line in lines if not line.startswith('>'))
+    return sequence
 
 def generate_random_run_id(length=6):
     run_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -69,3 +81,22 @@ def generate_individual_sequence_files(output_path):
                 outfile.write(f">{sequence_id}\n")
                 outfile.write("\n".join(sequence_lines) + "\n")
             print(f"Saved {sequence_id} to {output_file}")
+            
+def get_config_preset_list_for_model(weight_set, model_name):
+    model_configurations = {
+        ("OpenFold", "monomer"): [
+            'finetuning_3.pt',
+            'finetuning_4.pt',
+            'finetuning_5.pt',
+            'finetuning_ptm_2.pt',
+            'finetuning_no_templ_ptm_1.pt'
+        ],
+        ("AlphaFold", "multimer"): [f'model_{i}_multimer_v3' for i in range(1, 6)],
+        ("AlphaFold", "monomer"): [f'model_{i}' for i in range(1, 6)]
+    }
+
+    config_preset_list = model_configurations.get((weight_set, model_name))
+    if not config_preset_list:
+        raise ValueError(f"Invalid combination of weight_set '{weight_set}' and model_name '{model_name}'")
+        
+    return config_preset_list

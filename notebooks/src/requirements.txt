@@ -1,1 +1,13 @@
 docker==7.1.0
+py3Dmol==2.3.0
+torch==2.4.0
+ml_collections==0.1.1
+modelcif==1.0
+tqdm==4.66.5
+dm-tree==0.1.8
+biopython==1.83
+OpenMM
+numpy==1.23.5
+git+https://github.com/aqlaboratory/openfold.git@3bec3e9b2d1e8bdb83887899102eff7d42dc2ba9
+matplotlib
+notebook
