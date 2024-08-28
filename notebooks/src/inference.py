@@ -80,7 +80,7 @@ class InferenceClientOpenFold:
     def run_model_with_preset(self, run_path, weight_set, model_name, gpu):
         config_preset_list = get_config_preset_list_for_model(weight_set, model_name)
         for config_preset in config_preset_list:
-            self.docker_runner.run_inference_for_model(config_preset, gpu)
+            self.docker_runner.run_inference_for_model(weight_set, config_preset, gpu)
             
     def run_msa_alignment(self, cpus_per_task=32, no_tasks=1):
         self.docker_runner.run_msa_alignment(cpus_per_task=cpus_per_task, no_tasks=no_tasks)
