@@ -116,15 +116,23 @@ def load_models_from_command_line(config, model_device, openfold_checkpoint_path
 
 
 def parse_fasta(data):
+    # Remove any empty lines or trailing ">" characters
     data = re.sub('>$', '', data, flags=re.M)
-    lines = [
-        l.replace('\n', '')
-        for prot in data.split('>') for l in prot.strip().split('\n', 1)
-    ][1:]
-    tags, seqs = lines[::2], lines[1::2]
-
-    tags = [re.split('\W| \|', t)[0] for t in tags]
-
+    
+    # Split the data into entries based on '>'
+    entries = data.split('>')[1:]  # Skip the first empty element
+    
+    tags = []
+    seqs = []
+    
+    for entry in entries:
+        lines = entry.split('\n', 1)
+        if len(lines) == 2:
+            tag = lines[0].strip()  # Take the full tag (header)
+            seq = lines[1].replace('\n', '').strip()  # Remove newlines and any extra spaces in the sequence
+            tags.append(tag)
+            seqs.append(seq)
+            
     return tags, seqs
 
 
