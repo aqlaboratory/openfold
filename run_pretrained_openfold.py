@@ -104,7 +104,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     uniclust30_database_path=args.uniclust30_database_path,
                     uniprot_database_path=args.uniprot_database_path,
                     template_searcher=template_searcher,
-                    use_small_bfd=args.bfd_database_path is None,
+                    use_small_bfd=args.preset=='reduced_dbs',
                     no_cpus=args.cpus
                 )
 
