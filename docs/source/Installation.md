@@ -48,8 +48,8 @@ Certain tests perform equivalence comparisons with the AlphaFold implementation.
 
 ### CUDA 12
 To use OpenFold on CUDA 12 environment rather than a CUDA 11 environment.
-	In step 1, use the branch [`pl_upgrades`](https://github.com/aqlaboratory/openfold/tree/pl_upgrades) rather than the main branch, i.e. replace the URL in step 1 with https://github.com/aqlaboratory/openfold/tree/pl_upgrades
-	Follow the rest of the steps of [Installation Guide](#Installation)
+	In step 1, use the branch [`pl_upgrades`](https://github.com/aqlaboratory/openfold/tree/pl_upgrades) rather than the main branch, i.e. replace the command in step 1 with `git clone -b pl_upgrades https://github.com/aqlaboratory/openfold.git`
+	and follow the rest of the steps of [Installation Guide](#Installation)
 
 
 ### MPI
