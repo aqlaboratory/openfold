@@ -13,7 +13,7 @@ dependencies:
   - pdbfixer
   - pytorch-lightning
   - biopython
-  - numpy
+  - numpy==1.26.4
   - pandas
   - PyYAML==5.4.1
   - requests
@@ -33,7 +33,7 @@ dependencies:
   - pytorch::pytorch=2.1
   - pytorch::pytorch-cuda=12.1
   - pip:
-      - deepspeed==0.12.4
+      - deepspeed==0.14.5
       - dm-tree==0.1.6
       - git+https://github.com/NVIDIA/dllogger.git
       - flash-attn 
