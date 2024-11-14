@@ -27,7 +27,8 @@ At this time, only Linux systems are supported.
 	export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 	```
 
-		You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
+	You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
+
 1. Download parameters. We recommend using a destination as `openfold/resources` as our unittests will look for the weights there.
 	-  For AlphaFold2 weights, use 
 		> ./scripts/download_alphafold_params.sh <dest>
