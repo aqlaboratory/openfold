@@ -21,6 +21,7 @@ At this time, only Linux systems are supported.
 1. Run the setup script to configure kernels and folding resources.
 	> scripts/install_third_party_dependencies.sh`
 1. Prepend the conda environment to the `$LD_LIBRARY_PATH` and `LIBRARY_PATH`., e.g. 
+
 	```
 	export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
 	export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
