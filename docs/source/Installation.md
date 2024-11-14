@@ -4,7 +4,7 @@ In this guide, we will OpenFold and its dependencies.
 
 **Pre-requisites**
 
-This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml)
+This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml). To install OpenFold for CUDA 12, please refer to the [Environment specific modifications](#Environment-specific-modifications) section.
 
 At this time, only Linux systems are supported.
 
@@ -20,8 +20,12 @@ At this time, only Linux systems are supported.
     - Activate the environment, e.g `conda activate openfold_env`
 1. Run the setup script to configure kernels and folding resources.
 	> scripts/install_third_party_dependencies.sh`
-1. Prepend the conda environment to the `$LD_LIBRARY_PATH`., e.g. 
-		`export $LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH`. You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
+1. Prepend the conda environment to the `$LD_LIBRARY_PATH` and `LIBRARY_PATH`., e.g. 
+	```
+	export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
+	export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+	```
+		You may optionally set this as a conda environment variable according to the [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#saving-environment-variables) to activate each time the environment is used.
 1. Download parameters. We recommend using a destination as `openfold/resources` as our unittests will look for the weights there.
 	-  For AlphaFold2 weights, use 
 		> ./scripts/download_alphafold_params.sh <dest>
