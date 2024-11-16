@@ -8,7 +8,7 @@ dependencies:
   - cuda
   - gcc=12.4
   - python=3.10
-  - libgcc=7.2
+  - libgcc
   - setuptools=59.5.0
   - pip
   - openmm=7.7
