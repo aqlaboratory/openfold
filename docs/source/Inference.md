@@ -59,7 +59,7 @@ The following command performs a sequence alignment against the OpenProteinSet d
 ```
 python3 run_pretrained_openfold.py \
     $INPUT_FASTA_DIR \
-    $TEMPLATE_MMCIF_DIR 
+    $TEMPLATE_MMCIF_DIR \
     --output_dir $OUTPUT_DIR \
     --config_preset model_1_ptm \
     --uniref90_database_path $BASE_DATA_DIR/uniref90 \
