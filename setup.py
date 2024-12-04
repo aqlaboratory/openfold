@@ -29,7 +29,6 @@ version_dependent_macros = [
 ]
 
 extra_cuda_flags = [
-    '-std=c++14',
     '-maxrregcount=50',
     '-U__CUDA_NO_HALF_OPERATORS__',
     '-U__CUDA_NO_HALF_CONVERSIONS__',
