@@ -12,6 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
+# Compared to the original run_pretrained_openfold.py, this script has been modified to take in several additional arguments:
+# 1. metadata_cache_path: Path to the metadata cache file, which contains information about about each structure in the dataset
+# 2. representative_mapping_path: Path to the mapping file that maps pdb chain ids to representative chain ids
+# These arguments are used to map the tags in the fasta file to the representative chain ids
+
 import argparse
 import logging
 import math
@@ -21,6 +28,18 @@ import pickle
 import random
 import time
 import json
+import pandas as pd
+from tqdm import tqdm
+
+import importlib
+
+if importlib.util.find_spec("deepspeed") is not None:
+    import deepspeed
+
+    # TODO: Resolve this
+    # This is a hack to prevent deepspeed from doing the triton matmul autotuning
+    # I'm not sure why it's doing this by default, but it's causing the tests to hang
+    deepspeed.HAS_TRITON = False
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -56,6 +75,36 @@ from scripts.utils import add_data_args
 
 
 TRACING_INTERVAL = 50
+
+
+def get_representative_chain_ids(tags, pdb_id, metadata_cache, chain_to_representative):
+    """
+    This function maps the tags in the fasta file to the representative chain ids
+    Args:
+        tags: list of tags in the fasta file
+        pdb_id: the pdb id corresponding to the fasta file
+        metadata_cache: metadata cache that maps chain ids to pdb chain ids
+        chain_to_representative: dictionary that maps pdb chain ids to representative chain ids
+    Returns:
+        representative_chain_ids: list of representative chain ids corresponding to the tags in the fasta file
+    """
+    # Check if the pdb corresponding to the fasta file is found in the metadata cache
+    if pdb_id not in metadata_cache:
+        raise KeyError(f"PDB ID {pdb_id} not found in metadata cache")
+    # Check if the chains in the fasta file are found in the metadata cache
+    pdb_metadata = metadata_cache[pdb_id]
+    pdb_chains = set(pdb_metadata['chains'].keys())
+    is_subset = all([tag in pdb_chains for tag in tags])
+    if not is_subset:
+        raise KeyError(f"Chains from {pdb_id} not found in metadata cache")
+    # At this point we know that all chains in the fasta file are in the metadata cache
+    pdb_chains = [f"{pdb_id}_{pdb_metadata['chains'][tag]['label_asym_id']}" for tag in tags if pdb_metadata['chains'][tag]['molecule_type'] == 'PROTEIN']
+    for chain in pdb_chains:
+        if chain not in chain_to_representative:
+            raise KeyError(f"Chain {chain} not found in chain_to_representative")
+    representative_chain_ids = [chain_to_representative[chain] for chain in pdb_chains]
+
+    return representative_chain_ids
 
 
 def precompute_alignments(tags, seqs, alignment_dir, args):
@@ -196,6 +245,18 @@ def main(args):
                 "Tracing requires that fixed_size mode be enabled in the config"
             )
 
+    metadata_cache = {}
+    
+    with open(args.metadata_cache_path, 'r') as f:
+        all_cache = json.load(f)
+        metadata_cache = all_cache['structure_data']
+    print(f"Loaded metadata cache from {args.metadata_cache_path}")
+
+    df = pd.read_csv(args.representative_mapping_path)
+    df['pdb_chain'] = df['pdb_base_id'] + '_' + df['pdb_chain']
+    chain_to_representative = dict(zip(df['pdb_chain'], df['representative_id']))
+    print(f"Loaded representative mapping from {args.representative_mapping_path}")
+
     is_multimer = "multimer" in args.config_preset
     is_custom_template = "use_custom_template" in args and args.use_custom_template
     if is_custom_template:
@@ -238,6 +299,9 @@ def main(args):
 
     np.random.seed(random_seed)
     torch.manual_seed(random_seed + 1)
+    random.seed(random_seed + 2)
+    random_seeds = [random.randint(0, 2**32 - 1) for _ in range(5)]
+
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
@@ -248,7 +312,9 @@ def main(args):
 
     tag_list = []
     seq_list = []
-    for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
+    pdbid_list = []
+
+    for fasta_file in tqdm(list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")), desc="Processing FASTA files"):
         # Gather input sequences
         fasta_path = os.path.join(args.fasta_dir, fasta_file)
         with open(fasta_path, "r") as fp:
@@ -256,9 +322,19 @@ def main(args):
 
         tags, seqs = parse_fasta(data)
 
+        try:
+            # get the file name without the extension
+            pdb_id = os.path.splitext(os.path.basename(fasta_file))[0]
+            # Use the metadata cache to get the representative chain ids
+            tags = get_representative_chain_ids(tags, pdb_id, metadata_cache, chain_to_representative)
+        except KeyError as e:
+            logger.error(e)
+            print(f"Skipping {fasta_file}...")
+            continue
+
         if not is_multimer and len(tags) != 1:
             print(
-                f"{fasta_path} contains more than one sequence but "
+                f"{pdb_id} contains more than one sequence but "
                 f"multimer mode is not enabled. Skipping..."
             )
             continue
@@ -268,15 +344,11 @@ def main(args):
 
         tag_list.append((tag, tags))
         seq_list.append(seqs)
-
+        pdbid_list.append(pdb_id)
+    
     seq_sort_fn = lambda target: sum([len(s) for s in target[1]])
-    sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
+    sorted_targets = sorted(zip(tag_list, seq_list, pdbid_list), key=seq_sort_fn)
     feature_dicts = {}
-
-    if is_multimer and args.openfold_checkpoint_path:
-        raise ValueError(
-            '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
-
     model_generator = load_models_from_command_line(
         config,
         args.model_device,
@@ -286,8 +358,11 @@ def main(args):
 
     for model, output_directory in model_generator:
         cur_tracing_interval = 0
-        for (tag, tags), seqs in sorted_targets:
-            output_name = f'{tag}_{args.config_preset}'
+        for (tag, tags), seqs, pdb_id in tqdm(sorted_targets, desc="Predicting structures"):
+            print(f"Doing tag {tag}")
+            
+            # output_name = f'{tag}_{args.config_preset}'
+            output_name = f'{pdb_id}_{args.config_preset}'
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
 
@@ -296,13 +371,20 @@ def main(args):
 
             feature_dict = feature_dicts.get(tag, None)
             if feature_dict is None:
-                feature_dict = generate_feature_dict(
-                    tags,
-                    seqs,
-                    alignment_dir,
-                    data_processor,
-                    args,
-                )
+                try: 
+                    feature_dict = generate_feature_dict(
+                        tags,
+                        seqs,
+                        alignment_dir,
+                        data_processor,
+                        args,
+                    )
+                except ValueError as e:
+                    # Sometimes fails on this line np_example['msa_mask'] *= seq_mask[None]
+                    # ValueError: operands could not be broadcast together with shapes
+                    logger.error(e)
+                    print(f"Skipping {tag}...")
+                    continue
 
                 if args.trace_model:
                     n = feature_dict["aatype"].shape[-2]
@@ -334,54 +416,64 @@ def main(args):
                     )
                     cur_tracing_interval = rounded_seqlen
 
-            out = run_model(model, processed_feature_dict, tag, args.output_dir)
+            for seed in random_seeds:
+                np.random.seed(seed)
+                torch.manual_seed(seed + 1) # This is what the original code does
 
-            # Toss out the recycling dimensions --- we don't need them anymore
-            processed_feature_dict = tensor_tree_map(
-                lambda x: np.array(x[..., -1].cpu()),
-                processed_feature_dict
-            )
-            out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
+                try:
+                    out = run_model(model, processed_feature_dict, tag, args.output_dir)
+                except AssertionError as e:
+                    # will get an AssertionError: seq_len must be greater than 16 if seq len is less than 16
+                    logger.error(e)
+                    print(f"Skipping {tag}...")
+                    continue
 
-            unrelaxed_protein = prep_output(
-                out,
-                processed_feature_dict,
-                feature_dict,
-                feature_processor,
-                args.config_preset,
-                args.multimer_ri_gap,
-                args.subtract_plddt
-            )
-
-            unrelaxed_file_suffix = "_unrelaxed.pdb"
-            if args.cif_output:
-                unrelaxed_file_suffix = "_unrelaxed.cif"
-            unrelaxed_output_path = os.path.join(
-                output_directory, f'{output_name}{unrelaxed_file_suffix}'
-            )
-
-            with open(unrelaxed_output_path, 'w') as fp:
-                if args.cif_output:
-                    fp.write(protein.to_modelcif(unrelaxed_protein))
-                else:
-                    fp.write(protein.to_pdb(unrelaxed_protein))
-
-            logger.info(f"Output written to {unrelaxed_output_path}...")
-
-            if not args.skip_relaxation:
-                # Relax the prediction.
-                logger.info(f"Running relaxation on {unrelaxed_output_path}...")
-                relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name,
-                              args.cif_output)
-
-            if args.save_outputs:
-                output_dict_path = os.path.join(
-                    output_directory, f'{output_name}_output_dict.pkl'
+                # Toss out the recycling dimensions --- we don't need them anymore
+                processed_feature_dict = tensor_tree_map(
+                    lambda x: np.array(x[..., -1].cpu()),
+                    processed_feature_dict
                 )
-                with open(output_dict_path, "wb") as fp:
-                    pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
+                out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
 
-                logger.info(f"Model output written to {output_dict_path}...")
+                unrelaxed_protein = prep_output(
+                    out,
+                    processed_feature_dict,
+                    feature_dict,
+                    feature_processor,
+                    args.config_preset,
+                    args.multimer_ri_gap,
+                    args.subtract_plddt
+                )
+
+                unrelaxed_file_suffix = "_unrelaxed.pdb"
+                if args.cif_output:
+                    unrelaxed_file_suffix = "_unrelaxed.cif"
+                unrelaxed_output_path = os.path.join(
+                    output_directory, f'{output_name}_{seed}{unrelaxed_file_suffix}'
+                )
+
+                with open(unrelaxed_output_path, 'w') as fp:
+                    if args.cif_output:
+                        fp.write(protein.to_modelcif(unrelaxed_protein))
+                    else:
+                        fp.write(protein.to_pdb(unrelaxed_protein))
+
+                logger.info(f"Output written to {unrelaxed_output_path}...")
+
+                if not args.skip_relaxation:
+                    # Relax the prediction.
+                    logger.info(f"Running relaxation on {unrelaxed_output_path}...")
+                    relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name,
+                                args.cif_output)
+
+                if args.save_outputs:
+                    output_dict_path = os.path.join(
+                        output_directory, f'{output_name}_output_dict.pkl'
+                    )
+                    with open(output_dict_path, "wb") as fp:
+                        pickle.dump(out, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
+                    logger.info(f"Model output written to {output_dict_path}...")
 
 
 if __name__ == "__main__":
@@ -481,6 +573,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
+    )
+    parser.add_argument(
+        "--metadata_cache_path", type=str,
+        help="""Path to the metadata cache file, which contains information about about each structure in the dataset""",
+    )
+    parser.add_argument(
+        "--representative_mapping_path", type=str,
+        help="""Path to the mapping file that maps pdb chain ids to representative chain ids""",
     )
     add_data_args(parser)
     args = parser.parse_args()
