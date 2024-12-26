@@ -19,7 +19,7 @@ At this time, only Linux systems are supported.
       Mamba is recommended as the dependencies required by OpenFold are quite large and mamba can speed up the process.
     - Activate the environment, e.g `conda activate openfold_env`
 1. Run the setup script to configure kernels and folding resources.
-	> scripts/install_third_party_dependencies.sh`
+	> scripts/install_third_party_dependencies.sh
 1. Prepend the conda environment to the `$LD_LIBRARY_PATH` and `$LIBRARY_PATH`., e.g. 
 
 	```
