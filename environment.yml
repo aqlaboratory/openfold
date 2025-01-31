@@ -38,4 +38,4 @@ dependencies:
       - deepspeed==0.12.4
       - dm-tree==0.1.6
       - git+https://github.com/NVIDIA/dllogger.git
-      - flash-attn 
+      - git+https://github.com/Dao-AILab/flash-attention.git@2f6c6331792dd20002a2e551959e172617a1bfbc
