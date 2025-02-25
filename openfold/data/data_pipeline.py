@@ -1228,7 +1228,8 @@ class DataPipelineMultimer:
     def process_fasta(self,
                       fasta_path: str,
                       alignment_dir: str,
-                      alignment_index: Optional[Any] = None
+                      alignment_index: Optional[Any] = None,
+                      cyclic_offset: Optional[List[str]] = None
                       ) -> FeatureDict:
         """Creates features."""
         with open(fasta_path) as f:
