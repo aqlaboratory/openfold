@@ -748,6 +748,7 @@ multimer_config_update = mlc.ConfigDict({
         "common": {
             "feat": {
                 "aatype": [NUM_RES],
+                "cyclic_mask": [NUM_RES],
                 "all_atom_mask": [NUM_RES, None],
                 "all_atom_positions": [NUM_RES, None, None],
                 # "all_chains_entity_ids": [],  # TODO: Resolve missing features, remove processed msa feats
@@ -808,6 +809,7 @@ multimer_config_update = mlc.ConfigDict({
                     "asym_id",
                     "entity_id",
                     "sym_id",
+                    "cyclic_mask"
                 ]
         },
         "supervised": {
