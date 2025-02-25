@@ -1267,6 +1267,8 @@ class DataPipelineMultimer:
                 chain_features,
                 chain_id=desc
             )
+
+            chain_features['cyclic_mask'] = (np.ones(chain_features['seq_length'])*(desc in cyclic_offset)).astype(np.bool_)
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 
