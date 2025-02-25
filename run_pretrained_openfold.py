@@ -139,7 +139,7 @@ def generate_feature_dict(
                 '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
             )
         feature_dict = data_processor.process_fasta(
-            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
+            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir, cyclic_offset=args.cyclic_offset
         )
     elif len(seqs) == 1:
         tag = tags[0]
