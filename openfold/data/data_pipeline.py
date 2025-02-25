@@ -20,7 +20,7 @@ import contextlib
 import dataclasses
 from multiprocessing import cpu_count
 import tempfile
-from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
+from typing import List, Mapping, Optional, Sequence, Any, MutableMapping, Union
 import numpy as np
 import torch
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
