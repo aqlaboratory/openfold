@@ -475,6 +475,7 @@ if __name__ == "__main__":
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
     )
+    parser.add_argument('--cyclic-offset', type=str, nargs='+', default=None, help="List of sequence tags to apply cyclic offset to")
     add_data_args(parser)
     args = parser.parse_args()
 
