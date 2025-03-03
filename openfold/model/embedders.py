@@ -82,7 +82,30 @@ class InputEmbedder(nn.Module):
         self.no_bins = 2 * relpos_k + 1
         self.linear_relpos = Linear(self.no_bins, c_z)
 
-    def relpos(self, ri: torch.Tensor):
+    def cyclic_offset(self, residue_index: torch.Tensor) -> torch.Tensor:
+        """Calculate the cyclic offset for the given residue index.
+
+        Parameters
+        ----------
+        residue_index : torch.Tensor
+            The residue index tensor.
+
+        Returns
+        -------
+        torch.Tensor
+            The cyclic offset tensor.
+        """
+        peptide_length = residue_index.shape[0]
+        cyclic_offset_array = torch.zeros((peptide_length, peptide_length))
+        cyc_row = torch.arange(0, -peptide_length, -1)
+        pc = int(torch.round(torch.tensor(peptide_length / 2)))  # Get centre
+        cyc_row[pc + 1 :] = torch.arange(len(cyc_row[pc + 1 :]), 0, -1)
+        for i in range(len(cyclic_offset_array)):
+            cyclic_offset_array[i] = torch.roll(cyc_row, i)
+        return cyclic_offset_array
+        
+        
+    def relpos(self, ri: torch.Tensor, cyclic_mask: Optional[torch.Tensor] = None):
         """
         Computes relative positional encodings
 
@@ -93,6 +116,9 @@ class InputEmbedder(nn.Module):
                 "residue_index" features of shape [*, N]
         """
         d = ri[..., None] - ri[..., None, :]
+        if cyclic_mask is not None and sum(cyclic_mask)!=0:
+            d = self.cyclic_offset(ri).type(torch.long).to(d.device)
+
         boundaries = torch.arange(
             start=-self.relpos_k, end=self.relpos_k + 1, device=d.device
         ) 
@@ -110,6 +136,7 @@ class InputEmbedder(nn.Module):
         ri: torch.Tensor,
         msa: torch.Tensor,
         inplace_safe: bool = False,
+        cyclic_mask: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
@@ -132,7 +159,7 @@ class InputEmbedder(nn.Module):
         tf_emb_j = self.linear_tf_z_j(tf)
 
         # [*, N_res, N_res, c_z]
-        pair_emb = self.relpos(ri.type(tf_emb_i.dtype))
+        pair_emb = self.relpos(ri.type(tf_emb_i.dtype),cyclic_mask=cyclic_mask)
         pair_emb = add(pair_emb, 
             tf_emb_i[..., None, :], 
             inplace=inplace_safe
