@@ -108,13 +108,13 @@ def model_config(
         # AF2 Suppl. Table 5, Model 1.1.1
         c.data.train.max_extra_msa = 5120
         c.data.predict.max_extra_msa = 5120
-        c.data.common.reduce_max_clusters_by_max_templates = True
+        c.data.common.reduce_msa_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
         c.model.template.enabled = True
     elif name == "model_2":
         # AF2 Suppl. Table 5, Model 1.1.2
-        c.data.common.reduce_max_clusters_by_max_templates = True
+        c.data.common.reduce_msa_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
         c.model.template.enabled = True
@@ -134,14 +134,14 @@ def model_config(
     elif name == "model_1_ptm":
         c.data.train.max_extra_msa = 5120
         c.data.predict.max_extra_msa = 5120 
-        c.data.common.reduce_max_clusters_by_max_templates = True
+        c.data.common.reduce_msa_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
         c.model.template.enabled = True
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     elif name == "model_2_ptm":
-        c.data.common.reduce_max_clusters_by_max_templates = True
+        c.data.common.reduce_msa_clusters_by_max_templates = True
         c.data.common.use_templates = True
         c.data.common.use_template_torsion_angles = True
         c.model.template.enabled = True
