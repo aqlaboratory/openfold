@@ -69,7 +69,7 @@ class AlphaFoldPickle(AlphaFoldMetaData):
         self.pLDDT = self.data[0]['plddt'].round(2)
         self.max_pae = self.data[0]['max_predicted_aligned_error']
         self.ptm = self.data[0]['ptm_score']
-        self.iptm = self.data[0]['iptm_score']
+        self.iptm = self.data[0].get('iptm_score')
 
     def save_to_json(self):
         # save pkl to json format as colabfold
