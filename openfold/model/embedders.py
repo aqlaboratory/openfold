@@ -258,7 +258,7 @@ class InputEmbedderMultimer(nn.Module):
         cyc_row[pc + 1 :] = torch.arange(len(cyc_row[pc + 1 :]), 0, -1)
         for i in range(len(cyclic_offset_array)):
             cyclic_offset_array[i] = torch.roll(cyc_row, i)
-        return torch.abs(cyclic_offset_array)
+        return cyclic_offset_array
     
     def relpos(self, batch):
         pos = batch["residue_index"]
