@@ -163,6 +163,7 @@ python3 run_pretrained_openfold.py \
     --model_device "cuda:0" \
     --output_dir ./ \
     --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_ptm_2.pt
+    --cyclic_offset [list of Sequence FASTA tags in fasta_dir]
 ```
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
@@ -181,6 +182,12 @@ OpenFold was trained under a newer training schedule than the one from which the
 `config_preset` settings and OpenFold checkpoints; the only restraints are that 
 `*_ptm` checkpoints must be run with `*_ptm` config presets and that `_no_templ_`
 checkpoints are only compatible with template-less presets (`model_3` and above).
+
+`--cyclic_offset` accepts a list of sequence FASTA tags. When the list is not empty OpenFold will
+apply a cyclic end-to-end offset on the sequence instead of the deafult linear offset.
+The result is that the sequence is treated as a cyclical species instead of a linear one.
+It is recommended to use the unrelaxed output with this option as we have noticed worse
+cyclizatio performance with the relaxed output.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
@@ -263,7 +270,8 @@ python3 run_pretrained_openfold.py \
     --kalign_binary_path lib/conda/envs/openfold_venv/bin/kalign \
     --config_preset "model_1_multimer_v3" \
     --model_device "cuda:0" \
-    --output_dir ./ 
+    --output_dir ./ \
+    --cyclic_offset [list of Sequence FASTA tags in fasta_dir]
 ```
 
 As with monomer inference, if you've already computed alignments for the query, you can use 
