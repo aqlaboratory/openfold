@@ -159,7 +159,7 @@ class InputEmbedder(nn.Module):
         tf_emb_j = self.linear_tf_z_j(tf)
 
         # [*, N_res, N_res, c_z]
-        pair_emb = self.relpos(ri.type(tf_emb_i.dtype),cyclic_mask=cyclic_mask)
+        pair_emb = self.relpos(ri.type(tf_emb_i.dtype), cyclic_mask=cyclic_mask)
         pair_emb = add(pair_emb, 
             tf_emb_i[..., None, :], 
             inplace=inplace_safe
