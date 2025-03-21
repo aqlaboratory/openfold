@@ -238,6 +238,7 @@ class InputEmbedderMultimer(nn.Module):
         else:
             self.no_bins = 2 * max_relative_idx + 1
         self.linear_relpos = Linear(self.no_bins, c_z)
+        
     def cyclic_offset(self, residue_index: torch.Tensor) -> torch.Tensor:
         """Calculate the cyclic offset for the given residue index.
 
