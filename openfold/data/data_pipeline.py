@@ -885,7 +885,9 @@ class DataPipeline:
             description=input_description,
             num_res=num_res,
         )
-        sequence_features['cyclic_mask'] = (np.ones((sequence_features['residue_index'].shape[0]))*(input_description in cyclic_offset)).astype(np.bool_)
+
+        n_residue_index = sequence_features['residue_index'].shape[0]
+        sequence_features['cyclic_mask'] = (np.ones(n_residue_index)*(input_description in cyclic_offset)).astype(np.bool_)
 
         sequence_embedding_features = {}
         # If using seqemb mode, generate a dummy MSA features using just the sequence
