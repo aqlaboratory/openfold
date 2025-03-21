@@ -185,9 +185,9 @@ checkpoints are only compatible with template-less presets (`model_3` and above)
 
 `--cyclic_offset` accepts a list of sequence FASTA tags. When the list is not empty OpenFold will
 apply a cyclic end-to-end offset on the sequence instead of the deafult linear offset.
-The result is that the sequence is treated as a cyclical species instead of a linear one.
+The result is that the sequence is treated as a cyclic species instead of a linear one.
 It is recommended to use the unrelaxed output with this option as we have noticed worse
-cyclizatio performance with the relaxed output.
+cyclization performance with the relaxed output.
 
 Note that chunking (as defined in section 1.11.8 of the AlphaFold 2 supplement)
 is enabled by default in inference mode. To disable it, set `globals.chunk_size`
