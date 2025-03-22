@@ -163,7 +163,7 @@ python3 run_pretrained_openfold.py \
     --model_device "cuda:0" \
     --output_dir ./ \
     --openfold_checkpoint_path openfold/resources/openfold_params/finetuning_ptm_2.pt \
-    --cyclic_offset [FASTA-tag1 FASTA-tag2 ... FASTA-tagN]
+    --cyclic_offset FASTA-tag1 FASTA-tag2 ... FASTA-tagN
 ```
 
 where `data` is the same directory as in the previous step. If `jackhmmer`, 
@@ -272,7 +272,7 @@ python3 run_pretrained_openfold.py \
     --config_preset "model_1_multimer_v3" \
     --model_device "cuda:0" \
     --output_dir ./ \
-    --cyclic_offset [FASTA-tag1 FASTA-tag2 ... FASTA-tagN]
+    --cyclic_offset FASTA-tag1 FASTA-tag2 ... FASTA-tagN
 ```
 
 As with monomer inference, if you've already computed alignments for the query, you can use 
