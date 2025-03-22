@@ -67,7 +67,8 @@ python3 run_pretrained_openfold.py \
     --pdb70_database_path $BASE_DATA_DIR/pdb70 \
     --uniclust30_database_path $BASE_DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \
     --bfd_database_path $BASE_DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \
-    --model_device "cuda:0" 
+    --model_device "cuda:0" \
+    --cyclic_offset FASTA-tag1 FASTA-tag2 ... FASTA-tagN
 ```
 
 **Required arguments:**
@@ -138,7 +139,11 @@ Some commonly used command line flags are here. A full list of flags can be view
 - `--data_random_seed`: Specifies a random seed to use.
 - `--save_outputs`: Saves a copy of all outputs from the model, e.g. the output of the msa track, ptm heads.
 - `--experiment_config_json`: Specify configuration settings using a json file. For example, passing a json with `{globals.relax.max_iterations = 10}` specifies 10 as the maximum number of relaxation iterations. See for  [`openfold/config.py`](https://github.com/aqlaboratory/openfold/blob/main/openfold/config.py#L283) the full dictionary of configuration settings. Any parameters that are not manually set in these configuration settings will refer to the defaults specified by your `config_preset`.
-
+- `--cyclic_offset`: Specifies a list FASTA tags for cyclic peptides. E.g. `--cyclic_offset FASTA-tag1 FASTA-tag2 ... FASTA-tagN`. When the list is not empty OpenFold will apply a cyclic end-to-end offset on the sequence instead of the deafult linear offset.
+The result is that the sequence is treated as a cyclic species instead of a linear one.
+It is recommended to use the unrelaxed output with this option as we have noticed worse
+cyclization performance with the relaxed output. Refer to the [AfCycDesign preprint paper](https://www.biorxiv.org/content/10.1101/2023.02.25.529956v1.full) for original
+implementation and explanation on the usage of a cyclic offset.
 
 ### Advanced Options for Increasing Efficiency
 

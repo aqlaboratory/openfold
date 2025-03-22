@@ -47,7 +47,7 @@ SEQ_FEATURES = ('residue_index', 'aatype', 'all_atom_positions',
                 'sym_id', 'entity_mask', 'deletion_mean',
                 'prediction_atom_mask',
                 'literature_positions', 'atom_indices_to_group_indices',
-                'rigid_group_default_frame')
+                'rigid_group_default_frame', 'cyclic_mask')
 TEMPLATE_FEATURES = ('template_aatype', 'template_all_atom_positions',
                      'template_all_atom_mask')
 CHAIN_FEATURES = ('num_alignments', 'seq_length')

@@ -20,7 +20,7 @@ import contextlib
 import dataclasses
 from multiprocessing import cpu_count
 import tempfile
-from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
+from typing import List, Mapping, Optional, Sequence, Any, MutableMapping, Union
 import numpy as np
 import torch
 from openfold.data import templates, parsers, mmcif_parsing, msa_identifiers, msa_pairing, feature_processing_multimer
@@ -854,6 +854,7 @@ class DataPipeline:
         alignment_dir: str,
         alignment_index: Optional[Any] = None,
         seqemb_mode: bool = False,
+        cyclic_offset: Optional[List[str]] = []
     ) -> FeatureDict:
         """Assembles features for a single sequence in a FASTA file"""
         with open(fasta_path) as f:
@@ -884,6 +885,9 @@ class DataPipeline:
             description=input_description,
             num_res=num_res,
         )
+
+        n_residue_index = sequence_features['residue_index'].shape[0]
+        sequence_features['cyclic_mask'] = (np.ones(n_residue_index)*(input_description in cyclic_offset)).astype(np.bool_)
 
         sequence_embedding_features = {}
         # If using seqemb mode, generate a dummy MSA features using just the sequence
@@ -1228,7 +1232,8 @@ class DataPipelineMultimer:
     def process_fasta(self,
                       fasta_path: str,
                       alignment_dir: str,
-                      alignment_index: Optional[Any] = None
+                      alignment_index: Optional[Any] = None,
+                      cyclic_offset: Optional[List[str]] = None
                       ) -> FeatureDict:
         """Creates features."""
         with open(fasta_path) as f:
@@ -1266,6 +1271,8 @@ class DataPipelineMultimer:
                 chain_features,
                 chain_id=desc
             )
+
+            chain_features['cyclic_mask'] = (np.ones(chain_features['seq_length'])*(desc in cyclic_offset)).astype(np.bool_)
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
 

@@ -139,7 +139,7 @@ def generate_feature_dict(
                 '\n'.join([f">{tag}\n{seq}" for tag, seq in zip(tags, seqs)])
             )
         feature_dict = data_processor.process_fasta(
-            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir,
+            fasta_path=tmp_fasta_path, alignment_dir=alignment_dir, cyclic_offset=args.cyclic_offset
         )
     elif len(seqs) == 1:
         tag = tags[0]
@@ -151,7 +151,7 @@ def generate_feature_dict(
         feature_dict = data_processor.process_fasta(
             fasta_path=tmp_fasta_path,
             alignment_dir=local_alignment_dir,
-            seqemb_mode=args.use_single_seq_mode,
+            seqemb_mode=args.use_single_seq_mode, cyclic_offset=args.cyclic_offset
         )
     else:
         with open(tmp_fasta_path, "w") as fp:
@@ -175,7 +175,6 @@ def list_files_with_extensions(dir, extensions):
 def main(args):
     # Create the output directory
     os.makedirs(args.output_dir, exist_ok=True)
-
     if args.config_preset.startswith("seq"):
         args.use_single_seq_mode = True
 
@@ -475,6 +474,11 @@ if __name__ == "__main__":
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
     )
+    parser.add_argument(
+        '--cyclic-offset', metavar='N', type=str, nargs='*', default=[],
+        help="Space-separated list of sequence tags to apply cyclic offset to"
+    )
+
     add_data_args(parser)
     args = parser.parse_args()
 
