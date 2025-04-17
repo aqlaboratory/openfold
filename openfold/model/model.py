@@ -255,6 +255,7 @@ class AlphaFold(nn.Module):
                 feats["residue_index"],
                 feats["msa_feat"],
                 inplace_safe=inplace_safe,
+                cyclic_mask = feats["cyclic_mask"]
             )
 
         # Unpack the recycling embeddings. Removing them from the list allows 

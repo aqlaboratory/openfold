@@ -144,6 +144,7 @@ def squeeze_features(protein):
         "between_segment_residues",
         "residue_index",
         "template_all_atom_mask",
+        'cyclic_mask'
     ]:
         if k in protein:
             final_dim = protein[k].shape[-1]

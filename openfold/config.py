@@ -290,6 +290,7 @@ config = mlc.ConfigDict(
             "common": {
                 "feat": {
                     "aatype": [NUM_RES],
+                    "cyclic_mask": [NUM_RES],
                     "all_atom_mask": [NUM_RES, None],
                     "all_atom_positions": [NUM_RES, None, None],
                     "alt_chi_angles": [NUM_RES, None],
@@ -383,6 +384,7 @@ config = mlc.ConfigDict(
                     "between_segment_residues",
                     "deletion_matrix",
                     "no_recycling_iters",
+                    'cyclic_mask'
                 ],
                 "use_templates": templates_enabled,
                 "use_template_torsion_angles": embed_template_torsion_angles,
@@ -748,6 +750,7 @@ multimer_config_update = mlc.ConfigDict({
         "common": {
             "feat": {
                 "aatype": [NUM_RES],
+                "cyclic_mask": [NUM_RES],
                 "all_atom_mask": [NUM_RES, None],
                 "all_atom_positions": [NUM_RES, None, None],
                 # "all_chains_entity_ids": [],  # TODO: Resolve missing features, remove processed msa feats
@@ -808,6 +811,7 @@ multimer_config_update = mlc.ConfigDict({
                     "asym_id",
                     "entity_id",
                     "sym_id",
+                    "cyclic_mask"
                 ]
         },
         "supervised": {
