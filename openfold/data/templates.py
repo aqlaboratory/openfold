@@ -951,7 +951,9 @@ def get_custom_template_features(
         query_sequence: str,
         pdb_id: str,
         chain_id: str,
-        kalign_binary_path: str):
+        kalign_binary_path: str,
+        _zero_center_positions: bool = True,
+    ):
 
     with open(mmcif_path, "r") as mmcif_path:
         cif_string = mmcif_path.read()
@@ -973,7 +975,7 @@ def get_custom_template_features(
         query_sequence=query_sequence,
         template_chain_id=chain_id,
         kalign_binary_path=kalign_binary_path,
-        _zero_center_positions=True
+        _zero_center_positions=_zero_center_positions,
     )
     features["template_sum_probs"] = [1.0]
 
