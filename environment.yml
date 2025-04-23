@@ -6,7 +6,6 @@ channels:
   - nvidia 
 dependencies:
   - python=3.10
-  - libgcc=7.2
   - setuptools=59.5.0
   - pip
   - openmm=7.7
@@ -16,7 +15,6 @@ dependencies:
   - numpy
   - pandas
   - PyYAML
-  - pytorch
   - requests
   - scipy
   - tqdm
@@ -26,11 +24,13 @@ dependencies:
   - awscli
   - ml-collections
   - aria2
-  - mkl=2024.0
+  - mkl
   - git
   - bioconda::hmmer
   - bioconda::hhsuite
   - bioconda::kalign2
+  - pytorch::pytorch=2.5
+  - pytorch::pytorch-cuda=12.4
   - pip:
       - deepspeed==0.14.5
       - dm-tree==0.1.6
