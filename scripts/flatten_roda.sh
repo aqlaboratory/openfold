@@ -9,8 +9,8 @@
 #     output_dir:
 #           The directory in which to construct the reformatted data
 
-if [[ $# != 2 ]]; then
-    echo "usage: ./flatten_roda.sh <roda_dir> <output_dir>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: ./flatten_roda.sh <roda_dir> <output_dir>"
     exit 1
 fi
 
@@ -23,25 +23,36 @@ ALIGNMENT_DIR="${OUTPUT_DIR}/alignments"
 mkdir -p "${DATA_DIR}"
 mkdir -p "${ALIGNMENT_DIR}"
 
-for chain_dir in $(ls "${RODA_DIR}"); do
-    CHAIN_DIR_PATH="${RODA_DIR}/${chain_dir}"
-    for subdir in $(ls "${CHAIN_DIR_PATH}"); do
-        if [[ ! -d "$subdir" ]]; then
-            echo "$subdir is not directory"
+for chain_dir in "${RODA_DIR}"/*; do
+    if [ ! -d "$chain_dir" ]; then
+        continue
+    fi
+
+    chain_name=$(basename "$chain_dir")
+
+    for subdir in "$chain_dir"/*; do
+        if [ ! -d "$subdir" ]; then
+            echo "$subdir is not a directory"
             continue
-        elif [[ -z $(ls "${subdir}")]]; then
+        fi
+
+        if [ -z "$(ls -A "$subdir")" ]; then
             continue
-        elif [[ $subdir = "pdb" ]] || [[ $subdir = "cif" ]]; then
-            mv "${CHAIN_DIR_PATH}/${subdir}"/* "${DATA_DIR}"
+        fi
+
+        subdir_name=$(basename "$subdir")
+
+        if [ "$subdir_name" = "pdb" ] || [ "$subdir_name" = "cif" ]; then
+            mv "$subdir"/* "${DATA_DIR}/"
         else
-            CHAIN_ALIGNMENT_DIR="${ALIGNMENT_DIR}/${chain_dir}"
+            CHAIN_ALIGNMENT_DIR="${ALIGNMENT_DIR}/${chain_name}"
             mkdir -p "${CHAIN_ALIGNMENT_DIR}"
-            mv "${CHAIN_DIR_PATH}/${subdir}"/* "${CHAIN_ALIGNMENT_DIR}"
+            mv "$subdir"/* "${CHAIN_ALIGNMENT_DIR}/"
         fi
     done
 done
 
 NO_DATA_FILES=$(find "${DATA_DIR}" -type f | wc -l)
-if [[ $NO_DATA_FILES = 0 ]]; then
-    rm -rf ${DATA_DIR}
+if [ "$NO_DATA_FILES" -eq 0 ]; then
+    rm -rf "${DATA_DIR}"
 fi
