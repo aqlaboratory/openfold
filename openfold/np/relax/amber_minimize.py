@@ -34,6 +34,7 @@ from openmm import app as openmm_app
 from openmm.app.internal.pdbstructure import PdbStructure
 
 ENERGY = unit.kilocalories_per_mole
+FORCE = unit.kilojoules_per_mole / unit.nanometer 
 LENGTH = unit.angstroms
 
 
@@ -439,7 +440,7 @@ def _run_one_iteration(
     exclude_residues = exclude_residues or []
 
     # Assign physical dimensions.
-    tolerance = tolerance * ENERGY
+    tolerance = tolerance * FORCE 
     stiffness = stiffness * ENERGY / (LENGTH ** 2)
 
     start = time.perf_counter()
