@@ -14,7 +14,7 @@ dependencies:
   - pdbfixer
   - pytorch-lightning
   - biopython
-  - numpy<2.0.0
+  - numpy
   - pandas
   - PyYAML
   - requests
