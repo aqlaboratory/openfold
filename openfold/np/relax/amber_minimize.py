@@ -440,7 +440,7 @@ def _run_one_iteration(
     exclude_residues = exclude_residues or []
 
     # Assign physical dimensions.
-    tolerance = tolerance * FORCE 
+    tolerance = tolerance * FORCE
     stiffness = stiffness * ENERGY / (LENGTH ** 2)
 
     start = time.perf_counter()
