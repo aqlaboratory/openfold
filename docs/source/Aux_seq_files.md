@@ -68,9 +68,9 @@ All together, the file directory would look like:
 		  └── 6kwc.cif
 	  └── alignment_db
 		  ├── alignment_db_0.db 
-          ├── alignment_db_1.db
-          ...
-          ├── alignment_db_9.db
+                  ├── alignment_db_1.db
+                   ...
+                  ├── alignment_db_9.db
 		  └── alignment_db.index 
 ```
 

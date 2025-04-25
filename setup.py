@@ -54,6 +54,7 @@ def get_cuda_bare_metal_version(cuda_dir):
 compute_capabilities = set([
     (5, 2), # Titan X
     (6, 1), # GeForce 1000-series
+    (9, 0), # Hopper
 ])
 
 compute_capabilities.add((7, 0))
@@ -112,7 +113,7 @@ else:
 
 setup(
     name='openfold',
-    version='2.0.0',
+    version='2.2.0',
     description='A PyTorch reimplementation of DeepMind\'s AlphaFold 2',
     author='OpenFold Team',
     author_email='jennifer.wei@omsf.io',

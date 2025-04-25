@@ -85,7 +85,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser(
-        description="Creates a sequence cluster file from a .fasta file using mmseqs2 with PDB settings."
+        description=__doc__
     )
     parser.add_argument(
         "input_fasta",
