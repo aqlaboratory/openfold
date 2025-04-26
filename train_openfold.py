@@ -21,7 +21,6 @@ from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataM
 from openfold.model.model import AlphaFold
 from openfold.model.torchscript import script_preset_
 from openfold.np import residue_constants
-from openfold.utils.argparse_utils import remove_arguments
 from openfold.utils.callbacks import (
     EarlyStoppingVerbose,
 )
@@ -55,7 +54,7 @@ class OpenFoldWrapper(pl.LightningModule):
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
         )
-        
+
         self.cached_weights = None
         self.last_lr_step = -1
         self.save_hyperparameters()
@@ -73,7 +72,7 @@ class OpenFoldWrapper(pl.LightningModule):
                 on_step=train, on_epoch=(not train), logger=True, sync_dist=False,
             )
 
-            if(train):
+            if (train):
                 self.log(
                     f"{phase}/{loss_name}_epoch",
                     indiv_loss,
@@ -82,12 +81,12 @@ class OpenFoldWrapper(pl.LightningModule):
 
         with torch.no_grad():
             other_metrics = self._compute_validation_metrics(
-                batch, 
+                batch,
                 outputs,
                 superimposition_metrics=(not train)
             )
 
-        for k,v in other_metrics.items():
+        for k, v in other_metrics.items():
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
@@ -96,7 +95,7 @@ class OpenFoldWrapper(pl.LightningModule):
             )
 
     def training_step(self, batch, batch_idx):
-        if(self.ema.device != batch["aatype"].device):
+        if (self.ema.device != batch["aatype"].device):
             self.ema.to(batch["aatype"].device)
 
         ground_truth = batch.pop('gt_features', None)
@@ -127,12 +126,13 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
-        if(self.cached_weights is None):
+        if (self.cached_weights is None):
             # model.state_dict() contains references to model weights rather
-            # than copies. Therefore, we need to clone them before calling 
+            # than copies. Therefore, we need to clone them before calling
             # load_state_dict().
-            clone_param = lambda t: t.detach().clone()
-            self.cached_weights = tensor_tree_map(clone_param, self.model.state_dict())
+            def clone_param(t): return t.detach().clone()
+            self.cached_weights = tensor_tree_map(
+                clone_param, self.model.state_dict())
             self.model.load_state_dict(self.ema.state_dict()["params"])
 
         ground_truth = batch.pop('gt_features', None)
@@ -160,17 +160,17 @@ class OpenFoldWrapper(pl.LightningModule):
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
 
-    def _compute_validation_metrics(self, 
-        batch, 
-        outputs, 
-        superimposition_metrics=False
-    ):
+    def _compute_validation_metrics(self,
+                                    batch,
+                                    outputs,
+                                    superimposition_metrics=False
+                                    ):
         metrics = {}
-        
+
         gt_coords = batch["all_atom_positions"]
         pred_coords = outputs["final_atom_positions"]
         all_atom_mask = batch["all_atom_mask"]
-    
+
         # This is super janky for superimposition. Fix later
         gt_coords_masked = gt_coords * all_atom_mask[..., None]
         pred_coords_masked = pred_coords * all_atom_mask[..., None]
@@ -178,7 +178,7 @@ class OpenFoldWrapper(pl.LightningModule):
         gt_coords_masked_ca = gt_coords_masked[..., ca_pos, :]
         pred_coords_masked_ca = pred_coords_masked[..., ca_pos, :]
         all_atom_mask_ca = all_atom_mask[..., ca_pos]
-    
+
         lddt_ca_score = lddt_ca(
             pred_coords,
             gt_coords,
@@ -186,18 +186,18 @@ class OpenFoldWrapper(pl.LightningModule):
             eps=self.config.globals.eps,
             per_residue=False,
         )
-   
+
         metrics["lddt_ca"] = lddt_ca_score
-   
+
         drmsd_ca_score = drmsd(
             pred_coords_masked_ca,
             gt_coords_masked_ca,
-            mask=all_atom_mask_ca, # still required here to compute n
+            mask=all_atom_mask_ca,  # still required here to compute n
         )
-   
+
         metrics["drmsd_ca"] = drmsd_ca_score
-    
-        if(superimposition_metrics):
+
+        if (superimposition_metrics):
             superimposed_pred, alignment_rmsd = superimpose(
                 gt_coords_masked_ca, pred_coords_masked_ca, all_atom_mask_ca,
             )
@@ -211,7 +211,7 @@ class OpenFoldWrapper(pl.LightningModule):
             metrics["alignment_rmsd"] = alignment_rmsd
             metrics["gdt_ts"] = gdt_ts_score
             metrics["gdt_ha"] = gdt_ha_score
-    
+
         return metrics
 
     def configure_optimizers(self, 
@@ -220,8 +220,8 @@ class OpenFoldWrapper(pl.LightningModule):
     ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         optimizer = torch.optim.Adam(
-            self.model.parameters(), 
-            lr=learning_rate, 
+            self.model.parameters(),
+            lr=learning_rate,
             eps=eps
         )
 
@@ -246,8 +246,9 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def on_load_checkpoint(self, checkpoint):
         ema = checkpoint["ema"]
-        if(not self.model.template_config.enabled):
-            ema["params"] = {k:v for k,v in ema["params"].items() if not "template" in k}
+        if (not self.model.template_config.enabled):
+            ema["params"] = {k: v for k,
+                             v in ema["params"].items() if not "template" in k}
         self.ema.load_state_dict(ema)
 
     def on_save_checkpoint(self, checkpoint):
@@ -258,13 +259,13 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def load_from_jax(self, jax_path):
         model_basename = os.path.splitext(
-                os.path.basename(
-                    os.path.normpath(jax_path)
-                )
+            os.path.basename(
+                os.path.normpath(jax_path)
+            )
         )[0]
         model_version = "_".join(model_basename.split("_")[1:])
         import_jax_weights_(
-                self.model, jax_path, version=model_version
+            self.model, jax_path, version=model_version
         )
 
 def get_model_state_dict_from_ds_checkpoint(checkpoint_dir):
@@ -331,30 +332,31 @@ def main(args):
 
     if args.resume_from_jax_params:
         model_module.load_from_jax(args.resume_from_jax_params)
-        logging.info(f"Successfully loaded JAX parameters at {args.resume_from_jax_params}...")
- 
+        logging.info(
+            f"Successfully loaded JAX parameters at {args.resume_from_jax_params}...")
+
     # TorchScript components of the model
-    if(args.script_modules):
+    if (args.script_modules):
         script_preset_(model_module)
 
     if "multimer" in args.config_preset:
         data_module = OpenFoldMultimerDataModule(
-        config=config.data, 
-        batch_seed=args.seed,
-        **vars(args)
-    )
+            config=config.data,
+            batch_seed=args.seed,
+            **vars(args)
+        )
     else:
         data_module = OpenFoldDataModule(
-            config=config.data, 
+            config=config.data,
             batch_seed=args.seed,
             **vars(args)
         )
 
     data_module.prepare_data()
     data_module.setup()
-    
+
     callbacks = []
-    if(args.checkpoint_every_epoch):
+    if (args.checkpoint_every_epoch):
         mc = ModelCheckpoint(
             every_n_epochs=1,
             auto_insert_metric_name=False,
@@ -362,7 +364,7 @@ def main(args):
         )
         callbacks.append(mc)
 
-    if(args.early_stopping):
+    if (args.early_stopping):
         es = EarlyStoppingVerbose(
             monitor="val/lddt_ca",
             min_delta=args.min_delta,
@@ -374,7 +376,7 @@ def main(args):
         )
         callbacks.append(es)
 
-    if(args.log_performance):
+    if (args.log_performance):
         global_batch_size = args.num_nodes * args.gpus
         perf = PerformanceLoggingCallback(
             log_file=os.path.join(args.output_dir, "performance_log.json"),
@@ -382,7 +384,7 @@ def main(args):
         )
         callbacks.append(perf)
 
-    if(args.log_lr):
+    if (args.log_lr):
         lr_monitor = LearningRateMonitor(logging_interval="step")
         callbacks.append(lr_monitor)
 
@@ -448,7 +450,7 @@ def main(args):
         ckpt_path = args.resume_from_ckpt
 
     trainer.fit(
-        model_module, 
+        model_module,
         datamodule=data_module,
         ckpt_path=ckpt_path,
     )
@@ -680,22 +682,22 @@ if __name__ == "__main__":
     trainer_group.add_argument(
         "--reload_dataloaders_every_n_epochs", type=int, default=1,
     )
-
-    trainer_group.add_argument("--accumulate_grad_batches", type=int, default=1,
-                               help="Accumulate gradients over k batches before next optimizer step.")
+    trainer_group.add_argument(
+        "--accumulate_grad_batches", type=int, default=1,
+        help="Accumulate gradients over k batches before next optimizer step.")
 
     args = parser.parse_args()
 
-    if(args.seed is None and 
-        ((args.gpus is not None and args.gpus > 1) or 
+    if (args.seed is None and
+        ((args.gpus is not None and args.gpus > 1) or
          (args.num_nodes is not None and args.num_nodes > 1))):
         raise ValueError("For distributed training, --seed must be specified")
 
-    if(str(args.precision) == "16" and args.deepspeed_config_path is not None):
+    if (str(args.precision) == "16" and args.deepspeed_config_path is not None):
         raise ValueError("DeepSpeed and FP16 training are not compatible")
 
-    if(args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
-        raise ValueError("Choose between loading pretrained Jax-weights and a checkpoint-path")
-
+    if (args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
+        raise ValueError(
+            "Choose between loading pretrained Jax-weights and a checkpoint-path")
 
     main(args)

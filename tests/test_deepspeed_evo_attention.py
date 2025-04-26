@@ -306,7 +306,6 @@ class TestDeepSpeedKernel(unittest.TestCase):
         batch["residx_atom37_to_atom14"] = batch[
             "residx_atom37_to_atom14"
         ].long()
-        # print(batch["target_feat"].shape)
         batch["target_feat"] = torch.nn.functional.one_hot(batch["aatype"], consts.msa_logits - 1).to(torch.float32)
         batch["template_all_atom_mask"] = batch["template_all_atom_masks"]
         batch.update(
@@ -316,8 +315,9 @@ class TestDeepSpeedKernel(unittest.TestCase):
         # Move the recycling dimension to the end
         move_dim = lambda t: t.permute(*range(len(t.shape))[1:], 0)
         batch = tensor_tree_map(move_dim, batch)
-        with torch.no_grad():
-            with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+        # Restrict this test to use only torch.float32 precision due to instability with torch.bfloat16
+        # https://github.com/aqlaboratory/openfold/issues/532
+        with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float32):
                 model = compare_utils.get_global_pretrained_openfold()
                 model.globals.use_deepspeed_evo_attention = False
                 out_repro = model(batch)

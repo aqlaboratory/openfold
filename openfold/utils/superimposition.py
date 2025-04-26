@@ -35,10 +35,10 @@ def _superimpose_np(reference, coords):
 
 
 def _superimpose_single(reference, coords):
-    reference_np = reference.detach().to(torch.float).cpu().numpy()    
-    coords_np = coords.detach().to(torch.float).cpu().numpy()
-    superimposed, rmsd = _superimpose_np(reference_np, coords_np)
-    return coords.new_tensor(superimposed), coords.new_tensor(rmsd)
+	reference_np = reference.detach().to(torch.float).cpu().numpy()  
+	coords_np = coords.detach().to(torch.float).cpu().numpy()
+	superimposed, rmsd = _superimpose_np(reference_np, coords_np)
+	return coords.new_tensor(superimposed), coords.new_tensor(rmsd)
 
 
 def superimpose(reference, coords, mask):
