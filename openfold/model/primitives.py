@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import importlib
-import math
+import math, os
 from typing import Optional, Callable, List, Tuple
 import numpy as np
 
@@ -42,9 +42,8 @@ from openfold.utils.tensor_utils import (
     flatten_final_dims,
 )
 
-
-DEFAULT_LMA_Q_CHUNK_SIZE = 1024
-DEFAULT_LMA_KV_CHUNK_SIZE = 4096
+DEFAULT_LMA_Q_CHUNK_SIZE = int(os.environ.get('DEFAULT_LMA_Q_CHUNK_SIZE', 1024))
+DEFAULT_LMA_KV_CHUNK_SIZE = int(os.environ.get('DEFAULT_LMA_KV_CHUNK_SIZE', 4096))
 
 
 def _prod(nums):
