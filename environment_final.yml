@@ -1,0 +1,35 @@
+name: openfold-env
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - PyYAML
+  - requests
+  - tqdm
+  - typing-extensions
+  - biopython
+  - setuptools=59.5.0
+  - aria2
+  - hhsuite
+  - kalign2
+  - pip:
+      - torch
+      - pytorch-lightning
+      - wandb
+      - ml-collections
+      - deepspeed==0.14.5
+      - dm-tree==0.1.6
+      - modelcif==0.7
+      - flash-attn
+      - openmm
+      - pdbfixer
+      - pyhmmer
+      - awscli 
