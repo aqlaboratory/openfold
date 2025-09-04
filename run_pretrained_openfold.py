@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import argparse
 import logging
 import math
@@ -20,13 +22,13 @@ import os
 import pickle
 import random
 import time
+import torch
 import json
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
 
-import torch
 torch_versions = torch.__version__.split(".")
 torch_major_version = int(torch_versions[0])
 torch_minor_version = int(torch_versions[1])
@@ -183,13 +185,15 @@ def main(args):
         args.config_preset, 
         long_sequence_inference=args.long_sequence_inference,
         use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
-        )
+        use_cuequivariance_attention=args.use_cuequivariance_attention,
+        use_cuequivariance_multiplicative_update=args.use_cuequivariance_multiplicative_update,
+    )
 
     if args.experiment_config_json:
         with open(args.experiment_config_json, 'r') as f:
             custom_config_dict = json.load(f)
         config.update_from_flattened_dict(custom_config_dict)
-
+    
     if args.trace_model:
         if not config.data.predict.fixed_size:
             raise ValueError(
@@ -481,6 +485,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
+    )
+    parser.add_argument(
+        "--use_cuequivariance_attention", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for attention computation."""
+    )
+    parser.add_argument(
+        "--use_cuequivariance_multiplicative_update", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for triangular multiplicative update computation."""
     )
     add_data_args(parser)
     args = parser.parse_args()

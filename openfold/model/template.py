@@ -216,6 +216,7 @@ class TemplatePairStackBlock(nn.Module):
                           _attn_chunk_size: Optional[int],
                           single_mask: torch.Tensor,
                           use_deepspeed_evo_attention: bool,
+                          use_cuequivariance_attention: bool,
                           use_lma: bool,
                           inplace_safe: bool):
         single = add(single,
@@ -225,6 +226,7 @@ class TemplatePairStackBlock(nn.Module):
                              chunk_size=_attn_chunk_size,
                              mask=single_mask,
                              use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                             use_cuequivariance_attention=use_cuequivariance_attention,
                              use_lma=use_lma,
                              inplace_safe=inplace_safe,
                          )
@@ -239,6 +241,7 @@ class TemplatePairStackBlock(nn.Module):
                              chunk_size=_attn_chunk_size,
                              mask=single_mask,
                              use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                             use_cuequivariance_attention=use_cuequivariance_attention,
                              use_lma=use_lma,
                              inplace_safe=inplace_safe,
                          )
@@ -251,12 +254,14 @@ class TemplatePairStackBlock(nn.Module):
     def tri_mul_out_in(self,
                        single: torch.Tensor,
                        single_mask: torch.Tensor,
+                       use_cuequivariance_multiplicative_update: bool,
                        inplace_safe: bool):
         tmu_update = self.tri_mul_out(
             single,
             mask=single_mask,
             inplace_safe=inplace_safe,
             _add_with_inplace=True,
+            use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update
         )
         if not inplace_safe:
             single = single + self.dropout_row(tmu_update)
@@ -270,6 +275,7 @@ class TemplatePairStackBlock(nn.Module):
             mask=single_mask,
             inplace_safe=inplace_safe,
             _add_with_inplace=True,
+            use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update
         )
         if not inplace_safe:
             single = single + self.dropout_row(tmu_update)
@@ -285,6 +291,8 @@ class TemplatePairStackBlock(nn.Module):
                 mask: torch.Tensor,
                 chunk_size: Optional[int] = None,
                 use_deepspeed_evo_attention: bool = False,
+                use_cuequivariance_attention: bool = False,
+                use_cuequivariance_multiplicative_update: bool = False,
                 use_lma: bool = False,
                 inplace_safe: bool = False,
                 _mask_trans: bool = True,
@@ -307,10 +315,12 @@ class TemplatePairStackBlock(nn.Module):
             if self.tri_mul_first:
                 single = self.tri_att_start_end(single=self.tri_mul_out_in(single=single,
                                                                            single_mask=single_mask,
+                                                                           use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update,
                                                                            inplace_safe=inplace_safe),
                                                 _attn_chunk_size=_attn_chunk_size,
                                                 single_mask=single_mask,
                                                 use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                                                use_cuequivariance_attention=use_cuequivariance_attention,
                                                 use_lma=use_lma,
                                                 inplace_safe=inplace_safe)
             else:
@@ -319,9 +329,11 @@ class TemplatePairStackBlock(nn.Module):
                                                   _attn_chunk_size=_attn_chunk_size,
                                                   single_mask=single_mask,
                                                   use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                                                  use_cuequivariance_attention=use_cuequivariance_attention,
                                                   use_lma=use_lma,
                                                   inplace_safe=inplace_safe),
                     single_mask=single_mask,
+                    use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update,
                     inplace_safe=inplace_safe)
 
             single = add(single,
@@ -405,7 +417,7 @@ class TemplatePairStack(nn.Module):
         self.tune_chunk_size = tune_chunk_size
         self.chunk_size_tuner = None
         if tune_chunk_size:
-            self.chunk_size_tuner = ChunkSizeTuner()
+            self.chunk_size_tuner = ChunkSizeTuner(2048)
 
     def forward(
         self,
@@ -413,6 +425,8 @@ class TemplatePairStack(nn.Module):
         mask: torch.tensor,
         chunk_size: int,
         use_deepspeed_evo_attention: bool = False,
+        use_cuequivariance_attention: bool = False,
+        use_cuequivariance_multiplicative_update: bool = False,
         use_lma: bool = False,
         inplace_safe: bool = False,
         _mask_trans: bool = True,
@@ -437,6 +451,8 @@ class TemplatePairStack(nn.Module):
                 mask=mask,
                 chunk_size=chunk_size,
                 use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+                use_cuequivariance_attention=use_cuequivariance_attention,
+                use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update,
                 use_lma=use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=_mask_trans,
@@ -451,10 +467,11 @@ class TemplatePairStack(nn.Module):
                 args=(t.clone(),),
                 min_chunk_size=chunk_size,
             )
+            attn_chunk = tuned_chunk_size if use_cuequivariance_attention else (tuned_chunk_size // 4)
             blocks = [
                 partial(b,
                         chunk_size=tuned_chunk_size,
-                        _attn_chunk_size=max(chunk_size, tuned_chunk_size // 4),
+                        _attn_chunk_size=max(chunk_size, attn_chunk),
                         ) for b in blocks
             ]
 
@@ -528,6 +545,8 @@ def embed_templates_offload(
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=model.globals.chunk_size,
             use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
+            use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+            use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
             use_lma=model.globals.use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
@@ -647,6 +666,8 @@ def embed_templates_average(
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=model.globals.chunk_size,
             use_deepspeed_evo_attention=model.globals.use_deepspeed_evo_attention,
+            use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+            use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
             use_lma=model.globals.use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,

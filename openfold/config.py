@@ -29,6 +29,7 @@ def enforce_config_constraints(config):
         (
             "globals.use_lma",
             "globals.use_flash",
+            "globals.use_cuequivariance_attention",
             "globals.use_deepspeed_evo_attention"
         ),
     ]
@@ -51,6 +52,10 @@ def enforce_config_constraints(config):
             "and that the deepspeed.ops.deepspeed4science package exists"
         )
 
+    cuequivariance_is_installed = importlib.util.find_spec("cuequivariance_torch") is not None
+    if (config.globals.use_cuequivariance_attention or config.globals.use_cuequivariance_multiplicative_update) and not cuequivariance_is_installed:
+        raise ValueError("use_cuequivariance_xxx requires that cuequivariance_torch is installed")
+
     if(
         config.globals.offload_inference and 
         not config.model.template.average_templates
@@ -64,6 +69,8 @@ def model_config(
     low_prec=False, 
     long_sequence_inference=False,
     use_deepspeed_evoformer_attention=False,
+    use_cuequivariance_attention=False,
+    use_cuequivariance_multiplicative_update=False,
 ):
     c = copy.deepcopy(config)
     # TRAINING PRESETS
@@ -240,7 +247,13 @@ def model_config(
     
     if use_deepspeed_evoformer_attention:
         c.globals.use_deepspeed_evo_attention = True 
-    
+
+    if use_cuequivariance_attention:
+        c.globals.use_cuequivariance_attention = True 
+
+    if use_cuequivariance_multiplicative_update:
+        c.globals.use_cuequivariance_multiplicative_update = True 
+
     if train:
         c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
@@ -475,6 +488,11 @@ config = mlc.ConfigDict(
             # use_deepspeed_evo_attention and use_lma. Doesn't work that well
             # on long sequences (>1000 residues).
             "use_flash": False,
+            # Use cuEquivariance kernels for accelerated triangle attention and
+            # triangle multiplicative update operations. Requires CUDA and 
+            # cuequivariance_torch package.
+            "use_cuequivariance_attention": False,
+            "use_cuequivariance_multiplicative_update": False,
             "offload_inference": False,
             "c_z": c_z,
             "c_m": c_m,
