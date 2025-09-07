@@ -71,8 +71,20 @@ def model_config(
     use_deepspeed_evoformer_attention=False,
     use_cuequivariance_attention=False,
     use_cuequivariance_multiplicative_update=False,
+    precision="tf32",
+    trt_mode=None,
+    trt_engine_dir=None,
+    trt_num_profiles=1,
+    trt_optimization_level=3,
+    trt_max_sequence_len=640,
 ):
     c = copy.deepcopy(config)
+    c.precision = precision
+    c.trt.mode = trt_mode
+    c.trt.engine_dir = trt_engine_dir
+    c.trt.num_profiles = trt_num_profiles
+    c.trt.optimization_level = trt_optimization_level
+    c.trt.max_sequence_len = trt_max_sequence_len
     # TRAINING PRESETS
     if name == "initial_training":
         # AF2 Suppl. Table 4, "initial training" setting
@@ -299,6 +311,14 @@ NUM_TEMPLATES = "num templates placeholder"
 
 config = mlc.ConfigDict(
     {
+        "precision": "tf32",
+        "trt": {
+            "mode": None,
+            "engine_dir": None,
+            "num_profiles": 1,
+            "optimization_level": 3,
+            "max_sequence_len": 640
+        },
         "data": {
             "common": {
                 "feat": {

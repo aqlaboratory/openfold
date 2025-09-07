@@ -46,7 +46,7 @@ from openfold.data import templates, feature_pipeline, data_pipeline
 from openfold.data.tools import hhsearch, hmmsearch
 from openfold.np import protein
 from openfold.utils.script_utils import (load_models_from_command_line, parse_fasta, run_model,
-                                         prep_output, relax_protein)
+                                         prep_output)
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.trace_utils import (
     pad_feature_dict_seq,
@@ -187,6 +187,12 @@ def main(args):
         use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
         use_cuequivariance_attention=args.use_cuequivariance_attention,
         use_cuequivariance_multiplicative_update=args.use_cuequivariance_multiplicative_update,
+        precision=args.precision,
+        trt_mode=args.trt_mode,
+        trt_engine_dir=args.trt_engine_dir,
+        trt_num_profiles=args.trt_num_profiles,
+        trt_optimization_level=args.trt_optimization_level,
+        trt_max_sequence_len=args.trt_max_sequence_len,
     )
 
     if args.experiment_config_json:
@@ -493,6 +499,30 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_cuequivariance_multiplicative_update", action="store_true", default=False,
         help="""Use cuEquivariance kernels for triangular multiplicative update computation."""
+    )
+    parser.add_argument(
+        "--trt_mode", type=str, default=None,
+        help="build = Build engine; run = Run engine; None = Disable TRT"
+    )
+    parser.add_argument(
+        "--trt_engine_dir", type=str, default=None,
+        help="Absolute path to directory containing .onnx and .plan files"
+    )
+    parser.add_argument(
+        "--precision", type=str, default="tf32",
+        help="tf32 | fp32 | fp16 | bf16"
+    )
+    parser.add_argument(
+        "--trt_max_sequence_len", type=int, default=640,
+        help="Maximum sequence length supported by TRT, default=640"
+    )
+    parser.add_argument(
+        "--trt_num_profiles", type=int, default=1,
+        help="1 = Single profile[50-800]; 2 = [50-200][200-800]; 4 = [50-100]; [100-200]; [200-400]; [400-800]"
+    )
+    parser.add_argument(
+        "--trt_optimization_level", type=int, default=3,
+        help="Allowed values: 0 to 5"
     )
     add_data_args(parser)
     args = parser.parse_args()
