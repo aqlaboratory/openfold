@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +17,86 @@
 from functools import partialmethod
 from typing import Optional
 from abc import ABC, abstractmethod
+import importlib
 
 import torch
 import torch.nn as nn
+from torch.fx._symbolic_trace import is_fx_tracing
 
 from openfold.model.primitives import Linear, LayerNorm
 from openfold.utils.chunk_utils import chunk_layer
 from openfold.utils.precision_utils import is_fp16_enabled
 from openfold.utils.tensor_utils import add, permute_final_dims
 
+# cuEquivariance import handling
+cuequivariance_is_installed = importlib.util.find_spec("cuequivariance_torch") is not None
+if cuequivariance_is_installed:
+    try:
+        from cuequivariance_torch.primitives.triangle import triangle_multiplicative_update
+    except ImportError:
+        cuequivariance_is_installed = False
+
+
+def _cuequivariance_triangular_mult(
+    x: torch.Tensor,
+    direction: str,
+    mask: Optional[torch.Tensor],
+    norm_in_weight: torch.Tensor,
+    norm_in_bias: torch.Tensor,
+    p_in_weight: torch.Tensor,
+    p_in_bias: torch.Tensor,
+    g_in_weight: torch.Tensor,
+    g_in_bias: torch.Tensor,
+    norm_out_weight: torch.Tensor,
+    norm_out_bias: torch.Tensor,
+    p_out_weight: torch.Tensor,
+    p_out_bias: torch.Tensor,
+    g_out_weight: torch.Tensor,
+    g_out_bias: torch.Tensor,
+    eps: float = 1e-5,
+):
+    """
+    Wrapper function for cuEquivariance triangle multiplicative update.
+    
+    Args:
+        x: [*, N, N, C] input tensor
+        direction: "outgoing" or "incoming" 
+        mask: [*, N, N] mask tensor
+        norm_in_weight: [C] input normalization weight
+        norm_in_bias: [C] input normalization bias
+        p_in_weight: [2*C, C] input projection weight
+        g_in_weight: [2*C, C] input gating weight
+        norm_out_weight: [C] output normalization weight
+        norm_out_bias: [C] output normalization bias
+        p_out_weight: [C, C] output projection weight
+        g_out_weight: [C, C] output gating weight
+        eps: epsilon for numerical stability
+    
+    Returns:
+        [*, N, N, C] output tensor
+    """
+    if not cuequivariance_is_installed:
+        raise ValueError(
+            "_cuequivariance_triangular_mult requires that cuequivariance_torch be installed"
+        )
+    return triangle_multiplicative_update(
+        x=x,
+        direction=direction,
+        mask=mask,
+        norm_in_weight=norm_in_weight,
+        norm_in_bias=norm_in_bias,
+        p_in_weight=p_in_weight,
+        p_in_bias=p_in_bias,
+        g_in_weight=g_in_weight,
+        g_in_bias=g_in_bias,
+        norm_out_weight=norm_out_weight,
+        norm_out_bias=norm_out_bias,
+        p_out_weight=p_out_weight,
+        p_out_bias=p_out_bias,
+        g_out_weight=g_out_weight,
+        g_out_bias=g_out_bias,
+        eps=eps,
+    ).view(x.shape)
 
 class BaseTriangleMultiplicativeUpdate(nn.Module, ABC):
     """
@@ -87,6 +159,7 @@ class BaseTriangleMultiplicativeUpdate(nn.Module, ABC):
         z: torch.Tensor,
         mask: Optional[torch.Tensor] = None,
         inplace_safe: bool = False,
+        use_cuequivariance_multiplicative_update: bool = False,
         _add_with_inplace: bool = False
     ) -> torch.Tensor:
         """
@@ -397,6 +470,7 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         z: torch.Tensor, 
         mask: Optional[torch.Tensor] = None,
         inplace_safe: bool = False,
+        use_cuequivariance_multiplicative_update: bool = False,
         _add_with_inplace: bool = False,
         _inplace_chunk_size: Optional[int] = 256,
     ) -> torch.Tensor:
@@ -409,7 +483,38 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         Returns:
             [*, N_res, N_res, C_z] output tensor
         """
-        if(inplace_safe):
+
+        if use_cuequivariance_multiplicative_update:
+            p_in_weight = torch.cat([self.linear_a_p.weight, self.linear_b_p.weight], dim=0)
+            g_in_weight = torch.cat([self.linear_a_g.weight, self.linear_b_g.weight], dim=0)
+
+            p_in_bias = torch.cat([self.linear_a_p.bias, self.linear_b_p.bias], dim=0)
+            g_in_bias = torch.cat([self.linear_a_g.bias, self.linear_b_g.bias], dim=0)
+
+            result = _cuequivariance_triangular_mult(
+                z,
+                direction="outgoing" if self._outgoing else "incoming",
+                mask=mask,
+                norm_in_weight=self.layer_norm_in.weight,   
+                norm_in_bias=self.layer_norm_in.bias,
+                p_in_weight=p_in_weight,
+                p_in_bias=p_in_bias,
+                g_in_weight=g_in_weight,
+                g_in_bias=g_in_bias,
+                norm_out_weight=self.layer_norm_out.weight,
+                norm_out_bias=self.layer_norm_out.bias,
+                p_out_weight=self.linear_z.weight,
+                p_out_bias=self.linear_z.bias,
+                g_out_weight=self.linear_g.weight,
+                g_out_bias=self.linear_g.bias,
+                eps=1e-5,
+            )
+            # When not inplace_safe (training), caller should have set _add_with_inplace to False
+            if inplace_safe and _add_with_inplace:
+                result += z
+            return result
+
+        if inplace_safe:
             x = self._inference_forward(
                 z, 
                 mask, 
@@ -422,7 +527,7 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
             mask = z.new_ones(z.shape[:-1])
 
         mask = mask.unsqueeze(-1)
-        
+
         z = self.layer_norm_in(z)
         a = mask
         a = a * self.sigmoid(self.linear_a_g(z)) 
@@ -433,13 +538,12 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
 
         # Prevents overflow of torch.matmul in combine projections in
         # reduced-precision modes
-        a_std = a.std()
-        b_std = b.std()
-        if(is_fp16_enabled() and a_std != 0. and b_std != 0.):
-            a = a / a.std()
-            b = b / b.std()
-
-        if(is_fp16_enabled()):
+        if is_fp16_enabled():
+            a_std = a.std()
+            b_std = b.std()
+            if a_std != 0. and b_std != 0.:
+                a = a / a.std()
+                b = b / b.std()
             with torch.cuda.amp.autocast(enabled=False):
                 x = self._combine_projections(a.float(), b.float())
         else:
@@ -545,6 +649,7 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
                 z: torch.Tensor,
                 mask: Optional[torch.Tensor] = None,
                 inplace_safe: bool = False,
+                use_cuequivariance_multiplicative_update: bool = False,
                 _add_with_inplace: bool = False,
                 _inplace_chunk_size: Optional[int] = 256
                 ) -> torch.Tensor:
@@ -557,6 +662,28 @@ class FusedTriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
         Returns:
             [*, N_res, N_res, C_z] output tensor
         """
+
+        if use_cuequivariance_multiplicative_update:
+            direction = "outgoing" if self._outgoing else "incoming"
+            result = _cuequivariance_triangular_mult(
+                x=z,
+                direction=direction,
+                mask=mask,
+                norm_in_weight=self.layer_norm_in.weight,
+                norm_in_bias=self.layer_norm_in.bias,
+                p_in_weight=self.linear_ab_p.weight,
+                g_in_weight=self.linear_ab_g.weight,
+                norm_out_weight=self.layer_norm_out.weight,
+                norm_out_bias=self.layer_norm_out.bias,
+                p_out_weight=self.linear_z.weight,
+                g_out_weight=self.linear_g.weight,
+                eps=1e-5,
+            )
+            # When not inplace_safe (training), caller should have set _add_with_inplace to False
+            if inplace_safe and _add_with_inplace:
+                result += z
+            return result
+
         if (inplace_safe):
             x = self._inference_forward(
                 z,

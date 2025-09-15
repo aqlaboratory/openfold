@@ -1,3 +1,18 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import re
 import copy
 import importlib
@@ -29,6 +44,7 @@ def enforce_config_constraints(config):
         (
             "globals.use_lma",
             "globals.use_flash",
+            "globals.use_cuequivariance_attention",
             "globals.use_deepspeed_evo_attention"
         ),
     ]
@@ -51,6 +67,10 @@ def enforce_config_constraints(config):
             "and that the deepspeed.ops.deepspeed4science package exists"
         )
 
+    cuequivariance_is_installed = importlib.util.find_spec("cuequivariance_torch") is not None
+    if (config.globals.use_cuequivariance_attention or config.globals.use_cuequivariance_multiplicative_update) and not cuequivariance_is_installed:
+        raise ValueError("use_cuequivariance_xxx requires that cuequivariance_torch is installed")
+
     if(
         config.globals.offload_inference and 
         not config.model.template.average_templates
@@ -64,8 +84,22 @@ def model_config(
     low_prec=False, 
     long_sequence_inference=False,
     use_deepspeed_evoformer_attention=False,
+    use_cuequivariance_attention=False,
+    use_cuequivariance_multiplicative_update=False,
+    precision="tf32",
+    trt_mode=None,
+    trt_engine_dir=None,
+    trt_num_profiles=1,
+    trt_optimization_level=3,
+    trt_max_sequence_len=640,
 ):
     c = copy.deepcopy(config)
+    c.precision = precision
+    c.trt.mode = trt_mode
+    c.trt.engine_dir = trt_engine_dir
+    c.trt.num_profiles = trt_num_profiles
+    c.trt.optimization_level = trt_optimization_level
+    c.trt.max_sequence_len = trt_max_sequence_len
     # TRAINING PRESETS
     if name == "initial_training":
         # AF2 Suppl. Table 4, "initial training" setting
@@ -240,7 +274,13 @@ def model_config(
     
     if use_deepspeed_evoformer_attention:
         c.globals.use_deepspeed_evo_attention = True 
-    
+
+    if use_cuequivariance_attention:
+        c.globals.use_cuequivariance_attention = True 
+
+    if use_cuequivariance_multiplicative_update:
+        c.globals.use_cuequivariance_multiplicative_update = True 
+
     if train:
         c.globals.blocks_per_ckpt = 1
         c.globals.chunk_size = None
@@ -286,6 +326,14 @@ NUM_TEMPLATES = "num templates placeholder"
 
 config = mlc.ConfigDict(
     {
+        "precision": "tf32",
+        "trt": {
+            "mode": None,
+            "engine_dir": None,
+            "num_profiles": 1,
+            "optimization_level": 3,
+            "max_sequence_len": 640
+        },
         "data": {
             "common": {
                 "feat": {
@@ -475,6 +523,11 @@ config = mlc.ConfigDict(
             # use_deepspeed_evo_attention and use_lma. Doesn't work that well
             # on long sequences (>1000 residues).
             "use_flash": False,
+            # Use cuEquivariance kernels for accelerated triangle attention and
+            # triangle multiplicative update operations. Requires CUDA and 
+            # cuequivariance_torch package.
+            "use_cuequivariance_attention": False,
+            "use_cuequivariance_multiplicative_update": False,
             "offload_inference": False,
             "c_z": c_z,
             "c_m": c_m,

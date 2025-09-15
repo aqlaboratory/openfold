@@ -1,3 +1,18 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import logging
 import os
@@ -19,10 +34,12 @@ from pytorch_lightning.utilities.deepspeed import (
     convert_zero_checkpoint_to_fp32_state_dict
 )
 
+from .tensorrt_utils import instrument_with_trt_compile
+from .precision_utils import wrap_for_precision
+
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
-
 
 def count_models_to_evaluate(openfold_checkpoint_path, jax_param_path):
     model_count = 0
@@ -50,6 +67,14 @@ def make_output_directory(output_dir, model_name, multiple_model_mode):
     return prediction_dir
 
 
+def _accelerate(model, config):
+    if config.trt.mode is not None:
+        instrument_with_trt_compile(model, config)
+    if config.precision is not None and config.precision in ['bf16', 'fp16']:
+        model.evoformer = wrap_for_precision(model.evoformer, config.precision)
+        model.extra_msa_stack = wrap_for_precision(model.extra_msa_stack, config.precision)
+
+
 def load_models_from_command_line(config, model_device, openfold_checkpoint_path, jax_param_path, output_dir):
     # Create the output directory
 
@@ -71,6 +96,7 @@ def load_models_from_command_line(config, model_device, openfold_checkpoint_path
                 f"Successfully loaded JAX parameters at {path}..."
             )
             output_directory = make_output_directory(output_dir, model_basename, multiple_model_mode)
+            _accelerate(model, config)
             yield model, output_directory
 
     if openfold_checkpoint_path:
@@ -106,6 +132,7 @@ def load_models_from_command_line(config, model_device, openfold_checkpoint_path
                 f"Loaded OpenFold parameters at {path}..."
             )
             output_directory = make_output_directory(output_dir, checkpoint_basename, multiple_model_mode)
+            _accelerate(model, config)
             yield model, output_directory
 
     if not jax_param_path and not openfold_checkpoint_path:

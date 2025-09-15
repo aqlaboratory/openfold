@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -147,6 +148,8 @@ class AlphaFold(nn.Module):
                 chunk_size=self.globals.chunk_size,
                 multichain_mask_2d=multichain_mask_2d,
                 use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                 use_lma=self.globals.use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=self.config._mask_trans
@@ -171,6 +174,8 @@ class AlphaFold(nn.Module):
                 templ_dim,
                 chunk_size=self.globals.chunk_size,
                 use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                 use_lma=self.globals.use_lma,
                 inplace_safe=inplace_safe,
                 _mask_trans=self.config._mask_trans
@@ -382,6 +387,8 @@ class AlphaFold(nn.Module):
                     msa_mask=feats["extra_msa_mask"].to(dtype=m.dtype),
                     chunk_size=self.globals.chunk_size,
                     use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                    use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                    use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                     use_lma=self.globals.use_lma,
                     pair_mask=pair_mask.to(dtype=m.dtype),
                     _mask_trans=self.config._mask_trans,
@@ -395,6 +402,8 @@ class AlphaFold(nn.Module):
                     msa_mask=feats["extra_msa_mask"].to(dtype=m.dtype),
                     chunk_size=self.globals.chunk_size,
                     use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                    use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                    use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                     use_lma=self.globals.use_lma,
                     pair_mask=pair_mask.to(dtype=m.dtype),
                     inplace_safe=inplace_safe,
@@ -414,6 +423,8 @@ class AlphaFold(nn.Module):
                 pair_mask=pair_mask.to(dtype=input_tensors[1].dtype),
                 chunk_size=self.globals.chunk_size,
                 use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                 use_lma=self.globals.use_lma,
                 _mask_trans=self.config._mask_trans,
             )
@@ -427,6 +438,8 @@ class AlphaFold(nn.Module):
                 pair_mask=pair_mask.to(dtype=z.dtype),
                 chunk_size=self.globals.chunk_size,
                 use_deepspeed_evo_attention=self.globals.use_deepspeed_evo_attention,
+                use_cuequivariance_attention=self.globals.use_cuequivariance_attention,
+                use_cuequivariance_multiplicative_update=self.globals.use_cuequivariance_multiplicative_update,
                 use_lma=self.globals.use_lma,
                 use_flash=self.globals.use_flash,
                 inplace_safe=inplace_safe,

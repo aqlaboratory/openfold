@@ -1,4 +1,5 @@
 # Copyright 2021 AlQuraishi Laboratory
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,6 +51,8 @@ class Dropout(nn.Module):
                 Tensor to which dropout is applied. Can have any shape
                 compatible with self.batch_dim
         """
+        if not self.training:
+            return x
         shape = list(x.shape)
         if self.batch_dim is not None:
             for bd in self.batch_dim:

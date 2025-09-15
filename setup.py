@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,15 +53,23 @@ def get_cuda_bare_metal_version(cuda_dir):
         return raw_output, bare_metal_major, bare_metal_minor
 
 compute_capabilities = set([
-    (5, 2), # Titan X
-    (6, 1), # GeForce 1000-series
-    (9, 0), # Hopper
 ])
 
-compute_capabilities.add((7, 0))
 _, bare_metal_major, _ = get_cuda_bare_metal_version(CUDA_HOME)
 if int(bare_metal_major) >= 11:
     compute_capabilities.add((8, 0))
+    compute_capabilities.add((8, 6))
+    compute_capabilities.add((8, 9))
+
+if int(bare_metal_major) >= 12:
+    compute_capabilities.add((9, 0))
+
+if int(bare_metal_major) >= 13:
+    compute_capabilities.add((10, 0))
+    compute_capabilities.add((10, 3))
+    compute_capabilities.add((12, 0))
+else:
+    compute_capabilities.add((7, 0))
 
 compute_capability, _ = get_nvidia_cc()
 if compute_capability is not None:
@@ -74,8 +83,6 @@ for major, minor in list(compute_capabilities):
     ])
 
 extra_cuda_flags += cc_flag
-
-cc_flag = ['-gencode', 'arch=compute_70,code=sm_70']
 
 if bare_metal_major != -1:
     modules = [CUDAExtension(
@@ -127,6 +134,12 @@ setup(
     },
     ext_modules=modules,
     cmdclass={'build_ext': BuildExtension},
+    extras_require={
+        'cuequivariance': [
+            'cuequivariance-torch; sys_platform != "darwin"',  # Not available on macOS
+            'triton>=3.3.0; sys_platform != "darwin"',  # Required for triangle multiplicative update
+        ],
+    },
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',

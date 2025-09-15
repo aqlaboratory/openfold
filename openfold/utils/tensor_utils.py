@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +21,8 @@ from typing import Tuple, List, Callable, Any, Dict, Sequence, Optional
 import torch
 import torch.nn as nn
 
+def maybe_to(x, dtype):
+    return x.to(dtype=dtype) if x is not None and x.dtype in [torch.float32, torch.float16, torch.bfloat16]  else x
 
 def add(m1, m2, inplace):
     # The first operation in a checkpoint can't be in-place, but it's
@@ -33,9 +36,9 @@ def add(m1, m2, inplace):
 
 
 def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
-    zero_index = -1 * len(inds)
-    first_inds = list(range(len(tensor.shape[:zero_index])))
-    return tensor.permute(first_inds + [zero_index + i for i in inds])
+    num_first_dims = len(tensor.shape)-len(inds)
+    first_inds = list(range(num_first_dims))
+    return tensor.permute(first_inds + [num_first_dims + i for i in inds])
 
 
 def flatten_final_dims(t: torch.Tensor, no_dims: int):

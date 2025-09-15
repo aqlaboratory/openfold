@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -658,6 +659,8 @@ class TemplateEmbedder(nn.Module):
         chunk_size,
         _mask_trans=True,
         use_deepspeed_evo_attention=False,
+        use_cuequivariance_attention: bool = False,
+        use_cuequivariance_multiplicative_update: bool = False,
         use_lma=False,
         inplace_safe=False
     ):
@@ -709,6 +712,8 @@ class TemplateEmbedder(nn.Module):
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=chunk_size,
             use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+            use_cuequivariance_attention=use_cuequivariance_attention,
+            use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update,
             use_lma=use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,
@@ -896,6 +901,8 @@ class TemplateEmbedderMultimer(nn.Module):
         multichain_mask_2d,
         _mask_trans=True,
         use_deepspeed_evo_attention=False,
+        use_cuequivariance_attention: bool = False,
+        use_cuequivariance_multiplicative_update: bool = False,
         use_lma=False,
         inplace_safe=False
     ):
@@ -971,6 +978,8 @@ class TemplateEmbedderMultimer(nn.Module):
             padding_mask_2d.unsqueeze(-3).to(dtype=z.dtype), 
             chunk_size=chunk_size,
             use_deepspeed_evo_attention=use_deepspeed_evo_attention,
+            use_cuequivariance_attention=use_cuequivariance_attention,
+            use_cuequivariance_multiplicative_update=use_cuequivariance_multiplicative_update,
             use_lma=use_lma,
             inplace_safe=inplace_safe,
             _mask_trans=_mask_trans,

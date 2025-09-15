@@ -1,5 +1,6 @@
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import argparse
 import logging
 import math
@@ -20,13 +22,13 @@ import os
 import pickle
 import random
 import time
+import torch
 import json
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
 
-import torch
 torch_versions = torch.__version__.split(".")
 torch_major_version = int(torch_versions[0])
 torch_minor_version = int(torch_versions[1])
@@ -44,7 +46,7 @@ from openfold.data import templates, feature_pipeline, data_pipeline
 from openfold.data.tools import hhsearch, hmmsearch
 from openfold.np import protein
 from openfold.utils.script_utils import (load_models_from_command_line, parse_fasta, run_model,
-                                         prep_output, relax_protein)
+                                         prep_output)
 from openfold.utils.tensor_utils import tensor_tree_map
 from openfold.utils.trace_utils import (
     pad_feature_dict_seq,
@@ -183,13 +185,21 @@ def main(args):
         args.config_preset, 
         long_sequence_inference=args.long_sequence_inference,
         use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
-        )
+        use_cuequivariance_attention=args.use_cuequivariance_attention,
+        use_cuequivariance_multiplicative_update=args.use_cuequivariance_multiplicative_update,
+        precision=args.precision,
+        trt_mode=args.trt_mode,
+        trt_engine_dir=args.trt_engine_dir,
+        trt_num_profiles=args.trt_num_profiles,
+        trt_optimization_level=args.trt_optimization_level,
+        trt_max_sequence_len=args.trt_max_sequence_len,
+    )
 
     if args.experiment_config_json:
         with open(args.experiment_config_json, 'r') as f:
             custom_config_dict = json.load(f)
         config.update_from_flattened_dict(custom_config_dict)
-
+    
     if args.trace_model:
         if not config.data.predict.fixed_size:
             raise ValueError(
@@ -481,6 +491,38 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
+    )
+    parser.add_argument(
+        "--use_cuequivariance_attention", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for attention computation."""
+    )
+    parser.add_argument(
+        "--use_cuequivariance_multiplicative_update", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for triangular multiplicative update computation."""
+    )
+    parser.add_argument(
+        "--trt_mode", type=str, default=None,
+        help="build = Build engine; run = Run engine; None = Disable TRT"
+    )
+    parser.add_argument(
+        "--trt_engine_dir", type=str, default=None,
+        help="Absolute path to directory containing .onnx and .plan files"
+    )
+    parser.add_argument(
+        "--precision", type=str, default="tf32",
+        help="tf32 | fp32 | fp16 | bf16"
+    )
+    parser.add_argument(
+        "--trt_max_sequence_len", type=int, default=640,
+        help="Maximum sequence length supported by TRT, default=640"
+    )
+    parser.add_argument(
+        "--trt_num_profiles", type=int, default=1,
+        help="1 = Single profile[50-800]; 2 = [50-200][200-800]; 4 = [50-100]; [100-200]; [200-400]; [400-800]"
+    )
+    parser.add_argument(
+        "--trt_optimization_level", type=int, default=3,
+        help="Allowed values: 0 to 5"
     )
     add_data_args(parser)
     args = parser.parse_args()

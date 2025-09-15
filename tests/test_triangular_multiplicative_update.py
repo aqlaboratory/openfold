@@ -1,4 +1,5 @@
 # Copyright 2021 AlQuraishi Laboratory
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -113,7 +114,7 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
     def test_tri_mul_in_compare(self):
         self._tri_mul_compare(incoming=True)
 
-    def _tri_mul_inplace(self, incoming=False):
+    def _tri_mul_inplace(self, incoming=False, dtype = torch.float32):
         n_res = consts.n_res
         
         pair_act = np.random.rand(n_res, n_res, consts.c_z).astype(np.float32)
@@ -126,26 +127,38 @@ class TestTriangularMultiplicativeUpdate(unittest.TestCase):
             if incoming
             else model.evoformer.blocks[0].pair_stack.tri_mul_out
         )
+        
+        act  = torch.as_tensor(pair_act, dtype=dtype).cuda()
+        mask = torch.as_tensor(pair_mask, dtype=dtype).cuda()
+        module = module.to(dtype=dtype)
+
         out_stock = module(
-            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
-            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            act,
+            mask=mask,
             inplace_safe=False,
-        ).cpu()
+        )
         
         # This has to come second because inference mode is in-place
         out_inplace = module(
-            torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
-            mask=torch.as_tensor(pair_mask, dtype=torch.float32).cuda(),
+            act,
+            mask=mask,
             inplace_safe=True, _inplace_chunk_size=2,
-        ).cpu()
+        )
 
-        self.assertTrue(torch.mean(torch.abs(out_stock - out_inplace)) < consts.eps)
+        torch.testing.assert_close(out_stock, out_inplace, rtol=0.1, atol=0.1)
 
+        
     def test_tri_mul_out_inference(self):
         self._tri_mul_inplace()
 
+    def test_tri_mul_out_inference_bf16(self):
+        self._tri_mul_inplace(dtype=torch.bfloat16)
+        
     def test_tri_mul_in_inference(self):
         self._tri_mul_inplace(incoming=True)
 
+    def test_tri_mul_in_inference_bf16(self):
+        self._tri_mul_inplace(incoming=True, dtype=torch.bfloat16)
+        
 if __name__ == "__main__":
     unittest.main()

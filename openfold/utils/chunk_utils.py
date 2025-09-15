@@ -1,4 +1,5 @@
 # Copyright 2021 AlQuraishi Laboratory
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -252,6 +253,16 @@ def chunk_layer(
     initial_dims = [shape[:no_batch_dims] for shape in _fetch_dims(inputs)]
     orig_batch_dims = tuple([max(s) for s in zip(*initial_dims)])
 
+    flat_batch_dim = 1
+    for d in orig_batch_dims:
+        flat_batch_dim *= d
+
+    no_chunks = flat_batch_dim // chunk_size + (
+        flat_batch_dim % chunk_size != 0
+    )
+    if no_chunks == 1:
+        return layer(**inputs)
+
     def _prep_inputs(t):
         if(not low_mem):
             if not sum(t.shape[:no_batch_dims]) == no_batch_dims:
@@ -266,14 +277,6 @@ def chunk_layer(
     if(_out is not None):
         reshape_fn = lambda t: t.view([-1] + list(t.shape[no_batch_dims:]))
         prepped_outputs = tensor_tree_map(reshape_fn, _out)
-
-    flat_batch_dim = 1
-    for d in orig_batch_dims:
-        flat_batch_dim *= d
-
-    no_chunks = flat_batch_dim // chunk_size + (
-        flat_batch_dim % chunk_size != 0
-    )
 
     i = 0
     out = prepped_outputs
