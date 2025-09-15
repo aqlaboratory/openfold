@@ -29,6 +29,7 @@ class InferenceTask(BaseTask):
             args.jax_param_path,
             args.output_dir)
         )
+        self.cur_tracing_interval = 0
 
     def process_one(self, item):
         tag = item['tag']
@@ -42,7 +43,7 @@ class InferenceTask(BaseTask):
         for model, output_directory in self.model_generator:
             if args.trace_model:
                 rounded_seqlen = item['rounded_seqlen']
-                if rounded_seqlen > cur_tracing_interval:
+                if rounded_seqlen > self.cur_tracing_interval:
                     logger.info(
                         f"Tracing model at {rounded_seqlen} residues..."
                     )
@@ -52,7 +53,7 @@ class InferenceTask(BaseTask):
                     logger.info(
                         f"Tracing time: {tracing_time}"
                     )
-                    cur_tracing_interval = rounded_seqlen
+                    self.cur_tracing_interval = rounded_seqlen
 
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
