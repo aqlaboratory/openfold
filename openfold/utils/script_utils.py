@@ -1,3 +1,7 @@
+# Modifications Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Modified by: NVIDIA
+# Modified on: 25-Aug-2025
+
 import json
 import logging
 import os
@@ -167,7 +171,7 @@ def run_model(model, batch, tag, output_dir):
     return out
 
 
-def prep_output(out, batch, feature_dict, feature_processor, config_preset, multimer_ri_gap, subtract_plddt):
+def prep_output(out, batch, feature_dict, feature_processor_config, config_preset, multimer_ri_gap, subtract_plddt):
     plddt = out["plddt"]
 
     plddt_b_factors = numpy.repeat(
@@ -180,26 +184,26 @@ def prep_output(out, batch, feature_dict, feature_processor, config_preset, mult
     # Prep protein metadata
     template_domain_names = []
     template_chain_index = None
-    if feature_processor.config.common.use_templates and "template_domain_names" in feature_dict:
+    if feature_processor_config.data.common.use_templates and "template_domain_names" in feature_dict:
         template_domain_names = [
             t.decode("utf-8") for t in feature_dict["template_domain_names"]
         ]
 
         # This works because templates are not shuffled during inference
         template_domain_names = template_domain_names[
-                                :feature_processor.config.predict.max_templates
+                                :feature_processor_config.data.predict.max_templates
                                 ]
 
         if "template_chain_index" in feature_dict:
             template_chain_index = feature_dict["template_chain_index"]
             template_chain_index = template_chain_index[
-                                   :feature_processor.config.predict.max_templates
+                                   :feature_processor_config.data.predict.max_templates
                                    ]
 
-    no_recycling = feature_processor.config.common.max_recycling_iters
+    no_recycling = feature_processor_config.data.common.max_recycling_iters
     remark = ', '.join([
         f"no_recycling={no_recycling}",
-        f"max_templates={feature_processor.config.predict.max_templates}",
+        f"max_templates={feature_processor_config.data.predict.max_templates}",
         f"config_preset={config_preset}",
     ])
 
