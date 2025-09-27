@@ -411,12 +411,12 @@ class Attention(nn.Module):
         k = self.linear_k(kv_x)
         v = self.linear_v(kv_x)
 
-        # [*, Q/K, H, C_hidden]
+        # [*, Q/K/V, H, C_hidden]
         q = q.view(q.shape[:-1] + (self.no_heads, -1))
         k = k.view(k.shape[:-1] + (self.no_heads, -1))
         v = v.view(v.shape[:-1] + (self.no_heads, -1))
 
-        # [*, H, Q/K, C_hidden]
+        # [*, H, Q/K/V, C_hidden]
         q = q.transpose(-2, -3)
         k = k.transpose(-2, -3)
         v = v.transpose(-2, -3)
