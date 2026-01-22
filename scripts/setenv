@@ -13,15 +13,15 @@
 # limitations under the License.
 
 module purge
-module load lang/tcsds-1.2.38
+module load lang/tcsds-1.2.42
 
 ############################################################
 # Please set PREFIX, OPENFOLDDIR, DATADIR, PJSUB_OPT
 
-export PREFIX=
-export OPENFOLDDIR=
-export DATADIR=
-export PJSUB_OPT=
+export PREFIX=/vol0004/apps/oss/OpenFold-for-Fugaku/v1.0/opt
+export OPENFOLDDIR=/vol0004/apps/oss/OpenFold-for-Fugaku/v1.0/src
+export DATADIR=/vol0004/apps/oss/OpenFold-for-Fugaku/v1.0/dataset
+export PJSUB_OPT='-x PJM_LLIO_GFSCACHE=/vol0004'
 
 # "fugaku": The Supercomuter Fugaku
 # "psb": A generic supercomuter that uses the PBS job scheduler

@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 #PJM -L "node=1"
 #PJM -L "rscgrp=small"
-#PJM -L "elapse=2:0:00"
+#PJM -L "elapse=12:0:00"
 #PJM --rsc-list "retention_state=0"
 #PJM -j
 #
@@ -113,10 +113,12 @@ popd
 
 # pip packages
 pip3 install -r $OPENFOLDDIR/scripts/install_fugaku_requirements.txt
+pip3 install --no-deps git+https://github.com/openmm/pdbfixer.git@v1.8.1
 
 # patch pytorch-lightning
 pushd $(pip3 show pytorch-lightning | sed -n -e "s/Location: \(.*\)/\1/p")/pytorch_lightning
-patch -p0 < $OPENFOLDDIR/lib/pytorch_lightning.patch
+PATCHFILE=$OPENFOLDDIR/lib/pytorch_lightning.patch
+patch --dry-run --silent -p0 < "$PATCHFILE" && patch -p0 < "$PATCHFILE" || true
 popd
 
 # DeepSpeed
@@ -125,11 +127,12 @@ git clone https://github.com/microsoft/DeepSpeed.git
 pushd DeepSpeed
 git checkout b4e5826a
 patch -p1 < $OPENFOLDDIR/lib/deepspeed.patch
-DS_BUILD_UTILS=1 pip3 install .
+DS_BUILD_UTILS=1 pip3 install --no-build-isolation .
 popd
 
 # mpi4py
-env MPICC=`which mpifcc` pip3 install mpi4py
+#env MPICC=`which mpifcc` pip3 install mpi4py
+env MPICFG="fujitsu-mpi" pip3 install mpi4py==3.1.4
 
 # OpenFold
 pushd $OPENFOLDDIR

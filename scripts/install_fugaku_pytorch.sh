@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 #PJM -L "node=1"
 #PJM -L "rscgrp=small"
-#PJM -L "elapse=4:0:00"
+#PJM -L "elapse=12:0:00"
 #PJM --rsc-list "retention_state=0"
 #PJM -j
 #
@@ -34,12 +34,13 @@ pushd pytorch
 git show 0c49800 --unified=0 > gather_scatter.patch
 sed -i "s|@@ -134|@@ -133|g" gather_scatter.patch
 patch -p1 < gather_scatter.patch
+sed -i 's|https://github.com/driazati/breakpad.git|https://github.com/google/breakpad.git|g' .gitmodules
 popd
 
 pushd pytorch/scripts/fujitsu
 
 # set config
-sed -i "s|TCSDS_PATH=/opt/FJSVstclanga/cp-1.0.21.01|TCSDS_PATH=/opt/FJSVxtclanga/tcsds-1.2.35|g" env.src
+sed -i "s|TCSDS_PATH=/opt/FJSVstclanga/cp-1.0.21.01|TCSDS_PATH=/opt/FJSVxtclanga/tcsds-1.2.42|g" env.src
 sed -i "s|PREFIX=~/prefix|PREFIX=$PREFIX|g" env.src
 sed -i "s|VENV_PATH=~/venv||g" env.src
 # force flushing denormal numbers to zero
@@ -47,6 +48,8 @@ sed -i "s|CFLAGS=-O3 CXXFLAGS=-O3|CFLAGS=-Kfast|g" 5_pytorch.sh
 # Cython<3
 sed -i "s|Cython>=0.29.18|Cython>=0.29.18,<3|g" 4_numpy_scipy.sh
 sed -i "s|Cython>=0.29.21|Cython>=0.29.21,<3|g" 4_numpy_scipy.sh
+
+sed -i "s/pythran/'pythran==0.18.0'/" 4_numpy_scipy.sh
 
 export fjenv_use_venv=false
 bash 1_python.sh
