@@ -136,7 +136,7 @@ env MPICFG="fujitsu-mpi" pip3 install mpi4py==3.1.4
 
 # OpenFold
 pushd $OPENFOLDDIR
-pip3 install -e .
+pip3 install .
 popd
 
 echo "Finished"

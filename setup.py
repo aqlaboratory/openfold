@@ -17,7 +17,7 @@ import os
 from setuptools import setup, Extension, find_packages
 import subprocess
 
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
+# from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
 
 
 version_dependent_macros = [
@@ -89,7 +89,7 @@ setup(
     #         ),
     #     }
     # )],
-    cmdclass={'build_ext': BuildExtension},
+    # cmdclass={'build_ext': BuildExtension},
     install_requires=[
         'torch',
         'deepspeed',
