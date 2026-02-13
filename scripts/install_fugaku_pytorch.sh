@@ -4,6 +4,7 @@
 #PJM -L "elapse=12:0:00"
 #PJM --rsc-list "retention_state=0"
 #PJM -j
+#PJM -s
 #
 # Copyright 2023 RIKEN & Fujitsu Limited
 #
