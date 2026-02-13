@@ -30,9 +30,15 @@ if ! command -v aria2c &> /dev/null ; then
 fi
 
 DOWNLOAD_DIR="$1"
-ROOT_DIR="${DOWNLOAD_DIR}"
-SOURCE_URL="http://wwwuser.gwdg.de/~compbiol/colabfold/uniref30_2103.tar.gz"
+ROOT_DIR="${DOWNLOAD_DIR}/uniref30"
+# Mirror of:
+# https://wwwuser.gwdg.de/~compbiol/uniclust/2021_03/UniRef30_2021_03.tar.gz
+SOURCE_URL="https://storage.googleapis.com/alphafold-databases/v2.3/UniRef30_2021_03.tar.gz"
 BASENAME=$(basename "${SOURCE_URL}")
 
 mkdir --parents "${ROOT_DIR}"
-aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}" -x 4
+aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}" -x 4 --check-certificate=false
+tar --extract --verbose --file="${ROOT_DIR}/${BASENAME}" \
+  --directory="${ROOT_DIR}"
+rm "${ROOT_DIR}/${BASENAME}"
+

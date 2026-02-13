@@ -12,7 +12,9 @@
   },
   "zero_optimization": {
     "stage": 2,
-    "cpu_offload": true,
+    "offload_optimizer": {
+      "device": "cpu"
+    },
     "contiguous_gradients": true
   },
   "activation_checkpointing": {
@@ -20,5 +22,6 @@
     "cpu_checkpointing": false,
     "profile": false
   },
-  "gradient_clipping": 0.1
+  "gradient_clipping": 0.1,
+  "zero_force_ds_cpu_optimizer": false
 }

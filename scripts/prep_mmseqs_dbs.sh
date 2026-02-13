@@ -23,12 +23,12 @@ DOWNLOAD_DIR="$1"
 ROOT_DIR="${DOWNLOAD_DIR}/mmseqs_dbs"
 mkdir -p $ROOT_DIR
 
-for f in $(ls ${DOWNLOAD_DIR}/*.tar.gz)
+for f in $(ls ${DOWNLOAD_DIR}/*.tar*)
 do
   tar --extract --verbose --file="${f}" \
       --directory=$ROOT_DIR
   rm "${f}"
-  BASENAME="$(basename {f%%.*})"
+  BASENAME="$(basename ${f%%.*})"
   DB_NAME="${BASENAME}_db"
   OLD_PWD=$(pwd)
   cd $ROOT_DIR 

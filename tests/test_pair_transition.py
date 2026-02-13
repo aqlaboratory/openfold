@@ -69,14 +69,14 @@ class TestPairTransition(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "pair_transition"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, pair_act, pair_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt.block_until_ready()))
 
         model = compare_utils.get_global_pretrained_openfold()
         out_repro = (
-            model.evoformer.blocks[0].core
+            model.evoformer.blocks[0].pair_stack
             .pair_transition(
                 torch.as_tensor(pair_act, dtype=torch.float32).cuda(),
                 chunk_size=4,

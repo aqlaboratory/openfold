@@ -57,7 +57,7 @@ class AmberRelaxation(object):
         self._use_gpu = use_gpu
 
     def process(
-        self, *, prot: protein.Protein
+        self, *, prot: protein.Protein, cif_output: bool = False
     ) -> Tuple[str, Dict[str, Any], np.ndarray]:
         """Runs Amber relax on a prediction, adds hydrogens, returns PDB string."""
         out = amber_minimize.run_pipeline(
@@ -89,5 +89,11 @@ class AmberRelaxation(object):
         ]
 
         min_pdb = protein.add_pdb_headers(prot, min_pdb)
+        output_str = min_pdb
+        if cif_output:
+            # TODO the model cif will be missing some metadata like headers (PARENTs and
+            #      REMARK with some details of the run, like num of recycles)
+            final_prot = protein.from_pdb_string(min_pdb)
+            output_str = protein.to_modelcif(final_prot)
 
-        return min_pdb, debug_data, violations
+        return output_str, debug_data, violations

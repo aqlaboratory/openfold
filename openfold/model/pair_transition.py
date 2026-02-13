@@ -54,7 +54,8 @@ class PairTransition(nn.Module):
         z = self.relu(z)
 
         # [*, N_res, N_res, C_z]
-        z = self.linear_2(z) * mask
+        z = self.linear_2(z) 
+        z = z * mask
 
         return z
 
@@ -70,7 +71,6 @@ class PairTransition(nn.Module):
             chunk_size=chunk_size,
             no_batch_dims=len(z.shape[:-2]),
         )
-
 
     def forward(self, 
         z: torch.Tensor, 

@@ -1,0 +1,36 @@
+# STOCKHOLM 1.0
+
+#=GS UniRef90_A0A141BHY3/1-51    DE [subseq from] DNA-binding protein n=37 Tax=Staphylococcaceae TaxID=90964 RepID=A0A141BHY3_STAXY
+#=GS UniRef90_UPI000A061283/1-51 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Mammaliicoccus sciuri TaxID=1296 RepID=UPI000A061283
+#=GS UniRef90_UPI001E649B27/1-51 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Mammaliicoccus sciuri TaxID=1296 RepID=UPI001E649B27
+#=GS UniRef90_UPI00201A2D50/1-51 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Staphylococcus aureus TaxID=1280 RepID=UPI00201A2D50
+#=GS UniRef90_UPI0018EDBA69/1-51 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Staphylococcus aureus TaxID=1280 RepID=UPI0018EDBA69
+#=GS UniRef90_UPI0005E12F5A/1-51 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Staphylococcus TaxID=1279 RepID=UPI0005E12F5A
+#=GS UniRef90_UPI00207B21F3/1-51 DE [subseq from] plasmid segregation protein ParR n=2 Tax=Staphylococcus TaxID=1279 RepID=UPI00207B21F3
+#=GS UniRef90_UPI0009836679/1-51 DE [subseq from] plasmid segregation protein ParR n=2 Tax=Staphylococcus aureus TaxID=1280 RepID=UPI0009836679
+#=GS UniRef90_UPI001F5439CD/1-51 DE [subseq from] plasmid segregation protein ParR n=11 Tax=Staphylococcaceae TaxID=90964 RepID=UPI001F5439CD
+#=GS UniRef90_UPI000DA9B884/1-51 DE [subseq from] plasmid segregation protein ParR n=3 Tax=Bacillales TaxID=1385 RepID=UPI000DA9B884
+#=GS UniRef90_A0A0Q9XW80/1-51    DE [subseq from] RHH_1 domain-containing protein n=1 Tax=Staphylococcus sp. NAM3COL9 TaxID=1667172 RepID=A0A0Q9XW80_9STAP
+#=GS UniRef90_UPI001CCC4088/3-48 DE [subseq from] plasmid segregation protein ParR n=1 Tax=Macrococcus armenti TaxID=2875764 RepID=UPI001CCC4088
+#=GS UniRef90_UPI0014612D4C/1-49 DE [subseq from] De novo designed WSHC6 n=2 Tax=synthetic construct TaxID=32630 RepID=UPI0014612D4C
+#=GS UniRef90_UPI000B802FE5/1-42 DE [subseq from] HEEH_rd4_0097 n=1 Tax=Escherichia coli TaxID=562 RepID=UPI000B802FE5
+#=GS UniRef90_UPI001E281CEB/1-54 DE [subseq from] Network hallucinated protein 0738_mod n=1 Tax=synthetic construct TaxID=32630 RepID=UPI001E281CEB
+
+query                               MGSSHHHHHHSSGLVP-GSHMDKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALRRYIEEIGENP
+UniRef90_A0A141BHY3/1-51            --------------------MDKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALRRYIEEIGENP
+UniRef90_UPI000A061283/1-51         --------------------MDKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALRRYIEEMGENP
+UniRef90_UPI001E649B27/1-51         --------------------MDKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALRRYIEEMGDNP
+UniRef90_UPI00201A2D50/1-51         --------------------MEKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALRRYIEEMGDNP
+UniRef90_UPI0018EDBA69/1-51         --------------------MDKKE-TKHLLKIKKEDYPQIFDFLENVPRGTKTAHIREALLRYIEEFGENP
+UniRef90_UPI0005E12F5A/1-51         --------------------MKKKE-TQHLLKIKKEDYPQIFDFLEGLPRGTKTAHIREALLRYIADEGENP
+UniRef90_UPI00207B21F3/1-51         --------------------MSKQE-TNHLLKIKKEDYPQIFDFLENVPKGTKTAHIREALIRYINDLGGSP
+UniRef90_UPI0009836679/1-51         --------------------MDKKE-TQHLLKIKKQDYPQIFNFLEGLPKGTKTAHIREALMRYIAEEGQNP
+UniRef90_UPI001F5439CD/1-51         --------------------MSKQE-TNHLLKIKKKDYPQIFDFLENVPKGTKTAHIREALIRYINDLGGTP
+UniRef90_UPI000DA9B884/1-51         --------------------MDKKE-TQHLLKIKKQDYPQIFNFLEGLPKGTKTAHIREALMRYIAEEGNTP
+UniRef90_A0A0Q9XW80/1-51            --------------------MSKQE-TNHLLKIKKKDYPQIFEFLEGVPKGTKTAHIREALLRYIEELGAPP
+UniRef90_UPI001CCC4088/3-48         ----------------------KEV-NQTLLKIDKAEYPEIYDFLENVPRGTKTAHIREALIRYINDIN---
+UniRef90_UPI0014612D4C/1-49         MGSSHHHHHHSSGLVPRGSHMTEDE-IRKLRKLLEEAEKKLYKLEDKTRR----------------------
+UniRef90_UPI000B802FE5/1-42         MGSSHHHHHHSSGLVPRGSHMDVEEQIRRLEEVLKKNQPVTW------------------------------
+UniRef90_UPI001E281CEB/1-54         MGSSHHHHHHSSGLVPRGSHMNIQV-SLQWE---DPKKGKVFSHTVNIPPGGTAEQIA--------------
+#=GC RF                             xxxxxxxxxxxxxxxx.xxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

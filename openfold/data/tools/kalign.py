@@ -80,7 +80,11 @@ class Kalign:
                     "residues long. Got %s (%d residues)." % (s, len(s))
                 )
 
+<<<<<<< HEAD
         with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
+=======
+        with utils.tmpdir_manager() as query_tmp_dir:
+>>>>>>> e938c184
             input_fasta_path = os.path.join(query_tmp_dir, "input.fasta")
             output_a3m_path = os.path.join(query_tmp_dir, "output.a3m")
 

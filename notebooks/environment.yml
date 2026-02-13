@@ -1,0 +1,17 @@
+name: openfold_venv
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - openmm=7.7
+  - pdbfixer
+  - ml-collections 
+  - PyYAML==5.4.1
+  - requests
+  - typing-extensions
+  - bioconda::hmmer==3.3.2
+  - bioconda::hhsuite==3.3.0
+  - bioconda::kalign2==2.04
+  - pip:
+      - biopython==1.79
+      - dm-tree==0.1.6

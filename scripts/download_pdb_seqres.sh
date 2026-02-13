@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Downloads and unzips all required data for AlphaFold.
+# Downloads and unzips the PDB SeqRes database for AlphaFold.
 #
-# Usage: bash download_all_data.sh /path/to/download/directory
+# Usage: bash download_pdb_seqres.sh /path/to/download/directory
 set -e
 
 if [[ $# -eq 0 ]]; then
@@ -30,24 +30,13 @@ if ! command -v aria2c &> /dev/null ; then
 fi
 
 DOWNLOAD_DIR="$1"
-DOWNLOAD_MODE="${2:-full_dbs}" # Default mode to full_dbs.
-if [[ "${DOWNLOAD_MODE}" != full_dbs && "${DOWNLOAD_MODE}" != reduced_dbs ]]
-then
-  echo "DOWNLOAD_MODE ${DOWNLOAD_MODE} not recognized."
-  exit 1
-fi
+ROOT_DIR="${DOWNLOAD_DIR}/pdb_seqres"
+SOURCE_URL="ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt"
+BASENAME=$(basename "${SOURCE_URL}")
 
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+mkdir --parents "${ROOT_DIR}"
+aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}"
 
-echo "Downloading PDB70..."
-bash "${SCRIPT_DIR}/download_pdb70.sh" "${DOWNLOAD_DIR}"
-
-echo "Downloading PDB mmCIF files..."
-bash "${SCRIPT_DIR}/download_pdb_mmcif.sh" "${DOWNLOAD_DIR}"
-
-if [[ -d openfold/resources/params ]]; then
-    ln -s openfold/resources/params "${DOWNLOAD_DIR}/params"
-    ln -s openfold/resources/openfold_params "${DOWNLOAD_DIR}/params"
-fi
-
-echo "All data downloaded."
+# Keep only protein sequences.
+grep --after-context=1 --no-group-separator '>.* mol:protein' "${ROOT_DIR}/pdb_seqres.txt" > "${ROOT_DIR}/pdb_seqres_filtered.txt"
+mv "${ROOT_DIR}/pdb_seqres_filtered.txt" "${ROOT_DIR}/pdb_seqres.txt"

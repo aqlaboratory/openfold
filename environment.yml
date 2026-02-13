@@ -1,30 +1,40 @@
-name: openfold_venv
+name: openfold-env 
 channels:
   - conda-forge
   - bioconda
   - pytorch
+  - nvidia 
 dependencies:
+  - cuda
+  - gcc=12.4
+  - python=3.10
+  - setuptools=59.5.0
+  - pip
+  - openmm
+  - pdbfixer
+  - pytorch-lightning
+  - biopython
+  - numpy
+  - pandas
+  - PyYAML
+  - requests
+  - scipy
+  - tqdm
+  - typing-extensions
+  - wandb
+  - modelcif==0.7
+  - awscli
+  - ml-collections
+  - aria2
+  - mkl
+  - git
+  - bioconda::hmmer
+  - bioconda::hhsuite
+  - bioconda::kalign2
+  - pytorch::pytorch=2.5
+  - pytorch::pytorch-cuda=12.4
   - pip:
-      - biopython==1.79
-      - deepspeed==0.5.9
+      - deepspeed==0.14.5
       - dm-tree==0.1.6
-      - ml-collections==0.1.0
-      - numpy==1.21.2
-      - PyYAML==5.4.1
-      - requests==2.26.0
-      - scipy==1.7.1
-      - tqdm==4.62.2
-      - typing-extensions==3.10.0.2
-      - pytorch_lightning==1.5.10
       - git+https://github.com/NVIDIA/dllogger.git
-  - pytorch::pytorch=1.10.*
-  - conda-forge::python=3.7
-  - conda-forge::setuptools=59.5.0
-  - conda-forge::pip
-  - conda-forge::openmm=7.5.1
-  - conda-forge::pdbfixer
-  - conda-forge::cudatoolkit==10.2.*
-  - conda-forge::cudatoolkit-dev==10.*
-  - bioconda::hmmer==3.3.2
-  - bioconda::hhsuite==3.3.0
-  - bioconda::kalign2==2.04
+      - flash-attn 

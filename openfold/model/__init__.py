@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import glob
 import importlib as importlib
@@ -18,3 +19,5 @@ if len(_modules) > 0:
 # Avoid needlessly cluttering the global namespace
 del _files, _modules
 
+=======
+>>>>>>> e938c184

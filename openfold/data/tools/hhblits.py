@@ -19,7 +19,11 @@ import glob
 import logging
 import os
 import subprocess
+<<<<<<< HEAD
 from typing import Any, Mapping, Optional, Sequence, Callable
+=======
+from typing import Any, List, Mapping, Optional, Sequence
+>>>>>>> e938c184
 
 from openfold.data.tools import utils
 
@@ -103,6 +107,7 @@ class HHBlits:
         self.z = z
         self.temp_dir = temp_dir
 
+<<<<<<< HEAD
     def query(
             self,
             input_fasta_path: str,
@@ -111,6 +116,11 @@ class HHBlits:
             preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database using HHblits."""
         with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
+=======
+    def query(self, input_fasta_path: str) -> List[Mapping[str, Any]]:
+        """Queries the database using HHblits."""
+        with utils.tmpdir_manager() as query_tmp_dir:
+>>>>>>> e938c184
             a3m_path = os.path.join(query_tmp_dir, "output.a3m")
 
             db_cmd = []
@@ -186,4 +196,4 @@ class HHBlits:
             n_iter=self.n_iter,
             e_value=self.e_value,
         )
-        return raw_output
+        return [raw_output]

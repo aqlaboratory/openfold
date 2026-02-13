@@ -26,6 +26,7 @@ from urllib import request
 import tempfile
 import shutil
 
+from openfold.data import parsers
 from openfold.data.tools import utils
 
 
@@ -103,6 +104,7 @@ class Jackhmmer:
         self.temp_dir = temp_dir
 
     def _query_chunk(
+<<<<<<< HEAD
             self,
             input_fasta_path: str,
             database_path: str,
@@ -111,6 +113,15 @@ class Jackhmmer:
             preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
         with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
+=======
+        self, 
+        input_fasta_path: str, 
+        database_path: str,
+        max_sequences: Optional[int] = None
+    ) -> Mapping[str, Any]:
+        """Queries the database chunk using Jackhmmer."""
+        with utils.tmpdir_manager() as query_tmp_dir:
+>>>>>>> e938c184
             sto_path = os.path.join(query_tmp_dir, "output.sto")
 
             # The F1/F2/F3 are the expected proportion to pass each of the filtering
@@ -185,6 +196,7 @@ class Jackhmmer:
                 with open(tblout_path) as f:
                     tbl = f.read()
 
+<<<<<<< HEAD
             sto_size = os.path.getsize(sto_path)
             return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
             if return_path:
@@ -204,6 +216,13 @@ class Jackhmmer:
                         sto = f.read()
 
             logging.info(f"sto path: {sto_path}, size: {sto_size}, stream_size: {self.stream_sto_size}, stream: {return_path}")
+=======
+            if(max_sequences is None):
+                with open(sto_path) as f:
+                    sto = f.read()
+            else:
+                sto = parsers.truncate_stockholm_msa(sto_path, max_sequences)
+>>>>>>> e938c184
 
         raw_output = dict(
             tbl=tbl,
@@ -218,7 +237,14 @@ class Jackhmmer:
             raw_output["sto"] = sto
 
         return raw_output
+    
+    def query(self, 
+        input_fasta_path: str,
+        max_sequences: Optional[int] = None
+    ) -> Sequence[Sequence[Mapping[str, Any]]]:
+        return self.query_multiple([input_fasta_path], max_sequences)
 
+<<<<<<< HEAD
     def query(
             self,
             input_fasta_path: str,
@@ -232,6 +258,21 @@ class Jackhmmer:
                                       input_label,
                                       timeout=timeout,
                                       preexec_fn=preexec_fn)]
+=======
+    def query_multiple(self, 
+        input_fasta_paths: Sequence[str],
+        max_sequences: Optional[int] = None
+    ) -> Sequence[Sequence[Mapping[str, Any]]]:
+        """Queries the database using Jackhmmer."""
+        if self.num_streamed_chunks is None:
+            single_chunk_results = []
+            for input_fasta_path in input_fasta_paths:
+                single_chunk_result = self._query_chunk(
+                    input_fasta_path, self.database_path, max_sequences,
+                )
+                single_chunk_results.append(single_chunk_result)
+            return single_chunk_results 
+>>>>>>> e938c184
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -246,7 +287,7 @@ class Jackhmmer:
 
         # Download the (i+1)-th chunk while Jackhmmer is running on the i-th chunk
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
-            chunked_output = []
+            chunked_outputs = [[] for _ in range(len(input_fasta_paths))]
             for i in range(1, self.num_streamed_chunks + 1):
                 # Copy the chunk locally
                 if i == 1:
@@ -264,6 +305,7 @@ class Jackhmmer:
 
                 # Run Jackhmmer with the chunk
                 future.result()
+<<<<<<< HEAD
                 chunked_output.append(
                     self._query_chunk(input_fasta_path,
                                       db_local_chunk(i),
@@ -271,10 +313,23 @@ class Jackhmmer:
                                       timeout=timeout,
                                       preexec_fn=preexec_fn)
                 )
+=======
+                for fasta_idx, input_fasta_path in enumerate(input_fasta_paths):
+                    chunked_outputs[fasta_idx].append(
+                        self._query_chunk(
+                            input_fasta_path, 
+                            db_local_chunk(i), 
+                            max_sequences
+                        )
+                    )
+>>>>>>> e938c184
 
                 # Remove the local copy of the chunk
                 os.remove(db_local_chunk(i))
-                future = next_future
+                # Do not set next_future for the last chunk so that this works
+                # even for databases with only 1 chunk
+                if(i < self.num_streamed_chunks):
+                    future = next_future
                 if self.streaming_callback:
                     self.streaming_callback(i)
-        return chunked_output
+        return chunked_outputs

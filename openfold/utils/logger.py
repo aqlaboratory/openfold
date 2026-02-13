@@ -11,16 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import operator
 import time
 
 import dllogger as logger
-import numpy as np
-import torch.cuda.profiler as profiler
 from dllogger import JSONStreamBackend, StdOutBackend, Verbosity
+import numpy as np
 from pytorch_lightning import Callback
+import torch.cuda.profiler as profiler
 
 
 def is_main_process():

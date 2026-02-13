@@ -19,7 +19,11 @@ import io
 from openfold.np import residue_constants
 from Bio import PDB
 import numpy as np
+<<<<<<< HEAD
 from simtk.openmm import app as openmm_app
+=======
+from openmm import app as openmm_app
+>>>>>>> e938c184
 from openmm.app.internal.pdbstructure import PdbStructure
 
 
@@ -80,7 +84,7 @@ def assert_equal_nonterminal_atom_types(
     """Checks that pre- and post-minimized proteins have same atom set."""
     # Ignore any terminal OXT atoms which may have been added by minimization.
     oxt = residue_constants.atom_order["OXT"]
-    no_oxt_mask = np.ones(shape=atom_mask.shape, dtype=np.bool)
+    no_oxt_mask = np.ones(shape=atom_mask.shape, dtype=bool)
     no_oxt_mask[..., oxt] = False
     np.testing.assert_almost_equal(
         ref_atom_mask[no_oxt_mask], atom_mask[no_oxt_mask]

@@ -12,8 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from random import randint
+import torch
 import numpy as np
 from scipy.spatial.transform import Rotation
+
+from tests.config import consts
+
+
+def random_asym_ids(n_res, split_chains=True, min_chain_len=4):
+    n_chain = randint(1, n_res // min_chain_len) if consts.is_multimer else 1
+
+    if not split_chains:
+        return [0] * n_res
+
+    assert n_res >= n_chain
+
+    pieces = []
+    asym_ids = []
+    final_idx = n_chain - 1
+    for idx in range(n_chain - 1):
+        n_stop = (n_res - sum(pieces) - n_chain + idx - min_chain_len)
+        if n_stop <= min_chain_len:
+            final_idx = idx
+            break
+        piece = randint(min_chain_len, n_stop)
+        pieces.append(piece)
+        asym_ids.extend(piece * [idx])
+    asym_ids.extend((n_res - sum(pieces)) * [final_idx])
+
+    return np.array(asym_ids).astype(np.float32) + 1
 
 
 def random_template_feats(n_templ, n, batch_size=None):
@@ -39,6 +67,11 @@ def random_template_feats(n_templ, n, batch_size=None):
     }
     batch = {k: v.astype(np.float32) for k, v in batch.items()}
     batch["template_aatype"] = batch["template_aatype"].astype(np.int64)
+
+    if consts.is_multimer:
+        asym_ids = np.array(random_asym_ids(n))
+        batch["asym_id"] = np.tile(asym_ids[np.newaxis, :], (*b, n_templ, 1))
+
     return batch
 
 
@@ -95,3 +128,17 @@ def random_affines_4x4(dim):
     affines[:, 3, 3] = 1
 
     return affines.reshape(*dim, 4, 4)
+
+
+def random_attention_inputs(batch_size, n_seq, n, no_heads, c_hidden, inf=1e9,
+                            dtype=torch.float32, requires_grad=False):
+    q = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype, requires_grad=requires_grad).cuda()
+    kv = torch.rand(batch_size, n_seq, n, c_hidden, dtype=dtype, requires_grad=requires_grad).cuda()
+
+    mask = torch.randint(0, 2, (batch_size, n_seq, 1, 1, n), dtype=dtype, requires_grad=False).cuda()
+    z_bias = torch.rand(batch_size, 1, no_heads, n, n, dtype=dtype, requires_grad=requires_grad).cuda()
+    mask_bias = inf * (mask - 1)
+
+    biases = [mask_bias, z_bias]
+
+    return q, kv, mask, biases
