@@ -134,6 +134,8 @@ popd
 #env MPICC=`which mpifcc` pip3 install mpi4py
 env MPICFG="fujitsu-mpi" pip3 install mpi4py==3.1.4
 
+pip3 install pandas,wandb,modelcif,mkl
+
 # OpenFold
 pushd $OPENFOLDDIR
 pip3 install .
