@@ -19,20 +19,11 @@ from openfold.data import (
     mmcif_parsing,
     templates,
 )
-<<<<<<< HEAD
 from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
 from openfold.data.tools.utils import load_cif
-=======
-from openfold.utils.tensor_utils import dict_multimap
-from openfold.utils.tensor_utils import (
-    tensor_tree_map,
-)
->>>>>>> e938c184
-
 
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
-<<<<<<< HEAD
         data_dir: str,
         alignment_dir: str, 
         template_mmcif_dir: str,
@@ -51,26 +42,6 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         _structure_index: Optional[Any] = None,
         _alignment_index: Optional[Any] = None,
     ):
-=======
-                 data_dir: str,
-                 alignment_dir: str,
-                 template_mmcif_dir: str,
-                 max_template_date: str,
-                 config: mlc.ConfigDict,
-                 chain_data_cache_path: Optional[str] = None,
-                 kalign_binary_path: str = '/usr/bin/kalign',
-                 max_template_hits: int = 4,
-                 obsolete_pdbs_file_path: Optional[str] = None,
-                 template_release_dates_cache_path: Optional[str] = None,
-                 shuffle_top_k_prefiltered: Optional[int] = None,
-                 treat_pdb_as_distillation: bool = True,
-                 filter_path: Optional[str] = None,
-                 mode: str = "train",
-                 alignment_index: Optional[Any] = None,
-                 _output_raw: bool = False,
-                 _structure_index: Optional[Any] = None,
-                 ):
->>>>>>> e938c184
         """
             Args:
                 data_dir:
@@ -125,7 +96,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self.config = config
         self.treat_pdb_as_distillation = treat_pdb_as_distillation
         self.mode = mode
-        self.alignment_index = alignment_index
+        self.alignment_index = _alignment_index
         self._output_raw = _output_raw
         self._structure_index = _structure_index
 
@@ -141,23 +112,13 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
-<<<<<<< HEAD
-        if(_alignment_index is not None):
+        if _alignment_index is not None:
             self._chain_ids = list(_alignment_index.keys())
         else:
             self._chain_ids = list(os.listdir(alignment_dir))
 
-        if(mapping_path is not None):
+        if mapping_path is not None:
             with open(mapping_path, "r") as f:
-=======
-        if alignment_index is not None:
-            self._chain_ids = list(alignment_index.keys())
-        else:
-            self._chain_ids = list(os.listdir(alignment_dir))
-
-        if filter_path is not None:
-            with open(filter_path, "r") as f:
->>>>>>> e938c184
                 chains_to_include = set([l.strip() for l in f.readlines()])
 
             self._chain_ids = [
@@ -186,11 +147,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     len(missing),
                     missing_examples,
                     chain_data_cache_path)
-<<<<<<< HEAD
-       
-=======
 
->>>>>>> e938c184
         self._chain_id_to_idx_dict = {
             chain: i for i, chain in enumerate(self._chain_ids)
         }
@@ -215,18 +172,8 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         if not self._output_raw:
             self.feature_pipeline = feature_pipeline.FeaturePipeline(config)
 
-<<<<<<< HEAD
-    def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, _alignment_index):
-        mmcif_object = load_cif(path, file_id)
-=======
     def _parse_mmcif(self, path, file_id, chain_id, alignment_dir, alignment_index):
-        with open(path, 'r') as f:
-            mmcif_string = f.read()
-
-        mmcif_object = mmcif_parsing.parse(
-            file_id=file_id, mmcif_string=mmcif_string
-        )
->>>>>>> e938c184
+        mmcif_object = load_cif(path, file_id)
 
         # Crash if an error is encountered. Any parsing errors should have
         # been dealt with at the alignment stage.
@@ -285,11 +232,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                     raise ValueError("Invalid file type")
 
             path += ext
-<<<<<<< HEAD
             if(ext == ".cif" or ext == ".pkl"):
-=======
-            if ext == ".cif":
->>>>>>> e938c184
                 data = self._parse_mmcif(
                     path, file_id, chain_id, alignment_dir, alignment_index,
                 )
@@ -592,80 +535,19 @@ class OpenFoldDataset(torch.utils.data.Dataset):
     """
 
     def __init__(self,
-<<<<<<< HEAD
-        datasets: Sequence[OpenFoldSingleDataset],
-        probabilities: Sequence[int],
-        epoch_len: int,
-        generator: torch.Generator = None,
-        _roll_at_init: bool = True,
-    ):
-=======
                  datasets: Union[Sequence[OpenFoldSingleDataset], Sequence[OpenFoldSingleMultimerDataset]],
                  probabilities: Sequence[float],
                  epoch_len: int,
                  generator: torch.Generator = None,
                  _roll_at_init: bool = True,
                  ):
->>>>>>> e938c184
         self.datasets = datasets
         self.probabilities = probabilities
         self.epoch_len = epoch_len
         self.generator = generator
 
-<<<<<<< HEAD
-        def looped_shuffled_dataset_idx(dataset_len):
-            while True:
-                # Uniformly shuffle each dataset's indices
-                weights = [1. for _ in range(dataset_len)]
-                shuf = torch.multinomial(
-                    torch.tensor(weights),
-                    num_samples=dataset_len,
-                    replacement=False,
-                    generator=self.generator,
-                )
-                for idx in shuf:
-                    yield idx
-
-        def looped_samples(dataset_idx):
-            max_cache_len = int(epoch_len * probabilities[dataset_idx])
-            dataset = self.datasets[dataset_idx]
-            idx_iter = looped_shuffled_dataset_idx(len(dataset))
-            chain_data_cache = dataset.chain_data_cache
-            while True:
-                weights = []
-                idx = []
-                for _ in range(max_cache_len):
-                    candidate_idx = next(idx_iter)
-                    chain_id = dataset.idx_to_chain_id(candidate_idx)
-                    chain_data_cache_entry = chain_data_cache[chain_id]
-                    if(not deterministic_train_filter(chain_data_cache_entry)):
-                        continue
-
-                    p = get_stochastic_train_filter_prob(
-                        chain_data_cache_entry,
-                    )
-                    weights.append([1. - p, p])
-                    idx.append(candidate_idx)
-
-                samples = torch.multinomial(
-                    torch.tensor(weights),
-                    num_samples=1,
-                    generator=self.generator,
-                )
-                samples = samples.squeeze()
-
-                cache = [i for i, s in zip(idx, samples) if s]
-
-                for datapoint_idx in cache:
-                    yield datapoint_idx
-
-        self._samples = [looped_samples(i) for i in range(len(self.datasets))]
-
-        if(_roll_at_init):
-=======
         self._samples = [self.looped_samples(i) for i in range(len(self.datasets))]
         if _roll_at_init:
->>>>>>> e938c184
             self.reroll()
 
     @staticmethod
