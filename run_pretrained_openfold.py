@@ -21,31 +21,7 @@ import os
 import pickle
 import random
 import time
-<<<<<<< HEAD
-import torch
-import tempfile
-
-from openfold.config import model_config
-from openfold.data import templates, feature_pipeline, data_pipeline
-from openfold.model.model import AlphaFold
-from openfold.model.torchscript import script_preset_
-from openfold.np import residue_constants, protein
-import openfold.np.relax.relax as relax
-from openfold.utils.import_weights import (
-    import_jax_weights_,
-)
-from openfold.utils.tensor_utils import (
-    tensor_tree_map,
-)
-from openfold.utils.seed import seed_everything
-
-from scripts.utils import add_data_args
-
-# change logging level for debug
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
-=======
 import json
->>>>>>> e938c184
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -90,25 +66,6 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
             fp.write(f">{tag}\n{seq}")
 
         local_alignment_dir = os.path.join(alignment_dir, tag)
-<<<<<<< HEAD
-        if(args.use_precomputed_alignments is None):
-            logger.info(f"Generating alignments for {tag}...") 
-            if not os.path.exists(local_alignment_dir):
-                os.makedirs(local_alignment_dir)
-            
-            alignment_runner = data_pipeline.AlignmentRunner(
-                jackhmmer_binary_path=args.jackhmmer_binary_path,
-                hhblits_binary_path=args.hhblits_binary_path,
-                hhsearch_binary_path=args.hhsearch_binary_path,
-                uniref90_database_path=args.uniref90_database_path,
-                mgnify_database_path=args.mgnify_database_path,
-                bfd_database_path=args.bfd_database_path,
-                uniclust30_database_path=args.uniclust30_database_path,
-                pdb70_database_path=args.pdb70_database_path,
-                no_cpus=args.cpus,
-                use_small_bfd=args.use_small_bfd,
-            )
-=======
 
         if args.use_precomputed_alignments is None:
             logger.info(f"Generating alignments for {tag}...")
@@ -152,7 +109,6 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     no_cpus=args.cpus
                 )
 
->>>>>>> e938c184
             alignment_runner.run(
                 tmp_fasta_path, local_alignment_dir, input_label=tag
             )
@@ -282,15 +238,11 @@ def main(args):
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
-<<<<<<< HEAD
         random_seed = random.randrange(sys.maxsize)
     seed_everything(random_seed)
-=======
-        random_seed = random.randrange(2 ** 32)
-
-    np.random.seed(random_seed)
-    torch.manual_seed(random_seed + 1)
->>>>>>> e938c184
+# The following was added in v2.2. For now, I'll just leave a comment.
+#    np.random.seed(random_seed)
+#    torch.manual_seed(random_seed + 1)
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
@@ -299,19 +251,9 @@ def main(args):
     else:
         alignment_dir = args.use_precomputed_alignments
 
-<<<<<<< HEAD
-    if args.sub_directory is not None:
-        prediction_dir = os.path.join(args.output_dir, "predictions", args.sub_directory)
-    else:
-        prediction_dir = os.path.join(args.output_dir, "predictions")
-    os.makedirs(prediction_dir, exist_ok=True)
-
-    for fasta_file in os.listdir(args.fasta_dir):
-=======
     tag_list = []
     seq_list = []
     for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
->>>>>>> e938c184
         # Gather input sequences
         fasta_path = os.path.join(args.fasta_dir, fasta_file)
         with open(fasta_path, "r") as fp:
@@ -336,14 +278,9 @@ def main(args):
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
 
-<<<<<<< HEAD
-        if(os.path.exists(unrelaxed_output_path) and args.skip_relaxation):
-            continue
-=======
     if is_multimer and args.openfold_checkpoint_path:
         raise ValueError(
             '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
->>>>>>> e938c184
 
     model_generator = load_models_from_command_line(
         config,
@@ -352,20 +289,12 @@ def main(args):
         args.jax_param_path,
         args.output_dir)
 
-<<<<<<< HEAD
-        _, tmp_fasta_path = tempfile.mkstemp(suffix=".fasta")
-        if(len(seqs) == 1):
-            seq = seqs[0]
-            with open(tmp_fasta_path, "w") as fp:
-                fp.write(f">{tag}\n{seq}")
-=======
     for model, output_directory in model_generator:
         cur_tracing_interval = 0
         for (tag, tags), seqs in sorted_targets:
             output_name = f'{tag}_{args.config_preset}'
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
->>>>>>> e938c184
 
             # Does nothing if the alignments have already been computed
             precompute_alignments(tags, seqs, alignment_dir, args)
@@ -412,42 +341,10 @@ def main(args):
 
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
-<<<<<<< HEAD
-        # Toss out the recycling dimensions --- we don't need them anymore
-        batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
-        out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
-       
-        unrelaxed_protein = prep_output(
-            out, batch, feature_dict, feature_processor, args
-        )
-
-        output_name = f'{tag}_{args.config_preset}'
-        if(args.output_postfix is not None):
-            output_name = f'{output_name}_{args.output_postfix}'
-
-        # Save the unrelaxed PDB.
-        unrelaxed_output_path = os.path.join(
-            prediction_dir, f'{output_name}_unrelaxed.pdb'
-        )
-        with open(unrelaxed_output_path + '.incomp', 'w') as fp:
-            fp.write(protein.to_pdb(unrelaxed_protein))
-        os.rename(unrelaxed_output_path + '.incomp', unrelaxed_output_path)
-
-        logger.info(f"Output written to {unrelaxed_output_path}...")
-
-        if(not args.skip_relaxation):
-            # re-setting cpu affinity. fcc openmp changes the affinity to single core.
-            os.sched_setaffinity(pid, initial_cpu_affinity)
-
-            amber_relaxer = relax.AmberRelaxation(
-                use_gpu=(args.model_device != "cpu"),
-                **config.relax,
-=======
             # Toss out the recycling dimensions --- we don't need them anymore
             processed_feature_dict = tensor_tree_map(
                 lambda x: np.array(x[..., -1].cpu()),
                 processed_feature_dict
->>>>>>> e938c184
             )
             out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
 
@@ -460,12 +357,11 @@ def main(args):
                 args.multimer_ri_gap,
                 args.subtract_plddt
             )
-<<<<<<< HEAD
-            with open(relaxed_output_path + '.incomp', 'w') as fp:
-                fp.write(relaxed_pdb_str)
-            os.rename(relaxed_output_path + '.incomp', relaxed_output_path)
-=======
->>>>>>> e938c184
+
+            # ???
+            # with open(relaxed_output_path + '.incomp', 'w') as fp:
+            #     fp.write(relaxed_pdb_str)
+            # os.rename(relaxed_output_path + '.incomp', relaxed_output_path)
 
             unrelaxed_file_suffix = "_unrelaxed.pdb"
             if args.cif_output:
@@ -571,13 +467,13 @@ if __name__ == "__main__":
         help="""Residue index offset between multiple sequences, if provided"""
     )
     parser.add_argument(
-<<<<<<< HEAD
             "--use_small_bfd", action="store_true", default=False,
     )
     parser.add_argument(
         "--sub_directory", type=str, default=None,
         help="""Name of the sub directory of alignemnt and prediction""",
-=======
+    )
+    parser.add_argument(
         "--trace_model", action="store_true", default=False,
         help="""Whether to convert parts of each model to TorchScript.
                 Significantly improves runtime at the cost of lengthy
@@ -602,7 +498,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
->>>>>>> e938c184
     )
     add_data_args(parser)
     args = parser.parse_args()
@@ -618,7 +513,6 @@ if __name__ == "__main__":
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""
         )
-<<<<<<< HEAD
 
     if(args.sub_directory is not None):
         assert args.use_precomputed_alignments is not None, \
@@ -626,6 +520,4 @@ if __name__ == "__main__":
         args.use_precomputed_alignments = os.path.join(args.use_precomputed_alignments,
                                                        args.sub_directory)
 
-=======
->>>>>>> e938c184
     main(args)
