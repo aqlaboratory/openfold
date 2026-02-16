@@ -133,9 +133,16 @@ popd
 
 # mpi4py
 #env MPICC=`which mpifcc` pip3 install mpi4py
-env MPICFG="fujitsu-mpi" pip3 install mpi4py==3.1.4
+#env MPICFG="fujitsu-mpi" pip3 install mpi4py==3.1.4
+export SETUPTOOLS_USE_DISTUTILS=stdlib
+pip3 install -U "pip<24.1" "setuptools<70" wheel
+env MPICFG=fujitsu-mpi MPICC=/opt/FJSVxtclanga/tcsds-1.2.42/bin/mpifcc \
+ pip3 install --no-build-isolation mpi4py==3.1.4
 
-pip3 install pandas,wandb,modelcif,mkl
+pip3 install pandas
+pip3 install wandb
+pip3 install modelcif
+pip3 install mkl
 
 # OpenFold
 pushd $OPENFOLDDIR

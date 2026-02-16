@@ -44,7 +44,6 @@ pushd pytorch/scripts/fujitsu
 sed -i "s|TCSDS_PATH=/opt/FJSVstclanga/cp-1.0.21.01|TCSDS_PATH=/opt/FJSVxtclanga/tcsds-1.2.42|g" env.src
 sed -i "s|PREFIX=~/prefix|PREFIX=$PREFIX|g" env.src
 sed -i "s|VENV_PATH=~/venv||g" env.src
-sed -i "s|pip future six wheel|pip==25.3 future six wheel|g" 3_venv.sh
 # force flushing denormal numbers to zero
 sed -i "s|CFLAGS=-O3 CXXFLAGS=-O3|CFLAGS=-Kfast|g" 5_pytorch.sh
 # Cython<3
