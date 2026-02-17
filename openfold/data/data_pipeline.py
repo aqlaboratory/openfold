@@ -20,41 +20,15 @@ import collections
 import contextlib
 import dataclasses
 from multiprocessing import cpu_count
-<<<<<<< HEAD
-from typing import Mapping, Optional, Sequence, Any
+import tempfile
+from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
 from pathlib import Path
 import resource
 import logging
 
 import numpy as np
-
-from openfold.data import templates, parsers, mmcif_parsing
-from openfold.data.tools import jackhmmer, hhblits, hhsearch
-from openfold.data.tools.utils import to_date, timing
-from openfold.np import residue_constants, protein
-
-PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
-MGNIFY_OUT_FILENAME    = "mgnify_hits.a3m"
-UNIREF90_OUT_FILENAME  = "uniref90_hits.a3m"
-BFD_OUT_FILENAME       = "bfd_uniclust_hits.a3m"
-SMALL_BFD_OUT_FILENAME_STO = "small_bfd_hits.sto"
-SMALL_BFD_OUT_FILENAME_A3M = "small_bfd_hits.a3m"
-
-FeatureDict = Mapping[str, np.ndarray]
-
-def empty_template_feats(n_res) -> FeatureDict:
-    return {
-        "template_aatype": np.zeros((0, n_res)).astype(np.int64),
-        "template_all_atom_positions": 
-            np.zeros((0, n_res, 37, 3)).astype(np.float32),
-        "template_sum_probs": np.zeros((0, 1)).astype(np.float32),
-        "template_all_atom_mask": np.zeros((0, n_res, 37)).astype(np.float32),
-    }
-=======
-import tempfile
-from typing import Mapping, Optional, Sequence, Any, MutableMapping, Union
-import numpy as np
 import torch
+
 from openfold.data import (
     templates,
     parsers,
@@ -69,12 +43,20 @@ from openfold.data.templates import (
     CustomHitFeaturizer,
 )
 from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
+from openfold.data.tools.utils import to_date, timing
 from openfold.np import residue_constants, protein
+
+PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
+UNIPROT_OUT_FILENAME   = "uniprot_hits.sto"
+MGNIFY_OUT_FILENAME    = "mgnify_hits.sto"
+UNIREF90_OUT_FILENAME  = "uniref90_hits.sto"
+BFD_UNIREF_OUT_FILENAME    = "bfd_uniref_hits.a3m"
+BFD_UNICLUST_OUT_FILENAME  = "bfd_uniclust_hits.a3m"
+SMALL_BFD_OUT_FILENAME_STO = "small_bfd_hits.sto"
+SMALL_BFD_OUT_FILENAME_A3M = "small_bfd_hits.a3m"
 
 FeatureDict = MutableMapping[str, np.ndarray]
 TemplateSearcher = Union[hhsearch.HHSearch, hmmsearch.Hmmsearch]
->>>>>>> e938c184
-
 
 def make_template_features(
     input_sequence: str,
@@ -370,11 +352,13 @@ class AlignmentRunner:
         self,
         jackhmmer_binary_path: Optional[str] = None,
         hhblits_binary_path: Optional[str] = None,
+        hhsearch_binary_path: Optional[str] = None,
         uniref90_database_path: Optional[str] = None,
         mgnify_database_path: Optional[str] = None,
         bfd_database_path: Optional[str] = None,
         uniref30_database_path: Optional[str] = None,
         uniclust30_database_path: Optional[str] = None,
+        pdb70_database_path: Optional[str] = None,
         uniprot_database_path: Optional[str] = None,
         template_searcher: Optional[TemplateSearcher] = None,
         use_small_bfd: Optional[bool] = None,
@@ -382,15 +366,12 @@ class AlignmentRunner:
         no_cpus: Optional[int] = None,
         uniref_max_hits: int = 10000,
         mgnify_max_hits: int = 5000,
-<<<<<<< HEAD
         small_bfd_max_hits: int = None,
         disable_write_permission: Optional[bool] = False,
         timeout: Optional[float] = None,
         stream_sto_size: Optional[int] = None,
         temp_dir: Optional[str] = "/tmp",
-=======
         uniprot_max_hits: int = 50000,
->>>>>>> e938c184
     ):
         """
         Args:
@@ -398,6 +379,8 @@ class AlignmentRunner:
                 Path to jackhmmer binary
             hhblits_binary_path:
                 Path to hhblits binary
+            hhsearch_binary_path:
+                Path to hhsearch binary
             uniref90_database_path:
                 Path to uniref90 database. If provided, jackhmmer_binary_path
                 must also be provided
@@ -414,15 +397,12 @@ class AlignmentRunner:
             uniclust30_database_path:
                 Path to uniclust30. Searched alongside BFD if use_small_bfd is
                 false.
+            pdb70_database_path:
+                Path to pdb70 database.
             use_small_bfd:
-<<<<<<< HEAD
                 Whether to search the BFD database alone with jackhmmer or 
-                in conjunction with uniclust30 with hhblits.
-            convert_small_bfd_t_a3m: Convert small BFD MSAs from STO to A3M.
-=======
-                Whether to search the BFD database alone with jackhmmer or
                 in conjunction with uniref30/uniclust30 with hhblits.
->>>>>>> e938c184
+            convert_small_bfd_t_a3m: Convert small BFD MSAs from STO to A3M.
             no_cpus:
                 The number of CPUs available for alignment. By default, all
                 CPUs are used.
@@ -430,7 +410,6 @@ class AlignmentRunner:
                 Max number of uniref hits
             mgnify_max_hits:
                 Max number of mgnify hits
-<<<<<<< HEAD
             disable_write_permission:
                 Apply chmod 440 after preprocessing
             timeout:
@@ -440,10 +419,8 @@ class AlignmentRunner:
                 if sto file size is larger than this size
             temp_dir:
                 Path to the temporary directory
-=======
             uniprot_max_hits:
                 Max number of uniprot hits
->>>>>>> e938c184
         """
         db_map = {
             "jackhmmer": {
@@ -461,6 +438,12 @@ class AlignmentRunner:
                     bfd_database_path if not use_small_bfd else None,
                 ],
             },
+            "hhsearch": {
+                "binary": hhsearch_binary_path,
+                "dbs": [
+                    pdb70_database_path,
+                ],
+            },
         }
 
         for name, dic in db_map.items():
@@ -472,15 +455,12 @@ class AlignmentRunner:
 
         self.uniref_max_hits = uniref_max_hits
         self.mgnify_max_hits = mgnify_max_hits
-<<<<<<< HEAD
         self.small_bfd_max_hits = small_bfd_max_hits
-=======
-        self.uniprot_max_hits = uniprot_max_hits
->>>>>>> e938c184
         self.use_small_bfd = use_small_bfd
         self.convert_small_bfd_to_a3m = convert_small_bfd_to_a3m
         self.stream_sto_size = stream_sto_size
         self.temp_dir = temp_dir
+        self.uniprot_max_hits = uniprot_max_hits
 
         if(no_cpus is None):
             no_cpus = cpu_count()
@@ -515,12 +495,7 @@ class AlignmentRunner:
                     dbs.append(uniref30_database_path)
                 if (uniclust30_database_path is not None):
                     dbs.append(uniclust30_database_path)
-<<<<<<< HEAD
-
-                self.hhblits_bfd_uniclust_runner = hhblits.HHBlits(
-=======
                 self.hhblits_bfd_unirefclust_runner = hhblits.HHBlits(
->>>>>>> e938c184
                     binary_path=hhblits_binary_path,
                     databases=dbs,
                     n_cpu=no_cpus,
@@ -537,7 +512,6 @@ class AlignmentRunner:
                 temp_dir=self.temp_dir,
             )
 
-<<<<<<< HEAD
         self.hhsearch_pdb70_runner = None
         if(pdb70_database_path is not None):
             self.hhsearch_pdb70_runner = hhsearch.HHSearch(
@@ -547,8 +521,25 @@ class AlignmentRunner:
                 temp_dir=self.temp_dir,
             )
 
+        self.jackhmmer_uniprot_runner = None
+        if(uniprot_database_path is not None):
+            self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
+                binary_path=jackhmmer_binary_path,
+                database_path=uniprot_database_path,
+                n_cpu=no_cpus
+            )
+
         self.disable_write_permission = disable_write_permission
         self.timeout = timeout
+
+        if(template_searcher is not None and
+           self.jackhmmer_uniref90_runner is None
+        ):
+            raise ValueError(
+                "Uniref90 runner must be specified to run template search"
+            )
+
+        self.template_searcher = template_searcher
 
     def is_uncomplted(
             self,
@@ -603,24 +594,6 @@ class AlignmentRunner:
                 )
                 self.move_safely(a3m_temp_path, a3m_path)
             os.remove(sto_path)
-=======
-        self.jackhmmer_uniprot_runner = None
-        if(uniprot_database_path is not None):
-            self.jackhmmer_uniprot_runner = jackhmmer.Jackhmmer(
-                binary_path=jackhmmer_binary_path,
-                database_path=uniprot_database_path,
-                n_cpu=no_cpus
-            )
-
-        if(template_searcher is not None and
-           self.jackhmmer_uniref90_runner is None
-        ):
-            raise ValueError(
-                "Uniref90 runner must be specified to run template search"
-            )
-
-        self.template_searcher = template_searcher
->>>>>>> e938c184
 
     def run(
         self,
@@ -631,7 +604,6 @@ class AlignmentRunner:
         max_memory: int=None,
         create_dir_on_demand: bool=False,
     ):
-<<<<<<< HEAD
         """Runs alignment tools on a sequence and returns path(s) of generated files"""
 
         if max_memory is not None:
@@ -647,6 +619,7 @@ class AlignmentRunner:
 
         generated = []
 
+        uniref90_out_path = None
         if(self.jackhmmer_uniref90_runner is not None or \
            self.hhsearch_pdb70_runner is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
@@ -657,6 +630,7 @@ class AlignmentRunner:
             jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
                 fasta_path,
                 input_label,
+                max_sequences=self.uniref_max_hits,
                 timeout=self.timeout,
                 preexec_fn=preexec_fn,
             )[0]
@@ -668,6 +642,35 @@ class AlignmentRunner:
                 jackhmmer_uniref90_result,
                 timeout=self.timeout,
             )
+            template_msa = jackhmmer_uniref90_result["sto"]
+            template_msa = parsers.deduplicate_stockholm_msa(template_msa)
+            template_msa = parsers.remove_empty_columns_from_stockholm_msa(
+                template_msa
+            )
+
+            if(self.template_searcher is not None):
+                if(self.template_searcher.input_format == "sto"):
+                    pdb_templates_result = self.template_searcher.query(
+                        template_msa,
+                        output_dir=output_dir,
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn
+                    )
+                elif(self.template_searcher.input_format == "a3m"):
+                    uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                        template_msa
+                    )
+                    pdb_templates_result = self.template_searcher.query(
+                        uniref90_msa_as_a3m,
+                        output_dir=output_dir,
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn
+                    )
+                else:
+                    fmt = self.template_searcher.input_format
+                    raise ValueError(
+                        f"Unrecognized template input format: {fmt}"
+                    )
             generated.append(UNIREF90_OUT_FILENAME)
 
         if(self.hhsearch_pdb70_runner is not None):
@@ -694,6 +697,7 @@ class AlignmentRunner:
                 jackhmmer_mgnify_result = self.jackhmmer_mgnify_runner.query(
                     fasta_path,
                     input_label,
+                    max_sequences=self.mgnify_max_hits,
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
                 )[0]
@@ -735,11 +739,17 @@ class AlignmentRunner:
                     self.write_safely(bfd_out_path, jackhmmer_small_bfd_result["sto"])
                 generated.append(bfd_out_filename)
 
-        elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+        elif(self.hhblits_bfd_unirefclust_runner is not None):
+            bfd_out_filename = None
+            for db_name in self.hhblits_bfd_unirefclust_runner.databases:
+                if "uniref" in db_name.lower():
+                    bfd_out_filename = BFD_UNIREF_OUT_FILENAME
+                elif "uniclust" in db_name.lower():
+                    bfd_out_filename = BFD_UNICLUST_OUT_FILENAME
+            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 hhblits_bfd_uniclust_result = (
-                    self.hhblits_bfd_uniclust_runner.query(
+                    self.hhblits_bfd_unirefclust_runner.query(
                         fasta_path,
                         input_label,
                         timeout=self.timeout,
@@ -750,7 +760,27 @@ class AlignmentRunner:
                     os.makedirs(output_dir, exist_ok=True)
                 if output_dir is not None:
                     self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result["a3m"])
-                    generated.append(BFD_OUT_FILENAME)
+                    generated.append(bfd_out_filename)
+
+        if(self.jackhmmer_uniprot_runner is not None):
+            uniprot_out_path = os.path.join(output_dir, UNIPROT_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, uniprot_out_path):
+                jackhmmer_uniprot_result = self.jackhmmer_uniprot_runner.query(
+                    fasta_path,
+                    input_label,
+                    max_sequences=self.uniprot_max_hits,
+                    timeout=self.timeout,
+                    preexec_fn=preexec_fn,
+                )[0]
+                if create_dir_on_demand:
+                    os.makedirs(output_dir, exist_ok=True)
+                self.convert_stockholm_to_a3m_safely(
+                    uniprot_out_path,
+                    self.uniprot_max_hits,
+                    jackhmmer_uniprot_result,
+                    timeout=self.timeout,
+                )
+                generated.append(UNIPROT_OUT_FILENAME)
 
         return generated
 
@@ -762,6 +792,7 @@ class AlignmentRunner:
             ignore_if_exists: bool=False) -> bool:
         """Returns whether any preprocessing processes are launched."""
 
+        uniref90_out_path = None
         if(self.jackhmmer_uniref90_runner is not None or \
            self.hhsearch_pdb70_runner is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
@@ -792,95 +823,23 @@ class AlignmentRunner:
             if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 return True
 
-        elif(self.hhblits_bfd_uniclust_runner is not None):
-            bfd_out_path = os.path.join(output_dir, BFD_OUT_FILENAME)
+        elif(self.hhblits_bfd_unirefclust_runner is not None):
+            bfd_out_filename = None
+            for db_name in self.hhblits_bfd_unirefclust_runner.databases:
+                if "uniref" in db_name.lower():
+                    bfd_out_filename = BFD_UNIREF_OUT_FILENAME
+                elif "uniclust" in db_name.lower():
+                    bfd_out_filename = BFD_UNICLUST_OUT_FILENAME
+            bfd_out_path = os.path.join(output_dir, bfd_out_filename)
             if self.is_uncomplted(ignore_if_exists, bfd_out_path):
                 return True
 
-        return False
-=======
-        """Runs alignment tools on a sequence"""
-        if(self.jackhmmer_uniref90_runner is not None):
-            uniref90_out_path = os.path.join(output_dir, "uniref90_hits.sto")
-
-            jackhmmer_uniref90_result = run_msa_tool(
-                msa_runner=self.jackhmmer_uniref90_runner,
-                fasta_path=fasta_path,
-                msa_out_path=uniref90_out_path,
-                msa_format='sto',
-                max_sto_sequences=self.uniref_max_hits,
-            )
-
-            template_msa = jackhmmer_uniref90_result["sto"]
-            template_msa = parsers.deduplicate_stockholm_msa(template_msa)
-            template_msa = parsers.remove_empty_columns_from_stockholm_msa(
-                template_msa
-            )
-
-            if(self.template_searcher is not None):
-                if(self.template_searcher.input_format == "sto"):
-                    pdb_templates_result = self.template_searcher.query(
-                        template_msa,
-                        output_dir=output_dir
-                    )
-                elif(self.template_searcher.input_format == "a3m"):
-                    uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                        template_msa
-                    )
-                    pdb_templates_result = self.template_searcher.query(
-                        uniref90_msa_as_a3m,
-                        output_dir=output_dir
-                    )
-                else:
-                    fmt = self.template_searcher.input_format
-                    raise ValueError(
-                        f"Unrecognized template input format: {fmt}"
-                    )
-
-        if(self.jackhmmer_mgnify_runner is not None):
-            mgnify_out_path = os.path.join(output_dir, "mgnify_hits.sto")
-            jackhmmer_mgnify_result = run_msa_tool(
-                msa_runner=self.jackhmmer_mgnify_runner,
-                fasta_path=fasta_path,
-                msa_out_path=mgnify_out_path,
-                msa_format='sto',
-                max_sto_sequences=self.mgnify_max_hits
-            )
-
-        if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
-            bfd_out_path = os.path.join(output_dir, "small_bfd_hits.sto")
-            jackhmmer_small_bfd_result = run_msa_tool(
-                msa_runner=self.jackhmmer_small_bfd_runner,
-                fasta_path=fasta_path,
-                msa_out_path=bfd_out_path,
-                msa_format="sto",
-            )
-        elif(self.hhblits_bfd_unirefclust_runner is not None):
-            uni_name = "uni"
-            for db_name in self.hhblits_bfd_unirefclust_runner.databases:
-                if "uniref" in db_name.lower():
-                    uni_name = f"{uni_name}ref"
-                elif "uniclust" in db_name.lower():
-                    uni_name = f"{uni_name}clust"
-
-            bfd_out_path = os.path.join(output_dir, f"bfd_{uni_name}_hits.a3m")
-            hhblits_bfd_unirefclust_result = run_msa_tool(
-                msa_runner=self.hhblits_bfd_unirefclust_runner,
-                fasta_path=fasta_path,
-                msa_out_path=bfd_out_path,
-                msa_format="a3m",
-            )
-
         if(self.jackhmmer_uniprot_runner is not None):
-            uniprot_out_path = os.path.join(output_dir, 'uniprot_hits.sto')
-            result = run_msa_tool(
-                self.jackhmmer_uniprot_runner,
-                fasta_path=fasta_path,
-                msa_out_path=uniprot_out_path,
-                msa_format='sto',
-                max_sto_sequences=self.uniprot_max_hits,
-            )
+            uniprot_out_path = os.path.join(output_dir, UNIPROT_OUT_FILENAME)
+            if self.is_uncomplted(ignore_if_exists, uniprot_out_path):
+                return True
 
+        return False
 
 @dataclasses.dataclass(frozen=True)
 class _FastaChain:
@@ -1021,7 +980,6 @@ def pad_msa(np_example, min_num_seq):
       np_example['cluster_bias_mask'] = np.pad(
           np_example['cluster_bias_mask'], ((0, min_num_seq - num_seq),))
     return np_example
->>>>>>> e938c184
 
 
 class DataPipeline:
@@ -1064,7 +1022,6 @@ class DataPipeline:
                 msa_data[name] = msa
 
             fp.close()
-<<<<<<< HEAD
         else: 
             for dirpath, dirs, files in os.walk(alignment_dir):
                 for f in files:
@@ -1075,7 +1032,7 @@ class DataPipeline:
                         with open(path, "r") as fp:
                             msa, deletion_matrix = parsers.parse_a3m(fp.read())
                         data = {"msa": msa, "deletion_matrix": deletion_matrix}
-                    elif(ext == ".sto"):
+                    elif(ext == ".sto") and filename not in ["uniprot_hits", "hmm_output"]:
                         with open(path, "r") as fp:
                             msa, deletion_matrix, _ = parsers.parse_stockholm(
                                 fp.read()
@@ -1085,25 +1042,6 @@ class DataPipeline:
                         continue
                 
                     msa_data[f] = data
-=======
-        else:
-            for f in os.listdir(alignment_dir):
-                path = os.path.join(alignment_dir, f)
-                filename, ext = os.path.splitext(f)
-
-                if ext == ".a3m":
-                    with open(path, "r") as fp:
-                        msa = parsers.parse_a3m(fp.read())
-                elif ext == ".sto" and filename not in ["uniprot_hits", "hmm_output"]:
-                    with open(path, "r") as fp:
-                        msa = parsers.parse_stockholm(
-                            fp.read()
-                        )
-                else:
-                    continue
-
-                msa_data[f] = msa
->>>>>>> e938c184
 
         return msa_data
 
@@ -1141,24 +1079,17 @@ class DataPipeline:
                     path = os.path.join(dirpath, f)
                     ext = os.path.splitext(f)[-1]
 
-<<<<<<< HEAD
                     if(ext == ".hhr"):
                         with open(path, "r") as fp:
                             hits = parsers.parse_hhr(fp.read())
                         all_hits[f] = hits
-=======
-                if(ext == ".hhr"):
-                    with open(path, "r") as fp:
-                        hits = parsers.parse_hhr(fp.read())
-                    all_hits[f] = hits
-                elif(f == "hmm_output.sto"):
-                    with open(path, "r") as fp:
-                        hits = parsers.parse_hmmsearch_sto(
-                            fp.read(),
-                            input_sequence,
-                        )
-                    all_hits[f] = hits
->>>>>>> e938c184
+                    elif(f == "hmm_output.sto"):
+                        with open(path, "r") as fp:
+                            hits = parsers.parse_hmmsearch_sto(
+                                fp.read(),
+                                input_sequence,
+                            )
+                        all_hits[f] = hits
 
         return all_hits
 
