@@ -29,15 +29,9 @@ import openfold.utils.loss as loss
 from openfold.np.relax import cleanup, utils
 import ml_collections
 import numpy as np
-<<<<<<< HEAD
-from simtk import openmm
-from simtk import unit
-from simtk.openmm import app as openmm_app
-=======
 import openmm
 from openmm import unit
 from openmm import app as openmm_app
->>>>>>> e938c184
 from openmm.app.internal.pdbstructure import PdbStructure
 
 ENERGY = unit.kilocalories_per_mole

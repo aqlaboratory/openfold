@@ -87,10 +87,8 @@ def model_config(
         c.loss.experimentally_resolved.weight = 0.01
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
-<<<<<<< HEAD
         c.model.evoformer_stack.save_activation_to_file = True
         c.globals.recompute_attention = True
-=======
     elif name == "finetuning_no_templ":
         # AF2 Suppl. Table 4, "finetuning" setting
         c.data.train.crop_size = 384
@@ -110,7 +108,6 @@ def model_config(
         c.model.heads.tm.enabled = True
         c.loss.tm.weight = 0.1
     # INFERENCE PRESETS
->>>>>>> e938c184
     elif name == "model_1":
         # AF2 Suppl. Table 5, Model 1.1.1
         c.data.train.max_extra_msa = 5120
@@ -463,12 +460,8 @@ config = mlc.ConfigDict(
                 "use_small_bfd": False,
                 "data_loaders": {
                     "batch_size": 1,
-<<<<<<< HEAD
                     "num_workers": 0,
-=======
-                    "num_workers": 16,
                     "pin_memory": True,
->>>>>>> e938c184
                 },
             },
         },
@@ -493,12 +486,9 @@ config = mlc.ConfigDict(
             "c_e": c_e,
             "c_s": c_s,
             "eps": eps,
-<<<<<<< HEAD
             "recompute_attention": False,
-=======
             "is_multimer": False,
             "seqemb_mode_enabled": False, # Global flag for enabling seq emb mode
->>>>>>> e938c184
         },
         "model": {
             "_mask_trans": False,
