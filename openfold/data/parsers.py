@@ -99,14 +99,10 @@ def parse_fasta(fasta_string: str) -> Tuple[Sequence[str], Sequence[str]]:
     return sequences, descriptions
 
 
-<<<<<<< HEAD
 def parse_stockholm(
     stockholm_string: str,
     max_sequences: Optional[int] = 30000
-) -> Tuple[Sequence[str], DeletionMatrix, Sequence[str]]:
-=======
-def parse_stockholm(stockholm_string: str) -> Msa:
->>>>>>> e938c184
+) -> Msa:
     """Parses sequences and deletion matrix from stockholm format alignment.
 
     Args:
@@ -564,7 +560,6 @@ def parse_e_values_from_tblout(tblout: str) -> Dict[str, float]:
     return e_values
 
 
-<<<<<<< HEAD
 def parse_sto_seq_line(line: str) -> Tuple[str, str]:
     """Parse a sequence line of the Stockholm format."""
 
@@ -653,7 +648,6 @@ def convert_stockholm_to_a3m_stream(
                 seq_count += 1
                 if max_sequences and seq_count >= max_sequences:
                     break
-=======
 def _get_indices(sequence: str, start: int) -> List[int]:
     """Returns indices for non-gap/insert residues starting at the given index."""
     indices = []
@@ -764,4 +758,3 @@ def parse_hmmsearch_sto(
         skip_first=False
     )
     return template_hits
->>>>>>> e938c184

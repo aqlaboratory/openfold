@@ -134,21 +134,14 @@ class AlphaFold(nn.Module):
             self.config["heads"],
         )
 
-<<<<<<< HEAD
         import openfold.utils.kernel.attention_core as attention_core
         attention_core._recompute = self.globals.recompute_attention
 
-    def embed_templates(self, batch, z, pair_mask, templ_dim, inplace_safe): 
-        if(self.template_config.offload_templates):
-            return embed_templates_offload(self, 
-                batch, z, pair_mask, templ_dim, inplace_safe=inplace_safe,
-=======
     def embed_templates(self, batch, feats, z, pair_mask, templ_dim, inplace_safe):
         if self.globals.is_multimer:
             asym_id = feats["asym_id"]
             multichain_mask_2d = (
                 asym_id[..., None] == asym_id[..., None, :]
->>>>>>> e938c184
             )
             template_embeds = self.template_embedder(
                 batch,
