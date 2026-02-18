@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 __pycache__/
 build/
 dist/
@@ -6,20 +5,13 @@ dist/
 preproc/log/
 train/log/
 inference/log/
-openfold/resources/stereo_chemical_props.txt
 *.out
 *.stats
-=======
 .vscode/
 .idea/
-__pycache__/
-*.egg-info
-build
-dist
 
 # files from script downloads
 data
 openfold/resources/
 tests/test_data/
 cutlass/
->>>>>>> e938c184
