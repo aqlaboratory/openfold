@@ -37,6 +37,7 @@ from openfold.data import (
     msa_pairing,
     feature_processing_multimer,
 )
+from openfold.data.parsers import Msa
 from openfold.data.templates import (
     get_custom_template_features,
     empty_template_feats,
@@ -759,7 +760,7 @@ class AlignmentRunner:
                 if create_dir_on_demand:
                     os.makedirs(output_dir, exist_ok=True)
                 if output_dir is not None:
-                    self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result["a3m"])
+                    self.write_safely(bfd_out_path, hhblits_bfd_uniclust_result[0]["a3m"])
                     generated.append(bfd_out_filename)
 
         if(self.jackhmmer_uniprot_runner is not None):
@@ -1030,14 +1031,14 @@ class DataPipeline:
 
                     if(ext == ".a3m"):
                         with open(path, "r") as fp:
-                            msa, deletion_matrix = parsers.parse_a3m(fp.read())
-                        data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                            parsed_a3m = parsers.parse_a3m(fp.read())
+                        data = {"msa": parsed_a3m.sequences, "deletion_matrix": parsed_a3m.deletion_matrix}
                     elif(ext == ".sto") and filename not in ["uniprot_hits", "hmm_output"]:
                         with open(path, "r") as fp:
-                            msa, deletion_matrix, _ = parsers.parse_stockholm(
+                            parsed_msa = parsers.parse_stockholm(
                                 fp.read()
                             )
-                        data = {"msa": msa, "deletion_matrix": deletion_matrix}
+                        data = {"msa": parsed_msa.sequences, "deletion_matrix": parsed_msa.deletion_matrix}
                     else:
                         continue
                 

@@ -270,6 +270,7 @@ class Jackhmmer:
         # Download the (i+1)-th chunk while Jackhmmer is running on the i-th chunk
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
             chunked_outputs = [[] for _ in range(len(input_fasta_paths))]
+            future = None
             for i in range(1, self.num_streamed_chunks + 1):
                 # Copy the chunk locally
                 if i == 1:
@@ -286,7 +287,8 @@ class Jackhmmer:
                     )
 
                 # Run Jackhmmer with the chunk
-                future.result()
+                if future is not None:
+                    future.result()
                 for fasta_idx, input_fasta_path in enumerate(input_fasta_paths):
                     chunked_outputs[fasta_idx].append(
                         self._query_chunk(
