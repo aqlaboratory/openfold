@@ -237,17 +237,6 @@ class PairStack(nn.Module):
 
         del tmu_update
 
-<<<<<<< HEAD
-        z = add(z, 
-            self.ps_dropout_row_layer(
-                self.tri_att_start(
-                    z, 
-                    mask=pair_mask, 
-                    chunk_size=_attn_chunk_size, 
-                    use_lma=use_lma,
-                    inplace_safe=inplace_safe,
-                    use_memory_efficient_kernel=True,
-=======
         z = add(z,
                 self.ps_dropout_row_layer(
                     self.tri_att_start(
@@ -261,24 +250,13 @@ class PairStack(nn.Module):
                     )
                 ),
                 inplace=inplace_safe,
->>>>>>> e938c184
-                )
+        )
 
         z = z.transpose(-2, -3)
         if (inplace_safe):
             z = z.contiguous()
 
         z = add(z,
-<<<<<<< HEAD
-            self.ps_dropout_row_layer(
-                self.tri_att_end(
-                    z,
-                    mask=pair_mask.transpose(-1, -2),
-                    chunk_size=_attn_chunk_size,
-                    use_lma=use_lma,
-                    inplace_safe=inplace_safe,
-                    use_memory_efficient_kernel=True,
-=======
                 self.ps_dropout_row_layer(
                     self.tri_att_end(
                         z,
@@ -291,8 +269,7 @@ class PairStack(nn.Module):
                     )
                 ),
                 inplace=inplace_safe,
->>>>>>> e938c184
-                )
+        )
 
         z = z.transpose(-2, -3)
         if (inplace_safe):
@@ -491,28 +468,6 @@ class EvoformerBlock(MSABlock):
 
         m, z = input_tensors
 
-<<<<<<< HEAD
-        m = add(m, 
-            self.msa_dropout_layer(
-                self.msa_att_row(
-                    m, 
-                    z=z, 
-                    mask=msa_mask, 
-                    chunk_size=_attn_chunk_size,
-                    use_lma=use_lma,
-                    use_memory_efficient_kernel=True,
-                )
-            ),
-            inplace=inplace_safe,
-        )
-        m = add(m, 
-            self.msa_att_col(
-                m, 
-                mask=msa_mask, 
-                chunk_size=chunk_size,
-                use_lma=use_lma,
-                use_memory_efficient_kernel=True,
-=======
         if self.opm_first:
             del m, z
 
@@ -535,7 +490,7 @@ class EvoformerBlock(MSABlock):
                     )
                 ),
                 inplace=inplace_safe,
-                )
+        )
 
         if (_offload_inference and inplace_safe):
             # m: GPU, z: CPU
@@ -557,13 +512,12 @@ class EvoformerBlock(MSABlock):
                         use_flash=use_flash,
                     ),
                     inplace=inplace_safe,
-                    )
+            )
 
         m = add(
             m,
             self.msa_transition(
                 m, mask=msa_trans_mask, chunk_size=chunk_size,
->>>>>>> e938c184
             ),
             inplace=inplace_safe,
         )

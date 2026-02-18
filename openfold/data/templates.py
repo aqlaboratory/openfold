@@ -864,15 +864,7 @@ def _process_single_hit(
     )
 
     # Fail if we can't find the mmCIF file.
-<<<<<<< HEAD
     parsing_result = load_cif(cif_path, hit_pdb_code)
-=======
-    cif_string = _read_file(cif_path)
-
-    parsing_result = mmcif_parsing.parse(
-        file_id=hit_pdb_code, mmcif_string=cif_string
-    )
->>>>>>> e938c184
 
     if parsing_result.mmcif_object is not None:
         hit_release_date = datetime.datetime.strptime(
