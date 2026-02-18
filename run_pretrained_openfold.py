@@ -1,6 +1,7 @@
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
+# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,45 +14,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import argparse
+from datetime import date
+import gc
 import logging
 import math
 import numpy as np
 import os
+
 import pickle
+from pytorch_lightning.utilities.deepspeed import (
+    convert_zero_checkpoint_to_fp32_state_dict
+)
 import random
-import time
-<<<<<<< HEAD
-import torch
+import sys
 import tempfile
-
-from openfold.config import model_config
-from openfold.data import templates, feature_pipeline, data_pipeline
-from openfold.model.model import AlphaFold
-from openfold.model.torchscript import script_preset_
-from openfold.np import residue_constants, protein
-import openfold.np.relax.relax as relax
-from openfold.utils.import_weights import (
-    import_jax_weights_,
-)
-from openfold.utils.tensor_utils import (
-    tensor_tree_map,
-)
-from openfold.utils.seed import seed_everything
-
-from scripts.utils import add_data_args
-
-# change logging level for debug
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
-=======
+import time
+import torch
 import json
->>>>>>> e938c184
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
 
-import torch
 torch_versions = torch.__version__.split(".")
 torch_major_version = int(torch_versions[0])
 torch_minor_version = int(torch_versions[1])
@@ -76,12 +62,18 @@ from openfold.utils.trace_utils import (
     trace_model_,
 )
 
+from openfold.utils.seed import seed_everything
+
 from scripts.precompute_embeddings import EmbeddingGenerator
 from scripts.utils import add_data_args
 
+# change logging level for debug
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
+logging.basicConfig()
+logger = logging.getLogger(__file__)
+logger.setLevel(level=logging.INFO)
 TRACING_INTERVAL = 50
-
 
 def precompute_alignments(tags, seqs, alignment_dir, args):
     for tag, seq in zip(tags, seqs):
@@ -90,25 +82,6 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
             fp.write(f">{tag}\n{seq}")
 
         local_alignment_dir = os.path.join(alignment_dir, tag)
-<<<<<<< HEAD
-        if(args.use_precomputed_alignments is None):
-            logger.info(f"Generating alignments for {tag}...") 
-            if not os.path.exists(local_alignment_dir):
-                os.makedirs(local_alignment_dir)
-            
-            alignment_runner = data_pipeline.AlignmentRunner(
-                jackhmmer_binary_path=args.jackhmmer_binary_path,
-                hhblits_binary_path=args.hhblits_binary_path,
-                hhsearch_binary_path=args.hhsearch_binary_path,
-                uniref90_database_path=args.uniref90_database_path,
-                mgnify_database_path=args.mgnify_database_path,
-                bfd_database_path=args.bfd_database_path,
-                uniclust30_database_path=args.uniclust30_database_path,
-                pdb70_database_path=args.pdb70_database_path,
-                no_cpus=args.cpus,
-                use_small_bfd=args.use_small_bfd,
-            )
-=======
 
         if args.use_precomputed_alignments is None:
             logger.info(f"Generating alignments for {tag}...")
@@ -134,6 +107,7 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     uniref90_database_path=args.uniref90_database_path,
                     template_searcher=template_searcher,
                     no_cpus=args.cpus,
+                    use_small_bfd=args.use_small_bfd,
                 )
                 embedding_generator = EmbeddingGenerator()
                 embedding_generator.run(tmp_fasta_path, alignment_dir)
@@ -148,11 +122,10 @@ def precompute_alignments(tags, seqs, alignment_dir, args):
                     uniclust30_database_path=args.uniclust30_database_path,
                     uniprot_database_path=args.uniprot_database_path,
                     template_searcher=template_searcher,
-                    use_small_bfd=args.bfd_database_path is None,
-                    no_cpus=args.cpus
+                    use_small_bfd=True if args.bfd_database_path is None or args.use_small_bfd else False,
+                    no_cpus=args.cpus,
                 )
 
->>>>>>> e938c184
             alignment_runner.run(
                 tmp_fasta_path, local_alignment_dir, input_label=tag
             )
@@ -231,13 +204,21 @@ def main(args):
         args.config_preset, 
         long_sequence_inference=args.long_sequence_inference,
         use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
-        )
+        use_cuequivariance_attention=args.use_cuequivariance_attention,
+        use_cuequivariance_multiplicative_update=args.use_cuequivariance_multiplicative_update,
+        precision=args.precision,
+        trt_mode=args.trt_mode,
+        trt_engine_dir=args.trt_engine_dir,
+        trt_num_profiles=args.trt_num_profiles,
+        trt_optimization_level=args.trt_optimization_level,
+        trt_max_sequence_len=args.trt_max_sequence_len,
+    )
 
     if args.experiment_config_json:
         with open(args.experiment_config_json, 'r') as f:
             custom_config_dict = json.load(f)
         config.update_from_flattened_dict(custom_config_dict)
-
+    
     if args.trace_model:
         if not config.data.predict.fixed_size:
             raise ValueError(
@@ -282,15 +263,10 @@ def main(args):
     output_dir_base = args.output_dir
     random_seed = args.data_random_seed
     if random_seed is None:
-<<<<<<< HEAD
-        random_seed = random.randrange(sys.maxsize)
-    seed_everything(random_seed)
-=======
         random_seed = random.randrange(2 ** 32)
-
-    np.random.seed(random_seed)
-    torch.manual_seed(random_seed + 1)
->>>>>>> e938c184
+    seed_everything(random_seed)
+    # np.random.seed(random_seed)
+    # torch.manual_seed(random_seed + 1)
     feature_processor = feature_pipeline.FeaturePipeline(config.data)
     if not os.path.exists(output_dir_base):
         os.makedirs(output_dir_base)
@@ -298,20 +274,12 @@ def main(args):
         alignment_dir = os.path.join(output_dir_base, "alignments")
     else:
         alignment_dir = args.use_precomputed_alignments
+        logger.info(f"Using precomputed alignments at {alignment_dir}...")
 
-<<<<<<< HEAD
-    if args.sub_directory is not None:
-        prediction_dir = os.path.join(args.output_dir, "predictions", args.sub_directory)
-    else:
-        prediction_dir = os.path.join(args.output_dir, "predictions")
-    os.makedirs(prediction_dir, exist_ok=True)
-
-    for fasta_file in os.listdir(args.fasta_dir):
-=======
+    # "predictions" and subdir -> nouse
     tag_list = []
     seq_list = []
     for fasta_file in list_files_with_extensions(args.fasta_dir, (".fasta", ".fa")):
->>>>>>> e938c184
         # Gather input sequences
         fasta_path = os.path.join(args.fasta_dir, fasta_file)
         with open(fasta_path, "r") as fp:
@@ -319,12 +287,14 @@ def main(args):
 
         tags, seqs = parse_fasta(data)
 
-        if not is_multimer and len(tags) != 1:
-            print(
-                f"{fasta_path} contains more than one sequence but "
-                f"multimer mode is not enabled. Skipping..."
-            )
-            continue
+#          In v2, multiple inputs during monomer generation cause errors. 
+#          However, for-fugaku does not treat this as an error.
+#        if not is_multimer and len(tags) != 1:
+#            print(
+#                f"{fasta_path} contains more than one sequence but "
+#                f"multimer mode is not enabled. Skipping..."
+#               )
+#            continue
 
         # assert len(tags) == len(set(tags)), "All FASTA tags must be unique"
         tag = '-'.join(tags)
@@ -336,14 +306,9 @@ def main(args):
     sorted_targets = sorted(zip(tag_list, seq_list), key=seq_sort_fn)
     feature_dicts = {}
 
-<<<<<<< HEAD
-        if(os.path.exists(unrelaxed_output_path) and args.skip_relaxation):
-            continue
-=======
-    if is_multimer and args.openfold_checkpoint_path:
-        raise ValueError(
-            '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
->>>>>>> e938c184
+#    if is_multimer and args.openfold_checkpoint_path:
+#        raise ValueError(
+#            '`openfold_checkpoint_path` was specified, but no OpenFold checkpoints are available for multimer mode')
 
     model_generator = load_models_from_command_line(
         config,
@@ -352,20 +317,14 @@ def main(args):
         args.jax_param_path,
         args.output_dir)
 
-<<<<<<< HEAD
-        _, tmp_fasta_path = tempfile.mkstemp(suffix=".fasta")
-        if(len(seqs) == 1):
-            seq = seqs[0]
-            with open(tmp_fasta_path, "w") as fp:
-                fp.write(f">{tag}\n{seq}")
-=======
+ #       _, tmp_fasta_path = tempfile.mkstemp(suffix=".fasta")
+
     for model, output_directory in model_generator:
         cur_tracing_interval = 0
         for (tag, tags), seqs in sorted_targets:
             output_name = f'{tag}_{args.config_preset}'
             if args.output_postfix is not None:
                 output_name = f'{output_name}_{args.output_postfix}'
->>>>>>> e938c184
 
             # Does nothing if the alignments have already been computed
             precompute_alignments(tags, seqs, alignment_dir, args)
@@ -412,42 +371,10 @@ def main(args):
 
             out = run_model(model, processed_feature_dict, tag, args.output_dir)
 
-<<<<<<< HEAD
-        # Toss out the recycling dimensions --- we don't need them anymore
-        batch = tensor_tree_map(lambda x: np.array(x[..., -1].cpu()), batch)
-        out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
-       
-        unrelaxed_protein = prep_output(
-            out, batch, feature_dict, feature_processor, args
-        )
-
-        output_name = f'{tag}_{args.config_preset}'
-        if(args.output_postfix is not None):
-            output_name = f'{output_name}_{args.output_postfix}'
-
-        # Save the unrelaxed PDB.
-        unrelaxed_output_path = os.path.join(
-            prediction_dir, f'{output_name}_unrelaxed.pdb'
-        )
-        with open(unrelaxed_output_path + '.incomp', 'w') as fp:
-            fp.write(protein.to_pdb(unrelaxed_protein))
-        os.rename(unrelaxed_output_path + '.incomp', unrelaxed_output_path)
-
-        logger.info(f"Output written to {unrelaxed_output_path}...")
-
-        if(not args.skip_relaxation):
-            # re-setting cpu affinity. fcc openmp changes the affinity to single core.
-            os.sched_setaffinity(pid, initial_cpu_affinity)
-
-            amber_relaxer = relax.AmberRelaxation(
-                use_gpu=(args.model_device != "cpu"),
-                **config.relax,
-=======
             # Toss out the recycling dimensions --- we don't need them anymore
             processed_feature_dict = tensor_tree_map(
                 lambda x: np.array(x[..., -1].cpu()),
                 processed_feature_dict
->>>>>>> e938c184
             )
             out = tensor_tree_map(lambda x: np.array(x.cpu()), out)
 
@@ -460,12 +387,6 @@ def main(args):
                 args.multimer_ri_gap,
                 args.subtract_plddt
             )
-<<<<<<< HEAD
-            with open(relaxed_output_path + '.incomp', 'w') as fp:
-                fp.write(relaxed_pdb_str)
-            os.rename(relaxed_output_path + '.incomp', relaxed_output_path)
-=======
->>>>>>> e938c184
 
             unrelaxed_file_suffix = "_unrelaxed.pdb"
             if args.cif_output:
@@ -473,6 +394,8 @@ def main(args):
             unrelaxed_output_path = os.path.join(
                 output_directory, f'{output_name}{unrelaxed_file_suffix}'
             )
+
+#        os.rename(unrelaxed_output_path + '.incomp', unrelaxed_output_path)
 
             with open(unrelaxed_output_path, 'w') as fp:
                 if args.cif_output:
@@ -487,6 +410,16 @@ def main(args):
                 logger.info(f"Running relaxation on {unrelaxed_output_path}...")
                 relax_protein(config, args.model_device, unrelaxed_protein, output_directory, output_name,
                               args.cif_output)
+
+            # re-setting cpu affinity. fcc openmp changes the affinity to single core.
+            #os.sched_setaffinity(pid, initial_cpu_affinity)
+
+            #amber_relaxer = relax.AmberRelaxation(
+            #    use_gpu=(args.model_device != "cpu"),
+            #    **config.relax,
+               #)
+            
+            #os.rename(relaxed_output_path + '.incomp', relaxed_output_path)
 
             if args.save_outputs:
                 output_dict_path = os.path.join(
@@ -570,14 +503,16 @@ if __name__ == "__main__":
         "--multimer_ri_gap", type=int, default=200,
         help="""Residue index offset between multiple sequences, if provided"""
     )
+#
     parser.add_argument(
-<<<<<<< HEAD
             "--use_small_bfd", action="store_true", default=False,
     )
     parser.add_argument(
         "--sub_directory", type=str, default=None,
         help="""Name of the sub directory of alignemnt and prediction""",
-=======
+    )
+#
+    parser.add_argument(
         "--trace_model", action="store_true", default=False,
         help="""Whether to convert parts of each model to TorchScript.
                 Significantly improves runtime at the cost of lengthy
@@ -602,7 +537,38 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
->>>>>>> e938c184
+    )
+    parser.add_argument(
+        "--use_cuequivariance_attention", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for attention computation."""
+    )
+    parser.add_argument(
+        "--use_cuequivariance_multiplicative_update", action="store_true", default=False,
+        help="""Use cuEquivariance kernels for triangular multiplicative update computation."""
+    )
+    parser.add_argument(
+        "--trt_mode", type=str, default=None,
+        help="build = Build engine; run = Run engine; None = Disable TRT"
+    )
+    parser.add_argument(
+        "--trt_engine_dir", type=str, default=None,
+        help="Absolute path to directory containing .onnx and .plan files"
+    )
+    parser.add_argument(
+        "--precision", type=str, default="tf32",
+        help="tf32 | fp32 | fp16 | bf16"
+    )
+    parser.add_argument(
+        "--trt_max_sequence_len", type=int, default=640,
+        help="Maximum sequence length supported by TRT, default=640"
+    )
+    parser.add_argument(
+        "--trt_num_profiles", type=int, default=1,
+        help="1 = Single profile[50-800]; 2 = [50-200][200-800]; 4 = [50-100]; [100-200]; [200-400]; [400-800]"
+    )
+    parser.add_argument(
+        "--trt_optimization_level", type=int, default=3,
+        help="Allowed values: 0 to 5"
     )
     add_data_args(parser)
     args = parser.parse_args()
@@ -618,7 +584,6 @@ if __name__ == "__main__":
             """The model is being run on CPU. Consider specifying 
             --model_device for better performance"""
         )
-<<<<<<< HEAD
 
     if(args.sub_directory is not None):
         assert args.use_precomputed_alignments is not None, \
@@ -626,6 +591,4 @@ if __name__ == "__main__":
         args.use_precomputed_alignments = os.path.join(args.use_precomputed_alignments,
                                                        args.sub_directory)
 
-=======
->>>>>>> e938c184
     main(args)
