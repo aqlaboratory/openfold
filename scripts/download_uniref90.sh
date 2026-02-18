@@ -36,11 +36,4 @@ BASENAME=$(basename "${SOURCE_URL}")
 
 mkdir --parents "${ROOT_DIR}"
 aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}"
-<<<<<<< HEAD
-pushd "${ROOT_DIR}"
-gunzip "${BASENAME}"
-popd
-=======
 gunzip "${ROOT_DIR}/${BASENAME}"
-
->>>>>>> e938c184
