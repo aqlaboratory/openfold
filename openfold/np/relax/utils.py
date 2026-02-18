@@ -19,11 +19,7 @@ import io
 from openfold.np import residue_constants
 from Bio import PDB
 import numpy as np
-<<<<<<< HEAD
-from simtk.openmm import app as openmm_app
-=======
 from openmm import app as openmm_app
->>>>>>> e938c184
 from openmm.app.internal.pdbstructure import PdbStructure
 
 
