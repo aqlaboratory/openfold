@@ -142,7 +142,6 @@ env MPICFG=fujitsu-mpi MPICC=/opt/FJSVxtclanga/tcsds-1.2.42/bin/mpifcc \
 pip3 install pandas
 pip3 install wandb
 pip3 install modelcif
-pip3 install mkl
 
 # OpenFold
 pushd $OPENFOLDDIR
