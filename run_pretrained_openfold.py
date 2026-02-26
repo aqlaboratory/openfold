@@ -62,7 +62,7 @@ from openfold.utils.trace_utils import (
     trace_model_,
 )
 
-from openfold.utils.seed import seed_everything
+from pytorch_lightning import seed_everything
 
 from scripts.precompute_embeddings import EmbeddingGenerator
 from scripts.utils import add_data_args
