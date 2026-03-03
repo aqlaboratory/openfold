@@ -22,26 +22,27 @@ from openfold.data import (
 from openfold.utils.tensor_utils import tensor_tree_map, dict_multimap
 from openfold.data.tools.utils import load_cif
 
+
 class OpenFoldSingleDataset(torch.utils.data.Dataset):
     def __init__(self,
-        data_dir: str,
-        alignment_dir: str, 
-        template_mmcif_dir: str,
-        max_template_date: str,
-        config: mlc.ConfigDict,
-        chain_data_cache_path: Optional[str] = None,
-        kalign_binary_path: str = '/usr/bin/kalign',
-        max_template_hits: int = 4,
-        obsolete_pdbs_file_path: Optional[str] = None,
-        template_release_dates_cache_path: Optional[str] = None,
-        shuffle_top_k_prefiltered: Optional[int] = None,
-        treat_pdb_as_distillation: bool = True,
-        mapping_path: Optional[str] = None,
-        mode: str = "train", 
-        _output_raw: bool = False,
-        _structure_index: Optional[Any] = None,
-        _alignment_index: Optional[Any] = None,
-    ):
+                 data_dir: str,
+                 alignment_dir: str,
+                 template_mmcif_dir: str,
+                 max_template_date: str,
+                 config: mlc.ConfigDict,
+                 chain_data_cache_path: Optional[str] = None,
+                 kalign_binary_path: str = '/usr/bin/kalign',
+                 max_template_hits: int = 4,
+                 obsolete_pdbs_file_path: Optional[str] = None,
+                 template_release_dates_cache_path: Optional[str] = None,
+                 shuffle_top_k_prefiltered: Optional[int] = None,
+                 treat_pdb_as_distillation: bool = True,
+                 filter_path: Optional[str] = None,
+                 mode: str = "train",
+                 alignment_index: Optional[Any] = None,
+                 _output_raw: bool = False,
+                 _structure_index: Optional[Any] = None,
+                 ):
         """
             Args:
                 data_dir:
@@ -96,7 +97,7 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
         self.config = config
         self.treat_pdb_as_distillation = treat_pdb_as_distillation
         self.mode = mode
-        self.alignment_index = _alignment_index
+        self.alignment_index = alignment_index
         self._output_raw = _output_raw
         self._structure_index = _structure_index
 
@@ -112,13 +113,13 @@ class OpenFoldSingleDataset(torch.utils.data.Dataset):
                 "scripts/generate_mmcif_cache.py before running OpenFold"
             )
 
-        if _alignment_index is not None:
-            self._chain_ids = list(_alignment_index.keys())
+        if alignment_index is not None:
+            self._chain_ids = list(alignment_index.keys())
         else:
             self._chain_ids = list(os.listdir(alignment_dir))
 
-        if mapping_path is not None:
-            with open(mapping_path, "r") as f:
+        if filter_path is not None:
+            with open(filter_path, "r") as f:
                 chains_to_include = set([l.strip() for l in f.readlines()])
 
             self._chain_ids = [
