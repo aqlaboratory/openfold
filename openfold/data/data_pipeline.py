@@ -47,7 +47,8 @@ from openfold.data.tools import jackhmmer, hhblits, hhsearch, hmmsearch
 from openfold.data.tools.utils import to_date, timing
 from openfold.np import residue_constants, protein
 
-PDB70_OUT_FILENAME     = "pdb70_hits.hhr"
+HHSEARCH_OUT_FILENAME   = "hhsearch_output.hhr"
+HMMSEARCH_OUT_FILENAME   = "hmm_output.sto"
 UNIPROT_OUT_FILENAME   = "uniprot_hits.sto"
 MGNIFY_OUT_FILENAME    = "mgnify_hits.sto"
 UNIREF90_OUT_FILENAME  = "uniref90_hits.sto"
@@ -353,13 +354,11 @@ class AlignmentRunner:
         self,
         jackhmmer_binary_path: Optional[str] = None,
         hhblits_binary_path: Optional[str] = None,
-        hhsearch_binary_path: Optional[str] = None,
         uniref90_database_path: Optional[str] = None,
         mgnify_database_path: Optional[str] = None,
         bfd_database_path: Optional[str] = None,
         uniref30_database_path: Optional[str] = None,
         uniclust30_database_path: Optional[str] = None,
-        pdb70_database_path: Optional[str] = None,
         uniprot_database_path: Optional[str] = None,
         template_searcher: Optional[TemplateSearcher] = None,
         use_small_bfd: Optional[bool] = None,
@@ -380,8 +379,6 @@ class AlignmentRunner:
                 Path to jackhmmer binary
             hhblits_binary_path:
                 Path to hhblits binary
-            hhsearch_binary_path:
-                Path to hhsearch binary
             uniref90_database_path:
                 Path to uniref90 database. If provided, jackhmmer_binary_path
                 must also be provided
@@ -398,12 +395,11 @@ class AlignmentRunner:
             uniclust30_database_path:
                 Path to uniclust30. Searched alongside BFD if use_small_bfd is
                 false.
-            pdb70_database_path:
-                Path to pdb70 database.
             use_small_bfd:
-                Whether to search the BFD database alone with jackhmmer or 
+                Whether to search the BFD database alone with jackhmmer or
                 in conjunction with uniref30/uniclust30 with hhblits.
-            convert_small_bfd_t_a3m: Convert small BFD MSAs from STO to A3M.
+            convert_small_bfd_to_a3m:
+                Convert small BFD MSAs from STO to A3M.
             no_cpus:
                 The number of CPUs available for alignment. By default, all
                 CPUs are used.
@@ -437,12 +433,6 @@ class AlignmentRunner:
                 "binary": hhblits_binary_path,
                 "dbs": [
                     bfd_database_path if not use_small_bfd else None,
-                ],
-            },
-            "hhsearch": {
-                "binary": hhsearch_binary_path,
-                "dbs": [
-                    pdb70_database_path,
                 ],
             },
         }
@@ -510,15 +500,6 @@ class AlignmentRunner:
                 database_path=mgnify_database_path,
                 n_cpu=no_cpus,
                 stream_sto_size=stream_sto_size,
-                temp_dir=self.temp_dir,
-            )
-
-        self.hhsearch_pdb70_runner = None
-        if(pdb70_database_path is not None):
-            self.hhsearch_pdb70_runner = hhsearch.HHSearch(
-                binary_path=hhsearch_binary_path,
-                databases=[pdb70_database_path],
-                n_cpu=no_cpus,
                 temp_dir=self.temp_dir,
             )
 
@@ -621,76 +602,53 @@ class AlignmentRunner:
         generated = []
 
         uniref90_out_path = None
-        if(self.jackhmmer_uniref90_runner is not None or \
-           self.hhsearch_pdb70_runner is not None):
+        if(self.jackhmmer_uniref90_runner is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
-            uniref90_msa_as_a3m = None
 
-        if(self.jackhmmer_uniref90_runner is not None and \
-           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
-            jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
-                fasta_path,
-                input_label,
-                max_sequences=self.uniref_max_hits,
-                timeout=self.timeout,
-                preexec_fn=preexec_fn,
-            )[0]
-            if create_dir_on_demand:
-                os.makedirs(output_dir, exist_ok=True)
-            self.convert_stockholm_to_a3m_safely(
-                uniref90_out_path,
-                self.uniref_max_hits,
-                jackhmmer_uniref90_result,
-                timeout=self.timeout,
-            )
-            template_msa = jackhmmer_uniref90_result["sto"]
-            template_msa = parsers.deduplicate_stockholm_msa(template_msa)
-            template_msa = parsers.remove_empty_columns_from_stockholm_msa(
-                template_msa
-            )
-
-            if(self.template_searcher is not None):
-                if(self.template_searcher.input_format == "sto"):
-                    pdb_templates_result = self.template_searcher.query(
-                        template_msa,
-                        output_dir=output_dir,
-                        timeout=self.timeout,
-                        preexec_fn=preexec_fn
-                    )
-                elif(self.template_searcher.input_format == "a3m"):
-                    uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                        template_msa
-                    )
-                    pdb_templates_result = self.template_searcher.query(
-                        uniref90_msa_as_a3m,
-                        output_dir=output_dir,
-                        timeout=self.timeout,
-                        preexec_fn=preexec_fn
-                    )
-                else:
-                    fmt = self.template_searcher.input_format
-                    raise ValueError(
-                        f"Unrecognized template input format: {fmt}"
-                    )
-            generated.append(UNIREF90_OUT_FILENAME)
-
-        if(self.hhsearch_pdb70_runner is not None):
-            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
-            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
-                if uniref90_msa_as_a3m is None:
-                    with open(uniref90_out_path, "r") as f:
-                        uniref90_msa_as_a3m = f.read()
-
-                hhsearch_result = self.hhsearch_pdb70_runner.query(
-                    uniref90_msa_as_a3m,
+            if(self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
+                jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
+                    fasta_path,
                     input_label,
+                    max_sequences=self.uniref_max_hits,
                     timeout=self.timeout,
                     preexec_fn=preexec_fn,
-                )
+                )[0]
                 if create_dir_on_demand:
                     os.makedirs(output_dir, exist_ok=True)
-                self.write_safely(pdb70_out_path, hhsearch_result)
-                generated.append(PDB70_OUT_FILENAME)
+                self.write_safely(uniref90_out_path, jackhmmer_uniref90_result["sto"])
+                generated.append(UNIREF90_OUT_FILENAME)
+
+                template_msa = jackhmmer_uniref90_result["sto"]
+                template_msa = parsers.deduplicate_stockholm_msa(template_msa)
+                template_msa = parsers.remove_empty_columns_from_stockholm_msa(
+                    template_msa
+                )
+
+                if(self.template_searcher is not None):
+                    if(self.template_searcher.input_format == "sto"):
+                        pdb_templates_result = self.template_searcher.query(
+                            template_msa,
+                            output_dir=output_dir,
+                            timeout=self.timeout,
+                            preexec_fn=preexec_fn
+                        )
+                        generated.append(HMMSEARCH_OUT_FILENAME)
+                    elif(self.template_searcher.input_format == "a3m"):
+                        uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                            template_msa
+                        )
+                        pdb_templates_result = self.template_searcher.query(
+                            uniref90_msa_as_a3m,
+                            output_dir=output_dir,
+                            timeout=self.timeout,
+                            preexec_fn=preexec_fn
+                        )
+                        generated.append(HHSEARCH_OUT_FILENAME)
+                    else:
+                        fmt = self.template_searcher.input_format
+                        raise ValueError(
+                            f"Unrecognized template input format: {fmt}"
+                        )
 
         if(self.jackhmmer_mgnify_runner is not None):
             mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
@@ -704,12 +662,7 @@ class AlignmentRunner:
                 )[0]
                 if create_dir_on_demand:
                     os.makedirs(output_dir, exist_ok=True)
-                self.convert_stockholm_to_a3m_safely(
-                    mgnify_out_path,
-                    self.mgnify_max_hits,
-                    jackhmmer_mgnify_result,
-                    timeout=self.timeout,
-                )
+                self.write_safely(mgnify_out_path, jackhmmer_mgnify_result["sto"])
                 generated.append(MGNIFY_OUT_FILENAME)
 
         if(self.use_small_bfd and self.jackhmmer_small_bfd_runner is not None):
@@ -793,19 +746,9 @@ class AlignmentRunner:
             ignore_if_exists: bool=False) -> bool:
         """Returns whether any preprocessing processes are launched."""
 
-        uniref90_out_path = None
-        if(self.jackhmmer_uniref90_runner is not None or \
-           self.hhsearch_pdb70_runner is not None):
+        if(self.jackhmmer_uniref90_runner is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
-            uniref90_msa_as_a3m = None
-
-        if(self.jackhmmer_uniref90_runner is not None and \
-           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
-            return True
-
-        if(self.hhsearch_pdb70_runner is not None):
-            pdb70_out_path = os.path.join(output_dir, PDB70_OUT_FILENAME)
-            if self.is_uncomplted(ignore_if_exists, pdb70_out_path):
+            if self.is_uncomplted(ignore_if_exists, uniref90_out_path):
                 return True
 
         if(self.jackhmmer_mgnify_runner is not None):
@@ -1027,7 +970,7 @@ class DataPipeline:
             for dirpath, dirs, files in os.walk(alignment_dir):
                 for f in files:
                     path = os.path.join(dirpath, f)
-                    ext = os.path.splitext(f)[-1]
+                    filename, ext = os.path.splitext(f)
 
                     if(ext == ".a3m"):
                         with open(path, "r") as fp:
@@ -1066,7 +1009,7 @@ class DataPipeline:
                 if(ext == ".hhr"):
                     hits = parsers.parse_hhr(read_template(start, size))
                     all_hits[name] = hits
-                elif(name == "hmmsearch_output.sto"):
+                elif(name == HMMSEARCH_OUT_FILENAME):
                     hits = parsers.parse_hmmsearch_sto(
                         read_template(start, size),
                         input_sequence,
@@ -1084,7 +1027,7 @@ class DataPipeline:
                         with open(path, "r") as fp:
                             hits = parsers.parse_hhr(fp.read())
                         all_hits[f] = hits
-                    elif(f == "hmm_output.sto"):
+                    elif(f == HMMSEARCH_OUT_FILENAME):
                         with open(path, "r") as fp:
                             hits = parsers.parse_hmmsearch_sto(
                                 fp.read(),
