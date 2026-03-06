@@ -620,7 +620,6 @@ def convert_stockholm_to_a3m_stream(
         with open(a3m_path, "w") as a3m:
             query_seqname = None
             query_seq = None
-            query_non_gaps = None
             seq_count = 0
             for seqname, fps in seq_fps.items():
                 aligned_seq = ""
@@ -644,14 +643,12 @@ def convert_stockholm_to_a3m_stream(
                     desc = ""
 
                 # Convert sto format to a3m line by line
-                if query_non_gaps is not None:
-                    a3m_seq = "".join(_convert_sto_seq_to_a3m(query_non_gaps, aligned_seq))
-                else:
-                    a3m_seq = aligned_seq
+                a3m_seq = "".join(_convert_sto_seq_to_a3m(query_non_gaps, aligned_seq))
                 a3m.write(f">{seqname} {desc}\n{a3m_seq}\n")
                 seq_count += 1
                 if max_sequences and seq_count >= max_sequences:
                     break
+
 def _get_indices(sequence: str, start: int) -> List[int]:
     """Returns indices for non-gap/insert residues starting at the given index."""
     indices = []

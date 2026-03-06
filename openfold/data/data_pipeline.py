@@ -975,13 +975,13 @@ class DataPipeline:
                     if(ext == ".a3m"):
                         with open(path, "r") as fp:
                             parsed_a3m = parsers.parse_a3m(fp.read())
-                        data = {"msa": parsed_a3m.sequences, "deletion_matrix": parsed_a3m.deletion_matrix}
+                        data = parsed_a3m
                     elif(ext == ".sto") and filename not in ["uniprot_hits", "hmm_output"]:
                         with open(path, "r") as fp:
                             parsed_msa = parsers.parse_stockholm(
                                 fp.read()
                             )
-                        data = {"msa": parsed_msa.sequences, "deletion_matrix": parsed_msa.deletion_matrix}
+                        data = parsed_msa
                     else:
                         continue
                 
