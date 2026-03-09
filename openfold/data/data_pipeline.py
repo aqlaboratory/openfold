@@ -435,6 +435,18 @@ class AlignmentRunner:
                     bfd_database_path if not use_small_bfd else None,
                 ],
             },
+            "hhsearch": {
+                "binary": template_searcher.binary_path if template_searcher is not None and template_searcher.input_format == "a3m" else None,
+                "dbs": [
+                    template_searcher.database_path if template_searcher is not None  and template_searcher.input_format == "a3m" else None,
+                ],
+            },
+            "hmmsearch": {
+                "binary": template_searcher.binary_path if template_searcher is not None and template_searcher.input_format == "sto" else None,
+                "dbs": [
+                    template_searcher.database_path if template_searcher is not None  and template_searcher.input_format == "sto" else None,
+                ],
+            },
         }
 
         for name, dic in db_map.items():
@@ -513,13 +525,6 @@ class AlignmentRunner:
 
         self.disable_write_permission = disable_write_permission
         self.timeout = timeout
-
-        if(template_searcher is not None and
-           self.jackhmmer_uniref90_runner is None
-        ):
-            raise ValueError(
-                "Uniref90 runner must be specified to run template search"
-            )
 
         self.template_searcher = template_searcher
 
@@ -602,53 +607,65 @@ class AlignmentRunner:
         generated = []
 
         uniref90_out_path = None
-        if(self.jackhmmer_uniref90_runner is not None):
+        if(self.jackhmmer_uniref90_runner is not None or \
+           self.template_searcher is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
 
-            if(self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
-                jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
-                    fasta_path,
-                    input_label,
-                    max_sequences=self.uniref_max_hits,
-                    timeout=self.timeout,
-                    preexec_fn=preexec_fn,
-                )[0]
-                if create_dir_on_demand:
-                    os.makedirs(output_dir, exist_ok=True)
-                self.write_safely(uniref90_out_path, jackhmmer_uniref90_result["sto"])
-                generated.append(UNIREF90_OUT_FILENAME)
+        if(self.jackhmmer_uniref90_runner is not None and \
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
+            jackhmmer_uniref90_result = self.jackhmmer_uniref90_runner.query(
+                fasta_path,
+                input_label,
+                max_sequences=self.uniref_max_hits,
+                timeout=self.timeout,
+                preexec_fn=preexec_fn,
+            )[0]
+            if create_dir_on_demand:
+                os.makedirs(output_dir, exist_ok=True)
+            self.write_safely(uniref90_out_path, jackhmmer_uniref90_result["sto"])
+            generated.append(UNIREF90_OUT_FILENAME)
 
-                template_msa = jackhmmer_uniref90_result["sto"]
+        if(self.template_searcher is not None):
+            if(self.template_searcher.input_format == "sto"):
+                template_searcher_out_path = os.path.join(output_dir, HMMSEARCH_OUT_FILENAME)
+            elif(self.template_searcher.input_format == "a3m"):
+                template_searcher_out_path = os.path.join(output_dir, HHSEARCH_OUT_FILENAME)
+            else:
+                fmt = self.template_searcher.input_format
+                raise ValueError(
+                    f"Unrecognized template input format: {fmt}"
+                )
+
+            if self.is_uncomplted(ignore_if_exists, template_searcher_out_path):
+                template_msa = None
+                with open(uniref90_out_path, "r") as f:
+                    template_msa = f.read()
                 template_msa = parsers.deduplicate_stockholm_msa(template_msa)
                 template_msa = parsers.remove_empty_columns_from_stockholm_msa(
                     template_msa
                 )
 
-                if(self.template_searcher is not None):
-                    if(self.template_searcher.input_format == "sto"):
-                        pdb_templates_result = self.template_searcher.query(
-                            template_msa,
-                            output_dir=output_dir,
-                            timeout=self.timeout,
-                            preexec_fn=preexec_fn
-                        )
-                        generated.append(HMMSEARCH_OUT_FILENAME)
-                    elif(self.template_searcher.input_format == "a3m"):
-                        uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
-                            template_msa
-                        )
-                        pdb_templates_result = self.template_searcher.query(
-                            uniref90_msa_as_a3m,
-                            output_dir=output_dir,
-                            timeout=self.timeout,
-                            preexec_fn=preexec_fn
-                        )
-                        generated.append(HHSEARCH_OUT_FILENAME)
-                    else:
-                        fmt = self.template_searcher.input_format
-                        raise ValueError(
-                            f"Unrecognized template input format: {fmt}"
-                        )
+                if(self.template_searcher.input_format == "sto"):
+                    pdb_templates_result = self.template_searcher.query(
+                        template_msa,
+                        input_label,
+                        output_dir=output_dir,
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn
+                    )
+                    generated.append(HMMSEARCH_OUT_FILENAME)
+                elif(self.template_searcher.input_format == "a3m"):
+                    uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
+                        template_msa
+                    )
+                    pdb_templates_result = self.template_searcher.query(
+                        uniref90_msa_as_a3m,
+                        input_label,
+                        output_dir=output_dir,
+                        timeout=self.timeout,
+                        preexec_fn=preexec_fn
+                    )
+                    generated.append(HHSEARCH_OUT_FILENAME)
 
         if(self.jackhmmer_mgnify_runner is not None):
             mgnify_out_path = os.path.join(output_dir, MGNIFY_OUT_FILENAME)
@@ -746,9 +763,24 @@ class AlignmentRunner:
             ignore_if_exists: bool=False) -> bool:
         """Returns whether any preprocessing processes are launched."""
 
-        if(self.jackhmmer_uniref90_runner is not None):
+        if(self.jackhmmer_uniref90_runner is not None or \
+           self.template_searcher is not None):
             uniref90_out_path = os.path.join(output_dir, UNIREF90_OUT_FILENAME)
-            if self.is_uncomplted(ignore_if_exists, uniref90_out_path):
+        if(self.jackhmmer_uniref90_runner is not None and \
+           self.is_uncomplted(ignore_if_exists, uniref90_out_path)):
+            return True
+
+        if(self.template_searcher is not None):
+            if(self.template_searcher.input_format == "sto"):
+                template_searcher_out_path = os.path.join(output_dir, HMMSEARCH_OUT_FILENAME)
+            elif(self.template_searcher.input_format == "a3m"):
+                template_searcher_out_path = os.path.join(output_dir, HHSEARCH_OUT_FILENAME)
+            else:
+                fmt = self.template_searcher.input_format
+                raise ValueError(
+                    f"Unrecognized template input format: {fmt}"
+                )
+            if self.is_uncomplted(ignore_if_exists, template_searcher_out_path):
                 return True
 
         if(self.jackhmmer_mgnify_runner is not None):
