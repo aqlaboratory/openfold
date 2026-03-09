@@ -297,6 +297,10 @@ def main(args):
         available_databases.append("uniref30")
     if args.uniclust30_database_path is not None:
         available_databases.append("uniclust30")
+    if args.pdb70_database_path is not None:
+        available_databases.append("pdb70")
+    if args.pdb_seqres_database_path is not None:
+        available_databases.append("pdb_seqres")
     if args.uniprot_database_path is not None:
         available_databases.append("uniprot")
 
