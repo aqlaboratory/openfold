@@ -509,6 +509,7 @@ class EvoformerBlock(MSABlock):
                         chunk_size=chunk_size,
                         use_deepspeed_evo_attention=use_deepspeed_evo_attention,
                         use_lma=use_lma,
+                        use_memory_efficient_kernel=True,
                         use_flash=use_flash,
                     ),
                     inplace=inplace_safe,
