@@ -435,19 +435,18 @@ class AlignmentRunner:
                     bfd_database_path if not use_small_bfd else None,
                 ],
             },
-            "hhsearch": {
-                "binary": template_searcher.binary_path if template_searcher is not None and template_searcher.input_format == "a3m" else None,
-                "dbs": [
-                    template_searcher.database_path if template_searcher is not None  and template_searcher.input_format == "a3m" else None,
-                ],
-            },
-            "hmmsearch": {
-                "binary": template_searcher.binary_path if template_searcher is not None and template_searcher.input_format == "sto" else None,
-                "dbs": [
-                    template_searcher.database_path if template_searcher is not None  and template_searcher.input_format == "sto" else None,
-                ],
-            },
         }
+        if template_searcher is not None:
+            if template_searcher.input_format == "a3m":
+                db_map["hhsearch"] = {
+                    "binary": template_searcher.binary_path,
+                    "dbs": template_searcher.databases,
+                }
+            elif template_searcher.input_format == "sto":
+                db_map["hmmsearch"] = {
+                    "binary": template_searcher.binary_path,
+                    "dbs": [template_searcher.database_path],
+                }
 
         for name, dic in db_map.items():
             binary, dbs = dic["binary"], dic["dbs"]
