@@ -118,7 +118,7 @@ def main(args):
                 a3m = fp.read()
 
             hhsearch_result = hhsearch_pdb70_runner.query(a3m)
-            pdb70_out_path = os.path.join(dpath, "pdb70_hits.hhr")
+            pdb70_out_path = os.path.join(dpath, "hhsearch_output.hhr")
             with open(pdb70_out_path, "w") as f:
                 f.write(hhsearch_result)
 
