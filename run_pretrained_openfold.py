@@ -1,7 +1,6 @@
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
-# Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,30 +13,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
-from datetime import date
-import gc
 import logging
 import math
 import numpy as np
 import os
-
 import pickle
-from pytorch_lightning.utilities.deepspeed import (
-    convert_zero_checkpoint_to_fp32_state_dict
-)
 import random
-import sys
-import tempfile
 import time
-import torch
+import tempfile
 import json
+
+# change logging level for debug
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(level=logging.INFO)
 
+import torch
 torch_versions = torch.__version__.split(".")
 torch_major_version = int(torch_versions[0])
 torch_minor_version = int(torch_versions[1])
@@ -67,12 +61,6 @@ from pytorch_lightning import seed_everything
 from scripts.precompute_embeddings import EmbeddingGenerator
 from scripts.utils import add_data_args
 
-# change logging level for debug
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :%(message)s")
-
-logging.basicConfig()
-logger = logging.getLogger(__file__)
-logger.setLevel(level=logging.INFO)
 TRACING_INTERVAL = 50
 
 def precompute_alignments(tags, seqs, alignment_dir, args):
@@ -204,14 +192,6 @@ def main(args):
         args.config_preset, 
         long_sequence_inference=args.long_sequence_inference,
         use_deepspeed_evoformer_attention=args.use_deepspeed_evoformer_attention,
-        use_cuequivariance_attention=args.use_cuequivariance_attention,
-        use_cuequivariance_multiplicative_update=args.use_cuequivariance_multiplicative_update,
-        precision=args.precision,
-        trt_mode=args.trt_mode,
-        trt_engine_dir=args.trt_engine_dir,
-        trt_num_profiles=args.trt_num_profiles,
-        trt_optimization_level=args.trt_optimization_level,
-        trt_max_sequence_len=args.trt_max_sequence_len,
     )
 
     if args.experiment_config_json:
@@ -537,38 +517,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_deepspeed_evoformer_attention", action="store_true", default=False, 
         help="Whether to use the DeepSpeed evoformer attention layer. Must have deepspeed installed in the environment.",
-    )
-    parser.add_argument(
-        "--use_cuequivariance_attention", action="store_true", default=False,
-        help="""Use cuEquivariance kernels for attention computation."""
-    )
-    parser.add_argument(
-        "--use_cuequivariance_multiplicative_update", action="store_true", default=False,
-        help="""Use cuEquivariance kernels for triangular multiplicative update computation."""
-    )
-    parser.add_argument(
-        "--trt_mode", type=str, default=None,
-        help="build = Build engine; run = Run engine; None = Disable TRT"
-    )
-    parser.add_argument(
-        "--trt_engine_dir", type=str, default=None,
-        help="Absolute path to directory containing .onnx and .plan files"
-    )
-    parser.add_argument(
-        "--precision", type=str, default="tf32",
-        help="tf32 | fp32 | fp16 | bf16"
-    )
-    parser.add_argument(
-        "--trt_max_sequence_len", type=int, default=640,
-        help="Maximum sequence length supported by TRT, default=640"
-    )
-    parser.add_argument(
-        "--trt_num_profiles", type=int, default=1,
-        help="1 = Single profile[50-800]; 2 = [50-200][200-800]; 4 = [50-100]; [100-200]; [200-400]; [400-800]"
-    )
-    parser.add_argument(
-        "--trt_optimization_level", type=int, default=3,
-        help="Allowed values: 0 to 5"
     )
     add_data_args(parser)
     args = parser.parse_args()
