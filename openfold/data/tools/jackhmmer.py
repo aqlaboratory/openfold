@@ -188,25 +188,26 @@ class Jackhmmer:
                     tbl = f.read()
 
             sto_size = os.path.getsize(sto_path)
-            return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
-            if return_path:
-                f = tempfile.NamedTemporaryFile(
-                    dir=self.temp_dir,
-                    suffix=".sto",
-                    delete=False,
-                )
-                persistent_sto_path = f.name
-                f.close()
-                shutil.move(sto_path, persistent_sto_path)
-                sto_path = persistent_sto_path
-            else:
-                with utils.timing(
-                        f"Reading STO file ({input_label}, {sto_path})"):
-                    if(max_sequences is None):
-                        with open(sto_path) as f:
-                            sto = f.read()
-                    else:
-                        sto = parsers.truncate_stockholm_msa(sto_path, max_sequences)
+            return_path = False
+            # return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
+            # if return_path:
+            #     f = tempfile.NamedTemporaryFile(
+            #         dir=self.temp_dir,
+            #         suffix=".sto",
+            #         delete=False,
+            #     )
+            #     persistent_sto_path = f.name
+            #     f.close()
+            #     shutil.move(sto_path, persistent_sto_path)
+            #     sto_path = persistent_sto_path
+            # else:
+            with utils.timing(
+                    f"Reading STO file ({input_label}, {sto_path})"):
+                if(max_sequences is None):
+                    with open(sto_path) as f:
+                        sto = f.read()
+                else:
+                    sto = parsers.truncate_stockholm_msa(sto_path, max_sequences)
             logging.info(f"sto path: {sto_path}, size: {sto_size}, stream_size: {self.stream_sto_size}, stream: {return_path}")
         raw_output = dict(
             tbl=tbl,
