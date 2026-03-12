@@ -49,7 +49,7 @@ def is_inferred(name, pred_dir, args):
 def has_alignment(name, alignment_dir):
     other_basenames = [
         'mgnify_hits',
-        'pdb70_hits',
+        'hhsearch_output',
         'uniref90_hits'
     ]
     bfd_basenames = [
