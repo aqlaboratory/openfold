@@ -100,7 +100,7 @@ SubmitScript=scripts/Submit_preproc_fugaku
 
 # Submit Jackhmmer jobs
 StepNameBase=openfold_preproc_`date +%Y%m%d%H%M%S`
-JackhmmerDatabases=(small_bfd mgnify uniref90)
+JackhmmerDatabases=(small_bfd mgnify uniprot uniref90)
 for Database in ${JackhmmerDatabases[@]}; do
     JobTimeVar="JobTime_${Database}"
     TimeoutVar="Timeout_${Database}"

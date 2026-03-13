@@ -249,8 +249,8 @@ while (( $NumProcs > 0 )); do
         --jackhmmer_binary_path $BinDir/jackhmmer \
         --hhblits_binary_path `which hhblits` \
         --hhsearch_binary_path $BinDir/hhsearch \
-        --hhmsearch_binary_path $BinDir/hhmsearch \
-        --hhmsbuild_binary_path $BinDir/hhmbuild \
+        --hmmsearch_binary_path $BinDir/hmmsearch \
+        --hmmbuild_binary_path $BinDir/hmmbuild \
         --kalign_binary_path $BinDir/kalign \
         --timeout $ToolTimeLimit \
         --report_out_path $ReportOutPath \

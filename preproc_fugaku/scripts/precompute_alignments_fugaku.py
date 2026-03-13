@@ -558,6 +558,10 @@ if __name__ == "__main__":
         help="The maximum number of MSA hits on MGnify (default: 5000)",
     )
     parser.add_argument(
+        "--uniprot-max-hits", type=int, default=50000,
+        help="The maximum number of MSA hits on Uniprot (default: 50000)",
+    )
+    parser.add_argument(
         "--small-bfd-max-hits", type=int, default=None,
         help="The maximum number of MSA hits on small BFD (default: unlimited)",
     )
