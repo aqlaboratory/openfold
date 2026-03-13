@@ -19,7 +19,7 @@ set -eu
 #---------- I/O configurations ----------#
 
 # The path to the directory containing the fasta files
-InputDirectory=input_example_for_mm
+InputDir=input_example_for_mm
 
 # The path to the output directory
 OutputDir=output
@@ -107,55 +107,55 @@ for Database in ${JackhmmerDatabases[@]}; do
     MaxHitsVar="MaxHits_${Database}"
     DoVar="Do_${Database}"
     if (( $DoVar == 1 )); then
-	TimeLimit=${!JobTimeVar} \
-		 ToolTimeLimit=${!TimeoutVar} \
-		 NumNodes=$NumNodes \
-		 NumProcs=$NumProcsJackhmmer \
-		 NumThreads=$NumThreadsJackhmmer \
-		 InputFile=$InputFile \
-		 OutputDir=$OutputDir \
-		 TempDir=$TempDir \
-		 Mode=$Database \
-		 StepName="${StepNameBase}_${Database}" \
-		 DoStaging=$DoStaging \
-		 LimitMaxMem=$LimitMaxMemJackhmmer \
-		 StreamSTOSize=$StreamSTOSize \
-		 ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
-		 CreateDirOnDemand=$CreateDirOnDemand \
-		 SubDirectorySize=$SubDirectorySize \
-		 MaxHits=${!MaxHitsVar} \
-		 ScriptArgs="" \
-		 $SubmitScript
+        TimeLimit=${!JobTimeVar} \
+                 ToolTimeLimit=${!TimeoutVar} \
+                 NumNodes=$NumNodes \
+                 NumProcs=$NumProcsJackhmmer \
+                 NumThreads=$NumThreadsJackhmmer \
+                 InputFile=$InputDir \
+                 OutputDir=$OutputDir \
+                 TempDir=$TempDir \
+                 Mode=$Database \
+                 StepName="${StepNameBase}_${Database}" \
+                 DoStaging=$DoStaging \
+                 LimitMaxMem=$LimitMaxMemJackhmmer \
+                 StreamSTOSize=$StreamSTOSize \
+                 ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
+                 CreateDirOnDemand=$CreateDirOnDemand \
+                 SubDirectorySize=$SubDirectorySize \
+                 MaxHits=${!MaxHitsVar} \
+                 ScriptArgs="" \
+                 $SubmitScript
     fi
 done
 
 # Submit a HHserach job
 if (( $Do_pdb_seqres  == 1 )); then
     if (( $Do_uniref90  == 1 )); then
-	# Follow the corresponding uniref90 job
-	StepName="${StepNameBase}_uniref90"
+        # Follow the corresponding uniref90 job
+        StepName="${StepNameBase}_uniref90"
     else
-	# Run independently because the corresponding job is not submitted
-	StepName="${StepNameBase}_pdb70"
+        # Run independently because the corresponding job is not submitted
+        StepName="${StepNameBase}_pdb_seqres"
     fi
 
     TimeLimit=$JobTime_pdb_seqres \
-	     ToolTimeLimit=$Timeout_pdb_seqres \
-	     NumNodes=$NumNodes \
-	     NumProcs=$NumProcsHHsearch \
-	     NumThreads=$NumThreadsHHsearch \
-	     InputFile=$InputFile \
-	     OutputDir=$OutputDir \
-	     TempDir=$TempDir \
-	     Mode=pdb_seqres \
-	     StepName=$StepName \
-	     DoStaging=$DoStaging \
-	     LimitMaxMem=$LimitMaxMemHHsearch \
-	     StreamSTOSize=$StreamSTOSize \
-	     ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
-	     CreateDirOnDemand=$CreateDirOnDemand \
-	     SubDirectorySize=$SubDirectorySize \
-	     MaxHits="" \
-	     ScriptArgs="" \
-	     $SubmitScript
+             ToolTimeLimit=$Timeout_pdb_seqres \
+             NumNodes=$NumNodes \
+             NumProcs=$NumProcsHHsearch \
+             NumThreads=$NumThreadsHHsearch \
+                   InputFile=$InputDir \
+             OutputDir=$OutputDir \
+             TempDir=$TempDir \
+             Mode=pdb_seqres \
+             StepName=$StepName \
+             DoStaging=$DoStaging \
+             LimitMaxMem=$LimitMaxMemHHsearch \
+             StreamSTOSize=$StreamSTOSize \
+             ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
+             CreateDirOnDemand=$CreateDirOnDemand \
+             SubDirectorySize=$SubDirectorySize \
+             MaxHits="" \
+             ScriptArgs="" \
+             $SubmitScript
 fi

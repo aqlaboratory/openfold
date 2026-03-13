@@ -366,6 +366,8 @@ def main(args):
         uniprot_max_hits=args.uniprot_max_hits,
         temp_dir=my_temp_dir,
     )
+#    if args.input_file is not None:
+#        files = list(os.listdir(args.input_dir))
 
     input_file = args.input_file
     with open(input_file, 'r') as fp:
