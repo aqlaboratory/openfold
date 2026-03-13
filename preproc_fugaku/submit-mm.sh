@@ -48,10 +48,11 @@ SubDirectorySize=0
 Do_small_bfd=1
 Do_mgnify=1
 Do_uniref90=1
-Do_pdb70=1
+Do_pdb_seqres=1
+Do_uniprot=1
 
 # The number of nodes of each search job
-NumNodes=1
+NumNodes=10
 
 # The initial number of processes/node and threads/process for each search tool
 NumProcsJackhmmer=1
@@ -61,19 +62,21 @@ NumThreadsHHsearch=48
 
 # Limit max memory
 LimitMaxMemJackhmmer=1
-LimitMaxMemHHsearch=1
+LimitMaxMemHHsearch=0
 
 # Time limit for each job in the pjsub time format
 JobTime_small_bfd=1:00:00
 JobTime_mgnify=1:00:00
 JobTime_uniref90=1:00:00
-JobTime_pdb70=1:00:00
+JobTime_pdb_seqres=1:00:00
+JobTime_uniprot=1:00:00
 
 # Time limit for each tool in seconds
 Timeout_small_bfd=1800
 Timeout_mgnify=3600
 Timeout_uniref90=3600
-Timeout_pdb70=1800
+Timeout_pdb_seqres=1800
+Timeout_uniprot=1800
 
 # Use the stream version of sto-to-a3m conversion if sto file size is
 # larger than this size, which keeps memory usage small
@@ -85,6 +88,7 @@ StreamSTOSize=1073741824 # 1 GiB
 MaxHits_small_bfd=""
 MaxHits_mgnify=5000
 MaxHits_uniref90=10000
+MaxHits_uniprot=50000
 
 #----------- Configurations end -----------#
 
@@ -126,7 +130,7 @@ for Database in ${JackhmmerDatabases[@]}; do
 done
 
 # Submit a HHserach job
-if (( $Do_pdb70  == 1 )); then
+if (( $Do_pdb_seqres  == 1 )); then
     if (( $Do_uniref90  == 1 )); then
 	# Follow the corresponding uniref90 job
 	StepName="${StepNameBase}_uniref90"
@@ -135,15 +139,15 @@ if (( $Do_pdb70  == 1 )); then
 	StepName="${StepNameBase}_pdb70"
     fi
 
-    TimeLimit=$JobTime_pdb70 \
-	     ToolTimeLimit=$Timeout_pdb70 \
+    TimeLimit=$JobTime_pdb_seqres \
+	     ToolTimeLimit=$Timeout_pdb_seqres \
 	     NumNodes=$NumNodes \
 	     NumProcs=$NumProcsHHsearch \
 	     NumThreads=$NumThreadsHHsearch \
 	     InputFile=$InputFile \
 	     OutputDir=$OutputDir \
 	     TempDir=$TempDir \
-	     Mode=pdb70 \
+	     Mode=pdb_seqres \
 	     StepName=$StepName \
 	     DoStaging=$DoStaging \
 	     LimitMaxMem=$LimitMaxMemHHsearch \

@@ -363,6 +363,7 @@ def main(args):
         uniref_max_hits=args.uniref90_max_hits,
         mgnify_max_hits=args.mgnify_max_hits,
         small_bfd_max_hits=args.small_bfd_max_hits,
+        uniprot_max_hits=args.uniprot_max_hits,
         temp_dir=my_temp_dir,
     )
 

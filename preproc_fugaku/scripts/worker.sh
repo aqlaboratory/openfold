@@ -62,6 +62,8 @@ Uniref90=$DataDir/uniref90/uniref90.fasta
 Pdb70=$DataDir/pdb70
 Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
 SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
+Pdb_seqres=$DataDir/pdb_seqres/pdb_seqres.txt
+Uniprot=$DataDir/uniprot/uniprot.fasta
 
 # commands
 Script=scripts/precompute_alignments_fugaku.py
@@ -92,6 +94,12 @@ if [[ $Mode = "uniref90" ]]; then
 elif [[ $Mode = "pdb70" ]]; then
     Database=$Pdb70
     DatabaseIsFile=0
+elif [[ $Mode = "pdb_seqres" ]]; then
+    Database=$Pdb_seqres
+    DatabaseIsFile=1
+elif [[ $Mode = "uniprot" ]]; then
+    Database=$Uniprot
+    DatabaseIsFile=1
 elif [[ $Mode = "mgnify" ]]; then
     Database=$Mgnify
     DatabaseIsFile=1
@@ -105,61 +113,61 @@ fi
 
 if [[ $DoStaging = 1 ]]; then
     if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-	echo "Executing LLIO transfer for OpenFold"
+        echo "Executing LLIO transfer for OpenFold"
 
-	set -x
-	time $DirTransfer \
-	     $PREFIX/bin \
-	     $PREFIX/lib
-	time $LLIOTransfer \
-	     $OPENFOLDDIR/*.py
-	set +e # Allow errors as some files (such as scripts/setenv) might be already cached
-	time $DirTransfer \
-	     $OPENFOLDDIR/scripts \
-	     $OPENFOLDDIR/openfold \
-	     $OPENFOLDDIR/openfold.egg-info
-	set -e
-	set +x
+        set -x
+        time $DirTransfer \
+             $PREFIX/bin \
+             $PREFIX/lib
+        time $LLIOTransfer \
+             $OPENFOLDDIR/*.py
+        set +e # Allow errors as some files (such as scripts/setenv) might be already cached
+        time $DirTransfer \
+             $OPENFOLDDIR/scripts \
+             $OPENFOLDDIR/openfold \
+             $OPENFOLDDIR/openfold.egg-info
+        set -e
+        set +x
     fi
 
     if [[ $DatabaseIsFile = 1 ]]; then
-	if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-	    echo "Executing LLIO transfer for the DB file"
-	    set +e
-	    set -x
-	    time $LLIOTransfer \
-		 $Database
-	    set +x
-	    set -e
+        if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
+            echo "Executing LLIO transfer for the DB file"
+            set +e
+            set -x
+            time $LLIOTransfer \
+                 $Database
+            set +x
+            set -e
 
-	else
-	    echo "Copying the DB file to local temp"
-	    DatabaseLocal=$LOCALTMP/`basename $Database`
-	    time $MpiExecEachNode cp $Database $DatabaseLocal
-	    Database=$DatabaseLocal
-	fi
+        else
+            echo "Copying the DB file to local temp"
+            DatabaseLocal=$LOCALTMP/`basename $Database`
+            time $MpiExecEachNode cp $Database $DatabaseLocal
+            Database=$DatabaseLocal
+        fi
 
     else
-	if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-	    echo "Executing LLIO transfer for the DB directory"
-	    Exts=(ffdata ffindex)
-	    for Ext in ${Exts[@]}; do
-		set +e
-		set -x
-		time $LLIOTransfer \
-		     $Database/*.$Ext
-		set +x
-		set -e
-	    done
+        if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
+            echo "Executing LLIO transfer for the DB directory"
+            Exts=(ffdata ffindex)
+            for Ext in ${Exts[@]}; do
+                set +e
+                set -x
+                time $LLIOTransfer \
+                     $Database/*.$Ext
+                set +x
+                set -e
+            done
 
-	else
-	    echo "Copying the DB directory to local temp"
-	    DatabaseLocal=$LOCALTMP/`basename $Database`
-	    time $MpiExecEachNode mkdir -p $DatabaseLocal
-	    time $MpiExecEachNode cp -r $Database/*.ffdata $DatabaseLocal/
-	    time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
-	    Database=$DatabaseLocal
-	fi
+        else
+            echo "Copying the DB directory to local temp"
+            DatabaseLocal=$LOCALTMP/`basename $Database`
+            time $MpiExecEachNode mkdir -p $DatabaseLocal
+            time $MpiExecEachNode cp -r $Database/*.ffdata $DatabaseLocal/
+            time $MpiExecEachNode cp -r $Database/*.ffindex $DatabaseLocal/
+            Database=$DatabaseLocal
+        fi
     fi
 fi
 
@@ -167,19 +175,26 @@ DatabaseArgs=""
 if [[ $Mode = "uniref90" ]]; then
     DatabaseArgs="--uniref90_database_path $Database"
     if [[ -n $MaxHits ]]; then
-	DatabaseArgs="$DatabaseArgs --uniref90-max-hits $MaxHits"
+        DatabaseArgs="$DatabaseArgs --uniref90-max-hits $MaxHits"
     fi
 elif [[ $Mode = "pdb70" ]]; then
     DatabaseArgs="--pdb70_database_path $Database/pdb70"
+elif [[ $Mode = "pdb_seqres" ]]; then
+    DatabaseArgs="--pdb_seqres_database_path $Database"
+elif [[ $Mode = "uniprot" ]]; then
+    DatabaseArgs="--uniprot_database_path $Database"
+    if [[ -n $MaxHits ]]; then
+        DatabaseArgs="$DatabaseArgs --uniprot-max-hits $MaxHits"
+    fi
 elif [[ $Mode = "mgnify" ]]; then
     DatabaseArgs="--mgnify_database_path $Database"
     if [[ -n $MaxHits ]]; then
-	DatabaseArgs="$DatabaseArgs --mgnify-max-hits $MaxHits"
+        DatabaseArgs="$DatabaseArgs --mgnify-max-hits $MaxHits"
     fi
 elif [[ $Mode = "small_bfd" ]]; then
     DatabaseArgs="--bfd_database_path $Database"
     if [[ -n $MaxHits ]]; then
-	DatabaseArgs="$DatabaseArgs --small-bfd-max-hits $MaxHits"
+        DatabaseArgs="$DatabaseArgs --small-bfd-max-hits $MaxHits"
     fi
 else
     echo "Invalid Mode: $Mode" >&2
@@ -194,18 +209,18 @@ while (( $NumProcs > 0 )); do
     MaxMem=""
     MaxMemArg=""
     if [[ $LimitMaxMem = 1 ]]; then
-	MaxMem=$(($OPENFOLD_MAX_MEM / $NumProcs))
-	MaxMemArg="--max_memory ${MaxMem}"
+        MaxMem=$(($OPENFOLD_MAX_MEM / $NumProcs))
+        MaxMemArg="--max_memory ${MaxMem}"
     fi
 
     ConvertSmallBFDToA3MArg=""
     if [[ $ConvertSmallBFDToA3M = 1 ]]; then
-	ConvertSmallBFDToA3MArg="--convert-small-bfd-to-a3m"
+        ConvertSmallBFDToA3MArg="--convert-small-bfd-to-a3m"
     fi
 
     CreateDirOnDemandArg=""
     if [[ $CreateDirOnDemand = 1 ]]; then
-	CreateDirOnDemandArg="--create-dir-on-demand"
+        CreateDirOnDemandArg="--create-dir-on-demand"
     fi
 
     export OMP_NUM_THREADS=$NumThreads # Define just in case it is used
@@ -213,9 +228,9 @@ while (( $NumProcs > 0 )); do
 
     NumTaskProcs=$(($NumProcs * $NumNodes))
     if [[ ${OPENFOLD_MACHINE} == "fugaku" ]]; then
-	MpiExecTask="mpiexec -n $NumTaskProcs"
+        MpiExecTask="mpiexec -n $NumTaskProcs"
     else
-	MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
+        MpiExecTask="mpiexec -np $NumTaskProcs -npernode $NumProcs"
     fi
 
     echo ""
@@ -225,28 +240,30 @@ while (( $NumProcs > 0 )); do
 
     set +e
     $MpiExecTask \
-	$MpiArgs \
-	-x PARALLEL \
-	-x OMP_NUM_THREADS \
-	python3 $Script \
-	$InputDir $OutputDir \
-	--cpus_per_task $NumThreads \
-	--jackhmmer_binary_path $BinDir/jackhmmer \
-	--hhblits_binary_path `which hhblits` \
-	--hhsearch_binary_path $BinDir/hhsearch \
-	--kalign_binary_path $BinDir/kalign \
-	--timeout $ToolTimeLimit \
-	--report_out_path $ReportOutPath \
-	--stream-sto-size $StreamSTOSize \
-	--log-dir $LogDir \
-	--temp-dir $JobTempDir \
-	--sub-directory-size $SubDirectorySize \
-	--proc-id $ProcId \
-	$DatabaseArgs \
-	$MaxMemArg \
-	$ConvertSmallBFDToA3MArg \
-	$CreateDirOnDemandArg \
-	$ScriptArgs
+        $MpiArgs \
+        -x PARALLEL \
+        -x OMP_NUM_THREADS \
+        python3 $Script \
+        $InputDir $OutputDir \
+        --cpus_per_task $NumThreads \
+        --jackhmmer_binary_path $BinDir/jackhmmer \
+        --hhblits_binary_path `which hhblits` \
+        --hhsearch_binary_path $BinDir/hhsearch \
+        --hhmsearch_binary_path $BinDir/hhmsearch \
+        --hhmsbuild_binary_path $BinDir/hhmbuild \
+        --kalign_binary_path $BinDir/kalign \
+        --timeout $ToolTimeLimit \
+        --report_out_path $ReportOutPath \
+        --stream-sto-size $StreamSTOSize \
+        --log-dir $LogDir \
+        --temp-dir $JobTempDir \
+        --sub-directory-size $SubDirectorySize \
+        --proc-id $ProcId \
+        $DatabaseArgs \
+        $MaxMemArg \
+        $ConvertSmallBFDToA3MArg \
+        $CreateDirOnDemandArg \
+        $ScriptArgs
     set -e
 
     RemainingCount=`cat $ReportOutPath`
@@ -258,13 +275,13 @@ while (( $NumProcs > 0 )); do
 
     NumTaskProcs=$(($NumProcs * $NumNodes))
     if (( $NumTaskProcs > $RemainingCount )); then
-	NumProcs=$(( ($RemainingCount + $NumNodes - 1) / $NumNodes ))
+        NumProcs=$(( ($RemainingCount + $NumNodes - 1) / $NumNodes ))
     fi
 
     if (( $NumProcs > 0 )); then
-	NumThreads=$(($NumTotalThreads / $NumProcs))
+        NumThreads=$(($NumTotalThreads / $NumProcs))
     else
-	NumThreads=0
+        NumThreads=0
     fi
 
     ProcId=$(($ProcId + 1))
