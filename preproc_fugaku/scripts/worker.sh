@@ -60,7 +60,7 @@ mkdir -p $JobTempDir
 # Database path in $DataDir
 Uniref90=$DataDir/uniref90/uniref90.fasta
 Pdb70=$DataDir/pdb70
-Mgnify=$DataDir/mgnify/mgy_clusters_2018_12.fa
+Mgnify=$DataDir/mgnify/mgy_clusters_2022_05.fa
 SmallBfd=$DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta
 Pdb_seqres=$DataDir/pdb_seqres/pdb_seqres.txt
 Uniprot=$DataDir/uniprot/uniprot.fasta
