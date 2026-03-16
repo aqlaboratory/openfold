@@ -57,12 +57,12 @@ NumNodes=10
 # The initial number of processes/node and threads/process for each search tool
 NumProcsJackhmmer=1
 NumThreadsJackhmmer=48
-NumProcsHHsearch=1
-NumThreadsHHsearch=48
+NumProcsHMMsearch=1
+NumThreadsHMMsearch=48
 
 # Limit max memory
 LimitMaxMemJackhmmer=1
-LimitMaxMemHHsearch=0
+LimitMaxMemHMMsearch=0
 
 # Time limit for each job in the pjsub time format
 JobTime_small_bfd=2:00:00
@@ -129,7 +129,7 @@ for Database in ${JackhmmerDatabases[@]}; do
     fi
 done
 
-# Submit a HHserach job
+# Submit a HMMsearch job
 if (( $Do_pdb_seqres  == 1 )); then
     if (( $Do_uniref90  == 1 )); then
         # Follow the corresponding uniref90 job
@@ -142,15 +142,15 @@ if (( $Do_pdb_seqres  == 1 )); then
     TimeLimit=$JobTime_pdb_seqres \
              ToolTimeLimit=$Timeout_pdb_seqres \
              NumNodes=$NumNodes \
-             NumProcs=$NumProcsHHsearch \
-             NumThreads=$NumThreadsHHsearch \
+             NumProcs=$NumProcsHMMsearch \
+             NumThreads=$NumThreadsHMMsearch \
                    InputFile=$InputDir \
              OutputDir=$OutputDir \
              TempDir=$TempDir \
              Mode=pdb_seqres \
              StepName=$StepName \
              DoStaging=$DoStaging \
-             LimitMaxMem=$LimitMaxMemHHsearch \
+             LimitMaxMem=$LimitMaxMemHMMsearch \
              StreamSTOSize=$StreamSTOSize \
              ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
              CreateDirOnDemand=$CreateDirOnDemand \
