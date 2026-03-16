@@ -363,8 +363,11 @@ def main(args):
         uniref_max_hits=args.uniref90_max_hits,
         mgnify_max_hits=args.mgnify_max_hits,
         small_bfd_max_hits=args.small_bfd_max_hits,
+        uniprot_max_hits=args.uniprot_max_hits,
         temp_dir=my_temp_dir,
     )
+#    if args.input_file is not None:
+#        files = list(os.listdir(args.input_dir))
 
     input_file = args.input_file
     with open(input_file, 'r') as fp:
@@ -553,6 +556,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mgnify-max-hits", type=int, default=5000,
         help="The maximum number of MSA hits on MGnify (default: 5000)",
+    )
+    parser.add_argument(
+        "--uniprot-max-hits", type=int, default=50000,
+        help="The maximum number of MSA hits on Uniprot (default: 50000)",
     )
     parser.add_argument(
         "--small-bfd-max-hits", type=int, default=None,
