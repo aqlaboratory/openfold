@@ -65,18 +65,18 @@ LimitMaxMemJackhmmer=1
 LimitMaxMemHHsearch=0
 
 # Time limit for each job in the pjsub time format
-JobTime_small_bfd=1:00:00
-JobTime_mgnify=1:00:00
+JobTime_small_bfd=2:00:00
+JobTime_mgnify=2:00:00
 JobTime_uniref90=1:00:00
 JobTime_pdb_seqres=1:00:00
 JobTime_uniprot=1:00:00
 
 # Time limit for each tool in seconds
-Timeout_small_bfd=1800
-Timeout_mgnify=3600
-Timeout_uniref90=3600
-Timeout_pdb_seqres=1800
-Timeout_uniprot=1800
+Timeout_small_bfd=3600
+Timeout_mgnify=7200
+Timeout_uniref90=7200
+Timeout_pdb_seqres=3600
+Timeout_uniprot=3600
 
 # Use the stream version of sto-to-a3m conversion if sto file size is
 # larger than this size, which keeps memory usage small

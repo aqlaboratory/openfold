@@ -644,16 +644,13 @@ class AlignmentRunner:
                     template_msa
                 )
 
-                if(self.template_searcher.input_format == "sto"):
+                if self.template_searcher.input_format == "sto":
                     pdb_templates_result = self.template_searcher.query(
                         template_msa,
-                        input_label,
-                        output_dir=output_dir,
-                        timeout=self.timeout,
-                        preexec_fn=preexec_fn
+                        output_dir=output_dir
                     )
                     generated.append(HMMSEARCH_OUT_FILENAME)
-                elif(self.template_searcher.input_format == "a3m"):
+                elif self.template_searcher.input_format == "a3m":
                     uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(
                         template_msa
                     )
