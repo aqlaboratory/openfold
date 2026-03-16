@@ -140,7 +140,7 @@ env MPICFG=fujitsu-mpi MPICC=/opt/FJSVxtclanga/tcsds-1.2.42/bin/mpifcc \
  pip3 install --no-build-isolation mpi4py==3.1.4
 
 pip3 install pandas
-pip3 install wandb
+pip3 install wandb==0.25.0
 pip3 install modelcif
 
 # OpenFold
