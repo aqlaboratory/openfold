@@ -50,11 +50,14 @@ def has_alignment(name, alignment_dir):
     other_basenames = [
         'mgnify_hits',
         'hhsearch_output',
-        'uniref90_hits'
+        'uniref90_hits',
+        'hmm_output',
+        'uniprot_hits'
     ]
     bfd_basenames = [
         'small_bfd_hits',
-        'bfd_uniclust_hits'
+        'bfd_uniclust_hits',
+        'bfd_uniref_hits'
     ]
 
     basenames = [os.path.splitext(x)[0] for x in os.listdir(os.path.join(alignment_dir, name)) \
@@ -344,8 +347,19 @@ def main(args):
 
     if mpi_rank == 0:
         input_file = args.input_file
-        with open(input_file, 'r') as fp:
-            fasta_str = fp.read()
+
+        # Gather fasta string from input file or directory
+        fasta_str = ""
+        if os.path.isdir(input_file):
+            files = list(os.listdir(input_file))
+            for f in files:
+                path = os.path.join(input_file, f)
+                with open(path, 'r') as fp:
+                    fasta_str += fp.read()
+        else:
+            with open(input_file, 'r') as fp:
+                fasta_str = fp.read()
+
         input_seqs, input_chains = parse_fasta(fasta_str)
         orig_total_count = len(input_seqs)
 
