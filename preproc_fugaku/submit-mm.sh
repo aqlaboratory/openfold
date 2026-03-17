@@ -67,9 +67,9 @@ LimitMaxMemHMMsearch=0
 # Time limit for each job in the pjsub time format
 JobTime_small_bfd=2:00:00
 JobTime_mgnify=2:00:00
-JobTime_uniref90=1:00:00
-JobTime_pdb_seqres=1:00:00
-JobTime_uniprot=1:00:00
+JobTime_uniref90=2:00:00
+JobTime_pdb_seqres=2:00:00
+JobTime_uniprot=2:00:00
 
 # Time limit for each tool in seconds
 Timeout_small_bfd=3600

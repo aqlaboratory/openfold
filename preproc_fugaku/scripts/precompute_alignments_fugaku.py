@@ -28,7 +28,6 @@ from mpi4py import MPI
 import numpy as np
 import resource
 
-import os
 os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
 
 import openfold.data.mmcif_parsing as mmcif_parsing
@@ -366,12 +365,17 @@ def main(args):
         uniprot_max_hits=args.uniprot_max_hits,
         temp_dir=my_temp_dir,
     )
-#    if args.input_file is not None:
-#        files = list(os.listdir(args.input_dir))
-
     input_file = args.input_file
-    with open(input_file, 'r') as fp:
-        fasta_str = fp.read()
+    if os.path.isdir(input_file):
+        files = list(os.listdir(input_file))
+        fasta_str = ""
+        for f in files:
+            path = os.path.join(input_file, f)
+            with open(path, 'r') as fp:
+                fasta_str += fp.read()
+    else:
+        with open(input_file, 'r') as fp:
+            fasta_str = fp.read()
 
     input_seqs, input_chains = parse_fasta(fasta_str)
     input_chains = add_unique_suffix(input_chains)
