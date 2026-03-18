@@ -46,10 +46,14 @@ def is_inferred(name, pred_dir, args):
 
     return os.path.isfile(unrelaxed_pdb_path) and (args.skip_relaxation or os.path.isfile(relaxed_pdb_path))
 
-def has_alignment(name, alignment_dir):
-    other_basenames = [
+def has_alignment(name, alignment_dir, is_multimer):
+    other_basenames_mono = [
         'mgnify_hits',
         'hhsearch_output',
+        'uniref90_hits'
+    ]
+    other_basenames_multi = [
+        'mgnify_hits',
         'uniref90_hits',
         'hmm_output',
         'uniprot_hits'
@@ -59,7 +63,10 @@ def has_alignment(name, alignment_dir):
         'bfd_uniclust_hits',
         'bfd_uniref_hits'
     ]
-
+    if is_multimer:
+        other_basenames = other_basenames_multi
+    else:
+        other_basenames = other_basenames_mono
     basenames = [os.path.splitext(x)[0] for x in os.listdir(os.path.join(alignment_dir, name)) \
                  if os.path.isfile(os.path.join(alignment_dir, name, x))]
 
@@ -89,6 +96,8 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
     result_file_path = os.path.join(result_dir, f'processed.csv')
     result_file = MPI.File.Open(comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
     result_file.Set_atomicity(True)
+    is_multimer = "multimer" in args.config_preset
+
 
     for seq, names in seq_groups:
         print("seq, names", seq, names)
@@ -107,7 +116,7 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
         if is_inferred(first_name, pred_dir, args):
             state = 'OK'
             duration = time_inference = time_relaxation = 0
-        elif alignment_dir and (not has_alignment(first_name, alignment_dir)):
+        elif alignment_dir and (not has_alignment(first_name, alignment_dir, is_multimer)):
             state = 'NG_noalignment'
             duration = time_inference = time_relaxation = 0
         else:
@@ -255,8 +264,10 @@ def get_subdir_map(root_dir):
             return subdir_map
     return None
 
-def get_alignment_completed_chains(root_dir):
-    search_tasks = ['uniref90', 'small_bfd', 'pdb70', 'mgnify']
+def get_alignment_completed_chains(root_dir, is_multimer):
+    search_tasks_multi = ['uniref90', 'small_bfd', 'uniprot', 'mgnify', 'pdb_seqres']
+    search_tasks_mono = ['uniref90', 'small_bfd', 'pdb70', 'mgnify']
+    search_tasks = search_tasks_multi if is_multimer else search_tasks_mono
     completed_chains_map = {}
 
     for search_task in search_tasks:
@@ -276,6 +287,7 @@ def write_chains(args, timing, kind, chains):
 
 def remove_non_target_seqs(input_seqs, input_chains, args, rank):
     assert rank == 0
+    is_multimer = "multimer" in args.config_preset
 
     ignore_chains = set()
     if args.ignore_file:
@@ -318,7 +330,7 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
 
     # Get alignemnt status
     if args.alignment_log_dir:
-        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
+        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir, is_multimer)
     else:
         alignment_completed_chains = set()
 
