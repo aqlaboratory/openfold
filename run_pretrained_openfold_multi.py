@@ -287,6 +287,7 @@ def write_chains(args, timing, kind, chains):
 
 def remove_non_target_seqs(input_seqs, input_chains, args, rank):
     assert rank == 0
+    is_multimer = "multimer" in args.config_preset
 
     ignore_chains = set()
     if args.ignore_file:
@@ -329,7 +330,7 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
 
     # Get alignemnt status
     if args.alignment_log_dir:
-        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir)
+        alignment_completed_chains = get_alignment_completed_chains(args.alignment_log_dir, is_multimer)
     else:
         alignment_completed_chains = set()
 

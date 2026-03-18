@@ -176,7 +176,8 @@ def _parse_obsolete(obsolete_file_path: str) -> Mapping[str, str]:
                 # 'OBSLTE    31-JUL-94 116L     216L'
                 from_id = line[20:24].lower()
                 to_id = line[29:33].lower()
-                result[from_id] = to_id
+                if from_id != to_id:
+                    result[from_id] = to_id
         return _replace_obsolete_references(result)
 
 
