@@ -741,12 +741,7 @@ class AlignmentRunner:
                 )[0]
                 if create_dir_on_demand:
                     os.makedirs(output_dir, exist_ok=True)
-                self.convert_stockholm_to_a3m_safely(
-                    uniprot_out_path,
-                    self.uniprot_max_hits,
-                    jackhmmer_uniprot_result,
-                    timeout=self.timeout,
-                )
+                self.write_safely(uniprot_out_path, jackhmmer_uniprot_result["sto"])
                 generated.append(UNIPROT_OUT_FILENAME)
 
         return generated
