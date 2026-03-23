@@ -84,6 +84,19 @@ def run_inference(runner, name, seq, subdir, args):
         logging.info(f"Processing for {name} done!")
     return ret
 
+def run_inference_file(runner, input_file, subdir, args):
+    with tempfile.TemporaryDirectory() as fasta_dir:
+        logging.info(f"Temporal fasta dir {fasta_dir}")
+        file_name = os.path.basename(input_file)
+        dest_path = os.path.join(fasta_dir, file_name)
+        copyfile(input_file, dest_path)
+
+        logging.info(f"Processing for {file_name} files in {fasta_dir}")
+        ret = runner.run(fasta_dir, args.template_mmcif_dir, subdir, args, timeout=args.timeout)
+        logging.info(f"Processing for {file_name} done!")
+        
+    return ret
+
 def run_seq_group_inference(seq_groups, subdir_map, args):
     dirs = set(os.listdir(args.output_dir))
     pred_dir_base = os.path.join(args.output_dir, 'predictions')
@@ -168,6 +181,95 @@ def run_seq_group_inference(seq_groups, subdir_map, args):
                 result_file.Write_shared(write_line.encode('utf-8'))
                 result_file.Sync()
 
+
+    result_file.Close()
+
+def make_tag_with_file(input_file):
+    with open(input_file, "r") as fp:
+        data = fp.read()
+
+    _ , tags = parse_fasta(data)
+    tag = '-'.join(tags)
+    return tag
+
+def run_file_group_inference(input_files, subdir_map, args):
+    dirs = set(os.listdir(args.output_dir))
+    pred_dir_base = os.path.join(args.output_dir, 'predictions')
+    runner = OpenFoldInference(os.path.join(os.environ.get('OPENFOLDDIR'), 'run_pretrained_openfold.py'))
+
+    comm = MPI.COMM_WORLD
+    jobid = os.environ.get('PJM_JOBID', '0')
+    result_dir = os.path.join(args.output_dir, 'result', jobid)
+    os.makedirs(result_dir, exist_ok=True)
+    result_file_path = os.path.join(result_dir, f'processed.csv')
+    result_file = MPI.File.Open(comm, result_file_path, MPI.MODE_CREATE | MPI.MODE_WRONLY | MPI.MODE_APPEND)
+    result_file.Set_atomicity(True)
+
+    for input_file in input_files:
+        print("input_file", input_file)
+        file_name = os.path.splitext(os.path.basename(input_file))[0]
+
+        if subdir_map is None:
+            pred_dir = pred_dir_base
+            subdir = None
+        else:
+            subdir = subdir_map[file_name]
+            logging.info(f"Sub-directory of {file_name}: {subdir}")
+            pred_dir = os.path.join(pred_dir_base, subdir)
+
+        if is_inferred(make_tag_with_file(input_file), pred_dir, args):
+            state = 'OK'
+            duration = time_inference = time_relaxation = 0
+        else:
+            begin_time = time.time()
+            try:
+                ret = run_inference_file(runner, input_file, subdir, args)
+            except Exception as e:
+                duration = time.time() - begin_time
+                traceback.print_exc()
+                logging.warning(f"Failed to run inference for {file_name}. Skipping...")
+                if isinstance(e, subprocess.TimeoutExpired):
+                    state = 'NG_timeout'
+                else:
+                    state = 'NG_unknown'
+                time_inference = 0
+                time_relaxation = 0
+            else:
+                duration = time.time() - begin_time
+                state = 'OK'
+                time_inference = ret['inference_time']
+                time_relaxation = ret['relaxation_time']
+
+        logging.info(f"inference_stat {file_name} {len(input_files)} {state} {duration:.1f} {time_inference:.1f} {time_relaxation:.1f}")
+
+        write_line = f'{file_name},{len(input_files)},{state},{duration:.1f},{time_inference:.1f},{time_relaxation:.1f}\n'
+        result_file.Write_shared(write_line.encode('utf-8'))
+        result_file.Sync()
+
+        if state != 'OK':
+            continue
+
+        generated_pdbs = [pdb_path(pred_dir, make_tag_with_file(input_file), args.config_preset, False)]
+        logging.info(f"generated_pdbs count = {len(generated_pdbs)} for {file_name}")
+        if not args.skip_relaxation:
+            generated_pdbs.append(pdb_path(pred_dir, make_tag_with_file(input_file), args.config_preset, True))
+
+        for gen_file in generated_pdbs:
+            if not os.path.isfile(gen_file):
+                raise Exception(f'{gen_file} is not exist')
+
+        for another_input_file in input_files[1:]:
+            another_file_name = os.path.splitext(os.path.basename(another_input_file))[0]
+            another_pred_dir = os.path.join(pred_dir_base, subdir_map[another_file_name]) if subdir_map else pred_dir_base
+            if not is_inferred(make_tag_with_file(another_input_file), another_pred_dir, args):
+                for f in generated_pdbs:
+                    copy_file = os.path.join(another_pred_dir, '{}{}'.format(another_file_name, os.path.basename(f)[len(file_name):]))
+                    logging.info(f"Copying result from {f} to {copy_file}")
+                    os.makedirs(another_pred_dir, exist_ok=True)
+                    copyfile(f, copy_file)
+                write_line = f'{another_file_name},{len(input_files)},OK,0,0,0\n'
+                result_file.Write_shared(write_line.encode('utf-8'))
+                result_file.Sync()
 
     result_file.Close()
 
@@ -353,24 +455,78 @@ def remove_non_target_seqs(input_seqs, input_chains, args, rank):
 
     return [x[0] for x in items], [x[1] for x in items]
 
+def remove_non_target_files(input_files, args, rank):
+    assert rank == 0
+
+    input_file_names = [os.path.splitext(os.path.basename(f))[0] for f in input_files]
+    ignore_file_name = os.path.splitext(os.path.basename(args.ignore_file))[0] if args.ignore_file else ""
+
+    result_dir = os.path.join(args.output_dir, 'result')
+    os.makedirs(result_dir, exist_ok=True)
+
+    def is_jobid(s):
+        return True if re.fullmatch('[0-9]+', s, re.ASCII) else False
+    job_dirs = [x for x in os.listdir(result_dir) \
+                if os.path.isdir(os.path.join(result_dir, x)) and is_jobid(x)]
+
+    jobids_with_result = [int(job_dir) for job_dir in job_dirs \
+                          if os.path.isfile(os.path.join(result_dir, job_dir, 'processed.csv'))]
+
+    completed_files = set()
+    skip_files = set()
+    noalignment_files = set()
+
+    for job_id in jobids_with_result:
+        result_file_path = os.path.join(result_dir, str(job_id), 'processed.csv')
+        proc_files = {'OK': set(),
+                       'NG_timeout': set(),
+                       'NG_unknown': set(),
+                       'NG_noalignment': set(),}
+
+        with open(result_file_path, 'r') as result_file:
+            lines = result_file.readlines()
+        for l in lines:
+            cols = l.strip().split(',')
+            proc_files[cols[2]].add(cols[0])
+
+        completed_files |= proc_files['OK']
+        if job_id > args.ignore_timeout_chain_history:
+            skip_files |= proc_files['NG_timeout']
+        if job_id > args.ignore_failed_chain_history:
+            skip_files |= proc_files['NG_unknown']
+
+    target_files = set([c for c in input_file_names if c != ignore_file_name])
+    incompleted_files = target_files - completed_files
+    write_chains(args, 'before', 'complete', completed_files)
+    write_chains(args, 'before', 'incomplete', incompleted_files)
+    write_chains(args, 'before', 'noalign', noalignment_files)
+    write_chains(args, 'before', 'skip', skip_files)
+
+    non_targets = set()
+    if ignore_file_name:
+        non_targets |= set(ignore_file_name)
+    non_targets |= completed_files
+    non_targets |= skip_files
+    non_targets |= noalignment_files
+
+    return [input_file for input_file in input_files if os.path.splitext(os.path.basename(input_file))[0] not in non_targets]
+
 def main(args):
+    input_file = args.input_file
+    if os.path.isdir(input_file):
+        inference_dir(args, input_file)
+    else:
+        inference_file(args, input_file)
+
+def inference_file(args, input_file):
     mpi_rank = MPI.COMM_WORLD.Get_rank()
     mpi_size = MPI.COMM_WORLD.Get_size()
 
     if mpi_rank == 0:
-        input_file = args.input_file
 
-        # Gather fasta string from input file or directory
-        fasta_str = ""
-        if os.path.isdir(input_file):
-            files = list(os.listdir(input_file))
-            for f in files:
-                path = os.path.join(input_file, f)
-                with open(path, 'r') as fp:
-                    fasta_str += fp.read()
-        else:
-            with open(input_file, 'r') as fp:
-                fasta_str = fp.read()
+        with open(input_file, 'r') as fp:
+            filename = os.path.basename(input_file)
+            fasta_str = fp.read()
 
         input_seqs, input_chains = parse_fasta(fasta_str)
         orig_total_count = len(input_seqs)
@@ -461,6 +617,77 @@ def main(args):
 
     run_seq_group_inference(
         zip(input_seqs, input_chains),
+        subdir_map,
+        args)
+
+    logging.info("DONE!")
+
+def inference_dir(args, input_dir):
+    mpi_rank = MPI.COMM_WORLD.Get_rank()
+    mpi_size = MPI.COMM_WORLD.Get_size()
+
+    if mpi_rank == 0:
+        input_files = []
+        for f in os.listdir(input_dir):
+            path = os.path.join(input_dir, f)
+            if os.path.isfile(path):
+                input_files.append(path)
+
+        orig_total_count = len(input_files)
+        logging.info('original input files: %d', orig_total_count)
+
+        # Get or compute sub-directory mapping
+        subdir_map = get_subdir_map(args.alignment_log_dir)
+
+        if args.sub_directory_size > 0:
+            if subdir_map:
+                logging.info('subdir_map.csv in alignment log directory is used instead of --sub_directory_size')
+            else:
+                logging.info(f"Sub directory input/output is enabled (size: {args.sub_directory_size})")
+                subdir_map = {name: str(i//args.sub_directory_size) \
+                              for i, name in enumerate(input_files)}
+
+        if subdir_map is None:
+            logging.info("no subdir_map")
+        input_files = remove_non_target_files(input_files, args, mpi_rank)
+
+        n_input_files = len(input_files)
+        logging.info('n_input_files: %d', n_input_files)
+        is_valid_subdir_map = set(input_files).issubset(set(subdir_map.keys())) if subdir_map is not None else True
+    else:
+        orig_total_count = None
+        input_files = None
+        n_input_files = None
+        is_valid_subdir_map = None
+        subdir_map = None
+
+    orig_total_count = MPI.COMM_WORLD.bcast(orig_total_count, root=0)
+    n_input_files = MPI.COMM_WORLD.bcast(n_input_files, root=0)
+    subdir_map = MPI.COMM_WORLD.bcast(subdir_map, root=0)
+
+    # there is no target seqs, exit
+    if n_input_files == 0:
+        logging.info("There is no files to be processed. DONE!")
+        return
+
+    is_valid_subdir_map = MPI.COMM_WORLD.bcast(is_valid_subdir_map, root=0)
+
+    # check whehter subdir_map contains all input_chains
+    if not is_valid_subdir_map:
+        raise Exception(
+            "The sub directory map must contain all input_chains sub directory."
+        )
+
+    input_files = MPI.COMM_WORLD.bcast(input_files, root=0)
+
+    total_count  = len(input_files)
+    input_files  = input_files[mpi_rank::mpi_size]
+
+    logging.info(f"mpi_rank={mpi_rank}, mpi_size={mpi_size}, orig_total_count={orig_total_count}, total_count={total_count}, my_count={len(input_files)}")
+    # logging.info(f"my chains: {input_chains}")
+
+    run_file_group_inference(
+        input_files,
         subdir_map,
         args)
 
@@ -579,4 +806,5 @@ if __name__ == "__main__":
     try:
         main(args)
     except:
+        traceback.print_exc()
         MPI.COMM_WORLD.Abort(errorcode=1)
