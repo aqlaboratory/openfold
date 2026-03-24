@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
