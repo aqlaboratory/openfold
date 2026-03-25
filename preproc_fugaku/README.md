@@ -3,27 +3,52 @@
 ## 出力フォーマットについて
 各データベースについて検索を実行した場合、以下のファイルが出力されます。
 
-### `SubDirectorySize=0`の場合
+### `SubDirectorySize=0`の場合(モノマー推論向け)
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
-　   ├── mgnify_hits.sto      : MGnifyから検索したMSA
-　   ├── hhsearch_output..hhr : PDB70から検索したテンプレート
-　   ├── small_bfd_hits.a3m   : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
-　   ├── small_bfd_hits.sto   : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　   └── uniref90_hits.sto    : UniRef90から検索したMSA
+　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　   ├── hhsearch_output.hhr : PDB70から検索したテンプレート
+　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　   └── uniref90_hits.sto   : UniRef90から検索したMSA
 ```
 
-### `SubDirectorySize>0`の場合
+### `SubDirectorySize>0`の場合(モノマー推論向け)
 ```
 （$OutputDirのパス）
 └──（サブディレクトリ）
 　 └──（タンパク質名）
-　 　   ├── mgnify_hits.sto      : MGnifyから検索したMSA
-　 　   ├── hhsearch_output..hhr : PDB70から検索したテンプレート
-　 　   ├── small_bfd_hits.a3m   : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
-　 　   ├── small_bfd_hits.sto   : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　 　   └── uniref90_hits.sto    : UniRef90から検索したMSA
+　 　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　 　   ├── hhsearch_output.hhr : PDB70から検索したテンプレート
+　 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
+```
+
+### `SubDirectorySize=0`の場合(マルチマー推論向け)
+```
+（$OutputDirのパス）
+└──（タンパク質名）
+　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　   ├── uniprot_hits.sto    : uniprotから検索したMSA
+　   ├── hmm_output.hhr      : pdb_seqresから検索したテンプレート
+　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　   └── uniref90_hits.sto   : UniRef90から検索したMSA
+```
+
+### `SubDirectorySize>0`の場合(マルチマー推論向け)
+```
+（$OutputDirのパス）
+└──（サブディレクトリ）
+　 └──（タンパク質名）
+　 　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　 　   ├── uniprot_hits.sto    : uniprotから検索したMSA
+　 　   ├── hmm_output.hhr      : pdb_seqresから検索したテンプレート
+　 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
+　 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
+　 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
 ```
 
 `small_bfd_hits.a3m`と`small_bfd_hits.sto`には以下の違いがあります。
@@ -89,7 +114,9 @@ Job ID         DB  Step #Procs. #Threads         Last update  #Compl.(b)  #Incom
 	* `OPENFOLD_PBS_RESOURCE`: （PBSジョブスケジューラを用いる場合のみ）リソース名
 	* `TMPDIR`: テンポラリファイル用ディレクトリ
 
-2. `$DATADIR`に[AlphaFold2のディレクトリ構造](https://github.com/deepmind/alphafold/tree/v2.3.1#genetic-databases)と同様にMGnify, PDB70, small BFD, Uniref90を配置する
+2. `$DATADIR`に[AlphaFold2のディレクトリ構造](https://github.com/deepmind/alphafold/tree/v2.3.1#genetic-databases)と同様に各データベースを配置する
+    * モノマー推論向け: UniRef90, MGnify, pdb70, small_bfd
+    * マルチマー推論向け: UniRef90, MGnify, PDB_SeqRes, UniProt, small_bfd
 
 3. 入力する配列を1つのFASTAファイルに結合する
     * pdb_mmcifや複数の`.cif`ファイルを前処理する場合、[`data_dir_to_fasta.py`](..//scripts/data_dir_to_fasta.py)を使用する
@@ -116,6 +143,8 @@ Job ID         DB  Step #Procs. #Threads         Last update  #Compl.(b)  #Incom
 
 6. 一部のファイルの前処理が完了せずにジョブが終了する場合、`$NumNodes`等を調整して再度ジョブを投入する
     * `$InputFile`の内容が同じ場合、前処理未完了の配列のみが自動で検出されて前処理が行われる
+
+submit.shはモノマー推論向けです。マルチマー推論ではsubmit-multimer.shをお使いください。
 
 ## トラブルシューティング
 
