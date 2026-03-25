@@ -17,6 +17,7 @@
 import argparse
 import logging
 import math
+import uuid
 import numpy as np
 import os
 import pickle
@@ -138,7 +139,7 @@ def generate_feature_dict(
     data_processor,
     args,
 ):
-    tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{os.getpid()}.fasta")
+    tmp_fasta_path = os.path.join(args.output_dir, f"tmp_{uuid.uuid4()}.fasta")
 
     if "multimer" in args.config_preset:
         with open(tmp_fasta_path, "w") as fp:
