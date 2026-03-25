@@ -24,8 +24,8 @@ if [ "$AlignmentDir" != "" ]; then
     PreComputedAlignmentsOpt="--use_precomputed_alignments $AlignmentDir"
 fi
 
-MODEL="model_1"
-# MODEL="model_1_multimer_v3"
+MODEL=model_1
+# MODEL=model_1_multimer_v3
 
 if [[ "$MODEL" == **"multimer"** ]]; then
     PARAMS=(

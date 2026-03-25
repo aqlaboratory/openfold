@@ -2,7 +2,7 @@
 
 ## 事前準備
 1. [README_org.md](../README_org.md#documentation)を参考にmmcif_cacheとchain_data_cacheを作成する
-2. [前処理ディレクトリ](../preproc_fugaku)のスクリプトを使用し前処理を行う (マルチノード版の場合は必須)
+1. [前処理ディレクトリ](../preproc_fugaku)のスクリプトを使用し前処理を行う (マルチノード版の場合は必須)
 
 ## 使用方法
 
@@ -13,6 +13,9 @@
     - `InputFastaDir`: 入力シーケンスのfastaファイルが含まれるディレクトリのパス
     - `AlignmentDir`: 前処理で出力されたalignmentディレクトリのパス。このスクリプトで前処理も行う場合には指定しない。
     - `OutputDir`: 出力ディレクトリのパス。`$LOGDIR`とした場合はログディレクトリとなる。
+    - `MODEL`
+      - モノマー推論の場合: モノマー向けのモデル名。デフォルトは`model_1`
+      - マルチマー推論の場合: マルチマー向けのモデル名。`multimer`の文字列を含む。デフォルトは`model_1_multimer_v3`
 
 1. 必要があれば`inference/parameters`の以下の項目を変更する
     - `--jax_param_path`: 使用するAlphaFold2パラメータ
@@ -40,6 +43,9 @@
     - `Timeout`
       - モノマー推論の場合: 入力シーケンスごとのタイムアウト時間 [秒]
       - マルチマー推論の場合: 入力シーケンスのfastaファイルごとのタイムアウト時間 [秒]
+    - `MODEL`
+      - モノマー推論の場合: モノマー向けのモデル名。デフォルトは`model_1`
+      - マルチマー推論の場合: マルチマー向けのモデル名。`multimer`の文字列を含む。デフォルトは`model_1_multimer_v3`
 
 1. 必要があれば`inference/parameters_multi`の以下の項目を変更する
     - `--jax_param_path`: 使用するAlphaFold2パラメータ
