@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 import argparse
 import logging
 import os

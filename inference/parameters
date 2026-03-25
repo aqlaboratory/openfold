@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,31 +24,66 @@ if [ "$AlignmentDir" != "" ]; then
     PreComputedAlignmentsOpt="--use_precomputed_alignments $AlignmentDir"
 fi
 
-PARAMS=(
-    python3
-    $OPENFOLDDIR/run_pretrained_openfold.py
-    $InputFastaDir
-    $DataDir/pdb_mmcif/mmcif_files
-    --model_device cpu
-    --jax_param_path $DataDir/params/params_model_1.npz
-    --output_dir $OutputDir
-    --kalign_binary_path $PREFIX/bin/kalign
-    ${PreComputedAlignmentsOpt}
-    --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
-    --max_template_date 2021-10-10
-    --release_dates_path $MMCIFCache
-    --uniref90_database_path $DataDir/uniref90/uniref90.fasta
-    --mgnify_database_path $DataDir/mgnify/mgy_clusters_2018_12.fa
-    --pdb70_database_path $DataDir/pdb70/pdb70
-    --uniclust30_database_path $DataDir/uniclust30/uniclust30_2018_08/uniclust30_2018_08
-    --jackhmmer_binary_path $PREFIX/bin/jackhmmer
-    --hhblits_binary_path $PREFIX/bin/hhblits
-    --hhsearch_binary_path $PREFIX/bin/hhsearch
-    --bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta # for small_bfd
-    #--bfd_database_path $DataDir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt # for bfd
-    --use_small_bfd
-    --cpus 48
-)
+MODEL="model_1"
+# MODEL="model_1_multimer_v3"
+
+if [[ "$MODEL" == **"multimer"** ]]; then
+    PARAMS=(
+        python3
+        $OPENFOLDDIR/run_pretrained_openfold.py
+        $InputFastaDir
+        $DataDir/pdb_mmcif/mmcif_files
+        --config_preset "$MODEL"
+        --model_device cpu
+        --jax_param_path $DataDir/params/params_$MODEL.npz
+        --output_dir $OutputDir
+        --kalign_binary_path $PREFIX/bin/kalign
+        ${PreComputedAlignmentsOpt}
+        --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
+        --max_template_date 2021-10-10
+        --release_dates_path $MMCIFCache
+        --uniref90_database_path $DataDir/uniref90/uniref90.fasta
+        --mgnify_database_path $DataDir/mgnify/mgy_clusters_2022_05.fa
+        --pdb_seqres_database_path $DataDir/pdb_seqres/pdb_seqres.txt
+        --uniprot_database_path $DataDir/uniprot/uniprot.fasta
+        --uniref30_database_path $DataDir/uniref30/
+        --jackhmmer_binary_path $PREFIX/bin/jackhmmer
+        --hhblits_binary_path $PREFIX/bin/hhblits
+        --hhsearch_binary_path $PREFIX/bin/hhsearch
+        --hmmsearch_binary_path $PREFIX/bin/hmmsearch
+        --hmmbuild_binary_path $PREFIX/bin/hmmbuild
+        --bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta # for small_bfd
+        #--bfd_database_path $DataDir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt # for bfd
+        --use_small_bfd
+        --cpus 48
+    )
+else
+    PARAMS=(
+        python3
+        $OPENFOLDDIR/run_pretrained_openfold.py
+        $InputFastaDir
+        $DataDir/pdb_mmcif/mmcif_files
+        --model_device cpu
+        --jax_param_path $DataDir/params/params_$MODEL.npz
+        --output_dir $OutputDir
+        --kalign_binary_path $PREFIX/bin/kalign
+        ${PreComputedAlignmentsOpt}
+        --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
+        --max_template_date 2021-10-10
+        --release_dates_path $MMCIFCache
+        --uniref90_database_path $DataDir/uniref90/uniref90.fasta
+        --mgnify_database_path $DataDir/mgnify/mgy_clusters_2022_05.fa
+        --pdb70_database_path $DataDir/pdb70/pdb70
+        --uniclust30_database_path $DataDir/uniclust30/uniclust30_2018_08/uniclust30_2018_08
+        --jackhmmer_binary_path $PREFIX/bin/jackhmmer
+        --hhblits_binary_path $PREFIX/bin/hhblits
+        --hhsearch_binary_path $PREFIX/bin/hhsearch
+        --bfd_database_path $DataDir/small_bfd/bfd-first_non_consensus_sequences.fasta # for small_bfd
+        #--bfd_database_path $DataDir/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt # for bfd
+        --use_small_bfd
+        --cpus 48
+    )
+fi
 
 # for Torch Extensions
 export TORCH_EXTENSIONS_DIR=$TMPDIR
