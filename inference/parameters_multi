@@ -21,7 +21,8 @@ AlignmentLogDir=example/alignment_log_subdir
 OutputDir=$LOGDIR
 Timeout=3600
 
-ModelNum=1
+MODEL=model_1
+# MODEL=model_1_multimer_v3
 
 PARAMS=(
     python3
@@ -30,8 +31,8 @@ PARAMS=(
     $OutputDir
     $DataDir/pdb_mmcif/mmcif_files
     --model_device cpu
-    --config_preset "model_${ModelNum}"
-    --jax_param_path $DataDir/params/params_model_${ModelNum}.npz
+    --config_preset "${MODEL}"
+    --jax_param_path $DataDir/params/params_${MODEL}.npz
     --kalign_binary_path $PREFIX/bin/kalign
     --use_precomputed_alignments $AlignmentDir
     --obsolete_pdbs_path $DataDir/pdb_mmcif/obsolete.dat
