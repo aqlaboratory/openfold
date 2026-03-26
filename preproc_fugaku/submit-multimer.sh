@@ -91,8 +91,6 @@ if [[ -n $MaxHits_small_bfd && $ConvertSmallBFDToA3M != 1 ]]; then
 fi
 
 SubmitScript=scripts/Submit_preproc_fugaku
-StreamSTOSize=1073741824 # 1 GiB
-SubDirectorySize=0 # Don't change this value
 
 # Submit Jackhmmer jobs
 StepNameBase=openfold_preproc_`date +%Y%m%d%H%M%S`
@@ -115,10 +113,9 @@ for Database in ${JackhmmerDatabases[@]}; do
                  StepName="${StepNameBase}_${Database}" \
                  DoStaging=$DoStaging \
                  LimitMaxMem=$LimitMaxMemJackhmmer \
-                 StreamSTOSize=$StreamSTOSize \
                  ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
                  CreateDirOnDemand=$CreateDirOnDemand \
-                 SubDirectorySize=$SubDirectorySize \
+                 SubDirectorySize=0 \
                  MaxHits=${!MaxHitsVar} \
                  ScriptArgs="" \
                  $SubmitScript
@@ -147,10 +144,9 @@ if (( $Do_pdb_seqres  == 1 )); then
              StepName=$StepName \
              DoStaging=$DoStaging \
              LimitMaxMem=$LimitMaxMemHMMsearch \
-             StreamSTOSize=$StreamSTOSize \
              ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M \
              CreateDirOnDemand=$CreateDirOnDemand \
-             SubDirectorySize=$SubDirectorySize \
+             SubDirectorySize=0 \
              MaxHits="" \
              ScriptArgs="" \
              $SubmitScript
