@@ -39,7 +39,6 @@ echo ScriptArgs=$ScriptArgs
 echo NumTotalThreads=$NumTotalThreads
 echo DoStaging=$DoStaging
 echo LimitMaxMem=$LimitMaxMem
-echo StreamSTOSize=$StreamSTOSize
 echo ConvertSmallBFDToA3M=$ConvertSmallBFDToA3M
 echo CreateDirOnDemand=$CreateDirOnDemand
 echo SubDirectorySize=$SubDirectorySize
@@ -255,7 +254,6 @@ while (( $NumProcs > 0 )); do
         --kalign_binary_path $BinDir/kalign \
         --timeout $ToolTimeLimit \
         --report_out_path $ReportOutPath \
-        --stream-sto-size $StreamSTOSize \
         --log-dir $LogDir \
         --temp-dir $JobTempDir \
         --sub-directory-size $SubDirectorySize \

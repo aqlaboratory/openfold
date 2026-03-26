@@ -106,11 +106,12 @@ Job ID         DB  Step #Procs. #Threads         Last update  #Compl.(b)  #Incom
     * モノマー推論向け: UniRef90, MGnify, PDB70, small_BFD
     * マルチマー推論向け: UniRef90, MGnify, PDB_SeqRes, UniProt, small_BFD
 
-3. 入力する配列を1つのFASTAファイルに結合する
+3. 入力する配列を1つのFASTAファイルに結合する(モノマー推論時のみ)
     * pdb_mmcifや複数の`.cif`ファイルを前処理する場合、[`data_dir_to_fasta.py`](..//scripts/data_dir_to_fasta.py)を使用する
 
 4. [`submit.sh`](submit.sh)の以下の環境変数をセットする
-    * `$InputFile`: 3. のFASTAファイルのパス
+    * `$InputFile`: 3. のFASTAファイルのパス(モノマー推論時)
+    * `$InputDir`: FASTAファイルを格納したディレクトリパス(マルチマー推論時)
     * `$OutputDir`: 前処理結果を出力するディレクトリのパス（ジョブ投入時に存在しない場合、ジョブ実行時に自動作成）
     * `$TempDir`: 一部の前処理結果ファイルがジョブ実行中に一時的に保存されるディレクトリのパス。GBレベルのファイルが作成される可能性があるため、`/tmp`や`/worktmp`は非推奨
     * `$DoStaging`: Pythonモジュール、実行ファイル、データベースについてLLIO transfer（富岳）またはメモリステージング（それ以外）を行うかどうか。富岳では各SIO（87 GiB/ノード）が使用するデータベース全体を保持する必要があるため、十分なノード数（例えば>=12ノード以上）を使用する場合に有効にする
