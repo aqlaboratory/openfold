@@ -3,7 +3,8 @@
 ## 出力フォーマットについて
 各データベースについて検索を実行した場合、以下のファイルが出力されます。
 
-### `SubDirectorySize=0`の場合(モノマー推論向け)
+### モノマー推論向け
+* `SubDirectorySize=0`の場合
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
@@ -14,7 +15,7 @@
 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
 ```
 
-### `SubDirectorySize>0`の場合(モノマー推論向け)
+* `SubDirectorySize>0`の場合
 ```
 （$OutputDirのパス）
 └──（サブディレクトリ）
@@ -26,7 +27,7 @@
 　 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
 ```
 
-### `SubDirectorySize=0`の場合(マルチマー推論向け)
+### マルチマー推論向け
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
@@ -36,19 +37,6 @@
 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
-```
-
-### `SubDirectorySize>0`の場合(マルチマー推論向け)
-```
-（$OutputDirのパス）
-└──（サブディレクトリ）
-　 └──（タンパク質名）
-　 　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
-　 　   ├── uniprot_hits.sto    : uniprotから検索したMSA
-　 　   ├── hmm_output.hhr      : pdb_seqresから検索したテンプレート
-　 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
-　 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
 ```
 
 `small_bfd_hits.a3m`と`small_bfd_hits.sto`には以下の違いがあります。
@@ -131,12 +119,12 @@ Job ID         DB  Step #Procs. #Threads         Last update  #Compl.(b)  #Incom
         * 後述の`$SubDirectorySize`と同時に使用する場合、サブディレクトリも書き出す直前に作成する
     * `$SubDirectorySize`: 入力FASTAファイルの先頭から指定された配列の個数ごとに"0"から始まるサブディレクトリに分割して出力を行う。0の場合はサブディレクトリを作成しない
         * 前処理開始時にジョブディレクトリ以下に`[配列名],[サブディレクトリ名]`を列挙したCSVファイルが`subdir_map.csv`として書き出される。
+        * モノマー推論向けの時のみ指定できる。
     * `$LimitMaxMem*`: プロセスあたりの最大メモリ量を（ノードメモリ量）/（ノード内プロセス数）に制限するかどうか
     * `$NumNodes`: 各ジョブのノード数
     * `$JobTime_*`: 各ジョブの制限時間
     * `$Timeout_*`: 各ジョブ中の検索ツールの入力配列ごとの制限時間
     * `$NumProcs*`, `$NumThreads*`: 各検索ツールのノード内プロセス数、プロセス内スレッド数
-    * `$StreamSTOSize`: MSAとしてこのサイズを超えるstoファイルが出力された場合、a3mへの変換をストリーミングで行う実装を使用する。小さな値を設定するほど各プロセスのメモリ消費量が小さくなるが、変換速度は低下する
     * `$MaxHits_*`: 各ジョブの最大MSAヒット件数。`$MaxHits_*=""`の場合、ヒット件数を制限しない
 
 5. `submit.sh`を実行してジョブを投入する

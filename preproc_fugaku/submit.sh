@@ -76,10 +76,6 @@ Timeout_mgnify=7200
 Timeout_uniref90=7200
 Timeout_pdb70=3600
 
-# Use the stream version of sto-to-a3m conversion if sto file size is
-# larger than this size, which keeps memory usage small
-StreamSTOSize=1073741824 # 1 GiB
-
 #------- Output size configurations -------#
 
 # The maximum number of MSA hits ("": unlimited)
@@ -94,6 +90,7 @@ if [[ -n $MaxHits_small_bfd && $ConvertSmallBFDToA3M != 1 ]]; then
 fi
 
 SubmitScript=scripts/Submit_preproc_fugaku
+StreamSTOSize=1073741824 # 1 GiB
 
 # Submit Jackhmmer jobs
 StepNameBase=openfold_preproc_`date +%Y%m%d%H%M%S`
