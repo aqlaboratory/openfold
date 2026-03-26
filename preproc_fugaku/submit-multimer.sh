@@ -40,9 +40,6 @@ ConvertSmallBFDToA3M=0
 # Create output directories just before alignment file is created
 CreateDirOnDemand=1
 
-# If SubDirectorySize > 0, create subdirectories for each number of sequences specified by this
-SubDirectorySize=0
-
 #---------- Job configurations ----------#
 
 # Whether or not each job is submitted
@@ -79,10 +76,6 @@ Timeout_uniref90=7200
 Timeout_pdb_seqres=3600
 Timeout_uniprot=3600
 
-# Use the stream version of sto-to-a3m conversion if sto file size is
-# larger than this size, which keeps memory usage small
-StreamSTOSize=1073741824 # 1 GiB
-
 #------- Output size configurations -------#
 
 # The maximum number of MSA hits ("": unlimited)
@@ -98,6 +91,8 @@ if [[ -n $MaxHits_small_bfd && $ConvertSmallBFDToA3M != 1 ]]; then
 fi
 
 SubmitScript=scripts/Submit_preproc_fugaku
+StreamSTOSize=1073741824 # 1 GiB
+SubDirectorySize=0 # Don't change this value
 
 # Submit Jackhmmer jobs
 StepNameBase=openfold_preproc_`date +%Y%m%d%H%M%S`
