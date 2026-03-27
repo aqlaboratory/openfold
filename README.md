@@ -4,8 +4,8 @@
 
 「富岳」実装版OpenFoldのソースコードをクローンする
 ```shell
-git clone https://github.com/RIKEN-RCCS/OpenFold-for-Fugaku.git
-cd OpenFold-for-Fugaku
+git clone https://github.com/RIKEN-RCCS/openfold.git
+cd openfold
 ```
 
 `openfold/resources/`ディレクトリに`stereo_chemical_props.txt`をダウンロードする
