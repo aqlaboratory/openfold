@@ -107,7 +107,7 @@ Job ID         DB  Step #Procs. #Threads         Last update  #Compl.(b)  #Incom
 2. `$DATADIR`に[AlphaFold2のディレクトリ構造](https://github.com/deepmind/alphafold/tree/v2.3.1#genetic-databases)と同様に各データベースを配置する
     * 配置するデータベース: UniRef90, MGnify, PDB70, small_BFD
 
-3. 入力する配列を1つのFASTAファイルに結合する(モノマー推論時のみ)
+3. 入力する配列を1つのFASTAファイルに結合する
     * pdb_mmcifや複数の`.cif`ファイルを前処理する場合、[`data_dir_to_fasta.py`](..//scripts/data_dir_to_fasta.py)を使用する
 
 4. [`submit.sh`](submit.sh)の以下の環境変数をセットする
