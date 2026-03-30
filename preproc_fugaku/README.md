@@ -8,11 +8,11 @@
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
-　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　   ├── mgnify_hits.a3m     : MGnifyから検索したMSA
 　   ├── hhsearch_output.hhr : PDB70から検索したテンプレート
 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　   └── uniref90_hits.sto   : UniRef90から検索したMSA
+　   └── uniref90_hits.a3m   : UniRef90から検索したMSA
 ```
 
 * `SubDirectorySize>0`の場合
@@ -20,23 +20,23 @@
 （$OutputDirのパス）
 └──（サブディレクトリ）
 　 └──（タンパク質名）
-　 　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　 　   ├── mgnify_hits.a3m     : MGnifyから検索したMSA
 　 　   ├── hhsearch_output.hhr : PDB70から検索したテンプレート
 　 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
 　 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　 　   └── uniref90_hits.sto   : UniRef90から検索したMSA
+　 　   └── uniref90_hits.a3m   : UniRef90から検索したMSA
 ```
 
 ### マルチマー推論向け
 ```
 （$OutputDirのパス）
 └──（タンパク質名）
-　   ├── mgnify_hits.sto     : MGnifyから検索したMSA
+　   ├── mgnify_hits.a3m     : MGnifyから検索したMSA
 　   ├── uniprot_hits.sto    : uniprotから検索したMSA
 　   ├── hmm_output.hhr      : pdb_seqresから検索したテンプレート
 　   ├── small_bfd_hits.a3m  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=1の場合）
 　   ├── small_bfd_hits.sto  : small BFDから検索したMSA（$ConvertSmallBFDToA3M=0の場合）
-　   └── uniref90_hits.sto   : UniRef90から検索したMSA
+　   └── uniref90_hits.a3m   : UniRef90から検索したMSA
 ```
 
 `small_bfd_hits.a3m`と`small_bfd_hits.sto`には以下の違いがあります。

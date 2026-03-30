@@ -18,8 +18,8 @@ def chain_dir_to_fasta(dir: Path) -> str:
     """
     # take some alignment file
     for alignment_file_type in [
-        "mgnify_hits.sto",
-        "uniref90_hits.sto",
+        "mgnify_hits.a3m",
+        "uniref90_hits.a3m",
         "bfd_uniclust_hits.a3m",
     ]:
         alignment_file = dir / alignment_file_type
@@ -50,8 +50,8 @@ def index_entry_to_fasta(index_entry: dict, db_dir: Path, chain_id: str) -> str:
 
     # look for an alignment file
     for alignment_file_type in [
-        "mgnify_hits.sto",
-        "uniref90_hits.sto",
+        "mgnify_hits.a3m",
+        "uniref90_hits.a3m",
         "bfd_uniclust_hits.a3m",
     ]:
         for file_info in index_entry["files"]:

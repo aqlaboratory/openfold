@@ -119,10 +119,10 @@ for ((i=0; i<$NumInput; i++)); do
     fi
 
     if [ ! -d $AlignmentDir/$NameLower ] ||\
-       [ ! -f $AlignmentDir/$NameLower/mgnify_hits.sto ] ||\
+       [ ! -f $AlignmentDir/$NameLower/mgnify_hits.a3m ] ||\
        [ ! -f $AlignmentDir/$NameLower/hhsearch_output.hhr ] ||\
        [ ! -f $AlignmentDir/$NameLower/small_bfd_hits.sto ] ||\
-       [ ! -f $AlignmentDir/$NameLower/uniref90_hits.sto ]; then
+       [ ! -f $AlignmentDir/$NameLower/uniref90_hits.a3m ]; then
         #echo "no alignment:" $NameLower
         echo -e ">${Name}\n${Seq}" >> $OutputFastaNG
         ((NumNoAlignment++))
