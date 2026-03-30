@@ -96,11 +96,11 @@ alignments
 └── 6KWC_1 
     ├── bfd_uniclust_hits.a3m
     ├── hhsearch_output.hhr
-    ├── mgnify_hits.sto
-    └── uniref90_hits.sto
+    ├── mgnify_hits.a3m
+    └── uniref90_hits.a3m
 ```
 
-`bfd_uniclust_hits.a3m`, `mgnify_hits.sto`, and `uniref90_hits.sto` are all alignments of the query structure against the BFD, Mgnify, and Uniref90 datasets respsectively. `hhsearch_output.hhr` contains hits against the PDB70 database used for template matching. The example directory `examples/monomer/alignments` shows examples of expected directories.
+`bfd_uniclust_hits.a3m`, `mgnify_hits.a3m`, and `uniref90_hits.a3m` are all alignments of the query structure against the BFD, Mgnify, and Uniref90 datasets respsectively. `hhsearch_output.hhr` contains hits against the PDB70 database used for template matching. The example directory `examples/monomer/alignments` shows examples of expected directories.
 
 
 #### Configuration settings for template modeling / pTM scoring 

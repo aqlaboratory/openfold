@@ -25,29 +25,29 @@ In the `alignments` directory, [PDB:6KWC](https://www.rcsb.org/structure/6KWC) i
   └── alignments 
 	  └── 3lrm_A 
 		  ├── bfd_uniclust_hits.a3m
-		  ├── mgnify_hits.sto
+		  ├── mgnify_hits.a3m
 		  ├── hhsearch_output.hhr
-		  └── uniref90_hits.sto 
+		  └── uniref90_hits.a3m 
 	  └── 3lrm_B 
 		  ├── bfd_uniclust_hits.a3m
-		  ├── mgnify_hits.sto
+		  ├── mgnify_hits.a3m
 		  ├── hhsearch_output.hhr
-		  └── uniref90_hits.sto 
+		  └── uniref90_hits.a3m 
 	  └── 3lrm_C 
 		  ├── bfd_uniclust_hits.a3m
-		  ├── mgnify_hits.sto
+		  ├── mgnify_hits.a3m
 		  ├── hhsearch_output.hhr
-		  └── uniref90_hits.sto 
+		  └── uniref90_hits.a3m 
 	  └── 3lrm_D 
 		  ├── bfd_uniclust_hits.a3m
-		  ├── mgnify_hits.sto
+		  ├── mgnify_hits.a3m
 		  ├── hhsearch_output.hhr
-		  └── uniref90_hits.sto 
+		  └── uniref90_hits.a3m 
 	  └── 6kwc_A 
 		  ├── bfd_uniclust_hits.a3m
-		  ├── mgnify_hits.sto
+		  ├── mgnify_hits.a3m
 		  ├── hhsearch_output.hhr
-		  └── uniref90_hits.sto 
+		  └── uniref90_hits.a3m 
 		...
 ```
 
@@ -87,18 +87,18 @@ To speed up access of MSAs, OpenFold has an alternate alignments storage procedu
         "db": "alignment_db_0.db",
         "files": [
             ["bfd_uniclust_hits.a3m", 212896478938, 1680200],
-            ["mgnify_hits.sto", 212893696883, 2782055],
+            ["mgnify_hits.a3m", 212893696883, 2782055],
             ["hhsearch_output.hhr", 212898159138, 614978],
-            ["uniref90_hits.sto", 212898774116, 6165789]
+            ["uniref90_hits.a3m", 212898774116, 6165789]
         ]
     },
     "6kwc_A": {
         "db": "alignment_db_1.db",
         "files": [
             ["bfd_uniclust_hits.a3m", 415618723280, 380289],
-            ["mgnify_hits.sto", 415618556077, 167203],
+            ["mgnify_hits.a3m", 415618556077, 167203],
             ["hhsearch_output.hhr", 415619103569, 148672],
-            ["uniref90_hits.sto", 415617547852, 1008225]
+            ["uniref90_hits.a3m", 415617547852, 1008225]
         ]
     }
 	...
