@@ -52,7 +52,7 @@ HHSEARCH_OUT_FILENAME   = "hhsearch_output.hhr"
 HMMSEARCH_OUT_FILENAME   = "hmm_output.sto"
 UNIPROT_OUT_FILENAME   = "uniprot_hits.sto"
 MGNIFY_OUT_FILENAME    = "mgnify_hits.a3m"
-UNIREF90_OUT_FILENAME  = "uniref90_hits.a3m"
+UNIREF90_OUT_FILENAME  = "uniref90_hits.sto"
 BFD_UNIREF_OUT_FILENAME    = "bfd_uniref_hits.a3m"
 BFD_UNICLUST_OUT_FILENAME  = "bfd_uniclust_hits.a3m"
 SMALL_BFD_OUT_FILENAME_STO = "small_bfd_hits.sto"
@@ -622,12 +622,7 @@ class AlignmentRunner:
             )[0]
             if create_dir_on_demand:
                 os.makedirs(output_dir, exist_ok=True)
-            self.convert_stockholm_to_a3m_safely(
-                uniref90_out_path,
-                self.uniref_max_hits,
-                jackhmmer_uniref90_result,
-                timeout=self.timeout,
-            )
+            self.write_safely(uniref90_out_path, jackhmmer_uniref90_result["sto"])
             generated.append(UNIREF90_OUT_FILENAME)
 
         if(self.template_searcher is not None):
