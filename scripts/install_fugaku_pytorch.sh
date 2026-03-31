@@ -1,10 +1,12 @@
 #!/bin/bash -eux
 #PJM -L "node=1"
 #PJM -L "rscgrp=small"
-#PJM -L "elapse=12:0:00"
+#PJM -L "elapse=24:0:00"
 #PJM --rsc-list "retention_state=0"
 #PJM -j
+#PJM -s
 #
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

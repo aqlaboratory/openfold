@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import torch
 import numpy as np
 import unittest
@@ -48,6 +49,8 @@ class TestEvoformerStack(unittest.TestCase):
         transition_n = 2
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -65,6 +68,9 @@ class TestEvoformerStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
+            no_column_attention=False,
+            opm_first=opm_first,
+            fuse_projection_weights=fuse_projection_weights,
             blocks_per_ckpt=None,
             inf=inf,
             eps=eps,
@@ -80,6 +86,64 @@ class TestEvoformerStack(unittest.TestCase):
 
         m, z, s = es(
             m, z, chunk_size=4, msa_mask=msa_mask, pair_mask=pair_mask
+        )
+
+        self.assertTrue(m.shape == shape_m_before)
+        self.assertTrue(z.shape == shape_z_before)
+        self.assertTrue(s.shape == (batch_size, n_res, c_s))
+
+    def test_shape_without_column_attention(self):
+        batch_size = consts.batch_size
+        n_seq = consts.n_seq
+        n_res = consts.n_res
+        c_m = consts.c_m
+        c_z = consts.c_z
+        c_hidden_msa_att = 12
+        c_hidden_opm = 17
+        c_hidden_mul = 19
+        c_hidden_pair_att = 14
+        c_s = consts.c_s
+        no_heads_msa = 3
+        no_heads_pair = 7
+        no_blocks = 2
+        transition_n = 2
+        msa_dropout = 0.15
+        pair_stack_dropout = 0.25
+        inf = 1e9
+        eps = 1e-10
+
+        es = EvoformerStack(
+            c_m,
+            c_z,
+            c_hidden_msa_att,
+            c_hidden_opm,
+            c_hidden_mul,
+            c_hidden_pair_att,
+            c_s,
+            no_heads_msa,
+            no_heads_pair,
+            no_blocks,
+            transition_n,
+            msa_dropout,
+            pair_stack_dropout,
+            no_column_attention=True,
+            opm_first=False,
+            fuse_projection_weights=False,
+            blocks_per_ckpt=None,
+            inf=inf,
+            eps=eps,
+        ).eval()
+
+        m_init = torch.rand((batch_size, n_seq, n_res, c_m))
+        z_init = torch.rand((batch_size, n_res, n_res, c_z))
+        msa_mask = torch.randint(0, 2, size=(batch_size, n_seq, n_res))
+        pair_mask = torch.randint(0, 2, size=(batch_size, n_res, n_res))
+
+        shape_m_before = m_init.shape
+        shape_z_before = z_init.shape
+
+        m, z, s = es(
+            m_init, z_init, chunk_size=4, msa_mask=msa_mask, pair_mask=pair_mask
         )
 
         self.assertTrue(m.shape == shape_m_before)
@@ -114,7 +178,7 @@ class TestEvoformerStack(unittest.TestCase):
         params = compare_utils.fetch_alphafold_module_weights(
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         key = jax.random.PRNGKey(42)
         out_gt = f.apply(params, key, activations, masks)
@@ -130,13 +194,31 @@ class TestEvoformerStack(unittest.TestCase):
             torch.as_tensor(masks["pair"]).cuda(),
             chunk_size=4,
             _mask_trans=False,
+            inplace_safe=False,
         )
 
         out_repro_msa = out_repro_msa.cpu()
         out_repro_pair = out_repro_pair.cpu()
 
-        assert(torch.max(torch.abs(out_repro_msa - out_gt_msa)) < consts.eps)
-        assert(torch.max(torch.abs(out_repro_pair - out_gt_pair)) < consts.eps)
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
+
+        # Inplace version
+        out_repro_msa, out_repro_pair = model.evoformer.blocks[0](
+            torch.as_tensor(activations["msa"]).cuda(),
+            torch.as_tensor(activations["pair"]).cuda(),
+            torch.as_tensor(masks["msa"]).cuda(),
+            torch.as_tensor(masks["pair"]).cuda(),
+            chunk_size=4,
+            _mask_trans=False,
+            inplace_safe=True,
+        )
+
+        out_repro_msa = out_repro_msa.cpu()
+        out_repro_pair = out_repro_pair.cpu()
+
+        compare_utils.assert_mean_abs_diff_small(out_gt_msa, out_repro_msa, consts.eps)
+        compare_utils.assert_max_abs_diff_small(out_gt_pair, out_repro_pair, consts.eps)
 
 
 class TestExtraMSAStack(unittest.TestCase):
@@ -156,6 +238,8 @@ class TestExtraMSAStack(unittest.TestCase):
         transition_n = 5
         msa_dropout = 0.15
         pair_stack_dropout = 0.25
+        opm_first = consts.is_multimer
+        fuse_projection_weights = True if re.fullmatch("^model_[1-5]_multimer_v3$", consts.model) else False
         inf = 1e9
         eps = 1e-10
 
@@ -172,13 +256,15 @@ class TestExtraMSAStack(unittest.TestCase):
             transition_n,
             msa_dropout,
             pair_stack_dropout,
+            opm_first,
+            fuse_projection_weights,
             ckpt=False,
             inf=inf,
             eps=eps,
-        ).eval()
+        ).eval().cuda()
 
-        m = torch.rand((batch_size, s_t, n_res, c_m))
-        z = torch.rand((batch_size, n_res, n_res, c_z))
+        m = torch.rand((batch_size, s_t, n_res, c_m), device="cuda")
+        z = torch.rand((batch_size, n_res, n_res, c_z), device="cuda")
         msa_mask = torch.randint(
             0,
             2,
@@ -187,7 +273,8 @@ class TestExtraMSAStack(unittest.TestCase):
                 s_t,
                 n_res,
             ),
-        )
+            device="cuda",
+        ).float()
         pair_mask = torch.randint(
             0,
             2,
@@ -196,7 +283,8 @@ class TestExtraMSAStack(unittest.TestCase):
                 n_res,
                 n_res,
             ),
-        )
+            device="cuda",
+        ).float()
 
         shape_z_before = z.shape
 
@@ -251,7 +339,7 @@ class TestMSATransition(unittest.TestCase):
             "alphafold/alphafold_iteration/evoformer/evoformer_iteration/"
             + "msa_transition"
         )
-        params = tree_map(lambda n: n[0], params, jax.numpy.DeviceArray)
+        params = tree_map(lambda n: n[0], params, jax.Array)
 
         out_gt = f.apply(params, None, msa_act, msa_mask).block_until_ready()
         out_gt = torch.as_tensor(np.array(out_gt))
@@ -259,18 +347,14 @@ class TestMSATransition(unittest.TestCase):
         model = compare_utils.get_global_pretrained_openfold()
         
         out_repro = (
-            model.evoformer.blocks[0].core.msa_transition(
+            model.evoformer.blocks[0].msa_transition(
                 torch.as_tensor(msa_act, dtype=torch.float32).cuda(),
                 mask=torch.as_tensor(msa_mask, dtype=torch.float32).cuda(),
             )
             .cpu()
         )
 
-        print(out_gt)
-        print(out_repro)
-        
-        self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
-
+        compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
 
 if __name__ == "__main__":
     unittest.main()

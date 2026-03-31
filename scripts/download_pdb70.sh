@@ -35,7 +35,7 @@ SOURCE_URL="http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/
 BASENAME=$(basename "${SOURCE_URL}")
 
 mkdir --parents "${ROOT_DIR}"
-aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}"
+aria2c "${SOURCE_URL}" --dir="${ROOT_DIR}" --check-certificate=false
 tar --extract --verbose --file="${ROOT_DIR}/${BASENAME}" \
   --directory="${ROOT_DIR}"
 rm "${ROOT_DIR}/${BASENAME}"

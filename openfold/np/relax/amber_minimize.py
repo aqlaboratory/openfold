@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
@@ -29,12 +30,13 @@ import openfold.utils.loss as loss
 from openfold.np.relax import cleanup, utils
 import ml_collections
 import numpy as np
-from simtk import openmm
-from simtk import unit
-from simtk.openmm import app as openmm_app
+import openmm
+from openmm import unit
+from openmm import app as openmm_app
 from openmm.app.internal.pdbstructure import PdbStructure
 
 ENERGY = unit.kilocalories_per_mole
+FORCE = unit.kilojoules_per_mole / unit.nanometer 
 LENGTH = unit.angstroms
 
 
@@ -440,7 +442,7 @@ def _run_one_iteration(
     exclude_residues = exclude_residues or []
 
     # Assign physical dimensions.
-    tolerance = tolerance * ENERGY
+    tolerance = tolerance * FORCE
     stiffness = stiffness * ENERGY / (LENGTH ** 2)
 
     start = time.perf_counter()
@@ -517,9 +519,6 @@ def run_pipeline(
     _check_residues_are_well_defined(prot)
     pdb_string = clean_protein(prot, checks=checks)
 
-    # We keep the input around to restore metadata deleted by the relaxer
-    input_prot = prot
-
     exclude_residues = exclude_residues or []
     exclude_residues = set(exclude_residues)
     violations = np.inf
@@ -567,60 +566,3 @@ def run_pipeline(
         )
         iteration += 1
     return ret
-
-
-def get_initial_energies(
-    pdb_strs: Sequence[str],
-    stiffness: float = 0.0,
-    restraint_set: str = "non_hydrogen",
-    exclude_residues: Optional[Sequence[int]] = None,
-):
-    """Returns initial potential energies for a sequence of PDBs.
-
-    Assumes the input PDBs are ready for minimization, and all have the same
-    topology.
-    Allows time to be saved by not pdbfixing / rebuilding the system.
-
-    Args:
-      pdb_strs: List of PDB strings.
-      stiffness: kcal/mol A**2, spring constant of heavy atom restraining
-          potential.
-      restraint_set: Which atom types to restrain.
-      exclude_residues: An optional list of zero-indexed residues to exclude from
-          restraints.
-
-    Returns:
-      A list of initial energies in the same order as pdb_strs.
-    """
-    exclude_residues = exclude_residues or []
-
-    openmm_pdbs = [
-        openmm_app.PDBFile(PdbStructure(io.StringIO(p))) for p in pdb_strs
-    ]
-    force_field = openmm_app.ForceField("amber99sb.xml")
-    system = force_field.createSystem(
-        openmm_pdbs[0].topology, constraints=openmm_app.HBonds
-    )
-    stiffness = stiffness * ENERGY / (LENGTH ** 2)
-    if stiffness > 0 * ENERGY / (LENGTH ** 2):
-        _add_restraints(
-            system, openmm_pdbs[0], stiffness, restraint_set, exclude_residues
-        )
-    simulation = openmm_app.Simulation(
-        openmm_pdbs[0].topology,
-        system,
-        openmm.LangevinIntegrator(0, 0.01, 0.0),
-        openmm.Platform.getPlatformByName("CPU"),
-    )
-    energies = []
-    for pdb in openmm_pdbs:
-        try:
-            simulation.context.setPositions(pdb.positions)
-            state = simulation.context.getState(getEnergy=True)
-            energies.append(state.getPotentialEnergy().value_in_unit(ENERGY))
-        except Exception as e:  # pylint: disable=broad-except
-            logging.error(
-                "Error getting initial energy, returning large value %s", e
-            )
-            energies.append(unit.Quantity(1e20, ENERGY))
-    return energies

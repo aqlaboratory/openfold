@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
@@ -26,6 +27,7 @@ from urllib import request
 import tempfile
 import shutil
 
+from openfold.data import parsers
 from openfold.data.tools import utils
 
 
@@ -107,6 +109,7 @@ class Jackhmmer:
             input_fasta_path: str,
             database_path: str,
             input_label: str,
+            max_sequences: Optional[int] = None,
             timeout: float=None,
             preexec_fn: Callable=None) -> Mapping[str, Any]:
         """Queries the database chunk using Jackhmmer."""
@@ -186,25 +189,27 @@ class Jackhmmer:
                     tbl = f.read()
 
             sto_size = os.path.getsize(sto_path)
-            return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
-            if return_path:
-                f = tempfile.NamedTemporaryFile(
-                    dir=self.temp_dir,
-                    suffix=".sto",
-                    delete=False,
-                )
-                persistent_sto_path = f.name
-                f.close()
-                shutil.move(sto_path, persistent_sto_path)
-                sto_path = persistent_sto_path
-            else:
-                with utils.timing(
-                        f"Reading STO file ({input_label}, {sto_path})"):
+            return_path = False
+            # return_path = (self.stream_sto_size is not None and sto_size > self.stream_sto_size)
+            # if return_path:
+            #     f = tempfile.NamedTemporaryFile(
+            #         dir=self.temp_dir,
+            #         suffix=".sto",
+            #         delete=False,
+            #     )
+            #     persistent_sto_path = f.name
+            #     f.close()
+            #     shutil.move(sto_path, persistent_sto_path)
+            #     sto_path = persistent_sto_path
+            # else:
+            with utils.timing(
+                    f"Reading STO file ({input_label}, {sto_path})"):
+                if(max_sequences is None):
                     with open(sto_path) as f:
                         sto = f.read()
-
+                else:
+                    sto = parsers.truncate_stockholm_msa(sto_path, max_sequences)
             logging.info(f"sto path: {sto_path}, size: {sto_size}, stream_size: {self.stream_sto_size}, stream: {return_path}")
-
         raw_output = dict(
             tbl=tbl,
             stderr=stderr,
@@ -218,20 +223,40 @@ class Jackhmmer:
             raw_output["sto"] = sto
 
         return raw_output
-
-    def query(
-            self,
-            input_fasta_path: str,
+    
+    def query(self, 
+        input_fasta_path: str,
+        input_label: str,
+        max_sequences: Optional[int] = None,
+        timeout: float=None,
+        preexec_fn: Callable=None) -> Sequence[Sequence[Mapping[str, Any]]]:
+        return self.query_multiple(
+            [input_fasta_path],
+            input_label,
+            max_sequences=max_sequences,
+            timeout=timeout,
+            preexec_fn=preexec_fn
+        )
+    def query_multiple(self, 
+            input_fasta_paths: Sequence[str],
             input_label: str,
+            max_sequences: Optional[int] = None,
             timeout: float=None,
-            preexec_fn: Callable=None) -> Sequence[Mapping[str, Any]]:
+            preexec_fn: Callable=None) -> Sequence[Sequence[Mapping[str, Any]]]:
         """Queries the database using Jackhmmer."""
         if self.num_streamed_chunks is None:
-            return [self._query_chunk(input_fasta_path,
-                                      self.database_path,
-                                      input_label,
-                                      timeout=timeout,
-                                      preexec_fn=preexec_fn)]
+            single_chunk_results = []
+            for input_fasta_path in input_fasta_paths:
+                single_chunk_result = self._query_chunk(
+                    input_fasta_path,
+                    self.database_path,
+                    input_label,
+                    max_sequences=max_sequences,
+                    timeout=timeout,
+                    preexec_fn=preexec_fn
+                )
+                single_chunk_results.append(single_chunk_result)
+            return single_chunk_results 
 
         db_basename = os.path.basename(self.database_path)
         db_remote_chunk = lambda db_idx: f"{self.database_path}.{db_idx}"
@@ -246,7 +271,8 @@ class Jackhmmer:
 
         # Download the (i+1)-th chunk while Jackhmmer is running on the i-th chunk
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
-            chunked_output = []
+            chunked_outputs = [[] for _ in range(len(input_fasta_paths))]
+            future = None
             for i in range(1, self.num_streamed_chunks + 1):
                 # Copy the chunk locally
                 if i == 1:
@@ -263,18 +289,26 @@ class Jackhmmer:
                     )
 
                 # Run Jackhmmer with the chunk
-                future.result()
-                chunked_output.append(
-                    self._query_chunk(input_fasta_path,
-                                      db_local_chunk(i),
-                                      input_label,
-                                      timeout=timeout,
-                                      preexec_fn=preexec_fn)
-                )
+                if future is not None:
+                    future.result()
+                for fasta_idx, input_fasta_path in enumerate(input_fasta_paths):
+                    chunked_outputs[fasta_idx].append(
+                        self._query_chunk(
+                            input_fasta_path, 
+                            db_local_chunk(i), 
+                            input_label,
+                            max_sequences=max_sequences,
+                            timeout=timeout,
+                            preexec_fn=preexec_fn
+                        )
+                    )
 
                 # Remove the local copy of the chunk
                 os.remove(db_local_chunk(i))
-                future = next_future
+                # Do not set next_future for the last chunk so that this works
+                # even for databases with only 1 chunk
+                if(i < self.num_streamed_chunks):
+                    future = next_future
                 if self.streaming_callback:
                     self.streaming_callback(i)
-        return chunked_output
+        return chunked_outputs

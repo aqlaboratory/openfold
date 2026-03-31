@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
@@ -28,12 +29,12 @@ from mpi4py import MPI
 import numpy as np
 import resource
 
-import os
 os.environ["OPENFOLD_IGNORE_IMPORT"] = "1"
 
 import openfold.data.mmcif_parsing as mmcif_parsing
 from openfold.data.data_pipeline import AlignmentRunner
 from openfold.data.parsers import parse_fasta
+from openfold.data.tools import hhsearch, hmmsearch
 from openfold.np import protein, residue_constants
 
 from utils import add_data_args
@@ -292,10 +293,16 @@ def main(args):
         available_databases.append("mgnify")
     if args.bfd_database_path is not None:
         available_databases.append("small_bfd")
+    if args.uniref30_database_path is not None:
+        available_databases.append("uniref30")
     if args.uniclust30_database_path is not None:
         available_databases.append("uniclust30")
     if args.pdb70_database_path is not None:
         available_databases.append("pdb70")
+    if args.pdb_seqres_database_path is not None:
+        available_databases.append("pdb_seqres")
+    if args.uniprot_database_path is not None:
+        available_databases.append("uniprot")
 
     if len(available_databases) == 0:
         raise ValueError("No database path is provided")
@@ -322,15 +329,31 @@ def main(args):
     os.makedirs(my_temp_dir, exist_ok=True)
 
     # Build the alignment tool runner
+    if args.hmmsearch_binary_path is not None and args.pdb_seqres_database_path is not None:
+        template_searcher = hmmsearch.Hmmsearch(
+            binary_path=args.hmmsearch_binary_path,
+            hmmbuild_binary_path=args.hmmbuild_binary_path,
+            database_path=args.pdb_seqres_database_path,
+        )
+    elif args.hhsearch_binary_path is not None and args.pdb70_database_path is not None:
+        template_searcher = hhsearch.HHSearch(
+            binary_path=args.hhsearch_binary_path,
+            databases=[args.pdb70_database_path],
+        )
+    else:
+        template_searcher = None
+
+    # Build the alignment tool runner
     alignment_runner = AlignmentRunner(
         jackhmmer_binary_path=args.jackhmmer_binary_path,
         hhblits_binary_path=args.hhblits_binary_path,
-        hhsearch_binary_path=args.hhsearch_binary_path,
         uniref90_database_path=args.uniref90_database_path,
         mgnify_database_path=args.mgnify_database_path,
         bfd_database_path=args.bfd_database_path,
+        uniref30_database_path=args.uniref30_database_path,
         uniclust30_database_path=None,
-        pdb70_database_path=args.pdb70_database_path,
+        uniprot_database_path=args.uniprot_database_path,
+        template_searcher=template_searcher,
         use_small_bfd=True,
         convert_small_bfd_to_a3m=args.convert_small_bfd_to_a3m,
         no_cpus=args.cpus_per_task,
@@ -340,12 +363,20 @@ def main(args):
         uniref_max_hits=args.uniref90_max_hits,
         mgnify_max_hits=args.mgnify_max_hits,
         small_bfd_max_hits=args.small_bfd_max_hits,
+        uniprot_max_hits=args.uniprot_max_hits,
         temp_dir=my_temp_dir,
     )
-
     input_file = args.input_file
-    with open(input_file, 'r') as fp:
-        fasta_str = fp.read()
+    if os.path.isdir(input_file):
+        files = list(os.listdir(input_file))
+        fasta_str = ""
+        for f in files:
+            path = os.path.join(input_file, f)
+            with open(path, 'r') as fp:
+                fasta_str += fp.read()
+    else:
+        with open(input_file, 'r') as fp:
+            fasta_str = fp.read()
 
     input_seqs, input_chains = parse_fasta(fasta_str)
     input_chains = add_unique_suffix(input_chains)
@@ -530,6 +561,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mgnify-max-hits", type=int, default=5000,
         help="The maximum number of MSA hits on MGnify (default: 5000)",
+    )
+    parser.add_argument(
+        "--uniprot-max-hits", type=int, default=50000,
+        help="The maximum number of MSA hits on Uniprot (default: 50000)",
     )
     parser.add_argument(
         "--small-bfd-max-hits", type=int, default=None,

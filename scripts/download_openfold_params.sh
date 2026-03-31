@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Downloads and unzips OpenFold parameters.
+# Downloads OpenFold parameters.
 #
-# Usage: bash download_openfold_params.sh /path/to/download/directory
+# Usage: bash download_openfold_params_huggingface.sh /path/to/download/directory
 set -e
 
 if [[ $# -eq 0 ]]; then
@@ -24,43 +24,11 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-FILE_ID="1OpeMrfWEUSD_KqffbPqd5p7WsJjlC3ZE"
-FILENAME="openfold_params_06_22.tar.gz"
-
-download_from_gdrive() {
-    FILE_ID="$1"
-    OUT_DIR="$2"
-    MSG=$(wget \
-         --quiet \
-         --save-cookies /tmp/cookies_$$.txt \
-         --keep-session-cookies \
-         --no-check-certificate \
-         "https://docs.google.com/uc?export=download&id=${FILE_ID}" \
-         -O- \
-    )
-    CONFIRM=$(echo $MSG | sed -rn "s/.*confirm=([0-9A-Za-z_]+).*/\1\n/p")
-    FILENAME=$(echo $MSG | sed -e "s/.*<a href=\"\/open?id=${FILE_ID}\">\(.*\)<\/a> (.*/\1/")
-    FILEPATH="${OUT_DIR}/${FILENAME}"
-    wget \
-        --quiet \
-        --load-cookies /tmp/cookies_$$.txt \
-        "https://docs.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" \
-        -O "${FILEPATH}"
-    rm /tmp/cookies_$$.txt
-    echo $FILEPATH
-}
-
-DOWNLOAD_DIR="$1"
-mkdir -p "${DOWNLOAD_DIR}"
-DOWNLOAD_PATH=$(download_from_gdrive $FILE_ID "${DOWNLOAD_DIR}")
-
-DOWNLOAD_FILENAME=$(basename "${DOWNLOAD_PATH}")
-if [[ $FILENAME != $DOWNLOAD_FILENAME ]]; then
-    echo "Error: Downloaded filename ${DOWNLOAD_FILENAME} does not match expected filename ${FILENAME}"
-    rm "${DOWNLOAD_PATH}"
-    exit
+if ! command -v aws &> /dev/null ; then
+    echo "Error: aws could not be found. Please install aws."
+    exit 1
 fi
 
-tar --extract --verbose --file="${DOWNLOAD_PATH}" \
-  --directory="${DOWNLOAD_DIR}" --preserve-permissions
-rm "${DOWNLOAD_PATH}"
+DOWNLOAD_DIR="${1}/openfold_params"
+mkdir -p "${DOWNLOAD_DIR}"
+aws s3 cp --no-sign-request --region us-east-1 s3://openfold/openfold_params/ "${DOWNLOAD_DIR}" --recursive

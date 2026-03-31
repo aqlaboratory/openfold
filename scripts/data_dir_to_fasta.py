@@ -1,7 +1,8 @@
 import argparse
 import logging
 import os
-
+import string
+from collections import defaultdict
 from openfold.data import mmcif_parsing
 from openfold.np import protein, residue_constants
 
@@ -22,7 +23,7 @@ def main(args):
             if(mmcif.mmcif_object is None):
                 logging.warning(f'Failed to parse {fname}...')
                 if(args.raise_errors):
-                    raise list(mmcif.errors.values())[0]
+                    raise Exception(list(mmcif.errors.values())[0])
                 else:
                     continue
 
@@ -31,6 +32,25 @@ def main(args):
                 chain_id = '_'.join([basename, chain])
                 fasta.append(f">{chain_id}")
                 fasta.append(seq)
+        elif(ext == ".pdb"):
+            with open(fpath, 'r') as fp:
+                pdb_str = fp.read()
+            
+            protein_object = protein.from_pdb_string(pdb_str)
+            aatype = protein_object.aatype
+            chain_index = protein_object.chain_index
+
+            last_chain_index = chain_index[0]
+            chain_dict = defaultdict(list)
+            for i in range(aatype.shape[0]):
+                chain_dict[chain_index[i]].append(residue_constants.restypes_with_x[aatype[i]])
+            
+            chain_tags = string.ascii_uppercase
+            for chain, seq in chain_dict.items():
+                chain_id = '_'.join([basename, chain_tags[chain]])
+                fasta.append(f">{chain_id}")
+                fasta.append(''.join(seq))
+
         elif(ext == ".core"):
             with open(fpath, 'r') as fp:
                 core_str = fp.read()

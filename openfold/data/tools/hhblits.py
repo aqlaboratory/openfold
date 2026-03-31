@@ -1,3 +1,4 @@
+# Copyright 2026 RIKEN
 # Copyright 2023 RIKEN & Fujitsu Limited
 # Copyright 2021 AlQuraishi Laboratory
 # Copyright 2021 DeepMind Technologies Limited
@@ -19,7 +20,7 @@ import glob
 import logging
 import os
 import subprocess
-from typing import Any, Mapping, Optional, Sequence, Callable
+from typing import Any, List, Mapping, Optional, Sequence, Callable
 
 from openfold.data.tools import utils
 
@@ -108,7 +109,7 @@ class HHBlits:
             input_fasta_path: str,
             input_label: str,
             timeout: float=None,
-            preexec_fn: Callable=None) -> Mapping[str, Any]:
+            preexec_fn: Callable=None) -> List[Mapping[str, Any]]:
         """Queries the database using HHblits."""
         with utils.tmpdir_manager(base_dir=self.temp_dir) as query_tmp_dir:
             a3m_path = os.path.join(query_tmp_dir, "output.a3m")
@@ -186,4 +187,4 @@ class HHBlits:
             n_iter=self.n_iter,
             e_value=self.e_value,
         )
-        return raw_output
+        return [raw_output]

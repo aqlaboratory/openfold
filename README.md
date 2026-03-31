@@ -4,8 +4,8 @@
 
 「富岳」実装版OpenFoldのソースコードをクローンする
 ```shell
-git clone https://github.com/RIKEN-RCCS/OpenFold-for-Fugaku.git
-cd OpenFold-for-Fugaku
+git clone https://github.com/RIKEN-RCCS/openfold.git
+cd openfold
 ```
 
 `openfold/resources/`ディレクトリに`stereo_chemical_props.txt`をダウンロードする
@@ -67,3 +67,4 @@ However, DeepMind's pretrained parameters fall under the CC BY 4.0 license, a co
 - Port the memory-efficient attention module to CPUs
 - Improve processing efficiency of batch matrix multiplications (BMMs) by making the input tensors to BMMs contiguous
 - Speed up reading of mmcif data by pickling and lz4 compression beforehand
+

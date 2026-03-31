@@ -18,10 +18,11 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-from typing import Dict
+from typing import Dict, Union
 
 from openfold.np import protein
 import openfold.np.residue_constants as rc
+from openfold.utils.geometry import rigid_matrix_vector, rotation_matrix, vector
 from openfold.utils.rigid_utils import Rotation, Rigid
 from openfold.utils.tensor_utils import (
     batched_gather,
@@ -89,6 +90,23 @@ def build_template_angle_feat(template_feats):
     return template_angle_feat
 
 
+def dgram_from_positions(
+    pos: torch.Tensor, 
+    min_bin: float = 3.25, 
+    max_bin: float = 50.75, 
+    no_bins: float = 39, 
+    inf: float = 1e8,
+):
+    dgram = torch.sum(
+        (pos[..., None, :] - pos[..., None, :, :]) ** 2, dim=-1, keepdim=True
+    )
+    lower = torch.linspace(min_bin, max_bin, no_bins, device=pos.device) ** 2
+    upper = torch.cat([lower[1:], lower.new_tensor([inf])], dim=-1)
+    dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
+
+    return dgram
+
+
 def build_template_pair_feat(
     batch, 
     min_bin, max_bin, no_bins, 
@@ -100,12 +118,7 @@ def build_template_pair_feat(
 
     # Compute distogram (this seems to differ slightly from Alg. 5)
     tpb = batch["template_pseudo_beta"]
-    dgram = torch.sum(
-        (tpb[..., None, :] - tpb[..., None, :, :]) ** 2, dim=-1, keepdim=True
-    )
-    lower = torch.linspace(min_bin, max_bin, no_bins, device=tpb.device) ** 2
-    upper = torch.cat([lower[1:], lower.new_tensor([inf])], dim=-1)
-    dgram = ((dgram > lower) * (dgram < upper)).type(dgram.dtype)
+    dgram = dgram_from_positions(tpb, min_bin, max_bin, no_bins, inf)
 
     to_concat = [dgram, template_mask_2d[..., None]]
 
@@ -170,18 +183,21 @@ def build_extra_msa_feat(batch):
 
 
 def torsion_angles_to_frames(
-    r: Rigid,
+    r: Union[Rigid, rigid_matrix_vector.Rigid3Array],
     alpha: torch.Tensor,
     aatype: torch.Tensor,
     rrgdf: torch.Tensor,
 ):
+
+    rigid_type = type(r)
+
     # [*, N, 8, 4, 4]
     default_4x4 = rrgdf[aatype, ...]
 
     # [*, N, 8] transformations, i.e.
     #   One [*, N, 8, 3, 3] rotation matrix and
     #   One [*, N, 8, 3]    translation matrix
-    default_r = r.from_tensor_4x4(default_4x4)
+    default_r = rigid_type.from_tensor_4x4(default_4x4)
 
     bb_rot = alpha.new_zeros((*((1,) * len(alpha.shape[:-1])), 2))
     bb_rot[..., 1] = 1
@@ -201,14 +217,13 @@ def torsion_angles_to_frames(
     # This follows the original code rather than the supplement, which uses
     # different indices.
 
-    all_rots = alpha.new_zeros(default_r.get_rots().get_rot_mats().shape)
+    all_rots = alpha.new_zeros(default_r.shape + (4, 4))
     all_rots[..., 0, 0] = 1
     all_rots[..., 1, 1] = alpha[..., 1]
     all_rots[..., 1, 2] = -alpha[..., 0]
-    all_rots[..., 2, 1:] = alpha
+    all_rots[..., 2, 1:3] = alpha
 
-    all_rots = Rigid(Rotation(rot_mats=all_rots), None)
-
+    all_rots = rigid_type.from_tensor_4x4(all_rots)
     all_frames = default_r.compose(all_rots)
 
     chi2_frame_to_frame = all_frames[..., 5]
@@ -220,7 +235,7 @@ def torsion_angles_to_frames(
     chi3_frame_to_bb = chi2_frame_to_bb.compose(chi3_frame_to_frame)
     chi4_frame_to_bb = chi3_frame_to_bb.compose(chi4_frame_to_frame)
 
-    all_frames_to_bb = Rigid.cat(
+    all_frames_to_bb = rigid_type.cat(
         [
             all_frames[..., :5],
             chi2_frame_to_bb.unsqueeze(-1),
@@ -229,14 +244,14 @@ def torsion_angles_to_frames(
         ],
         dim=-1,
     )
-
+    
     all_frames_to_global = r[..., None].compose(all_frames_to_bb)
 
     return all_frames_to_global
 
 
 def frames_and_literature_positions_to_atom14_pos(
-    r: Rigid,
+    r: Union[Rigid, rigid_matrix_vector.Rigid3Array],
     aatype: torch.Tensor,
     default_frames,
     group_idx,
@@ -263,7 +278,7 @@ def frames_and_literature_positions_to_atom14_pos(
         lambda x: torch.sum(x, dim=-1)
     )
 
-    # [*, N, 14, 1]
+    # [*, N, 14]
     atom_mask = atom_mask[aatype, ...].unsqueeze(-1)
 
     # [*, N, 14, 3]

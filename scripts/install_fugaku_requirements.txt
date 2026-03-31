@@ -1,4 +1,4 @@
-biopython==1.79
+biopython==1.85
 dm-tree==0.1.6
 ml-collections==0.1.0
 tqdm==4.62.2
