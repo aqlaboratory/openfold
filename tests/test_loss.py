@@ -17,10 +17,12 @@ import torch
 import numpy as np
 from pathlib import Path
 import unittest
+from unittest import mock
 import ml_collections as mlc
 
 from openfold.data import data_transforms
 from openfold.np import residue_constants
+import openfold.utils.loss as loss_module
 from openfold.utils.rigid_utils import (
     Rotation,
     Rigid,
@@ -44,7 +46,9 @@ from openfold.utils.loss import (
     tm_loss,
     compute_plddt,
     compute_tm,
-    chain_center_of_mass_loss
+    chain_center_of_mass_loss,
+    _apply_length_scale,
+    _ensure_loss_shape,
 )
 from openfold.utils.tensor_utils import (
     tree_map,
@@ -90,6 +94,376 @@ class TestLoss(unittest.TestCase):
                 cls.am_fold = alphafold.model.folding
                 cls.am_modules = alphafold.model.modules
                 cls.am_rigid = alphafold.model.r3
+
+    def test_apply_length_scale_per_example(self):
+        per_example = torch.tensor([1.0, 4.0])
+        seq_length = torch.tensor([100, 400])
+
+        scaled = _apply_length_scale(per_example, seq_length, crop_len=256)
+        expected = torch.tensor([10.0, 64.0])
+
+        torch.testing.assert_close(scaled, expected)
+
+        old_scaled_mean = per_example.mean() * torch.sqrt(
+            torch.minimum(seq_length.float().mean(), torch.tensor(256.0))
+        )
+        self.assertFalse(torch.allclose(scaled.mean(), old_scaled_mean))
+
+    def test_ensure_loss_shape(self):
+        loss = torch.ones(2)
+
+        self.assertIs(
+            _ensure_loss_shape(loss, torch.Size([2]), "example"),
+            loss,
+        )
+
+        scalar_loss = torch.tensor(1.0)
+        self.assertIs(
+            _ensure_loss_shape(scalar_loss, torch.Size([]), "example"),
+            scalar_loss,
+        )
+
+        with self.assertRaises(ValueError):
+            _ensure_loss_shape(scalar_loss, torch.Size([2]), "example")
+
+    def test_alphafold_loss_applies_length_scale_per_example(self):
+        loss_names = [
+            "distogram",
+            "experimentally_resolved",
+            "fape",
+            "plddt_loss",
+            "masked_msa",
+            "supervised_chi",
+            "violation",
+        ]
+        config = mlc.ConfigDict(
+            {name: {"weight": 0.0} for name in loss_names}
+        )
+        config.distogram.weight = 1.0
+        config.tm = mlc.ConfigDict({"enabled": False, "weight": 0.0})
+        config.chain_center_of_mass = mlc.ConfigDict(
+            {"enabled": False, "weight": 0.0}
+        )
+
+        per_example_loss = torch.tensor([1.0, 4.0])
+        zero_loss = torch.zeros_like(per_example_loss)
+        batch = {
+            "aatype": torch.zeros(2, 256, dtype=torch.long),
+            "seq_length": torch.tensor([100, 400]),
+        }
+        out = {
+            "distogram_logits": torch.empty(0),
+            "experimentally_resolved_logits": torch.empty(0),
+            "lddt_logits": torch.empty(0),
+            "masked_msa_logits": torch.empty(0),
+            "final_atom_positions": torch.empty(0),
+            "renamed_atom14_gt_positions": torch.empty(0),
+            "violation": {},
+            "sm": {
+                "angles": torch.empty(0),
+                "frames": torch.empty(0),
+                "positions": torch.empty(0),
+                "sidechain_frames": torch.empty(0),
+                "unnormalized_angles": torch.empty(0),
+            },
+        }
+
+        with mock.patch.multiple(
+            loss_module,
+            distogram_loss=mock.Mock(return_value=per_example_loss),
+            experimentally_resolved_loss=mock.Mock(
+                return_value=zero_loss
+            ),
+            fape_loss=mock.Mock(return_value=zero_loss),
+            lddt_loss=mock.Mock(return_value=zero_loss),
+            masked_msa_loss=mock.Mock(return_value=zero_loss),
+            supervised_chi_loss=mock.Mock(return_value=zero_loss),
+            violation_loss=mock.Mock(return_value=zero_loss),
+        ):
+            loss, losses = loss_module.AlphaFoldLoss(config)(
+                out,
+                batch,
+                _return_breakdown=True,
+            )
+
+        expected = torch.tensor([10.0, 64.0]).mean()
+        old_scaled_loss = per_example_loss.mean() * torch.sqrt(
+            torch.minimum(
+                batch["seq_length"].float().mean(),
+                torch.tensor(256.0),
+            )
+        )
+
+        torch.testing.assert_close(loss, expected)
+        torch.testing.assert_close(
+            losses["unscaled_loss"],
+            per_example_loss.mean(),
+        )
+        self.assertFalse(torch.allclose(loss, old_scaled_loss))
+
+    def test_distogram_loss_reduction(self):
+        batch_size = 2
+        n_res = 4
+        no_bins = 5
+
+        logits = torch.randn(batch_size, n_res, n_res, no_bins)
+        pseudo_beta = torch.randn(batch_size, n_res, 3)
+        pseudo_beta_mask = torch.ones(batch_size, n_res)
+
+        loss = distogram_loss(
+            logits,
+            pseudo_beta,
+            pseudo_beta_mask,
+            no_bins=no_bins,
+            reduction="none",
+        )
+        mean_loss = distogram_loss(
+            logits,
+            pseudo_beta,
+            pseudo_beta_mask,
+            no_bins=no_bins,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_masked_msa_loss_reduction(self):
+        batch_size = 2
+        n_seq = 3
+        n_res = 4
+        num_classes = 7
+
+        logits = torch.randn(batch_size, n_seq, n_res, num_classes)
+        true_msa = torch.randint(0, num_classes, (batch_size, n_seq, n_res))
+        bert_mask = torch.ones(batch_size, n_seq, n_res)
+
+        loss = masked_msa_loss(
+            logits,
+            true_msa,
+            bert_mask,
+            num_classes,
+            reduction="none",
+        )
+        mean_loss = masked_msa_loss(
+            logits,
+            true_msa,
+            bert_mask,
+            num_classes,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_experimentally_resolved_loss_reduction(self):
+        batch_size = 2
+        n_res = 4
+
+        logits = torch.randn(batch_size, n_res, 37)
+        atom37_atom_exists = torch.ones(batch_size, n_res, 37)
+        all_atom_mask = torch.randint(0, 2, (batch_size, n_res, 37)).float()
+        resolution = torch.ones(batch_size)
+
+        loss = experimentally_resolved_loss(
+            logits,
+            atom37_atom_exists,
+            all_atom_mask,
+            resolution,
+            min_resolution=0.1,
+            max_resolution=3.0,
+            reduction="none",
+        )
+        mean_loss = experimentally_resolved_loss(
+            logits,
+            atom37_atom_exists,
+            all_atom_mask,
+            resolution,
+            min_resolution=0.1,
+            max_resolution=3.0,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_lddt_loss_reduction(self):
+        batch_size = 2
+        n_res = 4
+        no_bins = 6
+
+        logits = torch.randn(batch_size, n_res, no_bins)
+        all_atom_pred_pos = torch.randn(batch_size, n_res, 37, 3)
+        all_atom_positions = torch.randn(batch_size, n_res, 37, 3)
+        all_atom_mask = torch.ones(batch_size, n_res, 37)
+        resolution = torch.ones(batch_size)
+
+        loss = lddt_loss(
+            logits,
+            all_atom_pred_pos,
+            all_atom_positions,
+            all_atom_mask,
+            resolution,
+            no_bins=no_bins,
+            reduction="none",
+        )
+        mean_loss = lddt_loss(
+            logits,
+            all_atom_pred_pos,
+            all_atom_positions,
+            all_atom_mask,
+            resolution,
+            no_bins=no_bins,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_supervised_chi_loss_reduction(self):
+        batch_size = 2
+        n_layer = 3
+        n_res = 4
+
+        angles = torch.randn(n_layer, batch_size, n_res, 7, 2)
+        unnormalized_angles = torch.randn(n_layer, batch_size, n_res, 7, 2)
+        aatype = torch.randint(
+            0,
+            residue_constants.restype_num,
+            (batch_size, n_res),
+        )
+        seq_mask = torch.ones(batch_size, n_res)
+        chi_mask = torch.ones(batch_size, n_res, 4)
+        chi_angles = torch.randn(batch_size, n_res, 4, 2)
+
+        loss = supervised_chi_loss(
+            angles,
+            unnormalized_angles,
+            aatype,
+            seq_mask,
+            chi_mask,
+            chi_angles,
+            chi_weight=0.5,
+            angle_norm_weight=0.01,
+            reduction="none",
+        )
+        mean_loss = supervised_chi_loss(
+            angles,
+            unnormalized_angles,
+            aatype,
+            seq_mask,
+            chi_mask,
+            chi_angles,
+            chi_weight=0.5,
+            angle_norm_weight=0.01,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_backbone_loss_reduction_preserves_batch(self):
+        batch_size = 2
+        n_layer = 3
+        n_res = 4
+
+        traj = torch.eye(4).repeat(n_layer, batch_size, n_res, 1, 1)
+        traj[..., :3, 3] = torch.randn(n_layer, batch_size, n_res, 3)
+        backbone_rigid_tensor = torch.eye(4).repeat(batch_size, n_res, 1, 1)
+        backbone_rigid_tensor[..., :3, 3] = torch.randn(batch_size, n_res, 3)
+        backbone_rigid_mask = torch.ones(batch_size, n_res)
+
+        loss = backbone_loss(
+            backbone_rigid_tensor=backbone_rigid_tensor,
+            backbone_rigid_mask=backbone_rigid_mask,
+            traj=traj,
+            reduction="none",
+        )
+        mean_loss = backbone_loss(
+            backbone_rigid_tensor=backbone_rigid_tensor,
+            backbone_rigid_mask=backbone_rigid_mask,
+            traj=traj,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_tm_loss_reduction(self):
+        batch_size = 2
+        n_res = 4
+        no_bins = 6
+
+        logits = torch.randn(batch_size, n_res, n_res, no_bins)
+        final_affine_tensor = torch.eye(4).repeat(batch_size, n_res, 1, 1)
+        final_affine_tensor[..., :3, 3] = torch.randn(batch_size, n_res, 3)
+        backbone_rigid_tensor = torch.eye(4).repeat(batch_size, n_res, 1, 1)
+        backbone_rigid_tensor[..., :3, 3] = torch.randn(batch_size, n_res, 3)
+        backbone_rigid_mask = torch.ones(batch_size, n_res)
+        resolution = torch.ones(batch_size)
+
+        loss = tm_loss(
+            logits,
+            final_affine_tensor,
+            backbone_rigid_tensor,
+            backbone_rigid_mask,
+            resolution,
+            no_bins=no_bins,
+            reduction="none",
+        )
+        mean_loss = tm_loss(
+            logits,
+            final_affine_tensor,
+            backbone_rigid_tensor,
+            backbone_rigid_mask,
+            resolution,
+            no_bins=no_bins,
+            reduction="mean",
+        )
+
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(mean_loss, loss.mean())
+
+    def test_violation_loss_reduction_uses_per_example_atom_count(self):
+        batch_size = 2
+        n_res = 3
+
+        atom14_atom_exists = torch.zeros(batch_size, n_res, 14)
+        atom14_atom_exists[0] = 1.0
+        atom14_atom_exists[1, 0, :7] = 1.0
+
+        between_clashes = torch.zeros_like(atom14_atom_exists)
+        between_clashes[0] = atom14_atom_exists[0]
+        between_clashes[1] = 2.0 * atom14_atom_exists[1]
+
+        zeros = torch.zeros(batch_size)
+        violations = {
+            "between_residues": {
+                "bonds_c_n_loss_mean": zeros,
+                "angles_ca_c_n_loss_mean": zeros,
+                "angles_c_n_ca_loss_mean": zeros,
+                "clashes_per_atom_loss_sum": between_clashes,
+            },
+            "within_residues": {
+                "per_atom_loss_sum": torch.zeros_like(atom14_atom_exists),
+            },
+        }
+
+        loss = violation_loss(
+            violations,
+            atom14_atom_exists,
+            reduction="none",
+        )
+        mean_loss = violation_loss(
+            violations,
+            atom14_atom_exists,
+            reduction="mean",
+        )
+
+        expected = torch.tensor([1.0, 2.0])
+        self.assertEqual(loss.shape, (batch_size,))
+        torch.testing.assert_close(loss, expected, rtol=1e-5, atol=1e-5)
+        torch.testing.assert_close(mean_loss, loss.mean())
 
     def test_run_torsion_angle_loss(self):
         batch_size = consts.batch_size

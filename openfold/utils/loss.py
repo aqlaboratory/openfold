@@ -55,6 +55,89 @@ def sigmoid_cross_entropy(logits, labels):
     return loss
 
 
+def _shape_numel(shape):
+    numel = 1
+    for dim in shape:
+        numel *= dim
+    return numel
+
+
+def _reduce_loss(loss: torch.Tensor, reduction: str) -> torch.Tensor:
+    if reduction == "none":
+        return loss
+    if reduction == "mean":
+        return torch.mean(loss)
+    raise ValueError(f"Unsupported loss reduction: {reduction}")
+
+
+def _mean_non_batch_dims(
+    loss: torch.Tensor,
+    batch_shape: torch.Size,
+) -> torch.Tensor:
+    if len(batch_shape) == 0:
+        return torch.mean(loss)
+
+    if loss.shape[-len(batch_shape):] != batch_shape:
+        raise ValueError(
+            f"loss shape {tuple(loss.shape)} does not end with batch shape "
+            f"{tuple(batch_shape)}"
+        )
+
+    extra_dims = loss.ndim - len(batch_shape)
+    if extra_dims <= 0:
+        return loss
+
+    return torch.mean(loss, dim=tuple(range(extra_dims)))
+
+
+def _ensure_loss_shape(
+    loss: torch.Tensor,
+    batch_shape: torch.Size,
+    loss_name: str,
+) -> torch.Tensor:
+    if loss.shape == batch_shape:
+        return loss
+
+    if len(batch_shape) == 0 and loss.ndim == 0:
+        return loss
+
+    raise ValueError(
+        f"{loss_name} loss has shape {tuple(loss.shape)}, expected "
+        f"{tuple(batch_shape)}"
+    )
+
+
+def _normalize_length_shape(
+    seq_length: torch.Tensor,
+    batch_shape: torch.Size,
+) -> torch.Tensor:
+    if seq_length.shape == batch_shape:
+        return seq_length
+
+    if seq_length.numel() == _shape_numel(batch_shape):
+        return seq_length.reshape(batch_shape)
+
+    raise ValueError(
+        f"seq_length has shape {tuple(seq_length.shape)}, expected "
+        f"{tuple(batch_shape)}"
+    )
+
+
+def _apply_length_scale(
+    per_example_loss: torch.Tensor,
+    seq_length: torch.Tensor,
+    crop_len: int,
+) -> torch.Tensor:
+    seq_length = seq_length.to(
+        device=per_example_loss.device,
+        dtype=per_example_loss.dtype,
+    )
+    seq_length = _normalize_length_shape(seq_length, per_example_loss.shape)
+    crop_len = seq_length.new_tensor(crop_len)
+    scale = torch.sqrt(torch.minimum(seq_length, crop_len))
+    return per_example_loss * scale
+
+
 def torsion_angle_loss(
     a,  # [*, N, 7, 2]
     a_gt,  # [*, N, 7, 2]
@@ -175,6 +258,7 @@ def backbone_loss(
     clamp_distance: float = 10.0,
     loss_unit_distance: float = 10.0,
     eps: float = 1e-4,
+    reduction: str = "mean",
     **kwargs,
 ) -> torch.Tensor:
     ### need to check if the traj belongs to 4*4 matrix or a tensor_7
@@ -226,10 +310,10 @@ def backbone_loss(
             1 - use_clamped_fape
         )
 
-    # Average over the batch dimension
-    fape_loss = torch.mean(fape_loss)
+    batch_shape = backbone_rigid_mask.shape[:-1]
+    fape_loss = _mean_non_batch_dims(fape_loss, batch_shape)
 
-    return fape_loss
+    return _reduce_loss(fape_loss, reduction)
 
 
 def sidechain_loss(
@@ -287,6 +371,7 @@ def fape_loss(
     out: Dict[str, torch.Tensor],
     batch: Dict[str, torch.Tensor],
     config: ml_collections.ConfigDict,
+    reduction: str = "mean",
 ) -> torch.Tensor:
     traj = out["sm"]["frames"]
     asym_id = batch.get("asym_id")
@@ -295,11 +380,13 @@ def fape_loss(
         intra_chain_bb_loss = backbone_loss(
             traj=traj,
             pair_mask=intra_chain_mask,
+            reduction="none",
             **{**batch, **config.intra_chain_backbone},
         )
         interface_bb_loss = backbone_loss(
             traj=traj,
             pair_mask=1. - intra_chain_mask,
+            reduction="none",
             **{**batch, **config.interface_backbone},
         )
         weighted_bb_loss = (intra_chain_bb_loss * config.intra_chain_backbone.weight
@@ -307,6 +394,7 @@ def fape_loss(
     else:
         bb_loss = backbone_loss(
             traj=traj,
+            reduction="none",
             **{**batch, **config.backbone},
         )
         weighted_bb_loss = bb_loss * config.backbone.weight
@@ -319,10 +407,7 @@ def fape_loss(
 
     loss = weighted_bb_loss + config.sidechain.weight * sc_loss
 
-    # Average over the batch dimension
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
 def supervised_chi_loss(
@@ -335,6 +420,7 @@ def supervised_chi_loss(
     chi_weight: float,
     angle_norm_weight: float,
     eps=1e-6,
+    reduction: str = "mean",
     **kwargs,
 ) -> torch.Tensor:
     """
@@ -405,10 +491,7 @@ def supervised_chi_loss(
 
     loss = loss + angle_norm_weight * angle_norm_loss
 
-    # Average over the batch dimension
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
 def compute_plddt(logits: torch.Tensor) -> torch.Tensor:
@@ -515,6 +598,7 @@ def lddt_loss(
     min_resolution: float = 0.1,
     max_resolution: float = 3.0,
     eps: float = 1e-10,
+    reduction: str = "mean",
     **kwargs,
 ) -> torch.Tensor:
     n = all_atom_mask.shape[-2]
@@ -553,10 +637,7 @@ def lddt_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
-    # Average over the batch dimension
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
 def distogram_loss(
@@ -567,6 +648,7 @@ def distogram_loss(
     max_bin=21.6875,
     no_bins=64,
     eps=1e-6,
+    reduction: str = "mean",
     **kwargs,
 ):
     boundaries = torch.linspace(
@@ -601,10 +683,7 @@ def distogram_loss(
     mean = mean / denom[..., None]
     mean = torch.sum(mean, dim=-1)
 
-    # Average over the batch dimensions
-    mean = torch.mean(mean)
-
-    return mean
+    return _reduce_loss(mean, reduction)
 
 
 def _calculate_bin_centers(boundaries: torch.Tensor):
@@ -729,6 +808,7 @@ def tm_loss(
     min_resolution: float = 0.1,
     max_resolution: float = 3.0,
     eps=1e-8,
+    reduction: str = "mean",
     **kwargs,
 ):
     # first check whether this is a tensor_7 or tensor_4*4
@@ -773,10 +853,7 @@ def tm_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
-    # Average over the batch dimension
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
 def between_residue_bond_loss(
@@ -1434,9 +1511,10 @@ def violation_loss(
     atom14_atom_exists: torch.Tensor,
     average_clashes: bool = False,
     eps=1e-6,
+    reduction: str = "mean",
     **kwargs,
 ) -> torch.Tensor:
-    num_atoms = torch.sum(atom14_atom_exists)
+    num_atoms = torch.sum(atom14_atom_exists, dim=(-1, -2))
 
     per_atom_clash = (violations["between_residues"]["clashes_per_atom_loss_sum"] +
                       violations["within_residues"]["per_atom_loss_sum"])
@@ -1446,7 +1524,7 @@ def violation_loss(
                      violations["within_residues"]["per_atom_num_clash"])
         per_atom_clash = per_atom_clash / (num_clash + eps)
 
-    l_clash = torch.sum(per_atom_clash) / (eps + num_atoms)
+    l_clash = torch.sum(per_atom_clash, dim=(-1, -2)) / (eps + num_atoms)
     loss = (
         violations["between_residues"]["bonds_c_n_loss_mean"]
         + violations["between_residues"]["angles_ca_c_n_loss_mean"]
@@ -1454,10 +1532,7 @@ def violation_loss(
         + l_clash
     )
 
-    # Average over the batch dimension
-    mean = torch.mean(loss)
-
-    return mean
+    return _reduce_loss(loss, reduction)
 
 
 def compute_renamed_ground_truth(
@@ -1576,6 +1651,7 @@ def experimentally_resolved_loss(
     min_resolution: float,
     max_resolution: float,
     eps: float = 1e-8,
+    reduction: str = "mean",
     **kwargs,
 ) -> torch.Tensor:
     errors = sigmoid_cross_entropy(logits, all_atom_mask)
@@ -1587,12 +1663,18 @@ def experimentally_resolved_loss(
         (resolution >= min_resolution) & (resolution <= max_resolution)
     )
 
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
-def masked_msa_loss(logits, true_msa, bert_mask, num_classes, eps=1e-8, **kwargs):
+def masked_msa_loss(
+    logits,
+    true_msa,
+    bert_mask,
+    num_classes,
+    eps=1e-8,
+    reduction: str = "mean",
+    **kwargs,
+):
     """
     Computes BERT-style masked MSA loss. Implements subsection 1.9.9.
 
@@ -1620,9 +1702,7 @@ def masked_msa_loss(logits, true_msa, bert_mask, num_classes, eps=1e-8, **kwargs
     loss = torch.sum(loss, dim=-1)
     loss = loss * scale
 
-    loss = torch.mean(loss)
-
-    return loss
+    return _reduce_loss(loss, reduction)
 
 
 def chain_center_of_mass_loss(
@@ -1712,33 +1792,40 @@ class AlphaFoldLoss(nn.Module):
         loss_fns = {
             "distogram": lambda: distogram_loss(
                 logits=out["distogram_logits"],
+                reduction="none",
                 **{**batch, **self.config.distogram},
             ),
             "experimentally_resolved": lambda: experimentally_resolved_loss(
                 logits=out["experimentally_resolved_logits"],
+                reduction="none",
                 **{**batch, **self.config.experimentally_resolved},
             ),
             "fape": lambda: fape_loss(
                 out,
                 batch,
                 self.config.fape,
+                reduction="none",
             ),
             "plddt_loss": lambda: lddt_loss(
                 logits=out["lddt_logits"],
                 all_atom_pred_pos=out["final_atom_positions"],
+                reduction="none",
                 **{**batch, **self.config.plddt_loss},
             ),
             "masked_msa": lambda: masked_msa_loss(
                 logits=out["masked_msa_logits"],
+                reduction="none",
                 **{**batch, **self.config.masked_msa},
             ),
             "supervised_chi": lambda: supervised_chi_loss(
                 out["sm"]["angles"],
                 out["sm"]["unnormalized_angles"],
+                reduction="none",
                 **{**batch, **self.config.supervised_chi},
             ),
             "violation": lambda: violation_loss(
                 out["violation"],
+                reduction="none",
                 **{**batch, **self.config.violation},
             ),
         }
@@ -1746,6 +1833,7 @@ class AlphaFoldLoss(nn.Module):
         if self.config.tm.enabled:
             loss_fns["tm"] = lambda: tm_loss(
                 logits=out["tm_logits"],
+                reduction="none",
                 **{**batch, **out, **self.config.tm},
             )
 
@@ -1755,27 +1843,31 @@ class AlphaFoldLoss(nn.Module):
                 **{**batch, **self.config.chain_center_of_mass},
             )
 
-        cum_loss = 0.
+        batch_shape = batch["aatype"].shape[:-1]
+        cum_loss = None
         losses = {}
         for loss_name, loss_fn in loss_fns.items():
             weight = self.config[loss_name].weight
             loss = loss_fn()
-            if torch.isnan(loss) or torch.isinf(loss):
+            loss = _ensure_loss_shape(loss, batch_shape, loss_name)
+            if not torch.isfinite(loss).all():
                 # for k,v in batch.items():
                 #    if torch.any(torch.isnan(v)) or torch.any(torch.isinf(v)):
                 #        logging.warning(f"{k}: is nan")
                 # logging.warning(f"{loss_name}: {loss}")
-                logging.warning(f"{loss_name} loss is NaN. Skipping...")
-                loss = loss.new_tensor(0., requires_grad=True)
-            cum_loss = cum_loss + weight * loss
-            losses[loss_name] = loss.detach().clone()
-        losses["unscaled_loss"] = cum_loss.detach().clone()
+                logging.warning(f"{loss_name} loss is NaN or inf. Skipping...")
+                loss = torch.zeros_like(loss, requires_grad=True)
+            weighted_loss = weight * loss
+            cum_loss = weighted_loss if cum_loss is None else cum_loss + weighted_loss
+            losses[loss_name] = torch.mean(loss).detach().clone()
 
-        # Scale the loss by the square root of the minimum of the crop size and
-        # the (average) sequence length. See subsection 1.9.
-        seq_len = torch.mean(batch["seq_length"].float())
+        losses["unscaled_loss"] = torch.mean(cum_loss).detach().clone()
+
+        # Keep losses per example until this scale is applied; otherwise
+        # mixed-length local batches use the wrong scale.
         crop_len = batch["aatype"].shape[-1]
-        cum_loss = cum_loss * torch.sqrt(min(seq_len, crop_len))
+        cum_loss = _apply_length_scale(cum_loss, batch["seq_length"], crop_len)
+        cum_loss = torch.mean(cum_loss)
 
         losses["loss"] = cum_loss.detach().clone()
 
