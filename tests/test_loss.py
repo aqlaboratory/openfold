@@ -682,6 +682,39 @@ class TestLoss(unittest.TestCase):
 
         self.assertTrue(torch.max(torch.abs(out_gt - out_repro)) < consts.eps)
 
+    def test_supervised_chi_loss_preserves_batched_chi_periodicity(self):
+        num_blocks, batch_size, n_res = 1, 2, 1
+        angles = torch.zeros(num_blocks, batch_size, n_res, 7, 2)
+        unnormalized_angles = torch.ones_like(angles)
+
+        chi_angles_sin_cos = torch.zeros(batch_size, n_res, 4, 2)
+        chi_angles_sin_cos[..., 1, :] = torch.tensor([0.0, 1.0])
+        angles[..., 3:, :] = chi_angles_sin_cos.unsqueeze(0)
+        angles[..., 3 + 1, :] = torch.tensor([0.0, -1.0])
+
+        aatype = torch.tensor(
+            [
+                [residue_constants.restype_order["D"]],
+                [residue_constants.restype_order["R"]],
+            ]
+        )
+        seq_mask = torch.ones(batch_size, n_res)
+        chi_mask = torch.zeros(batch_size, n_res, 4)
+        chi_mask[..., 1] = 1.0
+
+        loss = supervised_chi_loss(
+            angles_sin_cos=angles,
+            unnormalized_angles_sin_cos=unnormalized_angles,
+            aatype=aatype,
+            seq_mask=seq_mask,
+            chi_mask=chi_mask,
+            chi_angles_sin_cos=chi_angles_sin_cos,
+            chi_weight=1.0,
+            angle_norm_weight=0.0,
+        )
+
+        self.assertTrue(torch.isclose(loss, torch.tensor(2.0), atol=1e-3))
+
     @compare_utils.skip_unless_alphafold_installed()
     def test_violation_loss(self):
         config = compare_utils.get_alphafold_config()

@@ -342,7 +342,8 @@ def supervised_chi_loss(
 
         Args:
             angles_sin_cos:
-                [*, N, 7, 2] predicted angles
+                [I, *, N, 7, 2] predicted angles, where I is the
+                StructureModule block axis and * are optional batch dimensions
             unnormalized_angles_sin_cos:
                 The same angles, but unnormalized
             aatype:
@@ -350,26 +351,20 @@ def supervised_chi_loss(
             seq_mask:
                 [*, N] sequence mask
             chi_mask:
-                [*, N, 7] angle mask
+                [*, N, 4] chi angle mask
             chi_angles_sin_cos:
-                [*, N, 7, 2] ground truth angles
+                [*, N, 4, 2] ground truth chi angles
             chi_weight:
                 Weight for the angle component of the loss
             angle_norm_weight:
                 Weight for the normalization component of the loss
         Returns:
-            [*] loss tensor
+            Scalar loss tensor
     """
     pred_angles = angles_sin_cos[..., 3:, :]
-    residue_type_one_hot = torch.nn.functional.one_hot(
-        aatype,
-        residue_constants.restype_num + 1,
-    )
-    chi_pi_periodic = torch.einsum(
-        "...ij,jk->ik",
-        residue_type_one_hot.type(angles_sin_cos.dtype),
-        angles_sin_cos.new_tensor(residue_constants.chi_pi_periodic),
-    )
+    chi_pi_periodic = angles_sin_cos.new_tensor(
+        residue_constants.chi_pi_periodic,
+    )[aatype, ...]
 
     true_chi = chi_angles_sin_cos[None]
 
