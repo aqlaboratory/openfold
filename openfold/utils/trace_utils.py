@@ -93,8 +93,9 @@ def trace_model_(model, sample_input):
     model.extra_msa_stack.blocks = extra_msa_blocks[:1]
 
     if(model.template_config.enabled):
-        template_pair_stack_blocks = model.template_pair_stack.blocks
-        model.template_pair_stack.blocks = template_pair_stack_blocks[:1]
+        template_pair_stack = model.template_embedder.template_pair_stack
+        template_pair_stack_blocks = template_pair_stack.blocks
+        template_pair_stack.blocks = template_pair_stack_blocks[:1]
 
     single_recycling_iter_input = tensor_tree_map(
         lambda t: t[..., :1], sample_input,
@@ -109,7 +110,7 @@ def trace_model_(model, sample_input):
     del evoformer_blocks, extra_msa_blocks
 
     if(model.template_config.enabled):
-        model.template_pair_stack.blocks = template_pair_stack_blocks
+        template_pair_stack.blocks = template_pair_stack_blocks
         del template_pair_stack_blocks
     
     def get_tuned_chunk_size(module):
@@ -132,9 +133,9 @@ def trace_model_(model, sample_input):
 
     if(model.template_config.enabled):
         template_pair_stack_chunk_size = model.globals.chunk_size
-        if(model.template_pair_stack.chunk_size_tuner is not None):
+        if(template_pair_stack.chunk_size_tuner is not None):
             template_pair_stack_chunk_size = get_tuned_chunk_size(
-                model.template_pair_stack
+                template_pair_stack
             )
 
     def trace_block(block, block_inputs):
@@ -405,7 +406,7 @@ def trace_model_(model, sample_input):
 #            )),
 #        ]
 #        verify_arg_order(
-#            model.template_pair_stack.blocks[0].forward, 
+#            model.template_embedder.template_pair_stack.blocks[0].forward,
 #            template_pair_stack_arg_tuples
 #        )
 #        template_pair_stack_args = [
@@ -414,12 +415,12 @@ def trace_model_(model, sample_input):
 #    
 #        with torch.no_grad():
 #            traced_template_pair_stack = []
-#            for b in model.template_pair_stack.blocks:
+#            for b in model.template_embedder.template_pair_stack.blocks:
 #                traced_block = trace_block(b, template_pair_stack_args)
 #                traced_template_pair_stack.append(traced_block)
 #       
-#        del model.template_pair_stack.blocks
-#        model.template_pair_stack.blocks = traced_template_pair_stack
+#        del model.template_embedder.template_pair_stack.blocks
+#        model.template_embedder.template_pair_stack.blocks = traced_template_pair_stack
 
     # We need to do another dry run after tracing to allow the model to reach
     # top speeds. Why, I don't know.

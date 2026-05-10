@@ -13,12 +13,18 @@
 # limitations under the License.
 
 import re
-import torch
-import numpy as np
+from types import SimpleNamespace
 import unittest
+
+import ml_collections as mlc
+import numpy as np
+import torch
+from openfold.model.embedders import TemplateEmbedder
 from openfold.model.template import (
     TemplatePointwiseAttention,
     TemplatePairStack,
+    embed_templates_average,
+    embed_templates_offload,
 )
 import tests.compare_utils as compare_utils
 from tests.config import consts
@@ -192,6 +198,204 @@ class TestTemplatePairStack(unittest.TestCase):
         ).cpu()
 
         compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
+
+
+class TemplateOffloadRegression(unittest.TestCase):
+    @staticmethod
+    def _tiny_template_config():
+        return mlc.ConfigDict({
+            "distogram": {
+                "min_bin": 3.25,
+                "max_bin": 50.75,
+                "no_bins": 39,
+            },
+            "template_single_embedder": {
+                "c_in": 57,
+                "c_out": 32,
+            },
+            "template_pair_embedder": {
+                "c_in": 88,
+                "c_out": 8,
+            },
+            "template_pair_stack": {
+                "c_t": 8,
+                "c_hidden_tri_att": 4,
+                "c_hidden_tri_mul": 8,
+                "no_blocks": 1,
+                "no_heads": 2,
+                "pair_transition_n": 2,
+                "dropout_rate": 0.0,
+                "tri_mul_first": False,
+                "fuse_projection_weights": False,
+                "blocks_per_ckpt": None,
+                "tune_chunk_size": False,
+                "inf": 1e5,
+            },
+            "template_pointwise_attention": {
+                "c_t": 8,
+                "c_z": 16,
+                "c_hidden": 4,
+                "no_heads": 2,
+                "inf": 1e5,
+            },
+            "inf": 1e5,
+            "eps": 1e-6,
+            "enabled": True,
+            "embed_angles": True,
+            "use_unit_vector": False,
+            "average_templates": False,
+            "offload_templates": False,
+        })
+
+    @classmethod
+    def _fake_model(cls):
+        template_config = cls._tiny_template_config()
+        model = SimpleNamespace(
+            template_embedder=TemplateEmbedder(template_config).eval(),
+            config=mlc.ConfigDict({
+                "template": template_config,
+                "_mask_trans": False,
+            }),
+            globals=mlc.ConfigDict({
+                "chunk_size": 4,
+                "use_deepspeed_evo_attention": False,
+                "use_cuequivariance_attention": False,
+                "use_cuequivariance_multiplicative_update": False,
+                "use_lma": False,
+            }),
+        )
+
+        return model
+
+    @staticmethod
+    def _template_inputs(batch_size=None):
+        n_templ = 3
+        n_res = 5
+        c_z = 16
+        batch = random_template_feats(n_templ, n_res, batch_size=batch_size)
+        batch["template_mask"][...] = 1
+        batch = {k: torch.as_tensor(v) for k, v in batch.items()}
+
+        batch_dims = () if batch_size is None else (batch_size,)
+        z = torch.randn(*batch_dims, n_res, n_res, c_z)
+        pair_mask = torch.ones(*batch_dims, n_res, n_res)
+        templ_dim = 0 if batch_size is None else 1
+
+        return batch, z, pair_mask, templ_dim
+
+    def _assert_no_stale_template_attrs(self, model):
+        for attr in [
+            "template_pair_embedder",
+            "template_pair_stack",
+            "template_pointwise_att",
+            "template_single_embedder",
+        ]:
+            self.assertFalse(hasattr(model, attr), attr)
+
+    def test_template_offload_uses_template_embedder_submodules(self):
+        torch.manual_seed(0)
+        np.random.seed(0)
+        model = self._fake_model()
+        self._assert_no_stale_template_attrs(model)
+        batch, z, pair_mask, templ_dim = self._template_inputs()
+
+        with torch.no_grad():
+            out = embed_templates_offload(
+                model,
+                batch,
+                z,
+                pair_mask,
+                templ_dim,
+                template_chunk_size=2,
+                inplace_safe=False,
+            )
+
+        self.assertEqual(out["template_pair_embedding"].shape, z.shape)
+        self.assertEqual(
+            out["template_single_embedding"].shape,
+            (*batch["template_aatype"].shape, 32),
+        )
+
+    def test_template_offload_matches_normal_embedder_for_batch_and_no_batch(self):
+        for batch_size, inplace_safe in [
+            (None, False),
+            (None, True),
+            (2, False),
+            (2, True),
+        ]:
+            with self.subTest(batch_size=batch_size, inplace_safe=inplace_safe):
+                torch.manual_seed(0)
+                np.random.seed(0)
+                model = self._fake_model()
+                batch, z, pair_mask, templ_dim = self._template_inputs(
+                    batch_size=batch_size
+                )
+
+                with torch.no_grad():
+                    expected = model.template_embedder(
+                        batch,
+                        z,
+                        pair_mask.to(dtype=z.dtype),
+                        templ_dim,
+                        chunk_size=model.globals.chunk_size,
+                        _mask_trans=model.config._mask_trans,
+                        use_lma=model.globals.use_lma,
+                        inplace_safe=inplace_safe,
+                    )
+                    actual = embed_templates_offload(
+                        model,
+                        batch,
+                        z,
+                        pair_mask,
+                        templ_dim,
+                        template_chunk_size=2,
+                        inplace_safe=inplace_safe,
+                    )
+
+                torch.testing.assert_close(
+                    actual["template_pair_embedding"],
+                    expected["template_pair_embedding"],
+                    atol=1e-5,
+                    rtol=1e-5,
+                )
+                self.assertEqual(
+                    actual["template_single_embedding"].shape,
+                    expected["template_single_embedding"].shape,
+                )
+                self.assertEqual(
+                    actual["template_single_embedding"].dtype,
+                    expected["template_single_embedding"].dtype,
+                )
+
+    def test_template_average_uses_template_embedder_submodules(self):
+        for batch_size in [None, 2]:
+            with self.subTest(batch_size=batch_size):
+                torch.manual_seed(0)
+                np.random.seed(0)
+                model = self._fake_model()
+                self._assert_no_stale_template_attrs(model)
+                batch, z, pair_mask, templ_dim = self._template_inputs(
+                    batch_size=batch_size
+                )
+
+                with torch.no_grad():
+                    out = embed_templates_average(
+                        model,
+                        batch,
+                        z,
+                        pair_mask,
+                        templ_dim,
+                        templ_group_size=2,
+                        inplace_safe=False,
+                    )
+
+                self.assertEqual(out["template_pair_embedding"].shape, z.shape)
+                self.assertTrue(torch.isfinite(out["template_pair_embedding"]).all())
+                self.assertEqual(out["template_pair_embedding"].dtype, z.dtype)
+                self.assertEqual(
+                    out["template_single_embedding"].shape,
+                    (*batch["template_aatype"].shape, 32),
+                )
 
 
 class Template(unittest.TestCase):

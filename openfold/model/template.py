@@ -15,7 +15,6 @@
 # limitations under the License.
 from functools import partial
 import math
-import sys
 from typing import Optional, List
 
 import torch
@@ -519,6 +518,9 @@ def embed_templates_offload(
     offloads the large template pair tensor to CPU. Slower but more frugal 
     with GPU memory than the original. Useful for long-sequence inference.
     """
+    template_embedder = model.template_embedder
+    template_config = template_embedder.config
+
     # Embed the templates one at a time (with a poor man's vmap)
     pair_embeds_cpu = []
     n = z.shape[-2]
@@ -533,15 +535,15 @@ def embed_templates_offload(
         # [*, N, N, C_t]
         t = build_template_pair_feat(
             single_template_feats,
-            use_unit_vector=model.config.template.use_unit_vector,
-            inf=model.config.template.inf,
-            eps=model.config.template.eps,
-            **model.config.template.distogram,
+            use_unit_vector=template_config.use_unit_vector,
+            inf=template_config.inf,
+            eps=template_config.eps,
+            **template_config.distogram,
         ).to(z.dtype)
-        t = model.template_pair_embedder(t)
+        t = template_embedder.template_pair_embedder(t)
 
         # [*, 1, N, N, C_z]
-        t = model.template_pair_stack(
+        t = template_embedder.template_pair_stack(
             t.unsqueeze(templ_dim),
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=model.globals.chunk_size,
@@ -552,8 +554,6 @@ def embed_templates_offload(
             inplace_safe=inplace_safe,
             _mask_trans=model.config._mask_trans,
         )
-
-        assert (sys.getrefcount(t) == 2)
 
         pair_embeds_cpu.append(t.cpu())
 
@@ -568,7 +568,7 @@ def embed_templates_offload(
         ]
         pair_chunk = torch.cat(pair_chunks, dim=templ_dim).to(device=z.device)
         z_chunk = z[..., i: i + template_chunk_size, :, :]
-        att_chunk = model.template_pointwise_att(
+        att_chunk = template_embedder.template_pointwise_att(
             pair_chunk,
             z_chunk,
             template_mask=batch["template_mask"].to(dtype=z.dtype),
@@ -579,19 +579,25 @@ def embed_templates_offload(
 
     del pair_chunks
 
+    t_mask = torch.sum(batch["template_mask"], dim=-1) > 0
+    t_mask = t_mask.reshape(
+        *t_mask.shape,
+        *([1] * (len(t.shape) - len(t_mask.shape))),
+    )
+
     if inplace_safe:
-        t = t * (torch.sum(batch["template_mask"], dim=-1) > 0)
+        t *= t_mask
     else:
-        t *= (torch.sum(batch["template_mask"], dim=-1) > 0)
+        t = t * t_mask
 
     ret = {}
-    if model.config.template.embed_angles:
+    if template_config.embed_angles:
         template_angle_feat = build_template_angle_feat(
             batch,
         )
 
         # [*, N, C_m]
-        a = model.template_single_embedder(template_angle_feat)
+        a = template_embedder.template_single_embedder(template_angle_feat)
 
         ret["template_single_embedding"] = a
 
@@ -636,6 +642,9 @@ def embed_templates_average(
     embedding, while its low memory footprint allows the number of templates 
     to scale almost indefinitely.
     """
+    template_embedder = model.template_embedder
+    template_config = template_embedder.config
+
     # Embed the templates one at a time (with a poor man's vmap)
     n = z.shape[-2]
     n_templ = batch["template_aatype"].shape[templ_dim]
@@ -654,15 +663,15 @@ def embed_templates_average(
         # [*, N, N, C_t]
         t = build_template_pair_feat(
             template_feats,
-            use_unit_vector=model.config.template.use_unit_vector,
-            inf=model.config.template.inf,
-            eps=model.config.template.eps,
-            **model.config.template.distogram,
+            use_unit_vector=template_config.use_unit_vector,
+            inf=template_config.inf,
+            eps=template_config.eps,
+            **template_config.distogram,
         ).to(z.dtype)
 
         # [*, S_t, N, N, C_z]
-        t = model.template_pair_embedder(t)
-        t = model.template_pair_stack(
+        t = template_embedder.template_pair_embedder(t)
+        t = template_embedder.template_pair_stack(
             t,
             pair_mask.unsqueeze(-3).to(dtype=z.dtype),
             chunk_size=model.globals.chunk_size,
@@ -674,7 +683,7 @@ def embed_templates_average(
             _mask_trans=model.config._mask_trans,
         )
 
-        t = model.template_pointwise_att(
+        t = template_embedder.template_pointwise_att(
             t,
             z,
             template_mask=template_feats["template_mask"].to(dtype=z.dtype),
@@ -694,19 +703,25 @@ def embed_templates_average(
 
         del t
 
+    t_mask = torch.sum(batch["template_mask"], dim=-1) > 0
+    t_mask = t_mask.reshape(
+        *t_mask.shape,
+        *([1] * (len(out_tensor.shape) - len(t_mask.shape))),
+    )
+
     if inplace_safe:
-        out_tensor *= (torch.sum(batch["template_mask"], dim=-1) > 0)
+        out_tensor *= t_mask
     else:
-        out_tensor = out_tensor * (torch.sum(batch["template_mask"], dim=-1) > 0)
+        out_tensor = out_tensor * t_mask
 
     ret = {}
-    if model.config.template.embed_angles:
+    if template_config.embed_angles:
         template_angle_feat = build_template_angle_feat(
             batch,
         )
 
         # [*, N, C_m]
-        a = model.template_single_embedder(template_angle_feat)
+        a = template_embedder.template_single_embedder(template_angle_feat)
 
         ret["template_single_embedding"] = a
 
