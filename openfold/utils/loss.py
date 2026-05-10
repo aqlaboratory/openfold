@@ -1649,7 +1649,8 @@ def chain_center_of_mass_loss(
         clamp_distance:
             Cutoff above which distance errors are disregarded
         weight:
-            Weight for loss
+            Accepted for config/backward compatibility. The top-level loss
+            weight is applied by AlphaFoldLoss.
         eps:
             Small value used to regularize denominators
     Returns:
@@ -1675,7 +1676,7 @@ def chain_center_of_mass_loss(
 
     pred_dists = euclidean_distance(pred_centers[..., None, :], pred_centers[..., :, None], epsilon=eps)
     true_dists = euclidean_distance(true_centers[..., None, :], true_centers[..., :, None], epsilon=eps)
-    losses = torch.clamp((weight * (pred_dists - true_dists - clamp_distance)), max=0) ** 2
+    losses = torch.clamp(pred_dists - true_dists - clamp_distance, max=0) ** 2
     loss_mask = chain_exists[..., :, None] * chain_exists[..., None, :]
 
     loss = masked_mean(loss_mask, losses, dim=(-1, -2))
