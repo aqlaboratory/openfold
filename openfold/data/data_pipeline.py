@@ -1327,12 +1327,14 @@ class DataPipelineMultimer:
         sequence_features = {}
         is_homomer_or_monomer = len(set(list(mmcif.chain_to_seqres.values()))) == 1
         for chain_id, seq in mmcif.chain_to_seqres.items():
-            desc= "_".join([mmcif.file_id, chain_id])
+            desc = "_".join([mmcif.file_id, chain_id])
 
             if seq in sequence_features:
-                all_chain_features[desc] = copy.deepcopy(
+                chain_features = copy.deepcopy(
                     sequence_features[seq]
                 )
+                chain_features["auth_chain_id"] = np.asarray(desc, dtype=object)
+                all_chain_features[desc] = chain_features
                 continue
 
             if alignment_index is not None:
@@ -1356,10 +1358,30 @@ class DataPipelineMultimer:
                 chain_id=desc
             )
 
-            mmcif_feats = self.get_mmcif_features(mmcif, chain_id)
-            chain_features.update(mmcif_feats)
             all_chain_features[desc] = chain_features
             sequence_features[seq] = chain_features
+
+        for chain_id, seq in mmcif.chain_to_seqres.items():
+            desc = "_".join([mmcif.file_id, chain_id])
+
+            mmcif_feats = self.get_mmcif_features(mmcif, chain_id)
+            num_res = len(seq)
+            if mmcif_feats["all_atom_positions"].shape[0] != num_res:
+                raise ValueError(
+                    f"mmCIF atom positions for {desc} have length "
+                    f"{mmcif_feats['all_atom_positions'].shape[0]}, "
+                    f"expected {num_res}"
+                )
+            if mmcif_feats["all_atom_mask"].shape[0] != num_res:
+                raise ValueError(
+                    f"mmCIF atom mask for {desc} has length "
+                    f"{mmcif_feats['all_atom_mask'].shape[0]}, "
+                    f"expected {num_res}"
+                )
+            all_chain_features[desc] = {
+                **all_chain_features[desc],
+                **mmcif_feats,
+            }
 
         all_chain_features = add_assembly_features(all_chain_features)
 
