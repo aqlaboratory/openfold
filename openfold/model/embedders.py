@@ -911,7 +911,7 @@ class TemplateEmbedderMultimer(nn.Module):
         for i in range(n_templ):
             idx = batch["template_aatype"].new_tensor(i)
             single_template_feats = tensor_tree_map(
-                lambda t: torch.index_select(t, templ_dim, idx),
+                lambda t: torch.index_select(t, templ_dim, idx).squeeze(templ_dim),
                 batch,
             )
 
@@ -944,7 +944,9 @@ class TemplateEmbedderMultimer(nn.Module):
                 single_template_feats["template_aatype"],
             )
             points = rigid.translation
-            rigid_vec = rigid[..., None].inverse().apply_to_point(points)
+            rigid_vec = rigid[..., None].inverse().apply_to_point(
+                points[..., None, :]
+            )
             unit_vector = rigid_vec.normalized()
 
             pair_act = self.template_pair_embedder(
@@ -968,7 +970,7 @@ class TemplateEmbedderMultimer(nn.Module):
             template_embeds.append(single_template_embeds)
 
         template_embeds = dict_multimap(
-            partial(torch.cat, dim=templ_dim),
+            partial(torch.stack, dim=templ_dim),
             template_embeds,
         )
 

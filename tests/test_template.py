@@ -16,10 +16,13 @@ import re
 import torch
 import numpy as np
 import unittest
+from openfold.config import model_config
+from openfold.model.embedders import TemplateEmbedderMultimer
 from openfold.model.template import (
     TemplatePointwiseAttention,
     TemplatePairStack,
 )
+from openfold.np import residue_constants
 import tests.compare_utils as compare_utils
 from tests.config import consts
 from tests.data_utils import random_template_feats
@@ -192,6 +195,100 @@ class TestTemplatePairStack(unittest.TestCase):
         ).cpu()
 
         compare_utils.assert_max_abs_diff_small(out_gt, out_repro, consts.eps)
+
+
+class TestTemplateEmbedderMultimer(unittest.TestCase):
+    def test_batched_template_embedding_shape(self):
+        torch.manual_seed(0)
+        batch_size = 2
+        n_templ = 2
+        n_res = 8
+
+        config = model_config("model_1_multimer_v3")
+        config.model.template.template_pair_stack.no_blocks = 1
+        config.model.template.template_pair_stack.blocks_per_ckpt = None
+
+        embedder = TemplateEmbedderMultimer(config.model.template)
+        embedder.eval()
+
+        aatype = torch.full(
+            (batch_size, n_templ, n_res),
+            residue_constants.restype_order["A"],
+            dtype=torch.long,
+        )
+        atom_positions = torch.zeros(
+            batch_size,
+            n_templ,
+            n_res,
+            residue_constants.atom_type_num,
+            3,
+        )
+        atom_mask = torch.zeros(
+            batch_size,
+            n_templ,
+            n_res,
+            residue_constants.atom_type_num,
+        )
+
+        n_idx = residue_constants.atom_order["N"]
+        ca_idx = residue_constants.atom_order["CA"]
+        c_idx = residue_constants.atom_order["C"]
+        cb_idx = residue_constants.atom_order["CB"]
+        residue_positions = torch.arange(n_res, dtype=torch.float32)
+
+        atom_positions[..., n_idx, 0] = residue_positions
+        atom_positions[..., ca_idx, 0] = residue_positions
+        atom_positions[..., ca_idx, 1] = 1.0
+        atom_positions[..., c_idx, 0] = residue_positions
+        atom_positions[..., c_idx, 2] = 1.0
+        atom_positions[..., cb_idx, 0] = residue_positions
+        atom_positions[..., cb_idx, 1] = 1.0
+        atom_positions[..., cb_idx, 2] = 1.0
+        atom_mask[..., [n_idx, ca_idx, c_idx, cb_idx]] = 1.0
+
+        batch = {
+            "template_aatype": aatype,
+            "template_all_atom_positions": atom_positions,
+            "template_all_atom_mask": atom_mask,
+        }
+        z = torch.randn(batch_size, n_res, n_res, config.globals.c_z)
+        padding_mask_2d = torch.ones(batch_size, n_res, n_res)
+        asym_id = torch.tensor(
+            [[1] * (n_res // 2) + [2] * (n_res - n_res // 2)]
+            * batch_size
+        )
+        multichain_mask_2d = asym_id[..., None] == asym_id[..., None, :]
+
+        with torch.no_grad():
+            out = embedder(
+                batch,
+                z,
+                padding_mask_2d,
+                templ_dim=1,
+                chunk_size=None,
+                multichain_mask_2d=multichain_mask_2d,
+                use_lma=False,
+                inplace_safe=False,
+            )
+
+        self.assertEqual(
+            out["template_pair_embedding"].shape,
+            (batch_size, n_res, n_res, config.globals.c_z),
+        )
+        self.assertEqual(
+            out["template_single_embedding"].shape,
+            (batch_size, n_templ, n_res, config.globals.c_m),
+        )
+        self.assertEqual(
+            out["template_mask"].shape,
+            (batch_size, n_templ, n_res),
+        )
+        self.assertTrue(
+            torch.isfinite(out["template_pair_embedding"]).all().item()
+        )
+        self.assertTrue(
+            torch.isfinite(out["template_single_embedding"]).all().item()
+        )
 
 
 class Template(unittest.TestCase):
