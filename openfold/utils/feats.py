@@ -258,8 +258,7 @@ def frames_and_literature_positions_to_atom14_pos(
     atom_mask,
     lit_positions,
 ):
-    # [*, N, 14, 4, 4]
-    default_4x4 = default_frames[aatype, ...]
+    num_rigid_groups = default_frames.shape[-3]
 
     # [*, N, 14]
     group_mask = group_idx[aatype, ...]
@@ -267,7 +266,7 @@ def frames_and_literature_positions_to_atom14_pos(
     # [*, N, 14, 8]
     group_mask = nn.functional.one_hot(
         group_mask,
-        num_classes=default_frames.shape[-3],
+        num_classes=num_rigid_groups,
     )
 
     # [*, N, 14, 8]
