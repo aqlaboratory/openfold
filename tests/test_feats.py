@@ -341,6 +341,39 @@ class TestFeats(unittest.TestCase):
 
         self.assertTrue(xyz.shape == (batch_size, n_res, 14, 3))
 
+    def test_atom14_pos_does_not_gather_default_frames(self):
+        class DefaultFrameShapeOnly:
+            shape = torch.Size((21, 8, 4, 4))
+
+            def __getitem__(self, key):
+                raise AssertionError("default_frames should not be gathered")
+
+        batch_size = 1
+        n_res = 3
+
+        rots = torch.eye(3).expand(batch_size, n_res, 8, 3, 3)
+        trans = torch.zeros((batch_size, n_res, 8, 3))
+
+        if consts.is_multimer:
+            rotation = Rot3Array.from_array(rots)
+            translation = Vec3Array.from_array(trans)
+            ts = Rigid3Array(rotation, translation)
+        else:
+            ts = Rigid(Rotation(rot_mats=rots), trans)
+
+        aatype = torch.randint(low=0, high=21, size=(batch_size, n_res)).long()
+
+        xyz = feats.frames_and_literature_positions_to_atom14_pos(
+            ts,
+            aatype,
+            DefaultFrameShapeOnly(),
+            torch.tensor(restype_atom14_to_rigid_group),
+            torch.tensor(restype_atom14_mask),
+            torch.tensor(restype_atom14_rigid_group_positions),
+        )
+
+        self.assertTrue(xyz.shape == (batch_size, n_res, 14, 3))
+
     @compare_utils.skip_unless_alphafold_installed()
     def test_frames_and_literature_positions_to_atom14_pos_compare(self):
         def run_f(aatype, affines):
