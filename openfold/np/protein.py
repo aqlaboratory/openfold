@@ -46,7 +46,7 @@ class Protein:
     """Protein structure representation."""
 
     # Cartesian coordinates of atoms in angstroms. The atom types correspond to
-    # residue_constants.atom_types, i.e. the first three are N, CA, CB.
+    # residue_constants.atom_types, i.e. the first three are N, CA, C.
     atom_positions: np.ndarray  # [num_res, num_atom_type, 3]
 
     # Amino-acid type for each residue represented as an integer between 0 and
