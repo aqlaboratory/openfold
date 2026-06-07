@@ -75,8 +75,8 @@ def main(args):
             "0" if args.env_db is None else "1",
             "0", # compute templates
             "1", # filter
-            "1", # use precomputed index 
-            "0", # db-load-mode
+            "1", # use precomputed index
+            str(args.db_load_mode), # db-load-mode
         ]
 
         logging.info('Launching subprocess "%s"', " ".join(cmd))
@@ -161,8 +161,18 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--fasta_chunk_size", type=int, default=None,
-        help="""How many sequences should be processed at once. All sequences 
+        help="""How many sequences should be processed at once. All sequences
                 processed at once by default."""
+    )
+    parser.add_argument(
+        "--db_load_mode", type=int, default=0, choices=[0, 1, 2, 3],
+        help="""mmseqs database preload mode, forwarded as --db-load-mode
+                (0: auto, 1: fread, 2: mmap, 3: mmap+touch). Defaults to 0.
+                When repeatedly searching the same precomputed index (e.g. a
+                large input FASTA processed in chunks), keeping the databases
+                resident in memory with mode 2 or 3 avoids re-reading them from
+                disk on every chunk and can substantially speed up the search,
+                at the cost of higher memory usage."""
     )
 
     args = parser.parse_args()
