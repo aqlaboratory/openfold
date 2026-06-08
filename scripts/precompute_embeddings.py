@@ -9,6 +9,8 @@ from openfold.data import parsers
 
 logging.basicConfig(level=logging.INFO)
 
+ESM_MAX_RESIDUES = 1022
+
 class SequenceDataset(object):
     def __init__(self, labels, sequences) -> None:
         self.labels = labels
@@ -71,6 +73,7 @@ class EmbeddingGenerator:
         self.truncate = truncate
         self.use_local_esm = use_local_esm
         self.nogpu = nogpu
+        self.max_residues = ESM_MAX_RESIDUES
         
         # Generate embeddings in bulk
         if self.use_local_esm:
@@ -122,24 +125,46 @@ class EmbeddingGenerator:
         with torch.no_grad():
             for batch_idx, (labels, strs, toks) in enumerate(data_loader):
                 logging.info(f"Processing {batch_idx + 1} of {len(batches)} batches ({toks.size(0)} sequences)")
+                effective_lengths = []
+                truncated_labels = []
+                for label, seq in zip(labels, strs):
+                    seq_len = len(seq)
+                    if seq_len > self.max_residues:
+                        if not self.truncate:
+                            raise ValueError(
+                                f"Sequence '{label}' has length {seq_len}, exceeding "
+                                f"the ESM-1b limit of {self.max_residues} residues. "
+                                "Re-run with truncation enabled."
+                            )
+                        truncated_labels.append((label, seq_len))
+                    effective_lengths.append(min(seq_len, self.max_residues))
+
+                if truncated_labels:
+                    for label, seq_len in truncated_labels:
+                        logging.warning(
+                            "Truncating sequence '%s' from %d to %d residues for ESM-1b.",
+                            label,
+                            seq_len,
+                            self.max_residues,
+                        )
+
+                max_effective_length = max(effective_lengths)
+                toks = toks[:, : max_effective_length + 2]
                 if torch.cuda.is_available() and not self.nogpu:
                     toks = toks.to(device="cuda", non_blocking=True)
-                
-                if self.truncate:
-                    toks = toks[:1022]
-                
+
                 out = self.model(toks, repr_layers=repr_layers, return_contacts=False)
 
                 representations = {
                     33: out["representations"][33].to(device="cpu")
                 }
 
-                for i, label in enumerate(labels):
+                for i, (label, effective_length) in enumerate(zip(labels, effective_lengths)):
                     os.makedirs(os.path.join(output_dir, label), exist_ok=True)
                     result = {"label": label}
 
                     result["representations"] = {
-                        33: representations[33][i, 1: len(strs[i]) + 1].clone()
+                        33: representations[33][i, 1: effective_length + 1].clone()
                     }
                     torch.save(
                         result,
@@ -168,7 +193,7 @@ def main(args):
     logging.info("Completed.")
 
 
-if __name__ == "__main__":
+def create_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "fasta_dir", type=str,
@@ -183,8 +208,13 @@ if __name__ == "__main__":
         help="maximum tokens in a batch"
     )
     parser.add_argument(
-        "--truncate", action="store_true", default=True,
-        help="Truncate sequences longer than 1022 (ESM restriction). Default: True"
+        "--truncate",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            f"Truncate sequences longer than {ESM_MAX_RESIDUES} residues "
+            "to satisfy the ESM-1b limit. Default: True"
+        ),
     )
     parser.add_argument(
         "--use_local_esm", type=str, default=None,
@@ -195,6 +225,10 @@ if __name__ == "__main__":
         help="Do not use GPU"
     )
 
-    args = parser.parse_args()
+    return parser
 
+
+if __name__ == "__main__":
+    parser = create_parser()
+    args = parser.parse_args()
     main(args)

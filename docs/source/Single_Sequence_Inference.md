@@ -53,5 +53,5 @@ For generating template information, you will need the UniRef90 and PDB70 databa
 SoloSeq allows you to use the same flags and optimizations as the MSA-based OpenFold. For example, you can skip relaxation using `--skip_relaxation`, save all model outputs using `--save_outputs`, and generate output files in MMCIF format using `--cif_output`.
 
 ```{note}
-Due to the nature of the ESM-1b embeddings, the sequence length for inference using the SoloSeq model is limited to 1022 residues. Sequences longer than that will be truncated.
+Due to the nature of the ESM-1b embeddings, the sequence length for inference using the SoloSeq model is limited to 1022 residues. By default, `scripts/precompute_embeddings.py` truncates longer sequences to 1022 residues and emits a warning. You can disable truncation with `--no-truncate`, in which case the script raises an error for overlength sequences instead of silently continuing.
 ```
