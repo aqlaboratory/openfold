@@ -9,6 +9,8 @@ from openfold.data.data_transforms import make_seq_mask, add_distillation_flag, 
     correct_msa_restypes, squeeze_features, randomly_replace_msa_with_unknown, MSA_FEATURE_NAMES, sample_msa, \
     crop_extra_msa, delete_extra_msa, nearest_neighbor_clusters, make_msa_mask, make_hhblits_profile, make_masked_msa, \
     make_msa_feat, crop_templates, make_atom14_masks
+from openfold.data.data_transforms_multimer import get_interface_residues
+from openfold.np import residue_constants as rc
 from tests.config import config
 
 
@@ -220,6 +222,39 @@ class TestDataTransforms(unittest.TestCase):
         assert 'residx_atom14_to_atom37' in protein
         assert 'residx_atom37_to_atom14' in protein
         assert 'atom37_atom_exists' in protein
+
+    def test_get_interface_residues(self):
+        positions = torch.zeros((2, rc.atom_type_num, 3))
+        atom_mask = torch.zeros((2, rc.atom_type_num))
+        asym_id = torch.tensor([0, 1])
+
+        lys_nz_idx = rc.atom_order["NZ"]
+        asp_od1_idx = rc.atom_order["OD1"]
+        positions[0, lys_nz_idx] = torch.tensor([0., 0., 0.])
+        positions[1, asp_od1_idx] = torch.tensor([1., 0., 0.])
+        atom_mask[0, lys_nz_idx] = 1.
+        atom_mask[1, asp_od1_idx] = 1.
+
+        interface_residues = get_interface_residues(
+            positions,
+            atom_mask,
+            asym_id,
+            interface_threshold=2.,
+        )
+
+        self.assertTrue(
+            torch.equal(interface_residues, torch.tensor([0, 1]))
+        )
+
+        positions[1, asp_od1_idx] = torch.tensor([3., 0., 0.])
+        interface_residues = get_interface_residues(
+            positions,
+            atom_mask,
+            asym_id,
+            interface_threshold=2.,
+        )
+
+        self.assertEqual(interface_residues.numel(), 0)
 
 
 if __name__ == '__main__':

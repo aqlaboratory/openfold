@@ -318,19 +318,48 @@ def randint(lower, upper, generator, device):
 
 
 def get_interface_residues(positions, atom_mask, asym_id, interface_threshold):
-    coord_diff = positions[..., None, :, :] - positions[..., None, :, :, :]
-    pairwise_dists = torch.sqrt(torch.sum(coord_diff ** 2, dim=-1))
+    num_res = positions.shape[0]
+    chunk_size = 64
+    atom_mask = atom_mask.bool()
+    interface_mask = torch.zeros(
+        num_res,
+        dtype=torch.bool,
+        device=positions.device,
+    )
 
-    diff_chain_mask = (asym_id[..., None, :] != asym_id[..., :, None]).float()
-    pair_mask = atom_mask[..., None, :] * atom_mask[..., None, :, :]
-    mask = (diff_chain_mask[..., None] * pair_mask).bool()
+    for query_start in range(0, num_res, chunk_size):
+        query_end = min(query_start + chunk_size, num_res)
+        query_positions = positions[query_start:query_end]
+        query_atom_mask = atom_mask[query_start:query_end]
+        query_asym_id = asym_id[query_start:query_end]
 
-    min_dist_per_res, _ = torch.where(mask, pairwise_dists, torch.inf).min(dim=-1)
+        for key_start in range(0, num_res, chunk_size):
+            key_end = min(key_start + chunk_size, num_res)
+            key_positions = positions[key_start:key_end]
+            key_atom_mask = atom_mask[key_start:key_end]
+            key_asym_id = asym_id[key_start:key_end]
 
-    valid_interfaces = torch.sum((min_dist_per_res < interface_threshold).float(), dim=-1)
-    interface_residues_idxs = torch.nonzero(valid_interfaces, as_tuple=True)[0]
+            pairwise_dists = torch.cdist(
+                query_positions[:, None, :, :],
+                key_positions[None, :, :, :],
+            )
+            diff_chain_mask = (
+                query_asym_id[:, None] != key_asym_id[None, :]
+            )[:, :, None, None]
+            pair_mask = (
+                query_atom_mask[:, None, :, None]
+                & key_atom_mask[None, :, None, :]
+            )
+            contacts = (
+                (pairwise_dists < interface_threshold)
+                & diff_chain_mask
+                & pair_mask
+            )
+            interface_mask[query_start:query_end] |= contacts.any(
+                dim=(1, 2, 3)
+            )
 
-    return interface_residues_idxs
+    return torch.nonzero(interface_mask, as_tuple=True)[0]
 
 
 def get_spatial_crop_idx(protein, crop_size, interface_threshold, generator):
