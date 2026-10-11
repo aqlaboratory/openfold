@@ -140,7 +140,7 @@ setup(
             'triton>=3.3.0; sys_platform != "darwin"',  # Required for triangle multiplicative update
         ],
         'fast-msa': [
-            'strux-rs>=0.3.1',  # 13x faster zero-copy A3M/Stockholm parsing with 28% less peak RAM
+            'strux-rs>=0.2.0',  # 13x faster zero-copy A3M/Stockholm parsing with 28% less peak RAM
         ],
     },
     classifiers=[
