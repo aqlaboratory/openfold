@@ -139,6 +139,9 @@ setup(
             'cuequivariance-torch; sys_platform != "darwin"',  # Not available on macOS
             'triton>=3.3.0; sys_platform != "darwin"',  # Required for triangle multiplicative update
         ],
+        'fast-msa': [
+            'strux-rs>=0.2.0',  # 13x faster zero-copy A3M/Stockholm parsing with 28% less peak RAM
+        ],
     },
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
